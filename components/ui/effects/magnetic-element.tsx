@@ -78,6 +78,11 @@ export function MagneticElement({
   // Spring physics
   const springX = useSpring(x, { stiffness, damping })
   const springY = useSpring(y, { stiffness, damping })
+  const glowBackground = useTransform(
+    [glowX, glowY],
+    ([gx, gy]) =>
+      `radial-gradient(${glowSize}px circle at ${gx}% ${gy}%, ${glowColor}, transparent 60%)`
+  )
 
   // Check for touch device
   React.useEffect(() => {
@@ -153,11 +158,7 @@ export function MagneticElement({
           className="absolute inset-0 pointer-events-none rounded-[inherit] opacity-0 transition-opacity duration-300"
           style={{
             opacity: isHovered ? 1 : 0,
-            background: useTransform(
-              [glowX, glowY],
-              ([gx, gy]) =>
-                `radial-gradient(${glowSize}px circle at ${gx}% ${gy}%, ${glowColor}, transparent 60%)`
-            ),
+            background: glowBackground,
           }}
         />
       )}
@@ -275,6 +276,11 @@ export function MagneticCard({
 
   const springRotateX = useSpring(rotateX, { stiffness: 200, damping: 20 })
   const springRotateY = useSpring(rotateY, { stiffness: 200, damping: 20 })
+  const glowBackground = useTransform(
+    [glowX, glowY],
+    ([gx, gy]) =>
+      `radial-gradient(200px circle at ${gx}% ${gy}%, ${glowColor}, transparent 60%)`
+  )
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return
@@ -314,11 +320,7 @@ export function MagneticCard({
         className="absolute inset-0 pointer-events-none rounded-[inherit] transition-opacity duration-300"
         style={{
           opacity: isHovered ? 1 : 0,
-          background: useTransform(
-            [glowX, glowY],
-            ([gx, gy]) =>
-              `radial-gradient(200px circle at ${gx}% ${gy}%, ${glowColor}, transparent 60%)`
-          ),
+          background: glowBackground,
         }}
       />
 

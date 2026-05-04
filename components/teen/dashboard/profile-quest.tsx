@@ -27,7 +27,7 @@ interface ProfileQuestProps {
   initialProgress?: number
 }
 
-export function ProfileQuest({ }: ProfileQuestProps) {
+export function ProfileQuest(_props: ProfileQuestProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [celebrateStep, setCelebrateStep] = useState<string | null>(null)
@@ -339,4 +339,3 @@ export function ProfileQuest({ }: ProfileQuestProps) {
     </motion.div>
   )
 }
-

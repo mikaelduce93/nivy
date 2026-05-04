@@ -185,12 +185,13 @@ export function ParticleSystemV2({
           vx = (Math.random() - 0.5) * speedConfig.base * 2
           vy = (Math.random() - 0.5) * speedConfig.base * 2
           break
-        case 'radial':
+        case 'radial': {
           const angle = Math.random() * Math.PI * 2
           const velocity = speedConfig.base + Math.random() * speedConfig.variance
           vx = Math.cos(angle) * velocity
           vy = Math.sin(angle) * velocity
           break
+        }
       }
       
       return {

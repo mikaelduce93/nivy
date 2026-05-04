@@ -89,7 +89,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
 
       // Otherwise, proceed with selected payment method
       switch (selectedMethod) {
-        case 'stripe':
+        case 'stripe': {
           const stripeResponse = await fetch('/api/payments/stripe/create-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -107,6 +107,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
           const { url } = await stripeResponse.json()
           window.location.href = url
           break
+        }
 
         case 'cmi':
           // Redirect to CMI payment gateway
@@ -119,7 +120,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
           setIsProcessing(false)
           return
 
-        case 'cash':
+        case 'cash': {
           // Register cash payment intent
           const cashResponse = await fetch('/api/payments/cash/register', {
             method: 'POST',
@@ -136,6 +137,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
             window.location.href = `/reservation/confirmation?booking=${bookingId}&method=cash`
           }
           break
+        }
       }
     } catch (error: any) {
       console.error('Payment error:', error)

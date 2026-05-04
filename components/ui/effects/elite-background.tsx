@@ -53,6 +53,14 @@ export function AnimatedMeshGradient({
   useAnimationFrame((t) => {
     time.set(t * 0.0001 * speed)
   })
+  const blob1Left = useTransform(time, (t) => `${30 + Math.sin(t) * 20}%`)
+  const blob1Top = useTransform(time, (t) => `${20 + Math.cos(t * 0.8) * 15}%`)
+  const blob2Right = useTransform(time, (t) => `${20 + Math.sin(t * 0.9) * 25}%`)
+  const blob2Top = useTransform(time, (t) => `${30 + Math.cos(t * 1.1) * 20}%`)
+  const blob3Left = useTransform(time, (t) => `${40 + Math.sin(t * 0.7) * 15}%`)
+  const blob3Bottom = useTransform(time, (t) => `${10 + Math.cos(t * 0.6) * 20}%`)
+  const blob4Right = useTransform(time, (t) => `${30 + Math.sin(t * 1.2) * 20}%`)
+  const blob4Bottom = useTransform(time, (t) => `${20 + Math.cos(t * 0.9) * 15}%`)
 
   return (
     <div 
@@ -65,8 +73,8 @@ export function AnimatedMeshGradient({
         style={{
           background: `radial-gradient(circle, ${color1}80, transparent 70%)`,
           filter: `blur(${blur}px)`,
-          left: useTransform(time, (t) => `${30 + Math.sin(t) * 20}%`),
-          top: useTransform(time, (t) => `${20 + Math.cos(t * 0.8) * 15}%`),
+          left: blob1Left,
+          top: blob1Top,
         }}
       />
       
@@ -76,8 +84,8 @@ export function AnimatedMeshGradient({
         style={{
           background: `radial-gradient(circle, ${color2}60, transparent 70%)`,
           filter: `blur(${blur}px)`,
-          right: useTransform(time, (t) => `${20 + Math.sin(t * 0.9) * 25}%`),
-          top: useTransform(time, (t) => `${30 + Math.cos(t * 1.1) * 20}%`),
+          right: blob2Right,
+          top: blob2Top,
         }}
       />
       
@@ -87,8 +95,8 @@ export function AnimatedMeshGradient({
         style={{
           background: `radial-gradient(circle, ${color3}50, transparent 70%)`,
           filter: `blur(${blur}px)`,
-          left: useTransform(time, (t) => `${40 + Math.sin(t * 0.7) * 15}%`),
-          bottom: useTransform(time, (t) => `${10 + Math.cos(t * 0.6) * 20}%`),
+          left: blob3Left,
+          bottom: blob3Bottom,
         }}
       />
       
@@ -98,8 +106,8 @@ export function AnimatedMeshGradient({
         style={{
           background: `radial-gradient(circle, ${color4}40, transparent 70%)`,
           filter: `blur(${blur}px)`,
-          right: useTransform(time, (t) => `${30 + Math.sin(t * 1.2) * 20}%`),
-          bottom: useTransform(time, (t) => `${20 + Math.cos(t * 0.9) * 15}%`),
+          right: blob4Right,
+          bottom: blob4Bottom,
         }}
       />
     </div>
@@ -131,6 +139,10 @@ export function AuroraEffect({
   useAnimationFrame((t) => {
     time.set(t * 0.0001 * speed)
   })
+  const wave1BackgroundPosition = useTransform(time, (t) => `${50 + Math.sin(t) * 50}% ${50 + Math.cos(t * 0.8) * 50}%`)
+  const wave1Transform = useTransform(time, (t) => `skewY(${Math.sin(t * 0.5) * 5}deg)`)
+  const wave2BackgroundPosition = useTransform(time, (t) => `${50 + Math.cos(t * 0.9) * 50}% ${50 + Math.sin(t * 1.1) * 50}%`)
+  const wave2Transform = useTransform(time, (t) => `skewY(${Math.cos(t * 0.6) * -5}deg)`)
 
   return (
     <div 
@@ -143,9 +155,9 @@ export function AuroraEffect({
         style={{
           background: `linear-gradient(${colors.join(', ')})`,
           backgroundSize: '400% 400%',
-          backgroundPosition: useTransform(time, (t) => `${50 + Math.sin(t) * 50}% ${50 + Math.cos(t * 0.8) * 50}%`),
+          backgroundPosition: wave1BackgroundPosition,
           filter: 'blur(80px)',
-          transform: useTransform(time, (t) => `skewY(${Math.sin(t * 0.5) * 5}deg)`),
+          transform: wave1Transform,
         }}
       />
       
@@ -155,9 +167,9 @@ export function AuroraEffect({
         style={{
           background: `linear-gradient(45deg, ${colors.slice().reverse().join(', ')})`,
           backgroundSize: '400% 400%',
-          backgroundPosition: useTransform(time, (t) => `${50 + Math.cos(t * 0.9) * 50}% ${50 + Math.sin(t * 1.1) * 50}%`),
+          backgroundPosition: wave2BackgroundPosition,
           filter: 'blur(100px)',
-          transform: useTransform(time, (t) => `skewY(${Math.cos(t * 0.6) * -5}deg)`),
+          transform: wave2Transform,
           mixBlendMode: 'screen',
         }}
       />
@@ -383,6 +395,29 @@ interface DepthFogProps {
   speed?: number
 }
 
+function DepthFogLayer({
+  time,
+  index,
+  color,
+}: {
+  time: ReturnType<typeof useMotionValue<number>>
+  index: number
+  color: string
+}) {
+  const transform = useTransform(time, (t) => `translateY(${Math.sin(t + index) * 20}%)`)
+
+  return (
+    <motion.div
+      className="absolute inset-0"
+      style={{
+        background: `linear-gradient(180deg, transparent 0%, ${color} 50%, transparent 100%)`,
+        transform,
+        opacity: 0.3 - index * 0.05,
+      }}
+    />
+  )
+}
+
 export function DepthFog({
   className,
   color = 'rgba(0, 0, 0, 0.3)',
@@ -398,14 +433,11 @@ export function DepthFog({
   return (
     <div className={cn('absolute inset-0 overflow-hidden pointer-events-none', className)}>
       {Array.from({ length: layers }).map((_, i) => (
-        <motion.div
+        <DepthFogLayer
           key={i}
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(180deg, transparent 0%, ${color} 50%, transparent 100%)`,
-            transform: useTransform(time, (t) => `translateY(${Math.sin(t + i) * 20}%)`),
-            opacity: 0.3 - i * 0.05,
-          }}
+          time={time}
+          index={i}
+          color={color}
         />
       ))}
     </div>
@@ -482,6 +514,8 @@ export function SpotlightAmbient({
       time.set(t * 0.0001)
     }
   })
+  const animatedLeft = useTransform(time, (t) => `calc(${x}% + ${Math.sin(t) * 100}px)`)
+  const animatedTop = useTransform(time, (t) => `calc(${y}% + ${Math.cos(t * 0.8) * 50}px)`)
 
   return (
     <motion.div
@@ -490,12 +524,8 @@ export function SpotlightAmbient({
         width: size,
         height: size,
         background: `radial-gradient(circle, ${color}, transparent 70%)`,
-        left: animate 
-          ? useTransform(time, (t) => `calc(${x}% + ${Math.sin(t) * 100}px)`)
-          : `${x}%`,
-        top: animate
-          ? useTransform(time, (t) => `calc(${y}% + ${Math.cos(t * 0.8) * 50}px)`)
-          : `${y}%`,
+        left: animate ? animatedLeft : `${x}%`,
+        top: animate ? animatedTop : `${y}%`,
         transform: 'translate(-50%, -50%)',
       }}
     />

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { MessageCircle, Search, Send, Phone, Video, MoreVertical, Check, CheckCheck, Image, Smile, Paperclip, Users, Plus, ArrowLeft } from "lucide-react"
+import { MessageCircle, Search, Send, Phone, Video, MoreVertical, Check, CheckCheck, Image as ImageIcon, Smile, Paperclip, Users, Plus, ArrowLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -354,7 +354,7 @@ function ChatView({
             <Paperclip className="w-5 h-5" />
           </Button>
           <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
-            <Image className="w-5 h-5" />
+            <ImageIcon className="w-5 h-5" />
           </Button>
           <Input
             value={messageInput}

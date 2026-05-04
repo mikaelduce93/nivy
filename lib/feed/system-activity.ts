@@ -54,7 +54,7 @@ export async function generateSystemActivity() {
   let data = {}
 
   switch (type) {
-    case 'event':
+    case 'event': {
       // Fetch a random upcoming event
       const { data: events } = await supabase
         .from('events')
@@ -67,13 +67,15 @@ export async function generateSystemActivity() {
       title = eventTemplate.replace('{eventName}', eventName)
       data = { type: 'event_promo', eventName }
       break
+    }
 
-    case 'challenge':
+    case 'challenge': {
       const challengeName = "10k Pas" // Mock, normally fetch from DB
       const challengeTemplate = TEMPLATES.challenge[Math.floor(Math.random() * TEMPLATES.challenge.length)]
       title = challengeTemplate.replace('{challengeName}', challengeName)
       data = { type: 'challenge_promo', challengeName }
       break
+    }
 
     case 'tip':
       title = TEMPLATES.tip[Math.floor(Math.random() * TEMPLATES.tip.length)]

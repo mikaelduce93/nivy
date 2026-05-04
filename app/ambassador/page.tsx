@@ -2,7 +2,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Users, Wallet, TrendingUp, Gift, ArrowRight, ArrowDownToLine, Image, QrCode, FileText } from "lucide-react"
+import { Users, Wallet, TrendingUp, Gift, ArrowRight, ArrowDownToLine, Image as ImageIcon, QrCode, FileText } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { ShareButtons } from "@/components/ambassador/share-buttons"
@@ -269,7 +269,7 @@ export default async function AmbassadorDashboardPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Button variant="outline" className="h-auto py-6 flex-col border-border bg-card hover:bg-accent hover:border-amber-500/30" asChild>
                 <Link href="/ambassador/marketing">
-                  <Image className="h-8 w-8 mb-3 text-purple-400" />
+                  <ImageIcon className="h-8 w-8 mb-3 text-purple-400" />
                   <span className="text-white">Matériel Marketing</span>
                 </Link>
               </Button>

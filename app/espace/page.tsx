@@ -16,15 +16,15 @@ export default async function EspacePage() {
   // Redirection selon le rôle
   switch (userInfo.role) {
     case "teen":
-      redirect("/teen")
+      return redirect("/teen")
     case "parent":
-      redirect("/parent")
+      return redirect("/parent")
     case "ambassador":
-      redirect("/ambassador")
+      return redirect("/ambassador")
     case "partner":
-      redirect("/partner")
+      return redirect("/partner")
     case "admin":
-      redirect("/admin")
+      return redirect("/admin")
     default:
       // Si rôle inconnu, rediriger vers la page de sélection de rôle
       redirect("/onboarding")

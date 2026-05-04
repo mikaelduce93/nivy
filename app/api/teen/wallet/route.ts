@@ -87,14 +87,18 @@ export async function GET(request: NextRequest) {
         reason: tx.description || tx.source_type,
         time: formatRelativeTime(tx.created_at),
       })) || [],
-      badges: achievements?.map(a => ({
-        id: a.achievement?.id,
-        name: a.achievement?.name,
-        icon: a.achievement?.icon,
-        rarity: a.achievement?.rarity,
-        unlocked: true,
-        unlockedAt: a.unlocked_at,
-      })) || [],
+      badges: achievements?.map(a => {
+        const achievement = Array.isArray(a.achievement) ? a.achievement[0] : a.achievement
+
+        return {
+          id: achievement?.id,
+          name: achievement?.name,
+          icon: achievement?.icon,
+          rarity: achievement?.rarity,
+          unlocked: true,
+          unlockedAt: a.unlocked_at,
+        }
+      }) || [],
     })
   } catch (error) {
     console.error('Error in wallet API:', error)

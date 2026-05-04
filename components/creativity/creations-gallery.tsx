@@ -164,7 +164,9 @@ function CreationCard({
                 loop
                 muted
                 playsInline
-              />
+              >
+                <track kind="captions" srcLang="fr" label="Francais" />
+              </video>
               <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
                 <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
                   <Play className="w-6 h-6 text-white" />
@@ -504,11 +506,15 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
                   <img src={previewUrl} alt="Preview" className="w-full h-48 object-cover" />
                 )}
                 {mediaType === "video" && (
-                  <video src={previewUrl} className="w-full h-48 object-cover" controls />
+                  <video src={previewUrl} className="w-full h-48 object-cover" controls>
+                    <track kind="captions" srcLang="fr" label="Francais" />
+                  </video>
                 )}
                 {mediaType === "audio" && (
                   <div className="w-full h-48 bg-purple-500/10 flex items-center justify-center">
-                    <audio src={previewUrl} controls />
+                    <audio src={previewUrl} controls>
+                      <track kind="captions" srcLang="fr" label="Francais" />
+                    </audio>
                   </div>
                 )}
                 {mediaType === "document" && (
@@ -698,12 +704,16 @@ function CreationViewer({ creation, onClose, onLike, onUnlike }: CreationViewerP
               className="max-w-full max-h-[70vh]"
               controls
               autoPlay
-            />
+            >
+              <track kind="captions" srcLang="fr" label="Francais" />
+            </video>
           )}
           {creation.media_type === "audio" && (
             <div className="p-8">
               <Music className="w-24 h-24 text-purple-400 mx-auto mb-4" />
-              <audio src={creation.media_url} controls className="w-full" />
+              <audio src={creation.media_url} controls className="w-full">
+                <track kind="captions" srcLang="fr" label="Francais" />
+              </audio>
             </div>
           )}
         </div>

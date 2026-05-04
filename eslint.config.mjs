@@ -172,6 +172,7 @@ export default [js.configs.recommended, {
     'no-unused-vars': 'off',
     // TypeScript already checks globals/types; core no-undef is not TS-aware.
     'no-undef': 'off',
+    'no-redeclare': 'off',
     '@typescript-eslint/no-unused-vars': ['warn', {
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_',

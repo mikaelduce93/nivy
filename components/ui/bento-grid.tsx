@@ -114,6 +114,14 @@ export function BentoCard({
   // Spotlight position
   const spotlightX = useSpring(useTransform(mouseX, [-0.5, 0.5], [0, 100]), { stiffness: 150, damping: 20 })
   const spotlightY = useSpring(useTransform(mouseY, [-0.5, 0.5], [0, 100]), { stiffness: 150, damping: 20 })
+  const spotlightBackground = useTransform(
+    [spotlightX, spotlightY],
+    ([x, y]) => `radial-gradient(300px circle at ${x}% ${y}%, ${spotlightColor}, transparent 60%)`
+  )
+  const reflectionTransform = useTransform(
+    [mouseX, mouseY],
+    ([x, y]) => `translate(${Number(x) * 20}px, ${Number(y) * 20}px)`
+  )
   
   // Scale on hover
   const scale = useSpring(isHovered ? 1.02 : 1, { stiffness: 400, damping: 30 })
@@ -217,11 +225,7 @@ export function BentoCard({
             <motion.div
               className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[inherit]"
               style={{
-                background: useTransform(
-                  [spotlightX, spotlightY],
-                  ([x, y]) => 
-                    `radial-gradient(300px circle at ${x}% ${y}%, ${spotlightColor}, transparent 60%)`
-                ),
+                background: spotlightBackground,
               }}
             />
           )}
@@ -240,10 +244,7 @@ export function BentoCard({
           <motion.div 
             className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{
-              transform: useTransform(
-                [mouseX, mouseY],
-                ([x, y]) => `translate(${Number(x) * 20}px, ${Number(y) * 20}px)`
-              ),
+              transform: reflectionTransform,
             }}
           />
           

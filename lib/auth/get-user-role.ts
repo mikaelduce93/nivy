@@ -66,7 +66,7 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
   // Enrichir selon le rôle
   try {
     switch (profile.role) {
-      case "teen":
+      case "teen": {
         const { data: teenData } = await supabase
           .from("teen_full_profile")
           .select("*")
@@ -85,8 +85,9 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
           }
         }
         break
+      }
 
-    case "parent":
+      case "parent": {
       // Récupérer l'abonnement et le nombre de teens
       const { data: subscription } = await supabase
         .from("family_subscriptions")
@@ -106,8 +107,9 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
         teenCount: teenCount || 0,
       }
       break
+      }
 
-    case "ambassador":
+      case "ambassador": {
       const { data: ambassadorData } = await supabase
         .from("ambassadors")
         .select("commission_rate, status")
@@ -121,8 +123,9 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
         }
       }
       break
+      }
 
-    case "partner":
+      case "partner": {
       const { data: partnerData } = await supabase
         .from("partners")
         .select("id, company_name, partner_type")
@@ -137,8 +140,9 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
         }
       }
       break
+      }
 
-      case "admin":
+      case "admin": {
         const { data: adminRole } = await supabase
           .from("admin_roles")
           .select("role, permissions")
@@ -153,6 +157,7 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
           }
         }
         break
+      }
     }
   } catch (error) {
     console.error("Error enriching user role info:", error)

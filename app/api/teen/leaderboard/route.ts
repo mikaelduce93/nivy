@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
           avatar_url: userInfo.teenData?.avatar_url || null,
           xp: userXp,
           level: userXpData.level || 1,
+          badge: undefined,
           isYou: true,
         })
       }

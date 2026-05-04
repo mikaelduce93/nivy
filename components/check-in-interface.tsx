@@ -340,8 +340,12 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
     try {
       const audio = new Audio("/sounds/success.mp3")
       audio.volume = 0.3
-      audio.play().catch(() => {})
-    } catch {}
+      audio.play().catch(() => {
+        // Audio feedback is optional.
+      })
+    } catch {
+      // Audio feedback is optional.
+    }
   }
 
   const formatTime = (dateString: string) => {

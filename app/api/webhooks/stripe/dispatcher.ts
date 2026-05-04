@@ -162,14 +162,17 @@ export const StripeHandlers = {
     const supabase = await createClient()
     const partnerId = subscription.metadata?.partnerId
     if (!partnerId) return
+    const subscriptionItem = subscription.items.data[0]
+    const periodStart = subscriptionItem?.current_period_start ?? subscription.created
+    const periodEnd = subscriptionItem?.current_period_end ?? subscription.cancel_at ?? subscription.created
 
     await supabase.from("partner_subscriptions").upsert({
       partner_id: partnerId,
       stripe_subscription_id: subscription.id,
       stripe_customer_id: subscription.customer as string,
       status: subscription.status,
-      current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      current_period_start: new Date(periodStart * 1000).toISOString(),
+      current_period_end: new Date(periodEnd * 1000).toISOString(),
       cancel_at_period_end: subscription.cancel_at_period_end,
       updated_at: new Date().toISOString()
     })

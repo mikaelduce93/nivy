@@ -126,6 +126,26 @@ export function Elite3DCard({
     [mouseX, mouseY],
     ([x, y]: number[]) => Math.atan2(y - 0.5, x - 0.5) * (180 / Math.PI)
   )
+  const shadowBlurFilter = useTransform(shadowBlur, v => `blur(${v}px)`)
+  const secondaryShadowX = useTransform(shadowX, v => v * 1.5)
+  const secondaryShadowY = useTransform(shadowY, v => v * 1.5)
+  const edgeGlowBackground = useTransform(
+    [lightX, lightY],
+    ([x, y]) => `radial-gradient(circle at ${x} ${y}, ${edgeGlowColor}, transparent 60%)`
+  )
+  const lightingBackground = useTransform(
+    [lightX, lightY],
+    ([x, y]) => `radial-gradient(ellipse 80% 80% at ${x} ${y}, ${lightColor}, transparent 70%)`
+  )
+  const holographicBackground = useTransform(
+    holoRotate,
+    r => `linear-gradient(${r}deg, 
+      rgba(255, 0, 128, 0.2), 
+      rgba(0, 255, 255, 0.2), 
+      rgba(255, 255, 0, 0.2), 
+      rgba(255, 0, 128, 0.2)
+    )`
+  )
 
   return (
     <motion.div
@@ -175,7 +195,7 @@ export function Elite3DCard({
                   borderRadius,
                   x: shadowX,
                   y: shadowY,
-                  filter: useTransform(shadowBlur, v => `blur(${v}px)`),
+                  filter: shadowBlurFilter,
                   background: 'rgba(0, 0, 0, 0.3)',
                   transform: 'translateZ(-50px)',
                 }}
@@ -185,8 +205,8 @@ export function Elite3DCard({
                 className="absolute inset-0 -z-20"
                 style={{
                   borderRadius,
-                  x: useTransform(shadowX, v => v * 1.5),
-                  y: useTransform(shadowY, v => v * 1.5),
+                  x: secondaryShadowX,
+                  y: secondaryShadowY,
                   filter: 'blur(60px)',
                   background: 'rgba(0, 0, 0, 0.2)',
                   transform: 'translateZ(-100px) scale(0.9)',
@@ -201,10 +221,7 @@ export function Elite3DCard({
               className="absolute inset-[-2px] rounded-[inherit] -z-5"
               style={{
                 borderRadius: borderRadius + 2,
-                background: useTransform(
-                  [lightX, lightY],
-                  ([x, y]) => `radial-gradient(circle at ${x} ${y}, ${edgeGlowColor}, transparent 60%)`
-                ),
+                background: edgeGlowBackground,
                 filter: 'blur(4px)',
               }}
               initial={{ opacity: 0 }}
@@ -227,10 +244,7 @@ export function Elite3DCard({
                 className="absolute inset-0 pointer-events-none z-20"
                 style={{
                   borderRadius,
-                  background: useTransform(
-                    [lightX, lightY],
-                    ([x, y]) => `radial-gradient(ellipse 80% 80% at ${x} ${y}, ${lightColor}, transparent 70%)`
-                  ),
+                  background: lightingBackground,
                   opacity: isHovered ? 0.5 : 0,
                 }}
                 transition={{ duration: 0.3 }}
@@ -243,15 +257,7 @@ export function Elite3DCard({
                 className="absolute inset-0 pointer-events-none z-20 mix-blend-overlay"
                 style={{
                   borderRadius,
-                  background: useTransform(
-                    holoRotate,
-                    r => `linear-gradient(${r}deg, 
-                      rgba(255, 0, 128, 0.2), 
-                      rgba(0, 255, 255, 0.2), 
-                      rgba(255, 255, 0, 0.2), 
-                      rgba(255, 0, 128, 0.2)
-                    )`
-                  ),
+                  background: holographicBackground,
                   opacity: isHovered ? 0.6 : 0,
                 }}
               />

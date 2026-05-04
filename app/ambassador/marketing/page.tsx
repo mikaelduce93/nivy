@@ -7,7 +7,7 @@ import {
   Download,
   Share2,
   QrCode,
-  Image,
+  Image as ImageIcon,
   FileText,
   Video,
   ArrowLeft,
@@ -161,7 +161,7 @@ export default async function AmbassadorMarketingPage() {
         <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
-              <Image className="h-5 w-5 text-purple-400" />
+              <ImageIcon className="h-5 w-5 text-purple-400" />
               Templates Réseaux Sociaux
             </CardTitle>
           </CardHeader>

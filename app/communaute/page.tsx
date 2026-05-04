@@ -85,7 +85,7 @@ export default async function CommunautePage() {
 
                     {post.media_urls && post.media_urls.length > 0 && (
                       <div className="grid grid-cols-2 gap-2 mb-4">
-                        {post.media_urls.slice(0, 4).map((url, idx) => (
+                        {(post.media_urls as string[]).slice(0, 4).map((url: string, idx: number) => (
                           <div key={idx} className="relative rounded-xl overflow-hidden aspect-square">
                             <img
                               src={url || "/placeholder.svg"}

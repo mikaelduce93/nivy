@@ -87,11 +87,11 @@ export async function GET() {
     }
 
     // 5. Log for analytics (silent fail)
-    supabase.from('quest_recommendation_logs').insert({
+    await supabase.from('quest_recommendation_logs').insert({
       teen_id: user.id,
       recommendations: recommendations,
       context: { source: 'api_route', timestamp: new Date().toISOString() }
-    }).catch(() => {}) // Silent fail for analytics
+    })
 
     return NextResponse.json({ 
       success: true, 
@@ -118,6 +118,5 @@ export async function GET() {
     })
   }
 }
-
 
 

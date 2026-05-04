@@ -138,7 +138,7 @@ export class SmartJSONParser {
         // Réparer clés sans guillemets (basique)
         .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
         // Réparer valeurs string sans guillemets (basique - attention aux faux positifs)
-        .replace(/:\s*([^",\[\]{}0-9\s-]+)([,}\]])/g, ': "$1"$2')
+        .replace(/:\s*([^",[\]{}0-9\s-]+)([,}\]])/g, ': "$1"$2')
         // Réparer apostrophes dans les strings
         .replace(/'/g, "\\'")
         .trim()
@@ -275,6 +275,5 @@ export class SmartJSONParser {
     return hasValidQuestions
   }
 }
-
 
 

@@ -34,7 +34,7 @@ export class SupabaseTimeoutError extends Error {
  * ```
  */
 export async function withSupabaseTimeout<T>(
-  promise: Promise<T>,
+  promise: PromiseLike<T>,
   operation: string,
   timeoutMs: number = 30000
 ): Promise<T> {

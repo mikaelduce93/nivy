@@ -100,6 +100,10 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
   // Glow position - disabled for reduced motion
   const glowX = useSpring(useTransform(mouseX, [-0.5, 0.5], [0, 100]), { stiffness: 150, damping: 20 })
   const glowY = useSpring(useTransform(mouseY, [-0.5, 0.5], [0, 100]), { stiffness: 150, damping: 20 })
+  const glowBackground = useTransform(
+    [glowX, glowY],
+    ([x, y]) => `radial-gradient(200px circle at ${x}% ${y}%, rgba(255,255,255,0.15), transparent 60%)`
+  )
   
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || prefersReducedMotion) return
@@ -211,10 +215,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
               className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"
               style={{
                 opacity: isHovered ? 1 : 0,
-                background: useTransform(
-                  [glowX, glowY],
-                  ([x, y]) => `radial-gradient(200px circle at ${x}% ${y}%, rgba(255,255,255,0.15), transparent 60%)`
-                ),
+                background: glowBackground,
               }}
             />
           )}

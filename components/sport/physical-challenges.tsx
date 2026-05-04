@@ -380,7 +380,9 @@ function ProofUploadModal({ isOpen, onClose, onSubmit, challengeName }: ProofUpl
                 {proofType === "photo" ? (
                   <img src={previewUrl} alt="Preview" className="w-full h-48 object-cover" />
                 ) : (
-                  <video src={previewUrl} className="w-full h-48 object-cover" controls />
+                  <video src={previewUrl} className="w-full h-48 object-cover" controls>
+                    <track kind="captions" srcLang="fr" label="Francais" />
+                  </video>
                 )}
                 <button
                   onClick={() => setPreviewUrl(null)}

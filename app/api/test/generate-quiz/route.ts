@@ -9,7 +9,7 @@ import { ContentGenerator, type GenerationParams } from "@/lib/ai/content-genera
 type QuizQuestion = {
   type?: string
   question: string
-  options?: string[]
+  options?: string[] | Record<string, unknown> | string
   correct: number | boolean | number[]
   explanation?: string
 }
@@ -125,5 +125,4 @@ export async function POST(request: Request) {
     )
   }
 }
-
 

@@ -159,32 +159,31 @@ export function ReducedMotionProvider({
  */
 export function useReducedMotion(): ReducedMotionContextValue {
   const context = useContext(ReducedMotionContext)
+  const [fallbackPrefersReducedMotion, setFallbackPrefersReducedMotion] = useState(false)
   
   // Fallback for when used outside provider
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setFallbackPrefersReducedMotion(mediaQuery.matches)
+    
+    const handler = (e: MediaQueryListEvent) => {
+      setFallbackPrefersReducedMotion(e.matches)
+    }
+    
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+  
   if (!context) {
-    const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-    
-    useEffect(() => {
-      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-      setPrefersReducedMotion(mediaQuery.matches)
-      
-      const handler = (e: MediaQueryListEvent) => {
-        setPrefersReducedMotion(e.matches)
-      }
-      
-      mediaQuery.addEventListener('change', handler)
-      return () => mediaQuery.removeEventListener('change', handler)
-    }, [])
-    
     return {
-      prefersReducedMotion,
-      durationMultiplier: prefersReducedMotion ? 0 : 1,
-      showParticles: !prefersReducedMotion,
-      show3DEffects: !prefersReducedMotion,
-      showParallax: !prefersReducedMotion,
-      enableHaptics: !prefersReducedMotion,
+      prefersReducedMotion: fallbackPrefersReducedMotion,
+      durationMultiplier: fallbackPrefersReducedMotion ? 0 : 1,
+      showParticles: !fallbackPrefersReducedMotion,
+      show3DEffects: !fallbackPrefersReducedMotion,
+      showParallax: !fallbackPrefersReducedMotion,
+      enableHaptics: !fallbackPrefersReducedMotion,
       setPreference: () => {},
-      getTransition: (base) => prefersReducedMotion ? { duration: 0 } : base,
+      getTransition: (base) => fallbackPrefersReducedMotion ? { duration: 0 } : base,
       getVariants: (variants) => variants,
     }
   }

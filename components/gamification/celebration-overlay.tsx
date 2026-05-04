@@ -148,7 +148,6 @@ export function CelebrationOverlay({
                   className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 border-4 ${currentConfig.borderColor} bg-black/30 shadow-[0_0_30px_-5px_var(--neon-glow)]`}
                 >
                   {image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={image} alt={title} className="w-16 h-16 object-contain" />
                   ) : (
                     <Icon className={`w-12 h-12 ${currentConfig.color}`} />

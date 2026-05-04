@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Send,
-  Image,
+  Image as ImageIcon,
   Smile,
   MoreVertical,
   Reply,
@@ -784,7 +784,7 @@ export function CircleChat({
       <div className="p-4 bg-zinc-900 border-t border-zinc-800">
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-xl hover:bg-zinc-800 transition-colors">
-            <Image className="w-5 h-5 text-zinc-400" />
+            <ImageIcon className="w-5 h-5 text-zinc-400" />
           </button>
 
           <div className="flex-1 relative">

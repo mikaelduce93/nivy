@@ -105,6 +105,10 @@ export function EliteCursorProvider({
   const springConfig = { damping: 25, stiffness: 300, mass: 0.5 }
   const cursorX = useSpring(mouseX, springConfig)
   const cursorY = useSpring(mouseY, springConfig)
+  const spotlightBackground = useTransform(
+    [cursorX, cursorY],
+    ([x, y]) => `radial-gradient(${spotlightSize}px circle at ${x}px ${y}px, ${spotlightColor}, transparent 60%)`
+  )
 
   // Trail motion values (each with different damping for cascade effect)
   const trailConfigs = React.useMemo(() => 
@@ -115,9 +119,6 @@ export function EliteCursorProvider({
     })),
     [trailCount]
   )
-
-  const trailXs = trailConfigs.map(config => useSpring(mouseX, config))
-  const trailYs = trailConfigs.map(config => useSpring(mouseY, config))
 
   // Check for touch device
   React.useEffect(() => {
@@ -229,10 +230,7 @@ export function EliteCursorProvider({
         <motion.div
           className="fixed inset-0 pointer-events-none z-[9997]"
           style={{
-            background: useTransform(
-              [cursorX, cursorY],
-              ([x, y]) => `radial-gradient(${spotlightSize}px circle at ${x}px ${y}px, ${spotlightColor}, transparent 60%)`
-            ),
+            background: spotlightBackground,
           }}
         />
       )}
@@ -240,20 +238,15 @@ export function EliteCursorProvider({
       {/* Cursor trails */}
       {trails && !cursorState.isHidden && (
         <>
-          {trailXs.map((x, i) => (
-            <motion.div
+          {trailConfigs.map((config, i) => (
+            <CursorTrail
               key={i}
-              className="fixed pointer-events-none z-[9998] rounded-full"
-              style={{
-                x,
-                y: trailYs[i],
-                width: cursorSize * (1 - i * 0.08),
-                height: cursorSize * (1 - i * 0.08),
-                backgroundColor: cursorState.color || cursorColor,
-                opacity: 0.3 - i * 0.03,
-                translateX: '-50%',
-                translateY: '-50%',
-              }}
+              mouseX={mouseX}
+              mouseY={mouseY}
+              config={config}
+              index={i}
+              cursorSize={cursorSize}
+              color={cursorState.color || cursorColor}
             />
           ))}
         </>
@@ -363,6 +356,41 @@ interface ClickRippleProps {
   cursorY: ReturnType<typeof useMotionValue<number>>
   isClicking: boolean
   color: string
+}
+
+function CursorTrail({
+  mouseX,
+  mouseY,
+  config,
+  index,
+  cursorSize,
+  color,
+}: {
+  mouseX: ReturnType<typeof useMotionValue<number>>
+  mouseY: ReturnType<typeof useMotionValue<number>>
+  config: { damping: number; stiffness: number; mass: number }
+  index: number
+  cursorSize: number
+  color: string
+}) {
+  const x = useSpring(mouseX, config)
+  const y = useSpring(mouseY, config)
+
+  return (
+    <motion.div
+      className="fixed pointer-events-none z-[9998] rounded-full"
+      style={{
+        x,
+        y,
+        width: cursorSize * (1 - index * 0.08),
+        height: cursorSize * (1 - index * 0.08),
+        backgroundColor: color,
+        opacity: 0.3 - index * 0.03,
+        translateX: '-50%',
+        translateY: '-50%',
+      }}
+    />
+  )
 }
 
 function ClickRipple({ cursorX, cursorY, isClicking, color }: ClickRippleProps) {
@@ -509,6 +537,14 @@ export function SpotlightCard({
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
   const [isHovered, setIsHovered] = React.useState(false)
+  const spotlightBackground = useTransform(
+    [mouseX, mouseY],
+    ([x, y]) => `radial-gradient(${spotlightSize}px circle at ${x}px ${y}px, ${spotlightColor}, transparent 60%)`
+  )
+  const borderGlowBackground = useTransform(
+    [mouseX, mouseY],
+    ([x, y]) => `radial-gradient(${spotlightSize / 2}px circle at ${x}px ${y}px, ${spotlightColor.replace('0.15', '0.4')}, transparent 50%)`
+  )
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!ref.current) return
@@ -530,10 +566,7 @@ export function SpotlightCard({
         className="absolute inset-0 pointer-events-none transition-opacity duration-300"
         style={{
           opacity: isHovered ? 1 : 0,
-          background: useTransform(
-            [mouseX, mouseY],
-            ([x, y]) => `radial-gradient(${spotlightSize}px circle at ${x}px ${y}px, ${spotlightColor}, transparent 60%)`
-          ),
+          background: spotlightBackground,
         }}
       />
 
@@ -541,14 +574,11 @@ export function SpotlightCard({
       {borderGlow && (
         <motion.div
           className="absolute inset-0 pointer-events-none rounded-[inherit]"
-          style={{
-            opacity: isHovered ? 1 : 0,
-            background: useTransform(
-              [mouseX, mouseY],
-              ([x, y]) => `radial-gradient(${spotlightSize / 2}px circle at ${x}px ${y}px, ${spotlightColor.replace('0.15', '0.4')}, transparent 50%)`
-            ),
-            mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-            maskComposite: 'exclude',
+        style={{
+          opacity: isHovered ? 1 : 0,
+          background: borderGlowBackground,
+          mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+          maskComposite: 'exclude',
             padding: '1px',
           }}
         />

@@ -78,7 +78,9 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
           className="w-full h-full object-cover"
           loop
           playsInline
-        />
+        >
+          <track kind="captions" srcLang="fr" label="Francais" />
+        </video>
         {!isPlaying && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px]">
             <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">

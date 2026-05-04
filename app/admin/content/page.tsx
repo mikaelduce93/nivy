@@ -21,7 +21,7 @@ import {
   Trash2,
   MoreVertical,
   ArrowLeft,
-  Image,
+  Image as ImageIcon,
   FileText,
   Shield,
   Bot,
@@ -194,7 +194,7 @@ export default function AdminContentPage() {
       case "comment":
         return <Badge className="bg-purple-500/20 text-purple-400"><MessageSquare className="w-3 h-3 mr-1" />Commentaire</Badge>
       case "image":
-        return <Badge className="bg-pink-500/20 text-pink-400"><Image className="w-3 h-3 mr-1" />Image</Badge>
+        return <Badge className="bg-pink-500/20 text-pink-400"><ImageIcon className="w-3 h-3 mr-1" />Image</Badge>
       case "bio":
         return <Badge className="bg-cyan-500/20 text-cyan-400"><User className="w-3 h-3 mr-1" />Bio</Badge>
       default:
@@ -427,7 +427,7 @@ export default function AdminContentPage() {
 
                     {item.imageUrl && (
                       <div className="w-32 h-32 rounded-lg bg-zinc-800 mb-3 flex items-center justify-center">
-                        <Image className="w-8 h-8 text-zinc-600" />
+                        <ImageIcon className="w-8 h-8 text-zinc-600" />
                       </div>
                     )}
 
