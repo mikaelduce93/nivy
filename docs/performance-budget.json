@@ -1,0 +1,117 @@
+{
+  "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse/main/docs/performance-budgets-schema.json",
+  "budgets": [
+    {
+      "path": "/",
+      "timings": [
+        {
+          "metric": "interactive",
+          "budget": 3800
+        },
+        {
+          "metric": "first-meaningful-paint",
+          "budget": 2000
+        },
+        {
+          "metric": "largest-contentful-paint",
+          "budget": 2500
+        },
+        {
+          "metric": "first-contentful-paint",
+          "budget": 1800
+        },
+        {
+          "metric": "total-blocking-time",
+          "budget": 300
+        },
+        {
+          "metric": "cumulative-layout-shift",
+          "budget": 0.1
+        },
+        {
+          "metric": "max-potential-fid",
+          "budget": 100
+        },
+        {
+          "metric": "speed-index",
+          "budget": 3400
+        }
+      ],
+      "resourceSizes": [
+        {
+          "resourceType": "script",
+          "budget": 250
+        },
+        {
+          "resourceType": "stylesheet",
+          "budget": 50
+        },
+        {
+          "resourceType": "image",
+          "budget": 500
+        },
+        {
+          "resourceType": "media",
+          "budget": 100
+        },
+        {
+          "resourceType": "font",
+          "budget": 100
+        },
+        {
+          "resourceType": "document",
+          "budget": 50
+        },
+        {
+          "resourceType": "other",
+          "budget": 50
+        },
+        {
+          "resourceType": "total",
+          "budget": 1100
+        }
+      ],
+      "resourceCounts": [
+        {
+          "resourceType": "script",
+          "budget": 20
+        },
+        {
+          "resourceType": "stylesheet",
+          "budget": 5
+        },
+        {
+          "resourceType": "image",
+          "budget": 30
+        },
+        {
+          "resourceType": "media",
+          "budget": 5
+        },
+        {
+          "resourceType": "font",
+          "budget": 5
+        },
+        {
+          "resourceType": "document",
+          "budget": 1
+        },
+        {
+          "resourceType": "other",
+          "budget": 10
+        },
+        {
+          "resourceType": "total",
+          "budget": 76
+        }
+      ]
+    }
+  ]
+}
+
+
+
+
+
+
+

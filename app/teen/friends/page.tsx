@@ -1,0 +1,270 @@
+"use client"
+
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { Users, Search, UserPlus, MessageCircle, Zap, Trophy, MoreVertical, Check, X, Clock, Star } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+// Static friends data
+const FRIENDS = [
+  { id: "1", name: "Salma K.", xp: 4250, level: 12, status: "online", mutual: 5, avatar: null },
+  { id: "2", name: "Omar B.", xp: 3820, level: 10, status: "online", mutual: 3, avatar: null },
+  { id: "3", name: "Nadia L.", xp: 3650, level: 9, status: "away", mutual: 8, avatar: null },
+  { id: "4", name: "Youssef M.", xp: 3420, level: 8, status: "offline", mutual: 2, avatar: null },
+  { id: "5", name: "Amina R.", xp: 2980, level: 7, status: "online", mutual: 6, avatar: null },
+  { id: "6", name: "Karim H.", xp: 2750, level: 7, status: "offline", mutual: 4, avatar: null },
+]
+
+const PENDING_REQUESTS = [
+  { id: "p1", name: "Leila M.", xp: 1850, level: 5, mutual: 2, avatar: null, sentAt: "Il y a 2h" },
+  { id: "p2", name: "Ahmed S.", xp: 2100, level: 6, mutual: 1, avatar: null, sentAt: "Hier" },
+]
+
+const SUGGESTIONS = [
+  { id: "s1", name: "Sara T.", xp: 2500, level: 6, mutual: 4, avatar: null, reason: "4 amis en commun" },
+  { id: "s2", name: "Mehdi K.", xp: 3100, level: 8, mutual: 3, avatar: null, reason: "Même école" },
+  { id: "s3", name: "Fatima Z.", xp: 1900, level: 5, mutual: 2, avatar: null, reason: "2 amis en commun" },
+]
+
+const TABS = [
+  { id: "all", label: "Tous" },
+  { id: "online", label: "En ligne" },
+  { id: "requests", label: "Demandes" },
+]
+
+export default function FriendsPage() {
+  const [tab, setTab] = useState("all")
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const filteredFriends = FRIENDS.filter(friend => {
+    if (!friend.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
+    if (tab === "online" && friend.status !== "online") return false
+    return true
+  })
+
+  const onlineCount = FRIENDS.filter(f => f.status === "online").length
+
+  return (
+    <div className="min-h-screen pb-32 space-y-8 pt-6">
+      {/* Header */}
+      <header className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-coral to-pink-500 flex items-center justify-center">
+                <Users className="w-6 h-6 text-black" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Amis</h1>
+                <p className="text-zinc-500 text-sm font-medium">{FRIENDS.length} amis • {onlineCount} en ligne</p>
+              </div>
+            </div>
+          </div>
+
+          <Button className="bg-gen-z-coral text-black font-bold">
+            <UserPlus className="w-4 h-4 mr-2" />
+            Ajouter
+          </Button>
+        </div>
+
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Rechercher un ami..."
+            className="pl-12 h-12 rounded-xl bg-zinc-900/50 border-white/10"
+          />
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-2">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={cn(
+                "px-4 py-2 rounded-xl font-bold text-sm transition-all",
+                tab === t.id
+                  ? "bg-gen-z-coral text-black"
+                  : "bg-zinc-900/50 text-zinc-400 hover:text-white"
+              )}
+            >
+              {t.label}
+              {t.id === "requests" && PENDING_REQUESTS.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-[10px]">
+                  {PENDING_REQUESTS.length}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* Pending Requests */}
+      {tab === "requests" && PENDING_REQUESTS.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-black uppercase">Demandes en attente</h2>
+
+          <div className="space-y-3">
+            {PENDING_REQUESTS.map((request, idx) => (
+              <motion.div
+                key={request.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="flex items-center gap-4 p-4 rounded-2xl bg-gen-z-coral/10 border border-gen-z-coral/30"
+              >
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-xl font-bold text-white">
+                  {request.name.charAt(0)}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-white">{request.name}</h4>
+                  <p className="text-sm text-zinc-400">{request.mutual} amis en commun • {request.sentAt}</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button size="icon" className="rounded-full bg-gen-z-mint text-black">
+                    <Check className="w-5 h-5" />
+                  </Button>
+                  <Button size="icon" variant="outline" className="rounded-full">
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Friends List */}
+      {tab !== "requests" && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-black uppercase">
+            {tab === "online" ? "En ligne maintenant" : "Tous les amis"}
+          </h2>
+
+          {filteredFriends.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">
+                {searchQuery ? "Aucun ami trouvé" : "Aucun ami en ligne"}
+              </h3>
+              <p className="text-zinc-500">
+                {searchQuery ? "Essaie une autre recherche" : "Tes amis sont hors ligne"}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredFriends.map((friend, idx) => (
+                <motion.div
+                  key={friend.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-colors"
+                >
+                  {/* Avatar */}
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-xl font-bold text-white">
+                      {friend.name.charAt(0)}
+                    </div>
+                    <div className={cn(
+                      "absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-zinc-900",
+                      friend.status === "online" ? "bg-green-500" :
+                      friend.status === "away" ? "bg-yellow-500" : "bg-zinc-500"
+                    )} />
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-white">{friend.name}</h4>
+                      <span className="text-xs text-zinc-500">Lvl {friend.level}</span>
+                    </div>
+                    <p className="text-sm text-zinc-400">{friend.mutual} amis en commun</p>
+                  </div>
+
+                  {/* XP */}
+                  <div className="text-right">
+                    <div className="flex items-center gap-1 text-gen-z-lavender">
+                      <Zap className="w-4 h-4" />
+                      <span className="font-bold">{friend.xp.toLocaleString()}</span>
+                    </div>
+                    <p className="text-[10px] text-zinc-500 uppercase">XP</p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <MessageCircle className="w-5 h-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <MoreVertical className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Suggestions */}
+      {tab !== "requests" && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-black uppercase">Suggestions</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {SUGGESTIONS.map((suggestion, idx) => (
+              <motion.div
+                key={suggestion.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+              >
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4">
+                  {suggestion.name.charAt(0)}
+                </div>
+                
+                <h4 className="font-bold text-white">{suggestion.name}</h4>
+                <p className="text-xs text-zinc-500 mb-2">Lvl {suggestion.level}</p>
+                <p className="text-sm text-gen-z-coral mb-4">{suggestion.reason}</p>
+
+                <Button className="w-full bg-gen-z-coral text-black font-bold">
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Ajouter
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Leaderboard Preview */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="p-6 rounded-3xl bg-gradient-to-r from-yellow-500/10 to-amber-500/5 border border-yellow-500/20"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-yellow-500/20 flex items-center justify-center">
+            <Trophy className="w-7 h-7 text-yellow-500" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-black text-white">Classement Amis</h3>
+            <p className="text-sm text-zinc-400">Vois qui a le plus d'XP parmi tes amis</p>
+          </div>
+          <Button variant="outline">
+            Voir le classement
+          </Button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}

@@ -1,0 +1,732 @@
+openapi: 3.1.0
+info:
+  title: Teens Party Morocco API
+  description: |
+    API documentation for Teens Party Morocco platform.
+
+    ## Authentication
+    Most endpoints require authentication via session cookies (NextAuth).
+    Admin endpoints require elevated permissions.
+
+    ## Rate Limiting
+    - Standard users: 100 requests/minute
+    - Premium users: 500 requests/minute
+    - API keys: 1000 requests/minute
+
+    ## Error Handling
+    All errors follow the format:
+    ```json
+    {
+      "success": false,
+      "error": "Error message"
+    }
+    ```
+  version: 1.0.0
+  contact:
+    name: Teens Party Morocco Support
+    email: support@teensparty.ma
+    url: https://teensparty.ma/contact
+  license:
+    name: Proprietary
+    url: https://teensparty.ma/terms
+
+servers:
+  - url: https://teensparty.ma/api
+    description: Production server
+  - url: http://localhost:3000/api
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Bookings
+    description: Event and club bookings
+  - name: Check-in
+    description: Event check-in operations
+  - name: Payments
+    description: Payment processing
+  - name: Notifications
+    description: Push notifications and alerts
+  - name: Parent
+    description: Parent dashboard operations
+  - name: Teen
+    description: Teen profile and features
+  - name: Admin
+    description: Admin dashboard operations
+
+paths:
+  /csrf:
+    get:
+      tags:
+        - Authentication
+      summary: Get CSRF token
+      description: Returns a CSRF token for form submissions
+      responses:
+        '200':
+          description: CSRF token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  csrfToken:
+                    type: string
+                    example: "abc123xyz789"
+
+  /bookings/create:
+    post:
+      tags:
+        - Bookings
+      summary: Create a new booking
+      description: Creates a booking for an event or club
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequest'
+      responses:
+        '200':
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /check-in/search:
+    get:
+      tags:
+        - Check-in
+      summary: Search for attendees
+      description: Search for attendees by name, pseudo, or ticket code
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: q
+          in: query
+          description: Search query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: eventId
+          in: query
+          description: Event ID to search within
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Attendee'
+
+  /check-in/entry:
+    post:
+      tags:
+        - Check-in
+      summary: Record event entry
+      description: Records an attendee's entry to an event
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ticketId
+                - eventId
+              properties:
+                ticketId:
+                  type: string
+                  format: uuid
+                eventId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Entry recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      checkedInAt:
+                        type: string
+                        format: date-time
+
+  /check-in/exit:
+    post:
+      tags:
+        - Check-in
+      summary: Record event exit
+      description: Records an attendee's exit from an event
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ticketId
+                - eventId
+              properties:
+                ticketId:
+                  type: string
+                  format: uuid
+                eventId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Exit recorded
+
+  /check-in/stats:
+    get:
+      tags:
+        - Check-in
+      summary: Get check-in statistics
+      description: Returns statistics for event check-ins
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: eventId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Check-in statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckInStats'
+
+  /payments/process:
+    post:
+      tags:
+        - Payments
+      summary: Process payment
+      description: Process a payment for a booking
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Payment processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+
+  /payments/xp:
+    post:
+      tags:
+        - Payments
+      summary: Pay with XP coins
+      description: Use accumulated XP coins for payment
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bookingId
+                - amount
+              properties:
+                bookingId:
+                  type: string
+                  format: uuid
+                amount:
+                  type: number
+                  minimum: 0
+      responses:
+        '200':
+          description: XP payment processed
+
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      summary: Get notifications
+      description: Returns user notifications
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+
+  /notifications/mark-read:
+    post:
+      tags:
+        - Notifications
+      summary: Mark notification as read
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - notificationId
+              properties:
+                notificationId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+
+  /parent/teens:
+    get:
+      tags:
+        - Parent
+      summary: Get parent's teens
+      description: Returns list of teen profiles linked to parent
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: List of teens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Teen'
+
+  /parent/teens/create:
+    post:
+      tags:
+        - Parent
+      summary: Create teen profile
+      description: Creates a new teen profile linked to parent
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeenRequest'
+      responses:
+        '200':
+          description: Teen profile created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Teen'
+
+  /parent/budget:
+    get:
+      tags:
+        - Parent
+      summary: Get budget info
+      description: Returns parent's budget and spending limits
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Budget information
+
+    put:
+      tags:
+        - Parent
+      summary: Update budget
+      description: Updates budget limits for teens
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                monthlyLimit:
+                  type: number
+                perEventLimit:
+                  type: number
+      responses:
+        '200':
+          description: Budget updated
+
+  /teen/profile:
+    get:
+      tags:
+        - Teen
+      summary: Get teen profile
+      description: Returns the authenticated teen's profile
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Teen profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teen'
+
+  /tickets/generate-pdf:
+    post:
+      tags:
+        - Bookings
+      summary: Generate ticket PDF
+      description: Generates a PDF ticket for a booking
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bookingId
+              properties:
+                bookingId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: PDF ticket
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /admin/kpis:
+    get:
+      tags:
+        - Admin
+      summary: Get KPI dashboard
+      description: Returns key performance indicators
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: KPI data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KPIData'
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+      description: NextAuth session cookie
+
+  schemas:
+    BookingRequest:
+      type: object
+      required:
+        - eventId
+        - teenId
+        - ticketType
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        teenId:
+          type: string
+          format: uuid
+        ticketType:
+          type: string
+          enum: [standard, vip, premium]
+        addons:
+          type: array
+          items:
+            type: string
+
+    BookingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+            totalAmount:
+              type: number
+            paymentUrl:
+              type: string
+              format: uri
+
+    PaymentRequest:
+      type: object
+      required:
+        - bookingId
+        - provider
+      properties:
+        bookingId:
+          type: string
+          format: uuid
+        provider:
+          type: string
+          enum: [stripe, cmi, mobile_money, xp]
+        returnUrl:
+          type: string
+          format: uri
+
+    PaymentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            transactionId:
+              type: string
+            status:
+              type: string
+            redirectUrl:
+              type: string
+              format: uri
+
+    Attendee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pseudo:
+          type: string
+        fullName:
+          type: string
+        ticketCode:
+          type: string
+        checkedIn:
+          type: boolean
+        checkedInAt:
+          type: string
+          format: date-time
+
+    CheckInStats:
+      type: object
+      properties:
+        totalTickets:
+          type: integer
+        checkedIn:
+          type: integer
+        checkedOut:
+          type: integer
+        currentlyInside:
+          type: integer
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    Teen:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pseudo:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [male, female, other]
+        avatarUrl:
+          type: string
+          format: uri
+
+    CreateTeenRequest:
+      type: object
+      required:
+        - pseudo
+        - firstName
+        - lastName
+        - dateOfBirth
+      properties:
+        pseudo:
+          type: string
+          minLength: 3
+          maxLength: 20
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [male, female, other]
+        school:
+          type: string
+        interests:
+          type: array
+          items:
+            type: string
+
+    KPIData:
+      type: object
+      properties:
+        users:
+          type: object
+          properties:
+            total:
+              type: integer
+            today:
+              type: integer
+            monthly:
+              type: integer
+        revenue:
+          type: object
+          properties:
+            monthly:
+              type: number
+            growth:
+              type: number
+        events:
+          type: object
+          properties:
+            upcoming:
+              type: integer
+            totalBookings:
+              type: integer
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Invalid request parameters"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Authentication required"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Resource not found"
