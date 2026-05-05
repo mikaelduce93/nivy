@@ -6,9 +6,19 @@
  *
  * Composants client chargés dynamiquement pour réduire le bundle initial.
  * Utilisez ces exports au lieu d'importer directement les composants lourds.
+ *
+ * SOURCE OF TRUTH for app-wide lazy loading.
+ *
+ * Canonicalisation Agent 7 (Phase 2):
+ * - Ce fichier est la source canonique pour les composants lazy globaux.
+ * - `lib/utils/lazy-components.tsx` re-exporte d'ici (rétro-compatibilité).
+ * - `components/teen/dashboard/lazy-components.tsx` reste séparé car spécifique
+ *   au dashboard teen (imports relatifs ./map-preview, ./ai-companion).
  */
 
 import dynamic from 'next/dynamic'
+import type { ComponentType } from 'react'
+import { Loader2 } from 'lucide-react'
 import { LoadingSpinner } from '@/components/ui/states'
 
 /* ==========================================================================
@@ -215,5 +225,127 @@ export const LazyAchievements = dynamic(
   () => import('@/components/gamification/achievements').then(mod => ({ default: mod.Achievements })),
   {
     loading: () => <DefaultLoading />,
+  }
+)
+
+/* ==========================================================================
+   THIRD-PARTY HEAVY LIBRARIES (lazy loaded)
+   Merged from former lib/utils/lazy-components.tsx
+   ========================================================================== */
+
+const LoadingCard = () => (
+  <div className="animate-pulse bg-zinc-800/50 rounded-xl p-6">
+    <div className="h-4 bg-zinc-700 rounded w-3/4 mb-4" />
+    <div className="h-4 bg-zinc-700 rounded w-1/2" />
+  </div>
+)
+
+const SmallLoadingSpinner = () => (
+  <div className="flex items-center justify-center p-8">
+    <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+  </div>
+)
+
+/**
+ * Lazy-loaded motion.div for animations.
+ */
+export const LazyMotionDiv = dynamic(
+  () => import('framer-motion').then((mod) => {
+    const MotionDiv = mod.motion.div as ComponentType<any>
+    return MotionDiv
+  }),
+  {
+    ssr: false,
+    loading: () => <div />,
+  }
+)
+
+/**
+ * Lazy-loaded chart components from recharts.
+ */
+export const LazyLineChart = dynamic(
+  () => import('recharts').then((mod) => mod.LineChart),
+  { ssr: false, loading: () => <LoadingCard /> }
+)
+
+export const LazyBarChart = dynamic(
+  () => import('recharts').then((mod) => mod.BarChart),
+  { ssr: false, loading: () => <LoadingCard /> }
+)
+
+export const LazyPieChart = dynamic(
+  () => import('recharts').then((mod) => mod.PieChart),
+  { ssr: false, loading: () => <LoadingCard /> }
+)
+
+export const LazyAreaChart = dynamic(
+  () => import('recharts').then((mod) => mod.AreaChart),
+  { ssr: false, loading: () => <LoadingCard /> }
+)
+
+/**
+ * Lazy-loaded QR code generator.
+ */
+export const LazyQRCode = dynamic(
+  () => import('qrcode.react').then((mod) => mod.QRCodeCanvas),
+  {
+    ssr: false,
+    loading: () => <div className="w-32 h-32 bg-zinc-800 animate-pulse rounded" />,
+  }
+)
+
+/**
+ * Lazy-loaded confetti for celebrations.
+ */
+export const useConfetti = () => {
+  return async (options?: any) => {
+    const confetti = (await import('canvas-confetti')).default
+    return confetti(options)
+  }
+}
+
+/**
+ * Lazy-loaded image gallery/lightbox.
+ */
+export const LazyImageGallery = dynamic(
+  () => import('@/components/ui/image-gallery').catch(() => {
+    return () => <div>Gallery not available</div>
+  }),
+  {
+    ssr: false,
+    loading: () => <SmallLoadingSpinner />,
+  }
+)
+
+/**
+ * Lazy-loaded PDF viewer for tickets.
+ */
+export const LazyPDFViewer = dynamic(
+  () => import('@/components/pdf-viewer').catch(() => {
+    return () => <div>PDF Viewer not available</div>
+  }),
+  {
+    ssr: false,
+    loading: () => <SmallLoadingSpinner />,
+  }
+)
+
+/**
+ * Lazy-loaded date picker with calendar.
+ */
+export const LazyDatePicker = dynamic(
+  () => import('@/components/ui/date-picker').then((mod) => mod.DatePicker).catch(() => {
+    return ({ onChange, value }: any) => (
+      <input
+        type="date"
+        value={value}
+        onChange={(e) => onChange?.(new Date(e.target.value))}
+        className="border rounded px-3 py-2"
+      />
+    )
+  }),
+  {
+    ssr: false,
+    loading: () => <div className="h-10 bg-zinc-800 animate-pulse rounded" />,
   }
 )

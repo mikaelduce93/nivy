@@ -1,19 +1,10 @@
-import * as React from 'react'
-
-const MOBILE_BREAKPOINT = 768
-
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
-
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener('change', onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener('change', onChange)
-  }, [])
-
-  return !!isMobile
-}
+/**
+ * Re-export shim for backwards compatibility.
+ *
+ * Canonical source: `@/hooks/use-mobile`.
+ *
+ * This file existed historically as an exact duplicate of `hooks/use-mobile.ts`.
+ * It is kept only to avoid breaking any legacy import paths.
+ * New code MUST import from `@/hooks/use-mobile`.
+ */
+export * from '@/hooks/use-mobile'
