@@ -1,7 +1,9 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default function CGUPage() {
+  const { contactEmail } = getPublicAppConfig()
   return (
     <>
       <Navbar />
@@ -231,8 +233,8 @@ export default function CGUPage() {
                 </p>
                 <p>
                   Email :{" "}
-                  <a href="mailto:contact@teensparty.ma" className="text-primary hover:underline">
-                    contact@teensparty.ma
+                  <a href={`mailto:${contactEmail}`} className="text-primary hover:underline">
+                    {contactEmail}
                   </a>
                 </p>
                 <p>Téléphone : +212 5XX-XXXXXX</p>

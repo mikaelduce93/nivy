@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { toast } from "sonner"
+import { getSocialBaseUrl } from "@/lib/config/app-config"
 
 interface AmbassadorHeaderProps {
   userInfo: UserRoleInfo
@@ -39,7 +40,7 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
   }
 
   const copyReferralLink = () => {
-    navigator.clipboard.writeText(`https://teenclub.ma/ref/${userInfo.profileId.slice(0, 8)}`)
+    navigator.clipboard.writeText(`${getSocialBaseUrl()}/ref/${userInfo.profileId.slice(0, 8)}`)
     toast.success("Lien copié!")
   }
 

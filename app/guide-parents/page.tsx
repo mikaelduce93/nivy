@@ -5,6 +5,9 @@ import { Shield, Heart, Phone, CheckCircle, Users, Camera, Clock, MapPin } from 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
+const { whatsappPhone: WHATSAPP_PHONE } = getPublicAppConfig()
 
 export default function ParentsPage() {
   return (
@@ -149,7 +152,7 @@ export default function ParentsPage() {
             </div>
 
             <div className="text-center mt-12">
-              <Link href="/faq">
+              <Link href="/aide/faq">
                 <Button size="lg">Voir toutes les questions</Button>
               </Link>
             </div>
@@ -170,7 +173,7 @@ export default function ParentsPage() {
                   Nous Contacter
                 </Button>
               </Link>
-              <Link href="https://wa.me/212661234567">
+              <Link href={`https://wa.me/${WHATSAPP_PHONE}`}>
                 <Button size="lg" variant="outline">
                   WhatsApp
                 </Button>

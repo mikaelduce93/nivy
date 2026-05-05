@@ -11,6 +11,9 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from 'next/navigation'
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
+const { supportEmail: SUPPORT_EMAIL, supportPhone: SUPPORT_PHONE } = getPublicAppConfig()
 
 export default function SupportPage() {
   const [loading, setLoading] = useState(false)
@@ -67,13 +70,13 @@ export default function SupportPage() {
             <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl p-6 border border-cyan-500/30 text-center">
               <Mail className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
               <h3 className="text-white font-bold mb-2">Email</h3>
-              <p className="text-cyan-400">support@teensparty.ma</p>
+              <p className="text-cyan-400">{SUPPORT_EMAIL}</p>
             </div>
 
             <div className="bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl p-6 border border-blue-500/30 text-center">
               <Phone className="w-12 h-12 text-blue-400 mx-auto mb-4" />
               <h3 className="text-white font-bold mb-2">Téléphone</h3>
-              <p className="text-blue-400">+212 661 234 567</p>
+              <p className="text-blue-400">{SUPPORT_PHONE}</p>
             </div>
 
             <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl p-6 border border-purple-500/30 text-center">

@@ -5,6 +5,9 @@ import { Search, MessageCircle, Mail, Phone, FileQuestion, CreditCard, Calendar,
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { getPublicAppConfig } from '@/lib/config/app-config'
+
+const { supportEmail: SUPPORT_EMAIL, whatsappPhone: WHATSAPP_PHONE, supportPhone: SUPPORT_PHONE } = getPublicAppConfig()
 
 const categories = [
   { id: 'reservations', name: 'Réservations & Paiements', icon: CreditCard },
@@ -128,11 +131,11 @@ export default function AidePage() {
             variant="outline"
             className="h-auto p-6 bg-card border-border hover:bg-accent flex flex-col items-center gap-3"
           >
-            <a href="mailto:support@teensparty.ma">
+            <a href={`mailto:${SUPPORT_EMAIL}`}>
               <Mail className="w-8 h-8 text-primary" />
               <div className="text-center">
                 <p className="font-bold text-white">Email</p>
-                <p className="text-sm text-muted-foreground">support@teensparty.ma</p>
+                <p className="text-sm text-muted-foreground">{SUPPORT_EMAIL}</p>
               </div>
             </a>
           </Button>
@@ -142,11 +145,11 @@ export default function AidePage() {
             variant="outline"
             className="h-auto p-6 bg-card border-border hover:bg-accent flex flex-col items-center gap-3"
           >
-            <a href="tel:+212600000000">
+            <a href={`tel:+${WHATSAPP_PHONE}`}>
               <Phone className="w-8 h-8 text-primary" />
               <div className="text-center">
                 <p className="font-bold text-white">Téléphone</p>
-                <p className="text-sm text-muted-foreground">+212 6 00 00 00 00</p>
+                <p className="text-sm text-muted-foreground">{SUPPORT_PHONE}</p>
               </div>
             </a>
           </Button>
@@ -156,7 +159,7 @@ export default function AidePage() {
             variant="outline"
             className="h-auto p-6 bg-card border-border hover:bg-accent flex flex-col items-center gap-3"
           >
-            <Link href="https://wa.me/212600000000">
+            <Link href={`https://wa.me/${WHATSAPP_PHONE}`}>
               <MessageCircle className="w-8 h-8 text-primary" />
               <div className="text-center">
                 <p className="font-bold text-white">WhatsApp</p>
@@ -237,7 +240,7 @@ export default function AidePage() {
             size="lg"
             className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0"
           >
-            <a href="mailto:support@teensparty.ma">
+            <a href={`mailto:${SUPPORT_EMAIL}`}>
               Contacter le support
               <Mail className="w-5 h-5 ml-2" />
             </a>

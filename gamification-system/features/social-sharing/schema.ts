@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod"
+import { getSocialBaseUrl } from "@/lib/config/app-config"
 
 /* ==========================================================================
    ENUMS
@@ -356,7 +357,7 @@ export function generateHashtags(
 export function buildShareUrl(
   platform: PlatformSlug,
   content: ShareContent,
-  baseUrl: string = "https://teenspartymorocco.ma"
+  baseUrl: string = getSocialBaseUrl()
 ): string {
   const shareUrl = `${baseUrl}/share/${content.type}/${content.id || ""}`
   const text = encodeURIComponent(content.title)
@@ -432,7 +433,7 @@ export function formatReferralCode(code: string): string {
 // Générer l'URL de referral
 export function generateReferralUrl(
   code: string,
-  baseUrl: string = "https://teenspartymorocco.ma"
+  baseUrl: string = getSocialBaseUrl()
 ): string {
   return `${baseUrl}/join?ref=${code}`
 }

@@ -4,8 +4,10 @@ import { Heart, Users, Target, Award, MapPin, Mail, Phone } from 'lucide-react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default function AProposPage() {
+  const { contactEmail } = getPublicAppConfig()
   return (
     <>
       <Navbar />
@@ -146,7 +148,7 @@ export default function AProposPage() {
                   <Mail className="w-8 h-8 mx-auto mb-3 text-emerald-600" />
                   <h3 className="font-bold mb-2">Email</h3>
                   <p className="text-sm text-muted-foreground">
-                    contact@teensparty.ma
+                    {contactEmail}
                   </p>
                 </CardContent>
               </Card>

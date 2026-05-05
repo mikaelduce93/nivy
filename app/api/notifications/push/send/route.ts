@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { withSecurity } from '@/lib/security/api-middleware'
+import { getPublicAppConfig } from '@/lib/config/app-config'
 
 // Types
 interface PushNotificationPayload {
@@ -34,7 +35,8 @@ interface SendPushRequest {
 // VAPID keys - En production, utiliser des variables d'environnement
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:contact@teensparty.ma'
+const VAPID_SUBJECT =
+  process.env.VAPID_SUBJECT || `mailto:${getPublicAppConfig().contactEmail}`
 
 export const POST = withSecurity(async (request: NextRequest) => {
   try {

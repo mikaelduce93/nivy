@@ -4,6 +4,9 @@ import EventReminderEmail from "@/emails/event-reminder"
 import WelcomeEmail from "@/emails/welcome-email"
 import PaymentConfirmationEmail from "@/emails/payment-confirmation"
 import ApprovalRequestEmail from "@/emails/approval-request"
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
+const { appUrl: APP_URL } = getPublicAppConfig()
 
 /**
  * Helper function to check if Resend is configured before sending emails
@@ -228,7 +231,7 @@ export async function sendApprovalNotification(data: {
           <p>Bonjour ${data.teenName},</p>
           <p>Votre demande <strong>"${data.requestTitle}"</strong> a été ${statusText} par votre parent.</p>
           ${data.reason ? `<p><strong>Raison:</strong> ${data.reason}</p>` : ""}
-          <p><a href="https://teensparty.ma/teen" style="color: #0891b2;">Accéder à ton espace</a></p>
+          <p><a href="${APP_URL}/teen" style="color: #0891b2;">Accéder à ton espace</a></p>
           <hr style="border: 1px solid #e2e8f0; margin: 24px 0;">
           <p style="color: #8898aa; font-size: 12px;">Teens Party Morocco</p>
         </div>
@@ -283,7 +286,7 @@ export async function sendCoinTopupNotification(data: {
               ${data.bonusAmount ? `<p style="color: #059669; font-weight: bold;">+ ${data.bonusAmount} bonus!</p>` : ""}
             </div>
             <p style="color: #6b7280; text-align: center;">
-              Utilise tes coins dans la <a href="https://teensparty.ma/teen/shop" style="color: #f59e0b;">boutique</a>
+              Utilise tes coins dans la <a href="${APP_URL}/teen/shop" style="color: #f59e0b;">boutique</a>
             </p>
           </div>
           <p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 24px;">
@@ -380,7 +383,7 @@ export async function sendPassActivationEmail(data: {
             </div>
 
             <p style="text-align: center; margin: 32px 0 0 0;">
-              <a href="https://teensparty.ma/evenements" style="display: inline-block; background: ${tierGradient}; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              <a href="${APP_URL}/evenements" style="display: inline-block; background: ${tierGradient}; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">
                 Découvrir les événements
               </a>
             </p>
@@ -467,7 +470,7 @@ export async function sendBirthdayConfirmation(data: {
             </div>
 
             <p style="text-align: center;">
-              <a href="https://teensparty.ma/mes-reservations" style="display: inline-block; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              <a href="${APP_URL}/mes-reservations" style="display: inline-block; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
                 Voir ma réservation
               </a>
             </p>
@@ -525,7 +528,7 @@ export async function sendCommissionEarned(data: {
             <p><strong>Filleul:</strong> ${data.referralName}</p>
             <p><strong>Événement:</strong> ${data.eventTitle}</p>
             <p>
-              <a href="https://teensparty.ma/ambassador" style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;">
+              <a href="${APP_URL}/ambassador" style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;">
                 Voir mes commissions
               </a>
             </p>
@@ -583,7 +586,7 @@ export async function sendOfferRedeemed(data: {
               <p style="margin: 4px 0;"><strong>Date:</strong> ${data.redeemedAt}</p>
             </div>
             <p>
-              <a href="https://teensparty.ma/partner" style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;">
+              <a href="${APP_URL}/partner" style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;">
                 Voir le dashboard
               </a>
             </p>

@@ -6,6 +6,23 @@ import { Database, ExternalLink, FileText, AlertCircle, CheckCircle2 } from 'luc
 import Link from "next/link"
 import BackButton from "@/components/admin/BackButton"
 
+// L'ID projet Supabase est resolu cote client uniquement via NEXT_PUBLIC_*.
+// Si NEXT_PUBLIC_SUPABASE_PROJECT_ID est defini, on l'utilise; sinon on tente
+// de l'extraire de NEXT_PUBLIC_SUPABASE_URL (https://<id>.supabase.co).
+function getSupabaseProjectId(): string | null {
+  const explicit = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID
+  if (explicit) return explicit
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!url) return null
+  const match = url.match(/^https?:\/\/([^.]+)\.supabase\.co/i)
+  return match ? match[1] : null
+}
+
+const SUPABASE_PROJECT_ID = getSupabaseProjectId()
+const SUPABASE_SQL_EDITOR_URL = SUPABASE_PROJECT_ID
+  ? `https://supabase.com/dashboard/project/${SUPABASE_PROJECT_ID}/sql/new`
+  : "https://supabase.com/dashboard"
+
 const SCRIPTS = [
   {
     id: "105",
@@ -84,7 +101,7 @@ export default function SQLScriptsPage() {
               size="lg"
               className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white h-14"
             >
-              <a href="https://supabase.com/dashboard/project/jyixeidmuvecienbkkrw/sql/new" target="_blank" rel="noopener noreferrer">
+              <a href={SUPABASE_SQL_EDITOR_URL} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-5 h-5 mr-3" />
                 Ouvrir Supabase SQL Editor
               </a>

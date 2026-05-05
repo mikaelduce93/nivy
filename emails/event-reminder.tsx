@@ -1,4 +1,5 @@
 import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "@react-email/components"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 interface EventReminderEmailProps {
   parentName: string
@@ -19,6 +20,7 @@ export default function EventReminderEmail({
   eventLocation = "Casablanca",
   bookingReference = "TP-20250215-ABCD",
 }: EventReminderEmailProps) {
+  const { appUrl } = getPublicAppConfig()
   return (
     <Html>
       <Head />
@@ -48,7 +50,7 @@ export default function EventReminderEmail({
           <Hr style={hr} />
 
           <Section style={buttonContainer}>
-            <Button style={button} href={`https://teensparty.ma/mes-reservations/${bookingReference}`}>
+            <Button style={button} href={`${appUrl}/mes-reservations/${bookingReference}`}>
               Voir mon billet
             </Button>
           </Section>

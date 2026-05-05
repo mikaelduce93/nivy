@@ -1,7 +1,9 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default function MentionsLegalesPage() {
+  const { contactEmail, privacyEmail } = getPublicAppConfig()
   return (
     <>
       <Navbar />
@@ -35,7 +37,7 @@ export default function MentionsLegalesPage() {
                   <strong>Téléphone :</strong> +212 5XX-XXXXXX
                 </p>
                 <p>
-                  <strong>Email :</strong> contact@teensparty.ma
+                  <strong>Email :</strong> {contactEmail}
                 </p>
                 <p>
                   <strong>Directeur de publication :</strong> [Nom du responsable légal]
@@ -113,8 +115,8 @@ export default function MentionsLegalesPage() {
               </p>
               <p className="leading-relaxed">
                 Pour exercer ces droits :{" "}
-                <a href="mailto:privacy@teensparty.ma" className="text-primary hover:underline">
-                  privacy@teensparty.ma
+                <a href={`mailto:${privacyEmail}`} className="text-primary hover:underline">
+                  {privacyEmail}
                 </a>
               </p>
             </section>
@@ -186,8 +188,8 @@ export default function MentionsLegalesPage() {
                 </p>
                 <p>
                   Email :{" "}
-                  <a href="mailto:contact@teensparty.ma" className="text-primary hover:underline">
-                    contact@teensparty.ma
+                  <a href={`mailto:${contactEmail}`} className="text-primary hover:underline">
+                    {contactEmail}
                   </a>
                 </p>
                 <p>Téléphone : +212 5XX-XXXXXX</p>

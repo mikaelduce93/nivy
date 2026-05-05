@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { HelpCircle, MessageSquare, Phone, Mail, FileText, ExternalLink, ChevronRight } from "lucide-react"
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
+const { partnersEmail: PARTNERS_EMAIL } = getPublicAppConfig()
 
 export default function PartnerSupportPage() {
   const faqs = [
@@ -59,7 +62,7 @@ export default function PartnerSupportPage() {
             <h3 className="font-bold text-white mb-1">Email</h3>
             <p className="text-sm text-zinc-400 mb-4">Réponse sous 24h</p>
             <Button variant="outline" className="w-full border-zinc-700 text-zinc-300">
-              partners@teenclub.ma
+              {PARTNERS_EMAIL}
             </Button>
           </CardContent>
         </Card>

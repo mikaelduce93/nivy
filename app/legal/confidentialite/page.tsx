@@ -1,7 +1,9 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default function ConfidentialitePage() {
+  const { privacyEmail } = getPublicAppConfig()
   return (
     <>
       <Navbar />
@@ -119,8 +121,8 @@ export default function ConfidentialitePage() {
               </ul>
               <p className="mt-4 leading-relaxed">
                 Pour exercer ces droits, contactez-nous à :{" "}
-                <a href="mailto:privacy@teensparty.ma" className="text-primary hover:underline">
-                  privacy@teensparty.ma
+                <a href={`mailto:${privacyEmail}`} className="text-primary hover:underline">
+                  {privacyEmail}
                 </a>
               </p>
             </section>
@@ -187,8 +189,8 @@ export default function ConfidentialitePage() {
                 </p>
                 <p>
                   Email :{" "}
-                  <a href="mailto:privacy@teensparty.ma" className="text-primary hover:underline">
-                    privacy@teensparty.ma
+                  <a href={`mailto:${privacyEmail}`} className="text-primary hover:underline">
+                    {privacyEmail}
                   </a>
                 </p>
                 <p>Téléphone : +212 5XX-XXXXXX</p>

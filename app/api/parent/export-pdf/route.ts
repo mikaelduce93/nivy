@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 import { withSecurity, errorResponse } from "@/lib/security/api-middleware"
 import { z } from "zod"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 // Validation schema for export request
 const exportRequestSchema = z.object({
@@ -235,6 +236,7 @@ interface ReportData {
 }
 
 function generateReportHTML(data: ReportData): string {
+  const { contactEmail } = getPublicAppConfig()
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
     return date.toLocaleDateString("fr-FR", {
@@ -513,7 +515,7 @@ function generateReportHTML(data: ReportData): string {
     <div class="footer">
       <p><strong>TeensParty Morocco</strong></p>
       <p>Ce rapport a été généré automatiquement à partir de votre compte parent.</p>
-      <p>Pour toute question: contact@teensparty.ma</p>
+      <p>Pour toute question: ${contactEmail}</p>
     </div>
   </div>
 </body>

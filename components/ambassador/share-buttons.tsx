@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Copy, Share2, Check } from "lucide-react"
 import { toast } from "sonner"
+import { getSocialBaseUrl } from "@/lib/config/app-config"
 
 interface ShareButtonsProps {
   referralCode: string
@@ -13,7 +14,7 @@ interface ShareButtonsProps {
 export function ShareButtons({ referralCode, referralLink }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false)
 
-  const link = referralLink || `https://teenclub.ma/join?ref=${referralCode}`
+  const link = referralLink || `${getSocialBaseUrl()}/join?ref=${referralCode}`
 
   const handleCopy = async () => {
     try {

@@ -1,6 +1,7 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { getSocialBaseUrl } from "@/lib/config/app-config"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -54,7 +55,7 @@ export default async function AmbassadorMarketingPage() {
 
   const data = await getAmbassadorData(userInfo.profileId)
   const referralCode = data?.referralCode || userInfo.profileId.slice(0, 8).toUpperCase()
-  const referralLink = `https://teenclub.ma/join?ref=${referralCode}`
+  const referralLink = `${getSocialBaseUrl()}/join?ref=${referralCode}`
 
   const socialTemplates = [
     {

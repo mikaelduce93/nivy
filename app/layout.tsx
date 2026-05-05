@@ -18,8 +18,11 @@ import { SentryUserContext } from "@/components/monitoring/sentry-user-context"
 import { SentryWebVitals } from "@/components/monitoring/sentry-web-vitals"
 import { QueryProvider } from "@/lib/queries"
 import { Toaster } from "@/components/ui/sonner"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 import "./globals.css"
 import "leaflet/dist/leaflet.css"
+
+const APP_CONFIG = getPublicAppConfig()
 
 // Premium Typography - Silicon Valley Grade
 // Geist: Modern, Clean, Highly Legible (by Vercel)
@@ -39,7 +42,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://teensparty.ma"),
+  metadataBase: new URL(APP_CONFIG.appUrl),
   title: {
     default: "Teens Party Morocco - Soirées Sécurisées pour Ados 13-17 ans | Sans Alcool",
     template: "%s | Teens Party Morocco",
@@ -60,7 +63,7 @@ export const metadata: Metadata = {
     "anniversaire ado",
     "clubs jeunes Maroc",
   ],
-  authors: [{ name: "Teens Party Morocco", url: "https://teensparty.ma" }],
+  authors: [{ name: "Teens Party Morocco", url: APP_CONFIG.appUrl }],
   creator: "Teens Party Morocco",
   publisher: "Teens Party Morocco",
   formatDetection: {
@@ -71,7 +74,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    url: "https://teensparty.ma",
+    url: APP_CONFIG.appUrl,
     siteName: "Teens Party Morocco",
     title: "Teens Party Morocco - La Soirée N°1 pour Ados 13-17 ans",
     description:
@@ -119,7 +122,7 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: "https://teensparty.ma",
+    canonical: APP_CONFIG.appUrl,
   },
 }
 

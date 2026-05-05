@@ -38,6 +38,11 @@ import {
   Heart
 } from "lucide-react"
 import { toast } from "sonner"
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
+const { socialBaseUrl: SHARE_BASE_URL, brandName: BRAND_NAME } = getPublicAppConfig()
+// Domaine affiche dans les watermarks d'images partagees (sans protocole).
+const SHARE_DOMAIN = SHARE_BASE_URL.replace(/^https?:\/\//, "")
 
 interface ShareableItem {
   id: string
@@ -193,7 +198,7 @@ export default function TeenSharePage() {
       // Footer
       ctx.fillStyle = "rgba(255, 255, 255, 0.6)"
       ctx.font = "18px system-ui"
-      ctx.fillText("teensparty.ma", canvas.width / 2, canvas.height - 60)
+      ctx.fillText(SHARE_DOMAIN, canvas.width / 2, canvas.height - 60)
 
       // Generate image URL
       const imageUrl = canvas.toDataURL("image/png")
@@ -219,13 +224,13 @@ export default function TeenSharePage() {
   }
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://teensparty.ma/share/${selectedItem?.id}`)
+    navigator.clipboard.writeText(`${SHARE_BASE_URL}/share/${selectedItem?.id}`)
     toast.success("Lien copié!")
   }
 
   const handleSocialShare = (platform: string) => {
     const text = encodeURIComponent(customText)
-    const url = encodeURIComponent(`https://teensparty.ma/share/${selectedItem?.id}`)
+    const url = encodeURIComponent(`${SHARE_BASE_URL}/share/${selectedItem?.id}`)
 
     let shareUrl = ""
     switch (platform) {
@@ -449,7 +454,7 @@ export default function TeenSharePage() {
                     <p className="mt-6 text-sm text-center opacity-90 max-w-[80%]">{customText}</p>
                   )}
 
-                  <p className="absolute bottom-4 text-xs opacity-60">teensparty.ma</p>
+                  <p className="absolute bottom-4 text-xs opacity-60">{SHARE_DOMAIN}</p>
                 </div>
               </div>
 

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import webPush from 'web-push'
+import { getPublicAppConfig } from '@/lib/config/app-config'
 
 // Initialize Supabase Admin Client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -9,7 +10,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 // Initialize Web Push
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webPush.setVapidDetails(
-    'mailto:support@teensparty.ma',
+    process.env.VAPID_SUBJECT || `mailto:${getPublicAppConfig().supportEmail}`,
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   )

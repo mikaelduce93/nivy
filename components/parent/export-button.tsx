@@ -10,6 +10,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Download, FileText, FileSpreadsheet, Loader2, FileIcon } from "lucide-react"
 import { toast } from "sonner"
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
+const { contactEmail: CONTACT_EMAIL, appUrl: APP_URL, brandName: BRAND_NAME } = getPublicAppConfig()
+const WEBSITE_DISPLAY = APP_URL.replace(/^https?:\/\//, "")
 
 interface Transaction {
   id: string
@@ -398,8 +402,8 @@ export function ExportButton({ transactions }: ExportButtonProps) {
     ` : ''}
 
     <div class="footer">
-      <p><strong>TeensParty Morocco</strong></p>
-      <p>Email: contact@teensparty.ma | www.teensparty.ma</p>
+      <p><strong>${BRAND_NAME}</strong></p>
+      <p>Email: ${CONTACT_EMAIL} | ${WEBSITE_DISPLAY}</p>
       <p style="margin-top: 8px;">Ce rapport a été généré automatiquement depuis votre espace parent.</p>
     </div>
   </div>

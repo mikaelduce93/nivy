@@ -3,6 +3,9 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Shield, Users, HelpCircle, Info, MessageSquare, Handshake } from 'lucide-react'
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
+const { contactEmail: CONTACT_EMAIL } = getPublicAppConfig()
 
 export function Footer() {
   const pathname = usePathname()
@@ -112,8 +115,8 @@ export function Footer() {
                 </li>
                 <li className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Mail className="w-4 h-4 text-accent flex-shrink-0" />
-                  <a href="mailto:contact@teensparty.ma" className="hover:text-primary transition-colors">
-                    contact@teensparty.ma
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-primary transition-colors">
+                    {CONTACT_EMAIL}
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -328,8 +331,8 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4 text-accent flex-shrink-0" />
-                <a href="mailto:contact@teensparty.ma" className="hover:text-primary transition-colors">
-                  contact@teensparty.ma
+                <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-primary transition-colors">
+                  {CONTACT_EMAIL}
                 </a>
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">

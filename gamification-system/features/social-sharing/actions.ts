@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { getSocialBaseUrl } from "@/lib/config/app-config"
 import {
   type PlatformSlug,
   type ContentType,
@@ -375,7 +376,7 @@ export async function getReferralCode(): Promise<{
         totalUses: data.total_uses,
         successfulConversions: data.successful_conversions,
         pendingRewards: 0, // À calculer si nécessaire
-        shareUrl: `https://teenspartymorocco.ma/join?ref=${data.code}`,
+        shareUrl: `${getSocialBaseUrl()}/join?ref=${data.code}`,
       },
     }
   } catch (error) {

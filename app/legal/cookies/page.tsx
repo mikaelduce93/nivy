@@ -8,6 +8,9 @@ import { Card } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
+const { privacyEmail: PRIVACY_EMAIL } = getPublicAppConfig()
 
 export default function CookiesPage() {
   const [preferences, setPreferences] = useState({
@@ -275,7 +278,7 @@ export default function CookiesPage() {
                 Pour toute question concernant notre politique de cookies, contactez-nous :
               </p>
               <p className="mt-2">
-                Email : <a href="mailto:privacy@teensparty.ma" className="text-primary hover:underline">privacy@teensparty.ma</a>
+                Email : <a href={`mailto:${PRIVACY_EMAIL}`} className="text-primary hover:underline">{PRIVACY_EMAIL}</a>
               </p>
             </div>
           </Card>

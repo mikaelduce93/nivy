@@ -2,8 +2,28 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
-const supabaseUrl = 'https://jyixeidmuvecienbkkrw.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5aXhlaWRtdXZlY2llbmJra3J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NjA3NjUsImV4cCI6MjA3ODMzNjc2NX0.A4P7USdP1HPa6hnDrzjriYTe5_N_bJEex0SkaAIMAME';
+// Configuration via variables d'environnement (jamais hardcoder l'URL ou la cle).
+// Definir dans .env.local avant d'executer le script.
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.SUPABASE_URL;
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error(
+    '[identify-missing-scripts] Variables Supabase manquantes. ' +
+      'Definir NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY (ou SUPABASE_SERVICE_ROLE_KEY).'
+  );
+  process.exit(1);
+}
+
+// Extrait l'identifiant projet depuis l'URL Supabase pour les liens dashboard.
+const projectIdMatch = supabaseUrl.match(/^https?:\/\/([^.]+)\.supabase\.co/i);
+const supabaseProjectId =
+  process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID || (projectIdMatch && projectIdMatch[1]) || '';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -148,7 +168,12 @@ async function analyzeScriptNeeds() {
   console.log('\n📝 INSTRUCTIONS POUR EXÉCUTER LES SCRIPTS:\n');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   console.log('Option 1 - Via SQL Editor (Recommandé):');
-  console.log('  1. Allez sur: https://supabase.com/dashboard/project/jyixeidmuvecienbkkrw/sql');
+  console.log(
+    '  1. Allez sur: ' +
+      (supabaseProjectId
+        ? `https://supabase.com/dashboard/project/${supabaseProjectId}/sql`
+        : 'https://supabase.com/dashboard (selectionner votre projet) > SQL editor')
+  );
   console.log('  2. Créez une nouvelle query');
   console.log('  3. Copiez-collez le contenu d\'un script');
   console.log('  4. Cliquez sur "Run"\n');

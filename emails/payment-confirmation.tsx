@@ -11,6 +11,7 @@ import {
   Section,
   Text,
 } from "@react-email/components"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 interface PaymentConfirmationEmailProps {
   parentName: string
@@ -32,6 +33,7 @@ export default function PaymentConfirmationEmail({
   paidAt = "15 janvier 2025 à 14:30",
 }: PaymentConfirmationEmailProps) {
   const isTopup = paymentType === "topup"
+  const { appUrl, supportEmail } = getPublicAppConfig()
 
   return (
     <Html>
@@ -79,7 +81,7 @@ export default function PaymentConfirmationEmail({
 
           {/* CTA */}
           <Section style={buttonContainer}>
-            <Button style={button} href="https://teensparty.ma/parent/history">
+            <Button style={button} href={`${appUrl}/parent/history`}>
               Voir mon historique
             </Button>
           </Section>
@@ -87,8 +89,8 @@ export default function PaymentConfirmationEmail({
           {/* Footer */}
           <Text style={footer}>
             Une question? Contactez-nous à{" "}
-            <Link href="mailto:support@teensparty.ma" style={link}>
-              support@teensparty.ma
+            <Link href={`mailto:${supportEmail}`} style={link}>
+              {supportEmail}
             </Link>
           </Text>
           <Text style={footer}>Teens Party Morocco - Paiements 100% sécurisés</Text>

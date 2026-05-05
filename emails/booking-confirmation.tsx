@@ -12,6 +12,7 @@ import {
   Section,
   Text,
 } from "@react-email/components"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 interface BookingConfirmationEmailProps {
   parentName: string
@@ -34,6 +35,7 @@ export default function BookingConfirmationEmail({
   totalAmount = 250,
   qrCodeUrl,
 }: BookingConfirmationEmailProps) {
+  const { appUrl, supportEmail } = getPublicAppConfig()
   return (
     <Html>
       <Head />
@@ -90,7 +92,7 @@ export default function BookingConfirmationEmail({
 
           {/* CTA */}
           <Section style={buttonContainer}>
-            <Button style={button} href={`https://teensparty.ma/mes-reservations/${bookingReference}`}>
+            <Button style={button} href={`${appUrl}/mes-reservations/${bookingReference}`}>
               Voir ma réservation
             </Button>
           </Section>
@@ -98,8 +100,8 @@ export default function BookingConfirmationEmail({
           {/* Footer */}
           <Text style={footer}>
             Des questions? Contactez-nous à{" "}
-            <Link href="mailto:support@teensparty.ma" style={link}>
-              support@teensparty.ma
+            <Link href={`mailto:${supportEmail}`} style={link}>
+              {supportEmail}
             </Link>
           </Text>
           <Text style={footer}>Teens Party Morocco - Événements sécurisés pour adolescents</Text>

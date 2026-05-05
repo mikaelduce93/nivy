@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowLeft, ShoppingCart, CreditCard, RefreshCw, Shield, Scale, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export const metadata: Metadata = {
   title: "Conditions Générales de Vente | Teens Party Morocco",
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 }
 
 export default function CGVPage() {
+  const { contactEmail, appUrl } = getPublicAppConfig()
+  const websiteDisplay = appUrl.replace(/^https?:\/\//, "")
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32 max-w-4xl">
@@ -40,7 +43,7 @@ export default function CGVPage() {
                   <p>
                     Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre
                     Teens Party Morocco, société de droit marocain, et toute personne physique ou morale
-                    effectuant un achat sur le site teensparty.ma.
+                    effectuant un achat sur le site {websiteDisplay}.
                   </p>
                   <p>
                     Les présentes CGV s'appliquent à la vente de :
@@ -251,7 +254,7 @@ export default function CGVPage() {
             <h2 className="text-xl font-bold mb-4">Contact</h2>
             <div className="text-muted-foreground space-y-2">
               <p><strong>Teens Party Morocco</strong></p>
-              <p>Email : contact@teensparty.ma</p>
+              <p>Email : {contactEmail}</p>
               <p>Téléphone : +212 6 00 00 00 00</p>
               <p>Adresse : Casablanca, Maroc</p>
             </div>

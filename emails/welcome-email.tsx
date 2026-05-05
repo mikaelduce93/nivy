@@ -1,10 +1,12 @@
 import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from "@react-email/components"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 interface WelcomeEmailProps {
   name: string
 }
 
 export default function WelcomeEmail({ name = "Parent" }: WelcomeEmailProps) {
+  const { appUrl } = getPublicAppConfig()
   return (
     <Html>
       <Head />
@@ -30,7 +32,7 @@ export default function WelcomeEmail({ name = "Parent" }: WelcomeEmailProps) {
           </Section>
 
           <Section style={buttonContainer}>
-            <Button style={button} href="https://teensparty.ma/evenements">
+            <Button style={button} href={`${appUrl}/evenements`}>
               Découvrir les événements
             </Button>
           </Section>

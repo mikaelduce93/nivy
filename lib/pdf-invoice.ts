@@ -3,6 +3,8 @@
  * Generates professional invoice PDFs for bookings and payments
  */
 
+import { getPublicAppConfig } from "@/lib/config/app-config"
+
 export interface InvoiceData {
   invoiceNumber: string
   invoiceDate: string
@@ -46,6 +48,8 @@ export interface InvoiceData {
  * Uses HTML/CSS approach for consistent rendering
  */
 export function generateInvoiceHTML(data: InvoiceData): string {
+  const { contactEmail, supportPhone, appUrl, brandName } = getPublicAppConfig()
+  const websiteDisplay = appUrl.replace(/^https?:\/\//, "")
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
     return date.toLocaleDateString("fr-FR", {
@@ -355,9 +359,9 @@ export function generateInvoiceHTML(data: InvoiceData): string {
     ` : ""}
 
     <div class="footer">
-      <p><strong>TeensParty Morocco</strong></p>
-      <p>Email: contact@teensparty.ma | Tel: +212 5XX-XXXXXX</p>
-      <p>www.teensparty.ma</p>
+      <p><strong>${brandName}</strong></p>
+      <p>Email: ${contactEmail} | Tel: ${supportPhone}</p>
+      <p>${websiteDisplay}</p>
       <p style="margin-top: 12px;">Cette facture a ete generee electroniquement et est valide sans signature.</p>
     </div>
   </div>

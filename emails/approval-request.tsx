@@ -11,6 +11,7 @@ import {
   Section,
   Text,
 } from "@react-email/components"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 interface ApprovalRequestEmailProps {
   parentName: string
@@ -35,6 +36,7 @@ export default function ApprovalRequestEmail({
   eventLocation,
   expiresAt,
 }: ApprovalRequestEmailProps) {
+  const { appUrl } = getPublicAppConfig()
   const getTypeEmoji = () => {
     switch (requestType) {
       case "booking":
@@ -119,10 +121,10 @@ export default function ApprovalRequestEmail({
               Que souhaitez-vous faire?
             </Text>
             <Section style={buttonRow}>
-              <Button style={approveButton} href="https://teensparty.ma/parent/approvals">
+              <Button style={approveButton} href={`${appUrl}/parent/approvals`}>
                 ✓ Approuver
               </Button>
-              <Button style={rejectButton} href="https://teensparty.ma/parent/approvals">
+              <Button style={rejectButton} href={`${appUrl}/parent/approvals`}>
                 ✗ Refuser
               </Button>
             </Section>
@@ -138,7 +140,7 @@ export default function ApprovalRequestEmail({
 
           {/* Footer */}
           <Text style={footer}>
-            <Link href="https://teensparty.ma/parent" style={link}>
+            <Link href={`${appUrl}/parent`} style={link}>
               Accéder au dashboard parent
             </Link>
           </Text>

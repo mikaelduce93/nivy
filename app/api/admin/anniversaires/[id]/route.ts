@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
+import { getServerAppConfig } from "@/lib/config/app-config"
 
 export async function PATCH(
   request: NextRequest,
@@ -206,9 +207,10 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
   const content = statusMessages[newStatus]
   if (!content) return
 
+  const appConfig = getServerAppConfig()
   try {
     await resend.emails.send({
-      from: "Teens Party Morocco <noreply@teensparty.ma>",
+      from: appConfig.emailFrom,
       to: order.parent.email,
       subject: content.subject,
       html: `
@@ -232,7 +234,7 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
         <body>
           <div class="container">
             <div class="logo">
-              <img src="https://teensparty.ma/logo.png" alt="Teens Party" height="40">
+              <img src="${appConfig.appUrl}/logo.png" alt="Teens Party" height="40">
             </div>
             <h1>${content.title}</h1>
             <p>Bonjour <span class="highlight">${order.parent.full_name}</span>,</p>
@@ -257,7 +259,7 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
             </div>
             <div class="footer">
               <p>Teens Party Morocco</p>
-              <p>Des questions ? Contactez-nous à contact@teensparty.ma</p>
+              <p>Des questions ? Contactez-nous à ${appConfig.contactEmail}</p>
             </div>
           </div>
         </body>
