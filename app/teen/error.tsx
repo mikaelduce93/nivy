@@ -84,7 +84,7 @@ export default function TeenDashboardError({ error, reset }: ErrorProps) {
           </Link>
         </motion.div>
 
-        {/* Error details (collapsed) */}
+        {/* Error details (collapsed) - dev only, never expose stack traces in production UI */}
         {process.env.NODE_ENV === 'development' && (
           <motion.details
             initial={{ opacity: 0 }}
@@ -98,8 +98,10 @@ export default function TeenDashboardError({ error, reset }: ErrorProps) {
             </summary>
             <pre className="mt-2 p-4 rounded-xl bg-zinc-900/80 border border-white/5 text-xs text-red-400 overflow-auto max-h-40">
               {error.message}
-              {error.stack && `\n\n${error.stack}`}
             </pre>
+            <p className="mt-2 text-[10px] text-zinc-600">
+              La trace complète est uniquement disponible dans la console serveur.
+            </p>
           </motion.details>
         )}
 

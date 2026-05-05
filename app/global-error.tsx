@@ -79,11 +79,8 @@ export default function GlobalError({
                     <strong>Digest:</strong> {error.digest}
                   </div>
                 )}
-                {isDev && error?.stack && (
-                  <div>
-                    <strong>Stack:</strong> {"\n"}{error.stack}
-                  </div>
-                )}
+                {/* Stack traces are intentionally not rendered in the UI.
+                    They are logged server-side via console.error / Sentry only. */}
               </div>
             )}
 

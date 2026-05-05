@@ -138,7 +138,15 @@ export async function middleware(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn("[v0] Supabase not configured - authentication disabled")
+    // Fail-closed in production: never silently disable auth on a live deploy.
+    if (process.env.NODE_ENV === 'production') {
+      console.error("[middleware] Supabase configuration missing in production - blocking request")
+      return new NextResponse('Service Unavailable: authentication not configured', {
+        status: 503,
+        headers: response.headers,
+      })
+    }
+    console.warn("[middleware] Supabase not configured - authentication disabled (non-production only)")
     return response
   }
 

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 import { toDataURL } from "qrcode"
+import { randomBytes } from "node:crypto"
 import { validateCSRFToken } from "@/lib/security/csrf"
 import { rateLimit, RATE_LIMITS } from "@/lib/security/rate-limiter"
 import { checkTeenBudget } from "@/lib/budget/check-budget"
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
         if (approvalError) {
           console.error("Approval request error:", approvalError)
           return NextResponse.redirect(
-            new URL("/evenements?error=approval_failed", request.url)
+            new URL("/agenda?error=approval_failed", request.url)
           )
         }
 
@@ -98,14 +99,16 @@ export async function POST(request: NextRequest) {
       // Budget exceeded and no approval possible
       return NextResponse.redirect(
         new URL(
-          `/evenements?error=budget_exceeded&message=${encodeURIComponent(budgetCheck.reason || "Budget dépassé")}`,
+          `/agenda?error=budget_exceeded&message=${encodeURIComponent(budgetCheck.reason || "Budget dépassé")}`,
           request.url
         )
       )
     }
 
-    // Generate booking reference
-    const bookingReference = `TP${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+    // Generate booking reference using a cryptographically strong suffix.
+    // 4 random bytes encoded in base36 collapses to ~6 chars, kept short for readability.
+    const bookingSuffix = randomBytes(4).toString("hex").toUpperCase()
+    const bookingReference = `TP${Date.now().toString(36).toUpperCase()}${bookingSuffix}`
 
     // Generate QR code for booking
     const bookingQrData = JSON.stringify({
@@ -157,6 +160,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL(`/reservation/paiement?booking=${booking.id}`, request.url))
   } catch (error) {
     console.error("[v0] Booking creation error:", error)
-    return NextResponse.redirect(new URL("/evenements?error=booking_failed", request.url))
+    return NextResponse.redirect(new URL("/agenda?error=booking_failed", request.url))
   }
 }

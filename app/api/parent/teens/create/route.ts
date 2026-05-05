@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { randomBytes } from "node:crypto"
 import { getUserRole } from "@/lib/auth/get-user-role"
 
 export async function POST(request: Request) {
@@ -133,8 +134,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Generate a unique linking code
-    const linkingCode = `TEEN${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+    // Generate a unique linking code using cryptographically strong randomness.
+    // 4 bytes -> 8 hex chars; matches the prior code length.
+    const linkingCode = `TEEN${randomBytes(4).toString("hex").toUpperCase()}`
 
     // Create teen profile with all enriched fields
     const { data: teenProfile, error: createError } = await supabase

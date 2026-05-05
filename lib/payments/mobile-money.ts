@@ -12,6 +12,8 @@
  * - MT_CASH_MERCHANT_ID
  */
 
+import { randomBytes, randomInt } from 'node:crypto'
+
 export type MobileMoneyOperator = 'orange_money' | 'inwi_money' | 'maroc_telecom_cash'
 
 export interface MobileMoneyPaymentRequest {
@@ -251,11 +253,10 @@ export class MobileMoneyService {
    * Generate payment code
    */
   private generatePaymentCode(reference: string): string {
-    // Generate 8-digit payment code
+    // Generate 8-digit payment code with cryptographically strong randomness
+    // for the variable suffix.
     const timestamp = Date.now().toString().slice(-6)
-    const random = Math.floor(Math.random() * 100)
-      .toString()
-      .padStart(2, '0')
+    const random = randomInt(0, 100).toString().padStart(2, '0')
     return `${timestamp}${random}`
   }
 
@@ -263,8 +264,9 @@ export class MobileMoneyService {
    * Generate unique payment ID
    */
   private generatePaymentId(): string {
+    // Cryptographically strong suffix avoids predictable payment IDs.
     const timestamp = Date.now().toString(36)
-    const random = Math.random().toString(36).substring(2, 8)
+    const random = randomBytes(3).toString('hex') // 6 hex chars
     return `MM${timestamp}${random}`.toUpperCase()
   }
 

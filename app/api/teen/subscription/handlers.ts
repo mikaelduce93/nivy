@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { randomBytes } from "node:crypto"
 import { APIResponse } from "../../lib/responses"
 
 export const SubscriptionHandlers = {
@@ -143,7 +144,10 @@ export const SubscriptionHandlers = {
     if (!plan) return APIResponse.error("Forfait invalide")
 
     const amount = billing_cycle === "monthly" ? plan.price_monthly : billing_cycle === "quarterly" ? plan.price_quarterly : billing_cycle === "yearly" ? plan.price_yearly : plan.price_lifetime
-    const approvalToken = request_type === "parent_approval" ? `parent_${Date.now()}_${Math.random().toString(36).substring(7)}` : null
+    // Approval token is sent to a parent and used as the only credential to
+    // authorize a payment request, so it MUST be cryptographically unguessable.
+    // 32 random bytes -> 64 hex chars, prefixed for traceability.
+    const approvalToken = request_type === "parent_approval" ? `parent_${randomBytes(32).toString("hex")}` : null
 
     const { data: paymentRequest, error } = await supabase.from("payment_requests").insert({ user_id: userId, plan_id, request_type, amount, billing_cycle, approver_email, approver_phone, approval_token: approvalToken }).select().single()
     if (error) return APIResponse.serverError("Failed to request payment", error)
