@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+import { getAppUrl } from "@/lib/config/app-config"
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/dashboard/", "/admin/", "/profile/", "/reservation/", "/mes-reservations/"],
       },
     ],
-    sitemap: "https://teensparty.ma/sitemap.xml",
+    sitemap: `${getAppUrl()}/sitemap.xml`,
   }
 }

@@ -19,7 +19,7 @@ export default function ReservationError({
       suggestion="Vérifiez votre connexion et réessayez. Si le problème persiste, contactez le support."
       showHome={false}
       showBack={true}
-      backHref="/evenements"
+      backHref="/agenda"
     />
   )
 }

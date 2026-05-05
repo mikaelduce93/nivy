@@ -55,7 +55,7 @@ export default function TicketSelector({ eventId, ticketTypes, isLoggedIn }: Tic
 
   const handleCheckout = () => {
     if (!isLoggedIn) {
-      router.push(`/auth/login?redirect=/evenements/${eventId}`)
+      router.push(`/auth/login?redirect=/agenda/${eventId}`)
       return
     }
 

@@ -40,11 +40,11 @@ const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Réservations", href: "/mes-reservations", icon: Ticket },
   { title: "Clubs", href: "/mes-clubs", icon: Heart },
-  { title: "Événements", href: "/evenements", icon: Calendar },
+  { title: "Événements", href: "/agenda", icon: Calendar },
   { title: "Enfants", href: "/profile/enfants", icon: Users },
   { title: "Gamification", href: "/gamification", icon: Trophy },
   { title: "Carte VIP", href: "/carte-vip", icon: Star },
-  { title: "Fidélité", href: "/fidelite", icon: CreditCard },
+  { title: "Fidélité", href: "/carte-vip", icon: CreditCard },
 ]
 
 export function DashboardHeader({ user, profile }: DashboardHeaderProps) {

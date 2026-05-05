@@ -116,7 +116,7 @@ export default async function MonComptePage() {
                 </div>
               </div>
               <Button asChild variant="outline" size="sm" className="w-full">
-                <Link href="/ambassadeurs">Parrainer</Link>
+                <Link href="/devenir-ambassadeur">Parrainer</Link>
               </Button>
             </div>
           </div>

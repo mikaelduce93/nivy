@@ -244,7 +244,7 @@ export default async function MyReservationsPage() {
                     asChild
                     className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0"
                   >
-                    <Link href="/evenements">Voir les événements</Link>
+                    <Link href="/agenda">Voir les événements</Link>
                   </Button>
                 </div>
               )}
@@ -405,7 +405,7 @@ export default async function MyReservationsPage() {
                 asChild
                 className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0"
               >
-                <Link href="/evenements">Voir les événements</Link>
+                <Link href="/agenda">Voir les événements</Link>
               </Button>
               <Button
                 asChild

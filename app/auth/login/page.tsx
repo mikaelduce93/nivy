@@ -8,67 +8,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from "react"
-
-const TEST_ACCOUNTS = [
-  {
-    group: "Parents",
-    accounts: [
-      { label: "Parent Test Basique (Free)", email: "parent.test@teenclub.ma" },
-      { label: "Parent VIP Silver (-10%)", email: "parent.silver@teenclub.ma" },
-      { label: "Parent VIP Gold (-20%)", email: "parent.gold@teenclub.ma" },
-      { label: "Parent VIP Platinum (-30%)", email: "parent.platinum@teenclub.ma" },
-    ],
-  },
-  {
-    group: "Teens",
-    accounts: [
-      { label: "Amine Test (Niv. 1 - Rookie)", email: "teen.amine@teenclub.ma" },
-      { label: "Sara Test Pro (Niv. 50 - Champion)", email: "teen.sara@teenclub.ma" },
-    ],
-  },
-  {
-    group: "Ambassador",
-    accounts: [
-      { label: "Ambassador Test (15% commission)", email: "ambassador.test@teenclub.ma" },
-    ],
-  },
-  {
-    group: "Administrateurs",
-    accounts: [
-      { label: "Admin Test (admin)", email: "admin.test@teenclub.ma" },
-      { label: "Moderator Test (moderator)", email: "moderator.test@teenclub.ma" },
-      { label: "Support Test (support)", email: "support.test@teenclub.ma" },
-    ],
-  },
-  {
-    group: "Partenaires",
-    accounts: [
-      { label: "TechStore Morocco (Retail)", email: "retail.partner@teenclub.ma" },
-      { label: "Le Rooftop Teen (Venue)", email: "venue.partner@teenclub.ma" },
-      { label: "Teen Fitness Academy (Club)", email: "club.partner@teenclub.ma" },
-      { label: "Code Academy Junior (Education)", email: "education.partner@teenclub.ma" },
-    ],
-  },
-] as const
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedTestAccount, setSelectedTestAccount] = useState<string | null>(null)
   const router = useRouter()
   const errorRef = useRef<HTMLDivElement>(null)
 
@@ -118,13 +66,6 @@ export default function LoginPage() {
         redirectTo: `${window.location.origin}/auth/callback?next=/auth/redirect`,
       },
     })
-  }
-
-  const applyTestAccount = () => {
-    if (!selectedTestAccount) return
-    setEmail(selectedTestAccount)
-    setPassword("Test123!")
-    setError(null)
   }
 
   return (
@@ -192,46 +133,6 @@ export default function LoginPage() {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-zinc-900 px-2 text-zinc-500">Ou par email</span>
-                </div>
-              </div>
-
-              <div className="mb-6 rounded-xl border border-dashed border-zinc-800 p-4">
-                <div className="mb-3 text-xs font-semibold uppercase text-zinc-500">
-                  Comptes de test (14)
-                </div>
-                <div className="flex flex-col gap-3">
-                  <Select
-                    value={selectedTestAccount ?? undefined}
-                    onValueChange={(value) => setSelectedTestAccount(value)}
-                  >
-                    <SelectTrigger className="w-full border-zinc-700 bg-zinc-900 text-white">
-                      <SelectValue placeholder="Choisir un compte test" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 text-white border-zinc-800">
-                      {TEST_ACCOUNTS.map((group) => (
-                        <SelectGroup key={group.group}>
-                          <SelectLabel>{group.group}</SelectLabel>
-                          {group.accounts.map((account) => (
-                            <SelectItem key={account.email} value={account.email}>
-                              {account.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="text-xs text-zinc-500">
-                    Mot de passe universel: <span className="text-zinc-300">Test123!</span>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full border-zinc-700 hover:bg-zinc-800"
-                    onClick={applyTestAccount}
-                    disabled={!selectedTestAccount}
-                  >
-                    Utiliser ce compte test
-                  </Button>
                 </div>
               </div>
 

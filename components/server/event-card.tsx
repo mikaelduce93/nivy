@@ -79,7 +79,7 @@ export function EventCard({
   className,
   priority = false,
 }: EventCardProps) {
-  const eventUrl = `/evenements/${event.slug || event.id}`
+  const eventUrl = `/agenda/${event.slug || event.id}`
 
   // Compact variant
   if (variant === 'compact') {

@@ -117,7 +117,7 @@ export function EventsCarousel() {
                       <p className="text-xl font-black text-primary">{event.price} DH</p>
                     </div>
                     <Button asChild size="sm">
-                      <Link href={`/evenements/${event.id}`}>
+                      <Link href={`/agenda/${event.id}`}>
                         Voir
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Link>

@@ -123,7 +123,7 @@ export default async function InfluenceursPage() {
                 aimes
               </p>
               <Button size="lg" asChild>
-                <Link href="/influenceurs/candidature">
+                <Link href="/devenir-influenceur/candidature">
                   Postuler maintenant
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>

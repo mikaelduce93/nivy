@@ -740,7 +740,7 @@ export default function AnniversairesPage() {
                     </Button>
                     <Button
                       className="flex-1"
-                      onClick={() => router.push('/evenements')}
+                      onClick={() => router.push('/agenda')}
                     >
                       Retour aux événements
                     </Button>

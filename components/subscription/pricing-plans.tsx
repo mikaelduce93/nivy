@@ -350,7 +350,7 @@ export function PricingPlans({ onSelectPlan, currentPlanCode }: PricingPlansProp
 
       {/* FAQ hint */}
       <div className="text-center">
-        <a href="/faq/premium" className="text-sm text-cyan-400 hover:underline flex items-center justify-center gap-1">
+        <a href="/aide/faq" className="text-sm text-cyan-400 hover:underline flex items-center justify-center gap-1">
           <Info className="w-4 h-4" />
           Questions fréquentes sur les forfaits
         </a>

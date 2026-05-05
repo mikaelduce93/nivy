@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -7,6 +8,26 @@ import { CheckCircle2, Clock, Mail, Phone, Home, ArrowRight } from 'lucide-react
 import Link from 'next/link'
 
 export default function PartnerThankYouPage() {
+  // Reference must be cryptographically random and stable across re-renders.
+  // Generated client-side post-mount to avoid SSR/CSR hydration drift.
+  const [reference, setReference] = useState<string>('')
+  useEffect(() => {
+    let raw = ''
+    if (typeof window !== 'undefined' && window.crypto) {
+      const c = window.crypto
+      if (typeof c.randomUUID === 'function') {
+        raw = c.randomUUID()
+      } else {
+        const bytes = new Uint8Array(8)
+        c.getRandomValues(bytes)
+        raw = Array.from(bytes)
+          .map((b: number) => b.toString(16).padStart(2, '0'))
+          .join('')
+      }
+    }
+    setReference(raw.replace(/-/g, '').slice(0, 8).toUpperCase())
+  }, [])
+
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
       <div className="container max-w-3xl">
@@ -167,7 +188,7 @@ export default function PartnerThankYouPage() {
               variant="outline"
               className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
             >
-              <Link href="/partenaires">
+              <Link href="/devenir-partenaire">
                 En savoir plus sur le programme
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
@@ -182,7 +203,7 @@ export default function PartnerThankYouPage() {
             className="mt-12 text-center"
           >
             <p className="text-sm text-zinc-500">
-              Numéro de référence : <span className="text-zinc-400 font-mono">#{Math.random().toString(36).substring(2, 10).toUpperCase()}</span>
+              Numéro de référence : <span className="text-zinc-400 font-mono">{reference ? `#${reference}` : '#…'}</span>
             </p>
             <p className="text-xs text-zinc-600 mt-2">
               Conservez ce numéro pour toute correspondance future

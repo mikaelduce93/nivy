@@ -258,7 +258,7 @@ export default async function ProfilePage() {
                     variant="outline"
                     className="border-purple-500 text-purple-400 hover:bg-purple-500/10 justify-start bg-transparent focus-visible:ring-2 focus-visible:ring-purple-500"
                   >
-                    <Link href="/fidelite">Programme fidélité</Link>
+                    <Link href="/carte-vip">Programme fidélité</Link>
                   </Button>
                   <Button
                     asChild

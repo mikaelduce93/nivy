@@ -187,8 +187,13 @@ const nextConfig = {
       // LEGACY - Anciennes routes
       // ----------------------------------------
       {
+        source: '/gamification-demo',
+        destination: '/gamification',
+        permanent: true,
+      },
+      {
         source: '/gamification-demo/:path*',
-        destination: '/gamification/:path*',
+        destination: '/gamification',
         permanent: true,
       },
     ]

@@ -67,7 +67,7 @@ export function HomeEventsSection({ events, clubs }: HomeEventsSectionProps) {
                       <span>{event.city || "Casablanca"}</span>
                     </div>
                     <Button asChild className="w-full">
-                      <Link href={`/evenements/${event.id}`}>
+                      <Link href={`/agenda/${event.id}`}>
                         Réserver
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Link>

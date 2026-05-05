@@ -231,12 +231,6 @@ export default async function GamificationPage() {
             <h2 className="text-xl font-bold text-white mb-4 text-center">Actions rapides</h2>
             <div className="flex flex-wrap justify-center gap-3">
               <Link
-                href="/gamification-demo"
-                className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-xl hover:from-cyan-400 hover:to-blue-400 transition-colors"
-              >
-                Jouer aux Mini-Jeux
-              </Link>
-              <Link
                 href="/gamification/roue"
                 className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl hover:from-purple-400 hover:to-pink-400 transition-colors"
               >

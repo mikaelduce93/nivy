@@ -32,7 +32,7 @@ export default async function ReservationPage({
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
   if (!event) {
-    redirect("/evenements")
+    redirect("/agenda")
   }
 
   const selectedType = ticketType || "standard"

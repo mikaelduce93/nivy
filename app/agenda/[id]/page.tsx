@@ -442,7 +442,7 @@ export default function EventDetailPage() {
                   </h2>
                   <div className="grid sm:grid-cols-3 gap-4">
                     {similarEvents.map((similar) => (
-                      <Link key={similar.id} href={`/evenements/${similar.id}`}>
+                      <Link key={similar.id} href={`/agenda/${similar.id}`}>
                         <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                           <div className="relative h-40">
                             <Image

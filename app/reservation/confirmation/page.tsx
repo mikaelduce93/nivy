@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer"
 import Link from "next/link"
 import { QRCodeSVG } from 'qrcode.react'
 import { TicketActions } from "@/components/ticket-actions"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default async function ReservationConfirmationPage({
   searchParams,
@@ -16,6 +17,7 @@ export default async function ReservationConfirmationPage({
 }) {
   const { booking: bookingId } = await searchParams
   const supabase = await createClient()
+  const { contactEmail, whatsappPhone, supportPhone } = getPublicAppConfig()
 
   const {
     data: { user },
@@ -195,7 +197,7 @@ export default async function ReservationConfirmationPage({
                   Gagne jusqu'à 50 DH par billet vendu ! Partage ta passion et aide tes amis à découvrir nos événements.
                 </p>
                 <Button asChild>
-                  <Link href="/ambassadeurs">
+                  <Link href="/devenir-ambassadeur">
                     Rejoindre le programme
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>
@@ -222,12 +224,12 @@ export default async function ReservationConfirmationPage({
 
           <p className="text-center text-sm text-muted-foreground mt-8">
             Des questions ? Contactez-nous à{" "}
-            <a href="mailto:contact@teensparty.ma" className="text-primary hover:underline">
-              contact@teensparty.ma
+            <a href={`mailto:${contactEmail}`} className="text-primary hover:underline">
+              {contactEmail}
             </a>
             {" "}ou via WhatsApp au{" "}
-            <a href="https://wa.me/212XXXXXXXXX" className="text-primary hover:underline">
-              +212 XXX-XXXXXX
+            <a href={`https://wa.me/${whatsappPhone}`} className="text-primary hover:underline">
+              {supportPhone}
             </a>
           </p>
         </div>

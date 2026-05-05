@@ -34,7 +34,7 @@ const navItems = [
   },
   {
     title: "Événements",
-    href: "/evenements",
+    href: "/agenda",
     icon: Calendar,
   },
   {
@@ -54,7 +54,7 @@ const navItems = [
   },
   {
     title: "Fidélité",
-    href: "/fidelite",
+    href: "/carte-vip",
     icon: CreditCard,
   },
   {

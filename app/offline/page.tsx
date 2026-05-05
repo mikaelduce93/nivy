@@ -67,7 +67,7 @@ export default function OfflinePage() {
       icon: Calendar,
       title: "Événements sauvegardés",
       description: "Consulte les événements que tu as déjà visités",
-      path: "/evenements",
+      path: "/agenda",
     },
     {
       icon: Users,

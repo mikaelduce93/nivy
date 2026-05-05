@@ -237,7 +237,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-2xl font-black text-white mb-2 group-hover:text-purple-400 transition-colors">SOCIAL</h3>
                 <p className="text-zinc-400 text-sm mb-6">Les meilleures soirées ados du Maroc. 100% Fun, 0% Alcool.</p>
-                <Link href="/evenements">
+                <Link href="/agenda">
                   <NeonButton variant="party" size="sm" className="w-full">Voir Soirées</NeonButton>
                 </Link>
               </GlassCard>
@@ -283,7 +283,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col justify-end">
-                    <Link href={`/evenements/${event.id}`} prefetch={true} className="w-full">
+                    <Link href={`/agenda/${event.id}`} prefetch={true} className="w-full">
                       <NeonButton variant="party" className="w-full">Réserver</NeonButton>
                     </Link>
                   </div>

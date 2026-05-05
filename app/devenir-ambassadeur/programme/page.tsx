@@ -88,7 +88,7 @@ export default function AmbassadeursProgrammePage() {
               <div className="inline-block">
                 <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-75" />
                 <Button asChild size="lg" className="relative bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white text-lg px-12 py-6">
-                  <Link href="/ambassadeurs/candidature">
+                  <Link href="/devenir-ambassadeur/candidature">
                     Devenir ambassadeur maintenant
                   </Link>
                 </Button>

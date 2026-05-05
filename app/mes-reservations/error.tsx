@@ -18,7 +18,7 @@ export default function ReservationsError({
       description="Une erreur s'est produite lors du chargement de vos réservations."
       suggestion="Vérifiez votre connexion internet et réessayez."
       showHome={true}
-      homeHref="/evenements"
+      homeHref="/agenda"
     />
   )
 }

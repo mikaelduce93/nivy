@@ -157,7 +157,7 @@ function EventCard({ event }: { event: Event }) {
                 {event.available_spots} places
               </p>
             )}
-            <Link href={`/evenements/${event.slug}`}>
+            <Link href={`/agenda/${event.slug}`}>
               <NeonButton 
                 variant={neonType === 'none' ? 'default' : neonType as any} 
                 size="sm" 

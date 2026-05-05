@@ -86,7 +86,7 @@ export default function DevenirPartenairePage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="border-zinc-700 text-white hover:bg-zinc-800 text-lg px-8">
-                <Link href="/partenaires">
+                <Link href="/devenir-partenaire">
                   Voir nos partenaires
                 </Link>
               </Button>

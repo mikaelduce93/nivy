@@ -310,7 +310,7 @@ export default function PassConfirmationPage() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
             <Button asChild className={`flex-1 ${tierConfig.gradient} hover:opacity-90 text-white`}>
-              <Link href="/evenements">
+              <Link href="/agenda">
                 Voir les événements
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>

@@ -60,7 +60,7 @@ export default function AmbassadorApplicationForm({ profile }: AmbassadorApplica
 
       if (applicationError) throw applicationError
 
-      router.push("/ambassadeurs?applied=true")
+      router.push("/devenir-ambassadeur?applied=true")
     } catch (err: any) {
       setError(err.message || "Une erreur est survenue")
     } finally {

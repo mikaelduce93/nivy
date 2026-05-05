@@ -74,7 +74,7 @@ async function runMigrations() {
   console.log("\n📋 Prochaines étapes:")
   console.log("   1. Vérifie les tables dans Supabase Dashboard")
   console.log("   2. Lance npm run dev")
-  console.log("   3. Teste sur /gamification-demo")
+  console.log("   3. Teste sur /gamification")
 }
 
 runMigrations().catch(console.error)

@@ -304,7 +304,7 @@ export default function CarteVIPPage() {
 
           <div className="text-center mt-8">
             <Button variant="outline" asChild>
-              <Link href="/partenaires">
+              <Link href="/devenir-partenaire">
                 Voir tous les partenaires
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Link>

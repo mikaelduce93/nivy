@@ -14,7 +14,7 @@ export default async function RecompensesPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect("/auth/login?redirect=/fidelite/recompenses")
+    redirect("/auth/login?redirect=/carte-vip/recompenses")
   }
 
   const { data: userPoints } = await supabase.from("user_points").select("*").eq("profile_id", user.id).single()
@@ -36,7 +36,7 @@ export default async function RecompensesPage() {
       <div className="min-h-screen bg-zinc-950">
         <div className="container mx-auto px-6 py-32">
           <div className="mb-12">
-            <Link href="/fidelite" className="text-cyan-400 hover:text-cyan-300 mb-4 inline-block">
+            <Link href="/carte-vip" className="text-cyan-400 hover:text-cyan-300 mb-4 inline-block">
               ← Retour au programme
             </Link>
             <div className="flex items-center justify-between">
@@ -113,7 +113,7 @@ export default async function RecompensesPage() {
                               : "bg-zinc-800 text-zinc-500 border-0"
                           }
                         >
-                          <Link href={`/fidelite/recompenses/${reward.id}`}>
+                          <Link href={`/carte-vip/recompenses/${reward.id}`}>
                             {canAfford && !isOutOfStock
                               ? "Échanger"
                               : !canAfford

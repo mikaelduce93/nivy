@@ -126,7 +126,7 @@ export default async function AmbassadeursPage() {
                     size="lg"
                     className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 text-lg px-10"
                   >
-                    <Link href="/ambassadeurs/candidature">
+                    <Link href="/devenir-ambassadeur/candidature">
                       Postuler maintenant
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Link>

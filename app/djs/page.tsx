@@ -94,7 +94,7 @@ export default async function DJsPage() {
                 <p className="text-muted-foreground mb-6">
                   Nous sommes en train de sélectionner les meilleurs DJs du Maroc pour vous.
                 </p>
-                <Link href="/evenements">
+                <Link href="/agenda">
                   <Button size="lg">Découvrir nos événements</Button>
                 </Link>
               </div>

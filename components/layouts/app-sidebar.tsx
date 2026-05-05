@@ -59,7 +59,7 @@ const navItems = [
   },
   {
     title: 'Fidélité',
-    href: '/fidelite',
+    href: '/carte-vip',
     icon: Star,
   },
   {

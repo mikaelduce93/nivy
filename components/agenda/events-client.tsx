@@ -519,7 +519,7 @@ function EventCardGrid({ event, onAddToCalendar }: { event: Event; onAddToCalend
         </div>
 
         <Button asChild className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" disabled={isFull}>
-          <Link href={`/evenements/${event.id}`}>
+          <Link href={`/agenda/${event.id}`}>
             {isFull ? "Complet" : "Voir les détails"}
             {!isFull && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
           </Link>
@@ -621,7 +621,7 @@ function EventCardList({ event, onAddToCalendar }: { event: Event; onAddToCalend
                 Ajouter
               </Button>
               <Button asChild disabled={isFull}>
-                <Link href={`/evenements/${event.id}`}>
+                <Link href={`/agenda/${event.id}`}>
                   {isFull ? "Complet" : "Réserver"}
                   {!isFull && <ArrowRight className="w-4 h-4 ml-2" />}
                 </Link>

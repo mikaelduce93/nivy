@@ -16,7 +16,7 @@ export default async function AmbassadorDashboardPage() {
   const { data: ambassador } = await supabase.from("ambassadors").select("*").eq("profile_id", user.id).single()
 
   if (!ambassador || ambassador.status !== "active") {
-    redirect("/ambassadeurs")
+    redirect("/devenir-ambassadeur")
   }
 
   // Get referrals with more details

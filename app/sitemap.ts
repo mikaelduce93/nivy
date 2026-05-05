@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { getAppUrl } from "@/lib/config/app-config"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient()
-  const baseUrl = "https://teensparty.ma"
+  const baseUrl = getAppUrl()
 
   // Get all events
   const { data: events } = await supabase
@@ -17,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const eventUrls =
     events?.map((event) => ({
-      url: `${baseUrl}/evenements/${event.slug}`,
+      url: `${baseUrl}/agenda/${event.slug}`,
       lastModified: event.updated_at ? new Date(event.updated_at) : new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
@@ -39,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${baseUrl}/evenements`,
+      url: `${baseUrl}/agenda`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
@@ -51,19 +52,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/fidelite`,
+      url: `${baseUrl}/carte-vip`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/ambassadeurs`,
+      url: `${baseUrl}/devenir-ambassadeur`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/partenaires`,
+      url: `${baseUrl}/devenir-partenaire`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.6,

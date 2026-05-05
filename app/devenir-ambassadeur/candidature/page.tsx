@@ -11,7 +11,7 @@ export default async function AmbassadorApplicationPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect("/auth/login?redirect=/ambassadeurs/candidature")
+    redirect("/auth/login?redirect=/devenir-ambassadeur/candidature")
   }
 
   const { data: existingApplication } = await supabase
@@ -21,7 +21,7 @@ export default async function AmbassadorApplicationPage() {
     .single()
 
   if (existingApplication) {
-    redirect("/ambassadeurs")
+    redirect("/devenir-ambassadeur")
   }
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()

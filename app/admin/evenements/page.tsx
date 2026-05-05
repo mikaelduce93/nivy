@@ -155,7 +155,7 @@ export default async function AdminEventsPage() {
                           variant="outline"
                           className="bg-transparent border-cyan-500 text-cyan-400"
                         >
-                          <Link href={`/evenements/${event.slug}`}>
+                          <Link href={`/agenda/${event.slug}`}>
                             <Eye className="w-4 h-4 mr-2" />
                             Voir
                           </Link>
