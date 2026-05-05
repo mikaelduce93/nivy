@@ -11,6 +11,7 @@
  */
 
 import crypto from 'crypto'
+import { getAppUrl } from '@/lib/config/app-config'
 
 interface CMIPaymentRequest {
   amount: number // In DH
@@ -55,7 +56,8 @@ export class CMIPaymentGateway {
     this.clientId = process.env.CMI_CLIENT_ID || ''
     this.apiEndpoint = process.env.CMI_API_ENDPOINT || 'https://testpayment.cmi.co.ma/fim/est3Dgate'
     this.testMode = process.env.NODE_ENV !== 'production'
-    this.appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    // Source unique pour l'URL de callback (lib/config/app-config).
+    this.appUrl = getAppUrl()
   }
 
   /**
@@ -205,11 +207,12 @@ export class CMIPaymentGateway {
   }
 
   /**
-   * Generate unique transaction reference
+   * Generate unique transaction reference.
+   * The CMI `rnd` parameter feeds the request hash and must be unpredictable.
    */
   private generateTransactionRef(): string {
     const timestamp = Date.now().toString(36)
-    const random = Math.random().toString(36).substring(2, 8)
+    const random = crypto.randomBytes(3).toString('hex') // 6 hex chars
     return `TP${timestamp}${random}`.toUpperCase()
   }
 

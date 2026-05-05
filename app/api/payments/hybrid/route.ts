@@ -17,6 +17,7 @@ import {
   MIN_XP_FOR_PAYMENT,
 } from "@/lib/payments/xp-converter"
 import { createCheckoutSession, formatPriceToStripe } from "@/lib/stripe"
+import { getAppUrl } from "@/lib/config/app-config"
 import { z } from "zod"
 
 // Request validation schema
@@ -249,7 +250,8 @@ export const POST = withSecurity(
       }
 
       // Cash payment needed - create payment session
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+      // URL canonique resolue via lib/config/app-config (strict en production).
+      const appUrl = getAppUrl()
 
       if (paymentMethod === "stripe") {
         // Create Stripe checkout session

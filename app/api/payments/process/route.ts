@@ -2,28 +2,79 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse, NextRequest } from "next/server"
 import { withSecurity } from "@/lib/security/api-middleware"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
+import { sendPaymentConfirmation } from "@/lib/emails"
+import { isResendConfigured } from "@/lib/resend"
+import crypto from "crypto"
+
+/**
+ * /api/payments/process
+ *
+ * Cette route est conservee pour les flux non-XP (paiement direct par formData).
+ * Elle ne possede pas d'integration gateway directe et delegue normalement le
+ * paiement carte a `/api/payments/hybrid` (Stripe/CMI). Tant qu'un canal n'est
+ * pas actif, on retourne 503 plutot que de mentir avec un statut "paid".
+ *
+ * Comportement:
+ *  - card             -> 503 Service Unavailable (utiliser /api/payments/hybrid)
+ *  - mobile_money     -> redirige vers la page reservation en statut pending
+ *  - bank_transfer    -> idem (statut pending, instructions cote UI)
+ *  - ambassador       -> idem
+ */
+
+const CARD_GATEWAY_AVAILABLE = false // toggled when gateway wired
+
+function buildPaymentReference(): string {
+  // Reference non sensible mais imprevisible
+  const ts = Date.now().toString(36).toUpperCase()
+  const rnd = crypto.randomBytes(3).toString("hex").toUpperCase()
+  return `PAY${ts}${rnd}`
+}
 
 export const POST = withSecurity(async (request: NextRequest) => {
+  let bookingId: string | null = null
   try {
     const supabase = await createClient()
     const formData = await request.formData()
 
     const {
       data: { user },
-    } = await withSupabaseTimeout(supabase.auth.getUser(), 'auth.getUser', 10000)
+    } = await withSupabaseTimeout(supabase.auth.getUser(), "auth.getUser", 10000)
 
     if (!user) {
       return NextResponse.redirect(new URL("/auth/login", request.url))
     }
 
-    const bookingId = formData.get("bookingId") as string
+    bookingId = formData.get("bookingId") as string
     const paymentMethod = formData.get("paymentMethod") as string
+
+    if (!bookingId || !paymentMethod) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Parametres manquants (bookingId, paymentMethod)",
+        },
+        { status: 400 }
+      )
+    }
+
+    // Refus immediat si paiement carte demande sans gateway active
+    if (paymentMethod === "card" && !CARD_GATEWAY_AVAILABLE) {
+      return NextResponse.json(
+        {
+          success: false,
+          code: "PAYMENT_GATEWAY_UNAVAILABLE",
+          error:
+            "Paiement temporairement indisponible. Contactez le support ou utilisez une autre methode (Mobile Money, virement).",
+        },
+        { status: 503 }
+      )
+    }
 
     // Get booking details
     const { data: booking } = await withSupabaseTimeout(
       supabase
         .from("bookings")
-        .select("*")
+        .select("*, events(title, event_date, venue_name)")
         .eq("id", bookingId)
         .eq("parent_id", user.id)
         .single(),
@@ -32,34 +83,18 @@ export const POST = withSecurity(async (request: NextRequest) => {
     )
 
     if (!booking) {
-      throw new Error("Booking not found")
+      return NextResponse.json(
+        { success: false, error: "Reservation introuvable" },
+        { status: 404 }
+      )
     }
 
-    let paymentStatus = "pending"
-    const paymentReference = `PAY${Date.now().toString(36).toUpperCase()}`
+    // Pour tous les autres modes (mobile_money, bank_transfer, ambassador),
+    // on enregistre une intention de paiement au statut "pending" sans
+    // pretendre que la transaction est validee.
+    const paymentStatus = "pending"
+    const paymentReference = buildPaymentReference()
 
-    // For demo purposes, we'll mark card payments as paid immediately
-    // In production, integrate with actual payment gateway (CMI, Stripe, etc.)
-    if (paymentMethod === "card") {
-      paymentStatus = "paid"
-
-      // TODO: Integrate with real payment gateway
-      // const cardNumber = formData.get("cardNumber")
-      // const paymentResult = await processCardPayment(cardNumber, booking.total_amount)
-      // paymentStatus = paymentResult.status
-      // paymentReference = paymentResult.reference
-    } else if (paymentMethod === "mobile_money") {
-      // For mobile money, mark as pending and send instructions
-      paymentStatus = "pending"
-    } else if (paymentMethod === "bank_transfer") {
-      // For bank transfer, mark as pending
-      paymentStatus = "pending"
-    } else if (paymentMethod === "ambassador") {
-      // For ambassador payment, mark as pending
-      paymentStatus = "pending"
-    }
-
-    // Update booking with payment info
     const { error: updateError } = await withSupabaseTimeout(
       supabase
         .from("bookings")
@@ -67,36 +102,74 @@ export const POST = withSecurity(async (request: NextRequest) => {
           payment_status: paymentStatus,
           payment_method: paymentMethod,
           payment_reference: paymentReference,
-          status: paymentStatus === "paid" ? "confirmed" : "pending_payment",
+          status: "pending_payment",
         })
         .eq("id", bookingId),
       `from('bookings').update()`,
       10000
     )
 
-    if (updateError) throw updateError
-
-    // If paid, send confirmation email (to be implemented)
-    if (paymentStatus === "paid") {
-      // TODO: Send confirmation email with QR code tickets
-      console.log("[v0] Payment successful, should send confirmation email")
+    if (updateError) {
+      console.error("[payments/process] update booking failed:", updateError)
+      return NextResponse.redirect(
+        new URL(
+          `/mes-reservations?error=payment_failed&message=${encodeURIComponent(
+            "Votre paiement n'a pas pu etre enregistre. Reessayez ou contactez le support."
+          )}`,
+          request.url
+        )
+      )
     }
 
     return NextResponse.redirect(
-      new URL(
-        paymentStatus === "paid"
-          ? `/mes-reservations/${bookingId}?payment=success`
-          : `/mes-reservations/${bookingId}?payment=pending`,
-        request.url,
-      ),
+      new URL(`/mes-reservations/${bookingId}?payment=pending`, request.url)
     )
   } catch (error) {
-    console.error("[v0] Payment processing error:", error)
+    console.error("[payments/process] error:", error)
     return NextResponse.redirect(
       new URL(
-        `/mes-reservations?error=payment_failed&message=${encodeURIComponent("Votre paiement n'a pas pu être traité. Vérifiez vos informations ou essayez une autre méthode.")}`,
+        `/mes-reservations${
+          bookingId ? `/${bookingId}` : ""
+        }?error=payment_failed&message=${encodeURIComponent(
+          "Votre paiement n'a pas pu etre traite. Verifiez vos informations ou essayez une autre methode."
+        )}`,
         request.url
       )
     )
   }
-}, { rateLimit: 'api' })
+}, { rateLimit: "api" })
+
+/**
+ * Helper interne: envoi d'email de confirmation paiement.
+ * Utilise lorsque le statut passe a "paid" via un autre flux (webhook, callback CMI, etc.).
+ * Renvoie un boolean pour que l'appelant puisse retourner `email_sent` honnetement.
+ */
+export async function notifyPaymentSuccess(params: {
+  to: string
+  parentName: string
+  amount: number
+  description: string
+  transactionId: string
+  paymentMethod: string
+}): Promise<boolean> {
+  if (!isResendConfigured()) {
+    console.warn("[payments/process] Resend non configure - email non envoye")
+    return false
+  }
+  try {
+    const result = await sendPaymentConfirmation({
+      to: params.to,
+      parentName: params.parentName,
+      paymentType: "booking",
+      amount: params.amount,
+      description: params.description,
+      transactionId: params.transactionId,
+      paymentMethod: params.paymentMethod,
+      paidAt: new Date().toISOString(),
+    })
+    return Boolean(result.success)
+  } catch (error) {
+    console.error("[payments/process] notifyPaymentSuccess error:", error)
+    return false
+  }
+}

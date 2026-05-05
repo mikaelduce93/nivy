@@ -5,20 +5,54 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export function NewsletterForm() {
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    const trimmed = email.trim().toLowerCase()
+    if (!trimmed) return
+    if (!EMAIL_RE.test(trimmed)) {
+      toast.error("Adresse email invalide.")
+      return
+    }
 
     setLoading(true)
-    // TODO: Implement newsletter subscription
-    await new Promise(resolve => setTimeout(resolve, 500))
-    toast.success("Merci ! Tu es inscrit à notre newsletter.")
-    setEmail("")
-    setLoading(false)
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      })
+
+      const data = await res.json().catch(() => ({}))
+
+      if (res.ok && data?.success) {
+        if (data.already_subscribed) {
+          toast.success("Tu es deja inscrit a notre newsletter.")
+        } else {
+          toast.success(data.message ?? "Merci ! Tu es inscrit a notre newsletter.")
+          setEmail("")
+        }
+        return
+      }
+
+      const message =
+        typeof data?.error === "string"
+          ? data.error
+          : res.status === 503
+          ? "Inscription temporairement indisponible. Reviens bientot."
+          : "Une erreur est survenue. Reessaie plus tard."
+      toast.error(message)
+    } catch (err) {
+      console.error("[newsletter] submit error:", err)
+      toast.error("Impossible de te contacter. Reessaie plus tard.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -30,6 +64,8 @@ export function NewsletterForm() {
         onChange={(e) => setEmail(e.target.value)}
         className="flex-1"
         required
+        disabled={loading}
+        aria-label="Adresse email pour la newsletter"
       />
       <Button type="submit" disabled={loading}>
         {loading ? "..." : "OK"}

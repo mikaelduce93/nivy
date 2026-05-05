@@ -87,7 +87,7 @@ export default function ParentLiveDashboardPage() {
 
       if (!profile) return
 
-      // Get linked teens
+      // Get linked teens (incluant photo_consent pour respecter le consentement reel)
       const { data: parentTeens } = await supabase
         .from("parent_teen_links")
         .select(`
@@ -96,6 +96,7 @@ export default function ParentLiveDashboardPage() {
             id,
             user_id,
             pseudo,
+            photo_consent,
             profiles:user_id(full_name)
           )
         `)
@@ -131,6 +132,9 @@ export default function ParentLiveDashboardPage() {
         const teenCheckIn = checkIns?.find((c: any) => c.teen_id === pt.teen_id)
         const teenName = pt.teens?.profiles?.full_name || "Inconnu"
         const pseudo = pt.teens?.pseudo || ""
+        // Lecture du consentement photo reel depuis le profil teen.
+        // Defaut: false si la colonne est null/absente (principe du moins-disant).
+        const photoConsent = Boolean(pt.teens?.photo_consent)
 
         if (!teenCheckIn) {
           return {
@@ -143,7 +147,7 @@ export default function ParentLiveDashboardPage() {
             status: "not_at_event" as const,
             checkedInAt: null,
             checkedOutAt: null,
-            photoConsent: false,
+            photoConsent,
           }
         }
 
@@ -157,7 +161,7 @@ export default function ParentLiveDashboardPage() {
           status: teenCheckIn.checked_out_at ? "checked_out" as const : "checked_in" as const,
           checkedInAt: teenCheckIn.checked_in_at,
           checkedOutAt: teenCheckIn.checked_out_at,
-          photoConsent: true, // TODO: Get from teen profile
+          photoConsent,
         }
       })
 
@@ -193,8 +197,54 @@ export default function ParentLiveDashboardPage() {
       timelineEvents.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
       setTimeline(timelineEvents)
 
-      // TODO: Fetch event photos if consent given
-      setPhotos([])
+      // Charge les photos publiques liees aux evenements actifs du teen,
+      // uniquement si au moins un teen a accorde son consentement photo.
+      const consentedTeenHasActiveEvent = statuses.some(
+        (s) => s.photoConsent && s.eventId
+      )
+      const activeEventIds = Array.from(
+        new Set(
+          statuses
+            .filter((s) => s.photoConsent && s.eventId)
+            .map((s) => s.eventId as string)
+        )
+      )
+
+      if (consentedTeenHasActiveEvent && activeEventIds.length > 0) {
+        try {
+          const { data: galleries } = await supabase
+            .from("photo_galleries")
+            .select("id, event_id, created_at")
+            .in("event_id", activeEventIds)
+            .eq("is_public", true)
+
+          const galleryIds = (galleries || []).map((g: any) => g.id)
+          if (galleryIds.length === 0) {
+            setPhotos([])
+          } else {
+            const { data: galleryPhotos } = await supabase
+              .from("photo_gallery_items")
+              .select("id, image_url, created_at")
+              .in("gallery_id", galleryIds)
+              .order("created_at", { ascending: false })
+              .limit(20)
+
+            setPhotos(
+              (galleryPhotos || []).map((p: any) => ({
+                id: p.id,
+                url: p.image_url,
+                timestamp: p.created_at,
+              }))
+            )
+          }
+        } catch (photoError) {
+          // Pas de table ou erreur de schema -> afficher vide proprement
+          console.warn("[parent/live] photos non disponibles:", photoError)
+          setPhotos([])
+        }
+      } else {
+        setPhotos([])
+      }
 
     } catch (error) {
       console.error("Error fetching live data:", error)

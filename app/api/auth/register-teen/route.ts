@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import crypto from "crypto"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
+import { getAppUrl, getServerAppConfig } from "@/lib/config/app-config"
+import { resend, EMAIL_FROM, isResendConfigured } from "@/lib/resend"
 
 /**
  * Register a teen account with parent validation
@@ -109,10 +111,10 @@ export async function POST(request: Request) {
     }
 
     // Build validation URL
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    const appUrl = getAppUrl()
     const validationUrl = `${appUrl}/auth/validate-teen?token=${validationToken}`
 
-    // Send email to parent
+    // Send email to parent (via Resend)
     const emailSent = await sendParentValidationEmail({
       parentEmail,
       parentName: existingParent?.full_name,
@@ -124,24 +126,32 @@ export async function POST(request: Request) {
 
     if (!emailSent) {
       // Log but don't fail - admin can resend
-      console.warn("Failed to send validation email to:", parentEmail)
+      console.warn(
+        "[register-teen] Validation email NOT sent to:",
+        parentEmail,
+        "(Resend non configure ou erreur d'envoi)"
+      )
     }
 
-    // Send SMS notification if phone is provided
+    // SMS: provider non integre. On ne pretend pas l'avoir envoye.
+    const smsSent = false
     if (parentPhone) {
-      await sendParentSMS({
-        phone: parentPhone,
-        teenName: teenFirstName,
-        validationUrl,
-      }).catch(console.error)
+      console.warn(
+        "[register-teen] SMS provider non configure. Aucun SMS envoye au parent",
+        parentPhone.replace(/\d(?=\d{4})/g, "*")
+      )
     }
 
     return NextResponse.json({
       success: true,
-      message: "Demande d'inscription envoyée",
+      message: emailSent
+        ? "Demande envoyee. Le parent recevra un email de validation."
+        : "Demande enregistree. L'email de validation n'a pas pu etre envoye automatiquement, contactez le support si besoin.",
       data: {
         registrationId: pendingRegistration.id,
-        parentEmailSent: emailSent,
+        email_sent: emailSent,
+        sms_sent: smsSent,
+        sms_available: false,
         expiresAt: tokenExpiry.toISOString(),
       },
     })
@@ -165,7 +175,9 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 /**
- * Send validation email to parent
+ * Envoie l'email de validation au parent via Resend.
+ * Retourne `false` (sans throw) si Resend n'est pas configure ou si l'envoi echoue.
+ * Le caller doit logger et exposer `email_sent: false` plutot que pretendre le succes.
  */
 async function sendParentValidationEmail({
   parentEmail,
@@ -182,53 +194,80 @@ async function sendParentValidationEmail({
   validationUrl: string
   expiresAt: Date
 }): Promise<boolean> {
+  if (!isResendConfigured() || !resend) {
+    console.warn(
+      "[register-teen] Resend non configure (RESEND_API_KEY manquant) - email parent non envoye"
+    )
+    return false
+  }
+
+  const { brandName } = getServerAppConfig()
+  const expiresStr = expiresAt.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })
+  const greeting = parentName ? `Bonjour ${parentName},` : "Bonjour,"
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #fafafa;">
+      <div style="background: linear-gradient(135deg, #10b981, #14b8a6); padding: 32px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 24px;">Validation parentale requise</h1>
+      </div>
+      <div style="background: white; padding: 32px;">
+        <p style="color: #374151;">${greeting}</p>
+        <p style="color: #374151;">
+          <strong>${escapeHtml(teenName)}</strong> (${teenAge} ans) souhaite creer un compte sur ${escapeHtml(
+            brandName
+          )}.
+        </p>
+        <p style="color: #374151;">
+          Pour finaliser son inscription, vous devez valider sa demande en cliquant sur le lien ci-dessous.
+        </p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${validationUrl}" style="display: inline-block; background: #10b981; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+            Valider la demande
+          </a>
+        </div>
+        <p style="color: #6b7280; font-size: 14px;">
+          Ce lien expire le <strong>${expiresStr}</strong>. Si vous n'avez pas reconnu cette demande, ignorez simplement cet email.
+        </p>
+        <p style="color: #9ca3af; font-size: 12px; margin-top: 24px; word-break: break-all;">
+          Lien direct: ${validationUrl}
+        </p>
+      </div>
+      <div style="padding: 16px; text-align: center;">
+        <p style="color: #9ca3af; font-size: 12px; margin: 0;">${escapeHtml(brandName)}</p>
+      </div>
+    </div>
+  `
+
   try {
-    // Use your email service (Resend, SendGrid, etc.)
-    // For now, log and return true
-    console.log(`[Email] Sending parent validation to ${parentEmail}`)
-    console.log(`[Email] Teen: ${teenName} (${teenAge} ans)`)
-    console.log(`[Email] Validation URL: ${validationUrl}`)
-    console.log(`[Email] Expires: ${expiresAt.toLocaleDateString("fr-FR")}`)
-
-    // TODO: Implement actual email sending
-    // Example with Resend:
-    // await resend.emails.send({
-    //   from: "Teens Party <noreply@teensparty.ma>",
-    //   to: parentEmail,
-    //   subject: `${teenName} souhaite rejoindre Teens Party`,
-    //   html: generateParentValidationEmailHtml({ parentName, teenName, teenAge, validationUrl, expiresAt }),
-    // })
-
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: parentEmail,
+      subject: `${teenName} souhaite rejoindre ${brandName}`,
+      html,
+    })
+    if (error) {
+      console.error("[register-teen] Resend error:", error)
+      return false
+    }
     return true
   } catch (error) {
-    console.error("Email send error:", error)
+    console.error("[register-teen] Email send exception:", error)
     return false
   }
 }
 
 /**
- * Send SMS to parent
+ * Echappement HTML minimal pour les variables interpolees dans le template email.
  */
-async function sendParentSMS({
-  phone,
-  teenName,
-  validationUrl,
-}: {
-  phone: string
-  teenName: string
-  validationUrl: string
-}): Promise<boolean> {
-  try {
-    // Format phone for Morocco
-    const formattedPhone = phone.replace(/\s/g, "")
-
-    console.log(`[SMS] Sending to ${formattedPhone}`)
-    console.log(`[SMS] Message: ${teenName} souhaite rejoindre Teens Party. Validez: ${validationUrl}`)
-
-    // TODO: Implement SMS sending (Twilio, InfoBip, etc.)
-    return true
-  } catch (error) {
-    console.error("SMS send error:", error)
-    return false
-  }
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
 }
