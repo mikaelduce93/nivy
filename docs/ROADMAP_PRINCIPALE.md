@@ -1,3 +1,5 @@
+> **Statut verifie 2026-05-06**: cette roadmap est OBSOLETE pour la partie "build / TypeScript / tests". Le code reel a 173+ erreurs TS, `ignoreBuildErrors: true`, et la suite Vitest vient juste d'etre amorcee (26 tests). Source de verite courante: `docs/audits/AUDIT_E2E_DOUBLONS_HARDCODE_SCAFFOLD.md`, `docs/ai/AGENT_ORCHESTRATION_FINALISATION.md`, `docs/RELEASE_CHECKLIST.md`.
+
 # 🗺️ ROADMAP PRINCIPALE - TEENS PARTY MOROCCO
 
 **Version:** 1.0  

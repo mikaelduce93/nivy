@@ -1,3 +1,5 @@
+> **Statut verifie 2026-05-06**: cette section est PARTIELLEMENT OBSOLETE. L'extrait `next.config.mjs` (ligne 94: `ignoreBuildErrors: false`) decrit l'etat CIBLE, pas l'etat actuel. Etat reel: `ignoreBuildErrors: true`. Voir `docs/audits/AUDIT_E2E_DOUBLONS_HARDCODE_SCAFFOLD.md` et `docs/RELEASE_CHECKLIST.md`.
+
 # PLAN DE FINALISATION STRUCTURÉ - TEENS PARTY MOROCCO
 
 **Date:** 16 Novembre 2025  

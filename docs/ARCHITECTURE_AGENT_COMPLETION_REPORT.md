@@ -1,3 +1,5 @@
+> **Statut verifie 2026-05-06**: cette section est OBSOLETE. La config reelle a `ignoreBuildErrors: true` dans `next.config.mjs:11`. Voir `docs/audits/AUDIT_E2E_DOUBLONS_HARDCODE_SCAFFOLD.md` et `docs/RELEASE_CHECKLIST.md` pour l'etat reel.
+
 # Architecture Agent - Rapport de Complétion
 
 **Date**: 2025-01-27  

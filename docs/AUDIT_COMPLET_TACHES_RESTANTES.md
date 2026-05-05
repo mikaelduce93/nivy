@@ -1,3 +1,5 @@
+> **Statut verifie 2026-05-06**: cet audit est OBSOLETE. Le claim "70% complete" et l'extrait `ignoreBuildErrors: false` ne reflètent plus l'etat reel (build encore avec `ignoreBuildErrors: true`, 173+ erreurs TS, doublons de routes legacy). Source de verite courante: `docs/audits/AUDIT_E2E_DOUBLONS_HARDCODE_SCAFFOLD.md` (2026-05-06) et `docs/RELEASE_CHECKLIST.md`.
+
 # AUDIT COMPLET - TÂCHES RESTANTES TEENS PARTY MOROCCO
 
 **Date de l'audit:** 2025

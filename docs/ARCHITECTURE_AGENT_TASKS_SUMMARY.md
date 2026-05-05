@@ -1,3 +1,5 @@
+> **Statut verifie 2026-05-06**: cette section est OBSOLETE. La ligne 53 affirme `ignoreBuildErrors: false` mais la config reelle (`next.config.mjs:11`) est `true` et 173+ erreurs TS subsistent. Voir `docs/audits/AUDIT_E2E_DOUBLONS_HARDCODE_SCAFFOLD.md` et `docs/RELEASE_CHECKLIST.md`.
+
 # Architecture Agent - Résumé des Tâches Exécutées
 
 **Date**: 2025-01-27  
