@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
+import { randomBytes } from "node:crypto"
 
 export async function POST(request: Request) {
   try {
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
 
     // Generate unique filename
     const fileExt = file.name.split(".").pop() || "jpg"
-    const fileName = `${userInfo.profileId}/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+    const fileName = `${userInfo.profileId}/${Date.now()}-${randomBytes(6).toString("hex")}.${fileExt}`
 
     // Convert File to ArrayBuffer for upload
     const arrayBuffer = await file.arrayBuffer()

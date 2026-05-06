@@ -1,5 +1,7 @@
 # 🟡 TODO P2 - AMÉLIORATION (Features V2)
 
+> **Statut verifie 2026-05-06**: ce backlog peut etre obsolete. Voir `docs/audits/AUDIT_E2E_DOUBLONS_HARDCODE_SCAFFOLD.md` pour l'etat verifie a cette date, et `docs/RELEASE_CHECKLIST.md` pour la checklist active.
+
 **Priorité:** MOYENNE  
 **Objectif:** Implémenter features avancées  
 **Durée estimée:** 80-100h (10-12 jours)  

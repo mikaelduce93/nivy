@@ -133,11 +133,19 @@ export async function POST(request: Request) {
       )
     }
 
-    // SMS: provider non integre. On ne pretend pas l'avoir envoye.
+    // SMS not yet integrated. Tracked in TODO.
+    // When integrating, use lib/sms/<provider>.ts and read TWILIO_*/MESSAGEBIRD_*
+    // from getServerAppConfig(). For now we only check env presence to expose
+    // sms_available honestly to the caller (no 500 if email succeeded).
+    const smsAvailable = Boolean(
+      process.env.TWILIO_ACCOUNT_SID || process.env.MESSAGEBIRD_ACCESS_KEY
+    )
     const smsSent = false
     if (parentPhone) {
       console.warn(
-        "[register-teen] SMS provider non configure. Aucun SMS envoye au parent",
+        "[register-teen] SMS provider non integre (sms_available=" +
+          smsAvailable +
+          "). Aucun SMS envoye au parent",
         parentPhone.replace(/\d(?=\d{4})/g, "*")
       )
     }
@@ -151,7 +159,7 @@ export async function POST(request: Request) {
         registrationId: pendingRegistration.id,
         email_sent: emailSent,
         sms_sent: smsSent,
-        sms_available: false,
+        sms_available: smsAvailable,
         expiresAt: tokenExpiry.toISOString(),
       },
     })

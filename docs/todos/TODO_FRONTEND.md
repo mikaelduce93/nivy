@@ -1,5 +1,7 @@
 # 🎨 TODO FRONTEND - Toutes les Tâches UI/UX
 
+> **Statut verifie 2026-05-06**: ce backlog peut etre obsolete. Voir `docs/audits/AUDIT_E2E_DOUBLONS_HARDCODE_SCAFFOLD.md` pour l'etat verifie a cette date, et `docs/RELEASE_CHECKLIST.md` pour la checklist active.
+
 **Progression:** 0/120 tâches (0%)
 
 ---

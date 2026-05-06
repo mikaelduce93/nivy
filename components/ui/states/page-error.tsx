@@ -11,6 +11,7 @@
 import { useEffect } from 'react'
 import { ErrorBlock } from './error-block'
 import type { ErrorType } from './error-block'
+import { captureError } from '@/lib/monitoring/sentry'
 
 interface PageErrorProps {
   error: Error & { digest?: string }
@@ -38,14 +39,15 @@ export function PageError({
   backHref,
 }: PageErrorProps) {
   useEffect(() => {
-    // Log error to monitoring service
-    console.error('Page error:', error)
-    
-    // TODO: Send to Sentry or other monitoring service
-    // if (process.env.NODE_ENV === 'production') {
-    //   Sentry.captureException(error)
-    // }
-  }, [error])
+    // Log error to monitoring service. captureError is a no-op when Sentry DSN
+    // is not configured (NEXT_PUBLIC_SENTRY_DSN), so this is safe in dev.
+    console.error('[PageError]', error.message, error.digest ? `digest=${error.digest}` : '')
+    captureError(error, {
+      tags: { feature: 'page-error', error_type: type },
+      extra: { digest: error.digest },
+      level: 'error',
+    })
+  }, [error, type])
 
   // Add error digest as custom content if available
   const customContent = error.digest ? (
