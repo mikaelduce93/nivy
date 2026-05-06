@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 import { cmiGateway } from "@/lib/payments/cmi"
+import { getServerAppConfig } from "@/lib/config/app-config"
 
 export async function GET(request: NextRequest) {
   return handleCallback(request)
@@ -162,7 +163,7 @@ async function sendPaymentConfirmation(booking: any, paymentResult: any) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     await resend.emails.send({
-      from: "Teens Party Morocco <noreply@teensparty.ma>",
+      from: getServerAppConfig().emailFrom,
       to: fullBooking.profiles.email,
       subject: `Paiement confirmé - ${fullBooking.booking_reference}`,
       html: `

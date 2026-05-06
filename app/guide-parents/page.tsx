@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 
-const { whatsappPhone: WHATSAPP_PHONE } = getPublicAppConfig()
+const { whatsappPhone: WHATSAPP_PHONE, supportPhone: SUPPORT_PHONE } = getPublicAppConfig()
 
 export default function ParentsPage() {
   return (
@@ -131,7 +131,7 @@ export default function ParentsPage() {
                 },
                 {
                   q: "Puis-je contacter mon enfant pendant l'événement ?",
-                  a: "Oui. Votre enfant garde son téléphone. En cas d'urgence, notre équipe est joignable 24/7 au +212 661 234 567."
+                  a: `Oui. Votre enfant garde son téléphone. En cas d'urgence, notre équipe est joignable 24/7 au ${SUPPORT_PHONE}.`
                 },
                 {
                   q: "Que se passe-t-il en cas d'allergie ou problème médical ?",

@@ -7,6 +7,7 @@ import {
   XP_TO_DH_RATE,
   MAX_XP_PAYMENT_PERCENTAGE,
 } from "@/lib/xp-payment"
+import { getServerAppConfig } from "@/lib/config/app-config"
 
 // ============================================================================
 // GET: Récupérer les stats XP et transactions
@@ -322,7 +323,7 @@ async function sendXPPaymentConfirmation(booking: any) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     await resend.emails.send({
-      from: "Teens Party Morocco <noreply@teensparty.ma>",
+      from: getServerAppConfig().emailFrom,
       to: booking.profiles.email,
       subject: `Paiement XP confirmé - ${booking.booking_reference}`,
       html: `
