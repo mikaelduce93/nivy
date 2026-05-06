@@ -2,8 +2,7 @@
 
 import * as React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import ReactConfetti from 'react-confetti'
-import { useWindowSize } from '@/hooks/use-window-size'
+import canvasConfetti from 'canvas-confetti'
 import { cn } from '@/lib/utils'
 
 /* ==========================================================================
@@ -51,37 +50,54 @@ export function Confetti({
   recycle = false,
   gravity = 0.15,
   wind = 0,
-  className,
 }: ConfettiProps) {
-  const { width, height } = useWindowSize()
-  const [show, setShow] = React.useState(false)
   const colors = Array.isArray(palette) ? palette : CONFETTI_PALETTES[palette]
 
   React.useEffect(() => {
-    if (trigger) {
-      setShow(true)
-      const timer = setTimeout(() => setShow(false), duration)
-      return () => clearTimeout(timer)
+    if (!trigger || typeof window === 'undefined') return
+
+    let cancelled = false
+
+    const fireOnce = () => {
+      canvasConfetti({
+        particleCount: numberOfPieces,
+        spread: 90,
+        startVelocity: 45,
+        gravity: gravity * 6,
+        drift: wind,
+        ticks: Math.max(60, Math.floor(duration / 16)),
+        origin: { x: 0.5, y: 0 },
+        colors,
+        zIndex: 100,
+      })
     }
-    return undefined
-  }, [trigger, duration])
 
-  if (!show) return null
+    fireOnce()
 
-  return (
-    <div className={cn('fixed inset-0 pointer-events-none z-[100]', className)}>
-      <ReactConfetti
-        width={width}
-        height={height}
-        recycle={recycle}
-        numberOfPieces={numberOfPieces}
-        colors={colors}
-        gravity={gravity}
-        wind={wind}
-        tweenDuration={5000}
-      />
-    </div>
-  )
+    if (recycle) {
+      const interval = window.setInterval(() => {
+        if (!cancelled) fireOnce()
+      }, 1500)
+      const stopTimer = window.setTimeout(() => {
+        cancelled = true
+        window.clearInterval(interval)
+        canvasConfetti.reset()
+      }, duration)
+      return () => {
+        cancelled = true
+        window.clearInterval(interval)
+        window.clearTimeout(stopTimer)
+      }
+    }
+
+    const cleanup = window.setTimeout(() => canvasConfetti.reset(), duration)
+    return () => {
+      cancelled = true
+      window.clearTimeout(cleanup)
+    }
+  }, [trigger, duration, numberOfPieces, recycle, gravity, wind, colors])
+
+  return null
 }
 
 /* ==========================================================================
