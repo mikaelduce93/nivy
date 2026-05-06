@@ -10,15 +10,15 @@ interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
 const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
   ({ className, variant = "default", intensity = "medium", neon = "none", ...props }, ref) => {
     const intensityClasses = {
-      low: "bg-zinc-900/30 backdrop-blur-md",
-      medium: "bg-zinc-900/50 backdrop-blur-xl",
-      high: "bg-zinc-900/70 backdrop-blur-2xl",
+      low: "bg-card/30 backdrop-blur-md",
+      medium: "bg-card/60 backdrop-blur-xl",
+      high: "bg-card/80 backdrop-blur-2xl",
     }
 
     const variantClasses = {
       default: "border border-white/10 shadow-xl",
-      hover: "border border-white/10 shadow-xl transition-all duration-300 hover:bg-zinc-900/60 hover:border-white/20 hover:scale-[1.02] hover:shadow-2xl cursor-pointer",
-      panel: "bg-black/60 backdrop-blur-2xl border border-white/5",
+      hover: "border border-white/10 shadow-xl transition-all duration-300 hover:bg-card/70 hover:border-white/20 hover:scale-[1.02] hover:shadow-2xl cursor-pointer",
+      panel: "bg-background/70 backdrop-blur-2xl border border-white/5",
     }
 
     const neonClasses = {

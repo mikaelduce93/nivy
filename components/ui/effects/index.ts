@@ -92,18 +92,6 @@ export {
   PREMIUM_EASINGS,
 } from './cinematic-transition'
 
-// Elite Skeletons - Premium loading states
-export {
-  EliteSkeleton,
-  MorphingSkeleton,
-  StaggeredSkeleton,
-  HeroSkeleton,
-  CardSkeleton,
-  GridSkeleton,
-  PulseLoader,
-  OrbitLoader,
-} from './elite-skeleton'
-
 // Elite Backgrounds - Premium animated backgrounds
 export {
   AnimatedMeshGradient,

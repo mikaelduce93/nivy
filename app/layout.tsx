@@ -12,6 +12,7 @@ import { SkipLinks } from "@/components/ui/accessibility"
 import { OfflineBanner } from "@/components/ui/states"
 import { ServiceWorkerRegistration, PWAInstallBanner } from "@/components/pwa"
 import { MobileDock } from "@/components/layouts/mobile-dock"
+import { AmbientBackground } from "@/components/layouts/ambient-background"
 import { PerformanceProvider } from "@/components/providers/performance-provider"
 import { SentryBreadcrumbsSetup } from "@/components/monitoring/sentry-breadcrumbs-setup"
 import { SentryUserContext } from "@/components/monitoring/sentry-user-context"
@@ -218,6 +219,9 @@ export default async function RootLayout({
 
             {/* Offline indicator for PWA */}
             <OfflineBanner />
+
+            {/* Global ambient background (mesh gradient + grain) */}
+            <AmbientBackground />
 
             {/* Main navigation */}
             <nav id="main-navigation" aria-label="Navigation principale">

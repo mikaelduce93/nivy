@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Swords, Users, Wallet, User } from "lucide-react"
+import { Home, Swords, Users, Wallet, User, Calendar, Cake, Trophy, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -33,25 +33,26 @@ export function MobileDock() {
   const [mounted, setMounted] = useState(false)
 
   const isTeenArea = pathname?.startsWith("/teen")
+  const isParentArea = pathname?.startsWith("/parent")
+  const isAdminArea = pathname?.startsWith("/admin")
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // NEW 5-PILLAR NAVIGATION: Home, Quests, Social, Wallet, Profile
-  const navItems: NavItem[] = [
+  const teenNavItems: NavItem[] = [
     {
       label: "Home",
       href: "/teen",
       icon: Home,
-      color: "rgb(196, 181, 253)", // lavender
+      color: "rgb(196, 181, 253)",
       glowColor: "rgba(196, 181, 253, 0.5)",
     },
     {
       label: "Quests",
       href: "/teen/quests",
       icon: Swords,
-      color: "rgb(125, 211, 252)", // sky
+      color: "rgb(125, 211, 252)",
       glowColor: "rgba(125, 211, 252, 0.5)",
       badge: notifications.quests,
     },
@@ -59,7 +60,7 @@ export function MobileDock() {
       label: "Social",
       href: "/teen/social",
       icon: Users,
-      color: "rgb(253, 164, 175)", // coral/rose
+      color: "rgb(253, 164, 175)",
       glowColor: "rgba(253, 164, 175, 0.5)",
       badge: notifications.social,
     },
@@ -67,20 +68,60 @@ export function MobileDock() {
       label: "Wallet",
       href: "/teen/wallet",
       icon: Wallet,
-      color: "rgb(253, 224, 71)", // yellow
+      color: "rgb(253, 224, 71)",
       glowColor: "rgba(253, 224, 71, 0.5)",
     },
     {
       label: "Profil",
       href: "/teen/profile",
       icon: User,
-      color: "rgb(254, 215, 170)", // peach
+      color: "rgb(254, 215, 170)",
       glowColor: "rgba(254, 215, 170, 0.5)",
     },
   ]
 
-  // Only show the dock inside the teen app area
-  if (!isTeenArea) return null
+  const publicNavItems: NavItem[] = [
+    {
+      label: "Agenda",
+      href: "/agenda",
+      icon: Calendar,
+      color: "rgb(196, 181, 253)",
+      glowColor: "rgba(196, 181, 253, 0.5)",
+    },
+    {
+      label: "Anniv",
+      href: "/anniversaires",
+      icon: Cake,
+      color: "rgb(253, 164, 175)",
+      glowColor: "rgba(253, 164, 175, 0.5)",
+    },
+    {
+      label: "Clubs",
+      href: "/clubs",
+      icon: Trophy,
+      color: "rgb(190, 242, 100)",
+      glowColor: "rgba(190, 242, 100, 0.5)",
+    },
+    {
+      label: "XP",
+      href: "/gamification",
+      icon: Sparkles,
+      color: "rgb(125, 211, 252)",
+      glowColor: "rgba(125, 211, 252, 0.5)",
+    },
+    {
+      label: "Espace",
+      href: "/espace",
+      icon: User,
+      color: "rgb(254, 215, 170)",
+      glowColor: "rgba(254, 215, 170, 0.5)",
+    },
+  ]
+
+  // Parent has its own dock; admin should not display one.
+  if (isParentArea || isAdminArea) return null
+
+  const navItems = isTeenArea ? teenNavItems : publicNavItems
 
   // SSR safety - render a placeholder on server
   if (!mounted) {
