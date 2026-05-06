@@ -109,11 +109,10 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>(
       'column-reverse': 'flex-col-reverse',
     }
     
+    const Comp = Component as React.ElementType
     return (
-      // TODO(ts): widen type — see grid.tsx note about polymorphic `as` ref.
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      <Component
-        ref={ref as any}
+      <Comp
+        ref={ref}
         className={cn(
           'flex',
           
@@ -138,11 +137,10 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>(
           
           className
         )}
-        {...(props as any)}
+        {...props}
       >
         {children}
-      </Component>
-      /* eslint-enable @typescript-eslint/no-explicit-any */
+      </Comp>
     )
   }
 )
