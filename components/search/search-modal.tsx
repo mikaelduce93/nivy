@@ -65,13 +65,16 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
       // Add events
       if (eventsRes.data) {
-        eventsRes.data.forEach((event) => {
+        // TODO(ts): widen type — supabase client is generated with no
+        // Database generic, so query results are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        eventsRes.data.forEach((event: any) => {
           searchResults.push({
             id: event.id,
             type: "event",
             title: event.title,
             subtitle: `${event.city} - ${new Date(event.event_date).toLocaleDateString("fr-FR")}`,
-            href: `/evenements/${event.id}`,
+            href: `/agenda/${event.id}`,
             icon: Calendar,
             badge: "Event",
           })
@@ -80,7 +83,8 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
       // Add clubs
       if (clubsRes.data) {
-        clubsRes.data.forEach((club) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        clubsRes.data.forEach((club: any) => {
           searchResults.push({
             id: club.id,
             type: "club",

@@ -1,6 +1,6 @@
-import { Notification } from "./types"
+import type { Notification as AppNotification } from "./types"
 
-export function showBrowserNotification(notification: Notification) {
+export function showBrowserNotification(notification: AppNotification) {
   if (typeof window === 'undefined' || Notification.permission !== 'granted' || document.visibilityState === 'visible') return
   const options = {
     body: notification.message,

@@ -63,8 +63,11 @@ const indicatorVariants = cva(
   }
 )
 
-interface ProgressProps 
-  extends React.ComponentProps<typeof ProgressPrimitive.Root>,
+// Note: ProgressPrimitive.Root inherits the HTML `color` attribute, which
+// collides with our CVA-driven `color` variant. Omit the HTML one in favour
+// of the variant typing.
+interface ProgressProps
+  extends Omit<React.ComponentProps<typeof ProgressPrimitive.Root>, 'color'>,
     VariantProps<typeof progressVariants>,
     VariantProps<typeof indicatorVariants> {
   showValue?: boolean

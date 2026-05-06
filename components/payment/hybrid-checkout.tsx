@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Coins, CreditCard } from 'lucide-react'
 import { XPValueDisplay } from '@/components/gamification/xp-display'
+import { AnimatedCounter } from '@/components/ui/animated-counter'
 
 interface HybridCheckoutProps {
   totalAmount: number // in DH
@@ -91,10 +92,6 @@ export function HybridCheckout({
               <span>0 XP</span>
               <span>Max: {maxXPAvailable.toLocaleString()} XP</span>
             </div>
-
-import { AnimatedCounter } from '@/components/ui/animated-counter'
-
-// ... (inside component)
 
             <div className="flex justify-between items-center pt-2 border-t border-zinc-800">
               <span className="text-sm text-emerald-400">Économie réalisée</span>

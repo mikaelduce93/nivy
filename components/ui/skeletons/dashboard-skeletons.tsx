@@ -17,9 +17,10 @@ import { motion } from 'framer-motion'
 interface SkeletonProps {
   className?: string
   animate?: boolean
+  style?: React.CSSProperties
 }
 
-export function Skeleton({ className, animate = true }: SkeletonProps) {
+export function Skeleton({ className, animate = true, style }: SkeletonProps) {
   return (
     <div
       className={cn(
@@ -27,6 +28,7 @@ export function Skeleton({ className, animate = true }: SkeletonProps) {
         animate && 'after:absolute after:inset-0 after:translate-x-[-100%] after:bg-gradient-to-r after:from-transparent after:via-white/10 after:to-transparent after:animate-shimmer',
         className
       )}
+      style={style}
     />
   )
 }

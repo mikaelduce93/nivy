@@ -110,8 +110,10 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>(
     }
     
     return (
+      // TODO(ts): widen type — see grid.tsx note about polymorphic `as` ref.
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       <Component
-        ref={ref}
+        ref={ref as any}
         className={cn(
           'flex',
           
@@ -136,10 +138,11 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>(
           
           className
         )}
-        {...props}
+        {...(props as any)}
       >
         {children}
       </Component>
+      /* eslint-enable @typescript-eslint/no-explicit-any */
     )
   }
 )

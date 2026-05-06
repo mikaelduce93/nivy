@@ -113,7 +113,35 @@ export function PillarScoreCard({
   onClick,
   showDetails = false,
 }: PillarScoreCardProps) {
-// ... existing code ...
+  const Icon = pillar.icon
+  const trend = previousScore !== undefined ? score - previousScore : 0
+  const TrendIcon = trend > 0 ? TrendingUp : trend < 0 ? TrendingDown : Minus
+
+  // Animated displayed score (counts up to current value on mount)
+  const [displayScore, setDisplayScore] = useState(0)
+  useEffect(() => {
+    let raf = 0
+    const start = performance.now()
+    const from = displayScore
+    const to = score
+    const duration = 600
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - start) / duration)
+      setDisplayScore(Math.round(from + (to - from) * progress))
+      if (progress < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+    // We intentionally only animate when `score` changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [score])
+
+  const scoreLevel =
+    score >= 85 ? { label: "Maitrise", color: "text-purple-400" } :
+    score >= 70 ? { label: "Avance", color: "text-yellow-400" } :
+    score >= 50 ? { label: "Bon", color: "text-zinc-300" } :
+                  { label: "A travailler", color: "text-zinc-500" }
+
   return (
     <motion.div
       className={cn(

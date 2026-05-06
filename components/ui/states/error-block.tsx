@@ -29,7 +29,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
    ERROR TYPES & PRESETS
    ========================================================================== */
 
-type ErrorType = 'generic' | 'network' | 'server' | 'notFound' | 'forbidden' | 'validation'
+export type ErrorType = 'generic' | 'network' | 'server' | 'notFound' | 'forbidden' | 'validation'
 
 const errorPresets: Record<ErrorType, {
   icon: LucideIcon

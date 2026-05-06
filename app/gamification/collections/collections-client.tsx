@@ -35,8 +35,10 @@ import confetti from "canvas-confetti"
    ========================================================================== */
 
 interface CollectionSet {
-  id?: string
-  name?: string
+  // TODO(ts): widen type — these came from an over-permissive zod inference.
+  // The runtime payload always includes id/name; treat them as required here.
+  id: string
+  name: string
   slug?: string
   description?: string | null
   theme?: string | null

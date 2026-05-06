@@ -152,7 +152,13 @@ function Button({
    PREMIUM BUTTON - With ripple, glow, loading states, and success animation
    ========================================================================== */
 
-interface PremiumButtonProps extends React.ComponentProps<'button'>,
+// Note: framer-motion's drag/animation handlers collide with HTML ones.
+// Omit them in favour of motion's typed surface.
+interface PremiumButtonProps
+  extends Omit<
+    React.ComponentProps<'button'>,
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
+  >,
   VariantProps<typeof buttonVariants> {
   loading?: boolean
   success?: boolean
@@ -346,7 +352,11 @@ function PremiumButton({
    MAGNETIC BUTTON - Button that attracts cursor
    ========================================================================== */
 
-interface MagneticButtonProps extends React.ComponentProps<'button'>,
+interface MagneticButtonProps
+  extends Omit<
+    React.ComponentProps<'button'>,
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
+  >,
   VariantProps<typeof buttonVariants> {
   strength?: number
   children: React.ReactNode

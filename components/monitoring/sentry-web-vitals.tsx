@@ -19,12 +19,14 @@ export function SentryWebVitals() {
       window.addEventListener('load', () => {
         const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
         if (navigation) {
+          // TODO(ts): widen type — Sentry.metrics.distribution typings vary
+          // by version; cast options through unknown to keep `tags` working.
           Sentry.metrics.distribution('page.load_time', navigation.loadEventEnd - navigation.fetchStart, {
             unit: 'millisecond',
             tags: {
               page: window.location.pathname,
             },
-          })
+          } as unknown as { unit: string })
         }
       })
     }

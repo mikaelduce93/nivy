@@ -236,8 +236,11 @@ export const Text = React.forwardRef<HTMLElement, TextProps>(
     const Comp = asChild ? Slot : Component
     
     return (
+      // TODO(ts): widen type — Comp is a polymorphic `as` prop, so the
+      // forwarded ref needs an `any` cast to satisfy the union of HTML refs.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Comp
-        ref={ref as React.Ref<HTMLElement>}
+        ref={ref as any}
         className={cn(
           // Size
           sizeStyles[size],

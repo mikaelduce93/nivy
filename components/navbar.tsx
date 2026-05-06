@@ -96,7 +96,24 @@ export function Navbar() {
     }
   }
 
-  const fullMenuItems = [
+  type MenuSubItem = {
+    label: string
+    href: string
+    icon: React.ComponentType<{ className?: string }>
+  }
+  type MenuSection = {
+    title: string
+    items: MenuSubItem[]
+  }
+  type MenuItem = {
+    id: string
+    label: string
+    icon: React.ComponentType<{ className?: string }>
+    href: string
+    megaMenu?: MenuSection[]
+  }
+
+  const fullMenuItems: MenuItem[] = [
     {
       id: "evenements",
       label: "Agenda",
@@ -261,7 +278,7 @@ export function Navbar() {
     },
   ]
 
-  const homeMenuItems = [
+  const homeMenuItems: MenuItem[] = [
     {
       id: "agenda",
       label: "Agenda",

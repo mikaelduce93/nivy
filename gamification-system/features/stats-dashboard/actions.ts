@@ -719,7 +719,7 @@ export async function generateStatsShareData(): Promise<{
         badges: stats.total_badges_earned,
         rank: rank?.rank || 0,
         percentile: rank?.percentile || 0,
-        favoriteGame: stats.favorite_game,
+        favoriteGame: stats.favorite_game ?? null,
         longestStreak: stats.longest_login_streak,
       },
     }

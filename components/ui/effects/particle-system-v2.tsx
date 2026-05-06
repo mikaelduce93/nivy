@@ -23,7 +23,7 @@ export interface ParticleSystemV2Props {
   /** Number of particles (auto-adjusts for performance) */
   count?: number
   /** Particle colors (hex or rgb) */
-  colors?: string[]
+  colors?: readonly string[]
   /** Speed preset */
   speed?: 'slow' | 'medium' | 'fast'
   /** Direction of particle movement */
@@ -144,7 +144,7 @@ export function ParticleSystemV2({
 }: ParticleSystemV2Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const particlesRef = React.useRef<Particle[]>([])
-  const animationRef = React.useRef<number>()
+  const animationRef = React.useRef<number | undefined>(undefined)
   const isVisibleRef = React.useRef(true)
   
   // Check for reduced motion preference
@@ -369,7 +369,7 @@ export function ParticleSystemV2({
 
 export interface FloatingParticlesProps {
   count?: number
-  colors?: string[]
+  colors?: readonly string[]
   className?: string
   direction?: 'up' | 'down' | 'random'
   speed?: 'slow' | 'medium' | 'fast'
@@ -402,7 +402,7 @@ export function FloatingParticles({
 
 export interface RisingSparksProps {
   count?: number
-  colors?: string[]
+  colors?: readonly string[]
   intensity?: 'low' | 'medium' | 'high'
   className?: string
 }

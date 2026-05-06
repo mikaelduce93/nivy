@@ -50,8 +50,8 @@ export default function CalendrierPage() {
       .map((event) => ({
         ...event,
         slug: 'slug' in event ? (event.slug ?? null) : null,
-      }))
-      .sort((a, b) => {
+      }) as Event)
+      .sort((a: Event, b: Event) => {
         return new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
       }) as Event[]
   }, [allEvents, currentDate])
@@ -217,7 +217,7 @@ export default function CalendrierPage() {
                   {selectedDateEvents.map((event) => (
                     <Link
                       key={event.id}
-                      href={`/evenements/${event.slug || event.id}`}
+                      href={`/agenda/${event.slug || event.id}`}
                       className="flex items-start gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-cyan-500 transition-all group"
                     >
                       <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">

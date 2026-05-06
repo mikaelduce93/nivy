@@ -61,17 +61,15 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, teenId }: Que
     switch (currentTab) {
       case "daily":
         // Return daily challenges or first few quests
-        return dailyChallenges.length > 0 
-          ? dailyChallenges.map((c: any) => ({
+        return dailyChallenges.length > 0
+          ? dailyChallenges.map((c: any): UnifiedQuest => ({
               id: c.id,
               type: "challenge" as const,
               title: c.challenge?.title || "Daily Challenge",
               description: c.challenge?.description || "",
-              xpReward: c.challenge?.xp_reward || 50,
+              xp_reward: c.challenge?.xp_reward || 50,
               pillar: "vitality" as const,
               status: c.status,
-              duration: "10 min",
-              difficulty: "medium" as const,
             }))
           : quests.slice(0, 6)
       case "brain":
@@ -89,7 +87,7 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, teenId }: Que
 
   // Stats for current pillar
   const completedCount = filteredQuests.filter(q => q.status === "completed").length
-  const totalXpAvailable = filteredQuests.reduce((sum, q) => sum + (q.xpReward || 0), 0)
+  const totalXpAvailable = filteredQuests.reduce((sum, q) => sum + (q.xp_reward || 0), 0)
 
   return (
     <div className="space-y-8 pt-6">

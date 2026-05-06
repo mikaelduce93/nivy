@@ -137,7 +137,7 @@ export function ScrambleText({
 }: ScrambleTextProps) {
   const [displayText, setDisplayText] = React.useState(children)
   const targetText = children
-  const intervalRef = React.useRef<NodeJS.Timeout>()
+  const intervalRef = React.useRef<NodeJS.Timeout | undefined>(undefined)
 
   React.useEffect(() => {
     if (!trigger) {
@@ -484,7 +484,6 @@ export function HighlightText({
     >
       <motion.span
         className="absolute inset-0 -z-10 rounded"
-        style={{ backgroundColor: color }}
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{

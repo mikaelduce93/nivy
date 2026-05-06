@@ -46,7 +46,7 @@ const MIN_LOG_LEVEL: LogLevel = IS_PRODUCTION ? 'info' : 'debug'
 /**
  * Sanitize data to remove sensitive information
  */
-function sanitizeData(data: unknown): unknown {
+function sanitizeData(data: unknown): Record<string, unknown> | unknown[] | unknown {
   if (!data || typeof data !== 'object') {
     return data
   }
@@ -133,7 +133,7 @@ class Logger {
         message,
         category: 'log',
         level: 'info',
-        data: sanitizeData(context),
+        data: sanitizeData(context) as Record<string, unknown>,
       })
     }
   }
@@ -153,7 +153,7 @@ class Logger {
         message,
         category: 'log',
         level: 'warning',
-        data: sanitizeData(context),
+        data: sanitizeData(context) as Record<string, unknown>,
       })
     }
 
@@ -161,7 +161,7 @@ class Logger {
     if (IS_PRODUCTION) {
       Sentry.captureMessage(message, {
         level: 'warning',
-        extra: sanitizeData(context),
+        extra: sanitizeData(context) as Record<string, unknown>,
       })
     }
   }
@@ -181,7 +181,7 @@ class Logger {
         level: 'error',
         extra: {
           message,
-          ...sanitizeData(context),
+          ...(sanitizeData(context) as Record<string, unknown>),
         },
       })
     } else {
@@ -189,7 +189,7 @@ class Logger {
         level: 'error',
         extra: {
           error: String(error),
-          ...sanitizeData(context),
+          ...(sanitizeData(context) as Record<string, unknown>),
         },
       })
     }
@@ -234,10 +234,12 @@ class Logger {
     // Send to Sentry metrics (if available)
     if (typeof window !== 'undefined' && 'metrics' in Sentry) {
       try {
+        // TODO(ts): widen type — Sentry.metrics.distribution typings vary by
+        // version; cast options through unknown to keep `tags` working.
         Sentry.metrics.distribution(metric, value, {
           unit,
           tags: context as Record<string, string>,
-        })
+        } as unknown as { unit: string })
       } catch {
         // Ignore if metrics not available
       }

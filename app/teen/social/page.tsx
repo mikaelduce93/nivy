@@ -18,7 +18,12 @@ export default async function SocialHubPage() {
   return (
     <div className="min-h-screen pb-32">
       <Suspense fallback={<SocialHubSkeleton />}>
-        <SocialHubClient teenId={teenId} teenName={userInfo.teenData?.full_name || "Friend"} />
+        {/* TODO(ts): widen type — getUserRole().teenData currently exposes
+            a TeenIDCard view of the teen profile that doesn't include
+            full_name. Cast through any until the auth layer returns the
+            richer profile shape. */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <SocialHubClient teenId={teenId} teenName={(userInfo.teenData as any)?.full_name || "Friend"} />
       </Suspense>
     </div>
   )

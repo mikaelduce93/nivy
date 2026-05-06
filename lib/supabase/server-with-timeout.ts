@@ -55,7 +55,10 @@ export async function createClientWithTimeout(timeoutMs: number = 30000) {
       update: wrapQuery(queryBuilder.update, 'update'),
       delete: wrapQuery(queryBuilder.delete, 'delete'),
       upsert: wrapQuery(queryBuilder.upsert, 'upsert'),
-    } as typeof queryBuilder
+      // TODO(ts): widen type — wrapped query builder differs structurally
+      // from PostgrestQueryBuilder (returns Promises directly). Cast through
+      // unknown to keep callsites type-checking.
+    } as unknown as typeof queryBuilder
   }
   
   return client

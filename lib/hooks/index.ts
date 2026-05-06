@@ -25,7 +25,6 @@ export {
   type UserType,
   type OnboardingState,
   type OnboardingData,
-  type OnboardingAnalytics,
 } from './use-onboarding'
 
 // Notifications hooks
@@ -35,8 +34,6 @@ export {
   type Notification,
   type NotificationType,
   type NotificationPriority,
-  type NotificationPreferences,
-  type PushSubscription,
 } from './use-notifications'
 
 // Re-export online status hook from components

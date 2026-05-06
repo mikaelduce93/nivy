@@ -60,7 +60,10 @@ export function SentryUserContext() {
       if (supabase && supabase.auth && typeof supabase.auth.onAuthStateChange === 'function') {
         const {
           data: { subscription },
-        } = supabase.auth.onAuthStateChange((event, session) => {
+        // TODO(ts): widen type — supabase auth callback types vary depending
+        // on the Database generic; treat them as `any` here.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } = supabase.auth.onAuthStateChange((event: any, session: any) => {
           if (event === 'SIGNED_IN' && session?.user) {
             updateSentryContext()
           } else if (event === 'SIGNED_OUT') {

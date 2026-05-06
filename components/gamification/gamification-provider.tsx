@@ -124,8 +124,8 @@ export function GamificationProvider({
         type: 'badge-unlocked',
         title: 'BADGE DÉBLOQUÉ !',
         subtitle: event.achievement.name,
-        image: event.achievement.icon_url,
-        xpEarned: event.achievement.xp_value
+        image: event.achievement.icon,
+        xpEarned: event.achievement.points
       })
       // setAchievementModal(event.achievement) // Disable old modal
     }
@@ -178,8 +178,8 @@ export function GamificationProvider({
         type: 'badge-unlocked',
         title: 'BADGE DÉBLOQUÉ !',
         subtitle: achievement.name,
-        image: achievement.icon_url,
-        xpEarned: achievement.xp_value
+        image: achievement.icon,
+        xpEarned: achievement.points
       })
     } else {
       setAchievementToast(achievement)

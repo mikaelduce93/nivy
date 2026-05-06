@@ -21,6 +21,7 @@ import { ParallaxContainer, ParallaxLayer } from "@/components/ui/parallax-conta
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export default function PartnerDashboard() {
   // Mock data for demo

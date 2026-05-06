@@ -7,8 +7,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    // Temporary compatibility while legacy TypeScript debt is cleaned up.
-    ignoreBuildErrors: true,
+    // TypeScript debt cleared — see Agent 3 / Phase 1. Build now fails on TS
+    // errors. Do not flip back to `true` without re-running the cleanup.
+    ignoreBuildErrors: false,
   },
 
   // ========================================

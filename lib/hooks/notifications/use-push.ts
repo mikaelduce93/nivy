@@ -29,7 +29,10 @@ export function usePushNotifications(userId?: string) {
     if (permission !== 'granted' && !(await requestPermission())) return false
     try {
       const reg = await navigator.serviceWorker.ready
-      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) })
+      // TypeScript narrows Uint8Array<ArrayBufferLike> away from BufferSource
+      // when SharedArrayBuffer is present in the lib targets; cast through
+      // BufferSource to satisfy PushSubscriptionOptionsInit.
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as unknown as BufferSource })
       const res = await fetch('/api/notifications/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub.toJSON(), userId }) })
       if (!res.ok) throw new Error('Save failed')
       setIsEnabled(true)

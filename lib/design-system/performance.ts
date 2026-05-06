@@ -18,7 +18,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
  */
 export function useDebouncedHover(delay = 50) {
   const [isHovered, setIsHovered] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   
   const handleMouseEnter = useCallback(() => {
     if (timeoutRef.current) {
@@ -77,7 +77,7 @@ export function useThrottledMousePosition(throttleMs = 16) {
   })
   
   const lastUpdateRef = useRef(0)
-  const rafRef = useRef<number>()
+  const rafRef = useRef<number | undefined>(undefined)
   
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const now = performance.now()
@@ -326,7 +326,7 @@ export function useParticlePositions(count: number, seed?: number): ParticlePosi
  */
 export function useWillChange(properties: string[] = ['transform', 'opacity']) {
   const [isAnimating, setIsAnimating] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   
   const startAnimation = useCallback(() => {
     if (timeoutRef.current) {

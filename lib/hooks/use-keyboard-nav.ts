@@ -68,7 +68,7 @@ export function useKeyboardNav(options: KeyboardNavOptions = {}): UseKeyboardNav
     preventDefault = true,
   } = options
   
-  const actionRef = useRef<() => void>()
+  const actionRef = useRef<(() => void) | undefined>(undefined)
   
   const handleKeyDown = useCallback((e: KeyboardEvent, action: () => void) => {
     const shouldTrigger = 
@@ -198,7 +198,9 @@ export function useRovingTabindex(
     initialIndex = 0,
   } = options
   
-  const [currentIndex, setCurrentIndex] = useRef(initialIndex).current
+  // Note: currentIndex/setCurrentIndex are exposed via the returned object
+  // (using indexRef as the source of truth). Removed broken destructure of
+  // useRef.current that previously caused TS errors.
   const indexRef = useRef(initialIndex)
   
   const handleKeyDown = useCallback((e: KeyboardEvent) => {

@@ -1,5 +1,9 @@
 "use client"
 
+// TODO(ts): widen type — supabase realtime channel callback typed as `any`
+// pending generated Database types (see types/supabase.ts).
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { RealtimeChannel } from "@supabase/supabase-js"
@@ -284,7 +288,7 @@ export function usePresence(options: UsePresenceOptions = {}) {
           schema: "public",
           table: "user_presence",
         },
-        (payload) => {
+        (payload: any) => {
           const newPresence = payload.new as UserPresence
           const oldPresence = payload.old as UserPresence | undefined
           

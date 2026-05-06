@@ -6,7 +6,7 @@
  * Uses the Vibration API (Android) and Web Haptics (iOS Safari).
  */
 
-type HapticStyle = 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error' | 'selection'
+export type HapticStyle = 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error' | 'selection'
 
 // Vibration patterns (in milliseconds)
 const vibrationPatterns: Record<HapticStyle, number | number[]> = {

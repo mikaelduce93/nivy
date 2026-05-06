@@ -105,10 +105,13 @@ export function PageTransition({
   const key = pageKey || pathname
 
   const variants = TRANSITION_PRESETS[preset]
+  // SPRING_CONFIGS may or may not include `duration` depending on the preset.
+  // Read it via an index access cast to widen the property surface.
+  const springCfg = SPRING_CONFIGS[spring] as { duration?: number } & typeof SPRING_CONFIGS[typeof spring]
   const transition = {
     ...SPRING_CONFIGS[spring],
-    duration: SPRING_CONFIGS[spring].duration 
-      ? SPRING_CONFIGS[spring].duration * duration 
+    duration: springCfg.duration
+      ? springCfg.duration * duration
       : undefined,
   }
 

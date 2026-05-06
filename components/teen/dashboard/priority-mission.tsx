@@ -162,7 +162,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
         borderWidth={2}
         borderRadius={24}
         speed={prefersReducedMotion ? "slow" : "medium"}
-        intensity={prefersReducedMotion ? 'low' : (isHovered ? 'strong' : 'medium')}
+        intensity={prefersReducedMotion ? 'subtle' : (isHovered ? 'strong' : 'medium')}
         glow={!prefersReducedMotion}
         glowSize={isHovered ? 35 : 15}
         hover={false}

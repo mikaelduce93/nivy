@@ -28,7 +28,7 @@ export function AmbassadorDashboardClient({ ambassador, referrals }: AmbassadorD
             month: "short",
             year: "numeric",
           })
-          const existing = acc.find((item) => item.name === month)
+          const existing = acc.find((item: { name: string; gains: number }) => item.name === month)
           if (existing) {
             existing.gains += referral.commission_amount || 0
           } else {

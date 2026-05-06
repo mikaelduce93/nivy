@@ -213,7 +213,9 @@ function sanitizeRequestBody(body: unknown): unknown {
   }
 
   const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'authorization', 'creditCard', 'cvv']
-  const sanitized = { ...body }
+  // TODO(ts): widen type — sanitiseRequestBody walks an unknown object tree;
+  // a Record<string, unknown> view is the minimum needed to mutate it.
+  const sanitized: Record<string, unknown> = { ...(body as Record<string, unknown>) }
 
   for (const key in sanitized) {
     if (sensitiveFields.some(field => key.toLowerCase().includes(field.toLowerCase()))) {

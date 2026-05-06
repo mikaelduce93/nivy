@@ -92,7 +92,7 @@ export default async function DashboardPage() {
             month: "short",
             year: "numeric",
           })
-          const existing = acc.find((item) => item.name === month)
+          const existing = acc.find((item: { name: string; reservations: number }) => item.name === month)
           if (existing) {
             existing.reservations += 1
           } else {
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
     clubEnrollments?.reduce(
       (acc, enrollment) => {
         const category = enrollment.clubs?.category || "Autre"
-        const existing = acc.find((item) => item.name === category)
+        const existing = acc.find((item: { name: string; value: number }) => item.name === category)
         if (existing) {
           existing.value += 1
         } else {
@@ -224,7 +224,7 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white">Prochains événements</h2>
               <Button asChild variant="ghost" size="sm" className="text-emerald-400 hover:text-emerald-300">
-                <Link href="/evenements">Voir tout</Link>
+                <Link href="/agenda">Voir tout</Link>
               </Button>
             </div>
 
@@ -263,7 +263,7 @@ export default async function DashboardPage() {
                 <Calendar className="w-16 h-16 text-zinc-700 mx-auto mb-4" aria-hidden="true" />
                 <p className="text-zinc-500">Aucune réservation à venir</p>
                 <Button asChild size="sm" className="mt-4 bg-emerald-500 hover:bg-emerald-600 text-white border-0 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900">
-                  <Link href="/evenements">Découvrir les événements</Link>
+                  <Link href="/agenda">Découvrir les événements</Link>
                 </Button>
               </div>
             )}
@@ -370,7 +370,7 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white">Points fidélité</h2>
               <Button asChild variant="ghost" size="sm" className="text-emerald-400 hover:text-emerald-300">
-                <Link href="/fidelite">Voir tout</Link>
+                <Link href="/carte-vip">Voir tout</Link>
               </Button>
             </div>
 

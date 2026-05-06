@@ -36,7 +36,11 @@ export function useReducedMotion(): boolean {
 }
 
 // Animation variants for consistent motion
-export const microAnimations = {
+// TODO(ts): widen type — framer-motion's TargetAndTransition rejects readonly
+// inferred tuple arrays. Typing the surface as `Record<string, any>` keeps the
+// values structurally compatible without disabling strictness elsewhere.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const microAnimations: Record<string, any> = {
   // Bounce on tap - subtle but satisfying
   bounceTap: {
     scale: 0.95,

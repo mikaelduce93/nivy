@@ -159,7 +159,7 @@ export function getErrorMessage(
   category: keyof typeof ErrorMessages,
   type: string,
 ): typeof ErrorMessages.auth.notAuthenticated {
-  const categoryMessages = ErrorMessages[category] as Record<string, typeof ErrorMessages.auth.notAuthenticated>
+  const categoryMessages = ErrorMessages[category] as unknown as Record<string, typeof ErrorMessages.auth.notAuthenticated>
   return categoryMessages[type] || ErrorMessages.generic.unexpected
 }
 

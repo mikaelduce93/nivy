@@ -16,7 +16,13 @@ import { cn } from "@/lib/utils"
    - Grain/noise texture overlay
    ========================================================================== */
 
-interface BentoGridProps extends React.HTMLAttributes<HTMLDivElement> {
+// Note: framer-motion's `onDrag` (PanInfo-based) collides with React's HTML
+// drag handler signature. Omit the HTML drag handlers in favour of motion.
+interface BentoGridProps
+  extends Omit<
+    React.HTMLAttributes<HTMLDivElement>,
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
+  > {
   children: React.ReactNode
   className?: string
   /** Stagger animation for children */

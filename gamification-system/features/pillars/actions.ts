@@ -70,7 +70,7 @@ export async function getAcademicData(teenId: string) {
   return {
     quizzes: quizzes?.map((q) => ({
       ...q,
-      completed: attemptMap.has(q.id)?.passed || false,
+      completed: attemptMap.get(q.id)?.passed || false,
       score: attemptMap.get(q.id)?.score,
     })) || [],
     tutorials: tutorials?.map((t) => ({

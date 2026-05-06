@@ -42,7 +42,7 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
   }
 
   // Use real-time XP if available, otherwise fallback to initial userInfo
-  const currentLevel = xp?.current_level || userInfo.teenData?.level || 1
+  const currentLevel = xp?.level || userInfo.teenData?.level || 1
   const currentCoins = userInfo.teenData?.coins || 0 // XP hook doesn't provide coins yet, keep static or update provider
 
   // Calculate if streak is critical (expires in < 4h)

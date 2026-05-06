@@ -237,7 +237,9 @@ export const GetMissionsInputSchema = z.object({
   includeExpired: z.boolean().optional().default(false),
 })
 
-export type GetMissionsInput = z.infer<typeof GetMissionsInputSchema>
+// Use z.input so optional defaults stay optional for callers; the parsed
+// (output) type with required defaults is z.infer<>.
+export type GetMissionsInput = z.input<typeof GetMissionsInputSchema>
 
 export const UpdateMissionProgressInputSchema = z.object({
   missionId: z.string().uuid(),

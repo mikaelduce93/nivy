@@ -1,4 +1,4 @@
-import { OnboardingStep, UserType, OnboardingState, OnboardingAnalytics } from "./types"
+import { OnboardingStep, UserType, OnboardingState } from "./types"
 
 export const STORAGE_KEY = 'teen_club_onboarding'
 export const GAMIFICATION_KEY = 'teen_club_onboarding_gamification'

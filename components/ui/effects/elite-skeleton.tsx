@@ -27,6 +27,8 @@ interface EliteSkeletonProps {
   glowColor?: string
   /** Border radius */
   borderRadius?: number
+  /** Inline style overrides (width/height) */
+  style?: React.CSSProperties
 }
 
 export function EliteSkeleton({
@@ -36,6 +38,7 @@ export function EliteSkeleton({
   glow = false,
   glowColor = 'rgba(139, 92, 246, 0.2)',
   borderRadius = 8,
+  style: styleOverrides,
 }: EliteSkeletonProps) {
   return (
     <div
@@ -44,6 +47,7 @@ export function EliteSkeleton({
         backgroundColor,
         borderRadius,
         boxShadow: glow ? `0 0 30px ${glowColor}` : undefined,
+        ...styleOverrides,
       }}
     >
       {/* Multi-layer shimmer */}

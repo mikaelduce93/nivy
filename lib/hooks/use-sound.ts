@@ -31,10 +31,11 @@ export function useSound() {
     }
   }, [manager])
 
-  return { 
-    play,
-    // Also expose new manager methods
+  return {
+    // Expose manager methods first; the legacy `play(type, volume)` takes
+    // precedence afterwards for backwards compatibility.
     ...manager,
+    play,
   }
 }
 

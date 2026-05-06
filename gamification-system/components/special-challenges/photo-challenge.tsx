@@ -365,9 +365,9 @@ export function PhotoGallery({
           </div>
           <div>
             <p className="font-medium text-white">{currentSubmission.pseudo}</p>
-            {currentSubmission.content?.caption && (
+            {Boolean(currentSubmission.content?.caption) && (
               <p className="text-sm text-zinc-400">
-                {currentSubmission.content.caption as string}
+                {String(currentSubmission.content?.caption ?? '')}
               </p>
             )}
           </div>

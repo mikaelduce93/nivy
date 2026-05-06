@@ -293,9 +293,8 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
           <div className="absolute inset-0 pointer-events-none overflow-visible">
             <OrbitParticles
               count={4}
-              radius={80}
               colors={item.particleColor}
-              speed="medium"
+              speed={8}
               size={3}
               glow={true}
             />

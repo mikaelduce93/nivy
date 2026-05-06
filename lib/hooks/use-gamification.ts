@@ -1,5 +1,10 @@
 "use client"
 
+// TODO(ts): widen type — supabase realtime channel callbacks are typed as
+// `(payload: any) =>` here because their generic types depend on table-level
+// generated Database typings (not yet wired up — see types/supabase.ts).
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { RealtimeChannel } from "@supabase/supabase-js"
@@ -213,7 +218,7 @@ export function useGamification(options: UseGamificationOptions = {}) {
           table: "user_xp",
           filter: `teen_id=eq.${teenId}`,
         },
-        (payload) => {
+        (payload: any) => {
           if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
             const newXP = payload.new as XPData & { teen_id: string }
 
@@ -261,7 +266,7 @@ export function useGamification(options: UseGamificationOptions = {}) {
           table: "user_streaks",
           filter: `teen_id=eq.${teenId}`,
         },
-        (payload) => {
+        (payload: any) => {
           if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
             const newStreak = payload.new as StreakData & { teen_id: string }
 
@@ -293,7 +298,7 @@ export function useGamification(options: UseGamificationOptions = {}) {
           table: "user_achievements",
           filter: `teen_id=eq.${teenId}`,
         },
-        async (payload) => {
+        async (payload: any) => {
           // Charger les détails de l'achievement
           const { data: achievementData } = await supabase
             .from("achievements")
@@ -328,7 +333,7 @@ export function useGamification(options: UseGamificationOptions = {}) {
           table: "user_challenges",
           filter: `teen_id=eq.${teenId}`,
         },
-        async (payload) => {
+        async (payload: any) => {
           if (payload.eventType === "UPDATE") {
             setState((prev) => ({
               ...prev,
@@ -425,7 +430,7 @@ export function useXP(teenId?: string) {
           table: "user_xp",
           filter: `teen_id=eq.${teenId}`,
         },
-        (payload) => {
+        (payload: any) => {
           if (payload.new) {
             setXP({
               total_xp: (payload.new as any).total_xp,
@@ -487,7 +492,7 @@ export function useStreak(teenId?: string) {
           table: "user_streaks",
           filter: `teen_id=eq.${teenId}`,
         },
-        (payload) => {
+        (payload: any) => {
           if (payload.new) {
             setStreak({
               current_streak: (payload.new as any).current_streak,
@@ -553,7 +558,7 @@ export function useDailyChallenges(teenId?: string) {
           table: "user_challenges",
           filter: `teen_id=eq.${teenId}`,
         },
-        async (payload) => {
+        async (payload: any) => {
           if (payload.eventType === "UPDATE") {
             setChallenges((prev) =>
               prev.map((c) =>

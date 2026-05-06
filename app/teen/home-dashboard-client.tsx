@@ -78,9 +78,8 @@ export function HomeDashboardClient({ data }: HomeDashboardClientProps) {
                 role: "teen"
               }}
               xpData={{
-                total_xp: xp.total,
-                level: xp.level,
-                xp_to_next_level: 100
+                total: xp.total,
+                progressPercent: xp.progressPercent,
               }}
             />
           </div>
@@ -238,7 +237,7 @@ function QuestPreviewCard({ quest, index }: { quest: UnifiedQuest; index: number
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10">
               <Zap className="w-3 h-3 text-gen-z-lavender" />
-              <span className="font-bold text-sm">{quest.xpReward}</span>
+              <span className="font-bold text-sm">{quest.xp_reward}</span>
             </div>
           </div>
         </motion.div>

@@ -358,16 +358,6 @@ export function OrbitParticles({
         <motion.div
           key={particle.id}
           className="absolute rounded-full"
-          style={{
-            width: particle.size,
-            height: particle.size,
-            backgroundColor: particle.color,
-            boxShadow: glow ? `0 0 ${particle.size * 3}px ${particle.color}` : undefined,
-            left: '50%',
-            top: '50%',
-            marginLeft: -particle.size / 2,
-            marginTop: -particle.size / 2,
-          }}
           animate={{
             rotate: reverse ? -360 : 360,
           }}
@@ -381,6 +371,10 @@ export function OrbitParticles({
             height: particle.size,
             backgroundColor: particle.color,
             boxShadow: glow ? `0 0 ${particle.size * 3}px ${particle.color}` : undefined,
+            left: '50%',
+            top: '50%',
+            marginLeft: -particle.size / 2,
+            marginTop: -particle.size / 2,
             transformOrigin: `${size / 2 * particle.orbitOffset}px center`,
           }}
         />

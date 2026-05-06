@@ -224,7 +224,7 @@ interface ContentProps {
   color: string
   shadow?: string
   badge?: number
-  sizeConfig?: typeof SIZE_CONFIG.md
+  sizeConfig?: (typeof SIZE_CONFIG)[keyof typeof SIZE_CONFIG]
   shouldAnimate: boolean
 }
 

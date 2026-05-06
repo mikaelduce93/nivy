@@ -1,3 +1,6 @@
+// TODO(ts): widen type — supabase realtime payload typed as `any` until
+// generated Database types land (see types/supabase.ts).
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification, UseNotificationsOptions } from './types'
@@ -25,17 +28,17 @@ export function useNotificationsRealtime(options: UseNotificationsOptions) {
     if (!userId) return
     fetchNotifications()
     const channel = supabase.current.channel(`notifications:${userId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (p) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (p: any) => {
         const n = p.new as Notification
         setNotifications(prev => [n, ...prev])
         showBrowserNotification(n)
         window.dispatchEvent(new CustomEvent('notification:new', { detail: n }))
       })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (p) => {
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (p: any) => {
         const n = p.new as Notification
         setNotifications(prev => prev.map(old => old.id === n.id ? n : old))
       })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (p) => {
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (p: any) => {
         setNotifications(prev => prev.filter(old => old.id !== p.old.id))
       })
       .subscribe()

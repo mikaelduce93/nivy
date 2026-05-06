@@ -100,7 +100,7 @@ interface UseScrollRevealOptions {
 }
 
 interface UseScrollRevealReturn {
-  ref: React.RefObject<HTMLDivElement>
+  ref: React.RefObject<HTMLDivElement | null>
   style: React.CSSProperties
   isVisible: boolean
 }
@@ -166,7 +166,7 @@ interface UseScrollProgressOptions {
 }
 
 interface UseScrollProgressReturn {
-  ref: React.RefObject<HTMLDivElement>
+  ref: React.RefObject<HTMLDivElement | null>
   progress: number // 0 to 1
 }
 
@@ -214,7 +214,7 @@ interface UseParallaxOptions {
 }
 
 interface UseParallaxReturn {
-  ref: React.RefObject<HTMLDivElement>
+  ref: React.RefObject<HTMLDivElement | null>
   style: React.CSSProperties
 }
 
@@ -266,7 +266,7 @@ interface UseStaggeredRevealOptions {
 }
 
 interface UseStaggeredRevealReturn {
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement | null>
   getItemProps: (index: number) => {
     style: React.CSSProperties
     'data-index': number

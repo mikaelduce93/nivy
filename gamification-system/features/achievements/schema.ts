@@ -159,7 +159,9 @@ export const getAchievementsSchema = z.object({
   includeSecret: z.boolean().optional().default(false),
 })
 
-export type GetAchievementsInput = z.infer<typeof getAchievementsSchema>
+// Use z.input so optional defaults stay optional for callers; the parsed
+// (output) type with required defaults is z.infer<>.
+export type GetAchievementsInput = z.input<typeof getAchievementsSchema>
 
 /**
  * Schéma pour récupérer les stats d'achievements

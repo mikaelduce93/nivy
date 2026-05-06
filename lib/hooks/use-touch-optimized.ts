@@ -77,7 +77,7 @@ export function useTouchOptimized(
     swipeDirection: null,
   })
   
-  const longPressTimerRef = useRef<NodeJS.Timeout>()
+  const longPressTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
   
   // Detect touch device on mount
   useEffect(() => {
@@ -222,7 +222,7 @@ export function useTouchOptimized(
  */
 export function useTapFeedback() {
   const [isTapped, setIsTapped] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   
   const handleTouchStart = useCallback(() => {
     if (timeoutRef.current) {
