@@ -1,6 +1,9 @@
 'use client'
 
+import * as React from 'react'
 import { Suspense } from 'react'
+import { useRouter } from 'next/navigation'
+import { PullToRefresh } from '@/components/ui/pull-to-refresh'
 import { Hero, type HeroVariant } from "@/components/teen/dashboard/hero"
 import { PriorityMission } from "@/components/teen/dashboard/priority-mission"
 import { OnlineFriends } from "@/components/teen/dashboard/online-friends"
@@ -69,10 +72,19 @@ export function TeenDashboardContent({
 }: TeenDashboardContentProps) {
   // Use unified dashboard context hook
   const { isMobile, prefersReducedMotion, mounted } = useDashboardContext()
-  
+  const router = useRouter()
+
   // SSR fallback - render with defaults
   const mobile = mounted ? isMobile : false
   const reducedMotion = mounted ? prefersReducedMotion : false
+
+  // Pull-to-refresh: revalidate the server component (XP, missions, feed).
+  const handleRefresh = React.useCallback(async () => {
+    router.refresh()
+    // Give the server roundtrip a brief, predictable end so the spinner
+    // doesn't disappear instantly on fast networks.
+    await new Promise((resolve) => setTimeout(resolve, 450))
+  }, [router])
 
   // Wrap content with elite providers on desktop
   const content = (
@@ -261,14 +273,23 @@ export function TeenDashboardContent({
   // Wrap with elite providers on desktop for cursor effects (elite/legendary variants)
   const heroVariant = getHeroVariant(xpData.level, currentStreak)
   const useEliteProviders = (heroVariant === 'elite' || heroVariant === 'legendary') && !mobile && mounted
-  
+
+  // Mobile: wrap in pull-to-refresh so a downward swipe revalidates dashboard data.
+  const wrappedContent = mobile ? (
+    <PullToRefresh onRefresh={handleRefresh} disabled={!mounted}>
+      {content}
+    </PullToRefresh>
+  ) : (
+    content
+  )
+
   if (useEliteProviders) {
     return (
       <EliteProviders cursor={true}>
-        {content}
+        {wrappedContent}
       </EliteProviders>
     )
   }
 
-  return content
+  return wrappedContent
 }

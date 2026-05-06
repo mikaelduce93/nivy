@@ -620,6 +620,24 @@
   }
 
   /* --------------------------------------------------------------------------
+     Touch Targets — WCAG 2.5.5 Level AAA + Apple HIG (44x44px minimum)
+     Use on any interactive element that may be visually smaller than 44px
+     so the hit area still reaches the recommended touch minimum.
+     -------------------------------------------------------------------------- */
+  .min-h-touch {
+    min-height: 44px;
+  }
+
+  .min-w-touch {
+    min-width: 44px;
+  }
+
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* --------------------------------------------------------------------------
      Form Elements
      -------------------------------------------------------------------------- */
   .input-field {

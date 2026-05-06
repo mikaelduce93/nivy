@@ -92,8 +92,9 @@ export default function HomePage() {
                 <span className="text-sm font-bold text-gen-z-lime tabular-nums">{t("hero.live", { days: countdown.days, hours: countdown.hours })}</span>
               </div>
 
-              {/* Main heading - Gen-Z gradient */}
-              <h1 className="text-6xl md:text-8xl font-black leading-[0.85] tracking-tighter">
+              {/* Main heading - Gen-Z gradient
+                  Responsive scale: xs (375px) → 4xl, then ramps to 8xl on lg+. */}
+              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] sm:leading-[0.85] tracking-tighter break-words">
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime animate-gradient-x bg-[length:200%_100%]">
                   TEEN&nbsp;LIFE
                 </span>
@@ -103,7 +104,7 @@ export default function HomePage() {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed text-balance">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed text-balance">
                 Bienvenue dans le <span className="text-foreground font-bold">1er Écosystème Lifestyle</span> pour les 13–17&nbsp;ans au Maroc.
                 <br/>
                 <span className="text-gen-z-grape font-semibold">Soirées</span> • <span className="text-gen-z-lime font-semibold">Sport</span> • <span className="text-gen-z-sky font-semibold">Études</span> • <span className="text-gen-z-coral font-semibold">Créativité</span>
@@ -290,7 +291,7 @@ export default function HomePage() {
             <div className="hidden motion-safe:block absolute -top-10 left-10 text-4xl animate-float opacity-40 select-none" aria-hidden="true">✨</div>
             <div className="hidden motion-safe:block absolute bottom-10 right-10 text-3xl animate-float delay-500 opacity-40 select-none" aria-hidden="true">🎮</div>
             
-            <h2 id="cta-heading" className="text-5xl md:text-7xl font-black text-foreground mb-8 tracking-tight text-balance">
+            <h2 id="cta-heading" className="text-4xl sm:text-5xl md:text-7xl font-black text-foreground mb-8 tracking-tight text-balance break-words">
               PRÊT À <span className="text-transparent bg-clip-text bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime">LEVEL&nbsp;UP</span> ?
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto text-balance">

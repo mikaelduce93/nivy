@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Loader2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { useJuice, type JuiceEvent } from '@/lib/hooks/use-juice'
 
 // Gen-Z Button Styles: Bold, rounded, bouncy, with colored shadows
 const buttonVariants = cva(
@@ -111,12 +112,14 @@ const buttonVariants = cva(
         ].join(' '),
       },
       size: {
-        default: 'h-10 px-5 py-2.5 has-[>svg]:px-4',
-        sm: 'h-8 rounded-xl gap-1.5 px-3.5 text-xs has-[>svg]:px-2.5',
+        // Default raised to h-11 (44px) — meets WCAG 2.5.5 + Apple HIG touch target minimum
+        default: 'h-11 px-5 py-2.5 has-[>svg]:px-4',
+        // sm visually 36px, but min-h-11 ensures hit area is still 44px on touch
+        sm: 'h-9 min-h-11 rounded-xl gap-1.5 px-3.5 text-xs has-[>svg]:px-2.5',
         lg: 'h-12 rounded-2xl px-7 text-base has-[>svg]:px-5',
         xl: 'h-14 rounded-3xl px-10 text-lg font-bold has-[>svg]:px-7',
-        icon: 'size-10 rounded-xl',
-        'icon-sm': 'size-8 rounded-lg',
+        icon: 'size-11 rounded-xl',
+        'icon-sm': 'size-9 min-h-11 min-w-11 rounded-lg',
         'icon-lg': 'size-12 rounded-2xl',
       },
     },
@@ -132,17 +135,32 @@ function Button({
   variant,
   size,
   asChild = false,
+  juice,
+  onClick,
   ...props
 }: React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    /**
+     * Opt-in juice on click. Pass a JuiceEvent name (e.g. 'click', 'success',
+     * 'quest_complete') to wire up sound + haptic + (optional) confetti.
+     * Pass `null` or omit entirely for a silent button (default).
+     */
+    juice?: JuiceEvent | null
   }) {
   const Comp = asChild ? Slot : 'button'
+  const { play } = useJuice()
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (juice) play(juice)
+    onClick?.(event)
+  }
 
   return (
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      onClick={handleClick}
       {...props}
     />
   )
