@@ -1,0 +1,14 @@
+Phase A audit (read-only). Output path: docs/audits/orchestrator-2026-05/<your-zone>.md
+
+Mandatory:
+- Read-only: NO Edit, NO Write to application code (app/, components/, lib/, features/, gamification-system/).
+- Use the standard audit schema your agent definition specifies.
+- Cite real file paths only — verify with Glob/Grep before citing.
+- Baseline SHA is 6e3e7f2 (committed snapshot from previous Wave 1). Compare current state against this SHA.
+- Known prior-run gaps to RE-VERIFY (don't trust blindly):
+  * Hardcoded mocks in app/teen/{aide-scolaire,academic,messages,calendar,coins,streak}/page.tsx
+  * Duplicate: app/teen/academic/page.tsx vs app/teen/aide-scolaire/page.tsx
+  * Test/preview routes reachable: app/test/* and app/preview/*
+  * Zero Playwright tests added despite team agents' DoD
+  * Gamification dirs / skeleton sources / rate-limiters not consolidated (only docs written)
+- Score zone professionalism 1-5, list P0/P1/P2 with effort estimates, propose surgical fixes.
