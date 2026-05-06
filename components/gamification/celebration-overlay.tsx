@@ -40,7 +40,7 @@ export function CelebrationOverlay({
       bgColor: 'bg-amber-500/20',
       borderColor: 'border-amber-500/50',
       neonColor: 'var(--neon-prestige)',
-      sound: '/sounds/level-up.mp3'
+      sound: '/sounds/level-up.wav'
     },
     'badge-unlocked': {
       icon: Trophy,
@@ -48,7 +48,7 @@ export function CelebrationOverlay({
       bgColor: 'bg-purple-500/20',
       borderColor: 'border-purple-500/50',
       neonColor: 'var(--neon-party)',
-      sound: '/sounds/badge.mp3'
+      sound: '/sounds/badge-unlock.wav'
     },
     'mission-complete': {
       icon: Star,
@@ -56,7 +56,7 @@ export function CelebrationOverlay({
       bgColor: 'bg-emerald-500/20',
       borderColor: 'border-emerald-500/50',
       neonColor: 'var(--neon-vitality)',
-      sound: '/sounds/success.mp3'
+      sound: '/sounds/success.wav'
     },
     'streak-milestone': {
       icon: Sparkles,
@@ -64,7 +64,7 @@ export function CelebrationOverlay({
       bgColor: 'bg-orange-500/20',
       borderColor: 'border-orange-500/50',
       neonColor: 'var(--neon-prestige)',
-      sound: '/sounds/fire.mp3'
+      sound: '/sounds/streak.wav'
     }
   }
 

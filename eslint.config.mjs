@@ -192,5 +192,6 @@ export default [js.configs.recommended, {
     'coverage/**',
     '*.config.js',
     '*.config.mjs',
+    'scripts/**',
   ],
 }];

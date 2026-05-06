@@ -339,7 +339,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
   const playSuccessSound = () => {
     try {
-      const audio = new Audio("/sounds/success.mp3")
+      const audio = new Audio("/sounds/success.wav")
       audio.volume = 0.3
       audio.play().catch(() => {
         // Audio feedback is optional.
