@@ -4,6 +4,7 @@ import { Users, Shield, Search, Download, Filter, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import Image from "next/image"
 import Link from "next/link"
 import BackButton from "@/components/admin/BackButton"
 
@@ -132,9 +133,11 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                   <div className="flex items-start gap-4 flex-1">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
                       {profile.avatar_url ? (
-                        <img
+                        <Image
                           src={profile.avatar_url || "/placeholder.svg"}
                           alt={profile.prenom || "User"}
+                          width={48}
+                          height={48}
                           className="w-full h-full object-cover rounded-full"
                         />
                       ) : (

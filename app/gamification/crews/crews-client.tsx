@@ -6,6 +6,7 @@
  */
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Users,
@@ -163,9 +164,11 @@ export function CrewsClient({ userCrew, publicCrews, crewLeaderboard, userId }: 
                     key={member.user_id}
                     className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 rounded-full"
                   >
-                    <img
+                    <Image
                       src={member.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.user_id}`}
                       alt={member.pseudo}
+                      width={24}
+                      height={24}
                       className="w-6 h-6 rounded-full"
                     />
                     <span className="text-sm text-white">{member.pseudo}</span>

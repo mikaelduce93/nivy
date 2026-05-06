@@ -182,14 +182,14 @@ export default function CalendarPage() {
         >
           {/* Month Navigation */}
           <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" size="icon" onClick={prevMonth}>
-              <ChevronLeft className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={prevMonth} aria-label="Mois précédent">
+              <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </Button>
-            <h2 className="text-xl font-black uppercase">
+            <h2 className="text-xl font-black uppercase" aria-live="polite">
               {MONTHS[currentMonth]} {currentYear}
             </h2>
-            <Button variant="ghost" size="icon" onClick={nextMonth}>
-              <ChevronRight className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={nextMonth} aria-label="Mois suivant">
+              <ChevronRight className="w-5 h-5" aria-hidden="true" />
             </Button>
           </div>
 

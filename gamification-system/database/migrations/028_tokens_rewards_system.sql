@@ -70,26 +70,24 @@ CREATE TABLE IF NOT EXISTS token_types (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Ensure category constraint matches current allowed values
+-- Ensure category constraint matches current allowed values when an older
+-- token_rewards table already exists. On a fresh install the table is
+-- created later in this same migration with the constraint embedded.
 DO $$
 BEGIN
-    IF EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_schema = 'public'
-          AND table_name = 'token_rewards'
-          AND constraint_name = 'token_rewards_category_check'
-    ) THEN
-        ALTER TABLE public.token_rewards DROP CONSTRAINT token_rewards_category_check;
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'token_rewards') THEN
+        IF EXISTS (
+            SELECT 1 FROM information_schema.table_constraints
+            WHERE table_schema = 'public'
+              AND table_name = 'token_rewards'
+              AND constraint_name = 'token_rewards_category_check'
+        ) THEN
+            ALTER TABLE public.token_rewards DROP CONSTRAINT token_rewards_category_check;
+        END IF;
+        ALTER TABLE public.token_rewards ADD CONSTRAINT token_rewards_category_check CHECK (category IN (
+            'digital', 'physical', 'experience', 'discount', 'premium', 'donation', 'raffle'
+        ));
     END IF;
-    ALTER TABLE public.token_rewards ADD CONSTRAINT token_rewards_category_check CHECK (category IN (
-        'digital',
-        'physical',
-        'experience',
-        'discount',
-        'premium',
-        'donation',
-        'raffle'
-    ));
 END $$;
 
 -- Tokens par défaut

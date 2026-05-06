@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   X,
@@ -344,9 +345,11 @@ export function ShareModal({
                   <div className="bg-zinc-800 rounded-xl p-4 mb-4">
                     <div className="flex gap-3">
                       {shareData.image && (
-                        <img
+                        <Image
                           src={shareData.image}
                           alt=""
+                          width={80}
+                          height={80}
                           className="w-20 h-20 rounded-lg object-cover"
                         />
                       )}

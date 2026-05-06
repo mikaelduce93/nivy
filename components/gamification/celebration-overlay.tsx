@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { useHaptic } from '@/lib/hooks/use-haptic'
@@ -39,7 +40,7 @@ export function CelebrationOverlay({
       bgColor: 'bg-amber-500/20',
       borderColor: 'border-amber-500/50',
       neonColor: 'var(--neon-prestige)',
-      sound: '/sounds/level-up.mp3'
+      sound: '/sounds/level-up.wav'
     },
     'badge-unlocked': {
       icon: Trophy,
@@ -47,7 +48,7 @@ export function CelebrationOverlay({
       bgColor: 'bg-purple-500/20',
       borderColor: 'border-purple-500/50',
       neonColor: 'var(--neon-party)',
-      sound: '/sounds/badge.mp3'
+      sound: '/sounds/badge-unlock.wav'
     },
     'mission-complete': {
       icon: Star,
@@ -55,7 +56,7 @@ export function CelebrationOverlay({
       bgColor: 'bg-emerald-500/20',
       borderColor: 'border-emerald-500/50',
       neonColor: 'var(--neon-vitality)',
-      sound: '/sounds/success.mp3'
+      sound: '/sounds/success.wav'
     },
     'streak-milestone': {
       icon: Sparkles,
@@ -63,7 +64,7 @@ export function CelebrationOverlay({
       bgColor: 'bg-orange-500/20',
       borderColor: 'border-orange-500/50',
       neonColor: 'var(--neon-prestige)',
-      sound: '/sounds/fire.mp3'
+      sound: '/sounds/streak.wav'
     }
   }
 
@@ -106,10 +107,6 @@ export function CelebrationOverlay({
       }
 
       frame()
-      
-      // Play sound if we had an audio system
-      // const audio = new Audio(currentConfig.sound)
-      // audio.play().catch(e => console.log('Audio play failed', e))
     } else {
       setShowConfetti(false)
     }
@@ -148,7 +145,7 @@ export function CelebrationOverlay({
                   className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 border-4 ${currentConfig.borderColor} bg-black/30 shadow-[0_0_30px_-5px_var(--neon-glow)]`}
                 >
                   {image ? (
-                    <img src={image} alt={title} className="w-16 h-16 object-contain" />
+                    <Image src={image} alt={title} width={64} height={64} className="w-16 h-16 object-contain" />
                   ) : (
                     <Icon className={`w-12 h-12 ${currentConfig.color}`} />
                   )}

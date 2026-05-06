@@ -12,6 +12,7 @@ import {
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Progress } from "@/components/ui/progress"
@@ -62,19 +63,26 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
             animate={{ scale: 1, opacity: 1 }}
             className="relative"
           >
-            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-4xl font-black text-black overflow-hidden">
+            <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-4xl font-black text-black overflow-hidden">
               {profile?.avatar_url ? (
-                <img
+                <Image
                   src={profile.avatar_url}
                   alt={userInfo.fullName}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="96px"
+                  className="object-cover"
+                  priority
                 />
               ) : (
                 userInfo.fullName?.charAt(0) || "?"
               )}
             </div>
-            <button className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-              <Camera className="w-5 h-5" />
+            <button
+              type="button"
+              aria-label="Modifier la photo de profil"
+              className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+            >
+              <Camera className="w-5 h-5" aria-hidden="true" />
             </button>
           </motion.div>
 

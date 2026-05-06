@@ -54,7 +54,7 @@ export default function PassConfirmationPage() {
             setPassData(passResult.data)
             triggerConfetti()
           } else {
-            setError((result as any).error || "Erreur lors de l'activation")
+            setError((result as { error?: string }).error || "Erreur lors de l'activation")
           }
         }
       } catch (err: any) {

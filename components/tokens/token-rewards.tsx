@@ -7,6 +7,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Gift,
@@ -192,9 +193,11 @@ function RewardCard({ reward, balance, onRedeem }: RewardCardProps) {
         </div>
 
         {reward.image_url ? (
-          <img
+          <Image
             src={reward.image_url}
             alt={reward.name}
+            width={80}
+            height={80}
             className="h-20 w-20 object-contain rounded-xl shadow-lg"
           />
         ) : (

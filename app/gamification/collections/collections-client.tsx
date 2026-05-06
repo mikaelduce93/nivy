@@ -35,8 +35,6 @@ import confetti from "canvas-confetti"
    ========================================================================== */
 
 interface CollectionSet {
-  // TODO(ts): widen type — these came from an over-permissive zod inference.
-  // The runtime payload always includes id/name; treat them as required here.
   id: string
   name: string
   slug?: string
@@ -423,9 +421,11 @@ export function CollectionsClient({
                       {owned ? (
                         <>
                           {item.image_url ? (
-                            <img
+                            <Image
                               src={item.image_url}
                               alt={item.name || "Item"}
+                              width={96}
+                              height={96}
                               className="w-3/4 h-3/4 object-contain"
                             />
                           ) : (
@@ -481,9 +481,11 @@ export function CollectionsClient({
               {/* Item Image */}
               <div className="w-32 h-32 mx-auto mb-4 rounded-xl bg-black/30 flex items-center justify-center">
                 {showItemModal.image_url ? (
-                  <img
+                  <Image
                     src={showItemModal.image_url}
                     alt={showItemModal.name || "Item"}
+                    width={96}
+                    height={96}
                     className="w-24 h-24 object-contain"
                   />
                 ) : (

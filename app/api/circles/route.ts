@@ -25,31 +25,17 @@ const deleteMessageSchema = z.object({
   reason: z.string().max(500).optional(),
 })
 
-// Schema for reporting messages (currently unused but may be used in future)
-// const reportMessageSchema = z.object({
-//   messageId: z.string().uuid("ID de message invalide"),
-//   reason: z.enum([
-//     "inappropriate",
-//     "spam",
-//     "harassment",
-//     "hate_speech",
-//     "other",
-//   ]),
-//   details: z.string().max(500).optional(),
-// })
-
-// List of forbidden words (would be in database in production)
-const FORBIDDEN_WORDS = [
-  // Add inappropriate words here - keeping minimal for demo
-  "insulte1",
-  "insulte2",
-  "motinterdit",
-]
-
-// List of words to warn about
-const WARNING_WORDS: string[] = [
-  // Words that might need attention
-]
+// Forbidden and warning word lists are read from FORBIDDEN_WORDS and
+// WARNING_WORDS environment variables (comma-separated). When a real
+// moderation pipeline is wired (database-backed), replace this loader.
+const FORBIDDEN_WORDS = (process.env.FORBIDDEN_WORDS ?? "")
+  .split(",")
+  .map((w) => w.trim())
+  .filter(Boolean)
+const WARNING_WORDS = (process.env.WARNING_WORDS ?? "")
+  .split(",")
+  .map((w) => w.trim())
+  .filter(Boolean)
 
 /**
  * Moderate message content

@@ -1,0 +1,193 @@
+{
+  "brand": {
+    "name": "NIVY",
+    "tagline": "Teen life, unleashed.",
+    "subtitle": "Morocco's #1 lifestyle ecosystem for 13-17 year olds."
+  },
+  "nav": {
+    "agenda": "Agenda",
+    "anniversaires": "Birthdays",
+    "clubs": "Clubs",
+    "programmes": "Programs",
+    "opportunites": "Opportunities",
+    "monEspace": "My Space",
+    "parents": "Parents",
+    "search": "Search",
+    "menu": "Menu",
+    "close": "Close",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "hero": {
+    "live": "Next party in {days}d {hours}h",
+    "headlineLine1": "TEEN LIFE",
+    "headlineLine2": "UNLEASHED",
+    "subtitle": "Welcome to Morocco's #1 lifestyle ecosystem for 13-17 year olds.",
+    "pillars": "Parties, sport, study, creativity. Pick your vibe.",
+    "ctaPrimary": "Join the crew!",
+    "ctaSecondary": "See the agenda",
+    "trustSafe": "100% Safe",
+    "trustAge": "Ages 13-17",
+    "trustNoAlcohol": "0% Alcohol",
+    "previewBadge": "Preview",
+    "previewTitle": "Your dashboard",
+    "previewDesc": "Here's what your dashboard looks like once you sign up",
+    "previewFooter": "Create your profile to earn real XP and unlock your pillars."
+  },
+  "cta": {
+    "signup": "Join the crew!",
+    "signupShort": "Sign up",
+    "login": "Log in",
+    "logout": "Log out",
+    "explore": "Explore",
+    "reserve": "Book",
+    "discover": "Discover",
+    "joinNow": "Let's go!",
+    "createProfile": "Create my profile",
+    "learnMore": "Learn more",
+    "seeAll": "See all",
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "cancel": "Cancel",
+    "retry": "Retry?",
+    "submit": "Submit",
+    "continue": "Continue"
+  },
+  "auth": {
+    "login": {
+      "title": "Yo, welcome back!",
+      "subtitle": "Sign in and pick up where you left off.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "submit": "Let's go",
+      "loading": "Signing in...",
+      "googleCta": "Continue with Google",
+      "appleCta": "Continue with Apple",
+      "orEmail": "Or use email",
+      "noAccount": "No account yet?",
+      "createAccount": "Create profile",
+      "forgotPassword": "Forgot password?"
+    },
+    "signup": {
+      "title": "Join the NIVY crew",
+      "subtitle": "Create your parent account to manage your teen's outings.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "city": "City",
+      "password": "Password",
+      "passwordHint": "At least 8 characters. Get creative.",
+      "newsletterLabel": "Send me good vibes via newsletter",
+      "termsLabel": "I agree to the terms of service",
+      "termsLink": "terms of service",
+      "submit": "Create my account",
+      "loading": "Creating...",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "termsRequired": "You need to accept the terms to continue"
+    }
+  },
+  "errors": {
+    "generic": "Oops, that didn't work. Retry? 💪",
+    "network": "Internet's acting up. Check your connection and retry.",
+    "auth": "Email or password is off. Try again.",
+    "validation": "Something's not right. Double-check your info.",
+    "notFound": "Weird, we can't find that.",
+    "forbidden": "Access denied, sorry.",
+    "rateLimit": "Slow down! Too many tries. Wait a minute.",
+    "server": "Something broke on our end. We're on it."
+  },
+  "toasts": {
+    "success": "Done! 🔥",
+    "saved": "Saved! ✨",
+    "error": "Oops, that didn't work. Retry? 💪",
+    "errorRetry": "Something glitched. Retry?",
+    "loading": "One sec...",
+    "copied": "Copied to clipboard ✨",
+    "deleted": "Deleted.",
+    "updated": "Updated! ✨",
+    "uploadFailed": "Upload failed. Try again.",
+    "exportFailed": "Export failed. Retry?",
+    "validationFailed": "Check your info.",
+    "loadFailed": "Couldn't load. Retry?",
+    "createFailed": "Creation failed. Retry?",
+    "checkInFailed": "Check-in failed. Retry?",
+    "verifyFailed": "Verification failed. Retry?"
+  },
+  "states": {
+    "loading": "Loading...",
+    "empty": {
+      "events": {
+        "title": "No events yet",
+        "description": "Come back soon, things are heating up! ✨"
+      },
+      "tickets": {
+        "title": "No bookings yet",
+        "description": "Check out the agenda — there's heat."
+      },
+      "users": {
+        "title": "Nobody here",
+        "description": "No users found."
+      },
+      "clubs": {
+        "title": "No clubs",
+        "description": "You're not in any clubs. Pick your vibe!"
+      },
+      "notifications": {
+        "title": "All quiet!",
+        "description": "No new notifications. You're up to date."
+      },
+      "search": {
+        "title": "Nothing found",
+        "description": "Try other keywords."
+      },
+      "documents": {
+        "title": "No documents",
+        "description": "You haven't added any documents yet."
+      },
+      "favorites": {
+        "title": "No favorites",
+        "description": "Add what you love!"
+      },
+      "reviews": {
+        "title": "No reviews",
+        "description": "Be the first to share."
+      },
+      "cart": {
+        "title": "Cart empty",
+        "description": "Add items to get started."
+      },
+      "inbox": {
+        "title": "Inbox empty",
+        "description": "No messages right now."
+      },
+      "files": {
+        "title": "No files",
+        "description": "This folder is empty."
+      },
+      "photos": {
+        "title": "No photos",
+        "description": "Nothing to display."
+      },
+      "messages": {
+        "title": "No messages",
+        "description": "Start the conversation!"
+      },
+      "generic": {
+        "title": "Nothing to show",
+        "description": "No content available."
+      }
+    }
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "or": "or",
+    "and": "and",
+    "loading": "Loading..."
+  }
+}

@@ -59,7 +59,7 @@ export function AnnivOrderActions({
       toast.success(`Statut mis à jour: ${getStatusLabel(newStatus)}`)
       router.refresh()
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour du statut")
+      toast.error("Maj du statut ratee. Retente?")
     } finally {
       setIsUpdating(false)
     }
@@ -84,7 +84,7 @@ export function AnnivOrderActions({
       toast.success(`Paiement mis à jour: ${getPaymentStatusLabel(newPaymentStatus)}`)
       router.refresh()
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour du paiement")
+      toast.error("Maj du paiement ratee. Retente?")
     } finally {
       setIsUpdating(false)
     }

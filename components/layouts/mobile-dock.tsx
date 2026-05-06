@@ -3,7 +3,24 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Swords, Users, Wallet, User } from "lucide-react"
+import {
+  Home,
+  Swords,
+  Users,
+  Wallet,
+  User,
+  Calendar,
+  Cake,
+  Trophy,
+  Sparkles,
+  Tag,
+  BarChart3,
+  Settings,
+  ShieldCheck,
+  Store,
+  Banknote,
+  Share2,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -33,25 +50,28 @@ export function MobileDock() {
   const [mounted, setMounted] = useState(false)
 
   const isTeenArea = pathname?.startsWith("/teen")
+  const isParentArea = pathname?.startsWith("/parent")
+  const isAdminArea = pathname?.startsWith("/admin")
+  const isPartnerArea = pathname?.startsWith("/partner")
+  const isAmbassadorArea = pathname?.startsWith("/ambassador")
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // NEW 5-PILLAR NAVIGATION: Home, Quests, Social, Wallet, Profile
-  const navItems: NavItem[] = [
+  const teenNavItems: NavItem[] = [
     {
       label: "Home",
       href: "/teen",
       icon: Home,
-      color: "rgb(196, 181, 253)", // lavender
+      color: "rgb(196, 181, 253)",
       glowColor: "rgba(196, 181, 253, 0.5)",
     },
     {
       label: "Quests",
       href: "/teen/quests",
       icon: Swords,
-      color: "rgb(125, 211, 252)", // sky
+      color: "rgb(125, 211, 252)",
       glowColor: "rgba(125, 211, 252, 0.5)",
       badge: notifications.quests,
     },
@@ -59,7 +79,7 @@ export function MobileDock() {
       label: "Social",
       href: "/teen/social",
       icon: Users,
-      color: "rgb(253, 164, 175)", // coral/rose
+      color: "rgb(253, 164, 175)",
       glowColor: "rgba(253, 164, 175, 0.5)",
       badge: notifications.social,
     },
@@ -67,20 +87,195 @@ export function MobileDock() {
       label: "Wallet",
       href: "/teen/wallet",
       icon: Wallet,
-      color: "rgb(253, 224, 71)", // yellow
+      color: "rgb(253, 224, 71)",
       glowColor: "rgba(253, 224, 71, 0.5)",
     },
     {
       label: "Profil",
       href: "/teen/profile",
       icon: User,
-      color: "rgb(254, 215, 170)", // peach
+      color: "rgb(254, 215, 170)",
       glowColor: "rgba(254, 215, 170, 0.5)",
     },
   ]
 
-  // Only show the dock inside the teen app area
-  if (!isTeenArea) return null
+  const partnerNavItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      href: "/partner",
+      icon: Home,
+      color: "rgb(125, 211, 252)",
+      glowColor: "rgba(125, 211, 252, 0.5)",
+    },
+    {
+      label: "Offres",
+      href: "/partner/offers",
+      icon: Tag,
+      color: "rgb(253, 164, 175)",
+      glowColor: "rgba(253, 164, 175, 0.5)",
+    },
+    {
+      label: "Events",
+      href: "/partner/events",
+      icon: Calendar,
+      color: "rgb(196, 181, 253)",
+      glowColor: "rgba(196, 181, 253, 0.5)",
+    },
+    {
+      label: "Stats",
+      href: "/partner/stats",
+      icon: BarChart3,
+      color: "rgb(190, 242, 100)",
+      glowColor: "rgba(190, 242, 100, 0.5)",
+    },
+    {
+      label: "Profil",
+      href: "/partner/profile",
+      icon: User,
+      color: "rgb(254, 215, 170)",
+      glowColor: "rgba(254, 215, 170, 0.5)",
+    },
+  ]
+
+  const adminNavItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      href: "/admin",
+      icon: Home,
+      color: "rgb(125, 211, 252)",
+      glowColor: "rgba(125, 211, 252, 0.5)",
+    },
+    {
+      label: "Events",
+      href: "/admin/events",
+      icon: Calendar,
+      color: "rgb(196, 181, 253)",
+      glowColor: "rgba(196, 181, 253, 0.5)",
+    },
+    {
+      label: "Users",
+      href: "/admin/users",
+      icon: ShieldCheck,
+      color: "rgb(253, 164, 175)",
+      glowColor: "rgba(253, 164, 175, 0.5)",
+    },
+    {
+      label: "Analytics",
+      href: "/admin/analytics",
+      icon: BarChart3,
+      color: "rgb(190, 242, 100)",
+      glowColor: "rgba(190, 242, 100, 0.5)",
+    },
+    {
+      label: "Settings",
+      href: "/admin/settings",
+      icon: Settings,
+      color: "rgb(161, 161, 170)",
+      glowColor: "rgba(161, 161, 170, 0.5)",
+    },
+  ]
+
+  const ambassadorNavItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      href: "/ambassador",
+      icon: Home,
+      color: "rgb(254, 215, 170)",
+      glowColor: "rgba(254, 215, 170, 0.5)",
+    },
+    {
+      label: "Referrals",
+      href: "/ambassador/referrals",
+      icon: Share2,
+      color: "rgb(196, 181, 253)",
+      glowColor: "rgba(196, 181, 253, 0.5)",
+    },
+    {
+      label: "Boutique",
+      href: "/ambassador/shop",
+      icon: Store,
+      color: "rgb(253, 164, 175)",
+      glowColor: "rgba(253, 164, 175, 0.5)",
+    },
+    {
+      label: "Retraits",
+      href: "/ambassador/withdrawals",
+      icon: Banknote,
+      color: "rgb(253, 224, 71)",
+      glowColor: "rgba(253, 224, 71, 0.5)",
+    },
+    {
+      label: "Profil",
+      href: "/ambassador/profile",
+      icon: User,
+      color: "rgb(190, 242, 100)",
+      glowColor: "rgba(190, 242, 100, 0.5)",
+    },
+  ]
+
+  const publicNavItems: NavItem[] = [
+    {
+      label: "Agenda",
+      href: "/agenda",
+      icon: Calendar,
+      color: "rgb(196, 181, 253)",
+      glowColor: "rgba(196, 181, 253, 0.5)",
+    },
+    {
+      label: "Anniv",
+      href: "/anniversaires",
+      icon: Cake,
+      color: "rgb(253, 164, 175)",
+      glowColor: "rgba(253, 164, 175, 0.5)",
+    },
+    {
+      label: "Clubs",
+      href: "/clubs",
+      icon: Trophy,
+      color: "rgb(190, 242, 100)",
+      glowColor: "rgba(190, 242, 100, 0.5)",
+    },
+    {
+      label: "XP",
+      href: "/gamification",
+      icon: Sparkles,
+      color: "rgb(125, 211, 252)",
+      glowColor: "rgba(125, 211, 252, 0.5)",
+    },
+    {
+      label: "Espace",
+      href: "/espace",
+      icon: User,
+      color: "rgb(254, 215, 170)",
+      glowColor: "rgba(254, 215, 170, 0.5)",
+    },
+  ]
+
+  // Parent has its own dedicated dock component (rendered separately in
+  // /parent layout). All other zones funnel through this component.
+  if (isParentArea) return null
+
+  const navItems = isAdminArea
+    ? adminNavItems
+    : isPartnerArea
+      ? partnerNavItems
+      : isAmbassadorArea
+        ? ambassadorNavItems
+        : isTeenArea
+          ? teenNavItems
+          : publicNavItems
+
+  // Compute the "home" path of the active zone so we don't mark the home
+  // tab as active for every nested route. Default `/teen` was hardcoded.
+  const zoneHome = isAdminArea
+    ? "/admin"
+    : isPartnerArea
+      ? "/partner"
+      : isAmbassadorArea
+        ? "/ambassador"
+        : isTeenArea
+          ? "/teen"
+          : "/"
 
   // SSR safety - render a placeholder on server
   if (!mounted) {
@@ -97,7 +292,7 @@ export function MobileDock() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-1 flex-col items-center gap-0.5 py-2"
+                className="flex flex-1 flex-col items-center gap-0.5 py-2.5 min-h-touch"
               >
                 <Icon className="h-6 w-6 text-zinc-500" />
                 <span className="text-[10px] font-semibold text-zinc-500">
@@ -129,7 +324,7 @@ export function MobileDock() {
       <div className="relative flex w-full items-center justify-around rounded-3xl border border-white/10 bg-zinc-900/95 p-2 shadow-2xl backdrop-blur-xl">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = pathname === item.href || (item.href !== "/teen" && pathname?.startsWith(item.href))
+          const isActive = pathname === item.href || (item.href !== zoneHome && pathname?.startsWith(item.href))
 
           return (
             <Link
@@ -141,7 +336,7 @@ export function MobileDock() {
             >
               <motion.div
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-xl py-2 transition-colors duration-200",
+                  "flex flex-col items-center gap-0.5 rounded-xl py-2.5 min-h-touch transition-colors duration-200",
                   !isActive && "hover:bg-white/5"
                 )}
                 style={{

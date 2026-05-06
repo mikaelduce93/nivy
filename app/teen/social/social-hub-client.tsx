@@ -7,8 +7,10 @@ import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 // Lazy load the map component
 const TeenMapWrapper = dynamic(
@@ -232,9 +234,11 @@ function CrewTab({ teenId }: { teenId: string }) {
             {(members || []).slice(0, 6).map((member: any, i: number) => (
               <div key={member.id || i} className="relative">
                 {member.avatar_url ? (
-                  <img 
-                    src={member.avatar_url} 
+                  <Image
+                    src={member.avatar_url}
                     alt={member.name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (
@@ -372,15 +376,22 @@ function FriendsTab({ teenId }: { teenId?: string }) {
 
       {/* Friends List */}
       {filteredFriends.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Users className="w-16 h-16 text-zinc-700 mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">
-            {searchQuery ? 'No friends found' : 'No friends yet'}
-          </h3>
-          <p className="text-zinc-500 max-w-sm">
-            {searchQuery ? 'Try a different search' : 'Add friends to see them here!'}
-          </p>
-        </div>
+        friends.length === 0 ? (
+          <EmptyState
+            preset="feed"
+            size="default"
+            title="Ton feed est vide"
+            description="Suis tes potes et rejoins une crew pour voir leur activité ici."
+            action={{ label: "Trouver des amis", href: "/teen/friends" }}
+          />
+        ) : (
+          <EmptyState
+            preset="search"
+            size="small"
+            title="Aucun ami trouvé"
+            description="Essaie une autre recherche."
+          />
+        )
       ) : (
         <div className="space-y-3">
           {filteredFriends.map((friend, idx) => (
@@ -393,9 +404,11 @@ function FriendsTab({ teenId }: { teenId?: string }) {
             >
               <div className="relative">
                 {friend.avatar_url ? (
-                  <img 
-                    src={friend.avatar_url} 
+                  <Image
+                    src={friend.avatar_url}
                     alt={friend.name}
+                    width={56}
+                    height={56}
                     className="w-14 h-14 rounded-full object-cover"
                   />
                 ) : (

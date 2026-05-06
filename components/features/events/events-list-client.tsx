@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Image from "next/image"
 import Link from "next/link"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonButton } from "@/components/ui/neon-button"
@@ -78,10 +79,13 @@ function EventCard({ event }: { event: Event }) {
       className="group relative overflow-hidden h-full flex flex-col"
     >
       <div className="relative h-64 w-full shrink-0">
-        <img
+        <Image
           src={event.featured_image || "/placeholder.svg?height=256&width=400&query=teens party event"}
           alt={event.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         

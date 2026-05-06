@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Users,
@@ -125,14 +126,16 @@ function CircleCard({ circle, onClick }: CircleCardProps) {
         <div className="flex items-center gap-4">
           {/* Avatar */}
           <div className={cn(
-            "w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden",
+            "relative w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden",
             `bg-gradient-to-br ${colors.gradient}`
           )}>
             {circle.avatar_url ? (
-              <img
+              <Image
                 src={circle.avatar_url}
                 alt={circle.name}
-                className="w-full h-full object-cover"
+                fill
+                sizes="56px"
+                className="object-cover"
               />
             ) : circle.emoji ? (
               <span className="text-2xl">{circle.emoji}</span>

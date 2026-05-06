@@ -39,8 +39,8 @@ export async function performCheckIn(venueName: string, xpReward: number = 50) {
     revalidatePath('/teen')
     
     // Le retour de la RPC contient les infos de niveau
-    const levelInfo = data as any
-    const levelMsg = levelInfo.leveled_up ? ` NIVEAU UP! (Niv ${levelInfo.new_level})` : ''
+    const levelInfo = data as { leveled_up?: boolean; new_level?: number } | null
+    const levelMsg = levelInfo?.leveled_up ? ` NIVEAU UP! (Niv ${levelInfo.new_level})` : ''
     
     return { success: true, message: `Check-in validé à ${venueName} ! +${xpReward} XP.${levelMsg}` }
   } catch (e) {

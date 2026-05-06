@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { Ticket, Lock, Unlock, Zap, Sparkles, Gift, TrendingUp, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -207,9 +208,11 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                   speed="medium"
                 >
                   {nextReward.image ? (
-                    <img 
-                      src={nextReward.image} 
-                      alt={nextReward.name} 
+                    <Image
+                      src={nextReward.image}
+                      alt={nextReward.name}
+                      width={40}
+                      height={40}
                       className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
                     />
                   ) : (

@@ -52,8 +52,8 @@ export function PartnerHeader({ userInfo }: PartnerHeaderProps) {
         {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white hover:bg-zinc-800">
-              <Menu className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white hover:bg-zinc-800" aria-label="Ouvrir le menu">
+              <Menu className="h-5 w-5" aria-hidden="true" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0 bg-zinc-900 border-zinc-800">
@@ -87,14 +87,14 @@ export function PartnerHeader({ userInfo }: PartnerHeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative text-zinc-400 hover:text-white hover:bg-zinc-800">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-emerald-500 rounded-full" />
+          <Button variant="ghost" size="icon" className="relative text-zinc-400 hover:text-white hover:bg-zinc-800" aria-label="Notifications">
+            <Bell className="h-5 w-5" aria-hidden="true" />
+            <span className="absolute top-1 right-1 h-2 w-2 bg-emerald-500 rounded-full" aria-hidden="true" />
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-zinc-800">
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-zinc-800" aria-label="Menu utilisateur">
                 <Avatar className="h-10 w-10 border-2 border-zinc-700">
                   <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white font-bold">
                     {initials}

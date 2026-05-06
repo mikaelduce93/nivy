@@ -53,15 +53,15 @@ const badgeVariants = cva(
         coral:
           'border-transparent bg-gen-z-coral text-white shadow-sm [a&]:hover:shadow-md',
         lime:
-          'border-transparent bg-gen-z-lime text-gray-900 shadow-sm [a&]:hover:shadow-md',
+          'border-transparent bg-gen-z-lime text-on-bright shadow-sm [a&]:hover:shadow-md',
         mint:
-          'border-transparent bg-gen-z-mint text-gray-900 shadow-sm [a&]:hover:shadow-md',
+          'border-transparent bg-gen-z-mint text-on-bright shadow-sm [a&]:hover:shadow-md',
         grape:
           'border-transparent bg-gen-z-grape text-white shadow-sm [a&]:hover:shadow-md',
         peach:
-          'border-transparent bg-gen-z-peach text-gray-900 shadow-sm [a&]:hover:shadow-md',
+          'border-transparent bg-gen-z-peach text-on-bright shadow-sm [a&]:hover:shadow-md',
         sky:
-          'border-transparent bg-gen-z-sky text-gray-900 shadow-sm [a&]:hover:shadow-md',
+          'border-transparent bg-gen-z-sky text-on-bright shadow-sm [a&]:hover:shadow-md',
         // Gradient
         gradient:
           'border-transparent bg-gradient-to-r from-gen-z-lavender to-gen-z-coral text-white shadow-sm',
@@ -72,13 +72,13 @@ const badgeVariants = cva(
         party:
           'border-transparent bg-neon-party text-white shadow-sm shadow-neon-party/30',
         vitality:
-          'border-transparent bg-neon-vitality text-gray-900 shadow-sm shadow-neon-vitality/30',
+          'border-transparent bg-neon-vitality text-on-bright shadow-sm shadow-neon-vitality/30',
         intellect:
           'border-transparent bg-neon-intellect text-white shadow-sm shadow-neon-intellect/30',
         creativity:
           'border-transparent bg-neon-creativity text-white shadow-sm shadow-neon-creativity/30',
         prestige:
-          'border-transparent bg-neon-prestige text-gray-900 shadow-sm shadow-neon-prestige/30',
+          'border-transparent bg-neon-prestige text-on-bright shadow-sm shadow-neon-prestige/30',
       },
       size: {
         default: 'px-3 py-1 text-xs',

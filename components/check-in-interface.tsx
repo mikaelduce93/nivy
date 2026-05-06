@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -162,7 +163,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       fetchStats()
     } catch (error) {
       console.error("QR scan error:", error)
-      toast.error("Erreur lors du traitement")
+      toast.error("Oups, ca a pas marche. On retente? 💪")
     } finally {
       setIsProcessing(false)
       setCheckInMode(null)
@@ -209,7 +210,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       toast.success(data.message || "Pass VIP valide!")
     } catch (error) {
       console.error("VIP pass scan error:", error)
-      toast.error("Erreur lors de la verification")
+      toast.error("Verification ratee. Reessaye?")
     } finally {
       setIsProcessing(false)
       setCheckInMode(null)
@@ -289,7 +290,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       toast.success("Reservation trouvee")
     } catch (error) {
       console.error("Manual search error:", error)
-      toast.error("Erreur lors de la recherche")
+      toast.error("Recherche ratee. Retente?")
     } finally {
       setIsProcessing(false)
     }
@@ -330,7 +331,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       setSearchQuery("")
     } catch (error) {
       console.error("Manual check-in error:", error)
-      toast.error("Erreur lors du traitement")
+      toast.error("Check-in rate. On retente? 💪")
     } finally {
       setIsProcessing(false)
     }
@@ -338,7 +339,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
   const playSuccessSound = () => {
     try {
-      const audio = new Audio("/sounds/success.mp3")
+      const audio = new Audio("/sounds/success.wav")
       audio.volume = 0.3
       audio.play().catch(() => {
         // Audio feedback is optional.
@@ -619,9 +620,11 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
         <Card className="p-6 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-cyan-500/30">
           <div className="flex items-start gap-4">
             {scannedData.childPhoto ? (
-              <img
+              <Image
                 src={scannedData.childPhoto}
                 alt=""
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-xl object-cover"
               />
             ) : (

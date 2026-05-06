@@ -75,15 +75,14 @@ export function cryptoRandomInt(max: number): number {
   }
 
   // Web Crypto (Edge / Browser / Node moderne)
-  const g: any = (typeof globalThis !== 'undefined' ? globalThis : {}) as any
-  if (g.crypto && typeof g.crypto.getRandomValues === 'function') {
+  if (typeof globalThis.crypto?.getRandomValues === 'function') {
     // Rejection sampling pour eviter le biais modulo.
     const range = 0x100000000 // 2^32
     const limit = range - (range % max)
     const buf = new Uint32Array(1)
     // Limite de boucles pour ne jamais bloquer (en pratique 1-2 iterations)
     for (let i = 0; i < 16; i++) {
-      g.crypto.getRandomValues(buf)
+      globalThis.crypto.getRandomValues(buf)
       if (buf[0] < limit) return buf[0] % max
     }
     return buf[0] % max

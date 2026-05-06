@@ -108,14 +108,14 @@ export default function AchievementsPage() {
 
         {/* Filters */}
         <div className="flex items-center gap-3">
-          {[
+          {([
             { id: "all", label: "Tous" },
             { id: "unlocked", label: "Débloqués" },
             { id: "locked", label: "Verrouillés" },
-          ].map((f) => (
+          ] as const).map((f) => (
             <button
               key={f.id}
-              onClick={() => setFilter(f.id as any)}
+              onClick={() => setFilter(f.id)}
               className={cn(
                 "px-4 py-2 rounded-xl font-bold text-sm transition-all",
                 filter === f.id

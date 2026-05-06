@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getUserRole } from '@/lib/auth/get-user-role'
 
+type CircleJoin = {
+  id: string
+  name: string
+  description: string | null
+  avatar_url: string | null
+  theme_color: string | null
+  emoji: string | null
+  message_count: number | null
+  created_by: string | null
+}
+
+type TeenJoin = {
+  id: string
+  first_name: string | null
+  avatar_url: string | null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const userInfo = await getUserRole()
@@ -47,7 +64,10 @@ export async function GET(request: NextRequest) {
     }
 
     const membership = memberships[0]
-    const circle = membership.circles as any
+    // Supabase returns the join as a single row when the FK is one-to-one
+    // but the type system can't always narrow it. Cast through unknown to
+    // the local CircleJoin shape.
+    const circle = membership.circles as unknown as CircleJoin | null
 
     if (!circle) {
       return NextResponse.json({ crew: null })
@@ -70,7 +90,7 @@ export async function GET(request: NextRequest) {
       .limit(10)
 
     // Get crew XP (sum of all members XP or specific crew XP)
-    const memberIds = members?.map(m => (m.teen as any)?.id).filter(Boolean) || []
+    const memberIds = members?.map(m => (m.teen as unknown as TeenJoin | null)?.id).filter(Boolean) || []
     let totalXp = 0
     
     if (memberIds.length > 0) {
@@ -121,13 +141,16 @@ export async function GET(request: NextRequest) {
           battlesWon: 8, // Placeholder
           cityRank: crewRank,
         },
-        members: members?.map(m => ({
-          id: (m.teen as any)?.id,
-          name: (m.teen as any)?.first_name,
-          avatar_url: (m.teen as any)?.avatar_url,
-          role: m.role,
-          isOwner: m.role === 'owner',
-        })) || [],
+        members: members?.map(m => {
+          const teen = m.teen as unknown as TeenJoin | null
+          return {
+            id: teen?.id,
+            name: teen?.first_name,
+            avatar_url: teen?.avatar_url,
+            role: m.role,
+            isOwner: m.role === 'owner',
+          }
+        }) || [],
         activeBattles,
       },
     })

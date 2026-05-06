@@ -44,8 +44,8 @@ export function ParentHeader({ userInfo }: ParentHeaderProps) {
         {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
+            <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
+              <Menu className="h-5 w-5" aria-hidden="true" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0">
@@ -99,14 +99,14 @@ export function ParentHeader({ userInfo }: ParentHeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+          <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
+            <Bell className="h-5 w-5" aria-hidden="true" />
+            <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" aria-hidden="true" />
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="Menu utilisateur">
                 <Avatar className="h-10 w-10 border-2 border-blue-200">
                   <AvatarFallback className="bg-blue-600 text-white font-bold">
                     {initials}

@@ -42,7 +42,8 @@ export async function POST(request: Request) {
 
     if (error) {
       // Conflit unique = deja inscrit
-      if ((error as any).code === "23505") {
+      const code = (error as { code?: string }).code
+      if (code === "23505") {
         return NextResponse.json(
           { success: true, already_subscribed: true, message: "Tu es deja inscrit." },
           { status: 200 }
@@ -50,7 +51,6 @@ export async function POST(request: Request) {
       }
 
       // Table absente / acces refuse -> degrade explicite
-      const code = (error as any).code as string | undefined
       if (code === "42P01" || code === "PGRST205") {
         console.warn(
           "[newsletter] Table 'newsletter_subscribers' indisponible. Email non enregistre:",

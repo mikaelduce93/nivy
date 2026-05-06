@@ -76,12 +76,39 @@ const categoryColors = {
   speed: "from-amber-500 to-yellow-500"
 }
 
-export function TeenChallengesClient({ initialData, teenId }: { initialData: any, teenId: string }) {
+type RawChallenge = {
+  id: string
+  name: string
+  description: string
+  sport_category: Challenge["category"]
+  difficulty: Challenge["difficulty"]
+  xp_reward: number
+  objective_type: string
+  objective_unit: string
+  objective_value: number
+  completed?: boolean
+}
+
+type RawRecord = {
+  id: string
+  record_type: string
+  value: number
+  unit: string
+  achieved_at: string
+}
+
+type InitialData = {
+  challenges: RawChallenge[]
+  records: RawRecord[]
+  stats: { totalXP: number; challengesCompleted: number }
+}
+
+export function TeenChallengesClient({ initialData, teenId }: { initialData: InitialData, teenId: string }) {
   const [activeTab, setActiveTab] = useState("challenges")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   const [challenges, setChallenges] = useState<Challenge[]>(
-    (initialData.challenges as any[]).map(c => ({
+    initialData.challenges.map(c => ({
         id: c.id,
         title: c.name,
         description: c.description,
@@ -91,14 +118,14 @@ export function TeenChallengesClient({ initialData, teenId }: { initialData: any
         metric: c.objective_type,
         unit: c.objective_unit,
         targetValue: c.objective_value,
-        completed: c.completed,
+        completed: c.completed ?? false,
         personalBest: undefined,
         attempts: 0
     }))
   )
 
   const [records, setRecords] = useState<PersonalRecord[]>(
-    (initialData.records as any[]).map(r => ({
+    initialData.records.map(r => ({
         id: r.id,
         challengeId: r.record_type,
         challengeTitle: r.record_type,

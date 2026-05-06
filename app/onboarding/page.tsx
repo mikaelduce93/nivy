@@ -12,12 +12,13 @@
  * - GAMIFICATION: XP, badges, tutoriel
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { ChevronRight, Loader2 } from 'lucide-react'
+import { ChevronRight, Loader2, SkipForward } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useJuice } from '@/lib/hooks/use-juice'
 
 // Onboarding hook & components
 import { useOnboarding } from '@/lib/hooks/use-onboarding'
@@ -44,10 +45,21 @@ import {
   OnboardingMissionsPreview,
 } from '@/components/onboarding/gamification'
 
+// Build full step list for "Étape X / N" labels (mirrors ProgressIndicator logic)
+function buildStepList(userType: 'parent' | 'teen' | null): string[] {
+  return [
+    'welcome',
+    'showcase',
+    'profile-type',
+    userType === 'teen' ? 'teen-setup' : 'parent-setup',
+    'features',
+    'completion',
+  ]
+}
+
 export default function OnboardingPage() {
   const router = useRouter()
-  const [lastXPGain, setLastXPGain] = useState(0)
-  const [showXPAnimation, setShowXPAnimation] = useState(false)
+  const { play } = useJuice()
 
   const {
     // State
@@ -95,6 +107,12 @@ export default function OnboardingPage() {
     checkAuth()
   }, [router])
 
+  // Compute step index for "Étape X / N" label
+  const stepList = useMemo(() => buildStepList(data.userType ?? null), [data.userType])
+  const currentStepIndex = stepList.indexOf(currentStep)
+  const stepNumber = currentStepIndex >= 0 ? currentStepIndex + 1 : 1
+  const totalSteps = stepList.length
+
   // Handle step completion and navigation
   const handleStepComplete = async () => {
     // Claim XP reward for current step
@@ -103,12 +121,16 @@ export default function OnboardingPage() {
     if (currentStep === 'completion') {
       // Show completion celebration before redirecting
       showCompletionCelebration()
+      // Final juice — confetti + sound + haptic
+      play('level_up')
       completeOnboarding()
       // Delay redirect to show celebration
       setTimeout(() => {
         router.push('/dashboard')
       }, 3000)
     } else {
+      // Subtle XP gain juice between steps (light haptic, sound only)
+      play('xp_gain', { noConfetti: true })
       goNext()
     }
   }
@@ -164,7 +186,22 @@ export default function OnboardingPage() {
 
       {/* Progress Bar - Fixed at top */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          {/* "Étape X / N" label - explicit progression visible from step 1 */}
+          <div className="flex items-center justify-between mb-2">
+            <p
+              className="text-xs sm:text-sm font-bold tracking-wide text-foreground"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              Étape <span className="text-primary">{stepNumber}</span>
+              <span className="text-muted-foreground"> / {totalSteps}</span>
+            </p>
+            {/* XP Display - Compact for header */}
+            <div className="hidden sm:block">
+              <OnboardingXPCompact currentXP={gamification.totalXP} />
+            </div>
+          </div>
           <div className="flex-1">
             <ProgressIndicator
               currentStep={currentStep}
@@ -173,26 +210,23 @@ export default function OnboardingPage() {
               progress={progress}
             />
           </div>
-          {/* XP Display - Compact for header */}
-          <div className="hidden sm:block">
-            <OnboardingXPCompact
-              currentXP={gamification.totalXP}
-            />
-          </div>
         </div>
       </div>
 
-      {/* Skip Button */}
+      {/* Skip Button - explicit label */}
       {currentStep !== 'completion' && (
         <div className="fixed top-24 right-4 sm:right-6 z-40">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => router.push('/auth/login')}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground gap-1"
+            aria-label="Passer l'onboarding et aller à la connexion"
           >
-            Passer
-            <ChevronRight className="w-4 h-4 ml-1" />
+            <SkipForward className="w-4 h-4" />
+            <span className="hidden sm:inline">Passer cette étape</span>
+            <span className="sm:hidden">Passer</span>
+            <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
       )}

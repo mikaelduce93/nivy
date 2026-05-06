@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Quest not found' }, { status: 404 })
       }
 
-      xpReward = (challenge.challenge as any)?.xp_reward || 50
+      xpReward = (challenge.challenge as unknown as { xp_reward?: number } | null)?.xp_reward || 50
       questType = 'challenge'
 
       // Update challenge status

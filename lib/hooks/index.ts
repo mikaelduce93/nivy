@@ -3,19 +3,7 @@
  * ==================================
  *
  * Export centralisé des hooks personnalisés.
- *
- * Usage:
- * import { useRetry, useAutoRetry, retryAsync } from '@/lib/hooks'
- * import { useOnboarding } from '@/lib/hooks'
  */
-
-// Retry hooks
-export {
-  useRetry,
-  useRetryFetch,
-  useAutoRetry,
-  retryAsync,
-} from './use-retry'
 
 // Onboarding hooks
 export {
@@ -94,29 +82,8 @@ export {
   type RevealStyles,
 } from './use-scroll-reveal'
 
-// Sound hooks
-export { useSoundManager } from './use-sound'
-
 // Haptic hooks
 export { useHaptic } from './use-haptic'
-
-// Elite interaction hooks (combined sound + haptic)
-export {
-  useEliteInteraction,
-  useCelebration,
-  type InteractionType,
-} from './use-elite-interaction'
-
-// Keyboard navigation hooks (accessibility)
-export {
-  useKeyboardNav,
-  useFocusTrap,
-  useRovingTabindex,
-  useAccessibleClick,
-  useSkipLink,
-  type KeyboardNavOptions,
-  type UseKeyboardNavReturn,
-} from './use-keyboard-nav'
 
 // Touch-optimized interactions
 export {

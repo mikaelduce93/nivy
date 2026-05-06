@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Crown,
@@ -696,9 +697,11 @@ function FamilyTab({ subscription }: { subscription: Subscription }) {
               >
                 <div className="flex items-center gap-3">
                   {member.user.avatar_url ? (
-                    <img
+                    <Image
                       src={member.user.avatar_url}
                       alt=""
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full"
                     />
                   ) : (

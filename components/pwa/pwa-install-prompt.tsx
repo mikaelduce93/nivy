@@ -48,12 +48,12 @@ export function usePWAInstall() {
 
   useEffect(() => {
     // Détecter iOS
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
     setIsIOS(isIOSDevice)
 
     // Vérifier si déjà installé (standalone mode)
     const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
-                         (navigator as any).standalone === true
+                         navigator.standalone === true
 
     setIsInstalled(isStandalone)
 
@@ -71,8 +71,8 @@ export function usePWAInstall() {
       setDeferredPrompt(null)
 
       // Analytics
-      if (typeof window !== "undefined" && (window as any).gtag) {
-        (window as any).gtag("event", "pwa_install_success")
+      if (typeof window !== "undefined" && window.gtag) {
+        window.gtag("event", "pwa_install_success")
       }
     }
 

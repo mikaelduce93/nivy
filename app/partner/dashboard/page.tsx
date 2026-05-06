@@ -20,6 +20,7 @@ import { UniversalScanner } from "@/components/partner/universal-scanner"
 import { ParallaxContainer, ParallaxLayer } from "@/components/ui/parallax-container"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -140,8 +141,8 @@ export default function PartnerDashboard() {
                 </div>
                 <div className="flex -space-x-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-[#030303] bg-zinc-800 flex items-center justify-center text-[10px] font-bold overflow-hidden">
-                      <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="Teen" className="w-full h-full object-cover" />
+                    <div key={i} className="relative w-8 h-8 rounded-full border-2 border-[#030303] bg-zinc-800 flex items-center justify-center text-[10px] font-bold overflow-hidden">
+                      <Image src={`https://i.pravatar.cc/100?img=${i+10}`} alt="Teen" fill sizes="32px" className="object-cover" />
                     </div>
                   ))}
                   <div className="w-8 h-8 rounded-full border-2 border-[#030303] bg-zinc-900 flex items-center justify-center text-[10px] font-bold text-zinc-500">

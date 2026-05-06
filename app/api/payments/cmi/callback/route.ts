@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 import { cmiGateway } from "@/lib/payments/cmi"
 import { getServerAppConfig } from "@/lib/config/app-config"
+import { logger } from "@/lib/monitoring/logger"
 
 export async function GET(request: NextRequest) {
   return handleCallback(request)
@@ -29,7 +30,7 @@ async function handleCallback(request: NextRequest) {
       })
     }
 
-    console.log("[CMI Callback] Received params:", JSON.stringify(params, null, 2))
+    logger.info("CMI callback received", { params })
 
     // Parse CMI response
     const result = cmiGateway.parseCallback(params)
@@ -57,7 +58,7 @@ async function handleCallback(request: NextRequest) {
 
     if (result.success) {
       // Payment successful
-      console.log("[CMI Callback] Payment successful:", result)
+      logger.info("CMI payment successful", { orderId: result.orderId })
 
       // Update booking
       await supabase
@@ -95,7 +96,7 @@ async function handleCallback(request: NextRequest) {
       )
     } else {
       // Payment failed
-      console.log("[CMI Callback] Payment failed:", result)
+      logger.warn("CMI payment failed", { orderId: result.orderId, responseCode: result.responseCode })
 
       // Update booking status
       await supabase

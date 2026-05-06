@@ -1,5 +1,22 @@
 # Guide d'exécution des migrations Gamification
 
+> **History note — 2026-05-06**
+>
+> Six conflicting migrations were renumbered to 032-037 against a fresh
+> Supabase project (the previous instance was paused beyond recovery):
+>
+> | Original                                 | Renamed to                              |
+> |------------------------------------------|------------------------------------------|
+> | `023_content_generation_system.sql`      | `032_content_generation_system.sql`      |
+> | `024_content_validation_system.sql`      | `033_content_validation_system.sql`      |
+> | `025_intelligent_content_system.sql`     | `034_intelligent_content_system.sql`     |
+> | `025_activity_feed.sql` (feed_posts)     | `035_social_feed.sql`                    |
+> | `026_international_schools_support.sql`  | `036_international_schools_support.sql`  |
+> | `026_social_sharing.sql` (social_shares) | `037_social_shares.sql`                  |
+>
+> The renames disambiguate the file basenames (018_activity_feed and
+> 019_social_sharing are the legacy implementations and remain intact).
+
 ## Ordre d'exécution OBLIGATOIRE
 
 Exécutez les migrations dans l'ordre suivant dans Supabase SQL Editor:

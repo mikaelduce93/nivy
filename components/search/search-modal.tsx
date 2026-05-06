@@ -63,12 +63,12 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
       const searchResults: SearchResult[] = []
 
+      type EventRow = { id: string; title: string; city: string; event_date: string }
+      type ClubRow = { id: string; name: string; category: string }
+
       // Add events
       if (eventsRes.data) {
-        // TODO(ts): widen type — supabase client is generated with no
-        // Database generic, so query results are typed as `any`.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        eventsRes.data.forEach((event: any) => {
+        ;(eventsRes.data as EventRow[]).forEach((event) => {
           searchResults.push({
             id: event.id,
             type: "event",
@@ -83,8 +83,7 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
       // Add clubs
       if (clubsRes.data) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        clubsRes.data.forEach((club: any) => {
+        ;(clubsRes.data as ClubRow[]).forEach((club) => {
           searchResults.push({
             id: club.id,
             type: "club",

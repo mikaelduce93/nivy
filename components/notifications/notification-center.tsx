@@ -235,8 +235,9 @@ export function NotificationCenter({ userId, className }: NotificationCenterProp
                   setIsOpen(false)
                   router.push('/notifications/preferences')
                 }}
+                aria-label="Préférences de notifications"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
           </div>
@@ -366,8 +367,9 @@ function NotificationItem({
                 e.stopPropagation()
                 onMarkRead()
               }}
+              aria-label="Marquer comme lu"
             >
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
             </Button>
           )}
           <Button
@@ -378,8 +380,9 @@ function NotificationItem({
               e.stopPropagation()
               onDelete()
             }}
+            aria-label="Supprimer la notification"
           >
-            <Trash2 className="h-4 w-4 text-red-500" />
+            <Trash2 className="h-4 w-4 text-red-500" aria-hidden="true" />
           </Button>
         </div>
       </div>

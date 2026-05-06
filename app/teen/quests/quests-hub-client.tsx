@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import type { UnifiedQuest } from "@/lib/server/unified-quest-engine"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { EmptyState as SharedEmptyState } from "@/components/ui/states/empty-state"
 
 interface QuestsHubClientProps {
   quests: UnifiedQuest[]
@@ -208,23 +209,35 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, teenId }: Que
 }
 
 function EmptyState({ tab }: { tab: string }) {
+  // Per-tab messaging on top of the shared `quests` preset.
   const messages: Record<string, { title: string; desc: string }> = {
-    daily: { title: "No daily quests yet", desc: "Check back tomorrow for new challenges!" },
-    brain: { title: "No brain challenges", desc: "AI is preparing new quizzes for you..." },
-    body: { title: "No body challenges", desc: "Physical challenges coming soon!" },
-    creative: { title: "No creative quests", desc: "Express yourself with passion projects!" },
+    daily: {
+      title: "Aucune quête quotidienne",
+      desc: "Reviens demain pour de nouvelles quêtes ! Le compteur reset à minuit.",
+    },
+    brain: {
+      title: "Aucun challenge cerveau",
+      desc: "L'IA prépare de nouveaux quiz pour toi…",
+    },
+    body: {
+      title: "Aucun challenge physique",
+      desc: "De nouveaux défis sportifs arrivent bientôt.",
+    },
+    creative: {
+      title: "Aucune quête créative",
+      desc: "Exprime-toi via tes projets passion !",
+    },
   }
 
   const msg = messages[tab] || messages.daily
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-20 h-20 rounded-3xl bg-zinc-800/50 flex items-center justify-center mb-6">
-        <Sparkles className="w-10 h-10 text-zinc-600" />
-      </div>
-      <h3 className="text-xl font-bold text-white mb-2">{msg.title}</h3>
-      <p className="text-zinc-500 max-w-sm">{msg.desc}</p>
-    </div>
+    <SharedEmptyState
+      preset="quests"
+      size="default"
+      title={msg.title}
+      description={msg.desc}
+    />
   )
 }
 

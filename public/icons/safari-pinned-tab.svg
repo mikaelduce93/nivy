@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NIVY">
+  <!-- Safari pinned tab uses a single fill (mask-icon color set in metadata).
+       Strip the panda down to flat black silhouette: ears, face outline, eye smudges. -->
+  <circle cx="14" cy="14" r="8"/>
+  <circle cx="50" cy="14" r="8"/>
+  <circle cx="32" cy="34" r="22" fill="none" stroke="black" stroke-width="3"/>
+  <ellipse cx="23" cy="30" rx="5" ry="6" transform="rotate(-18 23 30)"/>
+  <ellipse cx="41" cy="30" rx="5" ry="6" transform="rotate(18 41 30)"/>
+  <ellipse cx="32" cy="36" rx="2.4" ry="1.8"/>
+  <path d="M27 41 Q32 46 37 41" stroke="black" stroke-width="2" stroke-linecap="round" fill="none"/>
+</svg>

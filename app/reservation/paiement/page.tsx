@@ -7,7 +7,8 @@ import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PaymentMethodSelector } from "@/components/payment-method-selector"
-import { SessionTimer } from "@/components/session-timer"
+import { PaymentCartPersistence } from "@/components/payment-cart-persistence"
+import { PaymentExpiryRedirect } from "@/components/payment-expiry-redirect"
 
 export default async function PaymentPage({
   searchParams,
@@ -83,11 +84,19 @@ export default async function PaymentPage({
             </Link>
           </Button>
 
-          <SessionTimer 
+          <PaymentExpiryRedirect
             expiresAt={sessionExpiry}
-            onExpire={() => {
-              window.location.href = '/mes-reservations'
-            }}
+            redirectTo="/mes-reservations"
+            bookingReference={booking.booking_reference}
+          />
+
+          {/* Persist cart in localStorage so the user can resume on /reservation
+              if the 10min payment session expires. */}
+          <PaymentCartPersistence
+            bookingId={bookingId}
+            reference={booking.booking_reference}
+            eventTitle={booking.events?.title}
+            totalAmount={booking.total_amount}
           />
 
           <div className="mt-6">

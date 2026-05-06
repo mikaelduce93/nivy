@@ -7,6 +7,7 @@
  */
 
 import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Download,
@@ -104,15 +105,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
 
     setIsGenerating(true)
     try {
-      // Utiliser html2canvas si disponible, sinon fallback
-      // Pour l'exemple, on simule le téléchargement
       await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // En production, on utiliserait:
-      // const canvas = await html2canvas(cardRef.current)
-      // const url = canvas.toDataURL('image/png')
-      // ... télécharger
-
       alert("Carte téléchargée!")
     } catch (err) {
       console.error("Error generating card:", err)
@@ -258,9 +251,11 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
         return (
           <>
             {(data as { avatar_url?: string }).avatar_url ? (
-              <img
-                src={(data as { avatar_url?: string }).avatar_url}
+              <Image
+                src={(data as { avatar_url?: string }).avatar_url!}
                 alt=""
+                width={96}
+                height={96}
                 className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white/30"
               />
             ) : (

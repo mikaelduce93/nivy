@@ -2,11 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-// TODO(ts): widen type — see comment in components/ai/AgentSheet.tsx.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-import { useChat as useChatRaw } from '@ai-sdk/react'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useChat = useChatRaw as unknown as (opts: any) => any
+import { useAIChat } from './use-ai-chat'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 import { 
   Sparkles, 
@@ -96,19 +92,10 @@ export function EliteAICompanion({
     setIsMounted(true) 
   }, [])
 
-  // Vercel AI SDK useChat hook
-  const { 
-    messages, 
-    input, 
-    setInput, 
-    handleSubmit, 
-    isLoading, 
-    error,
-    reload,
-  } = useChat({
+  const { messages, input, setInput, handleSubmit, isLoading, error, reload } = useAIChat({
     api: '/api/agent/action',
-    body: { 
-      role, 
+    body: {
+      role,
       context,
       currentPage: typeof window !== 'undefined' ? window.location.pathname : '/',
     },
@@ -117,33 +104,25 @@ export function EliteAICompanion({
         id: 'welcome',
         role: 'assistant',
         content: `Yo ${teenName} ! 👋 Je suis ${config.name}, ton AI Companion. Dis-moi ce que tu veux faire - quêtes, events, ou juste parler !`,
-      }
+      },
     ],
-    // TODO(ts): widen type — see import note above.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onFinish: (message: any) => {
-      // Scroll to bottom
+    onFinish: (message) => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
       }
-      // TTS
       if (isTTSActive && message.role === 'assistant') {
         speak(message.content)
       }
-      // Confetti on tool success
-      if (message.toolInvocations?.some((t: any) => t.state === 'result')) {
+      if (message.toolInvocations?.some((t: { state?: string }) => t.state === 'result')) {
         triggerConfetti()
       }
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (err: any) => {
+    onError: (err) => {
       console.error('[EliteAICompanion] Error:', err)
-    }
+    },
   })
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition()
-
-  const safeInput = typeof input === 'string' ? input : ''
 
   // Sync transcript to input when listening
   useEffect(() => {
@@ -463,7 +442,7 @@ export function EliteAICompanion({
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={() => reload()}
+                        onClick={() => reload?.()}
                         className="text-xs"
                       >
                         <RefreshCw className="w-3 h-3 mr-1" />
@@ -556,7 +535,7 @@ export function EliteAICompanion({
                     
                     <input
                       type="text"
-                      value={safeInput}
+                      value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder={listening ? "Je t'écoute..." : "Écris ton message..."}
                       className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-gen-z-lavender/50 transition-colors"
@@ -565,7 +544,7 @@ export function EliteAICompanion({
                     
                     <Button
                       type="submit"
-                      disabled={isLoading || !safeInput.trim()}
+                      disabled={isLoading || !input.trim()}
                       className={cn(
                         "h-11 w-11 rounded-xl text-white hover:scale-105 transition-transform disabled:opacity-50",
                         "bg-gradient-to-br", config.gradient

@@ -40,7 +40,7 @@ export function FriendSearch({ teenId }: FriendSearchProps) {
         setResults(result.data || [])
         setSearched(true)
       } else {
-        toast.error((result as any).error || "Erreur de recherche")
+        toast.error((result as { error?: string }).error || "Erreur de recherche")
       }
     })
   }
@@ -61,7 +61,7 @@ export function FriendSearch({ teenId }: FriendSearchProps) {
           )
         )
       } else {
-        toast.error((result as any).error || "Erreur lors de l'envoi")
+        toast.error((result as { error?: string }).error || "Erreur lors de l'envoi")
       }
     } catch (error) {
       toast.error("Une erreur est survenue")

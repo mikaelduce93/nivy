@@ -37,7 +37,8 @@ tsconfig.tsbuildinfo
 
 # local agent/tooling state
 .agents/
-.claude/
+.claude/*
+!.claude/agents/
 .cursor/
 agent-skills/
 

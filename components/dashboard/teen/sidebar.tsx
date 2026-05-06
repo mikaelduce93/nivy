@@ -18,6 +18,7 @@ import {
   Sparkles,
   Users,
   Share2,
+  Gamepad2,
 } from "lucide-react"
 
 const navigation = [
@@ -26,6 +27,7 @@ const navigation = [
   { name: "Aide Scolaire", href: "/teen/academic", icon: GraduationCap },
   { name: "Défis Physiques", href: "/teen/challenges", icon: Dumbbell },
   { name: "Parcours Passion", href: "/teen/passions", icon: Sparkles },
+  { name: "Games", href: "/teen/games", icon: Gamepad2 },
   { name: "Circles", href: "/teen/circles", icon: Users },
   { name: "Partager", href: "/teen/share", icon: Share2 },
   { name: "Mes Achievements", href: "/teen/achievements", icon: Trophy },

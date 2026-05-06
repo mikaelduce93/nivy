@@ -29,34 +29,34 @@ interface AvatarDashboardProps {
 export function AvatarDashboard({ user, stats }: AvatarDashboardProps) {
   const pillars = [
     {
-      id: "vitality",
+      id: "vitality" as const,
       icon: Dumbbell,
-      label: "Vitality",
+      label: "Glow Up",
       color: "text-green-400",
       neonColor: "var(--neon-vitality)",
       data: stats.vitality,
       angle: -135, // Top Left
     },
     {
-      id: "intellect",
+      id: "intellect" as const,
       icon: Brain,
-      label: "Intellect",
+      label: "Big Brain",
       color: "text-cyan-400",
       neonColor: "var(--neon-intellect)",
       data: stats.intellect,
       angle: -45, // Top Right
     },
     {
-      id: "party",
+      id: "party" as const,
       icon: Zap,
-      label: "Social",
+      label: "Main Character",
       color: "text-purple-400",
       neonColor: "var(--neon-party)",
       data: stats.party,
       angle: 135, // Bottom Left
     },
     {
-      id: "prestige",
+      id: "prestige" as const,
       icon: Crown,
       label: "Prestige",
       color: "text-yellow-400",
@@ -105,7 +105,7 @@ export function AvatarDashboard({ user, stats }: AvatarDashboardProps) {
         const progress = (pillar.data.currentXP / pillar.data.maxXP) * 100
         // Calculate position based on angle
         // Using fixed positions for simplicity and responsiveness instead of absolute math
-        const positionClasses = {
+        const positionClasses: Record<typeof pillar.id, string> = {
           vitality: "top-0 left-0 -translate-x-2 -translate-y-2",
           intellect: "top-0 right-0 translate-x-2 -translate-y-2",
           party: "bottom-0 left-0 -translate-x-2 translate-y-12",
@@ -118,7 +118,6 @@ export function AvatarDashboard({ user, stats }: AvatarDashboardProps) {
             intensity="low"
             className={cn(
               "absolute w-28 h-28 md:w-32 md:h-32 flex flex-col items-center justify-center p-2 backdrop-blur-md",
-              // @ts-ignore
               positionClasses[pillar.id]
             )}
             style={{

@@ -42,7 +42,7 @@ export default function CarteVIPPage() {
 
   const tiers = [
     {
-      id: 'silver',
+      id: 'silver' as const,
       name: 'SILVER',
       icon: '🥉',
       price: 'Gratuit',
@@ -58,7 +58,7 @@ export default function CarteVIPPage() {
       ]
     },
     {
-      id: 'gold',
+      id: 'gold' as const,
       name: 'GOLD',
       icon: '🥇',
       price: '299dh',
@@ -78,7 +78,7 @@ export default function CarteVIPPage() {
       ]
     },
     {
-      id: 'platinum',
+      id: 'platinum' as const,
       name: 'PLATINUM',
       icon: '💎',
       price: '599dh',
@@ -160,7 +160,7 @@ export default function CarteVIPPage() {
               <Card 
                 key={tier.id}
                 className={`relative ${tier.popular ? 'ring-2 ring-yellow-500 shadow-lg' : ''} ${tier.borderColor} border-2 hover:shadow-xl transition-shadow cursor-pointer`}
-                onClick={() => setSelectedTier(tier.id as any)}
+                onClick={() => setSelectedTier(tier.id)}
               >
                 {tier.popular && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-black">

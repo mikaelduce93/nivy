@@ -11,6 +11,9 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 import { cn } from '@/lib/utils'
 import { GlowPulse, PALETTES } from '@/components/ui/effects/particle-system'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
+import { LongPressMenu, type LongPressMenuItem } from '@/components/ui/long-press-menu'
+import { Copy, Pin, Flag } from 'lucide-react'
+import { toast } from 'sonner'
 
 /* ==========================================================================
    SOCIAL FEED - Elite Silicon Valley Grade
@@ -176,15 +179,60 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
       {/* Activity cards */}
       <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide">
         <AnimatePresence mode="popLayout">
-          {activities.map((activity, index) => (
-            <EliteActivityCard
-              key={activity.id}
-              activity={activity}
-              index={index}
-              isLiked={likedPosts.has(activity.id)}
-              onLike={() => handleLike(activity.id)}
-            />
-          ))}
+          {activities.map((activity, index) => {
+            const items: LongPressMenuItem[] = [
+              {
+                id: 'copy',
+                label: 'Copier le contenu',
+                icon: Copy,
+                onSelect: () => {
+                  const text = activity.title || activity.content || ''
+                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(text).catch(() => {})
+                  }
+                  toast.success('Copié dans le presse-papier')
+                },
+              },
+              {
+                id: 'share',
+                label: 'Partager',
+                icon: Share2,
+                onSelect: () => {
+                  const text = activity.title || activity.content || ''
+                  if (typeof navigator !== 'undefined' && 'share' in navigator) {
+                    void (navigator as Navigator & { share?: (data: ShareData) => Promise<void> }).share?.({ text })
+                  } else {
+                    toast.message('Lien copié — partage externe désactivé')
+                  }
+                },
+              },
+              {
+                id: 'pin',
+                label: 'Épingler',
+                icon: Pin,
+                onSelect: () => toast.message('Épinglé sur ton profil'),
+              },
+              {
+                id: 'report',
+                label: 'Signaler',
+                icon: Flag,
+                onSelect: () => toast.message('Signalement envoyé'),
+                variant: 'destructive',
+              },
+            ]
+            return (
+              <LongPressMenu key={activity.id} items={items} title="Actions">
+                <div>
+                  <EliteActivityCard
+                    activity={activity}
+                    index={index}
+                    isLiked={likedPosts.has(activity.id)}
+                    onLike={() => handleLike(activity.id)}
+                  />
+                </div>
+              </LongPressMenu>
+            )
+          })}
         </AnimatePresence>
       </div>
     </div>

@@ -23,7 +23,7 @@ export function FriendRequestButtons({ connectionId, teenId }: FriendRequestButt
         toast.success("Demande acceptée !")
         setHandled(true)
       } else {
-        toast.error((result as any).error || "Erreur lors de l'acceptation")
+        toast.error((result as { error?: string }).error || "Erreur lors de l'acceptation")
       }
     } catch (error) {
       toast.error("Une erreur est survenue")
@@ -40,7 +40,7 @@ export function FriendRequestButtons({ connectionId, teenId }: FriendRequestButt
         toast.success("Demande refusée")
         setHandled(true)
       } else {
-        toast.error((result as any).error || "Erreur lors du refus")
+        toast.error((result as { error?: string }).error || "Erreur lors du refus")
       }
     } catch (error) {
       toast.error("Une erreur est survenue")

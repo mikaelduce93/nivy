@@ -35,9 +35,9 @@ async function sendPushNotification(userId: string, payload: NotificationPayload
 
     if (!subscriptions || subscriptions.length === 0) return
 
-    const notifications = subscriptions.map(sub => 
+    const notifications = subscriptions.map(sub =>
       webPush.sendNotification(
-        sub.subscription as any,
+        sub.subscription as unknown as Parameters<typeof webPush.sendNotification>[0],
         JSON.stringify(payload)
       ).catch(err => {
         if (err.statusCode === 410) {

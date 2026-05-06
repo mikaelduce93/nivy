@@ -99,10 +99,10 @@ export default async function CollectionsPage() {
 
           {/* Main Content */}
           <CollectionsClient
-            sets={sets as any}
+            sets={sets as unknown as Parameters<typeof CollectionsClient>[0]['sets']}
             userCollections={userCollections}
             stats={stats}
-            recentItems={recentItems as any}
+            recentItems={recentItems as unknown as Parameters<typeof CollectionsClient>[0]['recentItems']}
             userId={user.id}
           />
         </div>

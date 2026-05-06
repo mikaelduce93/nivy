@@ -290,6 +290,33 @@
   --sidebar-accent-foreground: oklch(0.30 0.05 290);
   --sidebar-border: oklch(0.88 0.02 290);
   --sidebar-ring: oklch(0.60 0.18 290);
+
+  /* --------------------------------------------------------------------------
+     ON-BRIGHT TEXT TOKEN
+     Used as the foreground color when sitting on bright/luminous backgrounds
+     (lime, mint, peach, sky, yellow, vitality, prestige). These backgrounds
+     stay bright in both light AND dark modes (their L value is high in both
+     themes), so the text on top must stay dark in both modes for readability.
+     This is theme-invariant by design — do NOT override in .dark.
+     -------------------------------------------------------------------------- */
+  --color-on-bright: oklch(0.20 0.02 280); /* near-black, matches foreground hue */
+
+  /* --------------------------------------------------------------------------
+     GEN-Z NEON PILLARS — Light mode fallback
+     --------------------------------------------------------------------------
+     The dark theme defines saturated neons (`.dark { --neon-* }`). Without a
+     light-mode counterpart, any page that uses `var(--neon-party)` etc. while
+     the user is on the light theme would resolve to "unset" and break neon
+     borders / shadows. We mirror the same hues here but with slightly higher
+     L (to read on warm off-white) and lower chroma (to avoid harsh blowouts
+     in daylight). Same hue families = consistent brand identity, only the
+     intensity drops.
+     -------------------------------------------------------------------------- */
+  --neon-party: oklch(0.62 0.22 300);    /* Violet/Magenta */
+  --neon-vitality: oklch(0.70 0.20 130); /* Lime */
+  --neon-intellect: oklch(0.65 0.18 230); /* Cyan */
+  --neon-creativity: oklch(0.68 0.20 30); /* Coral */
+  --neon-prestige: oklch(0.75 0.16 75);  /* Gold */
 }
 
 /* ============================================================================
@@ -472,6 +499,9 @@
   --color-gen-z-rose: var(--gen-z-rose);
   --color-gen-z-yellow: var(--gen-z-yellow);
   --color-gen-z-teal: var(--gen-z-teal);
+
+  /* On-Bright text token (theme-invariant) */
+  --color-on-bright: var(--color-on-bright);
 }
 
 /* ============================================================================
@@ -607,6 +637,24 @@
   }
 
   /* --------------------------------------------------------------------------
+     Touch Targets — WCAG 2.5.5 Level AAA + Apple HIG (44x44px minimum)
+     Use on any interactive element that may be visually smaller than 44px
+     so the hit area still reaches the recommended touch minimum.
+     -------------------------------------------------------------------------- */
+  .min-h-touch {
+    min-height: 44px;
+  }
+
+  .min-w-touch {
+    min-width: 44px;
+  }
+
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* --------------------------------------------------------------------------
      Form Elements
      -------------------------------------------------------------------------- */
   .input-field {
@@ -672,15 +720,15 @@
   }
 
   .glass-card {
-    @apply bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-xl;
+    @apply bg-card/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-xl;
   }
 
   .glass-card-hover {
-    @apply transition-all duration-300 hover:bg-zinc-900/60 hover:border-white/20 hover:scale-[1.02] hover:shadow-2xl;
+    @apply transition-all duration-300 hover:bg-card/70 hover:border-white/20 hover:scale-[1.02] hover:shadow-2xl;
   }
 
   .glass-panel {
-    @apply bg-black/60 backdrop-blur-2xl border border-white/5;
+    @apply bg-background/70 backdrop-blur-2xl border border-white/5;
   }
 
   /* --------------------------------------------------------------------------

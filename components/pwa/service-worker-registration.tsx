@@ -104,9 +104,6 @@ export function ServiceWorkerRegistration({ children }: ServiceWorkerRegistratio
       return
     }
 
-    // Ne pas enregistrer en dev (optionnel)
-    // if (process.env.NODE_ENV === "development") return
-
     const registerSW = async () => {
       try {
         const registration = await navigator.serviceWorker.register("/sw.js", {
@@ -131,9 +128,9 @@ export function ServiceWorkerRegistration({ children }: ServiceWorkerRegistratio
         }
 
         // Enregistrer pour le periodic background sync si supporté
-        if ("periodicSync" in registration) {
+        if (registration.periodicSync) {
           try {
-            await (registration as any).periodicSync.register("update-content", {
+            await registration.periodicSync.register("update-content", {
               minInterval: 24 * 60 * 60 * 1000, // 24 heures
             })
             console.log("[PWA] Periodic sync registered")

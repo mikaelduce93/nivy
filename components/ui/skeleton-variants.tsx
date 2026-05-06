@@ -280,7 +280,7 @@ export function MorphingSkeleton({
 
 export function HeroSkeleton() {
   return (
-    <SkeletonContainer className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-zinc-900/95 via-zinc-900/90 to-zinc-950/95 p-4 sm:p-6 md:p-8 border border-white/5">
+    <SkeletonContainer className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-card/95 via-card/90 to-card p-4 sm:p-6 md:p-8 border border-border/50">
       {/* Background glow */}
       <motion.div
         className="absolute top-0 right-0 w-64 h-64 rounded-full bg-gen-z-lavender/10 blur-[80px]"
@@ -347,7 +347,7 @@ export function HeroSkeleton() {
 export function CardSkeleton({ className }: { className?: string }) {
   return (
     <SkeletonContainer className={cn(
-      'rounded-2xl sm:rounded-3xl bg-zinc-900/50 border border-white/5 p-4 sm:p-6',
+      'rounded-2xl sm:rounded-3xl bg-card/50 border border-white/5 p-4 sm:p-6',
       className
     )}>
       <div className="flex items-start justify-between mb-4">
@@ -422,7 +422,7 @@ export function QuickAccessSkeleton() {
 
 export function MapSkeleton() {
   return (
-    <div className="h-full w-full flex items-center justify-center bg-zinc-900/50 relative overflow-hidden rounded-[inherit]">
+    <div className="h-full w-full flex items-center justify-center bg-card/50 relative overflow-hidden rounded-[inherit]">
       {/* Animated map grid */}
       <div className="absolute inset-0 opacity-20">
         <motion.div 
@@ -572,7 +572,7 @@ export function SocialHubSkeleton() {
 
 export function DashboardSkeleton() {
   return (
-    <div className="relative min-h-screen bg-[#020203] text-white overflow-x-hidden">
+    <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Animated background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <motion.div 
@@ -613,12 +613,12 @@ export function DashboardSkeleton() {
             </div>
           </div>
           <div className="lg:col-span-6">
-            <div className="rounded-2xl sm:rounded-3xl bg-zinc-900/50 border border-white/5 overflow-hidden">
+            <div className="rounded-2xl sm:rounded-3xl bg-card/50 border border-white/5 overflow-hidden">
               <QuickAccessSkeleton />
             </div>
           </div>
           <div className="lg:col-span-6">
-            <div className="h-full rounded-2xl sm:rounded-3xl bg-zinc-900/50 border border-white/5 overflow-hidden">
+            <div className="h-full rounded-2xl sm:rounded-3xl bg-card/50 border border-white/5 overflow-hidden">
               <SocialHubSkeleton />
             </div>
           </div>

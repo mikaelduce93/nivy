@@ -152,13 +152,10 @@ export const Grid = React.forwardRef<HTMLDivElement, GridProps>(
       stretch: 'justify-items-stretch',
     }[justifyItems]
     
+    const Comp = Component as React.ElementType
     return (
-      // TODO(ts): widen type — Component is a polymorphic `as` prop, so the
-      // forwarded ref and spread props need `any` casts to satisfy the union
-      // of HTML element types (div/ol/section/...).
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      <Component
-        ref={ref as any}
+      <Comp
+        ref={ref}
         className={cn(
           'grid',
           columnsClass,
@@ -181,11 +178,10 @@ export const Grid = React.forwardRef<HTMLDivElement, GridProps>(
           ...style,
           '--min-col-width': minColWidth,
         } as React.CSSProperties}
-        {...(props as any)}
+        {...props}
       >
         {children}
-      </Component>
-      /* eslint-enable @typescript-eslint/no-explicit-any */
+      </Comp>
     )
   }
 )

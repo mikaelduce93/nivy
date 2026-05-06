@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getUserRole } from '@/lib/auth/get-user-role'
 
+type ProfileJoin = {
+  id: string
+  full_name: string | null
+  avatar_url: string | null
+} | null
+
 export async function GET(request: NextRequest) {
   try {
     const userInfo = await getUserRole()
@@ -50,8 +56,8 @@ export async function GET(request: NextRequest) {
 
     // Get online status from presence table
     const friendIds = friendships?.map(f => {
-      const friend = f.friend as any
-      const user = f.user as any
+      const friend = f.friend as unknown as ProfileJoin
+      const user = f.user as unknown as ProfileJoin
       return friend?.id === teenId ? user?.id : friend?.id
     }).filter(Boolean) || []
 
@@ -88,13 +94,14 @@ export async function GET(request: NextRequest) {
 
     // Format response. Real mutual-friend counts are not computed yet:
     // expose `mutual: 0` with `mutual_calculated: false` rather than a fake value.
-    const friends = friendships?.map(f => {
-      const friend = f.friend as any
-      const user = f.user as any
-      const friendData = friend?.id === teenId ? user : friend
+    const friends = friendships?.flatMap(f => {
+      const friend = f.friend as unknown as ProfileJoin
+      const user = f.user as unknown as ProfileJoin
+      const friendData: ProfileJoin = friend?.id === teenId ? user : friend
       const friendId = friendData?.id
+      if (!friendId) return []
 
-      return {
+      return [{
         id: friendId,
         name: friendData?.full_name || 'Unknown',
         avatar_url: friendData?.avatar_url,
@@ -102,8 +109,8 @@ export async function GET(request: NextRequest) {
         xp: xpData[friendId] || 0,
         mutual: 0,
         mutual_calculated: false,
-      }
-    }).filter(Boolean) || []
+      }]
+    }) || []
 
     return NextResponse.json({
       friends,

@@ -12,6 +12,7 @@ import { SkipLinks } from "@/components/ui/accessibility"
 import { OfflineBanner } from "@/components/ui/states"
 import { ServiceWorkerRegistration, PWAInstallBanner } from "@/components/pwa"
 import { MobileDock } from "@/components/layouts/mobile-dock"
+import { AmbientBackground } from "@/components/layouts/ambient-background"
 import { PerformanceProvider } from "@/components/providers/performance-provider"
 import { SentryBreadcrumbsSetup } from "@/components/monitoring/sentry-breadcrumbs-setup"
 import { SentryUserContext } from "@/components/monitoring/sentry-user-context"
@@ -19,6 +20,8 @@ import { SentryWebVitals } from "@/components/monitoring/sentry-web-vitals"
 import { AppProviders } from "./providers"
 import { Toaster } from "@/components/ui/sonner"
 import { getPublicAppConfig } from "@/lib/config/app-config"
+import { I18nProvider } from "@/lib/i18n"
+import { getLocale } from "@/lib/i18n/server"
 import "./globals.css"
 import "leaflet/dist/leaflet.css"
 
@@ -106,8 +109,14 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Teens Party",
   },
+  // The new panda-favicon.svg is the source of truth (vector, theme-aware, no
+  // raster regen needed when the brand evolves). The PNG entries below remain
+  // for legacy browsers that don't ship SVG favicon support — when those
+  // assets are generated they should match the panda mark in panda-favicon.svg.
+  // See docs/brand/FAVICONS_TODO.md for the export checklist.
   icons: {
     icon: [
+      { url: "/icons/panda-favicon.svg", type: "image/svg+xml" },
       { url: "/icons/icon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/icons/icon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
@@ -118,7 +127,7 @@ export const metadata: Metadata = {
       { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" },
     ],
     other: [
-      { rel: "mask-icon", url: "/icons/safari-pinned-tab.svg", color: "#06b6d4" },
+      { rel: "mask-icon", url: "/icons/safari-pinned-tab.svg", color: "#a855f7" },
     ],
   },
   alternates: {
@@ -145,9 +154,10 @@ export default async function RootLayout({
   // Get nonce from headers (set by middleware)
   const headersList = await headers()
   const nonce = headersList.get('x-nonce') || ''
+  const locale = await getLocale()
 
   return (
-    <html lang="fr" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang={locale === 'darija' ? 'ar-MA' : locale} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
         {/* Preconnect to external resources for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -212,12 +222,16 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <I18nProvider initialLocale={locale}>
           <CSRFProvider>
             {/* Skip Links for keyboard navigation */}
             <SkipLinks />
 
             {/* Offline indicator for PWA */}
             <OfflineBanner />
+
+            {/* Global ambient background (mesh gradient + grain) */}
+            <AmbientBackground />
 
             {/* Main navigation */}
             <nav id="main-navigation" aria-label="Navigation principale">
@@ -260,6 +274,7 @@ export default async function RootLayout({
             {/* Sonner Toaster for toast notifications */}
             <Toaster />
           </CSRFProvider>
+          </I18nProvider>
         </ThemeProvider>
         </AppProviders>
         </PerformanceProvider>

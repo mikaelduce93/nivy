@@ -1,6 +1,3 @@
-// TODO(ts): widen type — supabase realtime payload typed as `any` until
-// generated Database types land (see types/supabase.ts).
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification, UseNotificationsOptions } from './types'

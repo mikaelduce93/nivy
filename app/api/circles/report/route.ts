@@ -149,7 +149,7 @@ export const POST = withSecurity(
           user_id: mod.id,
           type: "moderation_report",
           title: "Nouveau signalement",
-          message: `Un message dans ${(message as any).circles?.name || "un cercle"} a été signalé: ${REASON_LABELS[reason]}`,
+          message: `Un message dans ${(message as unknown as { circles?: { name?: string } | null }).circles?.name || "un cercle"} a été signalé: ${REASON_LABELS[reason]}`,
           read: false,
           resource_type: "moderation_report",
           resource_id: report.id,

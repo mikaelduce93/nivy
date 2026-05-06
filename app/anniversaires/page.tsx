@@ -78,7 +78,7 @@ export default function AnniversairesPage() {
         }
       } catch (error) {
         console.error('Error loading data:', error)
-        toast.error("Erreur lors du chargement des données")
+        toast.error("Chargement rate. On retente? 💪")
       } finally {
         setLoadingData(false)
       }
@@ -167,7 +167,7 @@ export default function AnniversairesPage() {
       setCurrentStep(6) // Go to confirmation step
     } catch (error: any) {
       console.error('Error creating order:', error)
-      toast.error("Erreur lors de la création de la commande")
+      toast.error("Commande ratee. Reessaye?")
     } finally {
       setLoading(false)
     }
@@ -301,10 +301,11 @@ export default function AnniversairesPage() {
                           size="icon"
                           variant="outline"
                           onClick={() => setGuestCount(Math.max(1, guestCount - 1))}
+                          aria-label="Retirer un invité"
                         >
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-4 h-4" aria-hidden="true" />
                         </Button>
-                        <div className="flex-1 text-center">
+                        <div className="flex-1 text-center" aria-live="polite">
                           <div className="text-4xl font-black">{guestCount}</div>
                           <div className="text-sm text-muted-foreground">invités</div>
                         </div>
@@ -312,8 +313,9 @@ export default function AnniversairesPage() {
                           size="icon"
                           variant="outline"
                           onClick={() => setGuestCount(guestCount + 1)}
+                          aria-label="Ajouter un invité"
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="w-4 h-4" aria-hidden="true" />
                         </Button>
                       </div>
                     </div>

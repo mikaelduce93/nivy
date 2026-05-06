@@ -6,11 +6,7 @@ import { Sparkles, MessageCircle, Zap, Target, X, ChevronRight, Brain, Send, Loa
 import { GlowBlob } from '@/components/ui/gen-z-effects'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-// TODO(ts): widen type — see comment in components/ai/AgentSheet.tsx.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-import { useChat as useChatRaw } from '@ai-sdk/react'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useChat = useChatRaw as unknown as (opts: any) => any
+import { useAIChat } from '@/components/ai/use-ai-chat'
 
 interface AICompanionProps {
   teenName: string
@@ -49,17 +45,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
   const [feedbackGiven, setFeedbackGiven] = useState<string | null>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
-  // Use the AI SDK chat hook
-  const { 
-    messages, 
-    input, 
-    setInput, 
-    handleSubmit, 
-    isLoading, 
-    error,
-    reload,
-    stop
-  } = useChat({
+  const { messages, input, setInput, handleSubmit, isLoading, error, reload, stop } = useAIChat({
     api: '/api/agent/action',
     body: {
       role: 'teen',
@@ -70,19 +56,16 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
         id: 'welcome',
         role: 'assistant',
         content: `Yo ${teenName} ! 👋 Je suis ton AI Companion. Dis-moi ce que tu veux faire - quêtes, events, ou juste parler !`,
-      }
+      },
     ],
     onFinish: () => {
-      // Scroll to bottom when message finishes
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
       }
     },
-    // TODO(ts): widen type — see import note above.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (err: any) => {
+    onError: (err) => {
       console.error('[AICompanion] Error:', err)
-    }
+    },
   })
 
   // Fetch recommendations on open
@@ -270,7 +253,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => reload()}
+                      onClick={() => reload?.()}
                       className="text-xs"
                     >
                       <RefreshCw className="w-3 h-3 mr-1" />

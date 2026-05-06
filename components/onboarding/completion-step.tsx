@@ -9,8 +9,7 @@ import {
   ArrowRight, CheckCircle2, Calendar, Users, Crown,
   Award, Coins
 } from 'lucide-react'
-import Confetti from 'react-confetti'
-import { useWindowSize } from '@/hooks/use-window-size'
+import canvasConfetti from 'canvas-confetti'
 import { BADGE_DISPLAY_INFO } from '@/gamification-system/features/onboarding/schema'
 
 interface GamificationData {
@@ -26,8 +25,6 @@ interface CompletionStepProps {
 }
 
 export function CompletionStep({ userType, onNext, gamificationData }: CompletionStepProps) {
-  const [showConfetti, setShowConfetti] = useState(true)
-  const { width, height } = useWindowSize()
   const prefersReducedMotion = useReducedMotion()
 
   // Default gamification data if not provided
@@ -36,13 +33,21 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
   const coins = gamificationData?.bonusCoins || 0
 
   useEffect(() => {
-    // Stop confetti after 5 seconds
-    const timer = setTimeout(() => {
-      setShowConfetti(false)
-    }, 5000)
+    if (prefersReducedMotion || typeof window === 'undefined') return
 
-    return () => clearTimeout(timer)
-  }, [])
+    canvasConfetti({
+      particleCount: 500,
+      spread: 110,
+      startVelocity: 50,
+      gravity: 1.2,
+      ticks: 320,
+      origin: { x: 0.5, y: 0 },
+      zIndex: 9999,
+    })
+
+    const cleanup = window.setTimeout(() => canvasConfetti.reset(), 5000)
+    return () => window.clearTimeout(cleanup)
+  }, [prefersReducedMotion])
 
   const parentNextSteps = [
     {
@@ -90,17 +95,6 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
 
   return (
     <div className="relative space-y-8">
-      {/* Confetti - respects reduced motion */}
-      {showConfetti && !prefersReducedMotion && (
-        <Confetti
-          width={width}
-          height={height}
-          recycle={false}
-          numberOfPieces={500}
-          gravity={0.3}
-        />
-      )}
-
       {/* Main Content */}
       <motion.div
         initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0, opacity: 0 }}

@@ -103,7 +103,8 @@ CREATE TABLE IF NOT EXISTS public.achievements (
 
   -- Conditions de déblocage
   requirement_type VARCHAR(50) NOT NULL CHECK (requirement_type IN (
-    'count', 'streak', 'milestone', 'first_action', 'combo', 'time_based', 'special'
+    'count', 'streak', 'milestone', 'first_action', 'combo', 'time_based', 'special',
+    'specific_action'
   )),
   requirement_value INTEGER DEFAULT 1,
   requirement_data JSONB DEFAULT '{}',

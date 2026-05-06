@@ -101,7 +101,7 @@ export default function ValidateTeenPage() {
         router.push("/parent/teens")
       }, 3000)
     } catch (err) {
-      toast.error("Erreur lors de la validation")
+      toast.error("Validation ratee. On retente? 💪")
     } finally {
       setProcessing(false)
     }
@@ -131,7 +131,7 @@ export default function ValidateTeenPage() {
       toast.info("Demande refusée")
       router.push("/")
     } catch (err) {
-      toast.error("Erreur lors du refus")
+      toast.error("Refus rate. Reessaye?")
     } finally {
       setProcessing(false)
     }

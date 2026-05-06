@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Star, Music, Calendar, Search } from 'lucide-react'
+import Image from "next/image"
 import Link from "next/link"
 
 export default async function DJsPage() {
@@ -103,10 +104,13 @@ export default async function DJsPage() {
                 {djs.map((dj) => (
                   <Card key={dj.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
                     <div className="relative h-64 overflow-hidden">
-                      <img
+                      <Image
                         src={dj.photo_url || "/placeholder.svg"}
                         alt={dj.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4">

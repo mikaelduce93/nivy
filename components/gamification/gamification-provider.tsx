@@ -16,6 +16,7 @@
  *     interferer avec la CelebrationOverlay.
  */
 
+import * as React from "react"
 import {
   createContext,
   useContext,
@@ -41,6 +42,7 @@ import { AchievementUnlockModal, AchievementToast } from "./achievement-unlock"
 import { StreakBrokenModal } from "./streak-flame"
 import { CelebrationOverlay, CelebrationType } from "./celebration-overlay"
 import { useXPFloat, XPFloatContainer } from "./xp-float"
+import { useJuice } from "@/lib/hooks/use-juice"
 
 /* ==========================================================================
    TYPES
@@ -120,13 +122,22 @@ export function GamificationProvider({
   // XP Float Hook
   const { floats, showFloat } = useXPFloat()
 
+  // Juice hook — sound + haptic + confetti for the big moments.
+  const { play: playJuice } = useJuice()
+
+  // Streak milestones that deserve a flame burst (Phase 1 spec).
+  const STREAK_MILESTONES = React.useMemo(() => new Set([3, 7, 14, 30, 60, 100]), [])
+  const lastStreakRef = React.useRef<number | null>(null)
+
   // Callbacks pour les événements
   const handleXPGain = useCallback((event: XPGainEvent) => {
     // If coordinates are provided in the event (custom property), use floating text
     // Otherwise fall back to popup or use center screen float?
     // For now, let's stick to popup for general events, but we can expose a way to trigger float
     setXPPopup({ amount: event.amount, reason: event.reason })
-  }, [])
+    // Subtle ding + light haptic. Fired often, so kept light on confetti (soft preset).
+    playJuice('xp_gain')
+  }, [playJuice])
 
   const handleLevelUp = useCallback((newLevel: number, oldLevel: number) => {
     // Audit Phase 3.1: declenche la LevelUpModal dediee (confetti + rewards).
@@ -139,13 +150,17 @@ export function GamificationProvider({
       subtitle: `Tu es passé du niveau ${oldLevel} au niveau ${newLevel}`,
       xpEarned: undefined // XP is gained before level up usually
     })
+    // Big juicy moment: fanfare sound + success haptic + fireworks confetti.
+    playJuice('level_up')
     // setLevelUp({ from: oldLevel, to: newLevel }) // Disable old animation
-  }, [])
+  }, [playJuice])
 
   const handleAchievementUnlock = useCallback((event: AchievementUnlockEvent) => {
     const rarity = event.achievement.rarity || "common"
     if (rarity === "common" || rarity === "rare") {
       setAchievementToast(event.achievement)
+      // Achievement toast still gets a meaningful (but lighter) celebration.
+      playJuice('quest_complete')
     } else {
       // Use Celebration Overlay for significant achievements
       setCelebration({
@@ -156,13 +171,21 @@ export function GamificationProvider({
         image: event.achievement.icon,
         xpEarned: event.achievement.points
       })
-      // setAchievementModal(event.achievement) // Disable old modal
+      // Epic / legendary => full fanfare with heavy haptic.
+      playJuice('achievement_unlock')
     }
-  }, [])
+  }, [playJuice])
 
   const handleStreakUpdate = useCallback((streak: StreakData) => {
-    // Vérifier si le streak a été cassé
-  }, [])
+    // Detect streak milestone crossings (3, 7, 14, 30, 60, 100 days).
+    const previous = lastStreakRef.current
+    const next = streak.current_streak
+    lastStreakRef.current = next
+    if (previous === null) return // first hydration
+    if (next > previous && STREAK_MILESTONES.has(next)) {
+      playJuice('streak_milestone')
+    }
+  }, [playJuice, STREAK_MILESTONES])
 
   // Hook principal
   const {
@@ -189,7 +212,8 @@ export function GamificationProvider({
     } else {
       setXPPopup({ amount, reason })
     }
-  }, [showFloat])
+    playJuice('xp_gain')
+  }, [showFloat, playJuice])
 
   const showLevelUp = useCallback((fromLevel: number, toLevel: number) => {
     setLevelUpModal({ level: toLevel })
@@ -199,11 +223,13 @@ export function GamificationProvider({
       title: `NIVEAU ${toLevel} !`,
       subtitle: `Tu es passé du niveau ${fromLevel} au niveau ${toLevel}`,
     })
-  }, [])
+    playJuice('level_up')
+  }, [playJuice])
 
   const triggerLevelUp = useCallback((level: number, xpToNext?: number) => {
     setLevelUpModal({ level, xpToNext })
-  }, [])
+    playJuice('level_up')
+  }, [playJuice])
 
   const showAchievementUnlock = useCallback((achievement: Achievement, fullModal = false) => {
     if (fullModal) {
@@ -215,14 +241,17 @@ export function GamificationProvider({
         image: achievement.icon,
         xpEarned: achievement.points
       })
+      playJuice('achievement_unlock')
     } else {
       setAchievementToast(achievement)
+      playJuice('quest_complete')
     }
-  }, [])
+  }, [playJuice])
 
   const showStreakBroken = useCallback((previousStreak: number) => {
     setStreakBroken(previousStreak)
-  }, [])
+    playJuice('warning')
+  }, [playJuice])
 
   const triggerCelebration = useCallback((type: CelebrationType, title: string, subtitle?: string, xpEarned?: number) => {
     setCelebration({
@@ -232,7 +261,12 @@ export function GamificationProvider({
       subtitle,
       xpEarned
     })
-  }, [])
+    // Map celebration type to the right juice signature.
+    if (type === 'level-up') playJuice('level_up')
+    else if (type === 'badge-unlocked') playJuice('achievement_unlock')
+    else if (type === 'streak-milestone') playJuice('streak_milestone')
+    else playJuice('quest_complete')
+  }, [playJuice])
 
   return (
     <GamificationContext.Provider

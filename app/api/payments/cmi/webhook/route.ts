@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 import { cmiGateway } from "@/lib/payments/cmi"
+import { logger } from "@/lib/monitoring/logger"
 
 /**
  * CMI Server-to-Server Webhook
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
       params[key] = value.toString()
     })
 
-    console.log("[CMI Webhook] Received notification:", JSON.stringify(params, null, 2))
+    logger.info("CMI webhook received", { params })
 
     // Parse and verify the callback
     const result = cmiGateway.parseCallback(params)
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       // Only update if not already paid (idempotency)
       if (booking.payment_status !== "paid") {
-        console.log("[CMI Webhook] Processing successful payment:", result)
+        logger.info("CMI webhook processing success", { orderId: result.orderId })
 
         await supabase
           .from("bookings")
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: "OK" })
     } else {
       // Payment failed
-      console.log("[CMI Webhook] Payment failed notification:", result)
+      logger.warn("CMI webhook payment failed", { orderId: result.orderId, responseCode: result.responseCode })
 
       if (booking.payment_status !== "paid") {
         await supabase

@@ -102,7 +102,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
       toast.success("Toutes les notifications marquées comme lues")
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour")
+      toast.error("Maj ratee. Retente?")
     }
   }
 

@@ -86,14 +86,14 @@ export function ClubCalendar({ sessions, clubName, venueName, city }: ClubCalend
           Calendrier des sessions
         </h3>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={previousMonth}>
-            <ChevronLeft className="w-4 h-4" />
+          <Button variant="outline" size="icon" onClick={previousMonth} aria-label="Mois précédent">
+            <ChevronLeft className="w-4 h-4" aria-hidden="true" />
           </Button>
-          <span className="font-semibold min-w-40 text-center">
+          <span className="font-semibold min-w-40 text-center" aria-live="polite">
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </span>
-          <Button variant="outline" size="icon" onClick={nextMonth}>
-            <ChevronRight className="w-4 h-4" />
+          <Button variant="outline" size="icon" onClick={nextMonth} aria-label="Mois suivant">
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Button>
         </div>
       </div>

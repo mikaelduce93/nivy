@@ -56,7 +56,7 @@ async function getCommissionHistory(profileId: string) {
   const allTransactions: any[] = []
 
   referralCommissions?.forEach(rc => {
-    const userName = (rc.user as any)?.full_name || "Utilisateur"
+    const userName = (rc.user as unknown as { full_name?: string } | null)?.full_name || "Utilisateur"
     allTransactions.push({
       id: rc.id,
       type: "commission",

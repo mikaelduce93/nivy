@@ -80,7 +80,7 @@ export async function GET() {
         priority: 9,
         message: `${pendingApprovals.length} demande${pendingApprovals.length > 1 ? 's' : ''} d'approbation en attente`,
         detail: pendingApprovals.length === 1 
-          ? (pendingApprovals[0].event as any)?.title 
+          ? (pendingApprovals[0].event as unknown as { title?: string } | null)?.title
           : undefined,
         action: { label: 'Voir', href: '/parent/approvals' }
       })

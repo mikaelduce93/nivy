@@ -1,6 +1,9 @@
 'use client'
 
+import * as React from 'react'
 import { Suspense } from 'react'
+import { useRouter } from 'next/navigation'
+import { PullToRefresh } from '@/components/ui/pull-to-refresh'
 import { Hero, type HeroVariant } from "@/components/teen/dashboard/hero"
 import { PriorityMission } from "@/components/teen/dashboard/priority-mission"
 import { OnlineFriends } from "@/components/teen/dashboard/online-friends"
@@ -15,7 +18,7 @@ import { ParallaxContainer, ParallaxLayer } from "@/components/ui/parallax-conta
 import { CrewHub } from "@/components/teen/dashboard/crew-hub"
 import { LazySocialFeed, LazyMarketplaceOverlay } from "./lazy-components"
 import { MobileBottomNav } from "./mobile-nav"
-import { MapSkeleton } from "@/components/ui/skeleton-variants"
+import { MapSkeleton, QuickAccessSkeleton, CardSkeleton } from "@/components/ui/skeleton-variants"
 import { useDashboardContext } from "@/lib/hooks/teen-dashboard"
 import { EliteProviders } from "@/components/providers/elite-providers"
 import { RevealElement, CursorHoverArea } from "@/components/ui/effects"
@@ -69,10 +72,19 @@ export function TeenDashboardContent({
 }: TeenDashboardContentProps) {
   // Use unified dashboard context hook
   const { isMobile, prefersReducedMotion, mounted } = useDashboardContext()
-  
+  const router = useRouter()
+
   // SSR fallback - render with defaults
   const mobile = mounted ? isMobile : false
   const reducedMotion = mounted ? prefersReducedMotion : false
+
+  // Pull-to-refresh: revalidate the server component (XP, missions, feed).
+  const handleRefresh = React.useCallback(async () => {
+    router.refresh()
+    // Give the server roundtrip a brief, predictable end so the spinner
+    // doesn't disappear instantly on fast networks.
+    await new Promise((resolve) => setTimeout(resolve, 450))
+  }, [router])
 
   // Wrap content with elite providers on desktop
   const content = (
@@ -139,25 +151,29 @@ export function TeenDashboardContent({
           </BentoCard>
 
           {/* Quick Actions - Essential navigation */}
-          <BentoCard 
-            cols={3} 
-            rows={2} 
-            variant="glass" 
+          <BentoCard
+            cols={3}
+            rows={2}
+            variant="glass"
             tiltIntensity={mobile ? 0 : 5}
             className="col-span-full sm:col-span-6 md:col-span-3 p-0 border-white/5 order-2"
           >
-            <QuickAccessGrid userId={teenId} />
+            <Suspense fallback={<QuickAccessSkeleton />}>
+              <QuickAccessGrid userId={teenId} />
+            </Suspense>
           </BentoCard>
 
           {/* Online Friends - Social pulse */}
-          <BentoCard 
-            cols={3} 
-            rows={1} 
+          <BentoCard
+            cols={3}
+            rows={1}
             variant="glass"
             tiltIntensity={mobile ? 0 : 5}
             className="col-span-full sm:col-span-6 md:col-span-3 bg-white/[0.02] border-white/5 order-3"
           >
-            <OnlineFriends userId={teenId} />
+            <Suspense fallback={<CardSkeleton />}>
+              <OnlineFriends userId={teenId} />
+            </Suspense>
           </BentoCard>
 
           {/* ROW 2: Map (5 cols) + Crew Hub (7 cols) */}
@@ -178,14 +194,16 @@ export function TeenDashboardContent({
           </BentoCard>
 
           {/* Crew Hub - Team collaboration */}
-          <BentoCard 
-            cols={7} 
-            rows={2} 
+          <BentoCard
+            cols={7}
+            rows={2}
             variant="accent"
             tiltIntensity={mobile ? 0 : 4}
             className="col-span-full md:col-span-7 bg-indigo-950/20 border-indigo-500/20 order-5"
           >
-            <CrewHub />
+            <Suspense fallback={<CardSkeleton className="h-full" />}>
+              <CrewHub />
+            </Suspense>
           </BentoCard>
 
           {/* ROW 3: Profile Quest (4 cols) + XP Power (4 cols) + Feed (4 cols) */}
@@ -202,14 +220,16 @@ export function TeenDashboardContent({
           </BentoCard>
 
           {/* Profile Quest - Profile completion gamification */}
-          <BentoCard 
-            cols={4} 
-            rows={1} 
+          <BentoCard
+            cols={4}
+            rows={1}
             variant="default"
             tiltIntensity={mobile ? 0 : 6}
             className="col-span-full sm:col-span-6 md:col-span-4 bg-zinc-900/40 border-white/5 order-7"
           >
-            <ProfileQuest />
+            <Suspense fallback={<CardSkeleton />}>
+              <ProfileQuest />
+            </Suspense>
           </BentoCard>
 
           {/* Activity Feed - Community pulse */}
@@ -261,14 +281,23 @@ export function TeenDashboardContent({
   // Wrap with elite providers on desktop for cursor effects (elite/legendary variants)
   const heroVariant = getHeroVariant(xpData.level, currentStreak)
   const useEliteProviders = (heroVariant === 'elite' || heroVariant === 'legendary') && !mobile && mounted
-  
+
+  // Mobile: wrap in pull-to-refresh so a downward swipe revalidates dashboard data.
+  const wrappedContent = mobile ? (
+    <PullToRefresh onRefresh={handleRefresh} disabled={!mounted}>
+      {content}
+    </PullToRefresh>
+  ) : (
+    content
+  )
+
   if (useEliteProviders) {
     return (
       <EliteProviders cursor={true}>
-        {content}
+        {wrappedContent}
       </EliteProviders>
     )
   }
 
-  return content
+  return wrappedContent
 }

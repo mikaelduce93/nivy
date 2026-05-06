@@ -6,6 +6,7 @@
  */
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import {
   Trophy,
@@ -64,16 +65,16 @@ export function LeaderboardClient({
     <div className="space-y-8">
       {/* Tabs */}
       <div className="flex gap-2 justify-center">
-        {[
+        {([
           { id: "all-time", label: "Tous les temps", icon: Globe },
           { id: "weekly", label: "Cette semaine", icon: Calendar },
           { id: "crews", label: "Crews", icon: Users },
-        ].map((tab) => {
+        ] as const).map((tab) => {
           const TabIcon = tab.icon
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 ${
                 activeTab === tab.id
                   ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
@@ -134,9 +135,11 @@ function PlayerLeaderboard({ entries, userId }: { entries: LeaderboardEntry[]; u
             className="text-center"
           >
             <div className="relative">
-              <img
+              <Image
                 src={top3[1].avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${top3[1].id}`}
                 alt={top3[1].pseudo}
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-full border-4 border-zinc-400 mx-auto"
               />
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-zinc-400 flex items-center justify-center text-black font-bold">
@@ -158,9 +161,12 @@ function PlayerLeaderboard({ entries, userId }: { entries: LeaderboardEntry[]; u
           >
             <div className="relative">
               <Crown className="w-8 h-8 text-yellow-400 absolute -top-6 left-1/2 -translate-x-1/2" />
-              <img
+              <Image
                 src={top3[0].avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${top3[0].id}`}
                 alt={top3[0].pseudo}
+                width={96}
+                height={96}
+                priority
                 className="w-24 h-24 rounded-full border-4 border-yellow-400 mx-auto"
               />
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-black font-bold">
@@ -182,9 +188,11 @@ function PlayerLeaderboard({ entries, userId }: { entries: LeaderboardEntry[]; u
             className="text-center"
           >
             <div className="relative">
-              <img
+              <Image
                 src={top3[2].avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${top3[2].id}`}
                 alt={top3[2].pseudo}
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-full border-4 border-amber-700 mx-auto"
               />
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-amber-700 flex items-center justify-center text-white font-bold">
@@ -218,9 +226,11 @@ function PlayerLeaderboard({ entries, userId }: { entries: LeaderboardEntry[]; u
             </div>
 
             {/* Avatar */}
-            <img
+            <Image
               src={entry.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.id}`}
               alt={entry.pseudo}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full"
             />
 

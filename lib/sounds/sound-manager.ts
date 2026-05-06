@@ -62,40 +62,40 @@ interface SoundConfig {
 // Sound definitions with fallbacks
 const SOUND_CONFIGS: Record<SoundEffect, SoundConfig> = {
   // UI Sounds - subtle, minimal
-  click: { path: '/sounds/click.mp3', volume: 0.3, category: 'ui', preload: true },
-  hover: { path: '/sounds/hover.mp3', volume: 0.15, category: 'ui', preload: true },
-  toggle: { path: '/sounds/toggle.mp3', volume: 0.25, category: 'ui', preload: true },
-  open: { path: '/sounds/open.mp3', volume: 0.3, category: 'ui', preload: false },
-  close: { path: '/sounds/close.mp3', volume: 0.25, category: 'ui', preload: false },
-  slide: { path: '/sounds/slide.mp3', volume: 0.2, category: 'ui', preload: false },
-  pop: { path: '/sounds/pop.mp3', volume: 0.35, category: 'ui', preload: true },
-  whoosh: { path: '/sounds/whoosh.mp3', volume: 0.3, category: 'ui', preload: false },
+  click: { path: '/sounds/click.wav', volume: 0.3, category: 'ui', preload: true },
+  hover: { path: '/sounds/hover.wav', volume: 0.15, category: 'ui', preload: true },
+  toggle: { path: '/sounds/toggle.wav', volume: 0.25, category: 'ui', preload: true },
+  open: { path: '/sounds/open.wav', volume: 0.3, category: 'ui', preload: false },
+  close: { path: '/sounds/close.wav', volume: 0.25, category: 'ui', preload: false },
+  slide: { path: '/sounds/slide.wav', volume: 0.2, category: 'ui', preload: false },
+  pop: { path: '/sounds/pop.wav', volume: 0.35, category: 'ui', preload: true },
+  whoosh: { path: '/sounds/whoosh.wav', volume: 0.3, category: 'ui', preload: false },
   
   // Gamification - more prominent
-  xp_gain: { path: '/sounds/xp-gain.mp3', volume: 0.4, category: 'gamification', preload: true },
-  level_up: { path: '/sounds/level-up.mp3', volume: 0.6, category: 'gamification', preload: true },
-  achievement: { path: '/sounds/achievement.mp3', volume: 0.55, category: 'gamification', preload: true },
-  badge_unlock: { path: '/sounds/badge-unlock.mp3', volume: 0.5, category: 'gamification', preload: false },
-  streak: { path: '/sounds/streak.mp3', volume: 0.5, category: 'gamification', preload: true },
-  coin: { path: '/sounds/coin.mp3', volume: 0.45, category: 'gamification', preload: true },
-  quest_complete: { path: '/sounds/quest-complete.mp3', volume: 0.55, category: 'gamification', preload: false },
-  combo: { path: '/sounds/combo.mp3', volume: 0.5, category: 'gamification', preload: false },
+  xp_gain: { path: '/sounds/xp-gain.wav', volume: 0.4, category: 'gamification', preload: true },
+  level_up: { path: '/sounds/level-up.wav', volume: 0.6, category: 'gamification', preload: true },
+  achievement: { path: '/sounds/achievement.wav', volume: 0.55, category: 'gamification', preload: true },
+  badge_unlock: { path: '/sounds/badge-unlock.wav', volume: 0.5, category: 'gamification', preload: false },
+  streak: { path: '/sounds/streak.wav', volume: 0.5, category: 'gamification', preload: true },
+  coin: { path: '/sounds/coin.wav', volume: 0.45, category: 'gamification', preload: true },
+  quest_complete: { path: '/sounds/quest-complete.wav', volume: 0.55, category: 'gamification', preload: false },
+  combo: { path: '/sounds/combo.wav', volume: 0.5, category: 'gamification', preload: false },
   
   // Notifications
-  notification: { path: '/sounds/notification.mp3', volume: 0.5, category: 'notification', preload: true },
-  message: { path: '/sounds/message.mp3', volume: 0.45, category: 'notification', preload: false },
-  mention: { path: '/sounds/mention.mp3', volume: 0.5, category: 'notification', preload: false },
-  alert: { path: '/sounds/alert.mp3', volume: 0.55, category: 'notification', preload: false },
+  notification: { path: '/sounds/notification.wav', volume: 0.5, category: 'notification', preload: true },
+  message: { path: '/sounds/message.wav', volume: 0.45, category: 'notification', preload: false },
+  mention: { path: '/sounds/mention.wav', volume: 0.5, category: 'notification', preload: false },
+  alert: { path: '/sounds/alert.wav', volume: 0.55, category: 'notification', preload: false },
   
   // Feedback
-  success: { path: '/sounds/success.mp3', volume: 0.45, category: 'ui', preload: true },
-  error: { path: '/sounds/error.mp3', volume: 0.4, category: 'ui', preload: true },
-  warning: { path: '/sounds/warning.mp3', volume: 0.4, category: 'ui', preload: false },
+  success: { path: '/sounds/success.wav', volume: 0.45, category: 'ui', preload: true },
+  error: { path: '/sounds/error.wav', volume: 0.4, category: 'ui', preload: true },
+  warning: { path: '/sounds/warning.wav', volume: 0.4, category: 'ui', preload: false },
   
   // Special effects
-  celebration: { path: '/sounds/celebration.mp3', volume: 0.6, category: 'gamification', preload: false },
-  fanfare: { path: '/sounds/fanfare.mp3', volume: 0.55, category: 'gamification', preload: false },
-  magic: { path: '/sounds/magic.mp3', volume: 0.45, category: 'gamification', preload: false },
+  celebration: { path: '/sounds/celebration.wav', volume: 0.6, category: 'gamification', preload: false },
+  fanfare: { path: '/sounds/fanfare.wav', volume: 0.55, category: 'gamification', preload: false },
+  magic: { path: '/sounds/magic.wav', volume: 0.45, category: 'gamification', preload: false },
 }
 
 // Storage keys
@@ -143,7 +143,7 @@ class SoundManager {
     if (this.audioContext) return
     
     try {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext!)()
       
       // Resume context on user interaction if suspended
       if (this.audioContext.state === 'suspended') {

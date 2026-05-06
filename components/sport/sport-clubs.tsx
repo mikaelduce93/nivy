@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Users,
@@ -203,12 +204,14 @@ function ClubCard({
         >
           <div className="flex items-center gap-4">
             {/* Club logo/icon */}
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center overflow-hidden">
+            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center overflow-hidden">
               {club.logo_url ? (
-                <img
+                <Image
                   src={club.logo_url}
                   alt={club.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="64px"
+                  className="object-cover"
                 />
               ) : (
                 <Activity className="w-8 h-8 text-cyan-400" />
@@ -357,12 +360,14 @@ function AvailableClubCard({ club, onJoin }: AvailableClubCardProps) {
   return (
     <Card className="p-4 bg-zinc-900 border-zinc-800">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center">
+        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center overflow-hidden">
           {club.logo_url ? (
-            <img
+            <Image
               src={club.logo_url}
               alt={club.name}
-              className="w-full h-full object-cover rounded-xl"
+              fill
+              sizes="48px"
+              className="object-cover rounded-xl"
             />
           ) : (
             <Activity className="w-6 h-6 text-cyan-400" />

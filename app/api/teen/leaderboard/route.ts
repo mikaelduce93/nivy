@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     let userXp = 0
 
     const rankings = leaderboard?.map((entry, index) => {
-      const user = entry.user as any
+      const user = entry.user as unknown as { full_name?: string; avatar_url?: string } | null
       const rank = index + 1
       
       if (entry.user_id === teenId) {
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
           rank: userRank,
           id: teenId,
           name: userInfo.fullName || 'You',
-          avatar_url: userInfo.teenData?.avatar_url || null,
+          avatar_url: userInfo.teenData?.avatar_url || undefined,
           xp: userXp,
           level: userXpData.level || 1,
           badge: undefined,

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Shield, Users, HelpCircle, Info, MessageSquare, Handshake } from 'lucide-react'
 import { getPublicAppConfig } from "@/lib/config/app-config"
+import { PandaLogo } from "@/components/brand/panda-logo"
 
 const { contactEmail: CONTACT_EMAIL } = getPublicAppConfig()
 
@@ -18,13 +19,8 @@ export function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             {/* Brand */}
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-chart-4 to-accent flex items-center justify-center font-bold text-xl text-primary-foreground">
-                  TP
-                </div>
-                <span className="font-bold text-xl text-gradient">
-                  Teens Party
-                </span>
+              <div className="flex items-center gap-2 mb-4 text-foreground">
+                <PandaLogo variant="full" size="md" />
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 L’app safe & fun pour les 13–17 ans au Maroc. Soirées, clubs et défis IRL, 0% alcool.
@@ -157,13 +153,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-8">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-chart-4 to-accent flex items-center justify-center font-bold text-xl text-primary-foreground">
-                TP
-              </div>
-              <span className="font-bold text-xl text-gradient">
-                Teens Party
-              </span>
+            <div className="flex items-center gap-2 mb-4 text-foreground">
+              <PandaLogo variant="full" size="md" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
               Les soirées pour ados les plus sécurisées et inoubliables du Maroc. 100% sans alcool, encadrement professionnel, pour les 13–17 ans.

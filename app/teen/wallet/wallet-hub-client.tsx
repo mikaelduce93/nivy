@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { Progress } from "@/components/ui/progress"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 interface WalletHubClientProps {
   teenId: string
@@ -169,10 +170,20 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
             <Loader2 className="w-6 h-6 animate-spin text-yellow-500" />
           </div>
         ) : transactions.length === 0 ? (
-          <div className="text-center py-8">
-            <Coins className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-            <p className="text-zinc-500">No transactions yet</p>
-          </div>
+          walletData.coins === 0 ? (
+            <EmptyState
+              preset="coins"
+              size="default"
+              action={{ label: "Voir les quêtes", href: "/teen/quests" }}
+            />
+          ) : (
+            <EmptyState
+              preset="coins"
+              size="small"
+              title="Pas encore de transactions"
+              description="Tes prochaines récompenses apparaîtront ici."
+            />
+          )
         ) : (
           transactions.map((tx, idx) => (
             <motion.div

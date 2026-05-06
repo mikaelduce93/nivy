@@ -267,12 +267,13 @@ export async function getConfigValue<T>(
   const config = await getRuntimeConfig()
   
   // Support pour les clés imbriquées (ex: "payments.stripeEnabled")
+  const cfg = config as unknown as Record<string, unknown>
   if (key.includes('.')) {
     const [parent, child] = key.split('.')
-    const parentValue = (config as any)[parent]
-    return parentValue?.[child] ?? defaultValue
+    const parentValue = cfg[parent] as Record<string, unknown> | undefined
+    return (parentValue?.[child] as T | undefined) ?? defaultValue
   }
-  
-  return (config as any)[key] ?? defaultValue
+
+  return (cfg[key] as T | undefined) ?? defaultValue
 }
 
