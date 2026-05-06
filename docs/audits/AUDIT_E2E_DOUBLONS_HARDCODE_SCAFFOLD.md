@@ -43,6 +43,18 @@ Ces fichiers ont le meme contenu normalise:
 
 ## Doublons structurels
 
+### Paires gamification ↔ teen (Wave 2 — routes-deduplicator, 2026-05-06)
+
+| Source (non-canonical) | Canonical | Statut |
+|---|---|---|
+| `app/teen/leaderboard/page.tsx` | `/gamification/leaderboard` | redirected to canonical (Wave 1) |
+| `app/gamification/defis-physiques/page.tsx` | `/teen/defis-physiques` | redirected to canonical (Wave 2) |
+| `app/gamification/aide-scolaire/page.tsx` | `/teen/aide-scolaire` | redirected to canonical (Wave 2) |
+| `app/gamification/crews/page.tsx` | `/teen/circles` | redirected to canonical (Wave 2) |
+| `app/gamification/defis/page.tsx` | `/gamification/defis` | no teen mirror — already canonical, no-op |
+| `app/gamification/missions/page.tsx` | `/gamification/missions` | no teen mirror — already canonical, no-op |
+| `app/teen/aide-scolaire/page.tsx` vs `app/teen/academic/page.tsx` | `/teen/aide-scolaire` | academic redirect deferred to duplicate-page-merger agent |
+
 - Routes legacy encore presentes alors que `next.config.mjs` redirige deja vers les nouvelles routes: `/evenements`, `/auth/signup`, `/ambassadeurs`, `/partenaires`, `/parents`, `/support`, `/faq`, `/dashboard`, `/mes-reservations`, `/mes-clubs`, `/gamification-demo`.
 - Notifications: `components/notification-bell.tsx`, `components/notifications/notification-bell.tsx`, `gamification-system/components/notifications/notification-center.tsx` exportent des concepts concurrents.
 - Loading/skeletons: `components/ui/skeleton.tsx`, `components/ui/skeleton-variants.tsx`, `components/ui/skeletons/*`, `components/ui/states/skeleton-set.tsx`, `components/ui/effects/elite-skeleton.tsx`.

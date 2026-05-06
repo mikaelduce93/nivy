@@ -24,8 +24,8 @@ import {
 const navigation = [
   { name: "Dashboard", href: "/teen", icon: Home },
   { name: "Events", href: "/teen/events", icon: Calendar },
-  { name: "Aide Scolaire", href: "/teen/academic", icon: GraduationCap },
-  { name: "Défis Physiques", href: "/teen/challenges", icon: Dumbbell },
+  { name: "Aide Scolaire", href: "/teen/aide-scolaire", icon: GraduationCap },
+  { name: "Défis Physiques", href: "/teen/defis-physiques", icon: Dumbbell },
   { name: "Parcours Passion", href: "/teen/passions", icon: Sparkles },
   { name: "Games", href: "/teen/games", icon: Gamepad2 },
   { name: "Circles", href: "/teen/circles", icon: Users },

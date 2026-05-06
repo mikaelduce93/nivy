@@ -1,3 +1,21 @@
+/**
+ * CANONICAL URL MAP — teen domain (Wave 1 + Wave 2, routes-deduplicator)
+ * -----------------------------------------------------------------------
+ * Domain              Canonical URL                   Non-canonical (redirects to canonical)
+ * ------------------- ------------------------------- -------------------------------------------
+ * Shop / XP Store     /teen/wallet?tab=shop           /teen/shop  →  canonical (redirect in place)
+ * Leaderboard         /gamification/leaderboard       /teen/leaderboard  →  canonical (redirect in place)
+ * Achievements        /teen/achievements              /gamification/achievements  →  (if exists, redirect)
+ * Défis physiques     /teen/defis-physiques           /gamification/defis-physiques  →  canonical
+ *                                                     /teen/challenges  →  re-exports defis-physiques
+ * Défis amis          /gamification/defis             (no teen mirror)
+ * Missions            /gamification/missions          (no teen/missions; /teen/quests = different feature)
+ * Quests              /teen/quests                    (no gamification mirror)
+ * Aide scolaire       /teen/aide-scolaire             /gamification/aide-scolaire  →  canonical
+ *                                                     /teen/academic  →  handled by duplicate-page-merger (OUT OF SCOPE)
+ * Circles / Crews     /teen/circles                   /gamification/crews  →  canonical
+ * -----------------------------------------------------------------------
+ */
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { TeenSidebar } from "@/components/dashboard/teen/sidebar"
