@@ -300,6 +300,23 @@
      This is theme-invariant by design — do NOT override in .dark.
      -------------------------------------------------------------------------- */
   --color-on-bright: oklch(0.20 0.02 280); /* near-black, matches foreground hue */
+
+  /* --------------------------------------------------------------------------
+     GEN-Z NEON PILLARS — Light mode fallback
+     --------------------------------------------------------------------------
+     The dark theme defines saturated neons (`.dark { --neon-* }`). Without a
+     light-mode counterpart, any page that uses `var(--neon-party)` etc. while
+     the user is on the light theme would resolve to "unset" and break neon
+     borders / shadows. We mirror the same hues here but with slightly higher
+     L (to read on warm off-white) and lower chroma (to avoid harsh blowouts
+     in daylight). Same hue families = consistent brand identity, only the
+     intensity drops.
+     -------------------------------------------------------------------------- */
+  --neon-party: oklch(0.62 0.22 300);    /* Violet/Magenta */
+  --neon-vitality: oklch(0.70 0.20 130); /* Lime */
+  --neon-intellect: oklch(0.65 0.18 230); /* Cyan */
+  --neon-creativity: oklch(0.68 0.20 30); /* Coral */
+  --neon-prestige: oklch(0.75 0.16 75);  /* Gold */
 }
 
 /* ============================================================================

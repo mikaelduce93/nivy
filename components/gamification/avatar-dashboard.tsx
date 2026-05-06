@@ -31,7 +31,7 @@ export function AvatarDashboard({ user, stats }: AvatarDashboardProps) {
     {
       id: "vitality" as const,
       icon: Dumbbell,
-      label: "Vitality",
+      label: "Glow Up",
       color: "text-green-400",
       neonColor: "var(--neon-vitality)",
       data: stats.vitality,
@@ -40,7 +40,7 @@ export function AvatarDashboard({ user, stats }: AvatarDashboardProps) {
     {
       id: "intellect" as const,
       icon: Brain,
-      label: "Intellect",
+      label: "Big Brain",
       color: "text-cyan-400",
       neonColor: "var(--neon-intellect)",
       data: stats.intellect,
@@ -49,7 +49,7 @@ export function AvatarDashboard({ user, stats }: AvatarDashboardProps) {
     {
       id: "party" as const,
       icon: Zap,
-      label: "Social",
+      label: "Main Character",
       color: "text-purple-400",
       neonColor: "var(--neon-party)",
       data: stats.party,

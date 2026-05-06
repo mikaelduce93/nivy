@@ -109,8 +109,14 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Teens Party",
   },
+  // The new panda-favicon.svg is the source of truth (vector, theme-aware, no
+  // raster regen needed when the brand evolves). The PNG entries below remain
+  // for legacy browsers that don't ship SVG favicon support — when those
+  // assets are generated they should match the panda mark in panda-favicon.svg.
+  // See docs/brand/FAVICONS_TODO.md for the export checklist.
   icons: {
     icon: [
+      { url: "/icons/panda-favicon.svg", type: "image/svg+xml" },
       { url: "/icons/icon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/icons/icon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
@@ -121,7 +127,7 @@ export const metadata: Metadata = {
       { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" },
     ],
     other: [
-      { rel: "mask-icon", url: "/icons/safari-pinned-tab.svg", color: "#06b6d4" },
+      { rel: "mask-icon", url: "/icons/safari-pinned-tab.svg", color: "#a855f7" },
     ],
   },
   alternates: {

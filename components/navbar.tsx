@@ -42,6 +42,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { SearchModal } from "@/components/search"
+import { PandaLogo } from "@/components/brand/panda-logo"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -312,12 +313,14 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-chart-4 to-accent flex items-center justify-center font-bold text-xl text-primary-foreground">
-              TP
-            </div>
-            <span className="font-bold text-xl hidden sm:block">
-              <span className="text-gradient">Teens Party</span>
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg"
+            aria-label="NIVY - Accueil"
+          >
+            <PandaLogo variant="icon" size="md" />
+            <span className="hidden sm:block">
+              <PandaLogo variant="wordmark" size="md" />
             </span>
           </Link>
 

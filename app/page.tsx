@@ -8,6 +8,7 @@ import { Sparkles, Calendar, Trophy, Users, Shield, Heart, MapPin, ArrowRight, U
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { AvatarDashboard } from "@/components/gamification/avatar-dashboard"
+import { PandaMascot } from "@/components/brand/mascot-states"
 import Image from "next/image"
 import { useT } from "@/lib/i18n"
 
@@ -86,6 +87,13 @@ export default function HomePage() {
 
             {/* Left Content - Gen-Z Hero */}
             <div className="text-center lg:text-left space-y-8">
+              {/* Mobile-only mascot — desktop has its own decorative version above
+                  the dashboard preview. This keeps the brand visible on small
+                  screens where the right column is hidden. */}
+              <div className="lg:hidden flex justify-center text-foreground" aria-hidden="true">
+                <PandaMascot state="celebrating" size="md" />
+              </div>
+
               {/* Live badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg" role="status" aria-live="polite">
                 <div className="w-2.5 h-2.5 rounded-full bg-gen-z-lime animate-pulse shadow-[0_0_12px_var(--gen-z-lime)]" aria-hidden="true" />
@@ -143,6 +151,14 @@ export default function HomePage() {
             {/* Right Content - Avatar Dashboard Preview */}
             <div className="relative hidden lg:block">
               <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-cyan-500/20 rounded-full blur-3xl animate-spin-slow" />
+              {/* Brand mascot — floats above the dashboard card as the visual anchor.
+                  Pointer-events disabled so it never intercepts dashboard clicks. */}
+              <div
+                className="absolute -top-10 -left-6 z-20 motion-safe:animate-float text-foreground pointer-events-none select-none"
+                aria-hidden="true"
+              >
+                <PandaMascot state="celebrating" size="lg" />
+              </div>
               <GlassCard intensity="high" className="relative p-8 border-white/10">
                 <div className="text-center mb-6">
                   <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-wider text-zinc-400 mb-2" aria-label="Aperçu non personnalisé">
@@ -172,53 +188,57 @@ export default function HomePage() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* VITALITY */}
+              {/* GLOW UP (vitality) */}
               <GlassCard neon="vitality" variant="hover" className="p-6 relative group overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-green-500/20 transition-all" />
                 <div className="w-14 h-14 rounded-2xl bg-green-500/20 flex items-center justify-center mb-6 text-green-400 border border-green-500/30">
                   <Heart className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-green-400 transition-colors">VITALITY</h3>
-                <p className="text-zinc-400 text-sm mb-6">Clubs de sport, défis fitness et santé. Bouge pour gagner.</p>
+                <div className="text-3xl mb-1" aria-hidden="true">💚</div>
+                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-green-400 transition-colors">Glow Up</h3>
+                <p className="text-zinc-400 text-sm mb-6">Sport, santé, fitness. Bouge pour gagner du XP.</p>
                 <Link href="/clubs?category=sport">
                   <NeonButton variant="vitality" size="sm" className="w-full">Explorer Sport</NeonButton>
                 </Link>
               </GlassCard>
 
-              {/* INTELLECT */}
+              {/* BIG BRAIN (intellect) */}
               <GlassCard neon="intellect" variant="hover" className="p-6 relative group overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-cyan-500/20 transition-all" />
                 <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6 text-cyan-400 border border-cyan-500/30">
                   <Sparkles className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-cyan-400 transition-colors">INTELLECT</h3>
-                <p className="text-zinc-400 text-sm mb-6">Clubs tech, aide aux devoirs et focus timer. Muscle ton cerveau.</p>
+                <div className="text-3xl mb-1" aria-hidden="true">🧠</div>
+                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-cyan-400 transition-colors">Big Brain</h3>
+                <p className="text-zinc-400 text-sm mb-6">Études, tech, focus timer. Muscle ton cerveau.</p>
                 <Link href="/clubs?category=tech">
                   <NeonButton variant="intellect" size="sm" className="w-full">Explorer Tech</NeonButton>
                 </Link>
               </GlassCard>
 
-              {/* CREATIVITY */}
+              {/* SELF-EXPRESS (creativity) */}
               <GlassCard neon="creativity" variant="hover" className="p-6 relative group overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-orange-500/20 transition-all" />
                 <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-6 text-orange-400 border border-orange-500/30">
-                  <Palette className="w-7 h-7" /> {/* Replaced Paintbrush with Palette if needed, using Palette for consistency */}
+                  <Palette className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-orange-400 transition-colors">CREATIVITY</h3>
-                <p className="text-zinc-400 text-sm mb-6">Arts, musique, danse et théâtre. Exprime ton talent.</p>
+                <div className="text-3xl mb-1" aria-hidden="true">🎨</div>
+                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-orange-400 transition-colors">Self-Express</h3>
+                <p className="text-zinc-400 text-sm mb-6">Arts, musique, danse, théâtre. Exprime ton talent.</p>
                 <Link href="/clubs?category=art">
                   <NeonButton variant="default" size="sm" className="w-full bg-orange-600 hover:bg-orange-500 border border-orange-400/50 shadow-[0_0_15px_-5px_orange]">Explorer Arts</NeonButton>
                 </Link>
               </GlassCard>
 
-              {/* PARTY */}
+              {/* MAIN CHARACTER (party) */}
               <GlassCard neon="party" variant="hover" className="p-6 relative group overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-purple-500/20 transition-all" />
                 <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400 border border-purple-500/30">
                   <PartyPopper className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-purple-400 transition-colors">SOCIAL</h3>
-                <p className="text-zinc-400 text-sm mb-6">Les meilleures soirées ados du Maroc. 100% Fun, 0% Alcool.</p>
+                <div className="text-3xl mb-1" aria-hidden="true">🎉</div>
+                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-purple-400 transition-colors">Main Character</h3>
+                <p className="text-zinc-400 text-sm mb-6">Soirées, social, crews. 100% Fun, 0% Alcool.</p>
                 <Link href="/agenda">
                   <NeonButton variant="party" size="sm" className="w-full">Voir Soirées</NeonButton>
                 </Link>
