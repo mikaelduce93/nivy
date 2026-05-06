@@ -430,10 +430,11 @@ export function useXP(teenId?: string) {
         },
         (payload: RealtimePayload) => {
           if (payload.new) {
+            const row = payload.new as unknown as XPData
             setXP({
-              total_xp: (payload.new as any).total_xp,
-              level: (payload.new as any).level,
-              xp_to_next_level: (payload.new as any).xp_to_next_level,
+              total_xp: row.total_xp,
+              level: row.level,
+              xp_to_next_level: row.xp_to_next_level,
             })
           }
         }
@@ -492,10 +493,11 @@ export function useStreak(teenId?: string) {
         },
         (payload: RealtimePayload) => {
           if (payload.new) {
+            const row = payload.new as unknown as StreakData
             setStreak({
-              current_streak: (payload.new as any).current_streak,
-              longest_streak: (payload.new as any).longest_streak,
-              last_activity_date: (payload.new as any).last_activity_date,
+              current_streak: row.current_streak,
+              longest_streak: row.longest_streak,
+              last_activity_date: row.last_activity_date,
             })
           }
         }

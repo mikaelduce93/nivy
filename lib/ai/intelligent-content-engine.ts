@@ -216,8 +216,8 @@ class ProfileAnalyzer {
   private static detectActiveHour(attempts: any[]): number | undefined {
     if (!attempts.length) return undefined
     const hours = attempts.map(a => new Date(a.created_at).getHours())
-    const counts = hours.reduce((acc, h) => ({ ...acc, [h]: (acc[h] || 0) + 1 }), {} as any)
-    return parseInt(Object.entries(counts).sort(([, a], [, b]) => (b as any) - (a as any))[0][0])
+    const counts = hours.reduce<Record<number, number>>((acc, h) => ({ ...acc, [h]: (acc[h] || 0) + 1 }), {})
+    return parseInt(Object.entries(counts).sort(([, a], [, b]) => b - a)[0][0])
   }
 }
 
@@ -275,8 +275,8 @@ export class IntelligentContentEngine {
 
   private mapProfileToParams(profile: TeenBehavioralProfile, contentType: string): GenerationParams {
     return {
-      contentType: contentType as any,
-      difficulty: profile.preferredDifficulty as any,
+      contentType: contentType as GenerationParams["contentType"],
+      difficulty: profile.preferredDifficulty as GenerationParams["difficulty"],
       subject: profile.bestSubject,
       interests: profile.preferredSubjects,
       count: 1,

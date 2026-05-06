@@ -160,7 +160,7 @@ export async function POST(request: Request) {
     )
 
     // Format response
-    const profile = vipCard.profiles as any
+    const profile = vipCard.profiles as unknown as { full_name: string; email: string; role: string }
 
     return NextResponse.json({
       success: true,

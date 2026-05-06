@@ -324,7 +324,7 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
     .limit(1)
     .maybeSingle()
 
-  const permissions = (relationship as any)?.permissions || {}
+  const permissions = (relationship as { permissions?: Record<string, boolean> } | null)?.permissions || {}
   const permissionsSummary: PermissionsSummaryItem[] = [
     { label: "Voir ton activité", allowed: !!permissions.can_view_activity },
     { label: "Valider les events", allowed: !!permissions.can_approve_events },

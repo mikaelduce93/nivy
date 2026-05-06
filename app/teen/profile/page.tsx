@@ -57,8 +57,15 @@ export default async function TeenProfilePage() {
   ])
 
   const teenData = userInfo.teenData
-  const achievements = (achievementStats as any).data || { unlocked_count: 0, total_count: 50 }
-  const lifetime: any = lifetimeStats || {}
+  const achievements = (achievementStats as { data?: { unlocked_count: number; total_count: number } }).data || { unlocked_count: 0, total_count: 50 }
+  const lifetime = (lifetimeStats || {}) as {
+    total_xp?: number
+    best_login_streak?: number
+    longest_login_streak?: number
+    current_login_streak?: number
+    total_events_attended?: number
+    total_missions_completed?: number
+  }
 
   // Serialize data for client
   const profileData = {
@@ -71,7 +78,7 @@ export default async function TeenProfilePage() {
     stats: {
       level: teenData?.level || 1,
       coins: teenData?.coins || 0,
-      rank: (userRank as any).data?.rank || null,
+      rank: (userRank as { data?: { rank?: number } }).data?.rank ?? null,
       friendsCount,
       totalXp: lifetime.total_xp || 0,
       bestStreak: lifetime.best_login_streak || lifetime.longest_login_streak || 0,

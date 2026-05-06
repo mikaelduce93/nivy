@@ -58,7 +58,7 @@ async function getPartnerStats(partnerEmail: string) {
     .order("used_at", { ascending: false })
 
   const totalRevenue = transactions?.reduce((sum, t) => sum + (t.final_amount || 0), 0) || 0
-  const uniqueCustomers = new Set(transactions?.map(t => (t.profile as any)?.full_name)).size
+  const uniqueCustomers = new Set(transactions?.map(t => (t.profile as unknown as { full_name?: string } | null)?.full_name)).size
 
   const { data: offers } = await supabase
     .from("partner_discounts")

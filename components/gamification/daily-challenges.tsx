@@ -468,7 +468,8 @@ export function ChallengeCategoryFilter({
   onChange,
   className,
 }: ChallengeCategoryFilterProps) {
-  const categories = [
+  type CategoryEntry = { key: string | null; label: string; icon?: typeof CATEGORY_CONFIG.school.icon; gradient?: string }
+  const categories: CategoryEntry[] = [
     { key: null, label: "Tous" },
     { key: "school", ...CATEGORY_CONFIG.school },
     { key: "sport", ...CATEGORY_CONFIG.sport },
@@ -479,7 +480,7 @@ export function ChallengeCategoryFilter({
     <div className={cn("flex gap-2", className)}>
       {categories.map((cat) => {
         const isSelected = selected === cat.key
-        const Icon = (cat as any).icon
+        const Icon = cat.icon
 
         return (
           <motion.button
@@ -488,7 +489,7 @@ export function ChallengeCategoryFilter({
               "px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all",
               isSelected
                 ? cat.key
-                  ? cn(`bg-gradient-to-r ${(cat as any).gradient} text-white`)
+                  ? cn(`bg-gradient-to-r ${cat.gradient ?? ""} text-white`)
                   : "bg-white text-black"
                 : "bg-zinc-800 text-zinc-400 hover:text-white"
             )}

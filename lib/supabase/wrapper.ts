@@ -134,34 +134,33 @@ export function createSupabaseClientWithTimeout(
   client: SupabaseClient,
   defaultTimeout: number = 30000
 ): SupabaseClient {
-  // Create a proxy that wraps all async methods with timeout
+  // Create a proxy that wraps all async methods with timeout. The Proxy
+  // pattern is inherently dynamic, so the dispatch into the Supabase client
+  // is typed through Reflect/Record helpers instead of `as any`.
   return new Proxy(client, {
     get(target, prop) {
-      const value = (target as any)[prop]
-      
-      // If it's a function, wrap it
+      const value = Reflect.get(target as unknown as Record<PropertyKey, unknown>, prop)
+
       if (typeof value === 'function') {
-        return function (...args: any[]) {
-          const result = value.apply(target, args)
-          
-          // If result is a promise, wrap it with timeout
-          if (result && typeof result.then === 'function') {
+        return function (this: unknown, ...args: unknown[]) {
+          const result = (value as (...a: unknown[]) => unknown).apply(target, args)
+
+          if (result && typeof (result as { then?: unknown }).then === 'function') {
             return withSupabaseTimeout(
-              result,
+              result as Promise<unknown>,
               `${String(prop)}(${args.map(() => '...').join(', ')})`,
               defaultTimeout
             )
           }
-          
+
           return result
         }
       }
-      
-      // If it's an object (like .from()), return a proxy for it too
+
       if (value && typeof value === 'object') {
-        return createSupabaseClientWithTimeout(value as any, defaultTimeout)
+        return createSupabaseClientWithTimeout(value as SupabaseClient, defaultTimeout)
       }
-      
+
       return value
     },
   }) as SupabaseClient

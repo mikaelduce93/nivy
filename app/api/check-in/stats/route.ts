@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
           : 0
       },
       recentCheckIns: recentCheckIns?.map(c => {
-        const teen = c.teen as any
+        const teen = c.teen as unknown as { pseudo?: string; full_name?: string } | null
         return {
           id: c.id,
           teenName: teen?.pseudo || teen?.full_name || "Inconnu",
