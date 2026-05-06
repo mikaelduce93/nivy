@@ -231,11 +231,11 @@ class Logger {
   performance(metric: string, value: number, unit: string = 'ms', context?: LogContext): void {
     this.info(`Performance: ${metric} = ${value}${unit}`, context)
 
-    // Send to Sentry metrics (if available)
+    // Send to Sentry metrics (if available). Sentry.metrics.distribution
+    // typings vary by SDK version; cast options through unknown so `tags`
+    // keeps working across versions.
     if (typeof window !== 'undefined' && 'metrics' in Sentry) {
       try {
-        // TODO(ts): widen type — Sentry.metrics.distribution typings vary by
-        // version; cast options through unknown to keep `tags` working.
         Sentry.metrics.distribution(metric, value, {
           unit,
           tags: context as Record<string, string>,

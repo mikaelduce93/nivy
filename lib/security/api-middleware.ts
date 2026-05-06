@@ -213,8 +213,8 @@ function sanitizeRequestBody(body: unknown): unknown {
   }
 
   const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'authorization', 'creditCard', 'cvv']
-  // TODO(ts): widen type — sanitiseRequestBody walks an unknown object tree;
-  // a Record<string, unknown> view is the minimum needed to mutate it.
+  // Walking an unknown object tree requires a Record<string, unknown> view to
+  // index and mutate keys; this is a deliberate cast at the boundary.
   const sanitized: Record<string, unknown> = { ...(body as Record<string, unknown>) }
 
   for (const key in sanitized) {
