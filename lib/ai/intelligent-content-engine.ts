@@ -9,6 +9,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { ContentGenerator, type GenerationParams } from "./content-generator"
 import { ContentValidator } from "./content-validator"
+import { validatePedagogicalQuality } from "./pedagogical-validator"
+import { scoreQuiz } from "./quality-scoring"
 
 /**
  * Domain Interfaces
@@ -299,6 +301,35 @@ export class IntelligentContentEngine {
       const reliability = await this.verifyFactualAccuracy(content)
       if (reliability.overall < 70) {
         return this.validator.getCuratedFallback(type, content.subject, undefined, 1)
+      }
+
+      // Phase 2.2: pedagogical validation per question (heuristics, no LLM)
+      if (Array.isArray(content.questions)) {
+        for (const q of content.questions) {
+          const ped = validatePedagogicalQuality(q)
+          if (!ped.valid) {
+            // Mark for downstream handling (regen / dashboard)
+            q.quality_issue = true
+            q.quality_issues = ped.issues
+            q.quality_score = ped.score
+            console.warn(
+              `[IntelligentContentEngine] Pedagogical issue (score=${ped.score}):`,
+              ped.issues.join(" | "),
+            )
+          } else {
+            q.quality_score = ped.score
+          }
+        }
+      }
+
+      // Phase 7: global quality score attached to the quiz
+      try {
+        const qs = scoreQuiz({ questions: content.questions || [] })
+        content.quality_score = qs.score
+        content.quality_breakdown = qs.breakdown
+        content.quality_recommendations = qs.recommendations
+      } catch (err) {
+        console.warn("[IntelligentContentEngine] scoreQuiz failed:", err)
       }
     }
 
