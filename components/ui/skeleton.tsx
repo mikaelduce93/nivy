@@ -2,36 +2,36 @@
  * Skeleton (primitive)
  * ====================
  *
- * Skeleton loading primitive utilisée partout dans l'app.
+ * Single source of truth for skeleton loading states across the app.
+ * See `docs/design/SKELETON_SYSTEM.md` for the full architecture.
  *
- * QUAND UTILISER QUOI (catalogue Agent 7) :
+ * QUAND UTILISER QUOI :
  *
  * - `@/components/ui/skeleton` (CE FICHIER) :
- *     Primitive bas-niveau. Un simple <div> animé `bg-accent animate-pulse rounded-md`.
- *     A utiliser pour composer ses propres skeletons inline (badges, lignes, blocs).
+ *     Primitive bas-niveau. Un simple <div> animé `bg-muted animate-pulse rounded-md`.
+ *     Theme-aware (clair/sombre). A utiliser pour composer ses propres skeletons
+ *     inline (badges, lignes, blocs).
  *
  * - `@/components/ui/skeleton-variants` :
- *     Variants prêts à l'emploi (card, list-item, avatar, etc.) basés sur la primitive.
- *     A utiliser quand on veut un look standardisé sans recomposer.
+ *     Variants premium framer-motion (shimmer, glow, stagger) — pour pages
+ *     vitrines / dashboards où l'animation enrichie ajoute de la valeur.
  *
  * - `@/components/ui/skeletons/page-skeleton` :
- *     Skeleton complet de page (header + sections). Pour les `loading.tsx` Next.js.
+ *     Skeleton complet de page (header + sections) pour les `loading.tsx` Next.js.
+ *     Compose la primitive.
  *
  * - `@/components/ui/skeletons/dashboard-skeletons` :
- *     Skeletons spécifiques aux pages dashboard (stats cards, widgets).
+ *     Skeletons spécifiques au dashboard teen. Re-exporte la primitive et
+ *     compose des layouts dédiés (hero, bento, mission, map preview...).
  *
  * - `@/components/ui/states/skeleton-set` :
- *     Skeletons combinés "tout-en-un" pour states de chargement de blocs UI
- *     (utilisé par `state-wrapper.tsx`).
+ *     Library de skeleton "compose" (event card, ticket, profil, table...).
+ *     Compose la primitive.
  *
- * - `@/components/ui/effects/elite-skeleton` :
- *     Skeleton premium avec effet shimmer/glow. Réservé aux écrans "elite"
- *     (premium, ambassador, partner) où le visual identity demande l'effet.
- *
- * Règle de consolidation Agent 7 (Phase 2) :
- * - Aucune variante n'est supprimée : chacune répond à un besoin réel.
- * - Pour un nouveau skeleton, préférer composer depuis cette primitive ou
- *   utiliser `skeleton-variants` avant d'en créer un nouveau.
+ * Règle :
+ * - Toujours utiliser ce fichier (ou un wrapper thin). Aucun nouveau composant
+ *   ne doit redéfinir un `<div>` skeleton local avec ses propres `bg-*` /
+ *   animations.
  */
 
 import { cn } from '@/lib/utils'
@@ -40,7 +40,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="skeleton"
-      className={cn('bg-accent animate-pulse rounded-md', className)}
+      className={cn('bg-muted animate-pulse rounded-md', className)}
       {...props}
     />
   )

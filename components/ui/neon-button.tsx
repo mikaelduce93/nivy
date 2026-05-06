@@ -23,10 +23,10 @@ const neonButtonVariants = cva(
         // Neon Variants - Aligned with design tokens (--neon-*)
         // Colors match globals.css: party=violet, vitality=lime, intellect=cyan, creativity=coral, prestige=gold
         party: "bg-[color:var(--neon-party)] text-white shadow-[0_0_20px_-5px_var(--neon-party)] border border-white/20 hover:brightness-110 hover:shadow-[0_0_30px_-5px_var(--neon-party)] motion-safe:hover:scale-105 motion-safe:active:scale-95",
-        vitality: "bg-[color:var(--neon-vitality)] text-zinc-900 shadow-[0_0_20px_-5px_var(--neon-vitality)] border border-white/20 hover:brightness-110 hover:shadow-[0_0_30px_-5px_var(--neon-vitality)] motion-safe:hover:scale-105 motion-safe:active:scale-95",
+        vitality: "bg-[color:var(--neon-vitality)] text-on-bright shadow-[0_0_20px_-5px_var(--neon-vitality)] border border-white/20 hover:brightness-110 hover:shadow-[0_0_30px_-5px_var(--neon-vitality)] motion-safe:hover:scale-105 motion-safe:active:scale-95",
         intellect: "bg-[color:var(--neon-intellect)] text-white shadow-[0_0_20px_-5px_var(--neon-intellect)] border border-white/20 hover:brightness-110 hover:shadow-[0_0_30px_-5px_var(--neon-intellect)] motion-safe:hover:scale-105 motion-safe:active:scale-95",
         creativity: "bg-[color:var(--neon-creativity)] text-white shadow-[0_0_20px_-5px_var(--neon-creativity)] border border-white/20 hover:brightness-110 hover:shadow-[0_0_30px_-5px_var(--neon-creativity)] motion-safe:hover:scale-105 motion-safe:active:scale-95",
-        prestige: "bg-[color:var(--neon-prestige)] text-zinc-900 shadow-[0_0_20px_-5px_var(--neon-prestige)] border border-white/20 hover:brightness-110 hover:shadow-[0_0_30px_-5px_var(--neon-prestige)] motion-safe:hover:scale-105 motion-safe:active:scale-95",
+        prestige: "bg-[color:var(--neon-prestige)] text-on-bright shadow-[0_0_20px_-5px_var(--neon-prestige)] border border-white/20 hover:brightness-110 hover:shadow-[0_0_30px_-5px_var(--neon-prestige)] motion-safe:hover:scale-105 motion-safe:active:scale-95",
       },
       size: {
         default: "h-12 px-6 py-3",

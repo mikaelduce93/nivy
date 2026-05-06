@@ -129,8 +129,8 @@ const fallbackVariants = cva(
         gradient: 'bg-gradient-to-br from-gen-z-lavender to-gen-z-coral text-white',
         lavender: 'bg-gen-z-lavender text-white',
         coral: 'bg-gen-z-coral text-white',
-        lime: 'bg-gen-z-lime text-gray-900',
-        mint: 'bg-gen-z-mint text-gray-900',
+        lime: 'bg-gen-z-lime text-on-bright',
+        mint: 'bg-gen-z-mint text-on-bright',
         grape: 'bg-gen-z-grape text-white',
       }
     },

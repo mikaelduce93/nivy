@@ -290,6 +290,16 @@
   --sidebar-accent-foreground: oklch(0.30 0.05 290);
   --sidebar-border: oklch(0.88 0.02 290);
   --sidebar-ring: oklch(0.60 0.18 290);
+
+  /* --------------------------------------------------------------------------
+     ON-BRIGHT TEXT TOKEN
+     Used as the foreground color when sitting on bright/luminous backgrounds
+     (lime, mint, peach, sky, yellow, vitality, prestige). These backgrounds
+     stay bright in both light AND dark modes (their L value is high in both
+     themes), so the text on top must stay dark in both modes for readability.
+     This is theme-invariant by design — do NOT override in .dark.
+     -------------------------------------------------------------------------- */
+  --color-on-bright: oklch(0.20 0.02 280); /* near-black, matches foreground hue */
 }
 
 /* ============================================================================
@@ -472,6 +482,9 @@
   --color-gen-z-rose: var(--gen-z-rose);
   --color-gen-z-yellow: var(--gen-z-yellow);
   --color-gen-z-teal: var(--gen-z-teal);
+
+  /* On-Bright text token (theme-invariant) */
+  --color-on-bright: var(--color-on-bright);
 }
 
 /* ============================================================================

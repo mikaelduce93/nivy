@@ -282,7 +282,7 @@ function BubbleContent({
         
         {/* Badge */}
         {badge !== undefined && badge > 0 && (
-          <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center border-2 border-zinc-900 z-20">
+          <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-destructive text-white text-xs font-bold flex items-center justify-center border-2 border-background z-20">
             {badge > 99 ? '99+' : badge}
           </div>
         )}

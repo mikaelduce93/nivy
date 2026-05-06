@@ -2,35 +2,32 @@
 
 /* ==========================================================================
    DASHBOARD SKELETONS - Premium Loading States
-   
+
    Consistent loading skeletons for dashboard components.
-   Features subtle shimmer animations and proper sizing.
+   Builds on the shared Skeleton primitive (see `@/components/ui/skeleton`)
+   to keep a single visual language for loading states across the app.
    ========================================================================== */
 
 import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
+import { Skeleton as SkeletonPrimitive } from '@/components/ui/skeleton'
 
 /* ==========================================================================
-   BASE SKELETON
+   BASE SKELETON (re-exported)
+   --------------------------------------------------------------------------
+   Wraps the canonical primitive so existing dashboard imports keep working
+   while collapsing onto a single animation/style implementation.
    ========================================================================== */
 
 interface SkeletonProps {
   className?: string
+  /** kept for API back-compat — animation is always on in the primitive */
   animate?: boolean
   style?: React.CSSProperties
 }
 
-export function Skeleton({ className, animate = true, style }: SkeletonProps) {
-  return (
-    <div
-      className={cn(
-        'relative overflow-hidden rounded-lg bg-white/5',
-        animate && 'after:absolute after:inset-0 after:translate-x-[-100%] after:bg-gradient-to-r after:from-transparent after:via-white/10 after:to-transparent after:animate-shimmer',
-        className
-      )}
-      style={style}
-    />
-  )
+export function Skeleton({ className, style }: SkeletonProps) {
+  return <SkeletonPrimitive className={className} style={style} />
 }
 
 /* ==========================================================================
@@ -39,7 +36,7 @@ export function Skeleton({ className, animate = true, style }: SkeletonProps) {
 
 export function HeroSkeleton() {
   return (
-    <div className="rounded-3xl bg-zinc-900/80 border border-white/5 p-5 sm:p-7 md:p-9">
+    <div className="rounded-3xl bg-card/80 border border-white/5 p-5 sm:p-7 md:p-9">
       <div className="flex items-center gap-4 sm:gap-6">
         {/* Avatar */}
         <Skeleton className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full shrink-0" />
@@ -81,7 +78,7 @@ interface BentoCardSkeletonProps {
 
 export function BentoCardSkeleton({ className, lines = 3 }: BentoCardSkeletonProps) {
   return (
-    <div className={cn('rounded-2xl bg-zinc-900/50 border border-white/5 p-4 sm:p-6', className)}>
+    <div className={cn('rounded-2xl bg-card/50 border border-white/5 p-4 sm:p-6', className)}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <Skeleton className="w-10 h-10 rounded-xl" />
@@ -111,7 +108,7 @@ export function BentoCardSkeleton({ className, lines = 3 }: BentoCardSkeletonPro
 
 export function PriorityMissionSkeleton() {
   return (
-    <div className="rounded-3xl bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border border-white/10 p-4 sm:p-6">
+    <div className="rounded-3xl bg-gradient-to-br from-card/90 to-card border border-border/50 p-4 sm:p-6">
       <div className="flex items-start gap-4">
         {/* Icon */}
         <Skeleton className="w-14 h-14 rounded-2xl shrink-0" />
@@ -148,7 +145,7 @@ export function QuickAccessSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl bg-zinc-900/50 p-4 space-y-3 flex flex-col items-center"
+          className="rounded-2xl bg-card/50 p-4 space-y-3 flex flex-col items-center"
         >
           <Skeleton className="w-12 h-12 rounded-xl" />
           <Skeleton className="h-3 w-16" />
@@ -229,7 +226,7 @@ export function CrewHubSkeleton() {
 
 export function MapPreviewSkeleton() {
   return (
-    <div className="h-full w-full relative overflow-hidden rounded-2xl bg-zinc-900/80">
+    <div className="h-full w-full relative overflow-hidden rounded-2xl bg-card/80">
       {/* Grid pattern */}
       <div className="absolute inset-0 opacity-10">
         <div

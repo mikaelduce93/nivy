@@ -95,12 +95,12 @@ const buttonVariants = cva(
           'hover:shadow-[0_8px_24px_-8px_var(--gen-z-coral)]',
         ].join(' '),
         lime: [
-          'bg-gen-z-lime text-gray-900',
+          'bg-gen-z-lime text-on-bright',
           'hover:-translate-y-0.5',
           'hover:shadow-[0_8px_24px_-8px_var(--gen-z-lime)]',
         ].join(' '),
         mint: [
-          'bg-gen-z-mint text-gray-900',
+          'bg-gen-z-mint text-on-bright',
           'hover:-translate-y-0.5',
           'hover:shadow-[0_8px_24px_-8px_var(--gen-z-mint)]',
         ].join(' '),
