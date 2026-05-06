@@ -104,9 +104,6 @@ export function ServiceWorkerRegistration({ children }: ServiceWorkerRegistratio
       return
     }
 
-    // Ne pas enregistrer en dev (optionnel)
-    // if (process.env.NODE_ENV === "development") return
-
     const registerSW = async () => {
       try {
         const registration = await navigator.serviceWorker.register("/sw.js", {

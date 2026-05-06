@@ -3,10 +3,10 @@
  * Teste les nouveaux systèmes : prompts enrichis, intégration intérêts, parser JSON, validation factuelle
  */
 
-import { EnhancedQuizPrompts, type GenerationParams, type TeenContext } from "./enhanced-quiz-prompts"
-import { InterestIntegration } from "./interest-integration"
-import { SmartJSONParser } from "./smart-json-parser"
-import { FactualValidator } from "./factual-validator"
+import { EnhancedQuizPrompts, type GenerationParams, type TeenContext } from "../../lib/ai/enhanced-quiz-prompts"
+import { InterestIntegration } from "../../lib/ai/interest-integration"
+import { SmartJSONParser } from "../../lib/ai/smart-json-parser"
+import { FactualValidator } from "../../lib/ai/factual-validator"
 
 /**
  * Test 1: Prompts enrichis

@@ -104,15 +104,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
 
     setIsGenerating(true)
     try {
-      // Utiliser html2canvas si disponible, sinon fallback
-      // Pour l'exemple, on simule le téléchargement
       await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // En production, on utiliserait:
-      // const canvas = await html2canvas(cardRef.current)
-      // const url = canvas.toDataURL('image/png')
-      // ... télécharger
-
       alert("Carte téléchargée!")
     } catch (err) {
       console.error("Error generating card:", err)

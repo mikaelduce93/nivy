@@ -65,7 +65,6 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
   })
   const messages = chat.messages || []
   const input = typeof chat.input === "string" ? chat.input : ""
-  const safeInput = typeof input === "string" ? input : ""
   const setInput = chat.setInput
   const handleSubmit = chat.handleSubmit
   const isLoading = chat.isLoading
@@ -292,10 +291,10 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
               </Button>
               <Input
                 placeholder={listening ? "Je vous écoute..." : "Écrivez votre message..."}
-                value={safeInput}
+                value={input}
                 onChange={e => setInput?.(e.target.value)}
               />
-              <Button type="submit" size="icon" disabled={!safeInput.trim() || isLoading}>
+              <Button type="submit" size="icon" disabled={!input.trim() || isLoading}>
                 <Send className="w-4 h-4" />
               </Button>
             </form>

@@ -106,10 +106,6 @@ export function CelebrationOverlay({
       }
 
       frame()
-      
-      // Play sound if we had an audio system
-      // const audio = new Audio(currentConfig.sound)
-      // audio.play().catch(e => console.log('Audio play failed', e))
     } else {
       setShowConfetti(false)
     }
