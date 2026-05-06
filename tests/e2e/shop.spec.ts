@@ -1,16 +1,14 @@
-import { expect, test } from "@playwright/test"
+import { expect, hasCredentials, test } from "../fixtures/auth"
 
 /**
  * Smoke tests for the canonical wallet shop (/teen/wallet?tab=shop) and the
  * legacy URL redirects that converge on it after the rewards-currency-unifier
  * migration (see docs/economy.md).
  *
- * The shop UI itself is gated behind a teen session, so we cover what we can
- * unauthenticated (redirect chain + login bounce) and skip the deeper UI
- * assertions until a teen fixture is wired up.
+ * Auth is provided by signInAs("teen") — see tests/fixtures/auth.ts.
  */
 
-const HAS_TEEN_FIXTURE = Boolean(process.env.E2E_TEEN_EMAIL && process.env.E2E_TEEN_PASSWORD)
+const HAS_TEEN_FIXTURE = hasCredentials("teen")
 
 const LEGACY_SHOP_URLS = ["/xp-shop", "/gamification/boutique", "/teen/rewards"] as const
 
@@ -34,13 +32,13 @@ test.describe("teen / wallet shop", () => {
     })
   }
 
-  test("renders the shop tab with reward cards and an XP balance", async ({ page }) => {
+  test("renders the shop tab with reward cards and an XP balance", async ({ page, signInAs }) => {
     test.skip(
       !HAS_TEEN_FIXTURE,
-      "Requires E2E_TEEN_EMAIL/E2E_TEEN_PASSWORD + a seeded teen with non-zero XP and at least one published reward. " +
-        "TODO: wire tests/fixtures/auth/teen.ts and seed reward_categories + RPC get_shop_rewards rows.",
+      "Requires teen credentials + seeded reward_categories / get_shop_rewards rows.",
     )
 
+    await signInAs("teen")
     await page.goto("/teen/wallet?tab=shop")
 
     // Header from wallet-hub-client.tsx
@@ -56,13 +54,13 @@ test.describe("teen / wallet shop", () => {
     await expect(rewardCards.first().or(emptyState)).toBeVisible({ timeout: 15_000 })
   })
 
-  test("clicking a reward triggers a confirmation step", async ({ page }) => {
+  test("clicking a reward triggers a confirmation step", async ({ page, signInAs }) => {
     test.skip(
       !HAS_TEEN_FIXTURE,
-      "Requires teen fixture + at least one purchasable reward (can_purchase=true). " +
-        "TODO: seed a reward whose xp_cost <= seeded teen XP balance.",
+      "Requires teen fixture + at least one purchasable reward (xp_cost <= seeded teen XP).",
     )
 
+    await signInAs("teen")
     await page.goto("/teen/wallet?tab=shop")
 
     const purchasable = page

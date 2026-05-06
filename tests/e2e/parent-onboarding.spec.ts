@@ -1,27 +1,19 @@
-import { expect, test } from "@playwright/test"
+import { expect, hasCredentials, test } from "../fixtures/auth"
 
 /**
  * Smoke tests for the parent first-run onboarding gate.
  *
- * The flow we cover here:
- *   1. /parent is gated — without a parent session it bounces to /auth/login.
- *   2. /parent/e-signature renders the consent form (signature + CGU).
- *   3. /parent/topup is blocked until the e-signature exists. The gate lives
- *      in app/api/parent/topup/route.ts (lines ~51-69) and the page itself
- *      can either redirect or render a banner asking for the signature.
+ * Coverage:
+ *   1. /parent bounces unauthenticated visitors to /auth/login.
+ *   2. /parent/e-signature renders the consent form for a signed-in parent.
+ *   3. /parent/topup is blocked until the e-signature exists (gate lives in
+ *      app/api/parent/topup/route.ts:51-69).
  *
- * Without a seeded parent session we exercise the public bounces; the
- * authenticated assertions are guarded behind an env-var fixture.
- *
- * TODO(seed): expose tests/fixtures/auth/parent.ts that signs in a parent
- * user (E2E_PARENT_EMAIL / E2E_PARENT_PASSWORD). For the topup-gate test
- * we additionally need that parent to NOT yet have a row in `e_signatures`
- * with terms_accepted=true (i.e. a fresh fixture or a reset hook).
+ * The topup-gate test requires the test parent to NOT yet have a row in
+ * `e_signatures` with terms_accepted=true — re-seed before each run.
  */
 
-const HAS_PARENT_FIXTURE = Boolean(
-  process.env.E2E_PARENT_EMAIL && process.env.E2E_PARENT_PASSWORD,
-)
+const HAS_PARENT_FIXTURE = hasCredentials("parent")
 
 test.describe("parent / onboarding", () => {
   test("/parent bounces unauthenticated visitors to /auth/login", async ({ page }) => {
@@ -31,13 +23,10 @@ test.describe("parent / onboarding", () => {
     await expect(page).toHaveURL(/\/auth\/(login|redirect)/, { timeout: 15_000 })
   })
 
-  test("/parent/e-signature renders the consent form for a signed-in parent", async ({ page }) => {
-    test.skip(
-      !HAS_PARENT_FIXTURE,
-      "Requires a signed-in parent fixture. " +
-        "TODO: wire tests/fixtures/auth/parent.ts (E2E_PARENT_EMAIL/PASSWORD).",
-    )
+  test("/parent/e-signature renders the consent form for a signed-in parent", async ({ page, signInAs }) => {
+    test.skip(!HAS_PARENT_FIXTURE, "Requires parent credentials.")
 
+    await signInAs("parent")
     await page.goto("/parent/e-signature")
 
     // Page header from app/parent/e-signature/page.tsx
@@ -55,13 +44,13 @@ test.describe("parent / onboarding", () => {
     await expect(submit).toBeVisible()
   })
 
-  test("/parent/topup is blocked when no e-signature is on file", async ({ page }) => {
+  test("/parent/topup is blocked when no e-signature is on file", async ({ page, signInAs }) => {
     test.skip(
       !HAS_PARENT_FIXTURE,
-      "Requires a parent fixture that has NOT yet signed the CGU. " +
-        "TODO: ensure the test parent has zero rows in e_signatures with terms_accepted=true, or reset before run.",
+      "Requires a parent fixture that has NOT yet signed the CGU (re-seed before run).",
     )
 
+    await signInAs("parent")
     const response = await page.goto("/parent/topup", { waitUntil: "domcontentloaded" })
     const status = response?.status() ?? 200
     expect([200, 307, 308]).toContain(status)

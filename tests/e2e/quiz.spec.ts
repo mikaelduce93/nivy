@@ -1,18 +1,15 @@
-import { expect, test } from "@playwright/test"
+import { expect, hasCredentials, test } from "../fixtures/auth"
 
 /**
  * Smoke tests for the teen quiz solo flow.
  *
- * The quiz hub is gated behind a teen-role session — without an authenticated
- * Supabase session the page bounces through `/auth/redirect` to `/auth/login`.
- *
- * TODO(seed): introduce a Playwright auth fixture that signs in a seeded teen
- * (e.g. tests/fixtures/auth/teen.ts) and reuse it here. Once that fixture
- * exists, drop the `test.skip` guards below and exercise the full hub →
- * runner → submit flow against a deterministic quiz id.
+ * The quiz hub is gated behind a teen-role session. Sign-in is handled by the
+ * `signInAs("teen")` fixture (see tests/fixtures/auth.ts) which signs in via
+ * the public login form using seeded test accounts (defaults to
+ * teen.amine@teenclub.ma — see docs/TEST_ACCOUNTS.md).
  */
 
-const HAS_TEEN_FIXTURE = Boolean(process.env.E2E_TEEN_EMAIL && process.env.E2E_TEEN_PASSWORD)
+const HAS_TEEN_FIXTURE = hasCredentials("teen")
 
 test.describe("teen / quiz hub", () => {
   test("redirects unauthenticated visitors away from /teen/quiz", async ({ page }) => {
@@ -23,13 +20,13 @@ test.describe("teen / quiz hub", () => {
     await expect(page).toHaveURL(/\/auth\/(login|redirect)/, { timeout: 15_000 })
   })
 
-  test("shows the quiz hub, lists categories and lets the teen open one", async ({ page }) => {
+  test("shows the quiz hub, lists categories and lets the teen open one", async ({ page, signInAs }) => {
     test.skip(
       !HAS_TEEN_FIXTURE,
-      "Requires E2E_TEEN_EMAIL/E2E_TEEN_PASSWORD env vars + a seeded teen with at least one published quiz. " +
-        "TODO: wire tests/fixtures/auth/teen.ts to sign in via the Supabase test project, then remove this skip.",
+      "Requires teen credentials (defaults to teen.amine@teenclub.ma — needs the Supabase seed applied).",
     )
 
+    await signInAs("teen")
     await page.goto("/teen/quiz")
 
     // The hub header from quiz-hub-client.tsx.
@@ -60,13 +57,13 @@ test.describe("teen / quiz hub", () => {
     await expect(answerButtons.first()).toBeVisible({ timeout: 15_000 })
   })
 
-  test("daily quiz card links to the runner when present", async ({ page }) => {
+  test("daily quiz card links to the runner when present", async ({ page, signInAs }) => {
     test.skip(
       !HAS_TEEN_FIXTURE,
-      "Requires a seeded teen + at least one quiz tagged as 'daily'. " +
-        "TODO: ensure the daily-quiz selector returns a row for the test teen.",
+      "Requires a seeded teen + at least one quiz tagged as 'daily'.",
     )
 
+    await signInAs("teen")
     await page.goto("/teen/quiz")
 
     const daily = page.getByTestId("daily-quiz-card")

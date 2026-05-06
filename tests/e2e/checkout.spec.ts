@@ -1,28 +1,18 @@
-import { expect, test } from "@playwright/test"
+import { expect, hasCredentials, test } from "../fixtures/auth"
 
 /**
  * Smoke tests for the reservation checkout flow.
  *
- * /teen/shop/checkout requires:
- *   1. A teen-role Supabase session (otherwise → /auth/redirect).
+ * Requires:
+ *   1. A teen-role session — handled by signInAs("teen") fixture.
  *   2. A `?booking=<uuid>` query param pointing at a row in `bookings` with
- *      payment_status != 'paid' (otherwise → /teen/shop?error=… or
- *      /mes-reservations/<id>).
+ *      payment_status='pending'. Pass via E2E_PENDING_BOOKING_ID env var.
  *
- * Without a seeded booking we can only assert the bouncer behaviour — the
- * happy-path (summary + Payer button → pending_approval) is gated behind a
- * fixture the user must wire up.
- *
- * TODO(seed): create a Playwright fixture that, before the test runs:
- *   - signs in as a teen via Supabase (E2E_TEEN_EMAIL / E2E_TEEN_PASSWORD),
- *   - inserts a booking row in `bookings` with payment_status='pending',
- *     status='pending', total_amount > 0, linked to that teen + an event,
- *   - exposes the booking id as `process.env.E2E_PENDING_BOOKING_ID`.
- *
- * Then drop the `test.skip` guards below.
+ * The submit-flow test mutates booking state — re-seed before each run, or
+ * run against a Supabase preview branch.
  */
 
-const HAS_TEEN_FIXTURE = Boolean(process.env.E2E_TEEN_EMAIL && process.env.E2E_TEEN_PASSWORD)
+const HAS_TEEN_FIXTURE = hasCredentials("teen")
 const PENDING_BOOKING_ID = process.env.E2E_PENDING_BOOKING_ID
 
 test.describe("teen / shop checkout", () => {
@@ -37,13 +27,13 @@ test.describe("teen / shop checkout", () => {
     )
   })
 
-  test("renders the checkout summary and exposes a pay action", async ({ page }) => {
+  test("renders the checkout summary and exposes a pay action", async ({ page, signInAs }) => {
     test.skip(
       !HAS_TEEN_FIXTURE || !PENDING_BOOKING_ID,
-      "Requires teen auth fixture + E2E_PENDING_BOOKING_ID env var pointing at a pending booking row. " +
-        "TODO: seed a `bookings` row (payment_status='pending', status='pending') for the test teen and export its id.",
+      "Requires teen credentials + E2E_PENDING_BOOKING_ID pointing at a pending booking row.",
     )
 
+    await signInAs("teen")
     await page.goto(`/teen/shop/checkout?booking=${PENDING_BOOKING_ID}`)
 
     // Page header from app/teen/shop/checkout/page.tsx
@@ -60,13 +50,13 @@ test.describe("teen / shop checkout", () => {
     await expect(payButton.first()).toBeVisible({ timeout: 10_000 })
   })
 
-  test("submitting the checkout flips the booking into pending_approval", async ({ page }) => {
+  test("submitting the checkout flips the booking into pending_approval", async ({ page, signInAs }) => {
     test.skip(
       !HAS_TEEN_FIXTURE || !PENDING_BOOKING_ID,
-      "Requires teen fixture + a fresh pending booking. The test mutates booking state. " +
-        "TODO: re-seed the booking before each run, OR run this test in a Supabase preview branch.",
+      "Requires teen fixture + a fresh pending booking — this test mutates booking state.",
     )
 
+    await signInAs("teen")
     await page.goto(`/teen/shop/checkout?booking=${PENDING_BOOKING_ID}`)
 
     const payButton = page.getByRole("button", { name: /payer|confirmer|réserver|valider/i }).first()

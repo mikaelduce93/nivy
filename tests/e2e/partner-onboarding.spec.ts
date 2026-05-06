@@ -1,24 +1,19 @@
-import { expect, test } from "@playwright/test"
+import { expect, hasCredentials, test } from "../fixtures/auth"
 
 /**
  * Smoke tests for the partner first-run onboarding flow.
  *
  * Coverage:
- *   1. /partner is gated — unauthenticated visitors bounce to /auth/login.
- *   2. A partner whose `partners.status` is NOT in PARTNER_ACTIVE_STATUSES
- *      (i.e. pending / in_review / rejected / suspended) sees the
+ *   1. /partner bounces unauthenticated visitors to /auth/login.
+ *   2. A partner with status ∉ PARTNER_ACTIVE_STATUSES sees the
  *      <PartnerAwaitingApproval> banner instead of the dashboard.
- *   3. The public partner signup page (/devenir-partenaire/inscription)
- *      renders its 4-type wizard.
+ *   3. /devenir-partenaire/inscription renders its 4-type signup wizard.
  *
- * TODO(seed): wire tests/fixtures/auth/partner-pending.ts that signs in as a
- * partner with status='pending' so we can exercise the awaiting-approval
- * banner without depending on production data.
+ * No seeded "pending" partner exists in TEST_ACCOUNTS.md — set
+ * E2E_PARTNER_PENDING_EMAIL/PASSWORD to override.
  */
 
-const HAS_PENDING_PARTNER_FIXTURE = Boolean(
-  process.env.E2E_PARTNER_PENDING_EMAIL && process.env.E2E_PARTNER_PENDING_PASSWORD,
-)
+const HAS_PENDING_PARTNER_FIXTURE = hasCredentials("partner-pending")
 
 test.describe("partner / onboarding", () => {
   test("/partner bounces unauthenticated visitors to /auth/login", async ({ page }) => {
@@ -28,13 +23,13 @@ test.describe("partner / onboarding", () => {
     await expect(page).toHaveURL(/\/auth\/(login|redirect)/, { timeout: 15_000 })
   })
 
-  test("a pending partner sees the awaiting-approval banner on /partner", async ({ page }) => {
+  test("a pending partner sees the awaiting-approval banner on /partner", async ({ page, signInAs }) => {
     test.skip(
       !HAS_PENDING_PARTNER_FIXTURE,
-      "Requires E2E_PARTNER_PENDING_EMAIL/PASSWORD signed-in fixture with partners.status='pending' or 'in_review'. " +
-        "TODO: seed a partner row in that state and wire the fixture.",
+      "Requires E2E_PARTNER_PENDING_EMAIL/PASSWORD with partners.status ∈ {pending, in_review}.",
     )
 
+    await signInAs("partner-pending")
     await page.goto("/partner")
 
     // From components/dashboard/partner/awaiting-approval.tsx: the headline
