@@ -131,9 +131,9 @@ export function ServiceWorkerRegistration({ children }: ServiceWorkerRegistratio
         }
 
         // Enregistrer pour le periodic background sync si supporté
-        if ("periodicSync" in registration) {
+        if (registration.periodicSync) {
           try {
-            await (registration as any).periodicSync.register("update-content", {
+            await registration.periodicSync.register("update-content", {
               minInterval: 24 * 60 * 60 * 1000, // 24 heures
             })
             console.log("[PWA] Periodic sync registered")

@@ -36,11 +36,19 @@ export function GamificationDashboard({ teenId, className }: GamificationDashboa
   // Pillar scores
   const { scores: pillarScores, loading: pillarsLoading } = usePillars({ teenId })
 
-  const [activeTab, setActiveTab] = useState<"overview" | "challenges" | "achievements" | "pillars">("overview")
+  type TabId = "overview" | "challenges" | "achievements" | "pillars"
+  const [activeTab, setActiveTab] = useState<TabId>("overview")
 
   if (loading) {
     return <GamificationDashboardSkeleton />
   }
+
+  const tabs = [
+    { id: "overview" as const, label: "Vue d'ensemble", icon: Sparkles, color: "from-cyan-500 to-blue-500" },
+    { id: "pillars" as const, label: "Piliers", icon: LayoutGrid, color: "from-emerald-500 to-teal-500" },
+    { id: "challenges" as const, label: "Defis", icon: Target, color: "from-orange-500 to-red-500" },
+    { id: "achievements" as const, label: "Achievements", icon: Trophy, color: "from-purple-500 to-pink-500" },
+  ]
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -64,12 +72,7 @@ export function GamificationDashboard({ teenId, className }: GamificationDashboa
 
       {/* Tabs */}
       <div className="relative flex gap-2 flex-wrap p-1 bg-white/5 rounded-2xl border border-white/10 w-fit">
-        {[
-          { id: "overview", label: "Vue d'ensemble", icon: Sparkles, color: "from-cyan-500 to-blue-500" },
-          { id: "pillars", label: "Piliers", icon: LayoutGrid, color: "from-emerald-500 to-teal-500" },
-          { id: "challenges", label: "Defis", icon: Target, color: "from-orange-500 to-red-500" },
-          { id: "achievements", label: "Achievements", icon: Trophy, color: "from-purple-500 to-pink-500" },
-        ].map((tab) => {
+        {tabs.map((tab) => {
           const Icon = tab.icon
           const isActive = activeTab === tab.id
 
@@ -80,7 +83,7 @@ export function GamificationDashboard({ teenId, className }: GamificationDashboa
                 "relative px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all duration-300",
                 isActive ? "text-white" : "text-zinc-500 hover:text-zinc-300"
               )}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
             >
               {isActive && (
                 <motion.div
@@ -338,11 +341,11 @@ function AchievementsTab({ achievements }: AchievementsTabProps) {
 
       {/* Filter */}
       <div className="flex gap-2">
-        {[
+        {([
           { id: "all", label: "Tous" },
           { id: "unlocked", label: "Débloqués" },
           { id: "locked", label: "À débloquer" },
-        ].map((f) => (
+        ] as const).map((f) => (
           <motion.button
             key={f.id}
             className={cn(
@@ -353,7 +356,7 @@ function AchievementsTab({ achievements }: AchievementsTabProps) {
             )}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setFilter(f.id as any)}
+            onClick={() => setFilter(f.id)}
           >
             {f.label}
           </motion.button>

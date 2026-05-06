@@ -1,18 +1,40 @@
 /**
- * Global ambient type declarations for third-party packages
- * that don't ship their own types and aren't covered by @types/*.
- *
- * TODO(ts): widen type — install proper @types or write narrow surfaces
- * once the consuming components stabilise.
+ * Browser-vendor and third-party globals attached to window/navigator at
+ * runtime. Declared here so call sites can read them without `as any`.
  */
 
-// react-speech-recognition has no published @types and the bundled types
-// are inadequate. We declare an opaque module to unblock the type-checker;
-// runtime behavior is unchanged.
-declare module 'react-speech-recognition' {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const SpeechRecognition: any
-  export default SpeechRecognition
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  export const useSpeechRecognition: any
+declare global {
+  interface Window {
+    /** Webkit-prefixed AudioContext for older Safari/iOS. */
+    webkitAudioContext?: typeof AudioContext
+    /** IE/Edge legacy detection helper. */
+    MSStream?: unknown
+    /** Vercel Analytics global queue. */
+    va?: (event: string, payload?: Record<string, unknown>) => void
+    /** Google Analytics global. */
+    gtag?: (event: string, action: string, payload?: Record<string, unknown>) => void
+    /** PostHog client. */
+    posthog?: {
+      capture: (event: string, payload?: Record<string, unknown>) => void
+      [key: string]: unknown
+    }
+    /** Module-level singleton cache for the Supabase browser client. */
+    __supabaseClient?: unknown
+  }
+
+  interface Navigator {
+    /** iOS standalone mode flag. */
+    standalone?: boolean
+  }
+
+  interface ServiceWorkerRegistration {
+    /** Periodic Background Sync API (Chromium only). */
+    periodicSync?: {
+      register: (tag: string, options?: { minInterval?: number }) => Promise<void>
+      unregister: (tag: string) => Promise<void>
+      getTags: () => Promise<string[]>
+    }
+  }
 }
+
+export {}

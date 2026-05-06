@@ -143,7 +143,7 @@ class SoundManager {
     if (this.audioContext) return
     
     try {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext!)()
       
       // Resume context on user interaction if suspended
       if (this.audioContext.state === 'suspended') {

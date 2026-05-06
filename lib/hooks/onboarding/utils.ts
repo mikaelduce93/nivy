@@ -35,8 +35,8 @@ export const calculateProgress = (step: OnboardingStep, userType: UserType): num
 export function trackEvent(event: string, data: Record<string, any>) {
   if (process.env.NODE_ENV === 'development') console.log(`[Onboarding Track] ${event}`, data)
   if (typeof window !== 'undefined') {
-    if ((window as any).gtag) (window as any).gtag('event', event, { event_category: 'onboarding', ...data })
-    if ((window as any).posthog) (window as any).posthog.capture(event, data)
+    if (window.gtag) window.gtag('event', event, { event_category: 'onboarding', ...data })
+    if (window.posthog) window.posthog.capture(event, data)
     window.dispatchEvent(new CustomEvent('onboarding_event', { detail: { event, data, timestamp: new Date().toISOString() } }))
   }
 }

@@ -27,8 +27,8 @@ let clientInstance: SupabaseClient | null = null
 
 // Store instance in window for true global singleton
 if (typeof window !== 'undefined') {
-  if (!(window as any).__supabaseClient) {
-    (window as any).__supabaseClient = null
+  if (!window.__supabaseClient) {
+    window.__supabaseClient = null
   }
 }
 
@@ -53,8 +53,8 @@ export function createClient() {
     return createMockClient()
   }
 
-  if (typeof window !== 'undefined' && (window as any).__supabaseClient) {
-    return (window as any).__supabaseClient
+  if (typeof window !== 'undefined' && window.__supabaseClient) {
+    return window.__supabaseClient
   }
 
   if (!clientInstance) {
@@ -103,7 +103,7 @@ export function createClient() {
     
     // Store in window for true global access
     if (typeof window !== 'undefined') {
-      (window as any).__supabaseClient = clientInstance
+      window.__supabaseClient = clientInstance
     }
   }
 

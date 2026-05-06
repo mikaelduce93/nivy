@@ -49,11 +49,8 @@ export function trackEvent(
   // Vercel Analytics is automatically integrated via @vercel/analytics
   // This function provides a typed wrapper
 
-  if (typeof window !== 'undefined' && (window as any).va) {
-    (window as any).va('event', {
-      name: event,
-      data,
-    })
+  if (typeof window !== 'undefined' && window.va) {
+    window.va('event', { name: event, ...(data ?? {}) })
   }
 
   // Also log for debugging

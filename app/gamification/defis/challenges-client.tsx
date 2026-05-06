@@ -155,14 +155,14 @@ export function ChallengesClient({
     <div className="space-y-8">
       {/* Tabs */}
       <div className="flex gap-2 justify-center">
-        {[
+        {([
           { id: "active", label: "En cours", count: challenges.filter((c) => c.status === "active").length },
           { id: "pending", label: "Invitations", count: challenges.filter((c) => c.status === "pending").length },
           { id: "completed", label: "Terminés", count: challenges.filter((c) => c.status === "completed").length },
-        ].map((tab) => (
+        ] as const).map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 ${
               activeTab === tab.id
                 ? "bg-gradient-to-r from-orange-500 to-red-500 text-white"

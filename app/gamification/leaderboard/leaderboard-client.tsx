@@ -64,16 +64,16 @@ export function LeaderboardClient({
     <div className="space-y-8">
       {/* Tabs */}
       <div className="flex gap-2 justify-center">
-        {[
+        {([
           { id: "all-time", label: "Tous les temps", icon: Globe },
           { id: "weekly", label: "Cette semaine", icon: Calendar },
           { id: "crews", label: "Crews", icon: Users },
-        ].map((tab) => {
+        ] as const).map((tab) => {
           const TabIcon = tab.icon
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 ${
                 activeTab === tab.id
                   ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"

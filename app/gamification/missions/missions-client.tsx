@@ -169,17 +169,17 @@ export function MissionsClient({ missions: initialMissions, stats }: MissionsCli
 
       {/* Tabs */}
       <div className="flex gap-2 justify-center">
-        {[
+        {([
           { id: "daily", label: "Quotidiennes", icon: Clock },
           { id: "weekly", label: "Hebdomadaires", icon: Calendar },
           { id: "monthly", label: "Mensuelles", icon: Trophy },
-        ].map((tab) => {
+        ] as const).map((tab) => {
           const count = missions.filter((m) => m.type === tab.id && m.status !== "claimed").length
           const TabIcon = tab.icon
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 ${
                 activeTab === tab.id
                   ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
