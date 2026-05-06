@@ -23,7 +23,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
-import confetti from 'canvas-confetti'
+import { useOptimisticRunner } from '@/lib/hooks/use-optimistic-mutation'
+import { useJuice } from '@/lib/hooks/use-juice'
+import { toast } from '@/lib/utils/toast'
 
 interface QuestStep {
   id: string
@@ -86,9 +88,12 @@ const PILLAR_CONFIG = {
 export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
   const router = useRouter()
   const [isStarting, setIsStarting] = useState(false)
-  const [isCompleting, setIsCompleting] = useState(false)
   const [steps, setSteps] = useState<QuestStep[]>(quest.steps || [])
   const [currentStatus, setCurrentStatus] = useState(quest.status)
+  // Optimistic XP delta — reflects the +50 (or quest reward) added immediately,
+  // then reconciled with the server response. Negative if the server rolls back.
+  const [optimisticXpDelta, setOptimisticXpDelta] = useState<number>(0)
+  const { play: playJuice } = useJuice()
 
   const config = PILLAR_CONFIG[quest.pillar] || PILLAR_CONFIG.intellect
   const Icon = config.icon
@@ -132,32 +137,61 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
     }
   }
 
-  const handleComplete = async () => {
-    setIsCompleting(true)
-    try {
+  // Optimistic quest completion — immediate UI update + server reconciliation
+  // with automatic rollback if the network call fails.
+  const completeRunner = useOptimisticRunner<
+    void,
+    { success: boolean; xpEarned: number; type: string },
+    { previousStatus: string; previousXpDelta: number }
+  >(
+    async () => {
       const response = await fetch('/api/teen/quests/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questId: quest.id, teenId }),
       })
-
-      if (response.ok) {
-        setCurrentStatus('completed')
-        // Celebration!
-        confetti({
-          particleCount: 150,
-          spread: 100,
-          origin: { y: 0.6 },
-          colors: ['#8b5cf6', '#f43f5e', '#10b981', '#fbbf24'],
-          zIndex: 9999,
-        })
-        if (navigator.vibrate) navigator.vibrate([50, 100, 50])
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
       }
-    } catch (error) {
-      console.error('Failed to complete quest:', error)
-    } finally {
-      setIsCompleting(false)
+      return (await response.json()) as { success: boolean; xpEarned: number; type: string }
+    },
+    {
+      onMutate: () => {
+        // 1. Snapshot for rollback.
+        const ctx = { previousStatus: currentStatus, previousXpDelta: optimisticXpDelta }
+        // 2. Optimistic UI: mark as completed AND surface +XP immediately.
+        setCurrentStatus('completed')
+        setOptimisticXpDelta((d) => d + (quest.xp_reward || 50))
+        // 3. Juice: fire quest_complete celebration BEFORE network round-trip.
+        playJuice('quest_complete')
+        return ctx
+      },
+      onError: (_error, _input, ctx) => {
+        // Rollback: restore status + XP to pre-mutation snapshot.
+        if (ctx) {
+          setCurrentStatus(ctx.previousStatus)
+          setOptimisticXpDelta(ctx.previousXpDelta)
+        }
+        toast.error('La quête n\'a pas pu être validée. Réessaie dans un instant.')
+      },
+      onSuccess: (output) => {
+        // Reconcile: server may have awarded a different amount (capped, etc.).
+        if (output && typeof output.xpEarned === 'number') {
+          setOptimisticXpDelta((d) => {
+            // Replace the optimistic delta we added with the authoritative one.
+            const optimisticAdded = quest.xp_reward || 50
+            return d - optimisticAdded + output.xpEarned
+          })
+        }
+        toast.success(`+${output?.xpEarned ?? quest.xp_reward} XP gagnés !`)
+      },
     }
+  )
+
+  const isCompleting = completeRunner.isPending
+
+  const handleComplete = () => {
+    completeRunner.mutate(undefined as void)
   }
 
   const handleShare = async () => {
@@ -264,6 +298,14 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
               <div>
                 <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">Récompense</p>
                 <p className="text-2xl font-black text-white">+{quest.xp_reward} XP</p>
+                {optimisticXpDelta > 0 && (
+                  <p
+                    className="mt-1 text-xs font-bold text-gen-z-mint animate-in fade-in slide-in-from-bottom-1"
+                    aria-live="polite"
+                  >
+                    +{optimisticXpDelta} XP gagnés
+                  </p>
+                )}
               </div>
             </div>
 

@@ -4,7 +4,7 @@ import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
-import { useHaptic } from "@/lib/hooks/use-haptic"
+import { useJuice, type JuiceEvent } from "@/lib/hooks/use-juice"
 
 const neonButtonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 motion-safe:transition-transform",
@@ -29,8 +29,10 @@ const neonButtonVariants = cva(
         prestige: "bg-[color:var(--neon-prestige)] text-on-bright shadow-[0_0_20px_-5px_var(--neon-prestige)] border border-white/20 hover:brightness-110 hover:shadow-[0_0_30px_-5px_var(--neon-prestige)] motion-safe:hover:scale-105 motion-safe:active:scale-95",
       },
       size: {
+        // h-12 (48px) already exceeds 44px touch minimum
         default: "h-12 px-6 py-3",
-        sm: "h-9 rounded-lg px-3",
+        // sm visually 36px, but min-h/w-11 ensures the hit area stays at the 44px minimum
+        sm: "h-9 min-h-11 min-w-11 rounded-lg px-3",
         lg: "h-14 rounded-2xl px-10 text-lg",
         icon: "h-12 w-12",
       },
@@ -51,15 +53,42 @@ export interface NeonButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof neonButtonVariants> {
   asChild?: boolean
+  /**
+   * Override the JuiceEvent fired on click. Defaults are inferred from the
+   * neon variant: party/prestige -> "success", default/destructive -> "click",
+   * everything else -> "tap".
+   */
+  juice?: JuiceEvent | null
+}
+
+// Map a NeonButton variant to its semantic JuiceEvent. The neon variants are
+// celebration-flavoured (party/prestige), so they earn a punchier signature.
+function defaultJuiceForVariant(variant?: NeonButtonProps['variant']): JuiceEvent {
+  switch (variant) {
+    case 'party':
+    case 'prestige':
+      return 'success'
+    case 'destructive':
+      return 'click'
+    case 'vitality':
+    case 'creativity':
+    case 'intellect':
+      return 'tap'
+    default:
+      return 'click'
+  }
 }
 
 const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
-  ({ className, variant, size, glow, asChild = false, onClick, disabled, ...props }, ref) => {
+  ({ className, variant, size, glow, asChild = false, onClick, disabled, juice, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
-    const { trigger } = useHaptic()
+    const { play } = useJuice()
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      if (!disabled) trigger("light")
+      if (!disabled) {
+        const event_ = juice === undefined ? defaultJuiceForVariant(variant) : juice
+        if (event_) play(event_)
+      }
       onClick?.(event)
     }
 
