@@ -1,8 +1,3 @@
--- WARNING: this file shares its numeric prefix or filename with another migration.
--- See gamification-system/database/MIGRATION_ORDER.md for the collision matrix
--- and the renumbering plan. Do not add new migrations until the collisions
--- have been resolved with the deployed Supabase instance.
-
 -- ============================================================================
 -- TEENS PARTY MOROCCO - International Schools Support
 -- ============================================================================
