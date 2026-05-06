@@ -9,11 +9,14 @@
  *
  * SOURCE OF TRUTH for app-wide lazy loading.
  *
- * Canonicalisation Agent 7 (Phase 2):
+ * Canonicalisation:
  * - Ce fichier est la source canonique pour les composants lazy globaux.
- * - `lib/utils/lazy-components.tsx` re-exporte d'ici (rétro-compatibilité).
- * - `components/teen/dashboard/lazy-components.tsx` reste séparé car spécifique
- *   au dashboard teen (imports relatifs ./map-preview, ./ai-companion).
+ *   Le fichier `lib/utils/lazy-components.tsx` (legacy) a ete supprime; tout
+ *   son contenu vit ici.
+ * - `components/teen/dashboard/lazy-components.tsx` reste separe par design
+ *   car specifique au dashboard teen (imports relatifs ./social-feed,
+ *   ./marketplace-overlay, etc.). Documente dans le commentaire en tete de
+ *   ce fichier-la.
  */
 
 import dynamic from 'next/dynamic'

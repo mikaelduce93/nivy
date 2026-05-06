@@ -12,7 +12,9 @@ import {
   History,
   CheckCircle,
   Sparkles,
-  Star
+  Star,
+  ShieldCheck,
+  ShieldAlert
 } from "lucide-react"
 import Link from "next/link"
 import { TopupForm } from "@/components/parent/topup-form"
@@ -31,6 +33,26 @@ async function getLinkedTeens(parentId: string) {
   }
 
   return teens || []
+}
+
+async function getParentSignature(parentId: string) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("e_signatures")
+    .select("id, created_at, parent_full_name")
+    .eq("parent_id", parentId)
+    .eq("terms_accepted", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.error("Error fetching parent signature:", error)
+    return null
+  }
+
+  return data
 }
 
 async function getTopupHistory(parentId: string) {
@@ -68,9 +90,13 @@ export default async function ParentTopupPage({
     redirect("/auth/redirect")
   }
 
-  const teens = await getLinkedTeens(userInfo.profileId)
-  const history = await getTopupHistory(userInfo.profileId)
+  const [teens, history, parentSignature] = await Promise.all([
+    getLinkedTeens(userInfo.profileId),
+    getTopupHistory(userInfo.profileId),
+    getParentSignature(userInfo.profileId),
+  ])
   const selectedTeenId = searchParams.teen || ""
+  const hasSigned = !!parentSignature
 
   const topupPackages = [
     {
@@ -151,6 +177,41 @@ export default async function ParentTopupPage({
               </p>
               <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
                 <Link href="/parent/teens/add">Ajouter un Teen</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : !hasSigned ? (
+          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
+            <CardContent className="py-16 px-6 text-center">
+              <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <ShieldAlert className="h-8 w-8 text-amber-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Autorisation parentale requise
+              </h3>
+              <p className="text-zinc-400 mb-2 max-w-xl mx-auto">
+                Avant de pouvoir recharger des coins pour vos teens,
+                nous devons recueillir votre signature électronique
+                et vérifier votre identité.
+              </p>
+              <p className="text-zinc-500 text-sm mb-6 max-w-xl mx-auto">
+                Cette étape est obligatoire conformément à la loi 09-08 et
+                la CNDP. Elle ne sera demandée qu'une seule fois.
+              </p>
+              <Button
+                asChild
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+              >
+                <Link
+                  href={`/parent/e-signature?redirect=${encodeURIComponent(
+                    selectedTeenId
+                      ? `/parent/topup?teen=${selectedTeenId}`
+                      : "/parent/topup"
+                  )}${selectedTeenId ? `&teen=${selectedTeenId}` : ""}`}
+                >
+                  <ShieldCheck className="h-4 w-4 mr-2" />
+                  Signer l'autorisation
+                </Link>
               </Button>
             </CardContent>
           </Card>

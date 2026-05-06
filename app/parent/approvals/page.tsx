@@ -14,10 +14,23 @@ import {
   CreditCard,
   ShoppingBag,
   Ticket,
-  AlertTriangle
+  AlertTriangle,
+  ShieldCheck
 } from "lucide-react"
 import Link from "next/link"
 import { ApprovalButtons } from "@/components/parent/approval-buttons"
+
+async function getParentSignature(parentId: string) {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("e_signatures")
+    .select("id")
+    .eq("parent_id", parentId)
+    .eq("terms_accepted", true)
+    .limit(1)
+    .maybeSingle()
+  return data
+}
 
 async function getApprovals(parentId: string) {
   const supabase = await createClient()
@@ -49,7 +62,11 @@ export default async function ParentApprovalsPage() {
     redirect("/auth/redirect")
   }
 
-  const approvals = await getApprovals(userInfo.profileId)
+  const [approvals, parentSignature] = await Promise.all([
+    getApprovals(userInfo.profileId),
+    getParentSignature(userInfo.profileId),
+  ])
+  const hasSigned = !!parentSignature
 
   const pendingApprovals = approvals.filter((a: any) => a.status === "pending")
   const approvedApprovals = approvals.filter((a: any) => a.status === "approved")
@@ -146,6 +163,38 @@ export default async function ParentApprovalsPage() {
             Filtrer
           </Button>
         </div>
+
+        {/* Signature gate banner */}
+        {!hasSigned && (
+          <Card className="mb-8 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
+            <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white">
+                    Autorisation parentale non signée
+                  </h3>
+                  <p className="text-sm text-zinc-400 mt-1">
+                    Pour valider certaines demandes (sorties, paiements,
+                    consentements photo) vous devez d&apos;abord signer
+                    l&apos;autorisation parentale.
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shrink-0"
+              >
+                <Link href="/parent/e-signature?redirect=/parent/approvals">
+                  <ShieldCheck className="h-4 w-4 mr-2" />
+                  Signer maintenant
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 
-// Static coins data
+// TODO(data): /api/teen/wallet returns balance only. Full transaction history endpoint
+// (xp_transactions / coin_transactions filtered for teen) is not exposed. See report.
 const TRANSACTIONS = [
   { id: 1, type: "earned", reason: "Quiz Math complété", amount: 50, time: "Il y a 2h", category: "quiz" },
   { id: 2, type: "earned", reason: "Streak bonus 7 jours", amount: 100, time: "Il y a 3h", category: "streak" },

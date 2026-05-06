@@ -3,10 +3,12 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { WalletHubClient } from "./wallet-hub-client"
 import { getTeenDashboardData } from "@/lib/server/teen-dashboard"
+import { getRewards, getCategories } from "@/gamification-system/features/shop/actions"
+import { XP_TO_DH_RATE, convertXPToDH } from "@/lib/payments/xp-converter"
 
 export default async function WalletHubPage() {
   const userInfo = await getUserRole()
-  
+
   if (!userInfo || userInfo.role !== "teen") {
     redirect("/auth/redirect")
   }
@@ -16,22 +18,36 @@ export default async function WalletHubPage() {
     redirect("/teen")
   }
 
-  // Fetch wallet data
-  const dashboardData = await getTeenDashboardData()
+  // Fetch wallet data + canonical shop data (reward_categories + get_shop_rewards)
+  const [dashboardData, rewardsResult, categoriesResult] = await Promise.all([
+    getTeenDashboardData(),
+    getRewards({ onlyAvailable: true, onlyAffordable: false }),
+    getCategories(),
+  ])
+
+  const totalXp = dashboardData?.xp?.total || 0
 
   // Serialize data
   const walletData = {
     xp: dashboardData?.xp || { total: 0, level: 1, progressPercent: 0 },
     streak: dashboardData?.currentStreak || 0,
-    coins: 0, // TODO: Fetch from user_coins table
+    coins: 0, // TODO: Fetch from user_coins table once it exists (see docs/economy.md)
     shopHighlights: dashboardData?.shopHighlights || {},
+    // Canonical shop catalog (reward_categories + get_shop_rewards RPC)
+    rewards: rewardsResult.data || [],
+    categories: categoriesResult.data || [],
+    // Currency model — sourced from lib/payments/xp-converter.ts
+    currency: {
+      xpToDhRate: XP_TO_DH_RATE,
+      xpValueDH: convertXPToDH(totalXp),
+    },
   }
 
   return (
     <div className="min-h-screen pb-32">
       <Suspense fallback={<WalletHubSkeleton />}>
-        <WalletHubClient 
-          teenId={teenId} 
+        <WalletHubClient
+          teenId={teenId}
           walletData={JSON.parse(JSON.stringify(walletData))}
         />
       </Suspense>

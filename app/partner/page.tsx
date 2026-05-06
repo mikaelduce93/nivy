@@ -10,14 +10,21 @@ import { StaggerContainer, StaggerItem, PulseGlow, Float } from "@/components/ui
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid"
 import { ParallaxContainer, ParallaxLayer } from "@/components/ui/parallax-container"
 import { MagneticButton } from "@/components/ui/magnetic-button"
+import { PartnerAwaitingApproval } from "@/components/dashboard/partner/awaiting-approval"
+
+// Statuses that mean the partner is fully onboarded and may use the dashboard.
+// Anything else (pending, in_review, rejected, suspended) renders the
+// awaiting-approval state instead of the live dashboard.
+const PARTNER_ACTIVE_STATUSES = new Set(["active", "verified", "approved"])
 
 async function getPartnerStats(partnerEmail: string) {
   const supabase = await createClient()
 
-  // Get partner info
+  // Get partner info — include status so we can render the
+  // "awaiting approval" first-run state when it isn't active yet.
   const { data: partner } = await supabase
     .from("partners")
-    .select("id, company_name, partner_type")
+    .select("id, company_name, partner_type, status, created_at")
     .eq("email", partnerEmail)
     .single()
 
@@ -73,6 +80,8 @@ async function getPartnerStats(partnerEmail: string) {
     partnerId: partner.id,
     companyName: partner.company_name,
     partnerType: partner.partner_type,
+    status: (partner.status as string | null) ?? "pending",
+    createdAt: partner.created_at as string | null,
     transactionsCount: transactionsCount || 0,
     uniqueCustomers,
     totalRevenue,
@@ -93,6 +102,21 @@ export default async function PartnerDashboardPage() {
 
   const companyName = stats?.companyName || userInfo.partnerData?.companyName || "Entreprise"
   const partnerType = stats?.partnerType || userInfo.partnerData?.partnerType || "retail"
+  const partnerStatus = stats?.status ?? "pending"
+
+  // Gate the live dashboard behind admin approval. New partners land
+  // here right after submitting their KYC and need a clear "what
+  // happens next" screen instead of empty stats / broken CTAs.
+  if (!PARTNER_ACTIVE_STATUSES.has(partnerStatus)) {
+    return (
+      <PartnerAwaitingApproval
+        companyName={companyName}
+        status={partnerStatus}
+        submittedAt={stats?.createdAt ?? null}
+      />
+    )
+  }
+
   const transactionsCount = stats?.transactionsCount || 0
   const uniqueCustomers = stats?.uniqueCustomers || 0
   const totalRevenue = stats?.totalRevenue || 0

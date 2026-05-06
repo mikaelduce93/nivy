@@ -1,33 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Users, Search, UserPlus, MessageCircle, Zap, Trophy, MoreVertical, Check, X, Clock, Star } from "lucide-react"
+import { Users, Search, UserPlus, MessageCircle, Zap, Trophy, MoreVertical, Check, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/ui/states/empty-state"
 
-// Static friends data
-const FRIENDS = [
-  { id: "1", name: "Salma K.", xp: 4250, level: 12, status: "online", mutual: 5, avatar: null },
-  { id: "2", name: "Omar B.", xp: 3820, level: 10, status: "online", mutual: 3, avatar: null },
-  { id: "3", name: "Nadia L.", xp: 3650, level: 9, status: "away", mutual: 8, avatar: null },
-  { id: "4", name: "Youssef M.", xp: 3420, level: 8, status: "offline", mutual: 2, avatar: null },
-  { id: "5", name: "Amina R.", xp: 2980, level: 7, status: "online", mutual: 6, avatar: null },
-  { id: "6", name: "Karim H.", xp: 2750, level: 7, status: "offline", mutual: 4, avatar: null },
-]
+type ApiFriend = {
+  id: string
+  name: string
+  avatar_url?: string | null
+  status: string
+  xp: number
+  mutual: number
+  mutual_calculated?: boolean
+}
 
-const PENDING_REQUESTS = [
-  { id: "p1", name: "Leila M.", xp: 1850, level: 5, mutual: 2, avatar: null, sentAt: "Il y a 2h" },
-  { id: "p2", name: "Ahmed S.", xp: 2100, level: 6, mutual: 1, avatar: null, sentAt: "Hier" },
-]
-
-const SUGGESTIONS = [
-  { id: "s1", name: "Sara T.", xp: 2500, level: 6, mutual: 4, avatar: null, reason: "4 amis en commun" },
-  { id: "s2", name: "Mehdi K.", xp: 3100, level: 8, mutual: 3, avatar: null, reason: "Même école" },
-  { id: "s3", name: "Fatima Z.", xp: 1900, level: 5, mutual: 2, avatar: null, reason: "2 amis en commun" },
-]
+// TODO(data): pending friend requests, suggestions and per-friend level need
+// dedicated endpoints. Backend currently only returns accepted friendships
+// via /api/teen/friends. See report for prioritized backend work.
+const PENDING_REQUESTS: any[] = []
+const SUGGESTIONS: any[] = []
 
 const TABS = [
   { id: "all", label: "Tous" },
@@ -38,14 +33,31 @@ const TABS = [
 export default function FriendsPage() {
   const [tab, setTab] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [friends, setFriends] = useState<ApiFriend[]>([])
 
-  const filteredFriends = FRIENDS.filter(friend => {
+  useEffect(() => {
+    let cancelled = false
+    fetch("/api/teen/friends")
+      .then((r) => (r.ok ? r.json() : { friends: [] }))
+      .then((data) => {
+        if (cancelled) return
+        setFriends(Array.isArray(data?.friends) ? data.friends : [])
+      })
+      .catch(() => {
+        if (!cancelled) setFriends([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const filteredFriends = friends.filter(friend => {
     if (!friend.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
     if (tab === "online" && friend.status !== "online") return false
     return true
   })
 
-  const onlineCount = FRIENDS.filter(f => f.status === "online").length
+  const onlineCount = friends.filter(f => f.status === "online").length
 
   return (
     <div className="min-h-screen pb-32 space-y-8 pt-6">
@@ -59,7 +71,7 @@ export default function FriendsPage() {
               </div>
               <div>
                 <h1 className="text-4xl font-black tracking-tighter uppercase italic">Amis</h1>
-                <p className="text-zinc-500 text-sm font-medium">{FRIENDS.length} amis • {onlineCount} en ligne</p>
+                <p className="text-zinc-500 text-sm font-medium">{friends.length} amis • {onlineCount} en ligne</p>
               </div>
             </div>
           </div>
@@ -150,7 +162,7 @@ export default function FriendsPage() {
           </h2>
 
           {filteredFriends.length === 0 ? (
-            FRIENDS.length === 0 ? (
+            friends.length === 0 ? (
               <EmptyState
                 preset="friends"
                 size="default"
@@ -189,9 +201,10 @@ export default function FriendsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-white">{friend.name}</h4>
-                      <span className="text-xs text-zinc-500">Lvl {friend.level}</span>
                     </div>
-                    <p className="text-sm text-zinc-400">{friend.mutual} amis en commun</p>
+                    {friend.mutual_calculated && friend.mutual > 0 && (
+                      <p className="text-sm text-zinc-400">{friend.mutual} amis en commun</p>
+                    )}
                   </div>
 
                   {/* XP */}

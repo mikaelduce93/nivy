@@ -3,7 +3,7 @@
  *
  * SOURCE OF TRUTH for app-wide rate limiting (in-memory backend).
  *
- * Architecture (Finalisation-B):
+ * Architecture:
  * - `lib/security/rate-limiter.ts` (ce fichier): backend in-memory canonique. API:
  *     `rateLimit(request, config)` + presets `RATE_LIMITS`.
  *   Importeurs principaux: `middleware.ts`, `app/api/bookings/create/route.ts`,
@@ -12,10 +12,6 @@
  * - `lib/security/rate-limiter-redis.ts`: variante distribuee (Upstash) qui retombe
  *     automatiquement sur le backend in-memory ci-dessus si Redis n'est pas configure.
  *     Importeur principal: `middleware.ts` (`rateLimitDistributed`).
- *
- * - `lib/utils/rate-limiter.ts`: ancienne facade legacy avec un contrat different
- *     (`checkRateLimit` / `createRateLimiter`). Sans importeur connu, conservee
- *     uniquement comme shim de retro-compatibilite (cf. header de ce fichier).
  *
  * Pour le code nouveau, importer depuis ce module ou depuis `rate-limiter-redis`.
  */

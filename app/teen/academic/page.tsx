@@ -7,7 +7,9 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 
-// Static subject data
+// TODO(data): backend exists for grades (/api/teen/education/grades) but not yet for
+// per-teen subject progress, recommendations as displayed here, or recent activities by subject.
+// Wire when teen_subject_progress + curated recommendations endpoints land.
 const SUBJECTS = [
   { 
     id: "math", 

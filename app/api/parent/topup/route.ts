@@ -48,6 +48,26 @@ export async function POST(request: Request) {
       )
     }
 
+    // Gate: require parental e-signature on file before allowing top-ups.
+    const { data: signature } = await supabase
+      .from("e_signatures")
+      .select("id")
+      .eq("parent_id", parentId)
+      .eq("terms_accepted", true)
+      .limit(1)
+      .maybeSingle()
+
+    if (!signature) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Autorisation parentale requise",
+          requiresSignature: true,
+        },
+        { status: 403 }
+      )
+    }
+
     const totalCoins = coins + (bonus || 0)
 
     // Get current teen coins

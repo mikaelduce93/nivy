@@ -7,7 +7,9 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 
-// Static streak data
+// TODO(data): teenDashboard already exposes currentStreak; STREAK_MILESTONES should come from a
+// streak_milestones config table, STREAK_HISTORY from getActivityHistory(10) per-day rollup,
+// DAILY_TASKS from daily missions. Wire when streak-rollup endpoint lands.
 const STREAK_MILESTONES = [
   { days: 3, xpReward: 50, badge: "🔥", unlocked: true, title: "Démarrage" },
   { days: 7, xpReward: 150, badge: "💪", unlocked: true, title: "En forme" },

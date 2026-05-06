@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Coins, ShoppingBag, Award, Crown, Zap, Flame, TrendingUp, Gift, Star, Lock, Check, ArrowRight, Sparkles, Loader2 } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
@@ -9,6 +9,23 @@ import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { Progress } from "@/components/ui/progress"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { toast } from "sonner"
+import { purchaseReward } from "@/gamification-system/features/shop/actions"
+import { convertXPToDH, formatDH } from "@/lib/payments/xp-converter"
+
+interface ShopReward {
+  reward_id: string
+  name: string
+  description: string
+  xp_cost: number
+  icon: string
+  image_url: string | null
+  category_slug: string | null
+  category_name: string | null
+  is_featured: boolean
+  is_new: boolean
+  can_purchase: boolean
+}
 
 interface WalletHubClientProps {
   teenId: string
@@ -17,6 +34,9 @@ interface WalletHubClientProps {
     streak: number
     coins: number
     shopHighlights: any
+    rewards?: ShopReward[]
+    categories?: Array<{ id: string; slug: string; name: string }>
+    currency?: { xpToDhRate: number; xpValueDH: number }
   }
 }
 
@@ -48,14 +68,56 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
             </div>
           </div>
 
-          {/* Balance */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-yellow-500/10 border border-yellow-500/30">
-              <Coins className="w-5 h-5 text-yellow-500" />
-              <span className="font-black text-xl text-yellow-500">{walletData.coins.toLocaleString()}</span>
+          {/* Balance — XP / Coins / DH conversion (canonical 3-currency display) */}
+          <div className="flex items-center gap-3 flex-wrap justify-end">
+            <div
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gen-z-lavender/10 border border-gen-z-lavender/30"
+              title="XP — gagne en complétant quêtes, défis, quizzes"
+            >
+              <Zap className="w-4 h-4 text-gen-z-lavender" />
+              <span className="font-black text-base text-gen-z-lavender">
+                {walletData.xp.total.toLocaleString()}
+              </span>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400">XP</span>
             </div>
+            <div
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-yellow-500/10 border border-yellow-500/30"
+              title="Coins — monnaie virtuelle pour cosmétiques"
+            >
+              <Coins className="w-4 h-4 text-yellow-500" />
+              <span className="font-black text-base text-yellow-500">
+                {walletData.coins.toLocaleString()}
+              </span>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400">coins</span>
+            </div>
+            {walletData.currency && (
+              <div
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30"
+                title={`Crédit DH équivalent (1 XP = ${walletData.currency.xpToDhRate} DH)`}
+              >
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span className="font-black text-base text-emerald-400">
+                  {formatDH(walletData.currency.xpValueDH)}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-zinc-400">crédit</span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Conversion rule banner */}
+        {walletData.currency && (
+          <p className="text-xs text-zinc-500">
+            Taux de conversion : 1 XP ={" "}
+            <span className="text-emerald-400 font-bold">
+              {walletData.currency.xpToDhRate.toFixed(2)} DH
+            </span>{" "}
+            (10 XP = 1 DH).{" "}
+            <a href="/docs/economy" className="underline hover:text-zinc-300">
+              Voir le modèle d&apos;économie
+            </a>
+          </p>
+        )}
 
         {/* Tabs */}
         <HubTabs tabs={WALLET_TABS} defaultTab="coins" />
@@ -71,7 +133,7 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
           transition={{ duration: 0.3 }}
         >
           {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
-          {currentTab === "shop" && <ShopTab teenId={teenId} />}
+          {currentTab === "shop" && <ShopTab walletData={walletData} teenId={teenId} />}
           {currentTab === "badges" && <BadgesTab teenId={teenId} />}
           {currentTab === "vip" && <VIPTab />}
         </motion.div>
@@ -221,41 +283,130 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
   )
 }
 
-function ShopTab({ teenId }: { teenId?: string }) {
-  const [items, setItems] = useState<any[]>([])
-  const [featured, setFeatured] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+function ShopTab({
+  walletData,
+  teenId,
+}: {
+  walletData: WalletHubClientProps["walletData"]
+  teenId?: string
+}) {
+  // Canonical shop data — server-fetched via getRewards() (reward_categories + RPC get_shop_rewards)
+  const [rewards, setRewards] = useState<ShopReward[]>(walletData.rewards || [])
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [pendingId, setPendingId] = useState<string | null>(null)
+  const [, startTransition] = useTransition()
 
-  useEffect(() => {
-    const fetchShop = async () => {
-      try {
-        const response = await fetch('/api/teen/shop')
-        if (response.ok) {
-          const data = await response.json()
-          setItems(data.items || [])
-          setFeatured(data.featured)
-        }
-      } catch (error) {
-        console.error('Failed to fetch shop:', error)
-      } finally {
-        setLoading(false)
-      }
+  const userXP = walletData.xp.total
+  const categories = walletData.categories || []
+  const featured = rewards.find((r) => r.is_featured) || null
+  const filteredRewards = activeCategory
+    ? rewards.filter((r) => r.category_slug === activeCategory)
+    : rewards.filter((r) => !r.is_featured)
+
+  const handlePurchase = (reward: ShopReward) => {
+    if (pendingId) return
+    if (userXP < reward.xp_cost) {
+      toast.error(
+        `Il te manque ${(reward.xp_cost - userXP).toLocaleString()} XP pour ${reward.name}.`
+      )
+      return
     }
-    fetchShop()
-  }, [teenId])
+    setPendingId(reward.reward_id)
+    startTransition(async () => {
+      try {
+        // Canonical purchase path: server action -> RPC purchase_reward
+        // (debits XP, records purchase, applies promo). The hybrid /api/payments/hybrid
+        // route is reserved for booking checkout (XP + Stripe/CMI/Mobile Money) — pure
+        // XP redemption stays on the single-currency rail. See docs/economy.md.
+        const result = await purchaseReward({ rewardId: reward.reward_id })
+        if (result.success) {
+          toast.success(`${reward.name} ajouté à ton inventaire !`)
+          // Optimistically remove the purchased reward from the affordable grid
+          setRewards((prev) =>
+            prev.map((r) =>
+              r.reward_id === reward.reward_id ? { ...r, can_purchase: false } : r
+            )
+          )
+        } else {
+          toast.error(result.error || "Achat impossible")
+        }
+      } catch (err) {
+        console.error("[wallet/shop] purchase failed", err)
+        toast.error("Erreur lors de l'achat")
+      } finally {
+        setPendingId(null)
+      }
+    })
+  }
 
-  if (loading) {
+  const renderPriceTag = (xpCost: number) => {
+    const dhValue = convertXPToDH(xpCost)
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-gen-z-lavender" />
+      <div className="flex flex-col items-end">
+        <div className="flex items-center gap-1">
+          <Zap className="w-4 h-4 text-gen-z-lavender" />
+          <span className="font-black text-gen-z-lavender">
+            {xpCost.toLocaleString()}
+          </span>
+        </div>
+        <span className="text-[10px] text-zinc-500">≈ {formatDH(dhValue)}</span>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
+      {/* Affordability banner */}
+      <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 flex items-center justify-between flex-wrap gap-3">
+        <div className="text-sm text-zinc-300">
+          Tu as{" "}
+          <span className="text-gen-z-lavender font-bold">
+            {userXP.toLocaleString()} XP
+          </span>{" "}
+          (≈{" "}
+          <span className="text-emerald-400 font-bold">
+            {formatDH(walletData.currency?.xpValueDH || convertXPToDH(userXP))}
+          </span>
+          ) à dépenser.
+        </div>
+        <div className="text-xs text-zinc-500">
+          {rewards.filter((r) => r.xp_cost <= userXP).length} item(s) accessible(s)
+        </div>
+      </div>
+
+      {/* Category filters */}
+      {categories.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setActiveCategory(null)}
+            className={cn(
+              "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors",
+              !activeCategory
+                ? "bg-gen-z-lavender text-black"
+                : "bg-zinc-800 text-zinc-400 hover:text-white"
+            )}
+          >
+            Tous
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.slug)}
+              className={cn(
+                "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors",
+                activeCategory === cat.slug
+                  ? "bg-gen-z-lavender text-black"
+                  : "bg-zinc-800 text-zinc-400 hover:text-white"
+              )}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Featured */}
-      {featured && (
+      {featured && !activeCategory && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -264,52 +415,105 @@ function ShopTab({ teenId }: { teenId?: string }) {
           <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-gen-z-lavender/20 text-gen-z-lavender text-xs font-black uppercase">
             Featured
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 flex-wrap">
             <div className="w-24 h-24 rounded-3xl bg-white/10 flex items-center justify-center text-5xl">
-              {featured.image || '🎧'}
+              <Gift className="w-10 h-10 text-gen-z-lavender" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-[200px]">
               <h3 className="text-2xl font-black">{featured.name}</h3>
-              <p className="text-zinc-400 mt-1">{featured.description || 'Limited edition reward'}</p>
+              <p className="text-zinc-400 mt-1">{featured.description || "Limited edition reward"}</p>
               <div className="flex items-center gap-2 mt-4">
                 <Zap className="w-5 h-5 text-gen-z-lavender" />
-                <span className="font-black text-xl text-gen-z-lavender">{featured.xp_cost?.toLocaleString()} XP</span>
+                <span className="font-black text-xl text-gen-z-lavender">
+                  {featured.xp_cost.toLocaleString()} XP
+                </span>
+                <span className="text-sm text-zinc-500">
+                  ≈ {formatDH(convertXPToDH(featured.xp_cost))}
+                </span>
               </div>
             </div>
-            <Button className="bg-gen-z-lavender text-black font-bold">
-              Unlock
+            <Button
+              className="bg-gen-z-lavender text-black font-bold"
+              disabled={
+                !featured.can_purchase ||
+                userXP < featured.xp_cost ||
+                pendingId === featured.reward_id
+              }
+              onClick={() => handlePurchase(featured)}
+            >
+              {pendingId === featured.reward_id ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : userXP >= featured.xp_cost ? (
+                "Acheter"
+              ) : (
+                "XP insuffisants"
+              )}
             </Button>
           </div>
         </motion.div>
       )}
 
       {/* Items Grid */}
-      {items.length === 0 ? (
+      {filteredRewards.length === 0 ? (
         <div className="text-center py-12">
           <ShoppingBag className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">No items available</h3>
-          <p className="text-zinc-500">Check back later for new rewards!</p>
+          <h3 className="text-xl font-bold text-white mb-2">Aucun item disponible</h3>
+          <p className="text-zinc-500">De nouveaux items arriveront bientôt !</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {items.map((item, idx) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              whileHover={{ scale: 1.02, y: -4 }}
-              className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5 cursor-pointer hover:border-white/20 transition-all"
-            >
-              <div className="text-5xl mb-4">{item.image || '🎁'}</div>
-              <h4 className="font-bold text-white">{item.name}</h4>
-              <p className="text-xs text-zinc-500 mb-3">{item.category}</p>
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-gen-z-lavender" />
-                <span className="font-black text-gen-z-lavender">{item.xp_cost?.toLocaleString()}</span>
-              </div>
-            </motion.div>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {filteredRewards.map((item, idx) => {
+            const canAfford = userXP >= item.xp_cost
+            const isPending = pendingId === item.reward_id
+            return (
+              <motion.div
+                key={item.reward_id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className={cn(
+                  "p-5 rounded-3xl bg-zinc-900/50 border transition-all flex flex-col",
+                  canAfford
+                    ? "border-white/5 hover:border-gen-z-lavender/40"
+                    : "border-white/5 opacity-70"
+                )}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-14 h-14 rounded-2xl bg-gen-z-lavender/10 flex items-center justify-center">
+                    <Gift className="w-7 h-7 text-gen-z-lavender" />
+                  </div>
+                  {renderPriceTag(item.xp_cost)}
+                </div>
+                <h4 className="font-bold text-white">{item.name}</h4>
+                {item.category_name && (
+                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 mt-0.5">
+                    {item.category_name}
+                  </p>
+                )}
+                {item.description && (
+                  <p className="text-xs text-zinc-400 mt-2 line-clamp-2 flex-1">
+                    {item.description}
+                  </p>
+                )}
+                <Button
+                  size="sm"
+                  className="mt-4 w-full"
+                  disabled={!item.can_purchase || !canAfford || isPending}
+                  onClick={() => handlePurchase(item)}
+                >
+                  {isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : !item.can_purchase ? (
+                    "Indisponible"
+                  ) : canAfford ? (
+                    "Acheter"
+                  ) : (
+                    `Manque ${(item.xp_cost - userXP).toLocaleString()} XP`
+                  )}
+                </Button>
+              </motion.div>
+            )
+          })}
         </div>
       )}
     </div>

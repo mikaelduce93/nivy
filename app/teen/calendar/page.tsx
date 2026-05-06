@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button"
 const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
 const DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
 
+// TODO(data): events should come from getTeenDashboardData().upcomingEvents and personal
+// tasks from a teen_calendar_tasks table that does not exist yet. See report.
 const EVENTS = [
   { 
     id: 1, 

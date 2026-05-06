@@ -107,7 +107,7 @@ export default async function GamificationPage() {
       badge: null,
     },
     {
-      href: "/gamification/boutique",
+      href: "/teen/wallet?tab=shop",
       icon: ShoppingBag,
       label: "Boutique",
       description: "Dépense tes XP",

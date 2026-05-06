@@ -345,7 +345,7 @@ export function UnifiedRewardsDisplay({
                 </div>
               </div>
               <Button asChild className="bg-yellow-500 hover:bg-yellow-600 text-black">
-                <Link href="/gamification/boutique">
+                <Link href="/teen/wallet?tab=shop">
                   <ShoppingBag className="h-4 w-4 mr-2" />
                   Boutique
                   <ArrowRight className="h-4 w-4 ml-2" />

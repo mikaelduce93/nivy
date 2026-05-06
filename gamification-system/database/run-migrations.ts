@@ -3,21 +3,19 @@
  * Usage: npx tsx gamification-system/database/run-migrations.ts
  */
 
-import { createClient } from "@supabase/supabase-js"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import * as fs from "fs"
 import * as path from "path"
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+let supabase: ReturnType<typeof createServiceRoleClient>
+try {
+  supabase = createServiceRoleClient()
+} catch (_error) {
   console.error("❌ Variables d'environnement manquantes:")
-  console.error("   - NEXT_PUBLIC_SUPABASE_URL")
+  console.error("   - NEXT_PUBLIC_SUPABASE_URL ou SUPABASE_URL")
   console.error("   - SUPABASE_SERVICE_ROLE_KEY (pas l'anon key!)")
   process.exit(1)
 }
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 const MIGRATIONS_DIR = path.join(__dirname, "migrations")
 

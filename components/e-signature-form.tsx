@@ -11,7 +11,7 @@ import { toast } from "sonner"
 import SignatureCanvas from "react-signature-canvas"
 
 interface ESignatureFormProps {
-  childId: string
+  childId?: string
   eventId?: string
   bookingId?: string
   onComplete: (signatureData: any) => void
@@ -81,7 +81,7 @@ export function ESignatureForm({ childId, eventId, bookingId, onComplete }: ESig
       const signatureHash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
 
       const formDataToSend = new FormData()
-      formDataToSend.append("childId", childId)
+      formDataToSend.append("childId", childId || "")
       formDataToSend.append("eventId", eventId || "")
       formDataToSend.append("bookingId", bookingId || "")
       formDataToSend.append("signatureData", signatureData!)

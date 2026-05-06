@@ -1,11 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
 import webPush from 'web-push'
 import { getPublicAppConfig } from '@/lib/config/app-config'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 
-// Initialize Supabase Admin Client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+// Initialize Supabase Admin Client (canonical service-role helper)
+const supabase = createServiceRoleClient()
 
 // Initialize Web Push
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {

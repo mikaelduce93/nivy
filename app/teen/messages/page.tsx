@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/ui/states/empty-state"
 
-// Static conversations data
+// TODO(data): /api/teen/messages?conversationId=... returns messages but there's no list-conversations
+// endpoint yet. teen_conversations table exists; expose GET /api/teen/messages/conversations.
 const CONVERSATIONS = [
   { 
     id: 1, 

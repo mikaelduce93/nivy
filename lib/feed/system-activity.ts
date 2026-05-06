@@ -1,9 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 
-// Initialize Supabase Admin Client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+// Initialize Supabase Admin Client (canonical service-role helper)
+const supabase = createServiceRoleClient()
 
 const SYSTEM_BOTS = [
   { id: 'bot_admin', name: 'L\'Admin', avatar: '/avatars/admin.png' },

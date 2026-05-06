@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 
-// Static subject data
+// TODO(data): /api/teen/education/grades exists but per-subject progress, chapter counts,
+// and curated recommendations don't have a teen-facing endpoint yet. Wire when backend lands.
 const SUBJECTS = [
   { 
     id: "math", 
