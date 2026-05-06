@@ -14,10 +14,18 @@ interface ESignatureFormProps {
   childId?: string
   eventId?: string
   bookingId?: string
+  /**
+   * API endpoint to POST the multipart form to.
+   * Defaults to "/api/e-signature/create" (generic, event/booking flow).
+   * Pass "/api/parent/e-signature/create" for the parent top-up gate flow,
+   * which enforces the parent role server-side and skips CSRF so that the
+   * multipart upload works without a custom header.
+   */
+  apiEndpoint?: string
   onComplete: (signatureData: any) => void
 }
 
-export function ESignatureForm({ childId, eventId, bookingId, onComplete }: ESignatureFormProps) {
+export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/api/e-signature/create", onComplete }: ESignatureFormProps) {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -93,7 +101,7 @@ export function ESignatureForm({ childId, eventId, bookingId, onComplete }: ESig
       formDataToSend.append("cinFront", cinFrontFile)
       formDataToSend.append("cinBack", cinBackFile)
 
-      const response = await fetch("/api/e-signature/create", {
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         body: formDataToSend,
       })
