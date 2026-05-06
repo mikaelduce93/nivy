@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { MessageSquare, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 import Link from "next/link"
 import PostActions from "@/components/post-actions"
 
@@ -87,10 +88,13 @@ export default async function CommunautePage() {
                       <div className="grid grid-cols-2 gap-2 mb-4">
                         {(post.media_urls as string[]).slice(0, 4).map((url: string, idx: number) => (
                           <div key={idx} className="relative rounded-xl overflow-hidden aspect-square">
-                            <img
+                            <Image
                               src={url || "/placeholder.svg"}
                               alt={`Media ${idx + 1}`}
-                              className="w-full h-full object-cover"
+                              fill
+                              sizes="(max-width: 768px) 50vw, 25vw"
+                              className="object-cover"
+                              loading="lazy"
                             />
                           </div>
                         ))}

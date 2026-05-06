@@ -2,6 +2,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Check, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -57,7 +58,7 @@ export function BuddySelector({ questId }: { questId: string }) {
               {MOCK_FRIENDS.map(friend => (
                 <div key={friend.id} className="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <img src={friend.avatar} alt={friend.name} className="w-6 h-6 rounded-full bg-zinc-800" />
+                    <Image src={friend.avatar} alt={friend.name} width={24} height={24} className="w-6 h-6 rounded-full bg-zinc-800" />
                     <span className="text-sm text-zinc-200">{friend.name}</span>
                   </div>
                   <button

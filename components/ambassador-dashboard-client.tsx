@@ -2,7 +2,8 @@
 
 import { TrendingUp, Users, DollarSign, Calendar, Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { AnalyticsChart } from "@/components/analytics-chart"
+// Use the lazy wrapper so recharts isn't pulled into the initial JS payload.
+import { AnalyticsChart } from "@/components/analytics-chart-lazy"
 import { toast } from "sonner"
 
 interface AmbassadorDashboardClientProps {

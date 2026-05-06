@@ -210,7 +210,22 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'blob.v0.app',
       },
+      // Avatar / placeholder providers used across the app (gamification,
+      // partner demo, etc.). Keep this list narrow to avoid open redirects.
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
+      },
     ],
+    // dicebear emits SVG; allow it but keep CSP via Next's dangerouslyAllowSVG.
+    // We only render avatars from the allow-listed hostnames above, so the
+    // attack surface is limited to those providers.
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -221,7 +236,17 @@ const nextConfig = {
   reactStrictMode: true,
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-icons'],
+    // Tree-shake / barrel-bust common heavy libs so each page only ships the
+    // icons / radix primitives / date-fns helpers it actually imports.
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      '@radix-ui/react-icons',
+      'date-fns',
+      'react-day-picker',
+      'recharts',
+      'sonner',
+    ],
   },
   async headers() {
     return [

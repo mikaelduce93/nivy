@@ -6,11 +6,19 @@ import { expect, test } from "@playwright/test"
  *
  * We fail the build only on `serious` and `critical` violations to keep the
  * smoke suite actionable; minor/moderate findings still surface in the report.
+ *
+ * Pages requiring authentication (e.g. /teen, /parent dashboards) are scanned
+ * via separate suites that seed a session — they're omitted here so the
+ * smoke suite can run without supabase credentials.
  */
 const PAGES_TO_SCAN: Array<{ path: string; label: string }> = [
   { path: "/", label: "home" },
   { path: "/auth/login", label: "auth-login" },
+  { path: "/auth/sign-up", label: "auth-sign-up" },
   { path: "/aide", label: "help-center" },
+  { path: "/agenda", label: "agenda" },
+  { path: "/carte-vip", label: "carte-vip" },
+  { path: "/devenir-partenaire", label: "become-partner" },
 ]
 
 test.describe("accessibility / critical pages", () => {
@@ -20,6 +28,9 @@ test.describe("accessibility / critical pages", () => {
 
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+        // Disable rules tied to dev-only artefacts (e.g. Next.js dev overlay)
+        // that would otherwise spam the report without being actionable.
+        .disableRules(["region"])
         .analyze()
 
       // Attach the full violations payload to the HTML report for triage.

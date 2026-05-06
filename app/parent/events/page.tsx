@@ -15,6 +15,7 @@ import {
   Star,
   Filter
 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 async function getTeenBookings(parentId: string) {
@@ -253,12 +254,14 @@ export default async function ParentEventsPage() {
                     >
                       <div className="flex flex-col md:flex-row md:items-center gap-4">
                         {/* Event Image */}
-                        <div className="w-full md:w-32 h-24 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center overflow-hidden">
+                        <div className="relative w-full md:w-32 h-24 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center overflow-hidden">
                           {booking.event?.image_url ? (
-                            <img
+                            <Image
                               src={booking.event.image_url}
-                              alt={booking.event?.title}
-                              className="w-full h-full object-cover"
+                              alt={booking.event?.title || "Évènement"}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 128px"
+                              className="object-cover"
                             />
                           ) : (
                             <Calendar className="h-10 w-10 text-emerald-400" />
@@ -345,12 +348,15 @@ export default async function ParentEventsPage() {
                     key={event.id}
                     className="p-4 rounded-xl bg-zinc-800 border border-zinc-700 hover:border-emerald-500/30 transition-all"
                   >
-                    <div className="h-32 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center mb-3 overflow-hidden">
+                    <div className="relative h-32 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center mb-3 overflow-hidden">
                       {event.image_url ? (
-                        <img
+                        <Image
                           src={event.image_url}
                           alt={event.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover"
+                          loading="lazy"
                         />
                       ) : (
                         <Calendar className="h-12 w-12 text-emerald-400" />

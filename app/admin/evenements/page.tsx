@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Calendar, Plus, Edit, Eye, Trash2, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import Image from "next/image"
 import Link from "next/link"
 import BackButton from "@/components/admin/BackButton"
 
@@ -75,10 +76,13 @@ export default async function AdminEventsPage() {
                 <Card key={event.id} className="p-6 bg-zinc-900 border-zinc-800">
                   <div className="flex gap-6">
                     <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0">
-                      <img
+                      <Image
                         src={event.image_url || "/placeholder.svg?height=128&width=192&query=event"}
                         alt={event.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="192px"
+                        className="object-cover"
+                        loading="lazy"
                       />
                       {isSoldOut && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center">

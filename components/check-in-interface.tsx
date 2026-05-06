@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -619,9 +620,11 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
         <Card className="p-6 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-cyan-500/30">
           <div className="flex items-start gap-4">
             {scannedData.childPhoto ? (
-              <img
+              <Image
                 src={scannedData.childPhoto}
                 alt=""
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-xl object-cover"
               />
             ) : (

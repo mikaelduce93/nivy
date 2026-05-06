@@ -67,8 +67,8 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
         {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
+            <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
+              <Menu className="h-5 w-5" aria-hidden="true" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0">
@@ -134,10 +134,19 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            aria-label={
+              notificationCounts.total > 0
+                ? `Notifications (${notificationCounts.total} non lues)`
+                : "Notifications"
+            }
+          >
+            <Bell className="h-5 w-5" aria-hidden="true" />
             {notificationCounts.total > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center" aria-hidden="true">
                 {notificationCounts.total > 9 ? "9+" : notificationCounts.total}
               </span>
             )}
@@ -145,7 +154,7 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="Menu utilisateur">
                 <Avatar className="h-10 w-10 border-2 border-border">
                   <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-bold">
                     {initials}

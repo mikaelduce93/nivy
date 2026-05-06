@@ -7,6 +7,7 @@ import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import { EmptyState } from "@/components/ui/states/empty-state"
@@ -233,9 +234,11 @@ function CrewTab({ teenId }: { teenId: string }) {
             {(members || []).slice(0, 6).map((member: any, i: number) => (
               <div key={member.id || i} className="relative">
                 {member.avatar_url ? (
-                  <img 
-                    src={member.avatar_url} 
+                  <Image
+                    src={member.avatar_url}
                     alt={member.name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (
@@ -401,9 +404,11 @@ function FriendsTab({ teenId }: { teenId?: string }) {
             >
               <div className="relative">
                 {friend.avatar_url ? (
-                  <img 
-                    src={friend.avatar_url} 
+                  <Image
+                    src={friend.avatar_url}
                     alt={friend.name}
+                    width={56}
+                    height={56}
                     className="w-14 h-14 rounded-full object-cover"
                   />
                 ) : (

@@ -7,6 +7,7 @@
  */
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Swords,
@@ -346,14 +347,16 @@ function ChallengeCard({ challenge, userId, onAccept, onDecline, onClick }: Chal
             <button
               onClick={onAccept}
               className="p-2 rounded-lg bg-green-500 text-white hover:bg-green-400 transition-colors"
+              aria-label="Accepter le défi"
             >
-              <Check className="w-5 h-5" />
+              <Check className="w-5 h-5" aria-hidden="true" />
             </button>
             <button
               onClick={onDecline}
               className="p-2 rounded-lg bg-zinc-700 text-zinc-300 hover:bg-zinc-600 transition-colors"
+              aria-label="Refuser le défi"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
         )}
@@ -508,9 +511,11 @@ function CreateChallengeModal({
                         : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
                     }`}
                   >
-                    <img
+                    <Image
                       src={friend.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.id}`}
                       alt={friend.pseudo}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full"
                     />
                     <span className="font-medium text-white">{friend.pseudo}</span>
@@ -683,9 +688,11 @@ function ChallengeDetailsModal({ challenge, userId, onClose }: ChallengeDetailsM
                     : "bg-zinc-800/50"
                 }`}
               >
-                <img
+                <Image
                   src={participant.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${participant.user_id}`}
                   alt={participant.pseudo}
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-full"
                 />
                 <div className="flex-1">
@@ -720,8 +727,9 @@ function ChallengeDetailsModal({ challenge, userId, onClose }: ChallengeDetailsM
               <button
                 onClick={handleSendMessage}
                 className="p-2 rounded-xl bg-cyan-500 text-white"
+                aria-label="Envoyer le message"
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
           )}

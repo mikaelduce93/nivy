@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertCircle, ArrowLeft, Trash2, Loader2, Calendar, MapPin, Users } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
@@ -174,10 +175,12 @@ export default function DeleteEventPage() {
               <div className="flex gap-4">
                 {event.image_url && (
                   <div className="relative w-32 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                    <img
+                    <Image
                       src={event.image_url}
                       alt={event.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="128px"
+                      className="object-cover"
                     />
                   </div>
                 )}

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect, notFound } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
+import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -243,9 +244,11 @@ export default async function AdminAnnivOrderDetailPage({
             <CardContent>
               <div className="flex items-center gap-4">
                 {order.teen?.avatar_url ? (
-                  <img
+                  <Image
                     src={order.teen.avatar_url}
                     alt={order.teen.pseudo || order.teen.first_name}
+                    width={64}
+                    height={64}
                     className="w-16 h-16 rounded-full object-cover border-2 border-pink-500"
                   />
                 ) : (
@@ -322,10 +325,13 @@ export default async function AdminAnnivOrderDetailPage({
               </CardHeader>
               <CardContent className="flex justify-center">
                 <div className="p-4 bg-white rounded-lg">
-                  <img
+                  <Image
                     src={order.qr_code}
                     alt="QR Code réservation"
+                    width={160}
+                    height={160}
                     className="w-40 h-40"
+                    unoptimized
                   />
                 </div>
               </CardContent>

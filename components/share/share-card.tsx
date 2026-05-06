@@ -7,6 +7,7 @@
  */
 
 import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Download,
@@ -250,9 +251,11 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
         return (
           <>
             {(data as { avatar_url?: string }).avatar_url ? (
-              <img
-                src={(data as { avatar_url?: string }).avatar_url}
+              <Image
+                src={(data as { avatar_url?: string }).avatar_url!}
                 alt=""
+                width={96}
+                height={96}
                 className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white/30"
               />
             ) : (

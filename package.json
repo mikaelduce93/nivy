@@ -18,6 +18,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
+    "test:a11y": "playwright test tests/a11y",
     "test:all": "npm run lint && npm run test:run && npm run test:e2e",
     "analyze": "ANALYZE=true next build",
     "analyze:win": "set ANALYZE=true&& next build"

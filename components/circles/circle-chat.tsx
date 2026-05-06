@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import NextImage from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Send,
@@ -174,12 +175,14 @@ function MessageBubble({
       {!isOwn && (
         <div className="flex-shrink-0">
           {showSender ? (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+            <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
               {message.sender?.avatar_url ? (
-                <img
+                <NextImage
                   src={message.sender.avatar_url}
                   alt={message.sender.first_name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="32px"
+                  className="object-cover"
                 />
               ) : (
                 <span className="text-xs text-white font-bold">
@@ -230,10 +233,13 @@ function MessageBubble({
         >
           {/* Media */}
           {message.media_url && message.message_type === "image" && (
-            <img
+            <NextImage
               src={message.media_url}
               alt=""
-              className="rounded-lg max-w-full mb-2"
+              width={400}
+              height={400}
+              sizes="(max-width: 640px) 75vw, 400px"
+              className="rounded-lg max-w-full h-auto mb-2"
             />
           )}
 

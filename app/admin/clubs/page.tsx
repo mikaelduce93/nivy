@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Award, Plus, Edit, Trash2, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import Image from "next/image"
 import Link from "next/link"
 import BackButton from "@/components/admin/BackButton"
 
@@ -99,10 +100,13 @@ export default async function AdminClubsPage() {
               <Card key={club.id} className="p-6 bg-zinc-900 border-zinc-800">
                 <div className="flex gap-6">
                   <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0">
-                    <img
+                    <Image
                       src={club.image_url || "/placeholder.svg?height=128&width=192&query=club"}
                       alt={club.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="192px"
+                      className="object-cover"
+                      loading="lazy"
                     />
                   </div>
 
