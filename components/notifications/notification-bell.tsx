@@ -1,5 +1,30 @@
 "use client"
 
+/**
+ * NotificationBell (canonique).
+ *
+ * SOURCE OF TRUTH for the app-wide notification bell (popover, polling, mark-as-read).
+ *
+ * Architecture (Finalisation-B):
+ * - `components/notifications/notification-bell.tsx` (ce fichier): composant client
+ *     canonique. Contrat: `<NotificationBell userId={...} />`. Polling fetch sur
+ *     `/api/notifications` toutes les 30s, popover Radix, sonner toasts.
+ *
+ * - `components/notifications/notification-bell-wrapper.tsx`: thin wrapper conserve
+ *     comme frontiere d'import explicite pour les Server Components qui passent un
+ *     `userId` (utilise dans `app/dashboard/page.tsx`). Inline-able mais maintenu
+ *     pour ne pas casser cet import; ne contient AUCUNE logique additionnelle.
+ *
+ * - `components/notification-bell.tsx`: re-export shim retro-compatible vers ce module.
+ *
+ * - `gamification-system/components/notifications/notification-center.tsx`: composant
+ *     SEPARE du domaine gamification (categories, recompenses, group/sort), avec un
+ *     contrat distinct (`unreadCount`, `onClick`). NE PAS fusionner: feature distincte.
+ *
+ * Nouveau code: importer depuis `@/components/notifications/notification-bell` (ou
+ * `notification-bell-wrapper` si appel depuis un Server Component avec `userId` connu).
+ */
+
 import { useState, useEffect } from "react"
 import { Bell, X, CheckCircle, Calendar, Gift, Users, AlertTriangle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"

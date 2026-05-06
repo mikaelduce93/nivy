@@ -1,8 +1,15 @@
 'use client'
 
+// Domain-specific lazy components for teen dashboard. Pour les utilitaires globaux: @/lib/client/lazy-components
+//
+// Ce fichier reste separe de `lib/client/lazy-components.tsx` (canonique global)
+// car il importe en relatif `./map-preview` et `./ai-companion` co-localises avec le dashboard teen.
+// Ne PAS deplacer ces lazy-imports vers `@/lib/client/lazy-components` sous peine de creer un
+// couplage inverse (lib -> components/teen) inutile.
+
 /* ==========================================================================
    LAZY COMPONENTS - Code Splitting Strategy
-   
+
    Heavy components are dynamically imported to reduce initial bundle size.
    Target: <500KB initial bundle, rest lazy loaded.
    
