@@ -15,34 +15,40 @@ UPDATE bookings
 SET amount_after_xp = total_amount
 WHERE amount_after_xp IS NULL;
 
--- Add XP payment columns to anniv_orders table
-ALTER TABLE anniv_orders
-ADD COLUMN IF NOT EXISTS xp_used INTEGER DEFAULT 0,
-ADD COLUMN IF NOT EXISTS xp_value DECIMAL(10,2) DEFAULT 0,
-ADD COLUMN IF NOT EXISTS amount_after_xp DECIMAL(10,2);
+-- anniv_orders is owned by the main app schema and may not exist on a fresh
+-- install. Only patch it when it is actually present.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'anniv_orders') THEN
+    ALTER TABLE anniv_orders
+      ADD COLUMN IF NOT EXISTS xp_used INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS xp_value DECIMAL(10,2) DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS amount_after_xp DECIMAL(10,2);
 
--- Update amount_after_xp for anniv_orders
-UPDATE anniv_orders
-SET amount_after_xp = total_price
-WHERE amount_after_xp IS NULL;
+    UPDATE anniv_orders SET amount_after_xp = total_price WHERE amount_after_xp IS NULL;
+  END IF;
+END $$;
 
--- Create XP transactions table for audit trail
-CREATE TABLE IF NOT EXISTS xp_transactions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    teen_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    amount INTEGER NOT NULL, -- Positive for gains, negative for spending
-    type VARCHAR(50) NOT NULL, -- 'earn', 'payment', 'refund', 'bonus', 'penalty'
-    description TEXT,
-    reference_type VARCHAR(50), -- 'booking', 'anniv_order', 'challenge', 'achievement', etc.
-    reference_id UUID,
-    balance_before INTEGER,
-    balance_after INTEGER,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+-- xp_transactions was created in 000_base_tables.sql with a different schema
+-- (source_type, source_id). Add the columns this migration depends on.
+ALTER TABLE xp_transactions
+  ADD COLUMN IF NOT EXISTS type VARCHAR(50),
+  ADD COLUMN IF NOT EXISTS reference_type VARCHAR(50),
+  ADD COLUMN IF NOT EXISTS reference_id UUID,
+  ADD COLUMN IF NOT EXISTS balance_before INTEGER,
+  ADD COLUMN IF NOT EXISTS balance_after INTEGER;
 
-    CONSTRAINT valid_type CHECK (type IN ('earn', 'payment', 'refund', 'bonus', 'penalty', 'transfer'))
-);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.constraint_column_usage
+    WHERE table_name = 'xp_transactions' AND constraint_name = 'valid_type'
+  ) THEN
+    ALTER TABLE xp_transactions
+      ADD CONSTRAINT valid_type CHECK (type IS NULL OR type IN ('earn', 'payment', 'refund', 'bonus', 'penalty', 'transfer'));
+  END IF;
+END $$;
 
--- Create indexes
 CREATE INDEX IF NOT EXISTS idx_xp_transactions_teen_id ON xp_transactions(teen_id);
 CREATE INDEX IF NOT EXISTS idx_xp_transactions_created_at ON xp_transactions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_xp_transactions_type ON xp_transactions(type);

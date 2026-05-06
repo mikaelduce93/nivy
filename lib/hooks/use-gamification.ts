@@ -1,13 +1,11 @@
 "use client"
 
-// TODO(ts): widen type — supabase realtime channel callbacks are typed as
-// `(payload: any) =>` here because their generic types depend on table-level
-// generated Database typings (not yet wired up — see types/supabase.ts).
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
-import type { RealtimeChannel } from "@supabase/supabase-js"
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from "@supabase/supabase-js"
+
+type AnyRow = Record<string, unknown>
+type RealtimePayload<T extends AnyRow = AnyRow> = RealtimePostgresChangesPayload<T>
 
 /* ==========================================================================
    TYPES
@@ -218,9 +216,9 @@ export function useGamification(options: UseGamificationOptions = {}) {
           table: "user_xp",
           filter: `teen_id=eq.${teenId}`,
         },
-        (payload: any) => {
+        (payload: RealtimePayload) => {
           if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
-            const newXP = payload.new as XPData & { teen_id: string }
+            const newXP = payload.new as unknown as XPData & { teen_id: string }
 
             setState((prev) => {
               const oldLevel = prev.xp?.level || 1
@@ -266,9 +264,9 @@ export function useGamification(options: UseGamificationOptions = {}) {
           table: "user_streaks",
           filter: `teen_id=eq.${teenId}`,
         },
-        (payload: any) => {
+        (payload: RealtimePayload) => {
           if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
-            const newStreak = payload.new as StreakData & { teen_id: string }
+            const newStreak = payload.new as unknown as StreakData & { teen_id: string }
 
             setState((prev) => ({
               ...prev,
@@ -298,19 +296,19 @@ export function useGamification(options: UseGamificationOptions = {}) {
           table: "user_achievements",
           filter: `teen_id=eq.${teenId}`,
         },
-        async (payload: any) => {
-          // Charger les détails de l'achievement
+        async (payload: RealtimePayload) => {
+          const newRow = payload.new as unknown as { achievement_id: string; unlocked_at: string; progress: number }
           const { data: achievementData } = await supabase
             .from("achievements")
             .select("*")
-            .eq("id", payload.new.achievement_id)
+            .eq("id", newRow.achievement_id)
             .single()
 
           if (achievementData) {
             const newAchievement: Achievement = {
               ...achievementData,
-              unlocked_at: payload.new.unlocked_at,
-              progress: payload.new.progress,
+              unlocked_at: newRow.unlocked_at,
+              progress: newRow.progress,
             }
 
             setState((prev) => ({
@@ -333,7 +331,7 @@ export function useGamification(options: UseGamificationOptions = {}) {
           table: "user_challenges",
           filter: `teen_id=eq.${teenId}`,
         },
-        async (payload: any) => {
+        async (payload: RealtimePayload) => {
           if (payload.eventType === "UPDATE") {
             setState((prev) => ({
               ...prev,
@@ -430,7 +428,7 @@ export function useXP(teenId?: string) {
           table: "user_xp",
           filter: `teen_id=eq.${teenId}`,
         },
-        (payload: any) => {
+        (payload: RealtimePayload) => {
           if (payload.new) {
             setXP({
               total_xp: (payload.new as any).total_xp,
@@ -492,7 +490,7 @@ export function useStreak(teenId?: string) {
           table: "user_streaks",
           filter: `teen_id=eq.${teenId}`,
         },
-        (payload: any) => {
+        (payload: RealtimePayload) => {
           if (payload.new) {
             setStreak({
               current_streak: (payload.new as any).current_streak,
@@ -558,7 +556,7 @@ export function useDailyChallenges(teenId?: string) {
           table: "user_challenges",
           filter: `teen_id=eq.${teenId}`,
         },
-        async (payload: any) => {
+        async (payload: RealtimePayload) => {
           if (payload.eventType === "UPDATE") {
             setChallenges((prev) =>
               prev.map((c) =>

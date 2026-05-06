@@ -559,11 +559,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS on_challenge_complete_update_missions ON public.user_challenges;
-CREATE TRIGGER on_challenge_complete_update_missions
-  AFTER INSERT OR UPDATE ON public.user_challenges
-  FOR EACH ROW
-  EXECUTE FUNCTION trigger_update_missions_on_challenge();
+-- The user_challenges table is owned by a downstream migration that may not
+-- have shipped yet; only attach the trigger when the table is present.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_challenges') THEN
+    DROP TRIGGER IF EXISTS on_challenge_complete_update_missions ON public.user_challenges;
+    CREATE TRIGGER on_challenge_complete_update_missions
+      AFTER INSERT OR UPDATE ON public.user_challenges
+      FOR EACH ROW
+      EXECUTE FUNCTION trigger_update_missions_on_challenge();
+  END IF;
+END $$;
 
 -- Trigger pour mettre à jour les missions quand XP est gagné
 CREATE OR REPLACE FUNCTION trigger_update_missions_on_xp()

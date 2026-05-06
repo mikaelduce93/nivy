@@ -208,11 +208,11 @@ BEGIN
     END;
     -- Avoid duplicate tier unique constraint if schema already enforces uniqueness
     UPDATE public.subscription_plans
-      SET tier = 'free'::subscription_tier
+      SET tier = 'free'
     WHERE tier IS NULL
       AND NOT EXISTS (
           SELECT 1 FROM public.subscription_plans
-          WHERE tier = 'free'::subscription_tier
+          WHERE tier = 'free'
       );
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns
@@ -1024,7 +1024,7 @@ BEGIN
         IF has_starter THEN
             INSERT INTO subscription_plans (code, name, name_ar, description, tier, plan_type, price_monthly, price_quarterly, price_yearly, discount_quarterly_percent, discount_yearly_percent, features, color, badge_label, trial_days, is_featured, sort_order)
             VALUES
-                ('free', 'Gratuit', 'مجاني', 'Accès de base à TeensParty', 'free'::subscription_tier, 'free', 0, 0, 0, 0, 0,
+                ('free', 'Gratuit', 'مجاني', 'Accès de base à TeensParty', 'free', 'free', 0, 0, 0, 0, 0,
                  '{"max_circles": 2, "max_circle_members": 10, "daily_challenges": 3, "cloud_storage_mb": 100, "ad_free": false, "xp_multiplier": 1.0}'::jsonb,
                  '#6b7280', NULL, 0, false, 0),
 
@@ -1047,7 +1047,7 @@ BEGIN
         ELSE
             INSERT INTO subscription_plans (code, name, name_ar, description, tier, plan_type, price_monthly, price_quarterly, price_yearly, discount_quarterly_percent, discount_yearly_percent, features, color, badge_label, trial_days, is_featured, sort_order)
             VALUES
-                ('free', 'Gratuit', 'مجاني', 'Accès de base à TeensParty', 'free'::subscription_tier, 'free', 0, 0, 0, 0, 0,
+                ('free', 'Gratuit', 'مجاني', 'Accès de base à TeensParty', 'free', 'free', 0, 0, 0, 0, 0,
                  '{"max_circles": 2, "max_circle_members": 10, "daily_challenges": 3, "cloud_storage_mb": 100, "ad_free": false, "xp_multiplier": 1.0}'::jsonb,
                  '#6b7280', NULL, 0, false, 0),
 

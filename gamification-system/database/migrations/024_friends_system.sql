@@ -281,8 +281,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- 002_leaderboard_system already declared a different signature; drop all
+-- existing variants before redefining.
+DO $$
+DECLARE r RECORD;
+BEGIN
+  FOR r IN SELECT p.oid::regprocedure AS sig FROM pg_proc p
+    JOIN pg_namespace n ON p.pronamespace = n.oid
+    WHERE n.nspname = 'public' AND p.proname = 'send_friend_request'
+  LOOP EXECUTE 'DROP FUNCTION IF EXISTS ' || r.sig || ' CASCADE'; END LOOP;
+END $$;
+
 -- Function to send friend request
-CREATE OR REPLACE FUNCTION send_friend_request(
+CREATE FUNCTION send_friend_request(
   p_sender_id UUID,
   p_receiver_id UUID,
   p_message TEXT DEFAULT NULL
@@ -325,8 +336,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- 002_leaderboard_system already declared a different signature; drop all
+-- existing variants before redefining.
+DO $$
+DECLARE r RECORD;
+BEGIN
+  FOR r IN SELECT p.oid::regprocedure AS sig FROM pg_proc p
+    JOIN pg_namespace n ON p.pronamespace = n.oid
+    WHERE n.nspname = 'public' AND p.proname = 'accept_friend_request'
+  LOOP EXECUTE 'DROP FUNCTION IF EXISTS ' || r.sig || ' CASCADE'; END LOOP;
+END $$;
+
 -- Function to accept friend request
-CREATE OR REPLACE FUNCTION accept_friend_request(p_request_id UUID, p_receiver_id UUID)
+CREATE FUNCTION accept_friend_request(p_request_id UUID, p_receiver_id UUID)
 RETURNS UUID AS $$
 DECLARE
   v_request RECORD;

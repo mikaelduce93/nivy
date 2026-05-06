@@ -1,13 +1,19 @@
--- ============================================================================
--- NIVY - All gamification migrations concatenated for fresh Supabase install
--- Generated: 2026-05-06T05:26:45Z
--- Apply once on a fresh project (Supabase SQL Editor: paste + Run).
--- ============================================================================
+-- NIVY all migrations - Generated 2026-05-06T07:08:39Z
+-- WARNING: starts with DROP SCHEMA public CASCADE.
+
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres, public, anon, authenticated, service_role;
+
+CREATE TABLE IF NOT EXISTS public.profiles (id UUID PRIMARY KEY, email TEXT, full_name TEXT, avatar_url TEXT, role TEXT DEFAULT 'parent', created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.events (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), slug TEXT UNIQUE, title TEXT NOT NULL, description TEXT, event_date TIMESTAMPTZ, venue_id UUID, status TEXT DEFAULT 'draft', created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.bookings (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID, event_id UUID REFERENCES public.events(id) ON DELETE SET NULL, booking_reference TEXT UNIQUE, status TEXT DEFAULT 'pending', payment_status TEXT DEFAULT 'pending', total_amount NUMERIC(10,2), payment_method TEXT, paid_at TIMESTAMPTZ, created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.users (id UUID PRIMARY KEY, email TEXT, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.parent_teen_links (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), parent_id UUID NOT NULL, teen_id UUID NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS public.admin_roles (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), profile_id UUID NOT NULL, role TEXT NOT NULL DEFAULT 'admin', created_at TIMESTAMPTZ DEFAULT NOW());
 
 
--- ============================================================================
 -- 000_base_tables.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 000: TABLES DE BASE POUR LA GAMIFICATION
 -- =============================================
@@ -783,9 +789,7 @@ BEGIN
 END $$;
 
 
--- ============================================================================
 -- 001_achievements_system.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 001: SYSTÈME DE BADGES/ACHIEVEMENTS COMPLET
 -- =============================================
@@ -891,7 +895,8 @@ CREATE TABLE IF NOT EXISTS public.achievements (
 
   -- Conditions de déblocage
   requirement_type VARCHAR(50) NOT NULL CHECK (requirement_type IN (
-    'count', 'streak', 'milestone', 'first_action', 'combo', 'time_based', 'special'
+    'count', 'streak', 'milestone', 'first_action', 'combo', 'time_based', 'special',
+    'specific_action'
   )),
   requirement_value INTEGER DEFAULT 1,
   requirement_data JSONB DEFAULT '{}',
@@ -1848,9 +1853,7 @@ BEGIN
 END $$;
 
 
--- ============================================================================
 -- 002_leaderboard_system.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 002: SYSTÈME DE LEADERBOARD COMPLET
 -- =============================================
@@ -2556,9 +2559,7 @@ BEGIN
 END $$;
 
 
--- ============================================================================
 -- 003_missions_system.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 003: SYSTÈME DE MISSIONS/QUÊTES
 -- =============================================
@@ -3120,11 +3121,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS on_challenge_complete_update_missions ON public.user_challenges;
-CREATE TRIGGER on_challenge_complete_update_missions
-  AFTER INSERT OR UPDATE ON public.user_challenges
-  FOR EACH ROW
-  EXECUTE FUNCTION trigger_update_missions_on_challenge();
+-- The user_challenges table is owned by a downstream migration that may not
+-- have shipped yet; only attach the trigger when the table is present.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_challenges') THEN
+    DROP TRIGGER IF EXISTS on_challenge_complete_update_missions ON public.user_challenges;
+    CREATE TRIGGER on_challenge_complete_update_missions
+      AFTER INSERT OR UPDATE ON public.user_challenges
+      FOR EACH ROW
+      EXECUTE FUNCTION trigger_update_missions_on_challenge();
+  END IF;
+END $$;
 
 -- Trigger pour mettre à jour les missions quand XP est gagné
 CREATE OR REPLACE FUNCTION trigger_update_missions_on_xp()
@@ -3214,9 +3222,7 @@ BEGIN
 END $$;
 
 
--- ============================================================================
 -- 004_rewards_shop.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Rewards Shop System
 -- Migration: 004_rewards_shop.sql
@@ -4164,9 +4170,7 @@ CREATE TRIGGER shop_rewards_updated_at
     EXECUTE FUNCTION update_shop_reward_timestamp();
 
 
--- ============================================================================
 -- 005_fortune_wheel.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Fortune Wheel System
 -- Migration: 005_fortune_wheel.sql
@@ -4671,9 +4675,7 @@ CREATE POLICY "Jackpots are readable by all" ON wheel_jackpots
     FOR SELECT USING (TRUE);
 
 
--- ============================================================================
 -- 006_friend_challenges.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Friend Challenges System
 -- Migration: 006_friend_challenges.sql
@@ -5466,9 +5468,7 @@ CREATE TRIGGER on_challenge_complete_check_achievements
     EXECUTE FUNCTION trigger_check_achievements_on_challenge_participant();
 
 
--- ============================================================================
 -- 007_crews_system.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Crews/Groups System Migration
 -- ============================================================================
@@ -6460,9 +6460,7 @@ CREATE TRIGGER on_profile_xp_change
     EXECUTE FUNCTION trigger_update_crew_member_contribution();
 
 
--- ============================================================================
 -- 008_special_challenges.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Special Challenges Migration
 -- ============================================================================
@@ -7265,9 +7263,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- ============================================================================
 -- 009_event_challenges.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Event Challenges Migration
 -- ============================================================================
@@ -7981,9 +7977,7 @@ CREATE POLICY "event_reviews_read" ON event_reviews
     FOR SELECT USING (is_visible = true);
 
 
--- ============================================================================
 -- 010_seasonal_challenges.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Seasonal Challenges & Advent Calendar
 -- ============================================================================
@@ -8816,9 +8810,7 @@ CREATE POLICY "Anyone can view seasonal rewards"
     USING (true);
 
 
--- ============================================================================
 -- 011_mini_games.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Mini Games System
 -- ============================================================================
@@ -9623,9 +9615,7 @@ CREATE POLICY "Anyone can view prediction questions"
     ON prediction_questions FOR SELECT USING (true);
 
 
--- ============================================================================
 -- 012_user_stats_dashboard.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - User Stats Dashboard
 -- ============================================================================
@@ -10359,9 +10349,7 @@ VALUES
 COMMIT;
 
 
--- ============================================================================
 -- 013_annual_wrapped.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Annual Wrapped
 -- ============================================================================
@@ -11003,9 +10991,7 @@ USING (
 COMMIT;
 
 
--- ============================================================================
 -- 014_profile_customization.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Profile Customization
 -- ============================================================================
@@ -11538,9 +11524,7 @@ ON CONFLICT (slug) DO NOTHING;
 COMMIT;
 
 
--- ============================================================================
 -- 015_collections.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Collections System
 -- ============================================================================
@@ -12023,9 +12007,7 @@ ON CONFLICT DO NOTHING;
 COMMIT;
 
 
--- ============================================================================
 -- 016_gamified_notifications.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Gamified Notifications System
 -- ============================================================================
@@ -12686,9 +12668,7 @@ ON CONFLICT (slug) DO NOTHING;
 COMMIT;
 
 
--- ============================================================================
 -- 017_vip_system.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Gamified VIP System
 -- ============================================================================
@@ -13294,9 +13274,7 @@ ON CONFLICT DO NOTHING;
 COMMIT;
 
 
--- ============================================================================
 -- 018_activity_feed.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Social Activity Feed
 -- ============================================================================
@@ -13851,9 +13829,7 @@ ON CONFLICT (slug) DO UPDATE SET
 COMMIT;
 
 
--- ============================================================================
 -- 019_social_sharing.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Social Sharing System
 -- ============================================================================
@@ -14632,9 +14608,7 @@ CREATE TRIGGER update_user_sharing_stats_updated_at
     EXECUTE FUNCTION update_sharing_updated_at();
 
 
--- ============================================================================
 -- 020_onboarding_gamification.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 020: ONBOARDING GAMIFIÉ
 -- =============================================
@@ -15235,9 +15209,7 @@ COMMENT ON FUNCTION get_onboarding_progress IS 'Récupère la progression onboar
 COMMENT ON FUNCTION cleanup_old_onboarding_progress IS 'Nettoie les progressions non sync de plus de 30 jours';
 
 
--- ============================================================================
 -- 021_xp_payment_system.sql
--- ============================================================================
 -- =====================================================
 -- Migration 021: XP Payment System
 -- =====================================================
@@ -15255,34 +15227,40 @@ UPDATE bookings
 SET amount_after_xp = total_amount
 WHERE amount_after_xp IS NULL;
 
--- Add XP payment columns to anniv_orders table
-ALTER TABLE anniv_orders
-ADD COLUMN IF NOT EXISTS xp_used INTEGER DEFAULT 0,
-ADD COLUMN IF NOT EXISTS xp_value DECIMAL(10,2) DEFAULT 0,
-ADD COLUMN IF NOT EXISTS amount_after_xp DECIMAL(10,2);
+-- anniv_orders is owned by the main app schema and may not exist on a fresh
+-- install. Only patch it when it is actually present.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'anniv_orders') THEN
+    ALTER TABLE anniv_orders
+      ADD COLUMN IF NOT EXISTS xp_used INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS xp_value DECIMAL(10,2) DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS amount_after_xp DECIMAL(10,2);
 
--- Update amount_after_xp for anniv_orders
-UPDATE anniv_orders
-SET amount_after_xp = total_price
-WHERE amount_after_xp IS NULL;
+    UPDATE anniv_orders SET amount_after_xp = total_price WHERE amount_after_xp IS NULL;
+  END IF;
+END $$;
 
--- Create XP transactions table for audit trail
-CREATE TABLE IF NOT EXISTS xp_transactions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    teen_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    amount INTEGER NOT NULL, -- Positive for gains, negative for spending
-    type VARCHAR(50) NOT NULL, -- 'earn', 'payment', 'refund', 'bonus', 'penalty'
-    description TEXT,
-    reference_type VARCHAR(50), -- 'booking', 'anniv_order', 'challenge', 'achievement', etc.
-    reference_id UUID,
-    balance_before INTEGER,
-    balance_after INTEGER,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+-- xp_transactions was created in 000_base_tables.sql with a different schema
+-- (source_type, source_id). Add the columns this migration depends on.
+ALTER TABLE xp_transactions
+  ADD COLUMN IF NOT EXISTS type VARCHAR(50),
+  ADD COLUMN IF NOT EXISTS reference_type VARCHAR(50),
+  ADD COLUMN IF NOT EXISTS reference_id UUID,
+  ADD COLUMN IF NOT EXISTS balance_before INTEGER,
+  ADD COLUMN IF NOT EXISTS balance_after INTEGER;
 
-    CONSTRAINT valid_type CHECK (type IN ('earn', 'payment', 'refund', 'bonus', 'penalty', 'transfer'))
-);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.constraint_column_usage
+    WHERE table_name = 'xp_transactions' AND constraint_name = 'valid_type'
+  ) THEN
+    ALTER TABLE xp_transactions
+      ADD CONSTRAINT valid_type CHECK (type IS NULL OR type IN ('earn', 'payment', 'refund', 'bonus', 'penalty', 'transfer'));
+  END IF;
+END $$;
 
--- Create indexes
 CREATE INDEX IF NOT EXISTS idx_xp_transactions_teen_id ON xp_transactions(teen_id);
 CREATE INDEX IF NOT EXISTS idx_xp_transactions_created_at ON xp_transactions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_xp_transactions_type ON xp_transactions(type);
@@ -15442,9 +15420,7 @@ COMMENT ON FUNCTION record_xp_transaction IS 'Records an XP transaction and upda
 COMMENT ON FUNCTION refund_booking_xp IS 'Refunds XP used for a booking and clears XP payment info';
 
 
--- ============================================================================
 -- 022_pillars_system.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 022: SYSTEME DES PILIERS (ECOLE/SPORT/CREA)
 -- =============================================
@@ -16931,9 +16907,7 @@ BEGIN
 END $$;
 
 
--- ============================================================================
 -- 023_circles_system.sql
--- ============================================================================
 -- ============================================================================
 -- MIGRATION 023: CIRCLES SYSTEM (Cercles d'Amis)
 -- ============================================================================
@@ -17464,9 +17438,7 @@ COMMENT ON TABLE circle_messages IS 'Messages dans les cercles avec support medi
 COMMENT ON TABLE circle_challenges IS 'Defis partages au sein des cercles';
 
 
--- ============================================================================
 -- 024_friends_system.sql
--- ============================================================================
 -- ============================================================================
 -- MIGRATION 024: FRIENDS SYSTEM (Système d'Amis)
 -- ============================================================================
@@ -17750,8 +17722,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- 002_leaderboard_system already declared a different signature; drop all
+-- existing variants before redefining.
+DO $$
+DECLARE r RECORD;
+BEGIN
+  FOR r IN SELECT p.oid::regprocedure AS sig FROM pg_proc p
+    JOIN pg_namespace n ON p.pronamespace = n.oid
+    WHERE n.nspname = 'public' AND p.proname = 'send_friend_request'
+  LOOP EXECUTE 'DROP FUNCTION IF EXISTS ' || r.sig || ' CASCADE'; END LOOP;
+END $$;
+
 -- Function to send friend request
-CREATE OR REPLACE FUNCTION send_friend_request(
+CREATE FUNCTION send_friend_request(
   p_sender_id UUID,
   p_receiver_id UUID,
   p_message TEXT DEFAULT NULL
@@ -17794,8 +17777,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- 002_leaderboard_system already declared a different signature; drop all
+-- existing variants before redefining.
+DO $$
+DECLARE r RECORD;
+BEGIN
+  FOR r IN SELECT p.oid::regprocedure AS sig FROM pg_proc p
+    JOIN pg_namespace n ON p.pronamespace = n.oid
+    WHERE n.nspname = 'public' AND p.proname = 'accept_friend_request'
+  LOOP EXECUTE 'DROP FUNCTION IF EXISTS ' || r.sig || ' CASCADE'; END LOOP;
+END $$;
+
 -- Function to accept friend request
-CREATE OR REPLACE FUNCTION accept_friend_request(p_request_id UUID, p_receiver_id UUID)
+CREATE FUNCTION accept_friend_request(p_request_id UUID, p_receiver_id UUID)
 RETURNS UUID AS $$
 DECLARE
   v_request RECORD;
@@ -17993,9 +17987,7 @@ COMMENT ON TABLE friend_suggestions IS 'Suggestions d amis basees sur les amis m
 COMMENT ON TABLE friend_activities IS 'Activites visibles par les amis';
 
 
--- ============================================================================
 -- 027_premium_subscriptions.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 027: Premium Subscription System
 -- =============================================
@@ -18206,11 +18198,11 @@ BEGIN
     END;
     -- Avoid duplicate tier unique constraint if schema already enforces uniqueness
     UPDATE public.subscription_plans
-      SET tier = 'free'::subscription_tier
+      SET tier = 'free'
     WHERE tier IS NULL
       AND NOT EXISTS (
           SELECT 1 FROM public.subscription_plans
-          WHERE tier = 'free'::subscription_tier
+          WHERE tier = 'free'
       );
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns
@@ -19022,7 +19014,7 @@ BEGIN
         IF has_starter THEN
             INSERT INTO subscription_plans (code, name, name_ar, description, tier, plan_type, price_monthly, price_quarterly, price_yearly, discount_quarterly_percent, discount_yearly_percent, features, color, badge_label, trial_days, is_featured, sort_order)
             VALUES
-                ('free', 'Gratuit', 'مجاني', 'Accès de base à TeensParty', 'free'::subscription_tier, 'free', 0, 0, 0, 0, 0,
+                ('free', 'Gratuit', 'مجاني', 'Accès de base à TeensParty', 'free', 'free', 0, 0, 0, 0, 0,
                  '{"max_circles": 2, "max_circle_members": 10, "daily_challenges": 3, "cloud_storage_mb": 100, "ad_free": false, "xp_multiplier": 1.0}'::jsonb,
                  '#6b7280', NULL, 0, false, 0),
 
@@ -19045,7 +19037,7 @@ BEGIN
         ELSE
             INSERT INTO subscription_plans (code, name, name_ar, description, tier, plan_type, price_monthly, price_quarterly, price_yearly, discount_quarterly_percent, discount_yearly_percent, features, color, badge_label, trial_days, is_featured, sort_order)
             VALUES
-                ('free', 'Gratuit', 'مجاني', 'Accès de base à TeensParty', 'free'::subscription_tier, 'free', 0, 0, 0, 0, 0,
+                ('free', 'Gratuit', 'مجاني', 'Accès de base à TeensParty', 'free', 'free', 0, 0, 0, 0, 0,
                  '{"max_circles": 2, "max_circle_members": 10, "daily_challenges": 3, "cloud_storage_mb": 100, "ad_free": false, "xp_multiplier": 1.0}'::jsonb,
                  '#6b7280', NULL, 0, false, 0),
 
@@ -19169,9 +19161,7 @@ CREATE TRIGGER trigger_check_subscription_expiry
     EXECUTE FUNCTION check_subscription_expiry();
 
 
--- ============================================================================
 -- 028_tokens_rewards_system.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 028: Tokens & Rewards System
 -- =============================================
@@ -19244,26 +19234,24 @@ CREATE TABLE IF NOT EXISTS token_types (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Ensure category constraint matches current allowed values
+-- Ensure category constraint matches current allowed values when an older
+-- token_rewards table already exists. On a fresh install the table is
+-- created later in this same migration with the constraint embedded.
 DO $$
 BEGIN
-    IF EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_schema = 'public'
-          AND table_name = 'token_rewards'
-          AND constraint_name = 'token_rewards_category_check'
-    ) THEN
-        ALTER TABLE public.token_rewards DROP CONSTRAINT token_rewards_category_check;
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'token_rewards') THEN
+        IF EXISTS (
+            SELECT 1 FROM information_schema.table_constraints
+            WHERE table_schema = 'public'
+              AND table_name = 'token_rewards'
+              AND constraint_name = 'token_rewards_category_check'
+        ) THEN
+            ALTER TABLE public.token_rewards DROP CONSTRAINT token_rewards_category_check;
+        END IF;
+        ALTER TABLE public.token_rewards ADD CONSTRAINT token_rewards_category_check CHECK (category IN (
+            'digital', 'physical', 'experience', 'discount', 'premium', 'donation', 'raffle'
+        ));
     END IF;
-    ALTER TABLE public.token_rewards ADD CONSTRAINT token_rewards_category_check CHECK (category IN (
-        'digital',
-        'physical',
-        'experience',
-        'discount',
-        'premium',
-        'donation',
-        'raffle'
-    ));
 END $$;
 
 -- Tokens par défaut
@@ -20164,9 +20152,7 @@ CREATE TRIGGER trigger_update_token_multiplier
     EXECUTE FUNCTION update_token_multiplier_from_subscription();
 
 
--- ============================================================================
 -- 029_presence_system.sql
--- ============================================================================
 -- ============================================================================
 -- MIGRATION 029: PRESENCE SYSTEM (Système de Présence Temps Réel)
 -- ============================================================================
@@ -20493,9 +20479,7 @@ GRANT EXECUTE ON FUNCTION mark_user_offline TO authenticated;
 GRANT EXECUTE ON FUNCTION cleanup_stale_presence TO service_role;
 
 
--- ============================================================================
 -- 030_xp_shop.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - XP Shop (Boutique XP minimaliste)
 -- Migration: 030_xp_shop.sql
@@ -20563,9 +20547,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 
--- ============================================================================
 -- 031_quiz_question_types.sql
--- ============================================================================
 -- ============================================================================
 -- MIGRATION 031: QUIZ QUESTION TYPES (Phase 4.1 - Audit Generation Quiz)
 -- ============================================================================
@@ -20682,9 +20664,7 @@ $$;
 -- );
 
 
--- ============================================================================
 -- 032_content_generation_system.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Content Generation System
 -- ============================================================================
@@ -20959,9 +20939,7 @@ COMMENT ON TABLE public.daily_content_schedule IS 'Planning de génération quot
 
 
 
--- ============================================================================
 -- 033_content_validation_system.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Content Validation & Moderation System
 -- ============================================================================
@@ -21285,9 +21263,7 @@ COMMENT ON TABLE public.curated_content_library IS 'Bibliothèque de contenu pr�
 
 
 
--- ============================================================================
 -- 034_intelligent_content_system.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - Intelligent Content Generation System
 -- ============================================================================
@@ -21463,10 +21439,22 @@ CREATE TABLE IF NOT EXISTS public.content_recommendations (
   -- Timestamps
   recommended_at TIMESTAMPTZ DEFAULT NOW(),
   shown_at TIMESTAMPTZ,
-  expires_at TIMESTAMPTZ,
-  
-  UNIQUE(teen_id, content_type, content_id, recommended_at::DATE)
+  expires_at TIMESTAMPTZ
 );
+
+-- Postgres requires expression-based unique constraints to be a UNIQUE INDEX,
+-- not an inline UNIQUE() constraint inside CREATE TABLE. Casting a TIMESTAMPTZ
+-- to DATE is STABLE (depends on TimeZone setting), and AT TIME ZONE is STABLE
+-- too. Wrap the cast in an IMMUTABLE SQL function so it can be used in an
+-- index expression.
+CREATE OR REPLACE FUNCTION public.to_utc_date(ts timestamptz)
+RETURNS date
+LANGUAGE sql
+IMMUTABLE PARALLEL SAFE
+AS $$ SELECT (ts AT TIME ZONE 'UTC')::date $$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_recommendations_unique_per_day
+  ON public.content_recommendations (teen_id, content_type, content_id, public.to_utc_date(recommended_at));
 
 CREATE INDEX IF NOT EXISTS idx_recommendations_teen ON public.content_recommendations(teen_id, status);
 CREATE INDEX IF NOT EXISTS idx_recommendations_score ON public.content_recommendations(recommendation_score DESC);
@@ -21673,9 +21661,7 @@ COMMENT ON TABLE public.content_reliability_scores IS 'Scores de fiabilité du c
 
 
 
--- ============================================================================
 -- 035_social_feed.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 025: Activity Feed System
 -- =============================================
@@ -22392,16 +22378,16 @@ CREATE POLICY "Users can manage their muted users" ON feed_muted_users
 -- INDEXES ADDITIONNELS POUR PERFORMANCE
 -- =============================================
 
+-- Postgres rejects NOW() in index predicates (not IMMUTABLE). Drop the date
+-- window from the partial index; queries can keep filtering by created_at.
 CREATE INDEX idx_feed_posts_trending ON feed_posts(likes_count DESC, comments_count DESC, created_at DESC)
-    WHERE is_hidden = false AND created_at > NOW() - INTERVAL '7 days';
+    WHERE is_hidden = false;
 
 CREATE INDEX idx_feed_comments_recent ON feed_comments(post_id, created_at DESC)
     WHERE is_hidden = false;
 
 
--- ============================================================================
 -- 036_international_schools_support.sql
--- ============================================================================
 -- ============================================================================
 -- TEENS PARTY MOROCCO - International Schools Support
 -- ============================================================================
@@ -22624,9 +22610,7 @@ COMMENT ON TABLE public.curriculum_subjects IS 'Matières disponibles par curric
 
 
 
--- ============================================================================
 -- 037_social_shares.sql
--- ============================================================================
 -- =============================================
 -- MIGRATION 026: Social Sharing System
 -- =============================================

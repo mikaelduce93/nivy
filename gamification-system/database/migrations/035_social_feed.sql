@@ -714,8 +714,10 @@ CREATE POLICY "Users can manage their muted users" ON feed_muted_users
 -- INDEXES ADDITIONNELS POUR PERFORMANCE
 -- =============================================
 
+-- Postgres rejects NOW() in index predicates (not IMMUTABLE). Drop the date
+-- window from the partial index; queries can keep filtering by created_at.
 CREATE INDEX idx_feed_posts_trending ON feed_posts(likes_count DESC, comments_count DESC, created_at DESC)
-    WHERE is_hidden = false AND created_at > NOW() - INTERVAL '7 days';
+    WHERE is_hidden = false;
 
 CREATE INDEX idx_feed_comments_recent ON feed_comments(post_id, created_at DESC)
     WHERE is_hidden = false;

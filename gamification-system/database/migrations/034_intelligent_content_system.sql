@@ -173,10 +173,22 @@ CREATE TABLE IF NOT EXISTS public.content_recommendations (
   -- Timestamps
   recommended_at TIMESTAMPTZ DEFAULT NOW(),
   shown_at TIMESTAMPTZ,
-  expires_at TIMESTAMPTZ,
-  
-  UNIQUE(teen_id, content_type, content_id, recommended_at::DATE)
+  expires_at TIMESTAMPTZ
 );
+
+-- Postgres requires expression-based unique constraints to be a UNIQUE INDEX,
+-- not an inline UNIQUE() constraint inside CREATE TABLE. Casting a TIMESTAMPTZ
+-- to DATE is STABLE (depends on TimeZone setting), and AT TIME ZONE is STABLE
+-- too. Wrap the cast in an IMMUTABLE SQL function so it can be used in an
+-- index expression.
+CREATE OR REPLACE FUNCTION public.to_utc_date(ts timestamptz)
+RETURNS date
+LANGUAGE sql
+IMMUTABLE PARALLEL SAFE
+AS $$ SELECT (ts AT TIME ZONE 'UTC')::date $$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_recommendations_unique_per_day
+  ON public.content_recommendations (teen_id, content_type, content_id, public.to_utc_date(recommended_at));
 
 CREATE INDEX IF NOT EXISTS idx_recommendations_teen ON public.content_recommendations(teen_id, status);
 CREATE INDEX IF NOT EXISTS idx_recommendations_score ON public.content_recommendations(recommendation_score DESC);
