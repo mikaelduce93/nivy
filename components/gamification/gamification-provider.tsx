@@ -1,5 +1,21 @@
 "use client"
 
+/**
+ * GamificationProvider
+ * --------------------
+ * Centralise les UI de feedback gamification: XP popups, level up, badges,
+ * streaks, celebrations.
+ *
+ * Wiring LevelUpModal (audit AUDIT_LEVEL_UP_ET_DEFIS Phase 3.1):
+ *   - Le provider expose `triggerLevelUp(level, xp)` via le contexte.
+ *   - Toute action XP (server action ou cote client) peut declencher la
+ *     modale de celebration en l'appelant. Le hook `useGamification`
+ *     declenche automatiquement la modale lorsque `XPData.level` augmente
+ *     (callback `onLevelUp`).
+ *   - LevelUpModal est rendu en superposition avec un z-index 100, sans
+ *     interferer avec la CelebrationOverlay.
+ */
+
 import {
   createContext,
   useContext,
@@ -20,6 +36,7 @@ import {
 } from "@/lib/hooks/use-gamification"
 import { XPGainPopup } from "./xp-bar"
 import { LevelUpAnimation } from "./level-badge"
+import { LevelUpModal } from "./level-up-modal"
 import { AchievementUnlockModal, AchievementToast } from "./achievement-unlock"
 import { StreakBrokenModal } from "./streak-flame"
 import { CelebrationOverlay, CelebrationType } from "./celebration-overlay"
@@ -42,6 +59,12 @@ interface GamificationContextValue {
   refresh: () => void
   showXPGain: (amount: number, reason?: string, coords?: { x: number, y: number }) => void
   showLevelUp: (fromLevel: number, toLevel: number) => void
+  /**
+   * Declenche la modale LevelUpModal (audit Phase 3.1).
+   * @param level Nouveau niveau
+   * @param xpToNext XP restant pour le prochain niveau (optionnel)
+   */
+  triggerLevelUp: (level: number, xpToNext?: number) => void
   showAchievementUnlock: (achievement: Achievement, fullModal?: boolean) => void
   showStreakBroken: (previousStreak: number) => void
   triggerCelebration: (type: CelebrationType, title: string, subtitle?: string, xpEarned?: number) => void
@@ -72,6 +95,10 @@ export function GamificationProvider({
   // UI states for animations/modals
   const [xpPopup, setXPPopup] = useState<{ amount: number; reason?: string } | null>(null)
   const [levelUp, setLevelUp] = useState<{ from: number; to: number } | null>(null)
+  const [levelUpModal, setLevelUpModal] = useState<{
+    level: number
+    xpToNext?: number
+  } | null>(null)
   const [achievementModal, setAchievementModal] = useState<Achievement | null>(null)
   const [achievementToast, setAchievementToast] = useState<Achievement | null>(null)
   const [streakBroken, setStreakBroken] = useState<number | null>(null)
@@ -102,7 +129,9 @@ export function GamificationProvider({
   }, [])
 
   const handleLevelUp = useCallback((newLevel: number, oldLevel: number) => {
-    // Use new Celebration Overlay instead of LevelUpAnimation for more impact
+    // Audit Phase 3.1: declenche la LevelUpModal dediee (confetti + rewards).
+    // CelebrationOverlay reste en place pour les autres types de celebrations.
+    setLevelUpModal({ level: newLevel })
     setCelebration({
       isOpen: true,
       type: 'level-up',
@@ -163,12 +192,17 @@ export function GamificationProvider({
   }, [showFloat])
 
   const showLevelUp = useCallback((fromLevel: number, toLevel: number) => {
+    setLevelUpModal({ level: toLevel })
     setCelebration({
       isOpen: true,
       type: 'level-up',
       title: `NIVEAU ${toLevel} !`,
       subtitle: `Tu es passé du niveau ${fromLevel} au niveau ${toLevel}`,
     })
+  }, [])
+
+  const triggerLevelUp = useCallback((level: number, xpToNext?: number) => {
+    setLevelUpModal({ level, xpToNext })
   }, [])
 
   const showAchievementUnlock = useCallback((achievement: Achievement, fullModal = false) => {
@@ -212,6 +246,7 @@ export function GamificationProvider({
         refresh,
         showXPGain,
         showLevelUp,
+        triggerLevelUp,
         showAchievementUnlock,
         showStreakBroken,
         triggerCelebration,
@@ -275,6 +310,14 @@ export function GamificationProvider({
           />
         )}
       </AnimatePresence>
+
+      {/* Level Up Modal (audit Phase 3.1) */}
+      <LevelUpModal
+        isOpen={levelUpModal !== null}
+        newLevel={levelUpModal?.level ?? 1}
+        xpToNextLevel={levelUpModal?.xpToNext}
+        onClose={() => setLevelUpModal(null)}
+      />
 
       {/* New Celebration Overlay */}
       <CelebrationOverlay

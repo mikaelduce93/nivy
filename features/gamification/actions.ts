@@ -10,6 +10,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { selectChallengeTemplate } from './smart-challenge-assignment'
+import { pickDifficulty } from './adaptive-difficulty'
 import {
   getTeenXPSchema,
   getXPHistorySchema,
@@ -352,14 +354,18 @@ export async function assignDailyChallenges(
       return { success: true, data: challenges }
     }
 
-    // Fallback to random assignment if recommender fails or returns empty
+    // Fallback: smart selection (crypto RNG, anti-repetition, personalisation)
+    // Recupere profils + interets de l'ado pour personnaliser
     const { data: teen } = await supabase
       .from('teens')
-      .select('profiles')
+      .select('profiles, interests')
       .eq('id', teenId)
       .single()
 
     const teenProfiles: string[] = teen?.profiles || []
+    const userInterests: string[] = Array.isArray(teen?.interests)
+      ? (teen!.interests as string[])
+      : []
 
     // Map profiles to categories
     const categoriesToAssign: ChallengeCategory[] = []
@@ -372,7 +378,60 @@ export async function assignDailyChallenges(
       categoriesToAssign.push('school', 'sport', 'crea')
     }
 
-    // For each category, get a random challenge
+    // Recupere les templates utilises sur les 7 derniers jours pour eviter
+    // les repetitions (mode degrade si la requete echoue).
+    let recentTemplateIds: string[] = []
+    try {
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0]
+
+      const { data: recent } = await supabase
+        .from('user_challenges')
+        .select('challenge_id')
+        .eq('teen_id', teenId)
+        .gte('challenge_date', sevenDaysAgoStr)
+
+      if (recent) {
+        recentTemplateIds = recent
+          .map((r: { challenge_id: string | null }) => r.challenge_id)
+          .filter((id): id is string => Boolean(id))
+      }
+    } catch (recentErr) {
+      console.warn(
+        '[gamification/assignDailyChallenges] Unable to fetch recent challenges, repetition may occur:',
+        recentErr,
+      )
+    }
+
+    // Recupere les stats de completion 7j pour adapter la difficulte
+    let targetDifficulty: 'easy' | 'medium' | 'hard' | undefined
+    try {
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0]
+
+      const { data: statsData } = await supabase
+        .from('user_challenges')
+        .select('status')
+        .eq('teen_id', teenId)
+        .gte('challenge_date', sevenDaysAgoStr)
+
+      if (statsData && statsData.length > 0) {
+        const completed = statsData.filter(
+          (c: { status: string }) => c.status === 'completed',
+        ).length
+        const decision = pickDifficulty({ total: statsData.length, completed })
+        targetDifficulty = decision.difficulty
+      }
+    } catch (statsErr) {
+      console.warn(
+        '[gamification/assignDailyChallenges] Unable to compute adaptive difficulty:',
+        statsErr,
+      )
+    }
+
+    // For each category, get a smart-selected challenge
     for (const category of categoriesToAssign) {
       const { data: templates, error } = await supabase
         .from('challenges_templates')
@@ -383,16 +442,28 @@ export async function assignDailyChallenges(
       if (error) throw error
 
       if (templates && templates.length > 0) {
-        // Select randomly
-        const randomTemplate = templates[Math.floor(Math.random() * templates.length)]
+        const selection = selectChallengeTemplate(templates, {
+          recentTemplateIds,
+          userInterests,
+          targetDifficulty,
+        })
+
+        const selectedTemplate = selection.template
+        if (!selectedTemplate) continue
 
         const { data: challenge, error: challengeError } = await supabase
           .from('user_challenges')
           .insert({
             teen_id: teenId,
-            challenge_id: randomTemplate.id,
+            challenge_id: selectedTemplate.id,
             challenge_date: targetDate,
             status: 'pending',
+            metadata: {
+              personalized: selection.personalized,
+              fallback_repetition: selection.fallbackRepetition,
+              fallback_difficulty: selection.fallbackDifficulty,
+              target_difficulty: targetDifficulty || null,
+            },
           })
           .select(`
             *,
