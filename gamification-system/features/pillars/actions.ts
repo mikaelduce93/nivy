@@ -332,7 +332,7 @@ export async function uploadCreation(teenId: string, data: {
       description: data.description,
       category: "general", // Or derive from path
       media_type: data.type,
-      media_url: "https://placeholder.com/media", // Placeholder
+      media_url: null, // Set by upload pipeline; null until media is attached
       path_id: data.pathId,
       visibility: "public"
     })

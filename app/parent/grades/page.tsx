@@ -68,6 +68,7 @@ export default function ParentGradesPage() {
   const [validationComment, setValidationComment] = useState("")
   const [isValidating, setIsValidating] = useState(false)
   const [showRejectDialog, setShowRejectDialog] = useState(false)
+  const [unavailable, setUnavailable] = useState(false)
 
   const supabase = createClient()
 
@@ -102,69 +103,49 @@ export default function ParentGradesPage() {
         `${t.children?.prenom || ""} ${t.children?.nom || ""}`.trim() || "Teen"
       ]))
 
-      // Fetch grades - using mock data structure until table exists
-      // In production, this would be: from("teen_grades").select("*").in("teen_id", teenIds)
-      const mockGrades: Grade[] = [
-        {
-          id: "1",
-          teen_id: teenIds[0] || "mock",
-          teen_name: teenNameMap.get(teenIds[0]) || "Teen",
-          subject: "Mathématiques",
-          grade: 16,
-          max_grade: 20,
-          exam_type: "Contrôle",
-          exam_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "pending",
-          created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: "2",
-          teen_id: teenIds[0] || "mock",
-          teen_name: teenNameMap.get(teenIds[0]) || "Teen",
-          subject: "Français",
-          grade: 14,
-          max_grade: 20,
-          exam_type: "Devoir",
-          exam_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "pending",
-          created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: "3",
-          teen_id: teenIds[0] || "mock",
-          teen_name: teenNameMap.get(teenIds[0]) || "Teen",
-          subject: "Physique",
-          grade: 18,
-          max_grade: 20,
-          exam_type: "Examen",
-          exam_date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "validated",
-          parent_comment: "Excellent travail!",
-          validated_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: "4",
-          teen_id: teenIds[0] || "mock",
-          teen_name: teenNameMap.get(teenIds[0]) || "Teen",
-          subject: "Histoire",
-          grade: 12,
-          max_grade: 20,
-          exam_type: "Contrôle",
-          exam_date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "validated",
-          validated_at: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+      // Fetch real grades from Supabase
+      const { data: rows, error: gradesError } = await supabase
+        .from("teen_grades")
+        .select("id, teen_id, subject, grade, max_grade, grade_type, grade_date, status, parent_comment, validated_at, created_at")
+        .in("teen_id", teenIds)
+        .order("created_at", { ascending: false })
+
+      if (gradesError) {
+        // Table missing or schema not deployed -> graceful empty/unavailable state
+        const code = (gradesError as { code?: string }).code
+        const tableMissing = code === "42P01" || code === "PGRST205" || code === "PGRST204"
+        if (tableMissing) {
+          setGrades([])
+          setStats({ totalPending: 0, totalValidated: 0, totalRejected: 0, averageGrade: 0 })
+          setUnavailable(true)
+          return
         }
-      ]
+        console.error("Error fetching grades:", gradesError)
+        toast.error("Erreur lors du chargement des notes")
+        return
+      }
 
-      setGrades(mockGrades)
+      const real: Grade[] = (rows || []).map((r: any) => ({
+        id: r.id,
+        teen_id: r.teen_id,
+        teen_name: teenNameMap.get(r.teen_id) || "Teen",
+        subject: r.subject,
+        grade: r.grade,
+        max_grade: r.max_grade ?? 20,
+        exam_type: r.grade_type ?? "",
+        exam_date: r.grade_date ?? r.created_at,
+        status: (r.status as Grade["status"]) ?? "pending",
+        parent_comment: r.parent_comment ?? undefined,
+        validated_at: r.validated_at ?? undefined,
+        created_at: r.created_at,
+      }))
 
-      // Calculate stats
-      const pending = mockGrades.filter(g => g.status === "pending").length
-      const validated = mockGrades.filter(g => g.status === "validated").length
-      const rejected = mockGrades.filter(g => g.status === "rejected").length
-      const validatedGrades = mockGrades.filter(g => g.status === "validated")
+      setGrades(real)
+
+      const pending = real.filter(g => g.status === "pending").length
+      const validated = real.filter(g => g.status === "validated").length
+      const rejected = real.filter(g => g.status === "rejected").length
+      const validatedGrades = real.filter(g => g.status === "validated")
       const avgGrade = validatedGrades.length > 0
         ? validatedGrades.reduce((sum, g) => sum + (g.grade / g.max_grade) * 20, 0) / validatedGrades.length
         : 0
@@ -206,12 +187,21 @@ export default function ParentGradesPage() {
   const handleValidate = async (grade: Grade) => {
     setIsValidating(true)
     try {
-      // In production: update teen_grades table
-      // await supabase.from("teen_grades").update({ status: "validated", parent_comment: validationComment, validated_at: new Date().toISOString() }).eq("id", grade.id)
+      const validatedAt = new Date().toISOString()
+      const { error } = await supabase
+        .from("teen_grades")
+        .update({
+          status: "validated",
+          parent_comment: validationComment || null,
+          validated_at: validatedAt,
+        })
+        .eq("id", grade.id)
+
+      if (error) throw error
 
       setGrades(prev => prev.map(g =>
         g.id === grade.id
-          ? { ...g, status: "validated" as const, parent_comment: validationComment, validated_at: new Date().toISOString() }
+          ? { ...g, status: "validated" as const, parent_comment: validationComment, validated_at: validatedAt }
           : g
       ))
 
@@ -238,10 +228,21 @@ export default function ParentGradesPage() {
     setIsValidating(true)
 
     try {
-      // In production: update teen_grades table
+      const validatedAt = new Date().toISOString()
+      const { error } = await supabase
+        .from("teen_grades")
+        .update({
+          status: "rejected",
+          parent_comment: validationComment || null,
+          validated_at: validatedAt,
+        })
+        .eq("id", selectedGrade.id)
+
+      if (error) throw error
+
       setGrades(prev => prev.map(g =>
         g.id === selectedGrade.id
-          ? { ...g, status: "rejected" as const, parent_comment: validationComment, validated_at: new Date().toISOString() }
+          ? { ...g, status: "rejected" as const, parent_comment: validationComment, validated_at: validatedAt }
           : g
       ))
 
@@ -335,6 +336,19 @@ export default function ParentGradesPage() {
             <p className="text-zinc-400">Validez les notes soumises par vos teens</p>
           </div>
         </div>
+
+        {/* Unavailable banner */}
+        {unavailable && (
+          <div className="mb-6 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-amber-300">Bientôt disponible</p>
+              <p className="text-xs text-amber-200/80 mt-1">
+                La validation des notes sera affichée ici une fois la fonctionnalité activée. Aucune note réelle n'est disponible pour le moment.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

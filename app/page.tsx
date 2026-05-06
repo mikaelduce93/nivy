@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonButton } from "@/components/ui/neon-button"
 import { TrustBanner } from "@/components/trust-banner"
-import { Sparkles, Calendar, Trophy, Users, Shield, Heart, MapPin, ArrowRight, UserCheck, PartyPopper, Zap, Crown, Palette } from 'lucide-react'
+import { Sparkles, Calendar, Trophy, Users, Shield, Heart, MapPin, ArrowRight, UserCheck, PartyPopper, Crown, Palette } from 'lucide-react'
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { AvatarDashboard } from "@/components/gamification/avatar-dashboard"
@@ -14,18 +14,20 @@ export default function HomePage() {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([])
 
-  // Mock User for Avatar Dashboard
-  const mockUser = {
-    username: "Toi",
-    avatarUrl: undefined, // Will use default icon
-    globalLevel: 12
+  // Static, neutral preview values displayed in the marketing AvatarDashboard.
+  // These are NOT user stats - the home page is anonymous marketing content.
+  // The block is labelled as a preview ("Apercu") below.
+  const previewUser = {
+    username: "Aperçu",
+    avatarUrl: undefined,
+    globalLevel: 1
   }
 
-  const mockStats = {
-    party: { level: 5, currentXP: 750, maxXP: 1000 },
-    vitality: { level: 3, currentXP: 300, maxXP: 800 },
-    intellect: { level: 8, currentXP: 1200, maxXP: 2000 },
-    prestige: { level: 2, currentXP: 150, maxXP: 500 },
+  const previewStats = {
+    party: { level: 1, currentXP: 0, maxXP: 1000 },
+    vitality: { level: 1, currentXP: 0, maxXP: 1000 },
+    intellect: { level: 1, currentXP: 0, maxXP: 1000 },
+    prestige: { level: 1, currentXP: 0, maxXP: 1000 },
   }
 
   useEffect(() => {
@@ -149,30 +151,16 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-cyan-500/20 rounded-full blur-3xl animate-spin-slow" />
               <GlassCard intensity="high" className="relative p-8 border-white/10">
                 <div className="text-center mb-6">
+                  <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-wider text-zinc-400 mb-2" aria-label="Aperçu non personnalisé">
+                    Aperçu
+                  </div>
                   <h3 className="text-xl font-bold text-white mb-1">Ton Tableau de Bord</h3>
-                  <p className="text-zinc-400 text-sm">Gamifie ta vie réelle</p>
+                  <p className="text-zinc-400 text-sm">Voici à quoi ressemble ton dashboard une fois inscrit</p>
                 </div>
-                <AvatarDashboard user={mockUser} stats={mockStats} />
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                  <GlassCard intensity="low" className="p-3 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400" aria-hidden="true">
-                      <Trophy className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-zinc-400">Sport XP</p>
-                      <p className="text-white font-bold tabular-nums">+300</p>
-                    </div>
-                  </GlassCard>
-                  <GlassCard intensity="low" className="p-3 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400" aria-hidden="true">
-                      <Zap className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-zinc-400">Série d'études</p>
-                      <p className="text-white font-bold tabular-nums">5&nbsp;jours</p>
-                    </div>
-                  </GlassCard>
-                </div>
+                <AvatarDashboard user={previewUser} stats={previewStats} />
+                <p className="mt-6 text-center text-xs text-zinc-500">
+                  Crée ton profil pour gagner du XP réel et débloquer tes piliers.
+                </p>
               </GlassCard>
             </div>
           </div>

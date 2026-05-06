@@ -39,14 +39,12 @@ export async function GET(request: NextRequest) {
 
     if (friendshipsError) {
       console.error('Error fetching friendships:', friendshipsError)
-      // Return mock data as fallback
+      // No fake friends: return an honest unavailable response.
       return NextResponse.json({
-        friends: [
-          { id: '1', name: 'Salma K.', status: 'online', xp: 2450, mutual: 5, avatar_url: null },
-          { id: '2', name: 'Youssef M.', status: 'online', xp: 1820, mutual: 3, avatar_url: null },
-          { id: '3', name: 'Nadia L.', status: 'offline', xp: 1650, mutual: 8, avatar_url: null },
-        ],
-        total: 3,
+        friends: [],
+        total: 0,
+        status: 'unavailable',
+        error: 'Friends list temporarily unavailable',
       })
     }
 
@@ -88,7 +86,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Format response
+    // Format response. Real mutual-friend counts are not computed yet:
+    // expose `mutual: 0` with `mutual_calculated: false` rather than a fake value.
     const friends = friendships?.map(f => {
       const friend = f.friend as any
       const user = f.user as any
@@ -101,7 +100,8 @@ export async function GET(request: NextRequest) {
         avatar_url: friendData?.avatar_url,
         status: presenceData[friendId] || 'offline',
         xp: xpData[friendId] || 0,
-        mutual: Math.floor(Math.random() * 10), // TODO: Calculate real mutual friends
+        mutual: 0,
+        mutual_calculated: false,
       }
     }).filter(Boolean) || []
 

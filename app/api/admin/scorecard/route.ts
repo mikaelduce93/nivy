@@ -3,78 +3,108 @@ import { createClient } from '@/lib/supabase/server'
 
 /**
  * GET /api/admin/scorecard
- * Returns live scorecard metrics for admin dashboard
+ * Returns live scorecard metrics for the admin dashboard.
+ *
+ * Honesty rule: when a metric cannot be computed it is reported as 0 with
+ * a `status: 'unavailable'` flag. We never fabricate values.
  */
 export async function GET() {
   try {
     const supabase = await createClient()
     const today = new Date().toISOString().split('T')[0]
-    
-    // 1. Calcul Rétention D1 (simplified mock for now)
-    const d1 = 48.5
-    
-    // 2. Engagement - DAU
-    const { count: dau } = await supabase
+
+    // 1. Engagement - DAU
+    const { count: dauCount, error: dauError } = await supabase
       .from('user_sessions')
       .select('*', { count: 'exact', head: true })
       .gte('started_at', today)
-      
-    // 3. Social Actions
-    const { count: socialActions } = await supabase
+
+    // 2. Social actions vs total actions today
+    const { count: socialActions, error: socialErr } = await supabase
       .from('xp_ledger')
       .select('*', { count: 'exact', head: true })
       .ilike('action_type', '%social%')
       .gte('created_at', today)
-      
-    const { count: totalActions } = await supabase
+
+    const { count: totalActions, error: totalErr } = await supabase
       .from('xp_ledger')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', today)
-      
-    const socialRate = totalActions ? ((socialActions || 0) / totalActions) * 100 : 42.5
+
+    const allFailed = !!dauError && !!socialErr && !!totalErr
+    if (allFailed) {
+      return NextResponse.json(
+        {
+          retention: { d1: 0, d7: 0, d30: 0 },
+          engagement: {
+            dau: 0,
+            mau: 0,
+            stickyFactor: 0,
+            avgSessionsPerDay: 0,
+            avgSessionDuration: 0,
+          },
+          gamification: {
+            questsCompletedPerWeek: 0,
+            socialActionRate: 0,
+            educationalContentRate: 0,
+          },
+          monetization: { conversionRate: 0 },
+          status: 'unavailable',
+          error: 'Underlying analytics tables are unavailable',
+        },
+        { status: 200 }
+      )
+    }
+
+    const dau = dauCount ?? 0
+    const socialRate =
+      totalActions && totalActions > 0 ? ((socialActions || 0) / totalActions) * 100 : 0
 
     const metrics = {
-      retention: { d1, d7: 22.4, d30: 12.1 },
+      // Retention computations are not yet implemented in this endpoint.
+      // Report 0 with status flag rather than inventing numbers.
+      retention: { d1: 0, d7: 0, d30: 0 },
       engagement: {
-        dau: dau || 150,
-        mau: (dau || 150) * 20,
-        stickyFactor: 0.35,
-        avgSessionsPerDay: 3.2,
-        avgSessionDuration: 11.5
+        dau,
+        mau: 0,
+        stickyFactor: 0,
+        avgSessionsPerDay: 0,
+        avgSessionDuration: 0,
       },
       gamification: {
-        questsCompletedPerWeek: 8.5,
+        questsCompletedPerWeek: 0,
         socialActionRate: socialRate,
-        educationalContentRate: 34.2
+        educationalContentRate: 0,
       },
-      monetization: {
-        conversionRate: 5.1
-      }
+      monetization: { conversionRate: 0 },
+      status: 'partial',
+      note:
+        'Only DAU and socialActionRate are computed from live data. Other metrics require dedicated aggregation jobs.',
     }
 
     return NextResponse.json(metrics)
   } catch (error) {
     console.error('Scorecard error:', error)
-    // Return mock data on error
-    return NextResponse.json({
-      retention: { d1: 48.5, d7: 22.4, d30: 12.1 },
-      engagement: {
-        dau: 150,
-        mau: 3000,
-        stickyFactor: 0.35,
-        avgSessionsPerDay: 3.2,
-        avgSessionDuration: 11.5
+    return NextResponse.json(
+      {
+        retention: { d1: 0, d7: 0, d30: 0 },
+        engagement: {
+          dau: 0,
+          mau: 0,
+          stickyFactor: 0,
+          avgSessionsPerDay: 0,
+          avgSessionDuration: 0,
+        },
+        gamification: {
+          questsCompletedPerWeek: 0,
+          socialActionRate: 0,
+          educationalContentRate: 0,
+        },
+        monetization: { conversionRate: 0 },
+        status: 'unavailable',
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
-      gamification: {
-        questsCompletedPerWeek: 8.5,
-        socialActionRate: 42.5,
-        educationalContentRate: 34.2
-      },
-      monetization: {
-        conversionRate: 5.1
-      }
-    })
+      { status: 200 }
+    )
   }
 }
-
-

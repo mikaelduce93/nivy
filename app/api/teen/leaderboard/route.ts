@@ -37,16 +37,14 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching leaderboard:', error)
-      // Return mock data
+      // No fake data: return an honest unavailable response.
       return NextResponse.json({
-        rankings: [
-          { rank: 1, id: '1', name: 'Salma K.', xp: 4250, level: 12, badge: '🏆', avatar_url: null },
-          { rank: 2, id: '2', name: 'Youssef M.', xp: 3820, level: 11, badge: '🥈', avatar_url: null },
-          { rank: 3, id: '3', name: 'Nadia L.', xp: 3650, level: 10, badge: '🥉', avatar_url: null },
-          { rank: 4, id: '4', name: 'Omar B.', xp: 3420, level: 10, avatar_url: null },
-        ],
-        userRank: 5,
-        userXp: 2450,
+        rankings: [],
+        userRank: null,
+        userXp: 0,
+        timeframe,
+        status: 'unavailable',
+        error: 'Leaderboard temporarily unavailable',
       })
     }
 

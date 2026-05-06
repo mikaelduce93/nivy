@@ -1,7 +1,7 @@
 /**
  * SNAPCHAT-LEVEL SCORECARD
  * ========================
- * 
+ *
  * Mesure les KPIs critiques pour atteindre le 10/10.
  * Targets: D1 > 45%, Social > 40%, Sessions > 2/day
  */
@@ -27,42 +27,34 @@ export interface ScorecardMetrics {
   monetization: {
     conversionRate: number
   }
+  /** Set when the metrics could not be computed; consumer should display an "unavailable" state. */
+  status?: 'ok' | 'unavailable'
+  error?: string
 }
 
 /**
- * Fetch live scorecard from API (client-safe)
+ * Fetch live scorecard from API (client-safe).
+ * On error returns `null` (consumer should display an unavailable state)
+ * rather than fabricated data.
  */
-export async function getLiveScorecard(): Promise<ScorecardMetrics> {
+export async function getLiveScorecard(): Promise<ScorecardMetrics | null> {
   try {
     const res = await fetch('/api/admin/scorecard', {
-      cache: 'no-store'
+      cache: 'no-store',
     })
-    
+
     if (!res.ok) {
-      throw new Error('Failed to fetch scorecard')
+      console.error('Scorecard fetch failed:', res.status)
+      return null
     }
-    
-    return await res.json()
+
+    const json = (await res.json()) as ScorecardMetrics
+    if (!json || !json.retention) {
+      return null
+    }
+    return json
   } catch (error) {
     console.error('Scorecard fetch error:', error)
-    // Return mock data on error
-    return {
-      retention: { d1: 48.5, d7: 22.4, d30: 12.1 },
-      engagement: {
-        dau: 150,
-        mau: 3000,
-        stickyFactor: 0.35,
-        avgSessionsPerDay: 3.2,
-        avgSessionDuration: 11.5
-      },
-      gamification: {
-        questsCompletedPerWeek: 8.5,
-        socialActionRate: 42.5,
-        educationalContentRate: 34.2
-      },
-      monetization: {
-        conversionRate: 5.1
-      }
-    }
+    return null
   }
 }
