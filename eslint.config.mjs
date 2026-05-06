@@ -1,6 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-
 /**
  * TEENS PARTY MOROCCO - ESLint Configuration
  * ==========================================
@@ -191,11 +188,9 @@ export default [js.configs.recommended, {
     'out/**',
     'build/**',
     'dist/**',
-    'storybook-static/**',
-    'stories/**',
     'public/sw.js',
     'coverage/**',
     '*.config.js',
     '*.config.mjs',
   ],
-}, ...storybook.configs["flat/recommended"]];
+}];
