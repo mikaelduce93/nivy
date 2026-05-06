@@ -12,8 +12,14 @@ import { defineConfig, devices } from "@playwright/test"
  */
 export default defineConfig({
   testDir: "./tests",
-  testMatch: ["e2e/**/*.spec.ts", "a11y/**/*.spec.ts"],
+  testMatch: ["e2e/**/*.spec.ts", "a11y/**/*.spec.ts", "visual/**/*.spec.ts"],
   fullyParallel: true,
+  // Snapshot path template keeps visual baselines colocated under tests/visual/__screenshots__/<spec>/<name>.
+  snapshotPathTemplate: "{testDir}/{testFileDir}/__screenshots__/{testFileName}/{arg}{ext}",
+  // Allow small rendering deltas without flapping on font/AA differences.
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02 },
+  },
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
