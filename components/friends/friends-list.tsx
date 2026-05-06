@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Users,
@@ -125,12 +126,15 @@ function FriendCard({
       <div className="flex items-center gap-4">
         {/* Avatar */}
         <div className="relative">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+          <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
             {friend.avatar_url ? (
-              <img
+              <Image
                 src={friend.avatar_url}
                 alt={friend.first_name}
-                className="w-full h-full object-cover"
+                fill
+                sizes="56px"
+                className="object-cover"
+                unoptimized
               />
             ) : (
               <span className="text-xl text-white font-bold">
@@ -324,9 +328,16 @@ function RequestCard({ request, type, onAccept, onDecline, onCancel }: RequestCa
   return (
     <Card className="p-4 bg-zinc-900 border-zinc-800">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
           {person?.avatar_url ? (
-            <img src={person.avatar_url} alt={person.first_name} className="w-full h-full object-cover" />
+            <Image
+              src={person.avatar_url}
+              alt={person.first_name}
+              fill
+              sizes="48px"
+              className="object-cover"
+              unoptimized
+            />
           ) : (
             <span className="text-lg text-white font-bold">{person?.first_name?.[0]}</span>
           )}
@@ -407,9 +418,16 @@ function SuggestionCard({ suggestion, onAdd, onDismiss }: SuggestionCardProps) {
   return (
     <Card className="p-4 bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center overflow-hidden">
+        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center overflow-hidden">
           {person?.avatar_url ? (
-            <img src={person.avatar_url} alt={person.first_name} className="w-full h-full object-cover" />
+            <Image
+              src={person.avatar_url}
+              alt={person.first_name}
+              fill
+              sizes="48px"
+              className="object-cover"
+              unoptimized
+            />
           ) : (
             <span className="text-lg text-white font-bold">{person?.first_name?.[0]}</span>
           )}
@@ -478,9 +496,16 @@ function SearchResultCard({ result, onSendRequest, onCancelRequest }: SearchResu
   return (
     <Card className="p-4 bg-zinc-900 border-zinc-800">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
           {result.avatar_url ? (
-            <img src={result.avatar_url} alt={result.first_name} className="w-full h-full object-cover" />
+            <Image
+              src={result.avatar_url}
+              alt={result.first_name}
+              fill
+              sizes="48px"
+              className="object-cover"
+              unoptimized
+            />
           ) : (
             <span className="text-lg text-white font-bold">{result.first_name[0]}</span>
           )}
@@ -953,9 +978,16 @@ export function FriendsWidget({ teenId, limit = 5, onSeeAll }: FriendsWidgetProp
             className="relative"
             title={friend.friendship.nickname || friend.first_name}
           >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
               {friend.avatar_url ? (
-                <img src={friend.avatar_url} alt={friend.first_name} className="w-full h-full object-cover" />
+                <Image
+                  src={friend.avatar_url}
+                  alt={friend.first_name}
+                  fill
+                  sizes="40px"
+                  className="object-cover"
+                  unoptimized
+                />
               ) : (
                 <span className="text-sm text-white font-bold">{friend.first_name[0]}</span>
               )}

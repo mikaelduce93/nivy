@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Plus, ChevronRight, Zap, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -36,8 +37,15 @@ export function TeenSponsorHeader({ teens }: TeenSponsorHeaderProps) {
         >
           <div className="relative">
             <div className="w-20 h-20 rounded-full border-4 border-gen-z-teal/20 p-1 group-hover:border-gen-z-teal transition-all duration-500">
-              <div className="w-full h-full rounded-full overflow-hidden bg-zinc-800">
-                <img src={teen.avatar_url || '/placeholder-user.jpg'} alt={teen.full_name} className="w-full h-full object-cover" />
+              <div className="relative w-full h-full rounded-full overflow-hidden bg-zinc-800">
+                <Image
+                  src={teen.avatar_url || '/placeholder-user.jpg'}
+                  alt={teen.full_name}
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  unoptimized
+                />
               </div>
             </div>
             {/* Status Badge */}

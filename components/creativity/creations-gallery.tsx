@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import NextImage from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Image,
@@ -148,10 +149,13 @@ function CreationCard({
           onClick={onView}
         >
           {creation.media_type === "image" && (
-            <img
+            <NextImage
               src={creation.media_url}
               alt={creation.title}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-cover"
+              unoptimized
             />
           )}
 
@@ -212,12 +216,15 @@ function CreationCard({
           {/* Author info */}
           {creation.teens && (
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+              <div className="relative w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
                 {creation.teens.avatar_url ? (
-                  <img
+                  <NextImage
                     src={creation.teens.avatar_url}
                     alt={creation.teens.first_name}
-                    className="w-full h-full rounded-full object-cover"
+                    fill
+                    sizes="24px"
+                    className="rounded-full object-cover"
+                    unoptimized
                   />
                 ) : (
                   <span className="text-xs text-white font-bold">
@@ -503,7 +510,16 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
             {previewUrl ? (
               <div className="relative rounded-xl overflow-hidden">
                 {mediaType === "image" && (
-                  <img src={previewUrl} alt="Preview" className="w-full h-48 object-cover" />
+                  <div className="relative w-full h-48">
+                    <NextImage
+                      src={previewUrl}
+                      alt="Preview"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
                 )}
                 {mediaType === "video" && (
                   <video src={previewUrl} className="w-full h-48 object-cover" controls>
@@ -692,10 +708,13 @@ function CreationViewer({ creation, onClose, onLike, onUnlike }: CreationViewerP
         {/* Media */}
         <div className="bg-black flex items-center justify-center min-h-[50vh]">
           {creation.media_type === "image" && (
-            <img
+            <NextImage
               src={creation.media_url}
               alt={creation.title}
-              className="max-w-full max-h-[70vh] object-contain"
+              width={1200}
+              height={800}
+              className="max-w-full max-h-[70vh] object-contain w-auto h-auto"
+              unoptimized
             />
           )}
           {creation.media_type === "video" && (
@@ -1101,13 +1120,16 @@ export function CreationsWidget({ teenId, limit = 4, onSeeAll }: CreationsWidget
         {creations.map((creation) => (
           <div
             key={creation.id}
-            className="aspect-square rounded-xl overflow-hidden bg-zinc-800"
+            className="relative aspect-square rounded-xl overflow-hidden bg-zinc-800"
           >
             {creation.media_type === "image" && (
-              <img
+              <NextImage
                 src={creation.media_url}
                 alt={creation.title}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+                unoptimized
               />
             )}
             {creation.media_type === "video" && (

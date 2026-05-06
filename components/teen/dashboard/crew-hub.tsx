@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { Users, Trophy, Zap, Shield, ChevronRight, Plus, Crown, Star, Swords, Sparkles, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -110,7 +111,14 @@ export function CrewHub() {
                 />
                 <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-[1.75rem] sm:rounded-[2rem] bg-zinc-900 border-4 border-zinc-950 flex items-center justify-center shadow-2xl overflow-hidden">
                   {crew?.avatar_url ? (
-                    <img src={crew.avatar_url} alt={crew.name} className="w-full h-full object-cover" />
+                    <Image
+                      src={crew.avatar_url}
+                      alt={crew.name}
+                      fill
+                      sizes="(max-width: 640px) 80px, 96px"
+                      className="object-cover"
+                      unoptimized
+                    />
                   ) : (
                     <Users className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-400" />
                   )}
@@ -275,11 +283,14 @@ export function CrewHub() {
                 >
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="relative">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-800 overflow-hidden border border-white/10">
-                        <img 
-                          src={member.avatar_url || '/placeholder-user.jpg'} 
+                      <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-800 overflow-hidden border border-white/10">
+                        <Image
+                          src={member.avatar_url || '/placeholder-user.jpg'}
                           alt={member.pseudo}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="32px"
+                          className="object-cover"
+                          unoptimized
                         />
                       </div>
                       {i === 0 && (

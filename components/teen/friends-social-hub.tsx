@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Users, UserPlus, UserCheck, Search, Bell, MessageCircle, Trophy, 
@@ -75,15 +76,22 @@ function FriendAvatar({ friend, size = 'md' }: { friend: Friend, size?: 'sm' | '
 
   return (
     <div className="relative">
-      <motion.div 
+      <motion.div
         className={cn(
-          "rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold",
+          "relative overflow-hidden rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold",
           sizeClasses[size]
         )}
         whileHover={{ scale: 1.1 }}
       >
         {friend.avatar ? (
-          <img src={friend.avatar} alt={friend.pseudo} className="w-full h-full rounded-full object-cover" />
+          <Image
+            src={friend.avatar}
+            alt={friend.pseudo}
+            fill
+            sizes="(max-width: 768px) 64px, 96px"
+            className="rounded-full object-cover"
+            unoptimized
+          />
         ) : (
           friend.pseudo?.charAt(0) || "?"
         )}

@@ -16,7 +16,7 @@ import { PerformanceProvider } from "@/components/providers/performance-provider
 import { SentryBreadcrumbsSetup } from "@/components/monitoring/sentry-breadcrumbs-setup"
 import { SentryUserContext } from "@/components/monitoring/sentry-user-context"
 import { SentryWebVitals } from "@/components/monitoring/sentry-web-vitals"
-import { QueryProvider } from "@/lib/queries"
+import { AppProviders } from "./providers"
 import { Toaster } from "@/components/ui/sonner"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 import "./globals.css"
@@ -205,7 +205,7 @@ export default async function RootLayout({
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <PerformanceProvider>
-        <QueryProvider>
+        <AppProviders>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -261,7 +261,7 @@ export default async function RootLayout({
             <Toaster />
           </CSRFProvider>
         </ThemeProvider>
-        </QueryProvider>
+        </AppProviders>
         </PerformanceProvider>
       </body>
     </html>

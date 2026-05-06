@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
 import { QrCode, Share2, Crown, Zap, Shield, Camera } from 'lucide-react'
 import { HolographicBadge, GlowBlob } from '@/components/ui/gen-z-effects'
@@ -81,9 +82,16 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
           {/* Avatar & Info */}
           <div className="space-y-4">
             <div className="relative mx-auto">
-              <div className="w-32 h-32 rounded-full border-4 border-zinc-800 bg-zinc-900 overflow-hidden shadow-2xl">
+              <div className="relative w-32 h-32 rounded-full border-4 border-zinc-800 bg-zinc-900 overflow-hidden shadow-2xl">
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.fullName}
+                    fill
+                    sizes="128px"
+                    className="object-cover"
+                    unoptimized
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-zinc-800">
                     <Camera className="w-10 h-10 text-zinc-600" />

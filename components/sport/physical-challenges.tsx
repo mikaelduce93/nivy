@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Target,
@@ -378,7 +379,16 @@ function ProofUploadModal({ isOpen, onClose, onSubmit, challengeName }: ProofUpl
             {previewUrl ? (
               <div className="relative rounded-xl overflow-hidden">
                 {proofType === "photo" ? (
-                  <img src={previewUrl} alt="Preview" className="w-full h-48 object-cover" />
+                  <div className="relative w-full h-48">
+                    <Image
+                      src={previewUrl}
+                      alt="Preview"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
                 ) : (
                   <video src={previewUrl} className="w-full h-48 object-cover" controls>
                     <track kind="captions" srcLang="fr" label="Francais" />

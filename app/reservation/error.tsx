@@ -1,6 +1,8 @@
 "use client"
 
+import { useEffect } from "react"
 import { PageError } from "@/components/ui/states/page-error"
+import { captureError } from "@/lib/monitoring/sentry"
 
 export default function ReservationError({
   error,
@@ -9,6 +11,14 @@ export default function ReservationError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => {
+    captureError(error, {
+      tags: { feature: 'reservation' },
+      extra: { digest: error.digest },
+      level: 'error',
+    })
+  }, [error])
+
   return (
     <PageError
       error={error}

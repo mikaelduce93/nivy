@@ -7,6 +7,7 @@
  */
 
 import { useState, useRef } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Image as ImageIcon,
@@ -167,7 +168,14 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
               }`}>
                 {mediaPreviews.map((preview, idx) => (
                   <div key={idx} className="relative aspect-video bg-zinc-800 rounded-lg overflow-hidden">
-                    <img src={preview} alt="" className="w-full h-full object-cover" />
+                    <Image
+                      src={preview}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-cover"
+                      unoptimized
+                    />
                     <button
                       onClick={() => removeMedia(idx)}
                       className="absolute top-2 right-2 p-1 bg-black/50 rounded-full

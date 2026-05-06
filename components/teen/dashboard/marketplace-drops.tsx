@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Zap, Timer, ArrowRight, ShoppingBag } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -39,10 +40,13 @@ export function MarketplaceDrops() {
         >
           {/* Image Background */}
           <div className="absolute inset-0 z-0">
-            <img 
-              src={drop.image} 
-              alt={drop.brand} 
-              className="w-full h-full object-cover opacity-20 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+            <Image
+              src={drop.image}
+              alt={drop.brand}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover opacity-20 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+              unoptimized
             />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
           </div>

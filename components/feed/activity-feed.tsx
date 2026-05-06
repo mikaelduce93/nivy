@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Heart,
@@ -158,14 +159,21 @@ function Avatar({
     lg: "w-12 h-12 text-base",
   }
 
+  const dimension = size === 'sm' ? 32 : size === 'md' ? 40 : 48
+
   return (
     <div className="relative">
       {src ? (
-        <img
-          src={src}
-          alt={name}
-          className={`${sizes[size]} rounded-full object-cover border-2 border-zinc-700`}
-        />
+        <div className={`relative ${sizes[size]} rounded-full overflow-hidden border-2 border-zinc-700`}>
+          <Image
+            src={src}
+            alt={name}
+            fill
+            sizes={`${dimension}px`}
+            className="object-cover"
+            unoptimized
+          />
+        </div>
       ) : (
         <div
           className={`${sizes[size]} rounded-full bg-gradient-to-br from-cyan-500 to-blue-600
@@ -412,7 +420,14 @@ function PostCard({
         >
           {post.media_urls.slice(0, 4).map((url, idx) => (
             <div key={idx} className="relative aspect-square bg-zinc-800">
-              <img src={url} alt="" className="w-full h-full object-cover" />
+              <Image
+                src={url}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+                unoptimized
+              />
               {idx === 3 && post.media_urls.length > 4 && (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                   <span className="text-2xl font-bold text-white">
