@@ -6,6 +6,7 @@ import { Users, Search, UserPlus, MessageCircle, Zap, Trophy, MoreVertical, Chec
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 // Static friends data
 const FRIENDS = [
@@ -149,15 +150,19 @@ export default function FriendsPage() {
           </h2>
 
           {filteredFriends.length === 0 ? (
-            <div className="text-center py-12">
-              <Users className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">
-                {searchQuery ? "Aucun ami trouvé" : "Aucun ami en ligne"}
-              </h3>
-              <p className="text-zinc-500">
-                {searchQuery ? "Essaie une autre recherche" : "Tes amis sont hors ligne"}
-              </p>
-            </div>
+            FRIENDS.length === 0 ? (
+              <EmptyState
+                preset="friends"
+                size="default"
+              />
+            ) : (
+              <EmptyState
+                preset="search"
+                size="small"
+                title={searchQuery ? "Aucun ami trouvé" : "Aucun ami en ligne"}
+                description={searchQuery ? "Essaie une autre recherche" : "Tes amis sont hors ligne pour le moment."}
+              />
+            )
           ) : (
             <div className="space-y-3">
               {filteredFriends.map((friend, idx) => (

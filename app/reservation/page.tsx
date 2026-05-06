@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { PaymentCartResumeBanner } from "@/components/payment-cart-resume-banner"
 
 export default async function ReservationPage({
   searchParams,
@@ -46,6 +47,7 @@ export default async function ReservationPage({
 
       <div className="container mx-auto px-6 py-32">
         <div className="max-w-5xl mx-auto">
+          <PaymentCartResumeBanner />
           <div className="mb-12">
             <div className="flex items-center justify-center gap-4 md:gap-8">
               <div className="flex items-center gap-3">

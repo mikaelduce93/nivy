@@ -27,6 +27,9 @@ import {
   Image,
   MessageSquare,
   Sparkles,
+  Coins,
+  Activity,
+  Target,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -52,6 +55,11 @@ const presetIcons: Record<string, LucideIcon> = {
   files: FolderOpen,
   photos: Image,
   messages: MessageSquare,
+  // Teen-specific presets
+  friends: Users,
+  coins: Coins,
+  feed: Activity,
+  quests: Target,
 }
 
 const presetMessages: Record<string, { title: string; description: string }> = {
@@ -109,7 +117,24 @@ const presetMessages: Record<string, { title: string; description: string }> = {
   },
   messages: {
     title: 'Aucun message',
-    description: 'Commencez une conversation !',
+    description: 'Pas encore de messages — démarre une conversation avec tes potes !',
+  },
+  // Teen-specific presets
+  friends: {
+    title: 'Pas encore d\'amis',
+    description: 'Invite tes potes pour débloquer le chat, les crews et les défis multi-joueurs.',
+  },
+  coins: {
+    title: 'Pas encore de coins',
+    description: 'Termine des quêtes quotidiennes pour earn tes premiers coins et débloquer la boutique.',
+  },
+  feed: {
+    title: 'Ton feed est vide',
+    description: 'Suis tes potes et rejoins une crew pour voir leur activité en direct ici.',
+  },
+  quests: {
+    title: 'Aucune quête disponible',
+    description: 'Reviens demain pour de nouvelles quêtes ! Le compteur reset chaque jour à minuit.',
   },
 }
 

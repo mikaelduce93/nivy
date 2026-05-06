@@ -22,6 +22,26 @@ export default function LoginPage() {
   const router = useRouter()
   const errorRef = useRef<HTMLDivElement>(null)
 
+  // Auto-redirect already-authenticated users to the role-aware redirect.
+  // Avoids re-presenting the login form on a back/forward nav after sign-in.
+  useEffect(() => {
+    let cancelled = false
+    const supabase = createClient()
+    supabase.auth
+      .getUser()
+      .then((res: { data: { user: unknown } }) => {
+        if (!cancelled && res.data.user) {
+          router.replace("/auth/redirect")
+        }
+      })
+      .catch(() => {
+        // ignore — user is simply not authed
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [router])
+
   // Focus error message when it appears
   useEffect(() => {
     if (error && errorRef.current) {

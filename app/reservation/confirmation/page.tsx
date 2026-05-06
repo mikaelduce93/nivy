@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer"
 import Link from "next/link"
 import { QRCodeSVG } from 'qrcode.react'
 import { TicketActions } from "@/components/ticket-actions"
+import { PaymentCartClearOnMount } from "@/components/payment-cart-clear-on-mount"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default async function ReservationConfirmationPage({
@@ -52,6 +53,8 @@ export default async function ReservationConfirmationPage({
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      {/* Clear any stashed cart from /reservation/paiement now that payment is confirmed. */}
+      <PaymentCartClearOnMount />
 
       <div className="container mx-auto px-6 py-32">
         <div className="max-w-3xl mx-auto">

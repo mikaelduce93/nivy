@@ -6,6 +6,7 @@ import { MessageCircle, Search, Send, Phone, Video, MoreVertical, Check, CheckCh
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 // Static conversations data
 const CONVERSATIONS = [
@@ -189,6 +190,13 @@ function ConversationList({
       </header>
 
       {/* Conversations */}
+      {conversations.length === 0 ? (
+        <EmptyState
+          preset="messages"
+          size="default"
+          action={{ label: "Trouver des amis", href: "/teen/friends" }}
+        />
+      ) : (
       <div className="space-y-2">
         {conversations.map((convo: any, idx: number) => (
           <motion.div
@@ -252,11 +260,12 @@ function ConversationList({
           </motion.div>
         ))}
       </div>
+      )}
     </div>
   )
 }
 
-function ChatView({ 
+function ChatView({
   conversation, 
   messages, 
   messageInput, 

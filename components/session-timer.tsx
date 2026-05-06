@@ -1,16 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Clock } from 'lucide-react'
+import { toast } from 'sonner'
 import { Card } from '@/components/ui/card'
 
 interface SessionTimerProps {
   expiresAt: Date
   onExpire?: () => void
+  /**
+   * Seconds before expiry at which the urgency warning toast fires.
+   * Defaults to 90s (so 8m30 into a 10min session).
+   */
+  warningAtSeconds?: number
+  /** Booking ref shown in the toast to make the warning concrete. */
+  bookingReference?: string
 }
 
-export function SessionTimer({ expiresAt, onExpire }: SessionTimerProps) {
+export function SessionTimer({
+  expiresAt,
+  onExpire,
+  warningAtSeconds = 90,
+  bookingReference,
+}: SessionTimerProps) {
   const [timeLeft, setTimeLeft] = useState<number>(0)
+  const warnedRef = useRef(false)
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -26,6 +40,24 @@ export function SessionTimer({ expiresAt, onExpire }: SessionTimerProps) {
       const remaining = calculateTimeLeft()
       setTimeLeft(remaining)
 
+      // One-shot warning toast as we cross the threshold
+      if (
+        !warnedRef.current &&
+        remaining > 0 &&
+        remaining <= warningAtSeconds
+      ) {
+        warnedRef.current = true
+        const minutes = Math.floor(remaining / 60)
+        const seconds = remaining % 60
+        const formatted = `${minutes}m${seconds.toString().padStart(2, '0')}s`
+        toast.warning('Ta session expire bientôt', {
+          description: `Plus que ${formatted} pour finaliser${
+            bookingReference ? ` la réservation ${bookingReference}` : ''
+          }. Tes infos panier sont sauvegardées — tu pourras reprendre.`,
+          duration: 8000,
+        })
+      }
+
       if (remaining === 0 && onExpire) {
         onExpire()
         clearInterval(interval)
@@ -33,7 +65,7 @@ export function SessionTimer({ expiresAt, onExpire }: SessionTimerProps) {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [expiresAt, onExpire])
+  }, [expiresAt, onExpire, warningAtSeconds, bookingReference])
 
   const minutes = Math.floor(timeLeft / 60)
   const seconds = timeLeft % 60
