@@ -12,8 +12,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
+import { useT } from "@/lib/i18n"
 
 export default function SignUpPage() {
+  const t = useT()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [prenom, setPrenom] = useState("")
@@ -38,7 +40,7 @@ export default function SignUpPage() {
     e.preventDefault()
 
     if (!acceptConditions) {
-      setError("Vous devez accepter les conditions d'utilisation")
+      setError(t("auth.signup.termsRequired"))
       return
     }
 
@@ -64,7 +66,7 @@ export default function SignUpPage() {
       if (error) throw error
       router.push("/auth/sign-up-success")
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Une erreur est survenue")
+      setError(error instanceof Error ? error.message : t("errors.generic"))
     } finally {
       setIsLoading(false)
     }
@@ -84,9 +86,9 @@ export default function SignUpPage() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
                 <UserPlus className="w-8 h-8 text-white" />
               </div>
-              <CardTitle className="text-3xl font-black text-white text-balance">Créer un compte</CardTitle>
+              <CardTitle className="text-3xl font-black text-white text-balance">{t("auth.signup.title")}</CardTitle>
               <CardDescription className="text-zinc-400 text-balance">
-                Inscription parent pour gérer les activités de vos enfants
+                {t("auth.signup.subtitle")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -95,7 +97,7 @@ export default function SignUpPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
                       <Label htmlFor="prenom" className="text-zinc-300">
-                        Prénom
+                        {t("auth.signup.firstName")}
                       </Label>
                       <Input
                         id="prenom"
@@ -111,7 +113,7 @@ export default function SignUpPage() {
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="nom" className="text-zinc-300">
-                        Nom
+                        {t("auth.signup.lastName")}
                       </Label>
                       <Input
                         id="nom"
@@ -129,7 +131,7 @@ export default function SignUpPage() {
 
                   <div className="grid gap-2">
                     <Label htmlFor="email" className="text-zinc-300">
-                      Email
+                      {t("auth.signup.email")}
                     </Label>
                     <Input
                       id="email"
@@ -148,7 +150,7 @@ export default function SignUpPage() {
 
                   <div className="grid gap-2">
                     <Label htmlFor="telephone" className="text-zinc-300">
-                      Téléphone
+                      {t("auth.signup.phone")}
                     </Label>
                     <Input
                       id="telephone"
@@ -166,7 +168,7 @@ export default function SignUpPage() {
 
                   <div className="grid gap-2">
                     <Label htmlFor="ville" className="text-zinc-300">
-                      Ville
+                      {t("auth.signup.city")}
                     </Label>
                     <Input
                       id="ville"
@@ -183,7 +185,7 @@ export default function SignUpPage() {
 
                   <div className="grid gap-2">
                     <Label htmlFor="password" className="text-zinc-300">
-                      Mot de passe
+                      {t("auth.signup.password")}
                     </Label>
                     <Input
                       id="password"
@@ -198,7 +200,7 @@ export default function SignUpPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-cyan-500"
                     />
-                    <p id="password-hint" className="text-xs text-zinc-500">Minimum 8 caractères</p>
+                    <p id="password-hint" className="text-xs text-zinc-500">{t("auth.signup.passwordHint")}</p>
                   </div>
 
                   <div className="space-y-3">
@@ -210,7 +212,7 @@ export default function SignUpPage() {
                         className="border-zinc-700"
                       />
                       <Label htmlFor="newsletter" className="text-sm font-normal cursor-pointer text-zinc-300">
-                        Je souhaite recevoir la newsletter
+                        {t("auth.signup.newsletterLabel")}
                       </Label>
                     </div>
 
@@ -223,9 +225,9 @@ export default function SignUpPage() {
                         required
                       />
                       <Label htmlFor="conditions" className="text-sm font-normal cursor-pointer text-zinc-300">
-                        J'accepte les{" "}
+                        {t("auth.signup.termsLabel")}{" "}
                         <Link href="/conditions" className="text-cyan-400 hover:text-cyan-300 underline">
-                          conditions d'utilisation
+                          ({t("auth.signup.termsLink")})
                         </Link>
                       </Label>
                     </div>
@@ -252,20 +254,20 @@ export default function SignUpPage() {
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
-                        <span>Création…</span>
+                        <span>{t("auth.signup.loading")}</span>
                       </>
                     ) : (
-                      "Créer mon compte"
+                      t("auth.signup.submit")
                     )}
                   </Button>
                 </div>
                 <div className="mt-6 text-center text-sm">
-                  <span className="text-zinc-400">Déjà un compte ? </span>
+                  <span className="text-zinc-400">{t("auth.signup.haveAccount")} </span>
                   <Link
                     href="/auth/login"
                     className="text-cyan-400 hover:text-cyan-300 font-semibold underline-offset-4 hover:underline"
                   >
-                    Se connecter
+                    {t("auth.signup.signIn")}
                   </Link>
                 </div>
               </form>

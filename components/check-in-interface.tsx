@@ -162,7 +162,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       fetchStats()
     } catch (error) {
       console.error("QR scan error:", error)
-      toast.error("Erreur lors du traitement")
+      toast.error("Oups, ca a pas marche. On retente? 💪")
     } finally {
       setIsProcessing(false)
       setCheckInMode(null)
@@ -209,7 +209,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       toast.success(data.message || "Pass VIP valide!")
     } catch (error) {
       console.error("VIP pass scan error:", error)
-      toast.error("Erreur lors de la verification")
+      toast.error("Verification ratee. Reessaye?")
     } finally {
       setIsProcessing(false)
       setCheckInMode(null)
@@ -289,7 +289,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       toast.success("Reservation trouvee")
     } catch (error) {
       console.error("Manual search error:", error)
-      toast.error("Erreur lors de la recherche")
+      toast.error("Recherche ratee. Retente?")
     } finally {
       setIsProcessing(false)
     }
@@ -330,7 +330,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       setSearchQuery("")
     } catch (error) {
       console.error("Manual check-in error:", error)
-      toast.error("Erreur lors du traitement")
+      toast.error("Check-in rate. On retente? 💪")
     } finally {
       setIsProcessing(false)
     }

@@ -224,7 +224,7 @@ export function ExportPDFButton({ bookingId, bookingDetails }: ExportPDFButtonPr
       toast.success("PDF généré avec succès")
     } catch (error) {
       console.error("PDF generation error:", error)
-      toast.error("Erreur lors de la génération du PDF")
+      toast.error("PDF rate. On retente? 💪")
     } finally {
       setLoading(false)
     }

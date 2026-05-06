@@ -78,7 +78,7 @@ export default function AnniversairesPage() {
         }
       } catch (error) {
         console.error('Error loading data:', error)
-        toast.error("Erreur lors du chargement des données")
+        toast.error("Chargement rate. On retente? 💪")
       } finally {
         setLoadingData(false)
       }
@@ -167,7 +167,7 @@ export default function AnniversairesPage() {
       setCurrentStep(6) // Go to confirmation step
     } catch (error: any) {
       console.error('Error creating order:', error)
-      toast.error("Erreur lors de la création de la commande")
+      toast.error("Commande ratee. Reessaye?")
     } finally {
       setLoading(false)
     }

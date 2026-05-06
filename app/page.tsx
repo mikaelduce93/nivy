@@ -9,8 +9,10 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { AvatarDashboard } from "@/components/gamification/avatar-dashboard"
 import Image from "next/image"
+import { useT } from "@/lib/i18n"
 
 export default function HomePage() {
+  const t = useT()
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([])
 
@@ -87,7 +89,7 @@ export default function HomePage() {
               {/* Live badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg" role="status" aria-live="polite">
                 <div className="w-2.5 h-2.5 rounded-full bg-gen-z-lime animate-pulse shadow-[0_0_12px_var(--gen-z-lime)]" aria-hidden="true" />
-                <span className="text-sm font-bold text-gen-z-lime tabular-nums">Prochaine soirée dans {countdown.days}j {countdown.hours}h</span>
+                <span className="text-sm font-bold text-gen-z-lime tabular-nums">{t("hero.live", { days: countdown.days, hours: countdown.hours })}</span>
               </div>
 
               {/* Main heading - Gen-Z gradient */}
@@ -112,13 +114,13 @@ export default function HomePage() {
                 <Link href="/onboarding" prefetch={true}>
                   <NeonButton variant="party" size="lg" glow className="rounded-2xl px-8">
                     <Sparkles className="w-5 h-5 mr-2" />
-                    Rejoins le Club
+                    {t("hero.ctaPrimary")}
                   </NeonButton>
                 </Link>
                 <Link href="/agenda" prefetch={true}>
                   <NeonButton variant="outline" size="lg" className="border-border/50 text-foreground hover:bg-muted rounded-2xl px-8">
                     <Calendar className="w-5 h-5 mr-2" />
-                    Agenda
+                    {t("nav.agenda")}
                   </NeonButton>
                 </Link>
               </div>
@@ -126,13 +128,13 @@ export default function HomePage() {
               {/* Trust badges */}
               <div className="flex items-center justify-center lg:justify-start gap-4 pt-4">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gen-z-lime/10 text-gen-z-lime text-sm font-semibold">
-                  <Shield className="w-4 h-4" aria-hidden="true" /> 100% Sécurisé
+                  <Shield className="w-4 h-4" aria-hidden="true" /> {t("hero.trustSafe")}
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gen-z-lavender/10 text-gen-z-lavender text-sm font-semibold">
-                  <UserCheck className="w-4 h-4" aria-hidden="true" /> 13–17&nbsp;Ans
+                  <UserCheck className="w-4 h-4" aria-hidden="true" /> {t("hero.trustAge")}
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gen-z-coral/10 text-gen-z-coral text-sm font-semibold">
-                  <Shield className="w-4 h-4" aria-hidden="true" /> 0% Alcool
+                  <Shield className="w-4 h-4" aria-hidden="true" /> {t("hero.trustNoAlcohol")}
                 </div>
               </div>
             </div>

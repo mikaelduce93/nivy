@@ -20,6 +20,8 @@ import { SentryWebVitals } from "@/components/monitoring/sentry-web-vitals"
 import { AppProviders } from "./providers"
 import { Toaster } from "@/components/ui/sonner"
 import { getPublicAppConfig } from "@/lib/config/app-config"
+import { I18nProvider } from "@/lib/i18n"
+import { getLocale } from "@/lib/i18n/server"
 import "./globals.css"
 import "leaflet/dist/leaflet.css"
 
@@ -146,9 +148,10 @@ export default async function RootLayout({
   // Get nonce from headers (set by middleware)
   const headersList = await headers()
   const nonce = headersList.get('x-nonce') || ''
+  const locale = await getLocale()
 
   return (
-    <html lang="fr" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang={locale === 'darija' ? 'ar-MA' : locale} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
         {/* Preconnect to external resources for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -213,6 +216,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <I18nProvider initialLocale={locale}>
           <CSRFProvider>
             {/* Skip Links for keyboard navigation */}
             <SkipLinks />
@@ -264,6 +268,7 @@ export default async function RootLayout({
             {/* Sonner Toaster for toast notifications */}
             <Toaster />
           </CSRFProvider>
+          </I18nProvider>
         </ThemeProvider>
         </AppProviders>
         </PerformanceProvider>

@@ -1,0 +1,193 @@
+{
+  "brand": {
+    "name": "NIVY",
+    "tagline": "Teen life, unleashed.",
+    "subtitle": "L'awwal Lifestyle Ecosystem dyal les 13-17 ans fel Maroc."
+  },
+  "nav": {
+    "agenda": "Agenda",
+    "anniversaires": "Anniversaires",
+    "clubs": "Clubs",
+    "programmes": "Programmes",
+    "opportunites": "Opportunites",
+    "monEspace": "Mon Espace",
+    "parents": "Parents",
+    "search": "9eleb",
+    "menu": "Menu",
+    "close": "Sed",
+    "openMenu": "Hell le menu",
+    "closeMenu": "Sed le menu"
+  },
+  "hero": {
+    "live": "Lessoiree jaya f {days}j {hours}h",
+    "headlineLine1": "TEEN LIFE",
+    "headlineLine2": "UNLEASHED",
+    "subtitle": "Marhba bik fel awwal Lifestyle Ecosystem dyal les 13-17 ans fel Maroc.",
+    "pillars": "Soirees, sport, qraya, creativite. 7tar la vibe dyalek.",
+    "ctaPrimary": "Rejoins-nous!",
+    "ctaSecondary": "Chouf l'agenda",
+    "trustSafe": "100% Securise",
+    "trustAge": "13-17 ans",
+    "trustNoAlcohol": "0% Alcool",
+    "previewBadge": "Apercu",
+    "previewTitle": "Le dashboard dyalek",
+    "previewDesc": "Hakka rah ghadi ykoun le dashboard dyalek mnin ghadi ts3el",
+    "previewFooter": "Sn3 le profil dyalek bach trbe7 XP w tdebbel les piliers."
+  },
+  "cta": {
+    "signup": "Rejoins-nous!",
+    "signupShort": "Inscription",
+    "login": "Connexion",
+    "logout": "Logout",
+    "explore": "9eleb",
+    "reserve": "7jez",
+    "discover": "Ktechef",
+    "joinNow": "Yallah, rejoins!",
+    "createProfile": "Sn3 le profil dyali",
+    "learnMore": "3raf ktar",
+    "seeAll": "Chouf kolch",
+    "back": "Rj3",
+    "next": "Lli ja",
+    "save": "Sjel",
+    "cancel": "Sed",
+    "retry": "N3awdou? 💪",
+    "submit": "Sift",
+    "continue": "Kemmel"
+  },
+  "auth": {
+    "login": {
+      "title": "Wa, rj3ti!",
+      "subtitle": "Dkhol bach tkemmel le mouv.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@dyalek.com",
+      "passwordLabel": "Mot de passe",
+      "submit": "Yallah",
+      "loading": "Kandkhlou...",
+      "googleCta": "Kemmel m3a Google",
+      "appleCta": "Kemmel m3a Apple",
+      "orEmail": "Wla bel email",
+      "noAccount": "Mazal ma 3andek compte?",
+      "createAccount": "Sn3 le profil",
+      "forgotPassword": "Nsiti le mot de passe?"
+    },
+    "signup": {
+      "title": "Rejoins le crew NIVY",
+      "subtitle": "Sn3 le compte dyalek bach tdir 7sab les sorties dyal weldek.",
+      "firstName": "Smiya",
+      "lastName": "L9ab",
+      "email": "Email",
+      "phone": "Telephone",
+      "city": "Mdina",
+      "password": "Mot de passe",
+      "passwordHint": "8 caracteres au moins, koun original",
+      "newsletterLabel": "3tini les news 3la les bonnes vibes",
+      "termsLabel": "Wakha m3a les conditions d'utilisation",
+      "termsLink": "conditions d'utilisation",
+      "submit": "Sn3 le compte dyali",
+      "loading": "Kansn3ou...",
+      "haveAccount": "3andek deja compte?",
+      "signIn": "Dkhol",
+      "termsRequired": "Khassek twafe9 3la les conditions"
+    }
+  },
+  "errors": {
+    "generic": "Wa, mafhamtouch. N3awdou? 💪",
+    "network": "Internet kayhder. Verifie la connexion w 3awd.",
+    "auth": "Email wla mot de passe ghalat. 3awd.",
+    "validation": "Kayn chi haja makhdamach. Verifie les infos.",
+    "notFound": "Mahsalnach hada. 3eed le 9rab.",
+    "forbidden": "Mamsme7lkch. Smahli.",
+    "rateLimit": "Bsla7! Bezzaf de tentatives. Stenna chwiya.",
+    "server": "3ndna mochkil hna. Kanl9aw e7all."
+  },
+  "toasts": {
+    "success": "Saha! 🔥",
+    "saved": "Tsjel! ✨",
+    "error": "Wa, mafhamtouch. N3awdou? 💪",
+    "errorRetry": "Kayna mochkil. N3awdou?",
+    "loading": "Tania...",
+    "copied": "Tcopia! ✨",
+    "deleted": "Tmsa.",
+    "updated": "Tbedda! ✨",
+    "uploadFailed": "L'upload makhdmch. 3awd.",
+    "exportFailed": "L'export makhdmch. N3awdou?",
+    "validationFailed": "Verifie les infos.",
+    "loadFailed": "Madmch n7ammlou. N3awdou?",
+    "createFailed": "Lcreation makhdmatch. 3awd?",
+    "checkInFailed": "Check-in makhdmch. 3awd?",
+    "verifyFailed": "La verification makhdmatch. N3awdou?"
+  },
+  "states": {
+    "loading": "Jay...",
+    "empty": {
+      "events": {
+        "title": "Mafih ta event daba",
+        "description": "Rj3 9rib, ghadi temchi! ✨"
+      },
+      "tickets": {
+        "title": "Mazal ma 7jezti walou",
+        "description": "Chouf l'agenda, kayn lo7arr."
+      },
+      "users": {
+        "title": "Mafih hatta wa7d",
+        "description": "Mahsalnach utilisateurs."
+      },
+      "clubs": {
+        "title": "Mafih ta club",
+        "description": "Manta f7etta club. 7tar la vibe!"
+      },
+      "notifications": {
+        "title": "Kolchi calm!",
+        "description": "Mafih ta notif jdida."
+      },
+      "search": {
+        "title": "Mahsalnach walou",
+        "description": "Jereb mots-cles akhrin."
+      },
+      "documents": {
+        "title": "Mafih wta9a",
+        "description": "Mazal ma zedti documents."
+      },
+      "favorites": {
+        "title": "Mafih favoris",
+        "description": "Zid lli kayd5el lik!"
+      },
+      "reviews": {
+        "title": "Mafih avis",
+        "description": "Kun lawwal!"
+      },
+      "cart": {
+        "title": "Le panier khwa",
+        "description": "Zid des articles bach tbda."
+      },
+      "inbox": {
+        "title": "L'inbox khwa",
+        "description": "Mafih ta message daba."
+      },
+      "files": {
+        "title": "Mafih fichiers",
+        "description": "Had le dossier khwa."
+      },
+      "photos": {
+        "title": "Mafih tswar",
+        "description": "Mafih tswar bach n3ardo."
+      },
+      "messages": {
+        "title": "Mafih messages",
+        "description": "Bda l7adra!"
+      },
+      "generic": {
+        "title": "Mafih ma n3ardo",
+        "description": "Mafih contenu disponible."
+      }
+    }
+  },
+  "common": {
+    "yes": "Iyeh",
+    "no": "La",
+    "ok": "OK",
+    "or": "wla",
+    "and": "w",
+    "loading": "Jay..."
+  }
+}

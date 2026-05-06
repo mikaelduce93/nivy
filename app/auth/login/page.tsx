@@ -11,8 +11,10 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from "react"
+import { useT } from "@/lib/i18n"
 
 export default function LoginPage() {
+  const t = useT()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -42,7 +44,7 @@ export default function LoginPage() {
       // Redirection intelligente selon le rôle
       router.push("/auth/redirect")
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Une erreur est survenue")
+      setError(error instanceof Error ? error.message : t("errors.generic"))
     } finally {
       setIsLoading(false)
     }
@@ -82,8 +84,8 @@ export default function LoginPage() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
                 <Lock className="w-8 h-8 text-white" />
               </div>
-              <CardTitle className="text-3xl font-black text-white text-balance">Connexion</CardTitle>
-              <CardDescription className="text-zinc-400 text-balance">Connectez-vous à votre compte parent</CardDescription>
+              <CardTitle className="text-3xl font-black text-white text-balance">{t("auth.login.title")}</CardTitle>
+              <CardDescription className="text-zinc-400 text-balance">{t("auth.login.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-3 mb-6">
@@ -111,7 +113,7 @@ export default function LoginPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Continuer avec Google
+                  {t("auth.login.googleCta")}
                 </Button>
 
                 <Button
@@ -123,7 +125,7 @@ export default function LoginPage() {
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                   </svg>
-                  Continuer avec Apple
+                  {t("auth.login.appleCta")}
                 </Button>
               </div>
 
@@ -132,14 +134,14 @@ export default function LoginPage() {
                   <div className="w-full border-t border-zinc-800" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-zinc-900 px-2 text-zinc-500">Ou par email</span>
+                  <span className="bg-zinc-900 px-2 text-zinc-500">{t("auth.login.orEmail")}</span>
                 </div>
               </div>
 
               <form onSubmit={handleLogin} noValidate>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t("auth.login.emailLabel")}</Label>
                     <Input
                       id="email"
                       name="email"
@@ -147,7 +149,7 @@ export default function LoginPage() {
                       inputMode="email"
                       autoComplete="email"
                       spellCheck={false}
-                      placeholder="parent@example.com"
+                      placeholder={t("auth.login.emailPlaceholder")}
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -155,7 +157,7 @@ export default function LoginPage() {
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="password">Mot de passe</Label>
+                    <Label htmlFor="password">{t("auth.login.passwordLabel")}</Label>
                     <Input
                       id="password"
                       name="password"
@@ -187,20 +189,20 @@ export default function LoginPage() {
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
-                        <span>Connexion…</span>
+                        <span>{t("auth.login.loading")}</span>
                       </>
                     ) : (
-                      "Se connecter"
+                      t("auth.login.submit")
                     )}
                   </Button>
                 </div>
                 <div className="mt-6 text-center text-sm">
-                  <span className="text-zinc-400">Pas encore de compte ? </span>
+                  <span className="text-zinc-400">{t("auth.login.noAccount")} </span>
                   <Link
-                    href="/auth/signup"
+                    href="/auth/sign-up"
                     className="text-cyan-400 hover:text-cyan-300 font-semibold underline-offset-4 hover:underline"
                   >
-                    Créer un compte
+                    {t("auth.login.createAccount")}
                   </Link>
                 </div>
               </form>

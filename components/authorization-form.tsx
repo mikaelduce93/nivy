@@ -88,7 +88,7 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
       router.refresh()
     } catch (error) {
       console.error("[v0] Authorization creation error:", error)
-      toast.error("Erreur lors de la création de l'autorisation")
+      toast.error("Creation ratee. Reessaye? 💪")
     } finally {
       setLoading(false)
     }

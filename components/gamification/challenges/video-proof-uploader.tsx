@@ -86,7 +86,7 @@ export function VideoProofUploader({ challengeId, onUploadComplete }: VideoProof
       toast.success('Preuve envoyée ! Analyse en cours...')
     } catch (error) {
       console.error('Upload error:', error)
-      toast.error("Erreur lors de l'envoi de la vidéo")
+      toast.error("Upload de la video rate. Retente? 💪")
       setProgress(0)
     } finally {
       setIsUploading(false)

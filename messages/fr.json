@@ -1,0 +1,193 @@
+{
+  "brand": {
+    "name": "NIVY",
+    "tagline": "Teen life, unleashed.",
+    "subtitle": "Le 1er Ecosysteme Lifestyle pour les 13-17 ans au Maroc."
+  },
+  "nav": {
+    "agenda": "Agenda",
+    "anniversaires": "Anniversaires",
+    "clubs": "Clubs",
+    "programmes": "Programmes",
+    "opportunites": "Opportunites",
+    "monEspace": "Mon Espace",
+    "parents": "Parents",
+    "search": "Rechercher",
+    "menu": "Menu",
+    "close": "Fermer",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
+  },
+  "hero": {
+    "live": "Prochaine soiree dans {days}j {hours}h",
+    "headlineLine1": "TEEN LIFE",
+    "headlineLine2": "UNLEASHED",
+    "subtitle": "Bienvenue dans le 1er Ecosysteme Lifestyle pour les 13-17 ans au Maroc.",
+    "pillars": "Soirees, sport, etudes, creativite. Choisis ta vibe.",
+    "ctaPrimary": "Rejoins le club",
+    "ctaSecondary": "Voir l'agenda",
+    "trustSafe": "100% Securise",
+    "trustAge": "13-17 ans",
+    "trustNoAlcohol": "0% Alcool",
+    "previewBadge": "Apercu",
+    "previewTitle": "Ton tableau de bord",
+    "previewDesc": "Voila a quoi ressemble ton dashboard une fois inscrit",
+    "previewFooter": "Cree ton profil pour gagner du XP reel et debloquer tes piliers."
+  },
+  "cta": {
+    "signup": "Rejoins le club",
+    "signupShort": "Inscription",
+    "login": "Connexion",
+    "logout": "Deconnexion",
+    "explore": "Explorer",
+    "reserve": "Reserver",
+    "discover": "Decouvrir",
+    "joinNow": "Rejoins-nous!",
+    "createProfile": "Creer mon profil",
+    "learnMore": "En savoir plus",
+    "seeAll": "Tout voir",
+    "back": "Retour",
+    "next": "Suivant",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "retry": "On retente?",
+    "submit": "Envoyer",
+    "continue": "Continuer"
+  },
+  "auth": {
+    "login": {
+      "title": "Yo, te revoila!",
+      "subtitle": "Connecte-toi pour reprendre le mouv.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ton@email.com",
+      "passwordLabel": "Mot de passe",
+      "submit": "Let's go",
+      "loading": "Connexion...",
+      "googleCta": "Continuer avec Google",
+      "appleCta": "Continuer avec Apple",
+      "orEmail": "Ou par email",
+      "noAccount": "Pas encore de compte?",
+      "createAccount": "Cree ton profil",
+      "forgotPassword": "Mot de passe oublie?"
+    },
+    "signup": {
+      "title": "Rejoins le crew NIVY",
+      "subtitle": "Cree ton compte parent pour gerer les sorties de ton ado.",
+      "firstName": "Prenom",
+      "lastName": "Nom",
+      "email": "Email",
+      "phone": "Telephone",
+      "city": "Ville",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins 8 caracteres, fais original",
+      "newsletterLabel": "Garde-moi au courant des bonnes vibes",
+      "termsLabel": "J'accepte les conditions d'utilisation",
+      "termsLink": "conditions d'utilisation",
+      "submit": "Cree mon compte",
+      "loading": "Creation...",
+      "haveAccount": "Deja inscrit?",
+      "signIn": "Connecte-toi",
+      "termsRequired": "Faut accepter les conditions pour continuer"
+    }
+  },
+  "errors": {
+    "generic": "Oups, ca a pas marche. On retente? 💪",
+    "network": "Internet fait des siennes. Verifie ta connexion et retente.",
+    "auth": "Email ou mot de passe pas bon. Reessaye.",
+    "validation": "Y a un truc qui colle pas. Verifie tes infos.",
+    "notFound": "Bizarre, on trouve pas ce que tu cherches.",
+    "forbidden": "Acces interdit, desole.",
+    "rateLimit": "Doucement! Trop de tentatives. Patiente une minute.",
+    "server": "On a un souci de notre cote. On bosse dessus."
+  },
+  "toasts": {
+    "success": "C'est fait! 🔥",
+    "saved": "Sauvegarde! ✨",
+    "error": "Oups, ca a pas marche. On retente? 💪",
+    "errorRetry": "Petit pepin. Retry?",
+    "loading": "Une seconde...",
+    "copied": "Copie dans le presse-papiers ✨",
+    "deleted": "Supprime.",
+    "updated": "Mis a jour! ✨",
+    "uploadFailed": "Upload rate. Reessaye.",
+    "exportFailed": "Export rate. On retente?",
+    "validationFailed": "Verifie les infos saisies.",
+    "loadFailed": "On a pas pu charger. Retente?",
+    "createFailed": "Creation ratee. Reessaye?",
+    "checkInFailed": "Check-in rate. Reessaye?",
+    "verifyFailed": "Verification ratee. Retente?"
+  },
+  "states": {
+    "loading": "Ca arrive...",
+    "empty": {
+      "events": {
+        "title": "Aucun event pour l'instant",
+        "description": "Reviens vite, ca va bouger! ✨"
+      },
+      "tickets": {
+        "title": "Pas encore de reservation",
+        "description": "Va checker l'agenda, y a du lourd."
+      },
+      "users": {
+        "title": "Personne par ici",
+        "description": "Aucun utilisateur trouve."
+      },
+      "clubs": {
+        "title": "Aucun club",
+        "description": "T'es dans aucun club. Choisis ta vibe!"
+      },
+      "notifications": {
+        "title": "Tout est calme!",
+        "description": "Aucune nouvelle notif. T'es a jour."
+      },
+      "search": {
+        "title": "Rien trouve",
+        "description": "Essaie d'autres mots-cles."
+      },
+      "documents": {
+        "title": "Aucun document",
+        "description": "Tu n'as pas encore ajoute de docs."
+      },
+      "favorites": {
+        "title": "Pas de favoris",
+        "description": "Ajoute tes coups de coeur!"
+      },
+      "reviews": {
+        "title": "Aucun avis",
+        "description": "Sois le premier a partager."
+      },
+      "cart": {
+        "title": "Panier vide",
+        "description": "Ajoute des articles pour commencer."
+      },
+      "inbox": {
+        "title": "Boite vide",
+        "description": "Aucun message pour le moment."
+      },
+      "files": {
+        "title": "Aucun fichier",
+        "description": "Ce dossier est vide."
+      },
+      "photos": {
+        "title": "Aucune photo",
+        "description": "Aucune photo a afficher."
+      },
+      "messages": {
+        "title": "Aucun message",
+        "description": "Lance la conversation!"
+      },
+      "generic": {
+        "title": "Rien a afficher",
+        "description": "Aucun contenu disponible."
+      }
+    }
+  },
+  "common": {
+    "yes": "Oui",
+    "no": "Non",
+    "ok": "OK",
+    "or": "ou",
+    "and": "et",
+    "loading": "Chargement..."
+  }
+}
