@@ -1,5 +1,27 @@
 # Guide d'exécution des migrations Gamification
 
+> **WARNING — Numbering collisions detected on 2026-05-06**
+>
+> Six pairs of migration files share the same numeric prefix or filename.
+> Running them in alphabetical order will produce a non-deterministic
+> sequence on platforms that rely on filename ordering (Supabase CLI,
+> custom runners). Resolve collisions before adding new migrations:
+>
+> | Number / name                            | Conflicts with                                  |
+> |------------------------------------------|--------------------------------------------------|
+> | `023_circles_system.sql`                 | `023_content_generation_system.sql`              |
+> | `024_friends_system.sql`                 | `024_content_validation_system.sql`              |
+> | `025_activity_feed.sql`                  | `025_intelligent_content_system.sql`             |
+> | `026_international_schools_support.sql`  | `026_social_sharing.sql`                         |
+> | `018_activity_feed.sql` (same name)      | `025_activity_feed.sql`                          |
+> | `019_social_sharing.sql` (same name)     | `026_social_sharing.sql`                         |
+>
+> **Before renumbering**, run `supabase migration list` against the deployed
+> instance to verify which numbers have already been applied. Renaming an
+> already-applied migration breaks history tracking. If the project is
+> dev-only, renumber the duplicates to 032-037 in chronological order of
+> intent.
+
 ## Ordre d'exécution OBLIGATOIRE
 
 Exécutez les migrations dans l'ordre suivant dans Supabase SQL Editor:
