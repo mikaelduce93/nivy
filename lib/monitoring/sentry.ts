@@ -32,15 +32,9 @@ export function initSentryClient() {
     environment: process.env.NODE_ENV,
     enabled: IS_PRODUCTION,
     tracesSampleRate: IS_PRODUCTION ? 0.1 : 1.0,
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-
-    integrations: [
-      Sentry.replayIntegration({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
-    ],
+    // Session replay was disabled in Wave D.8: replayIntegration export
+    // changed in @sentry/nextjs ≥10. Re-enable post-launch when ready —
+    // tracking/replays are nice-to-have, not launch-critical for error capture.
 
     beforeSend(event, hint) {
       if (IS_DEVELOPMENT) {

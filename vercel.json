@@ -4,6 +4,12 @@
     { "path": "/api/cron/evolve-teen-profiles", "schedule": "0 2 * * *" },
     { "path": "/api/cron/disburse-allowances", "schedule": "0 9 * * *" },
     { "path": "/api/cron/marketplace-escrow-release", "schedule": "0 6 * * *" },
-    { "path": "/api/cron/ride-curfew-check", "schedule": "0 21 * * *" }
+    { "path": "/api/cron/ride-curfew-check", "schedule": "0 21 * * *" },
+    { "path": "/api/cron/notification-fan-out", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/birthday-greetings", "schedule": "0 8 * * *" },
+    { "path": "/api/cron/quiz-seen-history-prune", "schedule": "30 2 * * *" },
+    { "path": "/api/cron/partner-payout-monthly", "schedule": "0 4 1 * *" },
+    { "path": "/api/cron/weekly-leaderboard-rollup", "schedule": "0 22 * * 6" },
+    { "path": "/api/cron/tag-normalize", "schedule": "0 0 * * *" }
   ]
 }

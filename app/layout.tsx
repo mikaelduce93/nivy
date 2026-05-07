@@ -100,10 +100,9 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
     creator: "@teenspartyma",
   },
-  verification: {
-    google: "your-google-verification-code",
-  },
-  manifest: "/manifest.json",
+  // verification.google: removed in Wave D.5 (was placeholder).
+  // Add the real Search Console token here when issued by ops.
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
