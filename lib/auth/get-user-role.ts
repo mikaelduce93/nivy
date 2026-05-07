@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 
-export type UserRole = "parent" | "teen" | "ambassador" | "admin" | "super_admin" | "moderator" | "support" | "partner" | "unknown"
+export type UserRole = "parent" | "teen" | "ambassador" | "admin" | "super_admin" | "moderator" | "support" | "partner" | "mentor" | "unknown"
 
 export interface UserRoleInfo {
   role: UserRole
@@ -30,6 +30,14 @@ export interface UserRoleInfo {
     id: string
     companyName: string
     partnerType: string
+  }
+  mentorData?: {
+    id: string
+    status: string
+    kycStatus: string
+    expertiseTags: string[]
+    rating: number | null
+    sessionsCount: number
   }
   adminData?: {
     role: string
@@ -150,6 +158,27 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
       break
       }
 
+      case "mentor": {
+        const { data: mentorData } = await supabase
+          .from("mentors")
+          .select("id, status, kyc_status, expertise_tags, rating, sessions_count")
+          .eq("user_id", user.id)
+          .limit(1)
+          .maybeSingle()
+
+        if (mentorData) {
+          baseInfo.mentorData = {
+            id: mentorData.id,
+            status: mentorData.status || "pending",
+            kycStatus: mentorData.kyc_status || "pending",
+            expertiseTags: mentorData.expertise_tags || [],
+            rating: mentorData.rating,
+            sessionsCount: mentorData.sessions_count || 0,
+          }
+        }
+        break
+      }
+
       case "admin": {
         const { data: adminRole } = await supabase
           .from("admin_roles")
@@ -184,6 +213,8 @@ export function getDashboardPath(role: UserRole): string {
       return "/ambassador"
     case "partner":
       return "/partner"
+    case "mentor":
+      return "/mentor/dashboard"
     case "admin":
       return "/admin"
     default:
@@ -198,6 +229,7 @@ export function canAccessRoute(userRole: UserRole, path: string): boolean {
     parent: ["/parent", "/events", "/profile", "/mes-"],
     ambassador: ["/ambassador", "/profile"],
     partner: ["/partner", "/profile"],
+    mentor: ["/mentor", "/profile"],
     admin: ["/admin", "/profile"],
     super_admin: ["/admin", "/profile"],
     moderator: ["/admin", "/profile"],
