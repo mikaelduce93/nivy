@@ -284,11 +284,13 @@ public.xp_payment_settings (singleton row)
 - Messages never reference data from other teens.
 - LLM-generated messages always run through the moderation validator.
 - Avatar customization unlocks gate by `user_unlocked_*` rows.
+- Suggested quest comes from `recommend_for_teen(teen_id, 'mission', 1)` — see §19.5 Personalization Engine, NOT from `pool[dayIndex % length]`.
 
 **Acceptance criteria**:
 - ☐ Teen.amine sees `<AvatarCoach>` on `/teen` saying "Salam Amine, prêt pour ton quiz du jour ?"
 - ☐ At 18:00 the mood shifts to "calm" (or whatever rule)
 - ☐ After winning a quiz, mood becomes "proud" with a celebratory message
+- ☐ Suggested mission tag overlaps with teen's top-3 interests (per §19.5)
 
 ## 9. Partner network spec (with sub-roles)
 
@@ -658,6 +660,94 @@ Plus `permissions JSONB` column on `admin_roles`.
 
 ---
 
+## 19.5. Personalization Engine — the retention loop
+
+> **Full spec**: `docs/vision/personalization-engine.md` (~38KB, source of truth for the algorithm).
+
+This is the **cross-cutting algorithm** that decides what every teen-facing surface shows: the avatar's next-défi suggestion, the daily quiz, event ranking, partner offers, friend suggestions, crew matchmaking. **Without it, the rest of the app is a flat catalog.** Sections §7, §8, §14, §17 all converge on a single RPC: `recommend_for_teen(teen_id, content_type, n)`.
+
+### Profile model (additions on top of `teens`)
+- **Interests** — `teen_interests(teen_id, tag, weight)` from a 50-tag closed taxonomy (sport / music / art / tech / science / lifestyle / academic / gaming / food / fashion / nature / languages — see Appendix A of the spec doc)
+- **Goals** — `teen_goals(teen_id, goal_text, goal_tag, priority, is_active)`
+- **Learning style** — visual / auditory / kinesthetic / reading
+- **Personality archetype** — leader / explorer / creator / socializer (drives avatar tone + content bias)
+- **Availability windows** — JSONB inferred from engagement_rhythm
+- New columns on teens: `gender`, `city`, `region`, `grade_level`, `learning_style`, `archetype`, `availability_pattern`
+
+### Behavioral signal capture (the input layer)
+`behavioral_signals(teen_id, signal_type, target_type, target_id, weight, metadata, created_at)` — every interaction logs a row:
+- view (w=1) / click (w=2) / start (w=2) / complete (w=3) / abandon (w=-1) / share (w=2) / favorite (w=2) / dismiss (w=-2) / report (w=-3)
+- target_type: quiz / defi / event / partner_offer / friend_profile / quest / mission
+
+### Aggregation (nightly cron `evolve-teen-profiles`)
+- `affinity_scores(teen_id, tag, score)` — sliding 30-day decayed score per tag (decay 0.95^days)
+- `teen_neighbours(teen_id, neighbour_id, similarity)` — top-50 cosine-similar teens for collaborative filtering
+
+### Scoring formula (hybrid recommender)
+For each (teen, candidate item):
+```
+score = w1·affinity_match + w2·collab_signal + w3·friend_resonance
+      + w4·novelty_bonus + w5·context_fit + w6·difficulty_fit
+      - p1·recently_seen - p2·friend_already_did - p3·difficulty_mismatch
+```
+Each function defined with concrete formulas in the spec doc. Weights w1..w6 tunable per content_type (initial defaults provided). MMR diversity injection: at least 1 of every 5 results is novelty.
+
+### Cold-start (< 5 sessions)
+- Static profile only (interests + curriculum + city + age)
+- Boost popular-among-cohort + bias toward easy-completion (build streak) + bias toward social items (network effect)
+
+### Schema additions (migration 051)
+```sql
+CREATE TABLE teen_interests (teen_id, tag, weight, declared_at, PK(teen_id,tag));
+CREATE TABLE teen_goals (id, teen_id, goal_text, goal_tag, priority, is_active, created_at);
+CREATE TABLE behavioral_signals (id BIGSERIAL, teen_id, signal_type, target_type, target_id, weight, metadata, created_at);
+CREATE TABLE affinity_scores (teen_id, tag, score, updated_at, PK(teen_id,tag));
+CREATE TABLE teen_neighbours (teen_id, neighbour_id, similarity, computed_at, PK(teen_id,neighbour_id));
+CREATE TABLE recommendation_weights (content_type, w1..w6, p1..p3, version, active, created_at);
+CREATE TABLE recommendation_metrics_daily (date, content_type, shown_count, clicked_count, completed_count);
+ALTER TABLE educational_quizzes/physical_challenges/mission_templates/events/partner_offers/shop_rewards ADD tags TEXT[];
+ALTER TABLE teens ADD gender, city, region, grade_level, learning_style, archetype, availability_pattern;
+CREATE INDEX ... USING GIN(tags);
+```
+
+### RPCs
+- `recommend_for_teen(teen_id, content_type, n=5)` — ranked items
+- `record_signal(teen_id, signal_type, target_type, target_id, weight)` — write to behavioral_signals
+- `update_affinity_scores(teen_id)` — used by nightly cron
+- `find_neighbours(teen_id, k=50)` — cosine on affinity vectors
+- `recommend_friends(teen_id, n=10)` — same school + city + interest overlap + mutual friends
+- `recommend_crew_opponent(crew_id)` — power-balanced matchmaking
+
+### Per-surface integration (where the engine plugs in)
+- **Avatar coach**: top-1 mission + LLM-generated message tailored to teen's interests + mood (whitepaper §8)
+- **Daily quiz selector**: replace `pool[dayIndex % length]` with `recommend_for_teen('quiz', 1)`, filtered by curriculum + 7-day-no-repeat (whitepaper §7 + §29.9)
+- **Event discovery**: top-5 ranked + 1 wildcard novelty
+- **Partner offer discovery**: scored by interest tags × partner_type fit + discount value relative to coin balance
+- **Friend suggestions**: school + city + interest overlap + mutual friends
+- **Crew matchmaking**: power-balanced + recency
+
+### Onboarding additions (whitepaper §19)
++2 short steps: (a) "What are you into?" — 30-tag chip selector, pick 5-10 → `teen_interests`. (b) "Your goals this season" — 3 free-text → `teen_goals`. (c) "How do you learn best?" — 4-choice → `teens.learning_style`.
+
+### 3-sprint implementation roadmap
+1. **Sprint 1 (capture + storage)** — migration 051, onboarding chip selector, `record_signal` RPC + capture in 5 hot paths
+2. **Sprint 2 (scoring + cron)** — `recommend_for_teen` with affinity-only score (no neighbours yet), nightly affinity decay, replace daily quiz selector
+3. **Sprint 3 (neighbours + avatar)** — `find_neighbours`, `friend_resonance` + `collaborative_signal` in scoring, avatar coach reads recommendations, A/B framework hooks
+
+### Privacy + fairness
+- Friend signals never expose private data (just "X friends did this")
+- Recommendations respect parental block lists
+- No "addictive" patterns: cap notifications at 3/day, cap streak guilt
+- Diversity injection (MMR), bias monitoring weekly
+
+### Metrics (in `recommendation_metrics_daily`)
+- Recommendation acceptance rate (clicked / shown)
+- Time-to-completion of recommended items
+- Per-tag accuracy
+- Cohort engagement curves
+
+---
+
 # Part IV — Cross-cutting
 
 ## 20. Identity model — 🟢 LOCKED canonical
@@ -773,6 +863,13 @@ The patch SQL is in `docs/E2E_SETUP.md` — extend it as new tables are added.
 23. Mystery box reveal flow + legal review (§5 wider note)
 24. Admin audit log + moderation queue real (§18)
 
+### 🔴 P0+ (added v3.5 — personalization is the retention engine, can't ship without)
+P0+1. **Migration 051** — `teen_interests`, `teen_goals`, `behavioral_signals`, `affinity_scores`, `teen_neighbours`, `recommendation_weights`, `recommendation_metrics_daily` + tag columns + teens columns (gender/city/grade_level/learning_style/archetype) — see §19.5
+P0+2. **`record_signal` RPC** + capture hooks in 5 hot paths (quiz_attempt, mission complete, event view, offer click, friend add)
+P0+3. **Onboarding chip selector** — "What are you into?" (5-10 picks from 50-tag taxonomy) + goals + learning_style
+P0+4. **`recommend_for_teen` RPC v1** (affinity-only score) — wired to daily quiz selector + avatar coach
+P0+5. **Nightly `evolve-teen-profiles` cron** — affinity decay + neighbour recomputation
+
 ### 🟢 P2 (polish)
 25. Crew battle XP redistribution rule
 26. Avatar customization unlocks
@@ -812,6 +909,11 @@ The patch SQL is in `docs/E2E_SETUP.md` — extend it as new tables are added.
 | 23 | Refund window | 24h before event start | 🟡 DEFAULT |
 | 24 | Friend visibility default | Parent can see teen's friends list (read-only) | 🟡 DEFAULT |
 | 25 | Adult-teen friending | Blocked except via partner_staff link (coaches) | 🟡 DEFAULT |
+| 26 | Interest taxonomy — keep at 50 closed tags? | 50 closed at launch, audit quarterly | 🟡 DEFAULT |
+| 27 | Recommendation weights per content type | See `personalization-engine.md` §4 + §6 | 🟡 DEFAULT |
+| 28 | Cold-start cohort | school first, then age fallback | 🟡 DEFAULT |
+| 29 | Diversity injection rate | 1 of every 5 = novelty | 🟡 DEFAULT |
+| 30 | Behavioral signal retention | 90 days raw, aggregates indefinite | 🟡 DEFAULT |
 
 **To founder**: any 🟡 you want to override, change in this table → agents pick it up automatically.
 
