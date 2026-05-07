@@ -1,5 +1,6 @@
 {
   "crons": [
-    { "path": "/api/cron/assign-missions", "schedule": "5 0 * * *" }
+    { "path": "/api/cron/assign-missions", "schedule": "5 0 * * *" },
+    { "path": "/api/cron/evolve-teen-profiles", "schedule": "0 2 * * *" }
   ]
 }

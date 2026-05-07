@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { submitQuizSchema, type QuizQuestion } from "@/lib/quiz/schema"
+import { recordSignalAsync } from "@/lib/analytics/signals"
 
 /**
  * POST /api/teen/quiz/submit
@@ -114,6 +115,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Wave 1.4 — record this quiz in quiz_seen_history so the recommender enforces
+    // the whitepaper §29.9 invariant (no repeat within 7 days).
+    {
+      const { error: seenError } = await supabase
+        .from("quiz_seen_history")
+        .upsert(
+          { teen_id: teenId, quiz_id: quizId, last_seen: new Date().toISOString() },
+          { onConflict: "teen_id,quiz_id" },
+        )
+      if (seenError) {
+        console.error("[teen/quiz/submit] quiz_seen_history upsert error:", seenError)
+      }
+    }
+
     // Grant XP via canonical RPC (same as education/quizzes route)
     if (xpEarned > 0) {
       const { error: xpError } = await supabase.rpc("add_xp_to_user", {
@@ -129,6 +144,21 @@ export async function POST(request: NextRequest) {
         console.error("[teen/quiz/submit] add_xp_to_user error:", xpError)
       }
     }
+
+    // Wave 1.2 — capture personalization signal (best-effort, non-blocking).
+    recordSignalAsync({
+      teenId,
+      signalType: passed ? "complete" : "abandon",
+      targetType: "quiz",
+      targetId: quizId,
+      metadata: {
+        score,
+        passing_score: passingScore,
+        correct_count: correctCount,
+        total_questions: questions.length,
+        subject: quiz.subject ?? null,
+      },
+    })
 
     return NextResponse.json({
       success: true,

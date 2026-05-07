@@ -7,6 +7,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
+import { recordSignalAsync } from "@/lib/analytics/signals"
 
 /* ==========================================================================
    POST /api/missions/claim
@@ -57,6 +58,20 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Wave 1.2 — capture personalization signal for mission completion.
+    // We pass user_mission_id as target_id (the user-scoped mission row);
+    // the personalization engine joins back to the canonical mission via metadata.
+    recordSignalAsync({
+      teenId: user.id,
+      signalType: "complete",
+      targetType: "mission",
+      targetId: user_mission_id,
+      metadata: {
+        xp_earned: data.xp_earned || 0,
+        bonus_reward: data.bonus_reward || null,
+      },
+    })
 
     return NextResponse.json({
       success: true,

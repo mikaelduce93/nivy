@@ -25,6 +25,7 @@
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { recordSignalAsync } from "@/lib/analytics/signals"
 
 interface SpendBody {
   rewardId?: string
@@ -136,6 +137,22 @@ export async function POST(request: Request) {
         )
       }
 
+      // Wave 1.2 — capture click signal on partner_offer/reward (best-effort).
+      const targetId = body.offerId || body.rewardId || null
+      if (targetId) {
+        recordSignalAsync({
+          teenId,
+          signalType: "click",
+          targetType: body.offerId ? "partner_offer" : "reward",
+          targetId,
+          metadata: {
+            amount_coins: amountCoins,
+            partner_id: body.partnerId || null,
+            outcome: "pending_approval",
+          },
+        })
+      }
+
       return NextResponse.json({
         success: true,
         status: "pending",
@@ -164,6 +181,22 @@ export async function POST(request: Request) {
         { success: false, error: data?.error || "Dépense impossible", details: data },
         { status: 400 }
       )
+    }
+
+    // Wave 1.2 — capture click signal on partner_offer/reward (best-effort).
+    const targetId = body.offerId || body.rewardId || null
+    if (targetId) {
+      recordSignalAsync({
+        teenId,
+        signalType: "click",
+        targetType: body.offerId ? "partner_offer" : "reward",
+        targetId,
+        metadata: {
+          amount_coins: amountCoins,
+          partner_id: body.partnerId || null,
+          outcome: "succeeded",
+        },
+      })
     }
 
     return NextResponse.json({

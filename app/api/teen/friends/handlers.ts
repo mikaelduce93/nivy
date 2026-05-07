@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { APIResponse } from "../../lib/responses"
+import { recordSignalAsync } from "@/lib/analytics/signals"
 
 export const FriendHandlers = {
   // GET Handlers
@@ -174,12 +175,34 @@ export const FriendHandlers = {
   async accept(teenId: string, requestId: string) {
     if (!requestId) return APIResponse.error("requestId is required")
     const supabase = await createClient()
+
+    // Resolve sender_id BEFORE accept so we can emit a personalization signal
+    // even after the row's status flips to 'accepted'.
+    const { data: req } = await supabase
+      .from("friend_requests")
+      .select("sender_id")
+      .eq("id", requestId)
+      .eq("receiver_id", teenId)
+      .maybeSingle()
+
     const { data: friendshipId, error } = await supabase.rpc("accept_friend_request", {
       p_request_id: requestId,
       p_receiver_id: teenId,
     })
 
     if (error) return APIResponse.error(error.message || "Failed to accept request")
+
+    // Wave 1.2 — capture friend favorite signal (best-effort).
+    if (req?.sender_id) {
+      recordSignalAsync({
+        teenId,
+        signalType: "favorite",
+        targetType: "friend_profile",
+        targetId: req.sender_id,
+        metadata: { request_id: requestId, friendship_id: friendshipId ?? null },
+      })
+    }
+
     return APIResponse.success({ message: "Friend request accepted", friendshipId })
   },
 

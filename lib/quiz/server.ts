@@ -89,18 +89,75 @@ export async function getRecentQuizAttempts(
 export async function getDailyQuizForTeen(teenId: string): Promise<DailyQuizPayload> {
   const supabase = await createClient()
 
-  const { data: pool } = await supabase
+  // Wave 1.4 — replace dayIndex rotation with personalized recommender RPC.
+  // Falls back to a simple active-quiz query if the RPC errors so the UI never breaks.
+  let recommendedId: string | null = null
+  try {
+    const { data: recos, error: rpcError } = await supabase.rpc("recommend_for_teen", {
+      p_teen_id: teenId,
+      p_content_type: "quiz",
+      p_n: 1,
+    })
+    if (rpcError) {
+      console.warn("[getDailyQuizForTeen] recommend_for_teen rpc error:", rpcError.message)
+    } else if (Array.isArray(recos) && recos.length > 0) {
+      const top = recos[0] as { id?: string } | string | null
+      if (top && typeof top === "object" && typeof top.id === "string") {
+        recommendedId = top.id
+      } else if (typeof top === "string") {
+        try {
+          const parsed = JSON.parse(top) as { id?: string }
+          if (parsed?.id) recommendedId = parsed.id
+        } catch {
+          // ignore
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("[getDailyQuizForTeen] recommender threw:", (err as Error).message)
+  }
+
+  // Fallback: if RPC returned nothing (e.g. all quizzes recently seen) pick the lowest-id
+  // active quiz the teen has NOT seen in the last 7 days.
+  if (!recommendedId) {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const { data: seen } = await supabase
+      .from("quiz_seen_history")
+      .select("quiz_id")
+      .eq("teen_id", teenId)
+      .gte("last_seen", sevenDaysAgo)
+    const seenIds = new Set((seen ?? []).map((r) => r.quiz_id))
+
+    const { data: pool } = await supabase
+      .from("educational_quizzes")
+      .select("id")
+      .eq("is_active", true)
+      .order("id", { ascending: true })
+    const fresh = (pool ?? []).find((q) => !seenIds.has(q.id))
+    recommendedId = fresh?.id ?? null
+  }
+
+  if (!recommendedId) return { quiz: null, completedToday: false }
+
+  const { data: today } = await supabase
     .from("educational_quizzes")
     .select(
       "id, code, title, description, subject, difficulty, grade_level, questions, time_limit_minutes, passing_score, xp_reward, icon",
     )
+    .eq("id", recommendedId)
     .eq("is_active", true)
-    .order("id", { ascending: true })
+    .maybeSingle()
 
-  if (!pool || pool.length === 0) return { quiz: null, completedToday: false }
+  if (!today) return { quiz: null, completedToday: false }
 
-  const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24))
-  const today = pool[dayIndex % pool.length]
+  // Mark as seen so the next call (and the next day) won't pick the same one.
+  // (whitepaper §29.9 invariant — no quiz repeats within 7 days)
+  await supabase
+    .from("quiz_seen_history")
+    .upsert(
+      { teen_id: teenId, quiz_id: today.id, last_seen: new Date().toISOString() },
+      { onConflict: "teen_id,quiz_id" },
+    )
 
   const startOfDay = new Date()
   startOfDay.setUTCHours(0, 0, 0, 0)

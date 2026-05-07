@@ -124,9 +124,14 @@ export default function OnboardingPage() {
       // Final juice — confetti + sound + haptic
       play('level_up')
       completeOnboarding()
+      // Wave 1.3: teens go through personalization steps before landing on dashboard.
+      // Parents/partners and other roles continue to /dashboard as before.
+      const personalizeNext = data.userType === 'teen'
+        ? '/onboarding/interests'
+        : '/dashboard'
       // Delay redirect to show celebration
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push(personalizeNext)
       }, 3000)
     } else {
       // Subtle XP gain juice between steps (light haptic, sound only)
