@@ -3,8 +3,12 @@ import { checkStreakDanger, checkDailyRewards } from '@/lib/notifications/trigge
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse('Unauthorized', { status: 401 })
+  const cronSecret = process.env.CRON_SECRET
+  const isVercelCron = req.headers.get('x-vercel-cron') !== null
+  if (!isVercelCron) {
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
   }
 
   const { searchParams } = new URL(req.url)

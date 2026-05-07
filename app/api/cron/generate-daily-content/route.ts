@@ -14,12 +14,15 @@ import { ContentGenerator } from "@/lib/ai/content-generator"
  */
 export async function POST(request: NextRequest) {
   try {
-    // Vérifier le secret cron
+    // Vérifier le secret cron — fail-closed.
     const authHeader = request.headers.get("authorization")
     const cronSecret = process.env.CRON_SECRET
+    const isVercelCron = request.headers.get("x-vercel-cron") !== null
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!isVercelCron) {
+      if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
     }
 
     const supabase = await createClient()

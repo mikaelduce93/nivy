@@ -8,9 +8,15 @@ export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get("authorization")
     const cronSecret = process.env.CRON_SECRET
-    
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
+    const isVercelCron = request.headers.get("x-vercel-cron") !== null
+
+    // Fail-closed: if CRON_SECRET is unset, no caller can authenticate.
+    // Wave-A audit found this gated `if (cronSecret && ...)` which silently
+    // bypassed auth when the env var was missing.
+    if (!isVercelCron) {
+      if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
+      }
     }
 
     const supabase = await createClient()

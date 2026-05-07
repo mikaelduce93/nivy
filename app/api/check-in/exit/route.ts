@@ -4,15 +4,24 @@ import { withSecurity } from "@/lib/security/api-middleware"
 
 export const POST = withSecurity(async (request: NextRequest) => {
   try {
-    const { bookingTicketId, eventId, adminId } = await request.json()
+    const { bookingTicketId, eventId } = await request.json()
 
     const supabase = await createClient()
+
+    // Wave-A audit: never trust a client-supplied adminId. Bind to auth.getUser().
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
+    }
 
     const { data: admin } = await supabase
       .from("admin_roles")
       .select("*")
-      .eq("profile_id", adminId)
-      .single()
+      .eq("profile_id", user.id)
+      .maybeSingle()
 
     if (!admin) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 403 })

@@ -28,8 +28,12 @@ export async function POST(request: Request) {
       parentEmail,
       parentPhone,
       teenEmail,
-      teenPassword,
     } = body
+    // Wave-A audit: SHA-256 unsalted password hashing was insecure. We no
+    // longer persist the teen's password here. The auth.users row + password
+    // are provisioned via Supabase Auth admin createUser at the moment the
+    // parent validates (app/api/auth/validate-teen). Any teenPassword sent
+    // by the client is intentionally ignored.
 
     // Validate required fields
     if (!teenFirstName || !teenLastName || !dateOfBirth || !parentEmail || !parentPhone) {
@@ -78,7 +82,7 @@ export async function POST(request: Request) {
           teen_first_name: teenFirstName,
           teen_last_name: teenLastName,
           teen_email: teenEmail?.toLowerCase() || null,
-          teen_password_hash: teenPassword ? await hashPassword(teenPassword) : null,
+          teen_password_hash: null,
           date_of_birth: dateOfBirth,
           parent_email: parentEmail.toLowerCase(),
           parent_phone: parentPhone,
@@ -170,16 +174,6 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-}
-
-/**
- * Hash password (placeholder - use proper hashing in production)
- */
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password)
-  const hash = await crypto.subtle.digest("SHA-256", data)
-  return Buffer.from(hash).toString("hex")
 }
 
 /**

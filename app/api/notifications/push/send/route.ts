@@ -40,6 +40,26 @@ const VAPID_SUBJECT =
 
 export const POST = withSecurity(async (request: NextRequest) => {
   try {
+    // Admin-only: blasting push to arbitrary users requires admin role.
+    // (Wave-A audit: was wide open to any authenticated user.)
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    }
+
+    const { data: adminRole } = await supabase
+      .from('admin_roles')
+      .select('role')
+      .eq('profile_id', user.id)
+      .maybeSingle()
+    if (!adminRole) {
+      return NextResponse.json({ error: 'Réservé aux administrateurs' }, { status: 403 })
+    }
+
     // Vérifier les clés VAPID
     if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
       console.error('[Push Send] VAPID keys not configured')
@@ -65,8 +85,6 @@ export const POST = withSecurity(async (request: NextRequest) => {
         { status: 400 }
       )
     }
-
-    const supabase = await createClient()
 
     // Récupérer les souscriptions pour le(s) utilisateur(s)
     const targetUserIds = userIds || (userId ? [userId] : [])

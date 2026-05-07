@@ -1,24 +1,29 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
-export async function GET(request: Request) {
-  try {
-    const supabase = await createClient()
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId")
+// All handlers bind to auth.getUser(). Per Wave-A audit: never trust a
+// client-supplied userId (was an open IDOR/impersonation vector).
+// System-side or cross-user notification writes must use the service role
+// from a trusted server caller, not this route.
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "User ID requis" },
-        { status: 400 }
-      )
+async function authedUser() {
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.getUser()
+  if (error || !data.user) return { supabase, user: null as null }
+  return { supabase, user: data.user }
+}
+
+export async function GET() {
+  try {
+    const { supabase, user } = await authedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Non authentifié" }, { status: 401 })
     }
 
-    // Get notifications for the user
     const { data: notifications, error } = await supabase
       .from("notifications")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(20)
 
@@ -30,27 +35,24 @@ export async function GET(request: Request) {
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      data: notifications || [],
-    })
+    return NextResponse.json({ success: true, data: notifications || [] })
   } catch (error) {
     console.error("Notifications API error:", error)
-    return NextResponse.json(
-      { success: false, error: "Erreur serveur" },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: "Erreur serveur" }, { status: 500 })
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
+    const { supabase, user } = await authedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Non authentifié" }, { status: 401 })
+    }
+
     const body = await request.json()
+    const { type, title, message, link } = body
 
-    const { userId, type, title, message, link } = body
-
-    if (!userId || !title || !message) {
+    if (!title || !message) {
       return NextResponse.json(
         { success: false, error: "Données manquantes" },
         { status: 400 }
@@ -60,7 +62,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from("notifications")
       .insert({
-        user_id: userId,
+        user_id: user.id,
         type: type || "system",
         title,
         message,
@@ -79,32 +81,28 @@ export async function POST(request: Request) {
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      data,
-    })
+    return NextResponse.json({ success: true, data })
   } catch (error) {
     console.error("Notifications POST API error:", error)
-    return NextResponse.json(
-      { success: false, error: "Erreur serveur" },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: "Erreur serveur" }, { status: 500 })
   }
 }
 
 export async function PATCH(request: Request) {
   try {
-    const supabase = await createClient()
+    const { supabase, user } = await authedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Non authentifié" }, { status: 401 })
+    }
+
     const body = await request.json()
+    const { notificationId, markAllRead, read } = body
 
-    const { notificationId, userId, markAllRead, read } = body
-
-    if (markAllRead && userId) {
-      // Mark all notifications as read for user
+    if (markAllRead) {
       const { error } = await supabase
         .from("notifications")
         .update({ read: true })
-        .eq("user_id", userId)
+        .eq("user_id", user.id)
         .eq("read", false)
 
       if (error) {
@@ -119,11 +117,11 @@ export async function PATCH(request: Request) {
     }
 
     if (notificationId) {
-      // Mark single notification as read
       const { error } = await supabase
         .from("notifications")
         .update({ read: read ?? true })
         .eq("id", notificationId)
+        .eq("user_id", user.id)
 
       if (error) {
         console.error("Mark read error:", error)
@@ -142,16 +140,17 @@ export async function PATCH(request: Request) {
     )
   } catch (error) {
     console.error("Notifications PATCH API error:", error)
-    return NextResponse.json(
-      { success: false, error: "Erreur serveur" },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: "Erreur serveur" }, { status: 500 })
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const supabase = await createClient()
+    const { supabase, user } = await authedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Non authentifié" }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const notificationId = searchParams.get("id")
 
@@ -166,6 +165,7 @@ export async function DELETE(request: Request) {
       .from("notifications")
       .delete()
       .eq("id", notificationId)
+      .eq("user_id", user.id)
 
     if (error) {
       console.error("Notification delete error:", error)
@@ -178,9 +178,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Notifications DELETE API error:", error)
-    return NextResponse.json(
-      { success: false, error: "Erreur serveur" },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: "Erreur serveur" }, { status: 500 })
   }
 }

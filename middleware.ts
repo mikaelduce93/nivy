@@ -125,10 +125,22 @@ export async function middleware(request: NextRequest) {
     })
   }
 
-  if (path.startsWith('/api/') && !path.startsWith('/api/csrf')) {
+  // PSP webhook endpoints authenticate via provider signature (Stripe-Signature
+  // header, CMI HMAC), not via our CSRF cookie — they cannot send one. Skip the
+  // generic CSRF check for these paths so reconciliation isn't 403'd.
+  // Per Wave-A audit: middleware was previously blocking all PSP webhooks.
+  const csrfExemptPrefixes = [
+    '/api/csrf',
+    '/api/webhooks/stripe',
+    '/api/payments/cmi/webhook',
+    '/api/cron/', // Cron routes authenticate via CRON_SECRET bearer token
+  ]
+  const isCsrfExempt = csrfExemptPrefixes.some((p) => path.startsWith(p))
+
+  if (path.startsWith('/api/') && !isCsrfExempt) {
     const isValidCSRF = await validateCSRFToken(request)
     if (!isValidCSRF && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
-      return new NextResponse('Invalid CSRF Token', { 
+      return new NextResponse('Invalid CSRF Token', {
         status: 403,
         headers: response.headers,
       })
