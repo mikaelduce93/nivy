@@ -1,9 +1,8 @@
 /**
  * /teen/internships — Browse internships (V1.1 P2.5).
  *
- * Filters: ?age=15&duration=summer&paid=true.
- * NOTE: the spec mentions city/remote filters but migration 059 ships
- *       neither column today, so they're not exposed. Add when schema lands.
+ * Filters: ?age=15&duration=summer&paid=true&city=Casablanca&remote=true.
+ * Migration 066 added internships.city + internships.remote_ok.
  *
  * Server component — RLS internships_authenticated_read covers status='open'.
  */
@@ -41,6 +40,8 @@ interface Internship {
   stipend_dh: number | null
   required_skills: string[] | null
   status: string
+  city: string | null
+  remote_ok: boolean
 }
 
 const DURATION_LABELS: Record<string, string> = {
@@ -64,12 +65,14 @@ export default async function TeenInternshipsPage({
   const age = sp.age ? Number(sp.age) : null
   const duration = sp.duration?.trim() || ""
   const paidOnly = sp.paid === "true"
+  const city = sp.city?.trim() || ""
+  const remoteOnly = sp.remote === "true"
 
   const supabase = await createClient()
   let q = supabase
     .from("internships")
     .select(
-      "id, partner_id, title, description, duration, age_min, age_max, application_deadline, spots_total, spots_taken, paid, stipend_dh, required_skills, status"
+      "id, partner_id, title, description, duration, age_min, age_max, application_deadline, spots_total, spots_taken, paid, stipend_dh, required_skills, status, city, remote_ok"
     )
     .eq("status", "open")
     .order("application_deadline", { ascending: true, nullsFirst: false })
@@ -80,6 +83,8 @@ export default async function TeenInternshipsPage({
   }
   if (duration) q = q.eq("duration", duration)
   if (paidOnly) q = q.eq("paid", true)
+  if (city) q = q.ilike("city", city)
+  if (remoteOnly) q = q.eq("remote_ok", true)
 
   const { data, error } = await q
   const list = (data ?? []) as Internship[]
@@ -153,6 +158,19 @@ export default async function TeenInternshipsPage({
               ))}
             </select>
           </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+              Ville
+            </label>
+            <input
+              type="text"
+              name="city"
+              defaultValue={city}
+              maxLength={120}
+              placeholder="Casablanca, Rabat..."
+              className="rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white w-44 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+            />
+          </div>
           <label className="text-sm flex items-center gap-2 text-zinc-300">
             <input
               type="checkbox"
@@ -162,6 +180,16 @@ export default async function TeenInternshipsPage({
               className="h-4 w-4 rounded bg-zinc-900 border border-white/10 accent-emerald-500"
             />
             Remuneres uniquement
+          </label>
+          <label className="text-sm flex items-center gap-2 text-zinc-300">
+            <input
+              type="checkbox"
+              name="remote"
+              value="true"
+              defaultChecked={remoteOnly}
+              className="h-4 w-4 rounded bg-zinc-900 border border-white/10 accent-emerald-500"
+            />
+            A distance
           </label>
           <button
             type="submit"
@@ -290,6 +318,16 @@ function InternshipCard({ internship }: { internship: Internship }) {
             <Users className="h-3 w-3" />
             {internship.age_min}-{internship.age_max} ans
           </span>
+          {internship.city || internship.remote_ok ? (
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {internship.remote_ok && !internship.city
+                ? "A distance"
+                : internship.remote_ok
+                  ? `${internship.city} / Distance`
+                  : internship.city}
+            </span>
+          ) : null}
           <span className="inline-flex items-center gap-1">
             <MapPin className="h-3 w-3" />
             {spotsLeft > 0

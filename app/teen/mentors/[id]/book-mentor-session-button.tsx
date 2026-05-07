@@ -11,7 +11,7 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Calendar, Clock, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
+import { Calendar, Clock, Loader2, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -35,6 +35,7 @@ export function BookMentorSessionButton({
   const [open, setOpen] = useState(false)
   const [scheduledFor, setScheduledFor] = useState("")
   const [duration, setDuration] = useState<number>(30)
+  const [consentRecorded, setConsentRecorded] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -60,6 +61,10 @@ export function BookMentorSessionButton({
       setError("La date doit etre dans le futur.")
       return
     }
+    if (!consentRecorded) {
+      setError("Tu dois accepter l'enregistrement de la session pour reserver.")
+      return
+    }
 
     startTransition(async () => {
       try {
@@ -70,6 +75,7 @@ export function BookMentorSessionButton({
             mentor_id: mentorId,
             scheduled_for: iso,
             duration_minutes: duration,
+            consent_recorded: consentRecorded,
           }),
         })
         const json = await res.json().catch(() => ({}))
@@ -185,6 +191,31 @@ export function BookMentorSessionButton({
         </span>
       </div>
 
+      {/* V1.2-A: explicit recording-consent gate.
+          consent_recorded defaults to FALSE in mentor_session_recordings;
+          recording cannot start until both teen and mentor opt in. */}
+      <label
+        className={cn(
+          "flex items-start gap-3 rounded-2xl border p-3 cursor-pointer transition-colors",
+          consentRecorded
+            ? "border-cyan-400/40 bg-cyan-500/5"
+            : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
+        )}
+      >
+        <input
+          type="checkbox"
+          checked={consentRecorded}
+          onChange={(e) => setConsentRecorded(e.target.checked)}
+          className="mt-1 h-4 w-4 rounded border-white/20 bg-zinc-900 accent-cyan-400"
+        />
+        <span className="text-sm text-zinc-200 leading-snug">
+          <ShieldCheck className="h-4 w-4 text-cyan-300 inline-block mr-1 -mt-0.5" />
+          J&apos;accepte que la session soit enregistree pour des raisons de
+          securite (90 jours de conservation). Mon parent et le mentor seront
+          informes; l&apos;enregistrement sera supprime automatiquement.
+        </span>
+      </label>
+
       {error ? (
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 flex gap-2 items-start text-sm text-red-200">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
@@ -203,10 +234,10 @@ export function BookMentorSessionButton({
         </button>
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || !consentRecorded}
           className={cn(
             "flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 px-4 py-3 text-sm font-black text-black",
-            "hover:brightness-110 transition-all disabled:opacity-50"
+            "hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         >
           {isPending ? (

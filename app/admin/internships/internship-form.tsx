@@ -11,11 +11,10 @@ interface PartnerOption {
 /**
  * New-internship form.
  * Calls POST /api/admin/internships with:
- *   { title, description, city, age_min, age_max, spots_total, partner_id }
+ *   { title, description, city, remote_ok, age_min, age_max, spots_total, partner_id }
  *
- * NOTE: the `internships` table (migration 059) does NOT have a `city`
- * column. The API route must persist `city` elsewhere (e.g. into
- * application_form metadata) or accept it and drop it. See report.
+ * Migration 066 added `city` (text NULL) and `remote_ok` (boolean DEFAULT false)
+ * to the `internships` table — these now persist directly.
  */
 export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
   const router = useRouter()
@@ -26,6 +25,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [city, setCity] = useState("")
+  const [remoteOk, setRemoteOk] = useState(false)
   const [ageMin, setAgeMin] = useState(14)
   const [ageMax, setAgeMax] = useState(17)
   const [spotsTotal, setSpotsTotal] = useState(1)
@@ -62,6 +62,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
           title: title.trim(),
           description: description.trim() || null,
           city: city.trim() || null,
+          remote_ok: remoteOk,
           age_min: ageMin,
           age_max: ageMax,
           spots_total: spotsTotal,
@@ -77,6 +78,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
       setTitle("")
       setDescription("")
       setCity("")
+      setRemoteOk(false)
       setAgeMin(14)
       setAgeMax(17)
       setSpotsTotal(1)
@@ -117,7 +119,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
           </select>
         </Label>
 
-        <Label text="Ville" full>
+        <Label text="Ville">
           <input
             value={city}
             onChange={(e) => setCity(e.target.value)}
@@ -125,6 +127,18 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
             className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
           />
         </Label>
+
+        <label className="flex items-end gap-2 pb-2">
+          <input
+            type="checkbox"
+            checked={remoteOk}
+            onChange={(e) => setRemoteOk(e.target.checked)}
+            className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 accent-blue-600"
+          />
+          <span className="text-xs uppercase tracking-wide text-zinc-300">
+            Possible à distance
+          </span>
+        </label>
 
         <Label text="Description" full>
           <textarea

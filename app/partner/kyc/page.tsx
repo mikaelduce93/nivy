@@ -1,371 +1,300 @@
-"use client"
-
-import { useState } from "react"
+/**
+ * Wave V1.2-F — Partner KYC documents (read-only).
+ *
+ * RSC. Reads `kyc_documents` for the authenticated partner via the service-role
+ * client (RLS on this table requires a `partner_staff` row with role='owner';
+ * we mirror the admin C.7 pattern instead since partners are matched by email
+ * via `getUserRole`). Signed URLs (15 min) are generated server-side from the
+ * private `kyc-documents` bucket. No client-side upload is wired here — the
+ * onboarding upload flow lives elsewhere; this page exposes the dossier state
+ * to the partner so they can see what's pending / rejected and contact support.
+ */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Progress } from "@/components/ui/progress"
 import {
   Shield,
-  Upload,
-  Check,
-  Clock,
-  AlertTriangle,
-  Building2,
-  User,
   FileText,
-  CreditCard,
-  ArrowLeft,
   CheckCircle2,
+  Clock,
   XCircle,
-  Loader2,
-  Camera,
-  Info
+  ExternalLink,
+  AlertTriangle,
 } from "lucide-react"
 import Link from "next/link"
-import { toast } from "sonner"
+import { redirect } from "next/navigation"
+import { getUserRole } from "@/lib/auth/get-user-role"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
-interface KYCStep {
-  id: string
-  title: string
-  description: string
-  status: "pending" | "submitted" | "verified" | "rejected"
-  required: boolean
+export const dynamic = "force-dynamic"
+
+const SIGNED_URL_TTL_SECONDS = 60 * 15 // 15 min — matches admin C.7
+
+const DOC_TYPE_LABEL: Record<string, string> = {
+  rc: "Registre du commerce",
+  ice: "ICE",
+  patente: "Patente",
+  cin: "Carte d'identité (représentant)",
+  rib: "RIB",
+  statuts: "Statuts de la société",
+  pouvoir: "Pouvoir de signature",
+  passport: "Passeport",
+  attestation: "Attestation",
 }
 
-export default function PartnerKYCPage() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [uploading, setUploading] = useState(false)
+function docLabel(docType: string): string {
+  return DOC_TYPE_LABEL[docType] || docType.replace(/_/g, " ")
+}
 
-  const kycSteps: KYCStep[] = [
-    {
-      id: "business_info",
-      title: "Informations entreprise",
-      description: "Raison sociale, RC, ICE",
-      status: "verified",
-      required: true
-    },
-    {
-      id: "legal_docs",
-      title: "Documents légaux",
-      description: "Statuts, RC, Patente",
-      status: "verified",
-      required: true
-    },
-    {
-      id: "representative",
-      title: "Représentant légal",
-      description: "CIN, Pouvoir de signature",
-      status: "submitted",
-      required: true
-    },
-    {
-      id: "bank_account",
-      title: "Coordonnées bancaires",
-      description: "RIB pour les paiements",
-      status: "pending",
-      required: true
-    }
-  ]
-
-  const completedSteps = kycSteps.filter(s => s.status === "verified").length
-  const progress = (completedSteps / kycSteps.length) * 100
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "verified": return <CheckCircle2 className="w-5 h-5 text-green-500" />
-      case "submitted": return <Clock className="w-5 h-5 text-yellow-500" />
-      case "rejected": return <XCircle className="w-5 h-5 text-red-500" />
-      default: return <div className="w-5 h-5 rounded-full border-2 border-zinc-600" />
-    }
+function statusBadge(status: string) {
+  switch (status) {
+    case "approved":
+    case "verified":
+      return (
+        <Badge className="bg-green-500/20 text-green-400">
+          <CheckCircle2 className="w-3 h-3 mr-1" />
+          Vérifié
+        </Badge>
+      )
+    case "pending":
+    case "submitted":
+    case "in_review":
+      return (
+        <Badge className="bg-yellow-500/20 text-yellow-400">
+          <Clock className="w-3 h-3 mr-1" />
+          En cours
+        </Badge>
+      )
+    case "rejected":
+      return (
+        <Badge className="bg-red-500/20 text-red-400">
+          <XCircle className="w-3 h-3 mr-1" />
+          Refusé
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status}</Badge>
   }
+}
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "verified": return <Badge className="bg-green-500/20 text-green-400">Vérifié</Badge>
-      case "submitted": return <Badge className="bg-yellow-500/20 text-yellow-400">En cours</Badge>
-      case "rejected": return <Badge className="bg-red-500/20 text-red-400">Refusé</Badge>
-      default: return <Badge variant="outline">À compléter</Badge>
-    }
-  }
+export default async function PartnerKYCPage() {
+  const userInfo = await getUserRole()
+  if (!userInfo) redirect("/auth/login")
 
-  const handleFileUpload = async (field: string) => {
-    setUploading(true)
-    // Simulate upload
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setUploading(false)
-    toast.success("Document uploadé avec succès")
-  }
-
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button asChild variant="ghost" className="text-zinc-400 hover:text-white">
-            <Link href="/partner/dashboard">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour
-            </Link>
-          </Button>
-        </div>
-
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <Shield className="w-8 h-8 text-blue-400" />
-              Vérification KYC
-            </h1>
-            <p className="text-zinc-400 mt-1">Complétez votre vérification pour débloquer toutes les fonctionnalités</p>
-          </div>
-        </div>
-
-        {/* Progress */}
-        <Card className="mb-8 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-bold text-white">Progression de la vérification</h3>
-                <p className="text-sm text-zinc-400">{completedSteps} sur {kycSteps.length} étapes complétées</p>
-              </div>
-              <span className="text-2xl font-black text-blue-400">{Math.round(progress)}%</span>
-            </div>
-            <Progress value={progress} className="h-3" />
+  if (userInfo.role !== "partner") {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-black text-white">Vérification KYC</h1>
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardContent className="p-10 text-center text-red-400">
+            Accès refusé — espace réservé aux partenaires.
           </CardContent>
         </Card>
+      </div>
+    )
+  }
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Steps List */}
-          <div className="lg:col-span-1">
-            <Card className="bg-zinc-900 border-zinc-800">
-              <CardHeader>
-                <CardTitle className="text-white">Étapes de vérification</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {kycSteps.map((step, index) => (
-                    <div
-                      key={step.id}
-                      className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all ${
-                        currentStep === index + 1
-                          ? "bg-blue-500/10 border border-blue-500/30"
-                          : "hover:bg-zinc-800"
-                      }`}
-                      onClick={() => setCurrentStep(index + 1)}
-                    >
-                      {getStatusIcon(step.status)}
-                      <div className="flex-1">
-                        <p className="font-medium text-white">{step.title}</p>
-                        <p className="text-xs text-zinc-400">{step.description}</p>
-                      </div>
-                      {getStatusBadge(step.status)}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+  const partnerId = userInfo.partnerData?.id
+  if (!partnerId) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-black text-white">Vérification KYC</h1>
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardContent className="p-10 text-center">
+            <p className="text-zinc-300 font-semibold">Profil partenaire introuvable</p>
+            <p className="text-sm text-zinc-500 mt-2">
+              Votre compte n'est pas encore lié à une fiche partenaire active.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
-          {/* Step Details */}
-          <div className="lg:col-span-2">
-            {currentStep === 1 && (
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-blue-400" />
-                    Informations entreprise
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                      <span className="text-green-400 font-medium">Informations vérifiées</span>
-                    </div>
-                  </div>
+  const sr = createServiceRoleClient()
 
-                  <div className="grid gap-4">
-                    <div>
-                      <Label className="text-zinc-400">Raison sociale</Label>
-                      <Input value="Cool Events SARL" disabled className="bg-zinc-800 border-zinc-700" />
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-zinc-400">Numéro RC</Label>
-                        <Input value="123456" disabled className="bg-zinc-800 border-zinc-700" />
-                      </div>
-                      <div>
-                        <Label className="text-zinc-400">ICE</Label>
-                        <Input value="001234567890123" disabled className="bg-zinc-800 border-zinc-700" />
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-zinc-400">Adresse</Label>
-                      <Input value="123 Rue Example, Casablanca" disabled className="bg-zinc-800 border-zinc-700" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+  const { data: docsRaw } = await sr
+    .from("kyc_documents")
+    .select("id, doc_type, file_path, status, rejection_reason, subject_kind, created_at, reviewed_at")
+    .eq("partner_id", partnerId)
+    .order("created_at", { ascending: true })
 
-            {currentStep === 2 && (
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-400" />
-                    Documents légaux
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                      <span className="text-green-400 font-medium">Documents vérifiés</span>
-                    </div>
-                  </div>
+  const docs = (docsRaw ?? []) as Array<{
+    id: string
+    doc_type: string
+    file_path: string
+    status: string
+    rejection_reason: string | null
+    subject_kind: string | null
+    created_at: string
+    reviewed_at: string | null
+  }>
 
-                  <div className="space-y-4">
-                    {[
-                      { name: "Statuts de la société", status: "verified" },
-                      { name: "Extrait du RC", status: "verified" },
-                      { name: "Attestation de patente", status: "verified" }
-                    ].map((doc, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50">
-                        <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-zinc-400" />
-                          <span className="text-white">{doc.name}</span>
-                        </div>
-                        <Badge className="bg-green-500/20 text-green-400">
-                          <Check className="w-3 h-3 mr-1" />
-                          Vérifié
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+  // Sign every doc once (15 min). Server-side only.
+  const signed = await Promise.all(
+    docs.map(async (d) => {
+      const { data } = await sr.storage
+        .from("kyc-documents")
+        .createSignedUrl(d.file_path, SIGNED_URL_TTL_SECONDS)
+      return { ...d, signedUrl: data?.signedUrl ?? null }
+    }),
+  )
 
-            {currentStep === 3 && (
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <User className="w-5 h-5 text-blue-400" />
-                    Représentant légal
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-yellow-500" />
-                      <span className="text-yellow-400 font-medium">En cours de vérification</span>
-                    </div>
-                    <p className="text-sm text-zinc-400 mt-1">
-                      Nos équipes vérifient actuellement vos documents. Délai estimé: 24-48h.
-                    </p>
-                  </div>
+  const totals = {
+    total: signed.length,
+    approved: signed.filter((d) => d.status === "approved" || d.status === "verified").length,
+    pending: signed.filter((d) =>
+      ["pending", "submitted", "in_review"].includes(d.status),
+    ).length,
+    rejected: signed.filter((d) => d.status === "rejected").length,
+  }
 
-                  <div className="grid gap-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-zinc-400">Nom complet</Label>
-                        <Input value="Mohamed Alami" disabled className="bg-zinc-800 border-zinc-700" />
-                      </div>
-                      <div>
-                        <Label className="text-zinc-400">Fonction</Label>
-                        <Input value="Gérant" disabled className="bg-zinc-800 border-zinc-700" />
-                      </div>
-                    </div>
-                  </div>
+  const rejected = signed.filter((d) => d.status === "rejected")
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50">
-                      <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-zinc-400" />
-                        <span className="text-white">Carte d'identité (recto/verso)</span>
-                      </div>
-                      <Badge className="bg-yellow-500/20 text-yellow-400">
-                        <Clock className="w-3 h-3 mr-1" />
-                        En vérification
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50">
-                      <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-zinc-400" />
-                        <span className="text-white">Pouvoir de signature</span>
-                      </div>
-                      <Badge className="bg-yellow-500/20 text-yellow-400">
-                        <Clock className="w-3 h-3 mr-1" />
-                        En vérification
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {currentStep === 4 && (
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-blue-400" />
-                    Coordonnées bancaires
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <div className="flex items-center gap-2">
-                      <Info className="w-5 h-5 text-blue-400" />
-                      <span className="text-blue-400 font-medium">Action requise</span>
-                    </div>
-                    <p className="text-sm text-zinc-400 mt-1">
-                      Ajoutez vos coordonnées bancaires pour recevoir vos paiements.
-                    </p>
-                  </div>
-
-                  <div className="grid gap-4">
-                    <div>
-                      <Label>Nom du titulaire *</Label>
-                      <Input placeholder="COOL EVENTS SARL" className="bg-zinc-800 border-zinc-700" />
-                    </div>
-                    <div>
-                      <Label>Banque *</Label>
-                      <Input placeholder="Attijariwafa Bank" className="bg-zinc-800 border-zinc-700" />
-                    </div>
-                    <div>
-                      <Label>RIB *</Label>
-                      <Input placeholder="007 000 0000000000000000 00" className="bg-zinc-800 border-zinc-700" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="mb-2 block">RIB (document)</Label>
-                    <div className="border-2 border-dashed border-zinc-700 rounded-lg p-8 text-center">
-                      <Upload className="w-12 h-12 mx-auto mb-4 text-zinc-500" />
-                      <p className="text-sm text-zinc-400 mb-2">
-                        Glissez votre RIB ici ou cliquez pour sélectionner
-                      </p>
-                      <Button variant="outline" onClick={() => handleFileUpload('rib')} disabled={uploading}>
-                        {uploading ? (
-                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Upload...</>
-                        ) : (
-                          <>Choisir un fichier</>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-blue-500 hover:bg-blue-600">
-                    Soumettre pour vérification
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-black text-white flex items-center gap-3">
+            <Shield className="w-7 h-7 text-blue-400" />
+            Vérification KYC
+          </h1>
+          <p className="text-zinc-400 mt-1">
+            État de votre dossier ·{" "}
+            <span className="text-white">{userInfo.partnerData?.companyName || "Partenaire"}</span>
+          </p>
         </div>
       </div>
+
+      {/* Counters */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardContent className="p-5">
+            <p className="text-xs text-zinc-400">Documents</p>
+            <p className="text-2xl font-black text-white">{totals.total}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardContent className="p-5">
+            <p className="text-xs text-green-400 font-medium">Vérifiés</p>
+            <p className="text-2xl font-black text-white">{totals.approved}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardContent className="p-5">
+            <p className="text-xs text-yellow-400 font-medium">En cours</p>
+            <p className="text-2xl font-black text-white">{totals.pending}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardContent className="p-5">
+            <p className="text-xs text-red-400 font-medium">Refusés</p>
+            <p className="text-2xl font-black text-white">{totals.rejected}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Rejection alerts */}
+      {rejected.length > 0 && (
+        <Card className="bg-red-500/10 border-red-500/30">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <p className="font-medium text-red-400">
+                  {rejected.length} document{rejected.length > 1 ? "s" : ""} refusé
+                  {rejected.length > 1 ? "s" : ""}
+                </p>
+                <p className="text-zinc-400 mt-1">
+                  Contactez le support pour soumettre un nouveau document. Les motifs de refus
+                  sont indiqués ci-dessous.
+                </p>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="mt-3 border-red-500/40 text-red-300"
+                >
+                  <Link href="/partner/support">Contacter le support</Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Document list */}
+      <Card className="bg-zinc-900 border-zinc-800">
+        <CardHeader>
+          <CardTitle className="text-white">Pièces du dossier</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {signed.length === 0 ? (
+            <div className="p-10 text-center">
+              <FileText className="w-12 h-12 mx-auto mb-4 text-zinc-700" />
+              <p className="text-zinc-300 font-semibold">Aucun document KYC</p>
+              <p className="text-sm text-zinc-500 mt-2">
+                Aucune pièce justificative n'a encore été déposée pour votre fiche partenaire.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {signed.map((d) => (
+                <div
+                  key={d.id}
+                  className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-zinc-800/50 border border-zinc-800"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <FileText className="w-5 h-5 text-zinc-400 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-white capitalize">
+                        {docLabel(d.doc_type)}
+                      </p>
+                      <p className="text-xs text-zinc-500">
+                        Déposé le{" "}
+                        {new Date(d.created_at).toLocaleDateString("fr-FR", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                        {d.subject_kind ? ` · ${d.subject_kind}` : ""}
+                      </p>
+                      {d.status === "rejected" && d.rejection_reason && (
+                        <p className="text-xs text-red-400 mt-1">
+                          Motif : {d.rejection_reason}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {statusBadge(d.status)}
+                    {d.signedUrl ? (
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="border-zinc-700 text-zinc-300"
+                      >
+                        <a href={d.signedUrl} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-3 h-3 mr-1" />
+                          Voir
+                        </a>
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-zinc-500">Lien indisponible</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <p className="text-xs text-zinc-500">
+        Les liens d'aperçu sont signés 15 minutes. Pour mettre à jour une pièce, contactez le
+        support partenaires.
+      </p>
     </div>
   )
 }

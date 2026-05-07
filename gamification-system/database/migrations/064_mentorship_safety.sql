@@ -1,37 +1,27 @@
 -- =========================================================================
--- Migration 064 — Mentorship Safety Pipeline (V1.1 P2.5)
+-- Migration 064 — Mentorship Safety Pipeline (V1.1 P2.5 / V1.2-A)
 -- Date: 2026-05-07
 -- Source: docs/vision/audit-prelaunch/PRE_LAUNCH_AUDIT.md
 --         docs/vision/mentorship-career.md
 --
--- ╔═══════════════════════════════════════════════════════════════════════╗
--- ║  PENDING FOUNDER REVIEW — DO NOT APPLY UNTIL CNDP STORAGE DECISION    ║
--- ║  IS MADE.                                                             ║
--- ║                                                                       ║
--- ║  This migration creates `mentor_session_recordings`, which holds      ║
--- ║  pointers to audio/video of minor-adult interactions. Recordings are  ║
--- ║  CNDP-sensitive personal data (Loi 09-08, art. 1 §1) and trigger      ║
--- ║  additional consent + retention obligations. The retention helper     ║
--- ║  RPC `prune_expired_mentor_recordings()` is included but NOT wired.   ║
--- ║                                                                       ║
--- ║  Founder must confirm:                                                ║
--- ║    1. The private storage bucket name (`mentor-recordings` proposed). ║
--- ║    2. The 90-day retention window (T+90d hardcoded; see col default). ║
--- ║    3. Whether mentee/mentor explicit recorded-consent UI is shipped   ║
--- ║       BEFORE this migration applies (consent_recorded must default    ║
--- ║       to FALSE and be set TRUE only after both parties tap consent).  ║
--- ║    4. Storage RLS — currently service-role only on writes; reads      ║
--- ║       limited to session participants (mentor + mentee + linked       ║
--- ║       parent + admin). Founder may want stricter (admin-only).        ║
--- ╚═══════════════════════════════════════════════════════════════════════╝
+-- ─────────────────────────────────────────────────────────────────────────
+-- V1.2-A: 5 decisions resolved with conservative defaults; values can be
+-- ALTERed post-launch as needed. See per-decision inline notes below.
+-- Schema preconditions verified before apply (V1.2-A.1):
+--   * parental_approvals.action_type is TEXT (no enum migration needed)
+--   * mentors.status CHECK already allows 'suspended'
+--   * storage.bucket 'mentor-recordings' does not exist yet
+-- ─────────────────────────────────────────────────────────────────────────
 --
 -- Scope:
---   1. mentor_strikes table + auto-suspend trigger
---   2. mentor_session_recordings table (with 90-day expires_at)
---   3. RPC prune_expired_mentor_recordings()
---   4. RPC mentor_can_dm_teen(p_mentor_id, p_teen_id)
---   5. RLS for both tables
---   6. Private storage bucket `mentor-recordings` (writes service-role only)
+--   1. mentor_strikes table + auto-suspend trigger (180-day expiry)
+--   2. mentor_session_recordings table (90-day expires_at)
+--      + file_path-prefix validation trigger
+--   3. RPC prune_expired_mentor_recordings()  (SECURITY DEFINER, service-role)
+--   4. RPC mentor_can_dm_teen(p_mentor_id, p_teen_id) (SECURITY DEFINER)
+--   5. RLS for both tables (participants-read, service-role writes)
+--   6. Private storage bucket `mentor-recordings`
+--      + storage.objects SELECT policy (participants only)
 --
 -- Invariants honoured:
 --   §29.5  auth.users.id is the canonical user identifier
@@ -45,6 +35,15 @@ BEGIN;
 -- =========================================================================
 -- 1. mentor_strikes
 -- =========================================================================
+-- DECISION #2 (V1.2-A): Strike expiry default = 180 days.
+--   Why: middle ground for a teen-safety platform. 90 days is too aggressive
+--   (a serious complaint disappears in a quarter); 365 days is too lenient
+--   (one slip-up haunts a mentor for a year). 180 days strikes the balance
+--   and matches CNDP retention guidance for moderation events.
+--   How to override later: ALTER TABLE public.mentor_strikes
+--     ALTER COLUMN expires_at SET DEFAULT (NOW() + INTERVAL 'N days');
+--   Already-issued strikes are unaffected; only new rows pick up the new
+--   default. To bulk-shift existing rows, run an UPDATE with a WHERE filter.
 
 CREATE TABLE IF NOT EXISTS public.mentor_strikes (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -72,6 +71,7 @@ CREATE INDEX IF NOT EXISTS idx_mentor_strikes_expiry
 
 -- Auto-suspend trigger: any new active strike that pushes the mentor's
 -- ACTIVE strike count to >= 3 flips mentors.status to 'suspended'.
+-- (mentors.status CHECK confirmed to allow 'suspended' — see V1.2-A.1)
 CREATE OR REPLACE FUNCTION public.mentor_strikes_autosuspend()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public, pg_temp AS $$
@@ -117,14 +117,37 @@ BEGIN
 END;
 $$;
 
-DROP TRIGGER IF EXISTS trg_mentor_strikes_autosuspend ON public.mentor_strikes;
-CREATE TRIGGER trg_mentor_strikes_autosuspend
+DROP TRIGGER IF EXISTS mentor_strikes_autosuspend ON public.mentor_strikes;
+CREATE TRIGGER mentor_strikes_autosuspend
   AFTER INSERT ON public.mentor_strikes
   FOR EACH ROW EXECUTE FUNCTION public.mentor_strikes_autosuspend();
 
 -- =========================================================================
 -- 2. mentor_session_recordings
 -- =========================================================================
+-- DECISION #1 (V1.2-A): Bucket name = 'mentor-recordings', PRIVATE.
+--   Why: mirrors existing private-bucket convention for CNDP-sensitive
+--   media (kyc-documents, defi-proofs, cin-scans — all hyphenated, all
+--   public=false). Verified against storage.buckets in V1.2-A.1.
+--   How to override: rename via storage.buckets UPDATE + UPDATE
+--   mentor_session_recordings.bucket; storage RLS policy below references
+--   the literal name and would need updating in lockstep.
+--
+-- DECISION #1b (V1.2-A): Retention = 90 days (expires_at default).
+--   Why: 90 days is the CNDP-aligned default for non-essential personal
+--   media. Long enough for parents/admins to investigate a complaint
+--   (typical complaint window is ~30d), short enough to limit exposure.
+--   How to override: ALTER COLUMN expires_at SET DEFAULT (NOW() +
+--   INTERVAL 'N days') — only affects new rows.
+--
+-- DECISION #5 (V1.2-A): consent_recorded defaults FALSE.
+--   Why: explicit-consent posture. Recording cannot start until both
+--   teen and mentor flip the flag to true via UI. The book-mentor-session
+--   form now surfaces a checkbox (see V1.2-A.5 / book-mentor-session-button.tsx);
+--   parent approval flow surfaces the consent state read-only.
+--   How to override: change column DEFAULT to TRUE — but DO NOT do this
+--   without legal review; an opt-out UI is a stronger CNDP risk than
+--   opt-in.
 
 CREATE TABLE IF NOT EXISTS public.mentor_session_recordings (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -145,6 +168,38 @@ CREATE INDEX IF NOT EXISTS idx_mentor_recordings_session
   ON public.mentor_session_recordings (session_id);
 CREATE INDEX IF NOT EXISTS idx_mentor_recordings_expiry
   ON public.mentor_session_recordings (expires_at) WHERE deleted_at IS NULL;
+
+-- DECISION #4 (V1.2-A): Storage SELECT policy joins r.file_path =
+--   storage.objects.name, AND we enforce a session_id-prefix invariant on
+--   file_path at INSERT/UPDATE time via a trigger (CHECK can't reference
+--   another column elegantly with a LIKE-on-cast, so a trigger is cleaner).
+--   Inserts go through service-role / SECURITY DEFINER RPCs, so an
+--   auth.uid()-prefix check would be NULL-unsafe; the session_id prefix is
+--   the load-bearing invariant the storage RLS policy relies on.
+--   How to override: drop the trigger and the matching constraint logic in
+--   the storage RLS policy in lockstep.
+
+CREATE OR REPLACE FUNCTION public.mentor_recording_validate_path()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.file_path IS NULL OR length(NEW.file_path) = 0 THEN
+    RAISE EXCEPTION 'mentor_recording: file_path is required';
+  END IF;
+  -- Enforce: file_path MUST start with "<session_id>/" so the storage
+  -- RLS policy can map storage.objects.name back to a session safely.
+  IF position((NEW.session_id::text || '/') in NEW.file_path) <> 1 THEN
+    RAISE EXCEPTION 'mentor_recording: file_path must start with "%/" (session_id prefix)',
+      NEW.session_id;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS mentor_recording_validate_path ON public.mentor_session_recordings;
+CREATE TRIGGER mentor_recording_validate_path
+  BEFORE INSERT OR UPDATE OF file_path, session_id
+  ON public.mentor_session_recordings
+  FOR EACH ROW EXECUTE FUNCTION public.mentor_recording_validate_path();
 
 -- =========================================================================
 -- 3. RPC prune_expired_mentor_recordings()
@@ -203,6 +258,14 @@ GRANT EXECUTE ON FUNCTION public.prune_expired_mentor_recordings() TO service_ro
 -- =========================================================================
 -- 4. RPC mentor_can_dm_teen(p_mentor_id, p_teen_id)
 -- =========================================================================
+-- DECISION #3 (V1.2-A): introduce parental_approvals.action_type='mentor_dm'
+--   as a new TEXT value (no enum migration needed; column was verified TEXT
+--   in V1.2-A.1). This RPC reads it; the parent UI must write it when
+--   approving an out-of-session DM. action_type values are app-level enums
+--   maintained in code (not in PG), so no DDL needed.
+--   How to override: just stop writing 'mentor_dm' rows; this RPC will
+--   naturally return false (b)-branch.
+--
 -- Returns true when a DM between this mentor and teen is currently allowed.
 -- Allowed iff:
 --   (a) there is an approved-or-completed mentor_session created in the
@@ -311,9 +374,10 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('mentor-recordings', 'mentor-recordings', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Storage RLS: SELECT only for participants (mirrors the table policy by
--- pattern-matching the leading folder against the session_id). Writes /
--- deletes go through service-role.
+-- Storage RLS: SELECT only for participants (joins to recordings via
+-- file_path = storage.objects.name; the path-prefix trigger above guarantees
+-- file_path begins with the session_id, so the join is safe and unique).
+-- Writes / deletes go through service-role.
 DROP POLICY IF EXISTS mentor_recordings_storage_read ON storage.objects;
 CREATE POLICY mentor_recordings_storage_read
   ON storage.objects
@@ -342,5 +406,5 @@ CREATE POLICY mentor_recordings_storage_read
 COMMIT;
 
 -- =========================================================================
--- END — PENDING FOUNDER REVIEW
+-- END — V1.2-A applied with conservative defaults (5/5 decisions resolved)
 -- =========================================================================

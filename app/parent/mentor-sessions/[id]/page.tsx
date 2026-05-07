@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
   ArrowLeft,
+  AlertTriangle,
   Calendar,
   Clock,
   GraduationCap,
+  ShieldCheck,
   Sparkles,
   Star,
   Tag,
@@ -102,6 +104,14 @@ export default async function ParentMentorSessionDetailPage({
     })
 
   const isPending = session.status === "pending_approval"
+
+  // V1.2-A: surface the recording-consent state captured at booking time.
+  // The teen flips `recorded=true` only via the explicit consent checkbox in
+  // book-mentor-session-button.tsx. Parent approval is gated on it: if the
+  // teen did NOT consent, the parent CANNOT approve a recorded session.
+  const teenConsentedToRecording = Boolean(session.recorded)
+  const consentRequired = true // policy: recording is mandatory for V1.2 mentor sessions
+  const canApprove = isPending && (!consentRequired || teenConsentedToRecording)
 
   const statusLabel = (s: string) => {
     switch (s) {
@@ -247,20 +257,48 @@ export default async function ParentMentorSessionDetailPage({
           )}
 
           {isPending ? (
-            <div className="pt-4 border-t border-zinc-800">
-              <p className="text-sm text-zinc-400 mb-3">
+            <div className="pt-4 border-t border-zinc-800 space-y-4">
+              {/* V1.2-A: recording-consent surface. */}
+              {teenConsentedToRecording ? (
+                <div className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-3 flex gap-2 items-start text-sm text-cyan-100">
+                  <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-cyan-300" />
+                  <span>
+                    {teenName} a accepté l&apos;enregistrement de la session
+                    pour raisons de sécurité (conservation 90 jours, accès
+                    réservé aux participants et aux administrateurs).
+                  </span>
+                </div>
+              ) : (
+                <div className="rounded-md border border-amber-500/30 bg-amber-500/10 p-3 flex gap-2 items-start text-sm text-amber-100">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-300" />
+                  <span>
+                    {teenName} n&apos;a pas accepté l&apos;enregistrement.
+                    L&apos;approbation est bloquée tant que le consentement
+                    n&apos;est pas donné par le teen lors de la réservation.
+                  </span>
+                </div>
+              )}
+
+              <p className="text-sm text-zinc-400">
                 {session.is_intro
                   ? "Cette session d'intro est gratuite. Approuver autorisera le mentor à rejoindre."
                   : `Approuver débitera ${session.amount_coins ?? 0} coins du teen et autorisera la session.`}
               </p>
-              <MentorSessionActions
-                sessionId={session.id}
-                mentorName={mentorName}
-                teenName={teenName}
-                amountDh={session.amount_dh ?? undefined}
-                amountCoins={session.amount_coins ?? undefined}
-                isIntro={session.is_intro}
-              />
+              {canApprove ? (
+                <MentorSessionActions
+                  sessionId={session.id}
+                  mentorName={mentorName}
+                  teenName={teenName}
+                  amountDh={session.amount_dh ?? undefined}
+                  amountCoins={session.amount_coins ?? undefined}
+                  isIntro={session.is_intro}
+                />
+              ) : (
+                <p className="text-xs text-amber-300/80">
+                  Le teen doit reprendre la réservation et cocher la case de
+                  consentement avant que tu puisses approuver.
+                </p>
+              )}
             </div>
           ) : (
             <div className="pt-4 border-t border-zinc-800 text-sm text-zinc-500">

@@ -22,6 +22,7 @@ export type ApiChallenge = {
   duration_days?: number | null
   difficulty?: string | null
   icon?: string | null
+  image_url?: string | null
   is_started: boolean
   is_completed: boolean
   progress: {
@@ -53,13 +54,15 @@ interface Props {
 
 /**
  * Map an API physical challenge to the unified <DefiCard /> contract.
- * - title   ← challenge.name (DB column) || challenge.title (legacy alias)
- * - target  ← challenge.objective_value (DB schema; no `target_count` column exists)
- * - current ← challenge.progress.current_value (DB schema; no `current_count` column)
- * - status  ← is_completed ? "completed" : "active"
- * Note: the DB has no image_url column on physical_challenges — imageUrl stays undefined.
- *       The icon column may store an emoji ("💪") or non-lucide name, so we leave
- *       iconName unset and rely on the variant's default Dumbbell icon.
+ * - title    ← challenge.name (DB column) || challenge.title (legacy alias)
+ * - target   ← challenge.objective_value (DB schema; no `target_count` column exists)
+ * - current  ← challenge.progress.current_value (DB schema; no `current_count` column)
+ * - status   ← is_completed ? "completed" : "active"
+ * - imageUrl ← challenge.image_url (added by migration 066, served from the
+ *              public `physical-challenge-images` bucket — undefined when null)
+ *
+ * The icon column may store an emoji ("💪") or non-lucide name, so we leave
+ * iconName unset and rely on the variant's default Dumbbell icon.
  */
 function challengeToDefiProps(challenge: ApiChallenge) {
   const title = challenge.name ?? challenge.title ?? ""
@@ -71,6 +74,7 @@ function challengeToDefiProps(challenge: ApiChallenge) {
   return {
     title,
     description: challenge.description ?? undefined,
+    imageUrl: challenge.image_url ?? undefined,
     xpReward: challenge.xp_reward || 0,
     status: (challenge.is_completed ? "completed" : "active") as
       | "completed"

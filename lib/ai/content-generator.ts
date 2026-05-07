@@ -211,12 +211,16 @@ export class ContentGenerator {
       const { content: response, metadata } = await this.aiProvider.call(systemPrompt, userPrompt)
       const challenge = this.parseChallengeResponse(response, params)
 
-      if (!challenge) return null
+      if (!challenge) {
+        return this.useFallback ? this.getFallbackChallenge(params) : null
+      }
 
       // Safety filter (V1.1 P2.4)
       const safety = checkContentSafety(challenge)
       logSafetyOutcome("challenge", challenge.title || "(untitled)", safety)
-      if (!safety.isSafe) return null
+      if (!safety.isSafe) {
+        return this.useFallback ? this.getFallbackChallenge(params) : null
+      }
 
       await this.logGeneration({
         contentType: "challenge",
@@ -229,6 +233,7 @@ export class ContentGenerator {
       return challenge
     } catch (error) {
       console.error("Error generating challenge:", error)
+      if (this.useFallback) return this.getFallbackChallenge(params)
       return null
     }
   }
@@ -424,6 +429,16 @@ Format JSON requis:
       return curated.length > 0 ? curated[0].content_data as GeneratedMission : null
     } catch (error) {
       console.error("Error getting fallback mission:", error)
+      return null
+    }
+  }
+
+  private async getFallbackChallenge(params: GenerationParams): Promise<GeneratedChallenge | null> {
+    try {
+      const curated = await this.validator.getCuratedFallback("challenge", params.category, params.gradeLevel, 1)
+      return curated.length > 0 ? curated[0].content_data as GeneratedChallenge : null
+    } catch (error) {
+      console.error("Error getting fallback challenge:", error)
       return null
     }
   }
