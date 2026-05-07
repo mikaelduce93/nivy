@@ -100,7 +100,7 @@ const QUIZZES = [
     title: "Histoire - Independance du Maroc",
     description: "Les grandes dates de l'histoire marocaine",
     subject: "history",
-    difficulty: "medium",
+    difficulty: "normal",
     grade_level: "4eme",
     questions: [
       { question: "En quelle annee le Maroc a-t-il obtenu son independance ?", options: ["1944", "1956", "1960", "1962"], correct: 1, type: "mcq" },
@@ -140,7 +140,7 @@ const QUIZZES = [
     title: "Francais - Grammaire",
     description: "Reviser les bases de la grammaire francaise",
     subject: "french",
-    difficulty: "medium",
+    difficulty: "normal",
     grade_level: "4eme",
     questions: [
       { question: "Quel est le pluriel de \"cheval\" ?", options: ["chevals", "chevaux", "chevales", "cheveaux"], correct: 1, type: "mcq" },
@@ -160,7 +160,7 @@ const QUIZZES = [
     title: "Culture Generale",
     description: "Cinq questions de culture generale",
     subject: "culture",
-    difficulty: "medium",
+    difficulty: "normal",
     grade_level: "3eme",
     questions: [
       { question: "Qui a peint la Joconde ?", options: ["Picasso", "Van Gogh", "Leonard de Vinci", "Monet"], correct: 2, type: "mcq" },
@@ -207,35 +207,21 @@ async function seedShopRewards() {
   const categoryId = catData!.id
   console.log(`  reward_categories: ${categoryId}`)
 
-  const { error: rewardErr, count } = await admin
-    .from("shop_rewards")
-    .upsert(
-      [
-        {
-          category_id: categoryId,
-          name: "E2E Sticker Pack",
-          description: "Pack de stickers pour valider le flow shop. Coût intentionnellement bas.",
-          short_description: "Stickers pour Playwright",
-          icon: "sticker",
-          xp_cost: 10,
-          stock_type: "unlimited",
-          is_active: true,
-        },
-        {
-          category_id: categoryId,
-          name: "E2E Badge Test",
-          description: "Badge symbolique pour valider achat.",
-          short_description: "Badge E2E",
-          icon: "award",
-          xp_cost: 25,
-          stock_type: "unlimited",
-          is_active: true,
-        },
-      ],
-      { onConflict: "name", ignoreDuplicates: true, count: "exact" },
-    )
-  if (rewardErr) throw rewardErr
-  console.log(`  shop_rewards: 2 upserted (${count ?? "?"} inserted)`)
+  // No unique constraint on `name`, so lookup-then-insert.
+  const e2eRewards = [
+    { name: "E2E Sticker Pack", description: "Pack de stickers pour valider le flow shop.", short_description: "Stickers Playwright", icon: "sticker", xp_cost: 10, reward_type: "digital_item" },
+    { name: "E2E Badge Test", description: "Badge symbolique pour valider achat.", short_description: "Badge E2E", icon: "award", xp_cost: 25, reward_type: "digital_item" },
+  ]
+  for (const r of e2eRewards) {
+    const { data: existing } = await admin.from("shop_rewards").select("id").eq("name", r.name).maybeSingle()
+    if (existing) {
+      console.log(`  shop_rewards: ${r.name} exists (${existing.id})`)
+      continue
+    }
+    const { error } = await admin.from("shop_rewards").insert({ ...r, category_id: categoryId, stock_type: "unlimited", is_active: true })
+    if (error) throw error
+    console.log(`  shop_rewards: ${r.name} inserted`)
+  }
 }
 
 // ----------------------------------------------------------------------------
