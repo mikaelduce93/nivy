@@ -1,3 +1,9 @@
+// V1.2 TODO: Per FRONTEND_REDO §5 this route is recommended for DELETE.
+// The whitepaper §12 commission model is cash-based (DH withdrawals) +
+// optional XP-only for under-18 ambassadors — there is no separate
+// "ambassador rewards shop". Either redirect to /ambassador/withdrawals
+// or fold the few experience-rewards into /teen/shop. Kept live for now
+// so the existing `ambassador_rewards` data isn't stranded.
 "use client"
 
 import { useEffect, useState } from "react"

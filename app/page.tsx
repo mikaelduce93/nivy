@@ -315,9 +315,9 @@ export default function HomePage() {
               PRÊT À <span className="text-transparent bg-clip-text bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime">LEVEL&nbsp;UP</span> ?
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto text-balance">
-              Rejoins +15,000&nbsp;ados qui vivent leur meilleure vie. Crée ton profil, rejoins un crew et commence à gagner des XP dès aujourd'hui.
+              Crée ton profil, rejoins un crew et commence à gagner du XP dès aujourd'hui. Sport, études, créativité, soirées — gamifie tout ce que tu fais.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link href="/auth/sign-up" prefetch={true}>
                 <NeonButton variant="prestige" size="lg" className="w-full sm:w-auto px-12 h-16 text-lg font-black rounded-2xl" glow>
@@ -332,19 +332,19 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Social proof */}
-            <div className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground">
+            {/* Honest value props (replaces fake social-proof counters) */}
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-gen-z-lavender" />
-                <span><span className="text-foreground font-bold">15K+</span> membres</span>
+                <span>13–17&nbsp;ans · Maroc</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gen-z-coral" />
-                <span><span className="text-foreground font-bold">50+</span> événements</span>
+                <span>Lifestyle complet</span>
               </div>
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-gen-z-lime" />
-                <span><span className="text-foreground font-bold">1M+</span> XP gagnés</span>
+                <span>XP réel, récompenses réelles</span>
               </div>
             </div>
           </div>

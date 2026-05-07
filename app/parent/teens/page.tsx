@@ -163,19 +163,19 @@ export default async function ParentTeensPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border-cyan-500/30 bg-zinc-900">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-400 font-medium">Niveau moyen</p>
+                  <p className="text-xs text-cyan-400 font-medium">Niveau moyen</p>
                   <p className="text-3xl font-black text-white">
                     {teens.length > 0
                       ? Math.round(teens.reduce((sum: number, t: any) => sum + (t.level || 1), 0) / teens.length)
                       : 0}
                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-cyan-400" />
                 </div>
               </div>
             </CardContent>

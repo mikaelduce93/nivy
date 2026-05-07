@@ -18,23 +18,16 @@ import { Textarea } from "@/components/ui/textarea"
 import {
   Share2,
   Trophy,
-  Medal,
   Star,
   Flame,
-  Target,
   Download,
-  Copy,
   Instagram,
   Twitter,
   Facebook,
   Link2,
   Sparkles,
-  Palette,
-  CheckCircle2,
   Loader2,
-  Image as ImageIcon,
   Zap,
-  Crown,
   Heart
 } from "lucide-react"
 import { toast } from "sonner"
@@ -63,14 +56,11 @@ interface ShareTemplate {
   textColor: string
 }
 
-const shareableItems: ShareableItem[] = [
-  { id: "1", type: "level", title: "Niveau 12 atteint!", subtitle: "Tu progresses vite", value: 12, icon: Star, color: "from-amber-500 to-orange-500", date: "Aujourd'hui" },
-  { id: "2", type: "badge", title: "Badge 'Super Fan'", subtitle: "5 events consécutifs", icon: Medal, color: "from-purple-500 to-pink-500", date: "Hier" },
-  { id: "3", type: "streak", title: "Série de 15 jours!", subtitle: "Tu es en feu", value: 15, icon: Flame, color: "from-red-500 to-orange-500", date: "Il y a 2 jours" },
-  { id: "4", type: "challenge", title: "Défi 'Push-ups' complété", subtitle: "30 pompes en 1 minute", value: "30", icon: Target, color: "from-emerald-500 to-teal-500", date: "Il y a 3 jours" },
-  { id: "5", type: "achievement", title: "1000 XP accumulés!", subtitle: "Continue comme ça", value: "1000", icon: Zap, color: "from-blue-500 to-cyan-500", date: "Cette semaine" },
-  { id: "6", type: "event", title: "Teen Party Casablanca", subtitle: "Participation confirmée", icon: Sparkles, color: "from-pink-500 to-rose-500", date: "Le 15 Janvier" },
-]
+// TODO(data): wire to /api/teen/achievements + /api/teen/streak once a unified
+// "shareable highlights" endpoint exists. Empty array → honest empty state per
+// FRONTEND_REDO §4. No fabricated levels/streaks here — the previous fixture
+// contradicted real wallet/streak data on the same screen.
+const shareableItems: ShareableItem[] = []
 
 const shareTemplates: ShareTemplate[] = [
   { id: "gradient1", name: "Sunset", preview: "bg-gradient-to-br from-orange-500 via-pink-500 to-purple-600", bgGradient: "from-orange-500 via-pink-500 to-purple-600", textColor: "text-white" },
@@ -92,7 +82,7 @@ export default function TeenSharePage() {
 
   const handleShare = (item: ShareableItem) => {
     setSelectedItem(item)
-    setCustomText(`Je viens d'accomplir: ${item.title} sur TeensParty! 🎉`)
+    setCustomText(`Je viens d'accomplir: ${item.title} sur ${BRAND_NAME} ! 🎉`)
     setShowPreviewDialog(true)
   }
 
@@ -137,11 +127,11 @@ export default function TeenSharePage() {
       ctx.arc(490, 800, 200, 0, Math.PI * 2)
       ctx.fill()
 
-      // TeensParty logo text
+      // Brand logo text — sourced from app config (BRAND_NAME)
       ctx.fillStyle = "rgba(255, 255, 255, 0.9)"
       ctx.font = "bold 28px system-ui"
       ctx.textAlign = "center"
-      ctx.fillText("TeensParty Morocco", canvas.width / 2, 80)
+      ctx.fillText(BRAND_NAME, canvas.width / 2, 80)
 
       // Main content card
       ctx.fillStyle = "rgba(255, 255, 255, 0.15)"
@@ -263,37 +253,10 @@ export default function TeenSharePage() {
           <p className="text-muted-foreground">Partage tes accomplissements avec le monde!</p>
         </div>
 
-        {/* Stats Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 text-center">
-              <Crown className="h-8 w-8 mx-auto mb-2 text-warning" />
-              <p className="text-2xl font-black text-foreground">Niveau 12</p>
-              <p className="text-xs text-muted-foreground">Ton niveau actuel</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 text-center">
-              <Medal className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <p className="text-2xl font-black text-foreground">8 badges</p>
-              <p className="text-xs text-muted-foreground">Collectionnés</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 text-center">
-              <Flame className="h-8 w-8 mx-auto mb-2 text-destructive" />
-              <p className="text-2xl font-black text-foreground">15 jours</p>
-              <p className="text-xs text-muted-foreground">Série active</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 text-center">
-              <Zap className="h-8 w-8 mx-auto mb-2 text-info" />
-              <p className="text-2xl font-black text-foreground">2,450 XP</p>
-              <p className="text-xs text-muted-foreground">Total accumulé</p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Stats Summary — TODO(data): wire to /api/teen/dashboard once a single
+            "share-ready stats" payload exists. Until then we keep the surface
+            honest (no fabricated numbers) and rely on Wallet/Streak as the
+            authoritative readout. */}
 
         {/* Shareable Items */}
         <Card className="mb-8 bg-card border-border">
@@ -304,6 +267,15 @@ export default function TeenSharePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {shareableItems.length === 0 ? (
+              <div className="p-8 rounded-2xl border border-dashed border-border text-center">
+                <Trophy className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                <h3 className="font-bold text-foreground mb-1">Aucun accomplissement à partager pour le moment</h3>
+                <p className="text-sm text-muted-foreground">
+                  Termine des quêtes, gagne des badges ou atteins un nouveau palier de streak — ils apparaîtront ici.
+                </p>
+              </div>
+            ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {shareableItems.map((item) => (
                 <div
@@ -327,6 +299,7 @@ export default function TeenSharePage() {
                 </div>
               ))}
             </div>
+            )}
           </CardContent>
         </Card>
 
@@ -337,13 +310,13 @@ export default function TeenSharePage() {
             setSelectedItem({
               id: "profile",
               type: "level",
-              title: "Mon profil TeensParty",
-              subtitle: "Niveau 12 • 2450 XP",
+              title: `Mon profil ${BRAND_NAME}`,
+              subtitle: "Découvre mon parcours",
               icon: Star,
               color: "from-purple-500 to-pink-500",
               date: ""
             })
-            setCustomText("Rejoins-moi sur TeensParty! 🎉")
+            setCustomText(`Rejoins-moi sur ${BRAND_NAME} ! 🎉`)
             setShowPreviewDialog(true)
           }}>
             <div className="aspect-video bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -369,7 +342,7 @@ export default function TeenSharePage() {
               color: "from-red-500 to-orange-500",
               date: ""
             })
-            setCustomText("15 jours de suite sur TeensParty! 🔥")
+            setCustomText(`Streak en feu sur ${BRAND_NAME} ! 🔥`)
             setShowPreviewDialog(true)
           }}>
             <div className="aspect-video bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
@@ -388,13 +361,13 @@ export default function TeenSharePage() {
             setSelectedItem({
               id: "invite",
               type: "achievement",
-              title: "Rejoins TeensParty!",
+              title: `Rejoins ${BRAND_NAME} !`,
               subtitle: "La communauté des teens au Maroc",
               icon: Heart,
               color: "from-emerald-500 to-teal-500",
               date: ""
             })
-            setCustomText("Rejoins la communauté TeensParty! Events, défis et fun garantis 🎉")
+            setCustomText(`Rejoins la communauté ${BRAND_NAME} ! Events, défis et fun garantis 🎉`)
             setShowPreviewDialog(true)
           }}>
             <div className="aspect-video bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
@@ -405,7 +378,7 @@ export default function TeenSharePage() {
             </div>
             <CardContent className="p-3">
               <p className="text-sm font-medium">Invite tes amis</p>
-              <p className="text-xs text-muted-foreground">Partage TeensParty</p>
+              <p className="text-xs text-muted-foreground">Partage {BRAND_NAME}</p>
             </CardContent>
           </Card>
         </div>
@@ -433,7 +406,7 @@ export default function TeenSharePage() {
                   <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/10 rounded-full translate-x-1/4 translate-y-1/4" />
 
                   {/* Content */}
-                  <p className="text-sm font-medium mb-8 opacity-80">TeensParty Morocco</p>
+                  <p className="text-sm font-medium mb-8 opacity-80">{BRAND_NAME}</p>
 
                   <div className="bg-white/20 rounded-2xl p-6 backdrop-blur-sm text-center">
                     {selectedItem && (

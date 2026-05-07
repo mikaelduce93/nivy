@@ -47,28 +47,29 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(APP_CONFIG.appUrl),
   title: {
-    default: "Teens Party Morocco - Soirées Sécurisées pour Ados 13-17 ans | Sans Alcool",
-    template: "%s | Teens Party Morocco",
+    default: "Nivy — L'écosystème lifestyle gamifié des 13–17 ans au Maroc",
+    template: "%s | Nivy",
   },
   description:
-    "La soirée N°1 pour ados au Maroc. Événements 100% sécurisés, sans alcool, encadrés par des pros. Casablanca, Marrakech, Rabat. Réservez maintenant !",
+    "Nivy unifie sport, études, créativité, soirées, transport et food pour les ados marocains. Gagne du XP réel, débloque des récompenses, partage avec ton crew. Contrôle parental natif.",
   generator: "v0.app",
-  applicationName: "Teens Party Morocco",
+  applicationName: "Nivy",
   keywords: [
+    "Nivy",
+    "lifestyle ados Maroc",
+    "gamification adolescents",
     "soirées ados Maroc",
     "événements adolescents sécurisés",
-    "boite de nuit mineurs",
-    "teens party Casablanca",
-    "soirées teenagers Marrakech",
-    "événements ados Rabat",
+    "Nivy Casablanca",
+    "Nivy Marrakech",
     "sans alcool",
     "13-17 ans",
-    "anniversaire ado",
-    "clubs jeunes Maroc",
+    "contrôle parental",
+    "XP récompenses ados",
   ],
-  authors: [{ name: "Teens Party Morocco", url: APP_CONFIG.appUrl }],
-  creator: "Teens Party Morocco",
-  publisher: "Teens Party Morocco",
+  authors: [{ name: "Nivy", url: APP_CONFIG.appUrl }],
+  creator: "Nivy",
+  publisher: "Nivy",
   formatDetection: {
     email: false,
     address: false,
@@ -78,27 +79,27 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     url: APP_CONFIG.appUrl,
-    siteName: "Teens Party Morocco",
-    title: "Teens Party Morocco - La Soirée N°1 pour Ados 13-17 ans",
+    siteName: "Nivy",
+    title: "Nivy — L'écosystème lifestyle gamifié des 13–17 ans au Maroc",
     description:
-      "Soirées magiques 100% sécurisées pour ados. Sans alcool, encadrement pro, sortie avant 23h. +15K participants, 98% parents satisfaits. Réservez maintenant !",
+      "Sport, études, créativité, soirées, transport, food — tout dans une seule app gamifiée. XP réel, récompenses réelles, contrôle parental natif. Pour les ados marocains.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Teens Party Morocco - Soirées pour Ados",
+        alt: "Nivy — Lifestyle gamifié pour ados au Maroc",
         type: "image/jpeg",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Teens Party Morocco - Soirées Sécurisées pour Ados 13-17 ans",
+    title: "Nivy — Lifestyle gamifié pour ados 13–17 ans au Maroc",
     description:
-      "La soirée N°1 pour ados au Maroc. 100% sécurisé, sans alcool, encadrement pro. Réservez maintenant !",
+      "L'app lifestyle des ados marocains : XP réel, récompenses, soirées, sport, études. Tout en un, contrôle parental inclus.",
     images: ["/og-image.jpg"],
-    creator: "@teenspartyma",
+    creator: "@nivyapp",
   },
   // verification.google: removed in Wave D.5 (was placeholder).
   // Add the real Search Console token here when issued by ops.
@@ -106,7 +107,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Teens Party",
+    title: "Nivy",
   },
   // The new panda-favicon.svg is the source of truth (vector, theme-aware, no
   // raster regen needed when the brand evolves). The PNG entries below remain

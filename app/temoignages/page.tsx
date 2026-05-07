@@ -21,11 +21,8 @@ export default async function TemoignagesPage() {
     testimonials = []
   }
 
-  const averageRatings = {
-    evenements: 4.8,
-    clubs: 4.9,
-    service: 4.7,
-  }
+  // Honest empty-state: no fake ratings until we have real moderated testimonials
+  const hasTestimonials = Boolean(testimonials && testimonials.length > 0)
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,31 +44,15 @@ export default async function TemoignagesPage() {
               Ils nous font <span className="text-gradient">Confiance</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-              Découvrez ce que nos familles pensent de Teens Party Morocco
+              Découvrez ce que nos familles pensent de Nivy
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              { label: "Événements", rating: averageRatings.evenements, icon: "🎉" },
-              { label: "Clubs", rating: averageRatings.clubs, icon: "⚽" },
-              { label: "Service Client", rating: averageRatings.service, icon: "💬" },
-            ].map((item, idx) => (
-              <div key={idx} className="bg-card rounded-2xl p-6 border border-border text-center">
-                <div className="text-4xl mb-3">{item.icon}</div>
-                <div className="text-3xl font-black text-yellow-400 mb-2">{item.rating}/5</div>
-                <div className="flex justify-center gap-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${i < Math.floor(item.rating) ? "fill-yellow-400 text-yellow-400" : "text-muted"}`}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground">{item.label}</p>
-              </div>
-            ))}
-          </div>
+          {!hasTestimonials && (
+            <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
+              Les premiers retours arrivent — nous publions uniquement des témoignages réels et vérifiés.
+            </p>
+          )}
         </div>
       </div>
 

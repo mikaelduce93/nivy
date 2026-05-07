@@ -58,7 +58,7 @@ export default async function BlogPage() {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 text-sm font-semibold mb-6">
               <BookOpen className="w-4 h-4" />
-              Blog Teens Party
+              Blog Nivy
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6 text-balance">
               Actualités & <span className="text-gradient">Conseils</span>

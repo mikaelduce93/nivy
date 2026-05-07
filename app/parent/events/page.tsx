@@ -21,37 +21,26 @@ import Link from "next/link"
 async function getTeenBookings(parentId: string) {
   const supabase = await createClient()
 
-  // Get linked teens
+  // parent_teens_overview is the canonical view (P2.3 inventory: replaces
+  // direct queries against parent_teen_links which sometimes lack `status`).
   const { data: teens } = await supabase
-    .from("parent_teen_links")
-    .select("teen_id")
+    .from("parent_teens_overview")
+    .select("teen_id, teen_name, full_name")
     .eq("parent_id", parentId)
-    .eq("status", "active")
 
   if (!teens || teens.length === 0) return { upcoming: [], past: [] }
 
-  const teenIds = teens.map(t => t.teen_id)
+  const teenIds = teens.map((t: any) => t.teen_id)
 
-  // Get bookings with event details
+  // events table uses event_date (not date). venue_name (not venue).
+  // event_start (not time).
   const { data: bookings, error } = await supabase
     .from("bookings")
     .select(`
-      *,
+      id, teen_id, status, payment_status, total_price, ticket_code, created_at,
       event:event_id (
-        id,
-        title,
-        description,
-        date,
-        time,
-        venue,
-        city,
-        image_url,
-        price,
-        category
-      ),
-      teen:teen_id (
-        id,
-        full_name
+        id, title, description, event_date, event_start,
+        venue_name, city, image_url, price, category
       )
     `)
     .in("teen_id", teenIds)
@@ -62,16 +51,25 @@ async function getTeenBookings(parentId: string) {
     return { upcoming: [], past: [] }
   }
 
-  const now = new Date()
-  const upcoming = bookings?.filter((b: any) => {
-    const eventDate = new Date(b.event?.date || b.event_date)
-    return eventDate >= now && b.status !== "cancelled"
-  }) || []
+  const teenNameMap = new Map<string, string>(
+    teens.map((t: any) => [t.teen_id, t.full_name || t.teen_name || "Teen"])
+  )
 
-  const past = bookings?.filter((b: any) => {
-    const eventDate = new Date(b.event?.date || b.event_date)
-    return eventDate < now || b.status === "cancelled"
-  }) || []
+  const decorated = (bookings ?? []).map((b: any) => ({
+    ...b,
+    teen: { id: b.teen_id, full_name: teenNameMap.get(b.teen_id) ?? "Teen" },
+  }))
+
+  const now = new Date()
+  const upcoming = decorated.filter((b: any) => {
+    const eventDate = b.event?.event_date ? new Date(b.event.event_date) : null
+    return eventDate && eventDate >= now && b.status !== "cancelled"
+  })
+
+  const past = decorated.filter((b: any) => {
+    const eventDate = b.event?.event_date ? new Date(b.event.event_date) : null
+    return (eventDate && eventDate < now) || b.status === "cancelled"
+  })
 
   return { upcoming, past }
 }
@@ -81,10 +79,10 @@ async function getUpcomingEvents() {
 
   const { data: events, error } = await supabase
     .from("events")
-    .select("*")
+    .select("id, title, event_date, event_start, venue_name, city, image_url, price, category")
     .eq("status", "published")
-    .gte("date", new Date().toISOString())
-    .order("date", { ascending: true })
+    .gte("event_date", new Date().toISOString())
+    .order("event_date", { ascending: true })
     .limit(6)
 
   if (error) {
@@ -273,23 +271,25 @@ export default async function ParentEventsPage() {
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <h3 className="text-lg font-bold text-white">
-                                {booking.event?.title || booking.event_title || "Événement"}
+                                {booking.event?.title || "Événement"}
                               </h3>
                               <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-zinc-400">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="h-4 w-4" />
-                                  {formatDate(booking.event?.date || booking.event_date)}
+                                  {formatDate(booking.event?.event_date)}
                                 </span>
-                                {(booking.event?.time || booking.event_time) && (
+                                {booking.event?.event_start && (
                                   <span className="flex items-center gap-1">
                                     <Clock className="h-4 w-4" />
-                                    {formatTime(booking.event?.time || booking.event_time)}
+                                    {formatTime(booking.event.event_start)}
                                   </span>
                                 )}
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="h-4 w-4" />
-                                  {booking.event?.city || booking.event_city}
-                                </span>
+                                {(booking.event?.venue_name || booking.event?.city) && (
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="h-4 w-4" />
+                                    {booking.event?.venue_name || booking.event?.city}
+                                  </span>
+                                )}
                               </div>
                             </div>
                             <span className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${status.class}`}>
@@ -365,7 +365,7 @@ export default async function ParentEventsPage() {
                     <h4 className="font-bold text-white mb-1">{event.title}</h4>
                     <div className="flex items-center gap-2 text-xs text-zinc-400 mb-2">
                       <Calendar className="h-3 w-3" />
-                      {formatDate(event.date)}
+                      {formatDate(event.event_date)}
                       <span className="text-zinc-600">•</span>
                       <MapPin className="h-3 w-3" />
                       {event.city}
@@ -409,10 +409,10 @@ export default async function ParentEventsPage() {
                       </div>
                       <div>
                         <p className="font-medium text-zinc-300">
-                          {booking.event?.title || booking.event_title}
+                          {booking.event?.title || "Événement"}
                         </p>
                         <p className="text-xs text-zinc-500">
-                          {formatDate(booking.event?.date || booking.event_date)} • {booking.teen?.full_name}
+                          {formatDate(booking.event?.event_date)} • {booking.teen?.full_name}
                         </p>
                       </div>
                     </div>

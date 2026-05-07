@@ -81,7 +81,7 @@ const faqs = [
   {
     category: 'autre',
     question: 'Comment devenir ambassadeur ?',
-    answer: 'Pour devenir ambassadeur Teens Party, remplis le formulaire de candidature dans la section Ambassadeurs. Tu dois avoir entre 16-25 ans, être motivé et avoir une bonne présence sur les réseaux sociaux. Tu recevras une réponse sous 7 jours.'
+    answer: 'Pour devenir ambassadeur Nivy, remplis le formulaire de candidature dans la section Ambassadeurs. Tu dois avoir entre 16-25 ans, être motivé et avoir une bonne présence sur les réseaux sociaux. Tu recevras une réponse sous 7 jours.'
   },
   {
     category: 'autre',

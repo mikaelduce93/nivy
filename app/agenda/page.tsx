@@ -6,8 +6,8 @@ import { Card } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
 
 export const metadata = {
-  title: "Agenda des Événements | Teens Party",
-  description: "Découvre tous nos événements à venir et réserve ta place pour des soirées inoubliables au Maroc",
+  title: "Agenda des Événements | Nivy",
+  description: "Découvre les prochains événements lifestyle (soirées, sport, créa, études) pour les 13–17 ans au Maroc et réserve ta place.",
 }
 
 async function getEvents() {

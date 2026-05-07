@@ -16,7 +16,7 @@ export default function MentionsLegalesPage() {
               <h2 className="text-2xl font-semibold mb-4">1. Éditeur du Site</h2>
               <div className="p-4 bg-muted rounded-lg space-y-2">
                 <p>
-                  <strong>Raison sociale :</strong> Teens Party Morocco SARL
+                  <strong>Raison sociale :</strong> Nivy SARL
                 </p>
                 <p>
                   <strong>Forme juridique :</strong> Société à Responsabilité Limitée
@@ -91,12 +91,12 @@ export default function MentionsLegalesPage() {
               <h2 className="text-2xl font-semibold mb-4">3. Propriété Intellectuelle</h2>
               <p className="leading-relaxed mb-3">
                 L'ensemble des éléments composant le site (structure, textes, images, logos, vidéos, sons, etc.) est la
-                propriété exclusive de Teens Party Morocco ou fait l'objet d'une autorisation d'utilisation.
+                propriété exclusive de Nivy ou fait l'objet d'une autorisation d'utilisation.
               </p>
               <p className="leading-relaxed">
                 Toute reproduction, représentation, modification, publication, transmission, dénaturation, totale ou
                 partielle du site ou de son contenu, par quelque procédé que ce soit, et sur quelque support que ce soit
-                est interdite sans l'autorisation écrite préalable de Teens Party Morocco.
+                est interdite sans l'autorisation écrite préalable de Nivy.
               </p>
             </section>
 
@@ -108,7 +108,7 @@ export default function MentionsLegalesPage() {
                 droit d'accès, de rectification, de suppression et d'opposition aux données vous concernant.
               </p>
               <p className="leading-relaxed mb-3">
-                <strong>Responsable du traitement :</strong> Teens Party Morocco SARL
+                <strong>Responsable du traitement :</strong> Nivy SARL
               </p>
               <p className="leading-relaxed mb-3">
                 <strong>Délégué à la Protection des Données (DPO) :</strong> [Nom et contact du DPO si applicable]
@@ -133,7 +133,7 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-semibold mb-4">6. Limitation de Responsabilité</h2>
               <p className="leading-relaxed mb-3">
-                Teens Party Morocco met tout en œuvre pour offrir aux utilisateurs des informations et outils
+                Nivy met tout en œuvre pour offrir aux utilisateurs des informations et outils
                 disponibles et vérifiés, mais ne saurait être tenu responsable des erreurs, d'une absence de
                 disponibilité des informations et/ou de la présence de virus sur son site.
               </p>
@@ -146,11 +146,11 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-semibold mb-4">7. Liens Hypertextes</h2>
               <p className="leading-relaxed mb-3">
-                Le site peut contenir des liens vers d'autres sites. Teens Party Morocco n'exerce aucun contrôle sur ces
+                Le site peut contenir des liens vers d'autres sites. Nivy n'exerce aucun contrôle sur ces
                 sites et décline toute responsabilité quant à leur contenu.
               </p>
               <p className="leading-relaxed">
-                La création de liens hypertextes vers le site nécessite l'autorisation préalable de Teens Party Morocco.
+                La création de liens hypertextes vers le site nécessite l'autorisation préalable de Nivy.
               </p>
             </section>
 

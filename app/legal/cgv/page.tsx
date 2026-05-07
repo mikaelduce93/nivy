@@ -6,8 +6,8 @@ import { Card } from "@/components/ui/card"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export const metadata: Metadata = {
-  title: "Conditions Générales de Vente | Teens Party Morocco",
-  description: "Conditions générales de vente de Teens Party Morocco",
+  title: "Conditions Générales de Vente | Nivy",
+  description: "Conditions générales de vente de Nivy",
 }
 
 export default function CGVPage() {
@@ -42,7 +42,7 @@ export default function CGVPage() {
                 <div className="text-muted-foreground space-y-3">
                   <p>
                     Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre
-                    Teens Party Morocco, société de droit marocain, et toute personne physique ou morale
+                    Nivy, société de droit marocain, et toute personne physique ou morale
                     effectuant un achat sur le site {websiteDisplay}.
                   </p>
                   <p>
@@ -77,7 +77,7 @@ export default function CGVPage() {
                   </p>
                   <p><strong>2.2 Conditions d'âge</strong></p>
                   <p>
-                    Les événements Teens Party sont réservés aux adolescents âgés de 12 à 17 ans.
+                    Les événements Nivy sont réservés aux adolescents âgés de 12 à 17 ans.
                     Une autorisation parentale est obligatoire pour tout mineur. Le parent ou tuteur légal
                     effectuant l'achat certifie avoir l'autorité parentale sur l'enfant concerné.
                   </p>
@@ -103,7 +103,7 @@ export default function CGVPage() {
                   <p><strong>3.1 Prix</strong></p>
                   <p>
                     Les prix sont indiqués en Dirhams marocains (DH) toutes taxes comprises.
-                    Teens Party Morocco se réserve le droit de modifier ses prix à tout moment,
+                    Nivy se réserve le droit de modifier ses prix à tout moment,
                     les produits étant facturés au tarif en vigueur au moment de la commande.
                   </p>
                   <p><strong>3.2 Moyens de paiement acceptés</strong></p>
@@ -150,7 +150,7 @@ export default function CGVPage() {
                     <li>Annulation entre 24h et 48h avant : remboursement de 50%</li>
                     <li>Annulation moins de 24h avant : aucun remboursement</li>
                   </ul>
-                  <p><strong>4.3 Annulation par Teens Party Morocco</strong></p>
+                  <p><strong>4.3 Annulation par Nivy</strong></p>
                   <p>
                     En cas d'annulation d'un événement par nos soins (force majeure, conditions
                     météorologiques, etc.), le client sera remboursé intégralement ou pourra
@@ -176,9 +176,9 @@ export default function CGVPage() {
               <div>
                 <h2 className="text-xl font-bold mb-4">Article 5 - Responsabilités</h2>
                 <div className="text-muted-foreground space-y-3">
-                  <p><strong>5.1 Responsabilité de Teens Party Morocco</strong></p>
+                  <p><strong>5.1 Responsabilité de Nivy</strong></p>
                   <p>
-                    Teens Party Morocco s'engage à assurer la sécurité des participants lors des
+                    Nivy s'engage à assurer la sécurité des participants lors des
                     événements. Une équipe de sécurité professionnelle est présente. Les événements
                     sont 100% sans alcool et encadrés par des adultes formés.
                   </p>
@@ -190,7 +190,7 @@ export default function CGVPage() {
                   </p>
                   <p><strong>5.3 Comportement</strong></p>
                   <p>
-                    Teens Party Morocco se réserve le droit d'exclure tout participant dont le
+                    Nivy se réserve le droit d'exclure tout participant dont le
                     comportement mettrait en danger sa sécurité ou celle des autres, sans
                     remboursement.
                   </p>
@@ -214,7 +214,7 @@ export default function CGVPage() {
                     demander un badge "NO-PHOTO" à l'entrée.
                   </p>
                   <p>
-                    En acceptant les présentes CGV, le parent autorise Teens Party Morocco à
+                    En acceptant les présentes CGV, le parent autorise Nivy à
                     utiliser l'image de son enfant sauf demande contraire explicite.
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export default function CGVPage() {
           <Card className="p-6 bg-primary/5 border-primary/20">
             <h2 className="text-xl font-bold mb-4">Contact</h2>
             <div className="text-muted-foreground space-y-2">
-              <p><strong>Teens Party Morocco</strong></p>
+              <p><strong>Nivy</strong></p>
               <p>Email : {contactEmail}</p>
               <p>Téléphone : +212 6 00 00 00 00</p>
               <p>Adresse : Casablanca, Maroc</p>

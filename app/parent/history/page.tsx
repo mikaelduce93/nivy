@@ -61,14 +61,15 @@ async function getTransactionHistory(profileId: string) {
     .order("created_at", { ascending: false })
     .limit(100)
 
-  // Get coin transactions (topups)
+  // Get coin transactions (topups). Schema (migration 028 / types/supabase):
+  // teen_id, transaction_type, amount, description, created_at.
   const { data: coinTransactions } = await supabase
     .from("coin_transactions")
     .select(`
       id,
       teen_id,
       amount,
-      type,
+      transaction_type,
       description,
       created_at
     `)
@@ -119,7 +120,7 @@ async function getTransactionHistory(profileId: string) {
     b.payment_status === "paid" && new Date(b.created_at) >= startOfMonth
   ).reduce((sum: number, b: any) => sum + (b.total_price || 0), 0) || 0
 
-  const totalTopup = coinTransactions?.filter((t: any) => t.type === "topup")
+  const totalTopup = coinTransactions?.filter((t: any) => t.transaction_type === "topup")
     .reduce((sum: number, t: any) => sum + (t.amount || 0), 0) || 0
 
   // Create teen name map
@@ -143,18 +144,18 @@ async function getTransactionHistory(profileId: string) {
       id: c.id,
       type: "coins" as const,
       teenId: c.teen_id,
-      teenName: teenNameMap.get(c.teen_id) || "Unknown",
+      teenName: teenNameMap.get(c.teen_id) || "Teen",
       amount: c.amount,
-      coinType: c.type,
+      coinType: c.transaction_type,
       status: "completed",
       date: c.created_at,
-      description: c.description || (c.type === "topup" ? "Recharge de coins" : c.type === "spent" ? "Dépense de coins" : "Transaction coins")
+      description: c.description || (c.transaction_type === "topup" ? "Recharge de coins" : c.transaction_type === "spent" ? "Dépense de coins" : "Transaction coins")
     })),
     ...(discountUsage || []).map((d: any) => ({
       id: d.id,
       type: "discount" as const,
       teenId: d.profile_id,
-      teenName: teenNameMap.get(d.profile_id) || "Teen Club",
+      teenName: teenNameMap.get(d.profile_id) || "Teen",
       amount: d.final_amount,
       discount: d.discount_amount,
       status: "completed",

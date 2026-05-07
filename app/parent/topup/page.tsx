@@ -58,15 +58,30 @@ async function getParentSignature(parentId: string) {
 async function getTopupHistory(parentId: string) {
   const supabase = await createClient()
 
+  // coin_transactions has no source_user_id column — schema is
+  // (teen_id, transaction_type, amount, ...). We resolve linked teens first
+  // then read their top-up transactions. Whitepaper §5: every parent top-up
+  // writes a `topup` row with source_type = 'parent_topup'.
+  const { data: linkedTeens } = await supabase
+    .from("parent_teen_links")
+    .select("teen_id, teens:teen_id(profiles:user_id(full_name))")
+    .eq("parent_id", parentId)
+    .eq("status", "active")
+
+  const teenIds = (linkedTeens ?? []).map((l: any) => l.teen_id)
+  if (teenIds.length === 0) return []
+
+  const teenNameMap = new Map<string, string>(
+    (linkedTeens ?? []).map((l: any) => [
+      l.teen_id,
+      l.teens?.profiles?.full_name ?? "Teen",
+    ])
+  )
+
   const { data: history, error } = await supabase
     .from("coin_transactions")
-    .select(`
-      *,
-      teen:user_id (
-        full_name
-      )
-    `)
-    .eq("source_user_id", parentId)
+    .select("id, teen_id, amount, transaction_type, description, created_at")
+    .in("teen_id", teenIds)
     .eq("transaction_type", "topup")
     .order("created_at", { ascending: false })
     .limit(10)
@@ -76,13 +91,17 @@ async function getTopupHistory(parentId: string) {
     return []
   }
 
-  return history || []
+  return (history ?? []).map((row: any) => ({
+    ...row,
+    teen: { full_name: teenNameMap.get(row.teen_id) ?? "Teen" },
+  }))
 }
 
 export default async function ParentTopupPage({
   searchParams,
 }: {
-  searchParams: { teen?: string }
+  // Next 16: searchParams is async. Mirrors fix already shipped on /parent/e-signature.
+  searchParams: Promise<{ teen?: string }>
 }) {
   const userInfo = await getUserRole()
 
@@ -90,12 +109,13 @@ export default async function ParentTopupPage({
     redirect("/auth/redirect")
   }
 
-  const [teens, history, parentSignature] = await Promise.all([
+  const [teens, history, parentSignature, params] = await Promise.all([
     getLinkedTeens(userInfo.profileId),
     getTopupHistory(userInfo.profileId),
     getParentSignature(userInfo.profileId),
+    searchParams,
   ])
-  const selectedTeenId = searchParams.teen || ""
+  const selectedTeenId = params.teen || ""
   const hasSigned = !!parentSignature
 
   const topupPackages = [

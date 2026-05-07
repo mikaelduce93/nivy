@@ -36,7 +36,7 @@ export default async function AmbassadeursPage() {
           <h1 className="text-5xl md:text-7xl font-black text-white mb-6">Programme Ambassadeurs</h1>
           <p className="text-xl text-cyan-400 mb-4">Rejoins notre équipe et gagne de l'argent</p>
           <p className="text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-            Deviens ambassadeur Teens Party et partage ta passion tout en gagnant des commissions sur chaque réservation
+            Deviens ambassadeur Nivy et partage ta passion tout en gagnant des commissions sur chaque réservation
             avec ton code promo personnel.
           </p>
         </div>
@@ -225,7 +225,7 @@ export default async function AmbassadeursPage() {
               <h3 className="text-white font-bold mb-2">Quels sont les avantages en plus?</h3>
               <p className="text-zinc-400 text-sm">
                 Entrées gratuites à tous nos événements, accès VIP, visibilité sur nos réseaux sociaux, invitations aux
-                avant-premières, et goodies exclusifs Teens Party.
+                avant-premières, et goodies exclusifs Nivy.
               </p>
             </div>
 
@@ -233,7 +233,7 @@ export default async function AmbassadeursPage() {
               <h3 className="text-white font-bold mb-2">Qui peut devenir ambassadeur?</h3>
               <p className="text-zinc-400 text-sm">
                 Toute personne motivée entre 16 et 25 ans, active sur les réseaux sociaux, qui aime l'animation et qui
-                partage les valeurs de Teens Party (sécurité, respect, fun!).
+                partage les valeurs de Nivy (sécurité, respect, fun!).
               </p>
             </div>
 
@@ -251,7 +251,7 @@ export default async function AmbassadeursPage() {
           <div>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Nos ambassadeurs</h2>
-              <p className="text-zinc-400">Ils font la promotion de Teens Party</p>
+              <p className="text-zinc-400">Ils font la promotion de Nivy</p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">

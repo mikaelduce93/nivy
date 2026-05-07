@@ -1,3 +1,9 @@
+// V1.2 TODO: This page mixes the legacy points/level model with the
+// whitepaper §12 commission model (cash track + xp_only track). Once the
+// `ambassador_commissions` schema lands, restructure as:
+//   1) Commission rates by tier (bronze 10% / silver 12% / gold 15%)
+//   2) XP-only track explainer for under-18 ambassadors
+//   3) Marketing actions as supplementary points (current content)
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,17 +28,17 @@ import Link from "next/link"
 const EARNING_METHODS = [
   {
     icon: Users,
-    title: "Parraine des amis",
-    description: "Invite tes amis à rejoindre Teen Party avec ton code parrainage",
+    title: "Parraine des familles",
+    description: "Invite des parents et ados à rejoindre Nivy avec ton code parrainage",
     points: 100,
-    per: "ami inscrit",
-    bonus: "x2 si ton ami achète un billet",
+    per: "famille inscrite",
+    bonus: "+ commission cash sur chaque top-up parental",
     color: "from-blue-500 to-cyan-500",
   },
   {
     icon: Video,
     title: "Crée du contenu TikTok",
-    description: "Poste une vidéo sur TikTok avec le hashtag #TeenPartyMaroc",
+    description: "Poste une vidéo sur TikTok avec le hashtag #NivyMaroc",
     points: 50,
     per: "vidéo validée",
     bonus: "+50 si la vidéo dépasse 10k vues",
@@ -41,7 +47,7 @@ const EARNING_METHODS = [
   {
     icon: Camera,
     title: "Crée du contenu Instagram",
-    description: "Story ou post avec mention @teenpartymaroc",
+    description: "Story ou post avec mention @nivy.ma",
     points: 30,
     per: "contenu validé",
     bonus: "+20 si Reels avec plus de 5k vues",
@@ -49,11 +55,11 @@ const EARNING_METHODS = [
   },
   {
     icon: Calendar,
-    title: "Participe aux événements",
-    description: "Sois présent à nos événements Teen Party",
+    title: "Participe aux événements partenaires",
+    description: "Sois présent aux événements de notre réseau partenaire",
     points: 75,
     per: "événement",
-    bonus: "x2 si tu ramènes 3+ amis",
+    bonus: "x2 si tu ramènes 3+ familles",
     color: "from-orange-500 to-amber-500",
   },
   {
@@ -95,9 +101,10 @@ export default function CommentGagnerPage() {
     <div className="space-y-8 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-white">Comment gagner des points</h1>
+        <h1 className="text-3xl font-black text-white">Comment gagner avec Nivy</h1>
         <p className="text-zinc-400">
-          Plus tu es actif, plus tu gagnes ! Échange tes points contre des cadeaux incroyables.
+          Cash sur chaque famille parrainée, plus des points bonus pour les
+          actions marketing — choisis ton mix.
         </p>
       </div>
 

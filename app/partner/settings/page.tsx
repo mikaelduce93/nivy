@@ -1,3 +1,6 @@
+// V1.2 TODO: Wire to `partners` row + a future `partner_notification_prefs`
+// table. Inputs are currently uncontrolled with hardcoded defaultValues; the
+// "Sauvegarder" button is a no-op. See FRONTEND_REDO §4 — KEEP P2.
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -25,7 +28,7 @@ export default function PartnerSettingsPage() {
             Informations entreprise
           </CardTitle>
           <CardDescription className="text-zinc-400">
-            Ces informations seront visibles par les membres Teen Club
+            Ces informations seront visibles par les familles Nivy
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -116,7 +119,7 @@ export default function PartnerSettingsPage() {
           {[
             { label: "Nouvelles transactions", desc: "Recevoir une notification à chaque transaction", enabled: true },
             { label: "Rapport hebdomadaire", desc: "Recevoir un résumé de vos performances chaque semaine", enabled: true },
-            { label: "Nouveaux événements", desc: "Être notifié des prochains événements Teen Club", enabled: false },
+            { label: "Nouveaux événements", desc: "Être notifié des prochains événements Nivy", enabled: false },
             { label: "Mises à jour du programme", desc: "Informations sur les changements du programme partenaire", enabled: true },
           ].map((item, i) => (
             <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700">

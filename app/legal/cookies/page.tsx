@@ -82,7 +82,7 @@ export default function CookiesPage() {
               mémoriser vos actions et préférences pendant une période déterminée.
             </p>
             <p>
-              Teens Party Morocco utilise des cookies pour améliorer votre expérience de navigation,
+              Nivy utilise des cookies pour améliorer votre expérience de navigation,
               analyser le trafic et personnaliser le contenu.
             </p>
           </div>

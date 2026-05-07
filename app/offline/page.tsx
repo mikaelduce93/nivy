@@ -260,7 +260,7 @@ export default function OfflinePage() {
             <div>
               <p className="text-white font-medium mb-1">Installe l'app</p>
               <p className="text-zinc-400 text-sm">
-                Ajoute Teens Party à ton écran d'accueil pour une meilleure expérience hors ligne !
+                Ajoute Nivy à ton écran d'accueil pour une meilleure expérience hors ligne !
               </p>
             </div>
           </div>
@@ -273,7 +273,7 @@ export default function OfflinePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
-          Teens Party Morocco v2.0
+          Nivy v2.0
         </motion.p>
       </div>
     </div>

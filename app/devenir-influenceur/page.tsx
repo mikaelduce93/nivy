@@ -32,7 +32,7 @@ export default async function InfluenceursPage() {
               Programme Influenceurs
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6 text-balance">
-              Deviens <span className="text-gradient">Influenceur</span> Teens Party
+              Deviens <span className="text-gradient">Influenceur</span> Nivy
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
               Crée du contenu, inspire ta communauté et gagne des revenus avec nos campagnes exclusives

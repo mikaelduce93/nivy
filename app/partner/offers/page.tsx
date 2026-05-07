@@ -1,3 +1,7 @@
+// V1.2 TODO: Replace hardcoded offers list with Supabase query against
+// `partner_discounts` filtered by the current authenticated partner_id.
+// The dashboard already does this read; this CRUD list is the missing piece.
+// Tracking: FRONTEND_REDO §4 — `/partner/offers` REDESIGN P1.
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Tag, Edit, Trash2, ToggleLeft, ToggleRight } from "lucide-react"
@@ -5,7 +9,7 @@ import Link from "next/link"
 
 export default function PartnerOffersPage() {
   const offers = [
-    { id: 1, name: "-15% pour membres Gold/Platinum", type: "Réduction", uses: 34, active: true, created: "15 Jan 2024" },
+    { id: 1, name: "-15% pour familles Silver/Gold/Platinum", type: "Réduction", uses: 34, active: true, created: "15 Jan 2024" },
     { id: 2, name: "Boisson offerte dès 100 DH", type: "Cadeau", uses: 28, active: true, created: "10 Jan 2024" },
     { id: 3, name: "2ème article à -50%", type: "Promo", uses: 12, active: true, created: "5 Jan 2024" },
     { id: 4, name: "Livraison gratuite", type: "Service", uses: 45, active: false, created: "1 Jan 2024" },
@@ -17,7 +21,7 @@ export default function PartnerOffersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black text-white">Mes Offres</h1>
-          <p className="text-zinc-400">Gérez vos offres exclusives Teen Club</p>
+          <p className="text-zinc-400">Gérez vos offres exclusives Nivy</p>
         </div>
         <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
           <Link href="/partner/offers/new">

@@ -3,8 +3,8 @@ import { ClubsListClient } from "@/components/features/clubs"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Clubs | Teens Party Morocco",
-  description: "Découvre tous nos clubs pour ados : sport, art, tech, musique, danse et plus encore au Maroc.",
+  title: "Clubs | Nivy",
+  description: "Découvre tous nos clubs pour ados au Maroc : sport, art, tech, musique, danse. Gagne du XP en participant.",
 }
 
 export const revalidate = 60 // Revalidate every 60 seconds

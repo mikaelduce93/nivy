@@ -91,15 +91,15 @@ export default async function AmbassadorMarketingPage() {
   const textTemplates = [
     {
       title: "Message WhatsApp",
-      content: `Salut ! Tu cherches des activités cool pour tes ados ? Teen Club propose des events exclusifs, des sorties et des expériences uniques au Maroc. Utilise mon code ${referralCode} et bénéficie de -10% sur ta première inscription !`
+      content: `Salut ! Tu cherches des activités cool pour tes ados ? Nivy propose des events exclusifs, des sorties et des expériences uniques au Maroc. Utilise mon code ${referralCode} et bénéficie de -10% sur ta première inscription !`
     },
     {
       title: "Bio Instagram",
-      content: `Ambassadeur Teen Club | Des expériences uniques pour les 13-19 ans au Maroc | Code promo: ${referralCode} | -10% sur ta 1ère inscription`
+      content: `Ambassadeur Nivy | Des expériences uniques pour les 13-19 ans au Maroc | Code promo: ${referralCode} | -10% sur ta 1ère inscription`
     },
     {
       title: "Post Facebook",
-      content: `Vous cherchez des activités pour vos ados ? Teen Club c'est LA communauté qui organise des events exclusifs pour les 13-19 ans au Maroc ! Inscrivez-vous avec mon code ${referralCode} et profitez de -10% sur votre première inscription.`
+      content: `Vous cherchez des activités pour vos ados ? Nivy c'est LA communauté qui organise des events exclusifs pour les 13-19 ans au Maroc ! Inscrivez-vous avec mon code ${referralCode} et profitez de -10% sur votre première inscription.`
     }
   ]
 
@@ -118,7 +118,7 @@ export default async function AmbassadorMarketingPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-black text-white">Matériel Marketing</h1>
-            <p className="text-zinc-400">Téléchargez des visuels et templates pour promouvoir Teen Club</p>
+            <p className="text-zinc-400">Téléchargez des visuels et templates pour promouvoir Nivy</p>
           </div>
           <ShareButtons referralCode={referralCode} referralLink={referralLink} />
         </div>
@@ -241,7 +241,7 @@ export default async function AmbassadorMarketingPage() {
                 <div className="aspect-video bg-zinc-700 rounded-lg mb-4 flex items-center justify-center">
                   <Video className="h-12 w-12 text-zinc-600" />
                 </div>
-                <h3 className="font-bold text-white mb-1">Présentation Teen Club</h3>
+                <h3 className="font-bold text-white mb-1">Présentation Nivy</h3>
                 <p className="text-xs text-zinc-400 mb-3">Vidéo de 30 secondes</p>
                 <Button
                   size="sm"

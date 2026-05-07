@@ -89,7 +89,7 @@ export default async function AmbassadorDashboardPage() {
               Bienvenue, {userInfo.fullName.split(" ")[0]} !
             </h1>
             <p className="text-white/80 text-lg">
-              Partagez Teen Club et gagnez {commissionRate}% de commission sur chaque inscription
+              Partagez Nivy et gagnez {commissionRate}% de commission sur chaque inscription
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-5 py-3">

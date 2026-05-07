@@ -18,11 +18,11 @@ type ApiFriend = {
   mutual_calculated?: boolean
 }
 
-// TODO(data): pending friend requests, suggestions and per-friend level need
-// dedicated endpoints. Backend currently only returns accepted friendships
-// via /api/teen/friends. See report for prioritized backend work.
-const PENDING_REQUESTS: any[] = []
-const SUGGESTIONS: any[] = []
+// TODO(data): pending friend requests + suggestions endpoints are pending
+// (§17 friends spec). Until those land we surface honest empty states rather
+// than wiring placeholder fixtures.
+type PendingRequest = { id: string; name: string; mutual: number; sentAt: string }
+const PENDING_REQUESTS: PendingRequest[] = []
 
 const TABS = [
   { id: "all", label: "Tous" },
@@ -232,37 +232,8 @@ export default function FriendsPage() {
         </section>
       )}
 
-      {/* Suggestions */}
-      {tab !== "requests" && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-black uppercase">Suggestions</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {SUGGESTIONS.map((suggestion, idx) => (
-              <motion.div
-                key={suggestion.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
-              >
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4">
-                  {suggestion.name.charAt(0)}
-                </div>
-                
-                <h4 className="font-bold text-white">{suggestion.name}</h4>
-                <p className="text-xs text-zinc-500 mb-2">Lvl {suggestion.level}</p>
-                <p className="text-sm text-gen-z-coral mb-4">{suggestion.reason}</p>
-
-                <Button className="w-full bg-gen-z-coral text-black font-bold">
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Ajouter
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Suggestions — surfaced once a friend-suggestions endpoint exists.
+          For now we keep the section out of the DOM rather than fabricate users. */}
 
       {/* Leaderboard Preview */}
       <motion.div

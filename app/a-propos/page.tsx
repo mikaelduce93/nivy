@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Heart, Users, Target, Award, MapPin, Mail, Phone } from 'lucide-react'
+import { Heart, Target, Award, MapPin, Mail, Phone } from 'lucide-react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -19,10 +19,10 @@ export default function AProposPage() {
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center space-y-6">
               <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-600 via-coral-500 to-purple-600 bg-clip-text text-transparent">
-                À Propos de Teens Party Morocco
+                À Propos de Nivy
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                La première plateforme marocaine dédiée aux événements et activités pour adolescents, alliant divertissement, sécurité et éducation
+                Le premier écosystème lifestyle gamifié pour les 13–17&nbsp;ans au Maroc — sport, études, créativité, soirées, transport, food. Tout dans une seule app, avec du XP réel à la clé.
               </p>
             </div>
           </div>
@@ -69,60 +69,36 @@ export default function AProposPage() {
             <h2 className="text-3xl font-bold text-center mb-12">Notre Histoire</h2>
             <div className="space-y-6 text-muted-foreground">
               <p>
-                Teens Party Morocco est né en 2024 d'un constat simple : les adolescents marocains méritent des espaces de loisirs adaptés à leur âge, sécurisés et de qualité.
+                Nivy est né d'un constat simple&nbsp;: les ados marocains méritent une plateforme pensée pour leur génération — gamifiée, sociale, sûre et utile au quotidien.
               </p>
               <p>
-                Fondée par une équipe passionnée d'éducateurs, d'organisateurs d'événements et de parents, notre plateforme s'est rapidement imposée comme la référence pour les familles à travers le Maroc.
+                Là où d'autres apps cloisonnent (l'une pour le sport, l'autre pour les soirées, une troisième pour les courses), Nivy unifie tout&nbsp;: sport, études, créativité, soirées, mobilité, food. Chaque action gagne du XP, chaque XP débloque des récompenses.
               </p>
               <p>
-                Aujourd'hui, nous organisons plus de 50 événements par mois dans 8 villes marocaines, avec plus de 10,000 adolescents inscrits et des centaines de familles qui nous font confiance.
+                Construit autour des parents et avec eux&nbsp;: contrôle parental natif, validations en un tap, transparence totale sur les dépenses et les sorties.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Stats */}
+        {/* What we do */}
         <section className="py-16 px-4 bg-gradient-to-r from-emerald-600 via-coral-600 to-purple-600 text-white">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Nos Chiffres</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">Ce que Nivy couvre</h2>
             <div className="grid md:grid-cols-4 gap-8 text-center">
               {[
-                { value: "10K+", label: "Ados Inscrits" },
-                { value: "500+", label: "Événements Organisés" },
-                { value: "8", label: "Villes Couvertes" },
-                { value: "4.8/5", label: "Satisfaction Familles" }
+                { value: "Sport & Glow Up", label: "Clubs, défis, fitness" },
+                { value: "Études & Big Brain", label: "Quiz, tutorat, parcours" },
+                { value: "Self-Express", label: "Arts, musique, danse" },
+                { value: "Main Character", label: "Soirées, social, crews" }
               ].map((stat, idx) => (
                 <div key={idx}>
-                  <div className="text-5xl font-black mb-2">{stat.value}</div>
-                  <div className="text-white/80">{stat.label}</div>
+                  <div className="text-2xl md:text-3xl font-black mb-2">{stat.value}</div>
+                  <div className="text-white/80 text-sm">{stat.label}</div>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Team */}
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Notre Équipe</h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Une équipe multidisciplinaire de professionnels passionnés et dévoués à la jeunesse marocaine
-            </p>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { role: "Direction", count: "3 membres" },
-                { role: "Coordinateurs Événements", count: "15 membres" },
-                { role: "Animateurs Certifiés", count: "50+ membres" }
-              ].map((team, idx) => (
-                <Card key={idx}>
-                  <CardContent className="p-6 text-center">
-                    <Users className="w-12 h-12 mx-auto mb-4 text-emerald-600" />
-                    <h3 className="font-bold mb-2">{team.role}</h3>
-                    <p className="text-muted-foreground">{team.count}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <p className="text-center text-white/90 mt-8 text-sm">+ transport, food, marketplace, mentorat — tout unifié dans une seule app.</p>
           </div>
         </section>
 

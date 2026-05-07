@@ -2,7 +2,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "Mon Espace | Teens Party",
+  title: "Mon Espace | Nivy",
   description: "Accédez à votre espace personnel",
 }
 

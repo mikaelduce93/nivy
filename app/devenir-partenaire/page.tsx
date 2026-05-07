@@ -54,8 +54,8 @@ const PARTNER_TYPES = [
 ]
 
 const STATS = [
-  { value: '10K+', label: 'Membres actifs', Icon: Users },
-  { value: '50+', label: 'Événements/mois', Icon: TrendingUp },
+  { value: '13–17', label: 'Cible ados Maroc', Icon: Users },
+  { value: 'XP réel', label: 'Récompenses gamifiées', Icon: TrendingUp },
   { value: '100%', label: 'Paiements sécurisés', Icon: Shield },
   { value: '48h', label: 'Validation rapide', Icon: Zap },
 ]
@@ -75,8 +75,8 @@ export default function DevenirPartenairePage() {
               </span>
             </h1>
             <p className="text-xl text-zinc-400 mb-8 leading-relaxed">
-              Rejoignez le premier réseau marocain dédié aux adolescents. Accédez à une communauté dynamique
-              de jeunes avec des cartes VIP et boostez votre visibilité.
+              Rejoignez Nivy, l'écosystème lifestyle des 13–17 ans au Maroc. Accédez à une communauté gamifiée,
+              proposez des offres en coins (cashback XP automatique) et boostez votre visibilité auprès des familles.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:opacity-90 text-lg px-8">
@@ -176,7 +176,7 @@ export default function DevenirPartenairePage() {
       <div className="bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border-y border-zinc-800">
         <div className="container mx-auto px-6 py-16 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Prêt à rejoindre Teens Party Morocco ?
+            Prêt à rejoindre Nivy ?
           </h2>
           <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
             Notre équipe valide votre demande en moins de 48h. Commencez à attirer de nouveaux clients dès aujourd'hui.

@@ -5,7 +5,7 @@ import { Shield, Users, Camera, Phone, FileCheck, AlertCircle, CheckCircle2, Loc
 import { Card } from "@/components/ui/card"
 
 export const metadata = {
-  title: "Sécurité | Teens Party Morocco",
+  title: "Sécurité | Nivy",
   description: "Notre engagement sécurité : encadrement professionnel, sans alcool, contrôles stricts pour des événements ados en toute sérénité"
 }
 

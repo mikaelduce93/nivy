@@ -47,7 +47,7 @@ export default async function EditProfilePage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-black text-foreground">Modifier le profil</h1>
-          <p className="text-muted-foreground">Personnalise ton profil Teen Club</p>
+          <p className="text-muted-foreground">Personnalise ton profil Nivy</p>
         </div>
 
         {/* Edit Form */}

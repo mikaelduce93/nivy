@@ -130,7 +130,7 @@ export default async function AddTeenPage() {
             {/* Info Box */}
             <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
               <p className="text-sm text-blue-400">
-                <strong>Note :</strong> Le teen doit avoir un compte actif sur Teen Club.
+                <strong>Note :</strong> Le teen doit avoir un compte actif sur Nivy.
                 S'il n'en a pas encore, invitez-le à créer son compte depuis l'application.
               </p>
             </div>

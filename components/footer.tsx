@@ -128,7 +128,7 @@ export function Footer() {
           {/* Bottom Bar */}
           <div className="pt-6 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground/70">
-              © 2026 Teens Party Morocco. Tous droits réservés.
+              © 2026 Nivy. Tous droits réservés.
             </p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
               <Link href="/legal/mentions-legales" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -339,7 +339,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground/70">
-            © 2026 Teens Party Morocco. Tous droits réservés.
+            © 2026 Nivy. Tous droits réservés.
           </p>
           <div className="flex items-center gap-6 flex-wrap justify-center">
             <Link href="/legal/mentions-legales" className="text-sm text-muted-foreground hover:text-primary transition-colors">

@@ -26,7 +26,7 @@ export default function CGUPage() {
               <h2 className="text-2xl font-semibold mb-4">2. Définitions</h2>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Plateforme :</strong> Site web et application Teens Party Morocco
+                  <strong>Plateforme :</strong> Site web et application Nivy
                 </li>
                 <li>
                   <strong>Utilisateur :</strong> Parent ou tuteur légal créant un compte
@@ -104,7 +104,7 @@ export default function CGUPage() {
                 </li>
               </ul>
 
-              <h3 className="text-xl font-medium mb-3">5.2 Annulation par Teens Party</h3>
+              <h3 className="text-xl font-medium mb-3">5.2 Annulation par Nivy</h3>
               <p className="leading-relaxed mb-2">
                 En cas d'annulation de notre fait (météo, force majeure, nombre insuffisant) :
               </p>
@@ -135,7 +135,7 @@ export default function CGUPage() {
 
             <section>
               <h2 className="text-2xl font-semibold mb-4">7. Responsabilités</h2>
-              <h3 className="text-xl font-medium mb-3">7.1 Responsabilité de Teens Party</h3>
+              <h3 className="text-xl font-medium mb-3">7.1 Responsabilité de Nivy</h3>
               <ul className="list-disc pl-6 space-y-2 mb-4">
                 <li>Encadrement professionnel et diplômé</li>
                 <li>Assurance responsabilité civile</li>
@@ -181,7 +181,7 @@ export default function CGUPage() {
                 <li>Commission de 10% sur les réservations valides</li>
                 <li>Paiement mensuel si solde ≥ 200 MAD</li>
                 <li>Respect du code de conduite ambassadeur</li>
-                <li>Teens Party se réserve le droit de suspendre un compte ambassadeur</li>
+                <li>Nivy se réserve le droit de suspendre un compte ambassadeur</li>
               </ul>
             </section>
 
@@ -193,7 +193,7 @@ export default function CGUPage() {
               <ul className="list-disc pl-6 space-y-2">
                 <li>Reproduction interdite sans autorisation écrite</li>
                 <li>Usage personnel uniquement</li>
-                <li>Marque "Teens Party Morocco" déposée</li>
+                <li>Marque "Nivy" déposée</li>
               </ul>
             </section>
 
@@ -229,7 +229,7 @@ export default function CGUPage() {
               <h2 className="text-2xl font-semibold mb-4">15. Contact</h2>
               <div className="p-4 bg-muted rounded-lg">
                 <p>
-                  <strong>Teens Party Morocco</strong>
+                  <strong>Nivy</strong>
                 </p>
                 <p>
                   Email :{" "}

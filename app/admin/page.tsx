@@ -1,6 +1,26 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from 'next/navigation'
-import { Users, Calendar, DollarSign, Award, Ticket, Shield, TrendingUp, Database } from 'lucide-react'
+import {
+  Users,
+  Calendar,
+  DollarSign,
+  Award,
+  Ticket,
+  Shield,
+  TrendingUp,
+  Database,
+  CheckSquare,
+  GraduationCap,
+  Briefcase,
+  Car,
+  ShoppingBag,
+  Activity,
+  Image as ImageIcon,
+  ScrollText,
+  Building2,
+  Cake,
+  QrCode,
+} from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -195,6 +215,44 @@ export default async function AdminDashboardPage() {
           </Button>
         </div>
 
+        {/* Modération & Opérations — secondary admin grid (FRONTEND_REDO §6) */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-white mb-4">Modération & opérations</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[
+              { href: "/admin/partners", label: "Partenaires KYC", icon: Building2 },
+              { href: "/admin/proofs", label: "Preuves défis", icon: CheckSquare },
+              { href: "/admin/content", label: "Modération contenu", icon: ImageIcon },
+              { href: "/admin/marketplace", label: "Marketplace", icon: ShoppingBag },
+              { href: "/admin/creator-moderation", label: "Créateurs", icon: ImageIcon },
+              { href: "/admin/check-in", label: "Check-in events", icon: QrCode },
+              { href: "/admin/anniversaires", label: "Anniversaires", icon: Cake },
+              { href: "/admin/clubs", label: "Clubs", icon: Award },
+              { href: "/admin/mentors", label: "Mentors", icon: GraduationCap },
+              { href: "/admin/internships", label: "Stages", icon: Briefcase },
+              { href: "/admin/drivers", label: "Chauffeurs", icon: Car },
+              { href: "/admin/permissions", label: "Permissions", icon: Shield },
+              { href: "/admin/logs", label: "Audit log", icon: ScrollText },
+              { href: "/admin/gamification/scorecard", label: "Live pulse", icon: Activity },
+              { href: "/admin/gamification-setup", label: "Gamif setup", icon: Award },
+            ].map((item) => (
+              <Button
+                key={item.href}
+                asChild
+                variant="outline"
+                className="h-auto py-4 bg-zinc-900 border-zinc-800 hover:border-emerald-500/40 hover:bg-zinc-800 text-white"
+              >
+                <Link href={item.href}>
+                  <div className="flex flex-col items-center gap-2 w-full">
+                    <item.icon className="w-5 h-5 text-emerald-400" />
+                    <span className="text-xs font-semibold">{item.label}</span>
+                  </div>
+                </Link>
+              </Button>
+            ))}
+          </div>
+        </div>
+
         <div className="mb-8">
           <Button
             asChild
@@ -203,7 +261,7 @@ export default async function AdminDashboardPage() {
           >
             <Link href="/admin/scripts-sql">
               <Database className="w-6 h-6 mr-3" />
-              <span className="text-lg font-bold">Exécuter les Scripts SQL</span>
+              <span className="text-lg font-bold">Exécuter les Scripts SQL (super_admin uniquement)</span>
             </Link>
           </Button>
         </div>
