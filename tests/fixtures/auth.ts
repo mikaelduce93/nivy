@@ -50,16 +50,24 @@ export function hasCredentials(role: Role): boolean {
 
 async function preAcceptCookies(page: Page): Promise<void> {
   // Pre-set localStorage so the cookie banner (components/cookie-banner.tsx)
-  // never renders — avoids it intercepting form events. Must run on the
-  // app's origin, so we hit a lightweight page first.
-  await page.goto("/auth/login").catch(() => {})
-  await page.evaluate(() => {
-    try {
-      localStorage.setItem("cookies-accepted", "true")
-    } catch {
-      // Ignore storage errors (e.g. DOMException in stricter contexts).
-    }
-  })
+  // never renders. Must run on the app's origin: we hit a lightweight page,
+  // wait for the network to fully settle, then write to localStorage.
+  // Using domcontentloaded + waitForLoadState avoids "Execution context was
+  // destroyed" when the login page's auto-redirect useEffect fires.
+  await page.goto("/auth/login", { waitUntil: "domcontentloaded" }).catch(() => {})
+  await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {})
+  await page
+    .evaluate(() => {
+      try {
+        localStorage.setItem("cookies-accepted", "true")
+      } catch {
+        // Ignore storage errors.
+      }
+    })
+    .catch(() => {
+      // Context may be destroyed by an auto-redirect; we'll retry the cookie
+      // dismissal via UI fallback inside signInWithRole if needed.
+    })
 }
 
 export async function signInWithRole(page: Page, role: Role): Promise<void> {
