@@ -48,6 +48,20 @@ export function hasCredentials(role: Role): boolean {
   return getCredentials(role) !== null
 }
 
+async function preAcceptCookies(page: Page): Promise<void> {
+  // Pre-set localStorage so the cookie banner (components/cookie-banner.tsx)
+  // never renders — avoids it intercepting form events. Must run on the
+  // app's origin, so we hit a lightweight page first.
+  await page.goto("/auth/login").catch(() => {})
+  await page.evaluate(() => {
+    try {
+      localStorage.setItem("cookies-accepted", "true")
+    } catch {
+      // Ignore storage errors (e.g. DOMException in stricter contexts).
+    }
+  })
+}
+
 export async function signInWithRole(page: Page, role: Role): Promise<void> {
   const creds = getCredentials(role)
   if (!creds) {
@@ -57,10 +71,22 @@ export async function signInWithRole(page: Page, role: Role): Promise<void> {
     )
   }
 
+  await preAcceptCookies(page)
   await page.goto("/auth/login")
-  await page.getByLabel("Email").fill(creds.email)
-  await page.getByLabel("Mot de passe").fill(creds.password)
-  await page.getByRole("button", { name: /se connecter/i }).click()
+
+  // Use ID selectors — the form uses <Input id="email"> / <Input id="password">.
+  // ID-based locators bypass label-association quirks and Tabs hydration races
+  // that have made getByLabel flaky on this page.
+  const emailField = page.locator("#email")
+  const passwordField = page.locator("#password")
+
+  await emailField.waitFor({ state: "visible", timeout: 15_000 })
+  await emailField.fill(creds.email)
+  await passwordField.fill(creds.password)
+
+  // Submit via the form (Enter key) — avoids button-copy drift between locales
+  // and OAuth-button click confusion ("Let's go" / "Se connecter" / etc.).
+  await passwordField.press("Enter")
 
   // After successful login the app routes to /auth/redirect which dispatches
   // by role to /teen, /parent, /partner. Either intermediate or final URL is
