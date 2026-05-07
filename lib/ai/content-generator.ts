@@ -17,6 +17,30 @@ import { checkContentSafety, logSafetyOutcome } from "./content-safety"
 export type ContentType = "quiz" | "mission" | "challenge" | "daily_challenge" | "quest"
 export { type AIProviderType as AIProvider }
 
+/**
+ * Default model IDs for each provider — current as of 2026-Q2.
+ *
+ * IMPORTANT: the previous Claude default `claude-3-sonnet-20240229` was
+ * RETIRED by Anthropic. Calls against it return 404 / "model not found",
+ * which silently broke `app/api/cron/generate-daily-content` since launch.
+ *
+ * Override at runtime via env vars:
+ *   CLAUDE_MODEL_ID  (e.g. "claude-sonnet-4-6", "claude-haiku-4-5")
+ *   OPENAI_MODEL_ID  (e.g. "gpt-4o-mini", "gpt-4o", "gpt-5.1-mini")
+ */
+export const DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6"
+export const DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
+
+export function resolveModelId(providerType: AIProviderType): string {
+  if (providerType === "openai") {
+    return process.env.OPENAI_MODEL_ID || DEFAULT_OPENAI_MODEL
+  }
+  if (providerType === "claude") {
+    return process.env.CLAUDE_MODEL_ID || DEFAULT_CLAUDE_MODEL
+  }
+  return ""
+}
+
 export interface GenerationParams {
   contentType: ContentType
   category?: string
@@ -75,7 +99,7 @@ export class ContentGenerator {
   private useFallback: boolean
 
   constructor(providerType: AIProviderType = "openai", useFallback: boolean = true) {
-    const model = providerType === "openai" ? "gpt-4" : "claude-3-sonnet-20240229"
+    const model = resolveModelId(providerType)
     this.aiProvider = AIProviderFactory.getProvider(providerType, model)
     this.validator = new ContentValidator()
     this.factualValidator = new FactualValidator()

@@ -2,6 +2,12 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 
+// ----------------------------------------------------------------------
+// Wave-1 TICKET-025: this route now reads/writes `partner_offers` (the
+// canonical table). The previous version targeted `partner_discounts`,
+// which has been replaced by a backward-compat view by migration 074.
+// ----------------------------------------------------------------------
+
 // GET: List all offers for the partner
 export async function GET(request: Request) {
   try {
@@ -15,7 +21,6 @@ export async function GET(request: Request) {
       )
     }
 
-    // Get partner ID from email
     const { data: partner } = await supabase
       .from("partners")
       .select("id")
@@ -29,13 +34,13 @@ export async function GET(request: Request) {
       )
     }
 
-    // Get all offers for this partner
     const { data: offers, error } = await supabase
-      .from("partner_discounts")
+      .from("partner_offers")
       .select(`
         id,
-        discount_name,
+        title,
         description,
+        offer_type,
         discount_type,
         discount_value,
         requires_vip,
@@ -50,6 +55,7 @@ export async function GET(request: Request) {
         max_total_uses,
         current_total_uses,
         applicable_categories,
+        tags,
         created_at
       `)
       .eq("partner_id", partner.id)
@@ -63,10 +69,14 @@ export async function GET(request: Request) {
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      data: offers || []
-    })
+    // Compat layer: surface the legacy `discount_name` alias so any UI
+    // still bound to it (Wave 2 PT1 will replace it) keeps working.
+    const data = (offers || []).map((o) => ({
+      ...o,
+      discount_name: o.title,
+    }))
+
+    return NextResponse.json({ success: true, data })
   } catch (error) {
     console.error("Partner offers GET API error:", error)
     return NextResponse.json(
@@ -89,7 +99,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get partner ID from email
     const { data: partner } = await supabase
       .from("partners")
       .select("id, company_name")
@@ -119,7 +128,8 @@ export async function POST(request: Request) {
       validFrom,
       validUntil,
       termsAndConditions,
-      applicableCategories
+      applicableCategories,
+      tags,
     } = body
 
     // Validation
@@ -144,7 +154,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validate dates
     const fromDate = new Date(validFrom)
     const untilDate = new Date(validUntil)
     if (fromDate > untilDate) {
@@ -154,14 +163,21 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create the offer
+    const numericDiscount = parseFloat(discountValue)
+
+    // Build the row using partner_offers' canonical column names. We
+    // populate both the legacy `discount_pct` (for downstream readers
+    // like the dashboard's `offer.discount_value` rendering) and the
+    // newer `discount_value` so semantics stay consistent.
     const offerData = {
       partner_id: partner.id,
-      discount_name: name.trim(),
+      title: name.trim(),
       description: description?.trim() || null,
+      offer_type: offerType || "discount",
       discount_type: discountType || "percentage",
-      discount_value: parseFloat(discountValue),
-      requires_vip: requiresVip ?? true,
+      discount_value: numericDiscount,
+      discount_pct: discountType === "percentage" || !discountType ? numericDiscount : null,
+      requires_vip: requiresVip ?? false,
       min_vip_level: requiresVip ? (minVipLevel || "silver") : null,
       min_purchase_amount: minPurchase ? parseFloat(minPurchase) : null,
       max_discount_amount: maxDiscount ? parseFloat(maxDiscount) : null,
@@ -172,11 +188,14 @@ export async function POST(request: Request) {
       max_uses_per_user: maxUsesPerUser ? parseInt(maxUsesPerUser) : null,
       max_total_uses: maxTotalUses ? parseInt(maxTotalUses) : null,
       current_total_uses: 0,
-      applicable_categories: applicableCategories?.length > 0 ? applicableCategories : null
+      applicable_categories: Array.isArray(applicableCategories) && applicableCategories.length > 0
+        ? applicableCategories
+        : null,
+      tags: Array.isArray(tags) && tags.length > 0 ? tags : [],
     }
 
     const { data: newOffer, error: insertError } = await supabase
-      .from("partner_discounts")
+      .from("partner_offers")
       .insert([offerData])
       .select()
       .single()
@@ -189,24 +208,24 @@ export async function POST(request: Request) {
       )
     }
 
-    // Log activity (non-critical, ignore errors)
+    // Best-effort activity log; don't fail the request on logger errors.
     try {
       await supabase.from("activity_logs").insert({
         user_id: userInfo.profileId,
         action: "create",
         description: `Nouvelle offre créée: ${name}`,
-        resource_type: "partner_discount",
+        resource_type: "partner_offer",
         resource_id: newOffer.id,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       })
     } catch {
-      // Don't fail if logging fails
+      // ignore — non-critical
     }
 
     return NextResponse.json({
       success: true,
       message: "Offre créée avec succès",
-      data: newOffer
+      data: { ...newOffer, discount_name: newOffer.title },
     })
   } catch (error) {
     console.error("Partner offers POST API error:", error)

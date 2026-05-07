@@ -8,9 +8,44 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   ArrowRight, ArrowLeft, User, Mail, Phone, Calendar,
-  ChevronLeft, ChevronRight, Loader2, CheckCircle2, Heart, Info
+  ChevronLeft, ChevronRight, Loader2, CheckCircle2, Heart, Info,
+  Sparkles
 } from 'lucide-react'
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
+
+/**
+ * TICKET-031 — Onboarding interest capture preview.
+ *
+ * The actual chip selector lives at /onboarding/interests (post-auth,
+ * post-parent-approval) because we need a teen_id to write rows to
+ * teen_interests. At this pre-auth registration step we show a
+ * non-persisting chip teaser so teens see the 50-tag taxonomy before
+ * they leave the form, and pre-pick can be persisted to localStorage
+ * to be hydrated into <InterestPicker /> after first sign-in.
+ *
+ * 16 representative tags drawn from interest_taxonomy (categories
+ * weighted toward 13-17 appeal — drops `lifestyle_finance` etc per
+ * docs/vision/personalization-engine.md §10 Step A).
+ */
+const INTEREST_PREVIEW_CHIPS: Array<{ tag: string; label: string; icon: string }> = [
+  { tag: 'sport_football', label: 'Football', icon: '⚽' },
+  { tag: 'sport_basketball', label: 'Basket', icon: '🏀' },
+  { tag: 'tech_gaming', label: 'Jeux vidéo', icon: '🎮' },
+  { tag: 'tech_coding', label: 'Code', icon: '💻' },
+  { tag: 'tech_ai', label: 'IA', icon: '🧠' },
+  { tag: 'art_drawing', label: 'Dessin', icon: '✏️' },
+  { tag: 'art_video', label: 'Vidéo', icon: '🎬' },
+  { tag: 'art_photography', label: 'Photo', icon: '📷' },
+  { tag: 'music_rap', label: 'Rap', icon: '🎤' },
+  { tag: 'music_pop', label: 'Pop', icon: '🎵' },
+  { tag: 'food_cooking', label: 'Cuisine', icon: '👨‍🍳' },
+  { tag: 'lifestyle_fashion', label: 'Mode', icon: '👗' },
+  { tag: 'science_astronomy', label: 'Astronomie', icon: '🔭' },
+  { tag: 'reading_fiction', label: 'Romans', icon: '📖' },
+  { tag: 'nature_animals', label: 'Animaux', icon: '🐶' },
+  { tag: 'social_volunteering', label: 'Bénévolat', icon: '🤝' },
+]
 
 interface TeenSetupStepProps {
   onNext: () => void
@@ -29,6 +64,27 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // TICKET-031 — chip teaser. Persisted to localStorage so the post-auth
+  // /onboarding/interests page (which calls /api/onboarding/interests) can
+  // pre-fill the selection from the teen's pre-registration choices.
+  const [previewSelected, setPreviewSelected] = useState<Set<string>>(new Set())
+
+  const togglePreview = (tag: string) => {
+    setPreviewSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(tag)) {
+        next.delete(tag)
+      } else {
+        if (next.size >= 10) {
+          toast.warning('Max 10 — tu pourras en ajouter d\'autres après')
+          return prev
+        }
+        next.add(tag)
+      }
+      return next
+    })
+  }
 
   // Focus first error on submit
   useEffect(() => {
@@ -130,6 +186,19 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
         registrationId: data.data.registrationId,
         expiresAt: data.data.expiresAt,
       }))
+
+      // TICKET-031 — pre-seed interests so /onboarding/interests can hydrate
+      // the chip selector with the teen's pre-auth picks once they sign in.
+      if (previewSelected.size > 0) {
+        try {
+          localStorage.setItem(
+            'teen_onboarding_interests_preview',
+            JSON.stringify(Array.from(previewSelected))
+          )
+        } catch {
+          // localStorage may be disabled — non-fatal, the user simply re-picks.
+        }
+      }
 
       onNext()
     } catch (error: any) {
@@ -302,11 +371,73 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
               </div>
             </div>
 
+            {/* TICKET-031 — Interest chip teaser (Step A from
+                personalization-engine.md §10). Pre-auth, non-persisting:
+                writes to localStorage so /onboarding/interests can hydrate
+                the full 50-tag selector after parent approval + sign-in. */}
+            <div className="space-y-3 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 ring-1 ring-cyan-500/30">
+                  <Sparkles className="w-4 h-4 text-cyan-500" aria-hidden="true" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base leading-tight">Qu'est-ce qui te fait vibrer&nbsp;?</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Pré-sélectionne quelques centres d'intérêt — tu pourras affiner après.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                role="group"
+                aria-label="Aperçu des centres d'intérêt"
+                className="flex flex-wrap gap-2"
+              >
+                {INTEREST_PREVIEW_CHIPS.map((chip) => {
+                  const isOn = previewSelected.has(chip.tag)
+                  return (
+                    <button
+                      key={chip.tag}
+                      type="button"
+                      onClick={() => togglePreview(chip.tag)}
+                      aria-pressed={isOn}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-medium",
+                        "border transition-all duration-150 active:scale-95 select-none",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        isOn
+                          ? "bg-gradient-to-r from-cyan-500 to-emerald-500 text-white border-transparent shadow-sm shadow-cyan-500/30"
+                          : "bg-background hover:bg-muted/60 border-border/80 text-foreground"
+                      )}
+                    >
+                      <span aria-hidden="true">{chip.icon}</span>
+                      <span>{chip.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <span
+                  className={cn(
+                    "tabular-nums font-semibold",
+                    previewSelected.size > 0 ? "text-cyan-600 dark:text-cyan-400" : "text-muted-foreground"
+                  )}
+                  aria-live="polite"
+                >
+                  {previewSelected.size} sélectionné{previewSelected.size > 1 ? "s" : ""} / 10 max
+                </span>
+                <span className="text-muted-foreground">
+                  Plus de 50 catégories à découvrir ensuite
+                </span>
+              </div>
+            </div>
+
             {/* Info Note */}
-            <div className="flex items-start gap-3 p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+            <div className="flex items-start gap-3 p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl">
               <Info className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-purple-600 dark:text-purple-400">
-                <p className="font-medium mb-1">Pourquoi ces informations ?</p>
+                <p className="font-medium mb-1">Pourquoi ces informations&nbsp;?</p>
                 <p className="text-xs opacity-90">
                   Pour ta sécurité, tes parents doivent valider ton inscription. Ils recevront un email
                   avec un lien pour créer leur compte parent et approuver ton profil.

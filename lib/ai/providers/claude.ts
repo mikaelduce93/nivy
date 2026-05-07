@@ -1,5 +1,10 @@
 import { BaseAIProvider, type AIProviderResponse } from "./base"
 
+// Last-resort fallback if neither a constructor-passed model nor the
+// CLAUDE_MODEL_ID env var is set. Kept in sync with the canonical default
+// in `lib/ai/content-generator.ts`.
+const CLAUDE_FALLBACK_MODEL = "claude-sonnet-4-6"
+
 export class ClaudeProvider extends BaseAIProvider {
   async call(systemPrompt: string, userPrompt: string): Promise<AIProviderResponse> {
     if (!this.apiKey) {
@@ -7,6 +12,7 @@ export class ClaudeProvider extends BaseAIProvider {
     }
 
     const startTime = Date.now()
+    const model = this.model || process.env.CLAUDE_MODEL_ID || CLAUDE_FALLBACK_MODEL
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -15,7 +21,7 @@ export class ClaudeProvider extends BaseAIProvider {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: this.model || "claude-3-sonnet-20240229",
+        model,
         max_tokens: 2000,
         system: systemPrompt,
         messages: [
@@ -42,7 +48,7 @@ export class ClaudeProvider extends BaseAIProvider {
       content: data.content[0]?.text || "",
       metadata: {
         provider: "claude",
-        model: this.model,
+        model,
         tokensUsed: data.usage?.input_tokens + data.usage?.output_tokens || 0,
         generationTime,
       },

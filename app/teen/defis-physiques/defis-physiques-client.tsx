@@ -23,6 +23,11 @@ export type ApiChallenge = {
   difficulty?: string | null
   icon?: string | null
   image_url?: string | null
+  // Canonical interest_taxonomy tags (e.g. "lifestyle_fitness",
+  // "sport_running"). Backfilled by migration 072 — every active row
+  // is guaranteed ≥1 tag. Used both for personalization scoring on the
+  // server and for the tag-chip strip rendered above each card here.
+  tags?: string[] | null
   is_started: boolean
   is_completed: boolean
   progress: {
@@ -46,6 +51,28 @@ const CATEGORIES = [
   { id: "cardio", label: "Cardio", icon: Heart },
   { id: "core", label: "Core", icon: Star },
 ]
+
+// Human-readable label for canonical interest_taxonomy tags. Keeps the
+// closed taxonomy on the server while letting the UI show readable FR
+// chips. Anything not in the map falls back to a sensible derived label
+// (e.g. `sport_basketball` -> "basketball").
+const TAG_LABELS_FR: Record<string, string> = {
+  lifestyle_fitness: "Fitness",
+  lifestyle_wellness: "Bien-être",
+  sport_running: "Course",
+  sport_football: "Football",
+  sport_basketball: "Basket",
+  sport_swimming: "Natation",
+  sport_cycling: "Vélo",
+  sport_martial_arts: "Arts martiaux",
+}
+
+function tagToLabel(tag: string): string {
+  if (TAG_LABELS_FR[tag]) return TAG_LABELS_FR[tag]
+  // strip the `sport_` / `lifestyle_` prefix and capitalise.
+  const rest = tag.replace(/^(sport_|lifestyle_)/, "").replace(/_/g, " ")
+  return rest.charAt(0).toUpperCase() + rest.slice(1)
+}
 
 interface Props {
   challenges: ApiChallenge[]
@@ -232,13 +259,30 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredChallenges.map((challenge, idx) => {
             const props = challengeToDefiProps(challenge)
+            const tags = (challenge.tags ?? []).slice(0, 3)
             return (
               <motion.div
                 key={challenge.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
+                className="space-y-2"
               >
+                {tags.length > 0 && (
+                  <div
+                    className="flex flex-wrap gap-1.5 px-1"
+                    aria-label="Tags du défi"
+                  >
+                    {tags.map((t) => (
+                      <span
+                        key={t}
+                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                      >
+                        {tagToLabel(t)}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <DefiCard type="physical" {...props} />
               </motion.div>
             )
@@ -260,13 +304,30 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
         <div className="space-y-4">
           {programs.map((program, idx) => {
             const props = challengeToDefiProps(program)
+            const tags = (program.tags ?? []).slice(0, 3)
             return (
               <motion.div
                 key={program.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
+                className="space-y-2"
               >
+                {tags.length > 0 && (
+                  <div
+                    className="flex flex-wrap gap-1.5 px-1"
+                    aria-label="Tags du programme"
+                  >
+                    {tags.map((t) => (
+                      <span
+                        key={t}
+                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                      >
+                        {tagToLabel(t)}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <DefiCard type="physical" {...props} />
               </motion.div>
             )

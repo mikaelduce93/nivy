@@ -1,5 +1,10 @@
 import { BaseAIProvider, type AIProviderResponse } from "./base"
 
+// Last-resort fallback if neither a constructor-passed model nor the
+// OPENAI_MODEL_ID env var is set. Kept in sync with the canonical default
+// in `lib/ai/content-generator.ts`.
+const OPENAI_FALLBACK_MODEL = "gpt-4o-mini"
+
 export class OpenAIProvider extends BaseAIProvider {
   async call(systemPrompt: string, userPrompt: string): Promise<AIProviderResponse> {
     if (!this.apiKey) {
@@ -7,6 +12,7 @@ export class OpenAIProvider extends BaseAIProvider {
     }
 
     const startTime = Date.now()
+    const model = this.model || process.env.OPENAI_MODEL_ID || OPENAI_FALLBACK_MODEL
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -14,7 +20,7 @@ export class OpenAIProvider extends BaseAIProvider {
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
-        model: this.model || "gpt-4",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -36,7 +42,7 @@ export class OpenAIProvider extends BaseAIProvider {
       content: data.choices[0]?.message?.content || "",
       metadata: {
         provider: "openai",
-        model: this.model,
+        model,
         tokensUsed: data.usage?.total_tokens || 0,
         generationTime,
       },
