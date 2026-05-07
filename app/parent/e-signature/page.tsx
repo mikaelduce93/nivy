@@ -24,7 +24,7 @@ async function getExistingSignature(parentId: string) {
 export default async function ParentESignaturePage({
   searchParams,
 }: {
-  searchParams: { redirect?: string; teen?: string }
+  searchParams: Promise<{ redirect?: string; teen?: string }>
 }) {
   const userInfo = await getUserRole()
 
@@ -33,8 +33,9 @@ export default async function ParentESignaturePage({
   }
 
   const existing = await getExistingSignature(userInfo.profileId)
-  const redirectTo = searchParams.redirect || "/parent/topup"
-  const teenId = searchParams.teen
+  const params = await searchParams
+  const redirectTo = params.redirect || "/parent/topup"
+  const teenId = params.teen
 
   return (
     <div className="min-h-screen bg-zinc-950">
