@@ -33,6 +33,8 @@ interface WalletHubClientProps {
     xp: { total: number; level: number; progressPercent: number }
     streak: number
     coins: number
+    /** Cashback XP earned in the last 7 days (W3.1 — twin-currency gauge metric). */
+    cashbackThisWeek?: number
     shopHighlights: any
     rewards?: ShopReward[]
     categories?: Array<{ id: string; slug: string; name: string }>
@@ -187,14 +189,21 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
             </div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4">
+          {/* Quick Stats — twin-currency gauge: XP + Coins balance + this-week cashback (§5). */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-black/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Zap className="w-4 h-4 text-gen-z-lavender" />
                 <span className="font-black text-xl">{walletData.xp.total.toLocaleString()}</span>
               </div>
               <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Total XP</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-black/20 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span className="font-black text-xl">+{(walletData.cashbackThisWeek ?? 0).toLocaleString()}</span>
+              </div>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Cashback 7j</p>
             </div>
             <div className="p-4 rounded-2xl bg-black/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">

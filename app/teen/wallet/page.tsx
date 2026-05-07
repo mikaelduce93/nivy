@@ -31,7 +31,10 @@ export default async function WalletHubPage() {
   const walletData = {
     xp: dashboardData?.xp || { total: 0, level: 1, progressPercent: 0 },
     streak: dashboardData?.currentStreak || 0,
-    coins: 0, // TODO: Fetch from user_coins table once it exists (see docs/economy.md)
+    // W3.1 — real balance from user_coins.balance (sourced via getTeenDashboardData).
+    // Per whitepaper §5: 1 DH = 100 coins (locked). XP and coins NEVER convert.
+    coins: dashboardData?.coins?.balance ?? 0,
+    cashbackThisWeek: dashboardData?.coins?.cashbackThisWeek ?? 0,
     shopHighlights: dashboardData?.shopHighlights || {},
     // Canonical shop catalog (reward_categories + get_shop_rewards RPC)
     rewards: rewardsResult.data || [],

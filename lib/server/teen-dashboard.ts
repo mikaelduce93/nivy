@@ -41,6 +41,11 @@ export type TeenDashboardData = {
     xpInLevel: number
     progressPercent: number
   }
+  /** Real coin balance from `user_coins.balance`, plus this-week cashback total. */
+  coins: {
+    balance: number
+    cashbackThisWeek: number
+  }
   nextReward: {
     name: string
     xpCost: number
@@ -198,6 +203,36 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
 
   const totalXp = teenProfile?.total_xp ?? lifetimeStats?.total_xp ?? 0
   const xpProgress = calculateLevelProgress(totalXp)
+
+  // Coins — read live from user_coins (W3.1). The teen_full_profile mirror may
+  // be stale; user_coins is the source of truth for the balance.
+  const { data: coinsRow } = await supabase
+    .from("user_coins")
+    .select("balance")
+    .eq("teen_id", user.id)
+    .limit(1)
+    .maybeSingle()
+  const coinBalance = coinsRow?.balance ?? teenProfile?.coins_balance ?? 0
+
+  // This-week cashback total (XP earned via spend cashback in last 7 days).
+  // Source: xp_transactions where source_type='cashback' (provenance from
+  // add_xp_to_user). Falls back to 0 if the table/column is absent.
+  let cashbackThisWeek = 0
+  try {
+    const sinceIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const { data: cashbackRows } = await supabase
+      .from("xp_transactions")
+      .select("amount, source_type, created_at")
+      .eq("teen_id", user.id)
+      .eq("source_type", "cashback")
+      .gte("created_at", sinceIso)
+    cashbackThisWeek = (cashbackRows || []).reduce(
+      (acc: number, row: { amount?: number | null }) => acc + (row.amount || 0),
+      0
+    )
+  } catch {
+    cashbackThisWeek = 0
+  }
   const currentStreak = streakResult.success
     ? streakResult.currentStreak
     : teenProfile?.streak ?? lifetimeStats?.current_login_streak ?? 0
@@ -348,6 +383,10 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
       xpToNextLevel: xpProgress.xpToNextLevel,
       xpInLevel: xpProgress.xpInLevel,
       progressPercent: xpProgress.progressPercent,
+    },
+    coins: {
+      balance: coinBalance,
+      cashbackThisWeek,
     },
     nextReward,
     upcomingEvents,
