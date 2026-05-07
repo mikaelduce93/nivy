@@ -1,20 +1,116 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { TrendingUp, TrendingDown, Users, ShoppingBag, Tag, Calendar, Download } from "lucide-react"
+import { TrendingUp, Users, ShoppingBag, Tag, Calendar, Download } from "lucide-react"
+import { getUserRole } from "@/lib/auth/get-user-role"
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
 
-export default function PartnerStatsPage() {
-  const monthlyStats = [
-    { month: "Janvier", transactions: 156, revenue: 12450, newCustomers: 23 },
-    { month: "Décembre", transactions: 142, revenue: 11200, newCustomers: 19 },
-    { month: "Novembre", transactions: 128, revenue: 9800, newCustomers: 15 },
-    { month: "Octobre", transactions: 115, revenue: 8500, newCustomers: 12 },
-  ]
+type TxRow = {
+  teen_id: string | null
+  amount_dh: number | null
+  cashback_xp: number | null
+  status: string | null
+  created_at: string | null
+}
 
-  const topOffers = [
-    { name: "-15% Gold/Platinum", uses: 89, revenue: 5200 },
-    { name: "Boisson offerte", uses: 67, revenue: 3400 },
-    { name: "2ème article -50%", uses: 45, revenue: 2800 },
-  ]
+const MONTH_NAMES = [
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
+]
+
+function monthKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+}
+
+export default async function PartnerStatsPage() {
+  const userInfo = await getUserRole()
+
+  if (!userInfo) {
+    redirect("/auth/login")
+  }
+
+  const partnerId = userInfo.role === "partner" ? userInfo.partnerData?.id : null
+
+  if (!partnerId) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-black text-white">Statistiques</h1>
+          <p className="text-zinc-400">Stats indisponibles — profil partenaire introuvable.</p>
+        </div>
+      </div>
+    )
+  }
+
+  const supabase = await createClient()
+
+  // Window: last 6 months including current.
+  const since = new Date()
+  since.setMonth(since.getMonth() - 5)
+  since.setDate(1)
+  since.setHours(0, 0, 0, 0)
+
+  const { data: txData } = await supabase
+    .from("partner_transactions")
+    .select("teen_id, amount_dh, cashback_xp, status, created_at")
+    .eq("partner_id", partnerId)
+    .gte("created_at", since.toISOString())
+    .order("created_at", { ascending: false })
+
+  const transactions = (txData ?? []) as TxRow[]
+
+  const successful = transactions.filter((t) => t.status === "succeeded" || t.status === null)
+
+  const totalTransactions = successful.length
+  const totalRevenue = successful.reduce((s, r) => s + Number(r.amount_dh || 0), 0)
+  const totalCashbackXp = successful.reduce((s, r) => s + Number(r.cashback_xp || 0), 0)
+  const uniqueTeens = new Set(successful.map((t) => t.teen_id).filter(Boolean)).size
+
+  // Build a 4-month rolling history (newest first) so the chart always renders.
+  const history: { key: string; label: string; transactions: number; revenue: number }[] = []
+  const cursor = new Date()
+  cursor.setDate(1)
+  cursor.setHours(0, 0, 0, 0)
+  for (let i = 0; i < 4; i++) {
+    const k = monthKey(cursor)
+    history.push({
+      key: k,
+      label: MONTH_NAMES[cursor.getMonth()],
+      transactions: 0,
+      revenue: 0,
+    })
+    cursor.setMonth(cursor.getMonth() - 1)
+  }
+
+  for (const tx of successful) {
+    if (!tx.created_at) continue
+    const d = new Date(tx.created_at)
+    const k = monthKey(d)
+    const slot = history.find((h) => h.key === k)
+    if (slot) {
+      slot.transactions += 1
+      slot.revenue += Number(tx.amount_dh || 0)
+    }
+  }
+
+  const maxRevenue = Math.max(1, ...history.map((h) => h.revenue))
+
+  // Active offers count via partner_discounts (canonical surface used elsewhere).
+  const { count: offersUsedCount } = await supabase
+    .from("partner_transactions")
+    .select("*", { count: "exact", head: true })
+    .eq("partner_id", partnerId)
+    .gte("created_at", since.toISOString())
 
   return (
     <div className="space-y-6">
@@ -30,19 +126,26 @@ export default function PartnerStatsPage() {
         </Button>
       </div>
 
+      {totalTransactions === 0 && (
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardContent className="p-8 text-center">
+            <p className="text-zinc-300 font-semibold">Pas encore de données à analyser</p>
+            <p className="text-sm text-zinc-500 mt-2">
+              Vos statistiques s'afficheront ici dès vos premières transactions Teen Club.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Overview Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30 bg-zinc-900">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
               <ShoppingBag className="h-6 w-6 text-emerald-400" />
-              <div className="flex items-center text-emerald-400 text-xs">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +12%
-              </div>
             </div>
-            <p className="text-3xl font-black text-white">541</p>
-            <p className="text-sm text-zinc-400">Transactions totales</p>
+            <p className="text-3xl font-black text-white">{totalTransactions}</p>
+            <p className="text-sm text-zinc-400">Transactions (6 derniers mois)</p>
           </CardContent>
         </Card>
 
@@ -50,12 +153,8 @@ export default function PartnerStatsPage() {
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
               <Users className="h-6 w-6 text-blue-400" />
-              <div className="flex items-center text-emerald-400 text-xs">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +8%
-              </div>
             </div>
-            <p className="text-3xl font-black text-white">89</p>
+            <p className="text-3xl font-black text-white">{uniqueTeens}</p>
             <p className="text-sm text-zinc-400">Clients uniques</p>
           </CardContent>
         </Card>
@@ -64,12 +163,10 @@ export default function PartnerStatsPage() {
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="h-6 w-6 text-purple-400" />
-              <div className="flex items-center text-emerald-400 text-xs">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +15%
-              </div>
             </div>
-            <p className="text-3xl font-black text-white">41,950 DH</p>
+            <p className="text-3xl font-black text-white">
+              {Math.round(totalRevenue).toLocaleString()} DH
+            </p>
             <p className="text-sm text-zinc-400">Chiffre d'affaires</p>
           </CardContent>
         </Card>
@@ -79,8 +176,8 @@ export default function PartnerStatsPage() {
             <div className="flex items-center justify-between mb-2">
               <Tag className="h-6 w-6 text-amber-400" />
             </div>
-            <p className="text-3xl font-black text-white">201</p>
-            <p className="text-sm text-zinc-400">Offres utilisées</p>
+            <p className="text-3xl font-black text-white">{offersUsedCount ?? 0}</p>
+            <p className="text-sm text-zinc-400">Validations totales</p>
           </CardContent>
         </Card>
       </div>
@@ -96,87 +193,96 @@ export default function PartnerStatsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {monthlyStats.map((stat, i) => (
-                <div key={stat.month} className="flex items-center gap-4">
-                  <div className="w-20 text-sm text-zinc-400">{stat.month}</div>
-                  <div className="flex-1">
-                    <div className="h-8 bg-zinc-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-end pr-3"
-                        style={{ width: `${(stat.revenue / 15000) * 100}%` }}
-                      >
-                        <span className="text-xs font-bold text-white">{stat.revenue.toLocaleString()} DH</span>
+            {history.every((h) => h.transactions === 0) ? (
+              <p className="text-sm text-zinc-500 py-8 text-center">
+                Aucune activité sur les 4 derniers mois.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {history.map((stat) => (
+                  <div key={stat.key} className="flex items-center gap-4">
+                    <div className="w-20 text-sm text-zinc-400">{stat.label}</div>
+                    <div className="flex-1">
+                      <div className="h-8 bg-zinc-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-end pr-3"
+                          style={{
+                            width: `${Math.max(4, (stat.revenue / maxRevenue) * 100)}%`,
+                          }}
+                        >
+                          <span className="text-xs font-bold text-white">
+                            {Math.round(stat.revenue).toLocaleString()} DH
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-white">{stat.transactions}</p>
+                      <p className="text-xs text-zinc-500">transactions</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-white">{stat.transactions}</p>
-                    <p className="text-xs text-zinc-500">transactions</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Top Offers */}
+        {/* Cashback summary (replaces "Top offres" — the partner_offers table
+            doesn't expose per-offer usage on partner_transactions yet). */}
         <Card className="bg-zinc-900 border-zinc-800">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <Tag className="h-5 w-5 text-amber-400" />
-              Top offres
+              Cashback & engagement
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {topOffers.map((offer, i) => (
-              <div
-                key={offer.name}
-                className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-white ${
-                    i === 0 ? "bg-yellow-500" : i === 1 ? "bg-zinc-400" : "bg-amber-700"
-                  }`}>
-                    {i + 1}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">{offer.name}</p>
-                    <p className="text-xs text-zinc-400">{offer.uses} utilisations</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-black text-emerald-400">{offer.revenue.toLocaleString()} DH</p>
-                  <p className="text-xs text-zinc-500">générés</p>
-                </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700">
+              <div>
+                <p className="font-semibold text-white">XP cashback distribué</p>
+                <p className="text-xs text-zinc-400">Récompenses crédités aux teens</p>
               </div>
-            ))}
+              <p className="font-black text-emerald-400 text-xl">
+                {Math.round(totalCashbackXp).toLocaleString()} XP
+              </p>
+            </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700">
+              <div>
+                <p className="font-semibold text-white">Panier moyen</p>
+                <p className="text-xs text-zinc-400">CA / transaction</p>
+              </div>
+              <p className="font-black text-white text-xl">
+                {totalTransactions > 0
+                  ? Math.round(totalRevenue / totalTransactions).toLocaleString()
+                  : 0}{" "}
+                DH
+              </p>
+            </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700">
+              <div>
+                <p className="font-semibold text-white">Fréquence client</p>
+                <p className="text-xs text-zinc-400">Visites par membre unique</p>
+              </div>
+              <p className="font-black text-white text-xl">
+                {uniqueTeens > 0
+                  ? (totalTransactions / uniqueTeens).toFixed(1)
+                  : "0.0"}
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Customer Breakdown */}
+      {/* Customer breakdown — left as informational placeholder until
+          tier-by-partner aggregates land (see audit §D5). */}
       <Card className="bg-zinc-900 border-zinc-800">
         <CardHeader>
           <CardTitle className="text-white">Répartition par niveau</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
-            {[
-              { level: "Platinum", count: 12, color: "from-violet-500 to-purple-500" },
-              { level: "Gold", count: 28, color: "from-yellow-500 to-amber-500" },
-              { level: "Silver", count: 35, color: "from-gray-400 to-gray-500" },
-              { level: "Bronze", count: 14, color: "from-orange-600 to-orange-700" },
-            ].map((item) => (
-              <div key={item.level} className="text-center p-4 rounded-xl bg-zinc-800">
-                <div className={`h-16 w-16 mx-auto rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center mb-3`}>
-                  <span className="text-2xl font-black text-white">{item.count}</span>
-                </div>
-                <p className="font-semibold text-white">{item.level}</p>
-                <p className="text-xs text-zinc-400">clients</p>
-              </div>
-            ))}
-          </div>
+          <p className="text-sm text-zinc-500 py-6 text-center">
+            Répartition par tier indisponible pour le moment — disponible dès la prochaine mise à jour.
+          </p>
         </CardContent>
       </Card>
     </div>

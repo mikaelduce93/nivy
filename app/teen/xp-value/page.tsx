@@ -493,30 +493,13 @@ function TransactionHistory({ transactions, loading }: TransactionHistoryProps) 
 // HOW IT WORKS
 // ============================================================================
 
+// Audit fix: this block previously promoted a 50% XP→DH conversion narrative
+// ("100 XP = 1 DH d'économies", "Utilise jusqu'à 50% en XP") which violates
+// whitepaper §29 invariant #1: "No XP↔coins conversion ever" and §5's strict
+// dual-currency separation (XP = effort earned, never converts; Coins = parent-
+// loaded currency for purchases + cashback). Replaced with a compliant
+// explainer that matches the §5 wording.
 function HowItWorks() {
-  const steps = [
-    {
-      icon: Zap,
-      title: "Gagne des XP",
-      description: "Complète des défis, quiz, activités et événements",
-    },
-    {
-      icon: Coins,
-      title: "Accumule de la valeur",
-      description: "Chaque 100 XP = 1 DH d'économies",
-    },
-    {
-      icon: Wallet,
-      title: "Paie avec tes XP",
-      description: "Utilise jusqu'à 50% en XP sur tes achats",
-    },
-    {
-      icon: PiggyBank,
-      title: "Économise",
-      description: "Moins tu paies en cash, plus tu économises!",
-    },
-  ]
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -525,31 +508,52 @@ function HowItWorks() {
     >
       <h3 className="font-bold text-white mb-6 flex items-center gap-2">
         <Info className="w-5 h-5 text-cyan-400" />
-        Comment ça marche?
+        XP & Coins — comment ça marche
       </h3>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {steps.map((step, index) => (
-          <div key={step.title} className="relative">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <step.icon className="w-5 h-5 text-cyan-400" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="w-5 h-5 rounded-full bg-cyan-500 text-white text-xs font-bold flex items-center justify-center">
-                    {index + 1}
-                  </span>
-                  <h4 className="font-medium text-white">{step.title}</h4>
-                </div>
-                <p className="text-sm text-zinc-400">{step.description}</p>
-              </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+              <Zap className="w-5 h-5 text-cyan-400" />
             </div>
-            {index < steps.length - 1 && (
-              <ChevronRight className="hidden lg:block absolute -right-2 top-3 w-4 h-4 text-zinc-600" />
-            )}
+            <h4 className="font-bold text-white">XP — l'effort</h4>
           </div>
-        ))}
+          <p className="text-sm text-zinc-300 leading-relaxed">
+            <span className="font-semibold text-white">XP = effort gagné.</span>{" "}
+            Tu en gagnes via défis, quiz, événements et activités. Les XP
+            <span className="font-semibold text-white"> ne se convertissent jamais</span>{" "}
+            en DH ni en coins. Ils servent à débloquer des niveaux, badges,
+            paliers et récompenses exclusives.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+              <Coins className="w-5 h-5 text-amber-400" />
+            </div>
+            <h4 className="font-bold text-white">Coins — l'argent</h4>
+          </div>
+          <p className="text-sm text-zinc-300 leading-relaxed">
+            <span className="font-semibold text-white">Coins = monnaie chargée par tes parents</span>{" "}
+            (1 DH = 100 coins, taux verrouillé). Sert à payer tes achats et
+            réservations. Chaque dépense te rapporte un cashback{" "}
+            <span className="font-semibold text-white">en XP</span> — c'est la
+            seule passerelle entre les deux.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 p-4 rounded-xl bg-zinc-900/60 border border-zinc-700/40 flex items-start gap-3">
+        <Info className="w-5 h-5 text-zinc-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-zinc-400">
+          Pour utiliser tes coins, va sur{" "}
+          <a href="/teen/wallet" className="text-cyan-400 font-semibold hover:underline">
+            /teen/wallet
+          </a>
+          . Pour suivre tes XP, reste sur cette page.
+        </p>
       </div>
     </motion.div>
   )

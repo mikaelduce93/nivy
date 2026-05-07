@@ -79,6 +79,152 @@ export default async function ParentDashboardPage() {
     spendingByCategory[cat] = (spendingByCategory[cat] || 0) + (b.total_price || 0)
   })
 
+  // --- 5. STATS PAR TEEN (responsibility / social / creativity / academic) ---
+  // Audit fix: previously hardcoded {65,88,42,75} for every teen. Now computed
+  // from real tables over the last 30 days. Each metric degrades to null on
+  // query failure so EvolutionTracker can render a dash instead of a fake %.
+  const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  type TeenStats = {
+    responsibility: number | null
+    social: number | null
+    creativity: number | null
+    academic: number | null
+  }
+  const statsByTeen: Record<string, TeenStats> = {}
+
+  await Promise.all(
+    teenIds.map(async (teenId: string) => {
+      const stats: TeenStats = {
+        responsibility: null,
+        social: null,
+        creativity: null,
+        academic: null,
+      }
+
+      // Responsibility: chore completion rate over last 30 days.
+      // parent_chore_completions has no parent_id directly; we filter via
+      // parent_chores joined on chore_id where parent_id = current parent.
+      try {
+        const { data: choreIdsRows } = await supabase
+          .from("parent_chores")
+          .select("id")
+          .eq("parent_id", userInfo.profileId)
+          .eq("teen_id", teenId)
+        const choreIds = (choreIdsRows ?? []).map((r: any) => r.id)
+        if (choreIds.length === 0) {
+          stats.responsibility = 0
+        } else {
+          const { data: comps } = await supabase
+            .from("parent_chore_completions")
+            .select("parent_verified, created_at")
+            .in("chore_id", choreIds)
+            .eq("teen_id", teenId)
+            .gte("created_at", since30)
+          const total = comps?.length ?? 0
+          const verified = (comps ?? []).filter((c: any) => c.parent_verified === true).length
+          stats.responsibility = total === 0 ? 0 : Math.round((verified / total) * 100)
+        }
+      } catch (err) {
+        console.error("[parent] responsibility stat failed for", teenId, err)
+        stats.responsibility = null
+      }
+
+      // Social: feed_posts authored + feed_likes given in last 30 days,
+      // normalized to 0-100 (cap at 50 actions = 100%).
+      try {
+        const [{ count: postsCount }, { count: likesCount }] = await Promise.all([
+          supabase
+            .from("feed_posts")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", teenId)
+            .gte("created_at", since30),
+          supabase
+            .from("feed_likes")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", teenId)
+            .gte("created_at", since30),
+        ])
+        const actions = (postsCount ?? 0) + (likesCount ?? 0)
+        stats.social = Math.min(100, Math.round((actions / 50) * 100))
+      } catch (err) {
+        console.error("[parent] social stat failed for", teenId, err)
+        stats.social = null
+      }
+
+      // Creativity: feed_posts of creative type (creation/photo/video) in last 30d,
+      // normalized to 0-100 (cap at 10 = 100%).
+      // Note: creator_submissions table does not yet exist (planned, see whitepaper §28).
+      try {
+        const { count: creativeCount } = await supabase
+          .from("feed_posts")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", teenId)
+          .in("post_type", ["creation", "photo", "video"])
+          .gte("created_at", since30)
+        stats.creativity = Math.min(100, Math.round(((creativeCount ?? 0) / 10) * 100))
+      } catch (err) {
+        console.error("[parent] creativity stat failed for", teenId, err)
+        stats.creativity = null
+      }
+
+      // Academic: average quiz score over last 30 days.
+      try {
+        const { data: attempts } = await supabase
+          .from("quiz_attempts")
+          .select("score")
+          .eq("teen_id", teenId)
+          .gte("created_at", since30)
+        if (!attempts || attempts.length === 0) {
+          stats.academic = 0
+        } else {
+          const sum = attempts.reduce((s: number, a: any) => s + (a.score || 0), 0)
+          stats.academic = Math.round(sum / attempts.length)
+        }
+      } catch (err) {
+        console.error("[parent] academic stat failed for", teenId, err)
+        stats.academic = null
+      }
+
+      statsByTeen[teenId] = stats
+    })
+  )
+
+  // --- 6. UPCOMING EVENTS ---
+  // Audit fix: previously hardcoded `events={[]}`. Now real bookings
+  // joined to events for this parent's teens, only future-dated.
+  let upcomingEvents: Array<{
+    id: string
+    title: string
+    event_date: string
+    venue_name?: string
+    start_time?: string
+  }> = []
+  try {
+    if (teenIds.length > 0) {
+      const nowIso = new Date().toISOString()
+      const { data: upcomingRows } = await supabase
+        .from("bookings")
+        .select("id, event:events(id, title, event_date, venue_name, event_start)")
+        .in("teen_id", teenIds)
+        .neq("status", "cancelled")
+      upcomingEvents = (upcomingRows ?? [])
+        .map((b: any) => b.event)
+        .filter((e: any) => e && e.event_date && new Date(e.event_date).toISOString() > nowIso)
+        .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+        .slice(0, 10)
+        .map((e: any) => ({
+          id: e.id,
+          title: e.title,
+          event_date: e.event_date,
+          venue_name: e.venue_name ?? undefined,
+          start_time: e.event_start ?? undefined,
+        }))
+    }
+  } catch (err) {
+    console.error("[parent] upcoming events query failed:", err)
+    upcomingEvents = []
+  }
+
   return (
     <div className="relative min-h-screen bg-[#020408] text-white selection:bg-gen-z-teal/30 overflow-x-hidden">
       {/* 1. ULTRA-PREMIUM BACKGROUND */}
@@ -147,9 +293,16 @@ export default async function ParentDashboardPage() {
             <div className="space-y-10">
               {teens?.map((teen: any) => (
                 <div key={teen.teen_id} className="space-y-8 animate-fade-in-up">
-                  <EvolutionTracker 
-                    teenName={teen.full_name || "Teen"} 
-                    stats={{ responsibility: 65, social: 88, creativity: 42, academic: 75 }} 
+                  <EvolutionTracker
+                    teenName={teen.full_name || teen.teen_name || teen.first_name || "Teen"}
+                    stats={
+                      statsByTeen[teen.teen_id] ?? {
+                        responsibility: null,
+                        social: null,
+                        creativity: null,
+                        academic: null,
+                      }
+                    }
                   />
                   
                   {/* Strategic Actions */}
@@ -202,7 +355,7 @@ export default async function ParentDashboardPage() {
             </div>
 
             <BentoCard cols={12} rows={1} variant="accent" tiltIntensity={5} className="bg-gradient-to-br from-zinc-900 to-black">
-              <UpcomingEvents events={[]} />
+              <UpcomingEvents events={upcomingEvents} />
             </BentoCard>
           </div>
         </div>

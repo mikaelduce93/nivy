@@ -11,11 +11,13 @@ import type { UnifiedQuest } from "@/lib/server/unified-quest-engine"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { EmptyState as SharedEmptyState } from "@/components/ui/states/empty-state"
+import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
 
 interface QuestsHubClientProps {
   quests: UnifiedQuest[]
   dailyChallenges: any[]
   xpData: { total_xp: number; level: number }
+  coinsBalance?: number
   teenId: string
 }
 
@@ -53,7 +55,7 @@ const PILLAR_CONFIG = {
   },
 }
 
-export function QuestsHubClient({ quests, dailyChallenges, xpData, teenId }: QuestsHubClientProps) {
+export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance = 0, teenId }: QuestsHubClientProps) {
   const searchParams = useSearchParams()
   const currentTab = searchParams.get("tab") || "daily"
 
@@ -122,6 +124,18 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, teenId }: Que
             </div>
           </div>
         </div>
+
+        {/*
+          Twin-currency gauge (compact) — keeps both currencies visible while
+          the teen browses quests so XP/coin distinction stays cognitively clear
+          (whitepaper §5).
+        */}
+        <TwinCurrencyGauge
+          xp={xpData.total_xp || 0}
+          level={xpData.level || 1}
+          coins={coinsBalance}
+          variant="compact"
+        />
 
         {/* Tabs */}
         <HubTabs tabs={QUEST_TABS} defaultTab="daily" />

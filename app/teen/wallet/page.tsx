@@ -5,6 +5,7 @@ import { WalletHubClient } from "./wallet-hub-client"
 import { getTeenDashboardData } from "@/lib/server/teen-dashboard"
 import { getRewards, getCategories } from "@/gamification-system/features/shop/actions"
 import { XP_TO_DH_RATE, convertXPToDH } from "@/lib/payments/xp-converter"
+import { createClient } from "@/lib/supabase/server"
 
 export default async function WalletHubPage() {
   const userInfo = await getUserRole()
@@ -27,13 +28,35 @@ export default async function WalletHubPage() {
 
   const totalXp = dashboardData?.xp?.total || 0
 
+  // Spendable coins = balance - locked (active savings_goals.current_saved_coins).
+  // Twin-currency gauge surfaces both numbers when they differ.
+  const balance = dashboardData?.coins?.balance ?? 0
+  let spendableCoins: number | undefined = undefined
+  try {
+    const supabase = await createClient()
+    const { data: lockedRows } = await supabase
+      .from("savings_goals")
+      .select("current_saved_coins")
+      .eq("teen_id", teenId)
+      .eq("status", "active")
+    const locked = (lockedRows || []).reduce(
+      (acc: number, row: { current_saved_coins?: number | null }) =>
+        acc + (row.current_saved_coins || 0),
+      0
+    )
+    spendableCoins = Math.max(0, balance - locked)
+  } catch {
+    spendableCoins = undefined
+  }
+
   // Serialize data
   const walletData = {
     xp: dashboardData?.xp || { total: 0, level: 1, progressPercent: 0 },
     streak: dashboardData?.currentStreak || 0,
     // W3.1 — real balance from user_coins.balance (sourced via getTeenDashboardData).
     // Per whitepaper §5: 1 DH = 100 coins (locked). XP and coins NEVER convert.
-    coins: dashboardData?.coins?.balance ?? 0,
+    coins: balance,
+    spendableCoins,
     cashbackThisWeek: dashboardData?.coins?.cashbackThisWeek ?? 0,
     shopHighlights: dashboardData?.shopHighlights || {},
     // Canonical shop catalog (reward_categories + get_shop_rewards RPC)

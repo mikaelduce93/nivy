@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/ui/states/empty-state"
 import { toast } from "sonner"
 import { purchaseReward } from "@/gamification-system/features/shop/actions"
 import { convertXPToDH, formatDH } from "@/lib/payments/xp-converter"
+import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
 
 interface ShopReward {
   reward_id: string
@@ -30,9 +31,17 @@ interface ShopReward {
 interface WalletHubClientProps {
   teenId: string
   walletData: {
-    xp: { total: number; level: number; progressPercent: number }
+    xp: {
+      total: number
+      level: number
+      progressPercent: number
+      xpToNextLevel?: number
+      xpInLevel?: number
+    }
     streak: number
     coins: number
+    /** Coins minus locked savings goals (whitepaper §5 — savings = locked balance). */
+    spendableCoins?: number
     /** Cashback XP earned in the last 7 days (W3.1 — twin-currency gauge metric). */
     cashbackThisWeek?: number
     shopHighlights: any
@@ -69,52 +78,31 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
               </div>
             </div>
           </div>
-
-          {/* Balance — XP / Coins / DH conversion (canonical 3-currency display) */}
-          <div className="flex items-center gap-3 flex-wrap justify-end">
-            <div
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gen-z-lavender/10 border border-gen-z-lavender/30"
-              title="XP — gagne en complétant quêtes, défis, quizzes"
-            >
-              <Zap className="w-4 h-4 text-gen-z-lavender" />
-              <span className="font-black text-base text-gen-z-lavender">
-                {walletData.xp.total.toLocaleString()}
-              </span>
-              <span className="text-[10px] uppercase tracking-wider text-zinc-400">XP</span>
-            </div>
-            <div
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-yellow-500/10 border border-yellow-500/30"
-              title="Coins — monnaie virtuelle pour cosmétiques"
-            >
-              <Coins className="w-4 h-4 text-yellow-500" />
-              <span className="font-black text-base text-yellow-500">
-                {walletData.coins.toLocaleString()}
-              </span>
-              <span className="text-[10px] uppercase tracking-wider text-zinc-400">coins</span>
-            </div>
-            {walletData.currency && (
-              <div
-                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30"
-                title={`Crédit DH équivalent (1 XP = ${walletData.currency.xpToDhRate} DH)`}
-              >
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span className="font-black text-base text-emerald-400">
-                  {formatDH(walletData.currency.xpValueDH)}
-                </span>
-                <span className="text-[10px] uppercase tracking-wider text-zinc-400">crédit</span>
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Conversion rule banner */}
+        {/*
+          Twin-currency gauge — replaces the prior 3-pill display.
+          XP and Coins are different currencies (whitepaper §5 / §29 #1: no
+          convert). Rendered as the canonical wallet header surface.
+        */}
+        <TwinCurrencyGauge
+          xp={walletData.xp.total}
+          level={walletData.xp.level}
+          xpToNextLevel={walletData.xp.xpToNextLevel}
+          xpInLevel={walletData.xp.xpInLevel}
+          coins={walletData.coins}
+          spendableCoins={walletData.spendableCoins}
+          variant="full"
+        />
+
+        {/* XP → DH shop redeem rate (NOT a coin conversion — informational). */}
         {walletData.currency && (
           <p className="text-xs text-zinc-500">
-            Taux de conversion : 1 XP ={" "}
+            Au shop : 1 XP ={" "}
             <span className="text-emerald-400 font-bold">
               {walletData.currency.xpToDhRate.toFixed(2)} DH
             </span>{" "}
-            (10 XP = 1 DH).{" "}
+            de remise (10 XP = 1 DH).{" "}
             <a href="/docs/economy" className="underline hover:text-zinc-300">
               Voir le modèle d&apos;économie
             </a>

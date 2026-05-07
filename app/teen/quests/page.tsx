@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import { QuestsHubClient } from "./quests-hub-client"
 import { getUnifiedQuests } from "@/lib/server/unified-quest-engine"
 import { getDailyChallenges, getTeenXP } from "@/features/gamification/actions"
+import { createClient } from "@/lib/supabase/server"
 
 export default async function QuestsHubPage() {
   const userInfo = await getUserRole()
@@ -18,24 +19,41 @@ export default async function QuestsHubPage() {
   }
 
   // Fetch all quest data in parallel
-  const [quests, dailyChallenges, xpData] = await Promise.all([
+  const supabase = await createClient()
+  const coinsPromise = (async () => {
+    try {
+      const { data } = await supabase
+        .from("user_coins")
+        .select("balance")
+        .eq("teen_id", teenId)
+        .limit(1)
+        .maybeSingle()
+      return data
+    } catch {
+      return null
+    }
+  })()
+  const [quests, dailyChallenges, xpData, coinsRow] = await Promise.all([
     getUnifiedQuests(),
     getDailyChallenges(teenId).catch(() => []),
-    getTeenXP(teenId).catch(() => null)
+    getTeenXP(teenId).catch(() => null),
+    coinsPromise,
   ])
 
   // Serialize data for client
   const serializedQuests = JSON.parse(JSON.stringify(quests || []))
   const serializedChallenges = JSON.parse(JSON.stringify(dailyChallenges || []))
   const serializedXp = JSON.parse(JSON.stringify(xpData || { total_xp: 0, level: 1 }))
+  const coinsBalance = (coinsRow as { balance?: number } | null)?.balance ?? 0
 
   return (
     <div className="min-h-screen pb-32">
       <Suspense fallback={<QuestsHubSkeleton />}>
-        <QuestsHubClient 
+        <QuestsHubClient
           quests={serializedQuests}
           dailyChallenges={serializedChallenges}
           xpData={serializedXp}
+          coinsBalance={coinsBalance}
           teenId={teenId}
         />
       </Suspense>

@@ -7,10 +7,10 @@ import { TrendingUp, Award, Brain, Users, Heart } from "lucide-react"
 interface EvolutionTrackerProps {
   teenName: string
   stats: {
-    responsibility: number
-    social: number
-    creativity: number
-    academic: number
+    responsibility: number | null
+    social: number | null
+    creativity: number | null
+    academic: number | null
   }
 }
 
@@ -36,26 +36,30 @@ export function EvolutionTracker({ teenName, stats }: EvolutionTrackerProps) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {metrics.map((metric, idx) => (
-            <div key={metric.label} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <metric.icon className="h-3 w-3" style={{ color: metric.color }} />
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{metric.label}</span>
+          {metrics.map((metric, idx) => {
+            const hasValue = typeof metric.value === "number"
+            const displayValue = hasValue ? (metric.value as number) : 0
+            return (
+              <div key={metric.label} className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <metric.icon className="h-3 w-3" style={{ color: metric.color }} />
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{metric.label}</span>
+                  </div>
+                  <span className="text-xs font-black text-white">{hasValue ? `${displayValue}%` : "—"}</span>
                 </div>
-                <span className="text-xs font-black text-white">{metric.value}%</span>
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-[1px]">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${displayValue}%` }}
+                    transition={{ duration: 1.5, ease: "circOut", delay: idx * 0.1 }}
+                    className="h-full rounded-full opacity-80 shadow-[0_0_10px_-2px_currentColor]"
+                    style={{ backgroundColor: metric.color, color: metric.color }}
+                  />
+                </div>
               </div>
-              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-[1px]">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${metric.value}%` }}
-                  transition={{ duration: 1.5, ease: "circOut", delay: idx * 0.1 }}
-                  className="h-full rounded-full opacity-80 shadow-[0_0_10px_-2px_currentColor]"
-                  style={{ backgroundColor: metric.color, color: metric.color }}
-                />
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>
