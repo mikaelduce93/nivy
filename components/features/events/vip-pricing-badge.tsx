@@ -15,7 +15,7 @@ interface VIPPricingBadgeProps {
   standardPrice: number
   /** Prix VIP (optionnel - calculé si non fourni) */
   vipPrice?: number
-  /** Prix Premium/Platinum (optionnel - calculé si non fourni) */
+  /** Prix Platinum (optionnel - calculé si non fourni) */
   premiumPrice?: number
   /** Variante d'affichage */
   variant?: "compact" | "full" | "inline" | "card"

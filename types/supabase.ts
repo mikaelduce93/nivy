@@ -11353,6 +11353,22 @@ export type Database = {
       }
     }
     Views: {
+      parent_subscription_view: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          current_period_end: string | null
+          family_name: string | null
+          family_subscription_id: string | null
+          max_members: number | null
+          parent_id: string | null
+          plan_code: string | null
+          plan_id: string | null
+          status: string | null
+          tier: string | null
+          user_subscription_id: string | null
+        }
+        Relationships: []
+      }
       v_leaderboard_all_time: {
         Row: {
           avatar_url: string | null

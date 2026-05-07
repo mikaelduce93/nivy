@@ -88,13 +88,21 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
       }
 
       case "parent": {
-      // Récupérer l'abonnement et le nombre de teens
+      // Récupérer l'abonnement et le nombre de teens.
+      //
+      // Source of truth: parent_subscription_view (migration 063), which
+      // joins family_subscriptions.owner_id -> user_subscriptions ->
+      // subscription_plans.tier. The previous implementation queried
+      // `family_subscriptions.tier` / `parent_id` / `status` — none of
+      // those columns exist on that table, so the query silently failed
+      // and every parent was rendered as "free". See P2.3 inventory.
       const { data: subscription } = await supabase
-        .from("family_subscriptions")
+        .from("parent_subscription_view")
         .select("tier")
         .eq("parent_id", user.id)
         .eq("status", "active")
-        .single()
+        .limit(1)
+        .maybeSingle()
 
       const { count: teenCount } = await supabase
         .from("parent_teen_links")

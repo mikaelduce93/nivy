@@ -12,6 +12,7 @@ import { SmartJSONParser } from "./smart-json-parser"
 import { FactualValidator } from "./factual-validator"
 import { AIProviderFactory, type AIProviderType } from "./providers/factory"
 import type { BaseAIProvider } from "./providers/base"
+import { checkContentSafety, logSafetyOutcome } from "./content-safety"
 
 export type ContentType = "quiz" | "mission" | "challenge" | "daily_challenge" | "quest"
 export { type AIProviderType as AIProvider }
@@ -108,6 +109,13 @@ export class ContentGenerator {
         return this.useFallback ? this.getFallbackQuiz(params) : null
       }
 
+      // Safety filter (V1.1 P2.4) — block adult / unsafe themes BEFORE structural validation.
+      const safety = checkContentSafety(quiz)
+      logSafetyOutcome("quiz", quiz.title || "(untitled)", safety)
+      if (!safety.isSafe) {
+        return this.useFallback ? this.getFallbackQuiz(params) : null
+      }
+
       // Validation
       const validation = await this.validator.validateQuiz(quiz)
       const factualValidation = await this.factualValidator.verifyFactualAccuracy(quiz)
@@ -162,6 +170,13 @@ export class ContentGenerator {
         return this.useFallback ? this.getFallbackMission(params) : null
       }
 
+      // Safety filter (V1.1 P2.4)
+      const safety = checkContentSafety(mission)
+      logSafetyOutcome("mission", mission.name || "(untitled)", safety)
+      if (!safety.isSafe) {
+        return this.useFallback ? this.getFallbackMission(params) : null
+      }
+
       const validation = await this.validator.validateMission(mission)
       
       await this.validator.saveValidation("mission", "pending", validation)
@@ -195,17 +210,22 @@ export class ContentGenerator {
     try {
       const { content: response, metadata } = await this.aiProvider.call(systemPrompt, userPrompt)
       const challenge = this.parseChallengeResponse(response, params)
-      
-      if (challenge) {
-        await this.logGeneration({
-          contentType: "challenge",
-          params,
-          generatedContent: challenge,
-          startTime,
-          metadata
-        })
-      }
-      
+
+      if (!challenge) return null
+
+      // Safety filter (V1.1 P2.4)
+      const safety = checkContentSafety(challenge)
+      logSafetyOutcome("challenge", challenge.title || "(untitled)", safety)
+      if (!safety.isSafe) return null
+
+      await this.logGeneration({
+        contentType: "challenge",
+        params,
+        generatedContent: challenge,
+        startTime,
+        metadata
+      })
+
       return challenge
     } catch (error) {
       console.error("Error generating challenge:", error)
@@ -214,15 +234,50 @@ export class ContentGenerator {
   }
 
   private getMissionSystemPrompt(): string {
-    return `Tu es un expert en création de missions et quêtes gamifiées pour adolescents.
-Tu crées des missions motivantes, réalisables et adaptées au profil de l'utilisateur.
-Réponds UNIQUEMENT avec un JSON valide, sans texte supplémentaire.`
+    return `Tu es un expert en création de missions et quêtes gamifiées pour adolescents marocains de 13 à 17 ans.
+
+LANGUE: tout en français standard (V1), pas d'anglais, pas de Darija, pas d'arabe classique.
+
+TON: encourageant, jamais culpabilisant. Pas d'urgence artificielle ("dernière chance"), pas de comparaison
+sociale, pas d'emoji. Tutoiement neutre.
+
+SENSIBILITÉ MAROCAINE: respecte le cadre halal — aucune mention d'alcool, de porc, de jeux d'argent,
+de boîte de nuit, de drogue. Pas de politique, pas de monarchie, pas de Sahara, pas de religion comme thème.
+
+SÉCURITÉ:
+- Pas de défi physique extrême (ex: "100 pompes d'affilée pour débutant", "jeûner un repas").
+- Pas de mission qui demande de rencontrer un inconnu hors-ligne.
+- Pas de mission financière qui suppose des dépenses non encadrées par les parents.
+- L'objectif doit être réalisable en 5-30 minutes pour un ado standard de 13 ans.
+
+QUALITÉ:
+- Mission concrète, mesurable, avec objectif numérique (objective_target) cohérent.
+- Description claire, motivante, factuelle.
+- xp_reward proportionnel à l'effort (10-50 XP pour une mission daily, 50-150 pour weekly).
+
+FORMAT: réponds UNIQUEMENT avec un JSON valide, sans markdown, sans texte autour.`
   }
 
   private getChallengeSystemPrompt(): string {
-    return `Tu es un expert en création de défis pour adolescents.
-Tu crées des défis adaptés aux intérêts et capacités de l'utilisateur.
-Réponds UNIQUEMENT avec un JSON valide, sans texte supplémentaire.`
+    return `Tu es un expert en création de défis quotidiens pour adolescents marocains de 13 à 17 ans.
+
+LANGUE: tout en français standard (V1).
+
+TON: encourageant, factuel, pas d'urgence artificielle, pas de jugement social.
+
+SENSIBILITÉ MAROCAINE: contenu halal-friendly, pas de politique, pas de religion, pas d'alcool, pas de jeu d'argent.
+
+SÉCURITÉ:
+- Aucun défi physique dangereux ou non-calibré pour un débutant.
+- Aucune incitation à rencontrer des inconnus hors-ligne.
+- Aucun défi qui implique régime alimentaire restrictif ou comparaison de poids/apparence.
+
+QUALITÉ:
+- Défi réalisable en moins de 30 minutes.
+- validation_type honnête (self_report par défaut).
+- xp_reward 10-100 selon l'effort.
+
+FORMAT: JSON strict, sans markdown ni texte autour.`
   }
 
   private buildMissionPrompt(params: GenerationParams): string {

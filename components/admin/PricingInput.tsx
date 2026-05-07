@@ -106,12 +106,12 @@ export default function PricingInput({
           </p>
         </div>
 
-        {/* Prix Premium */}
+        {/* Prix Platinum */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="price-premium" className="text-zinc-300 flex items-center gap-2">
               <Crown className="w-4 h-4 text-purple-400" />
-              Prix Premium ({currency}) <span className="text-red-400">*</span>
+              Prix Platinum ({currency}) <span className="text-red-400">*</span>
             </Label>
             <button
               type="button"
@@ -133,7 +133,7 @@ export default function PricingInput({
             required
           />
           <p className="text-xs text-zinc-500">
-            Prix pour les membres Premium/Platinum (réduction recommandée : 30%)
+            Prix pour les membres Platinum (réduction recommandée : 30%)
           </p>
         </div>
 
@@ -164,7 +164,7 @@ export default function PricingInput({
               <div className="flex justify-between text-purple-300">
                 <span className="flex items-center gap-2">
                   <Crown className="w-3 h-3 text-purple-400" />
-                  Premium
+                  Platinum
                 </span>
                 <span className="font-semibold">
                   {parseFloat(pricePremium).toFixed(2)} {currency}
