@@ -34,14 +34,14 @@ test.describe("parent / onboarding", () => {
       page.getByRole("heading", { name: /autorisation parentale/i }),
     ).toBeVisible({ timeout: 15_000 })
 
-    // The ESignatureForm exposes a CGU acceptance control + a submit button.
-    // We tolerate either checkbox, button or labelled control to avoid coupling
-    // to internal markup.
-    const cgu = page.getByText(/cgu|conditions générales|accepte/i).first()
-    await expect(cgu).toBeVisible({ timeout: 10_000 })
+    // The form is a multi-step wizard. Step 1 starts with "Informations
+    // parentales" and a disabled "Suivant" CTA — proves the form mounted.
+    await expect(
+      page.getByRole("heading", { name: /informations parentales/i }),
+    ).toBeVisible({ timeout: 10_000 })
 
-    const submit = page.getByRole("button", { name: /signer|valider|envoyer|accepter/i }).first()
-    await expect(submit).toBeVisible()
+    const nextButton = page.getByRole("button", { name: /suivant|continuer|signer|accepter/i }).first()
+    await expect(nextButton).toBeVisible()
   })
 
   test("/parent/topup is blocked when no e-signature is on file", async ({ page, signInAs }) => {

@@ -19,12 +19,11 @@ test.describe("teen / wallet shop", () => {
     }) => {
       const response = await page.goto(legacy, { waitUntil: "domcontentloaded" })
       const status = response?.status() ?? 200
+      expect([200, 307, 308]).toContain(status)
       // After the server redirect() chain we may end on the wallet (when
       // authenticated), or on /auth/login when no session is present. Both are
-      // valid — the load-bearing assertion is that we did NOT stay on the
-      // legacy path.
-      expect([200, 307, 308]).toContain(status)
-      expect(page.url()).not.toContain(legacy)
+      // valid — toHaveURL auto-waits for the navigation to settle, which
+      // page.url() does not, so we omit the substring check.
       await expect(page).toHaveURL(
         /\/teen\/wallet\?tab=shop|\/auth\/login|\/auth\/redirect/,
         { timeout: 15_000 },
