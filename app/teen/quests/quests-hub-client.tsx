@@ -4,10 +4,24 @@ import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Brain, Dumbbell, Palette, Zap, Swords, Sparkles, ArrowRight, Trophy, Flame, Target, Clock } from "lucide-react"
 import { HubTabs, useHubTab, type HubTab } from "@/components/teen/hub-tabs"
-import { QuestCard } from "@/components/teen/dashboard/quest-card"
+import { DefiCard, type DefiCardProps } from "@/components/teen/defi-card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { UnifiedQuest } from "@/lib/server/unified-quest-engine"
+
+// Map UnifiedQuest.status → DefiCard.status. UnifiedQuest has no "expired"
+// or "locked" terminal states, so we only ever produce active/completed.
+function mapQuestStatus(s: UnifiedQuest["status"]): DefiCardProps["status"] {
+  if (s === "completed") return "completed"
+  return "active"
+}
+
+// Pick a DefiCard.type cadence from the current hub tab. Daily tab maps
+// directly; the other pillar tabs default to "weekly" since UnifiedQuest
+// itself does not carry a daily/weekly/monthly/seasonal cadence field.
+function pickDefiType(tab: string): DefiCardProps["type"] {
+  return tab === "daily" ? "daily" : "weekly"
+}
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { EmptyState as SharedEmptyState } from "@/components/ui/states/empty-state"
@@ -191,7 +205,17 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                 >
-                  <QuestCard quest={quest} />
+                  <DefiCard
+                    type={pickDefiType(currentTab)}
+                    title={quest.title}
+                    description={quest.description}
+                    xpReward={quest.xp_reward}
+                    status={mapQuestStatus(quest.status)}
+                    href={`/teen/quests/${quest.id}`}
+                    ctaHref={`/teen/quests/${quest.id}`}
+                    ctaLabel={quest.status === "completed" ? "DONE" : quest.status === "in_progress" ? "CONTINUE" : "START"}
+                    imageUrl={quest.image_url}
+                  />
                 </motion.div>
               ))}
             </div>

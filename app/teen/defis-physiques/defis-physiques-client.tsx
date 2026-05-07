@@ -6,10 +6,14 @@ import { Dumbbell, Zap, Flame, Trophy, Clock, Play, Check, Target, Heart, Timer,
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import { DefiCard } from "@/components/teen/defi-card"
 
 export type ApiChallenge = {
   id: string
-  title: string
+  // The DB column is `name` (not `title`). Kept both during migration so the
+  // server mapping in page.tsx can pass either; we prefer `name` here.
+  name?: string
+  title?: string
   description: string | null
   challenge_type: string
   sport_category: string | null
@@ -47,6 +51,34 @@ interface Props {
   stats: ApiStats
 }
 
+/**
+ * Map an API physical challenge to the unified <DefiCard /> contract.
+ * - title   ← challenge.name (DB column) || challenge.title (legacy alias)
+ * - target  ← challenge.objective_value (DB schema; no `target_count` column exists)
+ * - current ← challenge.progress.current_value (DB schema; no `current_count` column)
+ * - status  ← is_completed ? "completed" : "active"
+ * Note: the DB has no image_url column on physical_challenges — imageUrl stays undefined.
+ *       The icon column may store an emoji ("💪") or non-lucide name, so we leave
+ *       iconName unset and rely on the variant's default Dumbbell icon.
+ */
+function challengeToDefiProps(challenge: ApiChallenge) {
+  const title = challenge.name ?? challenge.title ?? ""
+  const target = Math.max(0, challenge.objective_value || 0)
+  const current = Math.max(
+    0,
+    challenge.progress?.current_value ?? 0,
+  )
+  return {
+    title,
+    description: challenge.description ?? undefined,
+    xpReward: challenge.xp_reward || 0,
+    status: (challenge.is_completed ? "completed" : "active") as
+      | "completed"
+      | "active",
+    progress: target > 0 ? { current, target } : undefined,
+  }
+}
+
 export function DefisPhysiquesClient({ challenges, stats }: Props) {
   const [category, setCategory] = useState("all")
   const loading = false
@@ -59,6 +91,7 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
 
   const completedToday = dailyChallenges.filter((c) => c.is_completed).length
   const totalToday = dailyChallenges.length
+  const todayPct = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0
 
   // TODO(data): expose teen-level workout history & weekly minutes via API.
   // For now derive what we can from stats; rest displayed as 0/empty.
@@ -156,13 +189,13 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-black text-lg">Progression du jour</h3>
-          <span className="text-sm text-orange-500 font-bold">{Math.round((completedToday / totalToday) * 100)}%</span>
+          <span className="text-sm text-orange-500 font-bold">{todayPct}%</span>
         </div>
-        <Progress value={(completedToday / totalToday) * 100} className="h-3" />
+        <Progress value={todayPct} className="h-3" />
         <p className="text-sm text-zinc-500 mt-3">
-          {completedToday === totalToday 
-            ? "Bravo! Tu as terminé tous les défis du jour! 🎉" 
-            : `${totalToday - completedToday} défis restants pour compléter ta journée`}
+          {totalToday > 0 && completedToday === totalToday
+            ? "Bravo! Tu as terminé tous les défis du jour! 🎉"
+            : `${Math.max(0, totalToday - completedToday)} défis restants pour compléter ta journée`}
         </p>
       </motion.div>
 
@@ -188,59 +221,28 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
         })}
       </div>
 
-      {/* Daily Challenges */}
+      {/* Daily Challenges — unified <DefiCard type="physical" /> */}
       <section className="space-y-4">
         <h2 className="text-xl font-black uppercase">Défis du Jour</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredChallenges.map((challenge, idx) => (
-            <motion.div
-              key={challenge.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className={cn(
-                "relative p-6 rounded-3xl border transition-all",
-                challenge.is_completed
-                  ? "bg-gen-z-mint/10 border-gen-z-mint/30"
-                  : "bg-zinc-900/50 border-white/5 hover:border-orange-500/50"
-              )}
-            >
-              {challenge.is_completed && (
-                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gen-z-mint flex items-center justify-center">
-                  <Check className="w-5 h-5 text-black" />
-                </div>
-              )}
-
-              <div className="flex items-start gap-4">
-                <div className="text-5xl">{challenge.icon || "💪"}</div>
-                <div className="flex-1">
-                  <h3 className={cn(
-                    "font-black text-lg",
-                    challenge.is_completed ? "text-zinc-400 line-through" : "text-white"
-                  )}>
-                    {challenge.title}
-                  </h3>
-                  <p className="text-sm text-zinc-400 mb-3">{challenge.description}</p>
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-gen-z-lavender" />
-                    <span className="font-bold text-gen-z-lavender">+{challenge.xp_reward} XP</span>
-                  </div>
-                </div>
-              </div>
-
-              {!challenge.is_completed && (
-                <Button className="w-full mt-4 bg-orange-500 text-black font-bold hover:bg-orange-400">
-                  <Play className="w-4 h-4 mr-2" />
-                  Commencer
-                </Button>
-              )}
-            </motion.div>
-          ))}
+          {filteredChallenges.map((challenge, idx) => {
+            const props = challengeToDefiProps(challenge)
+            return (
+              <motion.div
+                key={challenge.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+              >
+                <DefiCard type="physical" {...props} />
+              </motion.div>
+            )
+          })}
         </div>
       </section>
 
-      {/* Programs */}
+      {/* Programs — unified <DefiCard type="physical" /> */}
       <section className="space-y-4">
         <h2 className="text-xl font-black uppercase">Programmes</h2>
 
@@ -253,65 +255,15 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
 
         <div className="space-y-4">
           {programs.map((program, idx) => {
-            const progressPct = program.progress?.progress_percent || 0
+            const props = challengeToDefiProps(program)
             return (
               <motion.div
                 key={program.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className={cn(
-                  "p-6 rounded-3xl border transition-all cursor-pointer",
-                  progressPct > 0
-                    ? "bg-gradient-to-r from-orange-500/10 to-transparent border-orange-500/20"
-                    : "bg-zinc-900/50 border-white/5 hover:border-white/20"
-                )}
               >
-                <div className="flex items-center gap-4">
-                  <div className="text-5xl">{program.icon || "🔥"}</div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <h3 className="font-black text-lg text-white">{program.title}</h3>
-                      {progressPct > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-500 text-[10px] font-bold uppercase">
-                          En cours
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-zinc-400 mb-3">{program.description}</p>
-                    <div className="flex items-center gap-4 text-sm">
-                      {program.duration_days && (
-                        <span className="flex items-center gap-1 text-zinc-400">
-                          <Calendar className="w-3 h-3" />
-                          {program.duration_days} jours
-                        </span>
-                      )}
-                      {program.difficulty && (
-                        <span className={cn(
-                          "font-bold px-2 py-0.5 rounded-full text-xs",
-                          program.difficulty === "easy" ? "bg-gen-z-mint/20 text-gen-z-mint" :
-                          program.difficulty === "medium" ? "bg-yellow-500/20 text-yellow-500" :
-                          "bg-gen-z-coral/20 text-gen-z-coral"
-                        )}>
-                          {program.difficulty}
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1 text-gen-z-lavender">
-                        <Zap className="w-3 h-3" />
-                        {program.xp_reward} XP
-                      </span>
-                    </div>
-                    {progressPct > 0 && (
-                      <div className="mt-3">
-                        <Progress value={progressPct} className="h-2" />
-                        <span className="text-xs text-zinc-500 mt-1">{progressPct}% complété</span>
-                      </div>
-                    )}
-                  </div>
-                  <Button variant={progressPct > 0 ? "default" : "outline"}>
-                    {progressPct > 0 ? "Continuer" : "Commencer"}
-                  </Button>
-                </div>
+                <DefiCard type="physical" {...props} />
               </motion.div>
             )
           })}
