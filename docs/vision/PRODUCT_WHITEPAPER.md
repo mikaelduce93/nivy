@@ -660,6 +660,43 @@ Plus `permissions JSONB` column on `admin_roles`.
 
 ---
 
+## 19.4. Lifestyle surfaces (Part III bis)
+
+These 7 surfaces extend the platform from "gamification + content" into a daily lifestyle utility for Moroccan families. Each has a dedicated spec doc with full data contract, API, UI, invariants, acceptance criteria.
+
+### 19.4.1 Parent custom chores 🏠
+"Faire la vaisselle 5 jours = 100 DH". Parent-defined missions (distinct from `mission_templates`) with **money reward + XP**, conditional on completion + parental verification. Plugs into the existing `top_up_teen` pipeline (source='parent_chore'). New tables: `parent_chores`, `parent_chore_completions`. **Cornerstone of daily family engagement** — see [parent-custom-chores.md](./parent-custom-chores.md).
+
+### 19.4.2 Transport / mobility 🚗
+Safe rides for teens to/from events. Aggregator (Careem / Heetch) + Nivy partner driver pool with KYC. Live tracking visible to parent. Group rides with split payment. New tables: `ride_bookings`, `nivy_drivers`, `ride_tracks`, `ride_groups`. Critical for **parent trust** on event participation — see [transport-mobility.md](./transport-mobility.md).
+
+### 19.4.3 Food delivery / restaurants 🍽️
+Restaurant partners (sub-type of venue or new partner_type='food'). Menu management, delivery + pickup + dine-in flows. Nutrition tags + halal-by-default. **Nutrition challenges** (parent budgets a healthy meal in coins). New tables: `menu_items`, `food_orders`, `food_order_items`, `nutrition_challenges` — see [food-delivery-restaurants.md](./food-delivery-restaurants.md).
+
+### 19.4.4 Marketplace C2C 🛍️
+Teens (and parents) buy/sell used products with safety: moderation pre-publish, escrow during transaction, safe-meet at school/partner-venue, AML cap (1000 DH/teen/month). New tables: `marketplace_listings`, `marketplace_transactions`, `marketplace_disputes`, `user_seller_stats`. **Trust badge for top sellers** — see [marketplace-c2c.md](./marketplace-c2c.md).
+
+### 19.4.5 Allowance + savings goals 💰
+Recurring auto top-up ("20 DH every Friday") + teen-driven savings goals ("5000 coins for a tablet by Dec 31") with optional parent match (e.g. 50% up to a cap). Coins locked toward goals can't be spent. **Financial education layer** that ties to the coin pipeline. New tables: `parent_allowances`, `allowance_disbursements`, `savings_goals`, `savings_contributions` — see [allowance-savings.md](./allowance-savings.md).
+
+### 19.4.6 Content creator economy 🎨
+Teens publish photos / videos / stories / tutorials / reviews and earn XP from peer engagement (capped daily to prevent farming). Top-10 monthly → exclusive partner events. Featured by moderation → 500 XP + 200 coins. New tables: `creator_submissions`, `creator_engagement`, `creator_monthly_stats`. Foundation tables `feed_*` already exist live but empty — see [content-creator-economy.md](./content-creator-economy.md).
+
+### 19.4.7 Mentorship + career exploration 🎓
+Distinct from coach/teacher: **mentors** are older teens / young adults / professionals advising on careers, hobbies, life. **Career pathways** stitching quizzes + mentors + internships at partner companies. KYC mandatory + parental visibility on every session. New tables: `mentors`, `mentor_sessions`, `career_pathways`, `teen_pathway_progress`, `internships`, `internship_applications` — see [mentorship-career.md](./mentorship-career.md).
+
+### Surfaces deferred (not in V1, kept on the radar)
+- **Wellbeing** (sleep tracker, screen time, mental health check-ins) → P2
+- **Civic engagement** (volunteer hours, charity donations) → P2
+- **Cinema / cultural events** (subset of events for now) → folded into §14
+- **Reading challenges / book clubs** → P2
+- **Sports leagues / tournaments** (subset of partner club + crews) → folded into §6 + §17
+- **Pets / pet-care défis** → P2
+- **Music streaming integration** → P3
+- **Photography contests** → folded into §19.4.6
+
+---
+
 ## 19.5. Personalization Engine — the retention loop
 
 > **Full spec**: `docs/vision/personalization-engine.md` (~38KB, source of truth for the algorithm).
@@ -863,6 +900,15 @@ The patch SQL is in `docs/E2E_SETUP.md` — extend it as new tables are added.
 23. Mystery box reveal flow + legal review (§5 wider note)
 24. Admin audit log + moderation queue real (§18)
 
+### 🟠 P1+ (added v3.6 — lifestyle surfaces from §19.4)
+P1+1. **Parent custom chores** — 2 tables, 5 routes, payout via `top_up_teen` (source='parent_chore'). Most engagement-bearing of the 7.
+P1+2. **Allowance + savings** — 4 tables + cron disbursement + lock RPC. Plugs into existing coin pipeline.
+P1+3. **Creator economy v1** — extend feed_* tables with status/featured/xp_earned + create/publish/engage flow + daily caps. Many fundamentals already exist live.
+P1+4. **Marketplace C2C** — 4 tables + escrow flow + moderation queue + safe-meet venue picker. Most operationally heavy (moderation throughput).
+P1+5. **Food delivery/restaurants** — 4 tables + Glovo/Jumia adapter or direct partner menu. Defer aggregator API integration; start with direct.
+P1+6. **Transport/mobility** — 4 tables + Careem adapter + driver KYC. Highest legal/safety bar; start with city pickups only.
+P1+7. **Mentorship + career** — 6 tables + KYC + session booking + pathway engine. Adult-teen flow needs strongest safety controls — defer to last.
+
 ### 🔴 P0+ (added v3.5 — personalization is the retention engine, can't ship without)
 P0+1. **Migration 051** — `teen_interests`, `teen_goals`, `behavioral_signals`, `affinity_scores`, `teen_neighbours`, `recommendation_weights`, `recommendation_metrics_daily` + tag columns + teens columns (gender/city/grade_level/learning_style/archetype) — see §19.5
 P0+2. **`record_signal` RPC** + capture hooks in 5 hot paths (quiz_attempt, mission complete, event view, offer click, friend add)
@@ -914,6 +960,22 @@ P0+5. **Nightly `evolve-teen-profiles` cron** — affinity decay + neighbour rec
 | 28 | Cold-start cohort | school first, then age fallback | 🟡 DEFAULT |
 | 29 | Diversity injection rate | 1 of every 5 = novelty | 🟡 DEFAULT |
 | 30 | Behavioral signal retention | 90 days raw, aggregates indefinite | 🟡 DEFAULT |
+
+### Lifestyle surfaces (added v3.6 — see §19.4)
+| 31 | Parent chores: partial reward (3 of 5 done) — pro-rata or all-or-nothing? | All-or-nothing | 🟡 DEFAULT |
+| 32 | Parent chores: photo proof always required? | Parent-toggled per chore (default: optional) | 🟡 DEFAULT |
+| 33 | Transport provider stack | Careem aggregator + Nivy driver pool for short trips | 🟡 DEFAULT |
+| 34 | Transport: night curfew | Hard cutoff 22h, parent override possible | 🟡 DEFAULT |
+| 35 | Food delivery: aggregator integration | Glovo + Jumia at launch | 🟡 DEFAULT |
+| 36 | Food: halal-by-default rule | Hard block on non-halal w/ explicit parent override | 🟡 DEFAULT |
+| 37 | Marketplace platform fee | 8% on sale (split: 5% Nivy + 3% trust insurance) | 🟡 DEFAULT |
+| 38 | Marketplace teen sales cap | 1000 DH/month (anti-AML) | 🟡 DEFAULT |
+| 39 | Allowance condition options | Streak ≥ 5 / quest completion ≥ 80% / chore-coupled | 🟡 DEFAULT |
+| 40 | Goal cancellation: locked coins | Released to teen spendable balance | 🟡 DEFAULT |
+| 41 | Creator XP daily caps | Post 10 / likes 50 / comments 30 / shares 20 | 🟡 DEFAULT |
+| 42 | Mentor compensation | Hybrid (Nivy subsidy first session + paid hourly after) | 🟡 DEFAULT |
+| 43 | Mentor age range | Mentor 17+, gap ≥ 3 years vs mentee | 🟡 DEFAULT |
+| 44 | Internship stipend | Optional but always disclosed before apply | 🟡 DEFAULT |
 
 **To founder**: any 🟡 you want to override, change in this table → agents pick it up automatically.
 
@@ -1019,6 +1081,14 @@ P0+5. **Nightly `evolve-teen-profiles` cron** — affinity decay + neighbour rec
 | Admin / moderation | [admin-moderation.md](./admin-moderation.md) | 11 KB |
 | Onboarding flows | [onboarding-flows.md](./onboarding-flows.md) | 14 KB |
 | Data model | [data-model.md](./data-model.md) | 19 KB |
+| Personalization engine | [personalization-engine.md](./personalization-engine.md) | 38 KB |
+| Parent custom chores | [parent-custom-chores.md](./parent-custom-chores.md) | 12 KB |
+| Transport / mobility | [transport-mobility.md](./transport-mobility.md) | 12 KB |
+| Food delivery / restaurants | [food-delivery-restaurants.md](./food-delivery-restaurants.md) | 13 KB |
+| Marketplace C2C | [marketplace-c2c.md](./marketplace-c2c.md) | 10 KB |
+| Allowance + savings | [allowance-savings.md](./allowance-savings.md) | 18 KB |
+| Content creator economy | [content-creator-economy.md](./content-creator-economy.md) | 17 KB |
+| Mentorship + career | [mentorship-career.md](./mentorship-career.md) | 17 KB |
 
 **Total**: 22 audits, ~268 KB of evidence. Cross-referenced from every spec section.
 
