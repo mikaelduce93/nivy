@@ -45,14 +45,18 @@ export function translate(
   const dict = dictionaries[locale] ?? dictionaries[DEFAULT_LOCALE]
   const value = getByPath(dict, key)
 
-  if (typeof value === 'string') {
+  // Treat empty strings as "not yet translated" — V1 ships with empty
+  // stub bundles (ar / darija / en) that translators fill incrementally.
+  // Falling through to the FR value keeps the UI legible during partial
+  // rollouts instead of rendering blank labels.
+  if (typeof value === 'string' && value.length > 0) {
     return format(value, params)
   }
 
   // Fallback: try French bundle if we weren't already there
   if (locale !== DEFAULT_LOCALE) {
     const fallback = getByPath(dictionaries[DEFAULT_LOCALE], key)
-    if (typeof fallback === 'string') {
+    if (typeof fallback === 'string' && fallback.length > 0) {
       if (process.env.NODE_ENV !== 'production') {
         // eslint-disable-next-line no-console
         console.warn(`[i18n] Missing translation for "${key}" in locale "${locale}"`)

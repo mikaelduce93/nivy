@@ -16,7 +16,13 @@
     "menu": "Menu",
     "close": "Fermer",
     "openMenu": "Ouvrir le menu",
-    "closeMenu": "Fermer le menu"
+    "closeMenu": "Fermer le menu",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "logout": "Deconnexion",
+    "ariaPrimary": "Navigation principale",
+    "ariaMobile": "Menu mobile",
+    "ariaLogo": "NIVY - Accueil"
   },
   "hero": {
     "live": "Prochaine soiree dans {days}j {hours}h",
@@ -189,5 +195,57 @@
     "or": "ou",
     "and": "et",
     "loading": "Chargement..."
+  },
+  "footer": {
+    "tagline": "L'app safe & fun pour les 13-17 ans au Maroc. Soirees, clubs et defis IRL, 0% alcool.",
+    "essentials": "Essentiels",
+    "contact": "Contact",
+    "navigation": "Navigation",
+    "information": "Information",
+    "opportunities": "Opportunites",
+    "linkSecurity": "Securite",
+    "linkParentsGuide": "Guide Parents",
+    "linkFaq": "FAQ",
+    "linkHelp": "Centre d'aide",
+    "linkAbout": "A propos",
+    "linkLegalNotice": "Mentions legales",
+    "linkPrivacy": "Confidentialite",
+    "linkTos": "CGU/CGV",
+    "copyright": "© 2026 Nivy. Tous droits reserves.",
+    "whatsappSupport": "WhatsApp Support"
+  },
+  "localeSwitcher": {
+    "label": "Langue",
+    "currentLanguage": "Langue actuelle : {language}",
+    "comingSoon": "Bientot disponible",
+    "fr": "Français",
+    "ar": "العربية",
+    "darija": "Darija",
+    "en": "English"
+  },
+  "teen": {
+    "dashboard": {
+      "greeting": "Salut {name} !",
+      "todayMission": "Mission du jour",
+      "yourLevel": "Ton niveau",
+      "nextReward": "Prochaine recompense",
+      "streak": "Streak {days} jours",
+      "viewAll": "Tout voir",
+      "dailyLogin": "Connexion Quotidienne",
+      "dailyLoginDesc": "Connecte-toi pour maintenir ton streak !",
+      "missionCta": "Complete cette mission pour gagner des XP !"
+    }
+  },
+  "parent": {
+    "dashboard": {
+      "greeting": "Bonjour {name}",
+      "monthSpending": "Depenses du mois",
+      "budgetLimit": "Limite de budget",
+      "pendingApprovals": "Approbations en attente",
+      "yourTeens": "Vos ados",
+      "manageBudget": "Gerer le budget",
+      "history": "Historique",
+      "noPending": "Aucune approbation en attente"
+    }
   }
 }

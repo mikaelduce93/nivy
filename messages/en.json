@@ -16,7 +16,13 @@
     "menu": "Menu",
     "close": "Close",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "ariaPrimary": "Main navigation",
+    "ariaMobile": "Mobile menu",
+    "ariaLogo": "NIVY - Home"
   },
   "hero": {
     "live": "Next party in {days}d {hours}h",
@@ -189,5 +195,57 @@
     "or": "or",
     "and": "and",
     "loading": "Loading..."
+  },
+  "footer": {
+    "tagline": "The safe & fun app for 13-17 year olds in Morocco. Parties, clubs and IRL challenges, 0% alcohol.",
+    "essentials": "Essentials",
+    "contact": "Contact",
+    "navigation": "Navigation",
+    "information": "Information",
+    "opportunities": "Opportunities",
+    "linkSecurity": "Safety",
+    "linkParentsGuide": "Parent Guide",
+    "linkFaq": "FAQ",
+    "linkHelp": "Help center",
+    "linkAbout": "About",
+    "linkLegalNotice": "Legal notice",
+    "linkPrivacy": "Privacy",
+    "linkTos": "Terms",
+    "copyright": "© 2026 Nivy. All rights reserved.",
+    "whatsappSupport": "WhatsApp Support"
+  },
+  "localeSwitcher": {
+    "label": "Language",
+    "currentLanguage": "Current language: {language}",
+    "comingSoon": "Coming soon",
+    "fr": "Français",
+    "ar": "العربية",
+    "darija": "Darija",
+    "en": "English"
+  },
+  "teen": {
+    "dashboard": {
+      "greeting": "Hi {name}!",
+      "todayMission": "Today's mission",
+      "yourLevel": "Your level",
+      "nextReward": "Next reward",
+      "streak": "{days}-day streak",
+      "viewAll": "See all",
+      "dailyLogin": "Daily login",
+      "dailyLoginDesc": "Log in to keep your streak alive!",
+      "missionCta": "Complete this mission to earn XP!"
+    }
+  },
+  "parent": {
+    "dashboard": {
+      "greeting": "Hello {name}",
+      "monthSpending": "This month's spending",
+      "budgetLimit": "Budget limit",
+      "pendingApprovals": "Pending approvals",
+      "yourTeens": "Your teens",
+      "manageBudget": "Manage budget",
+      "history": "History",
+      "noPending": "No pending approvals"
+    }
   }
 }

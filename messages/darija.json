@@ -16,7 +16,13 @@
     "menu": "Menu",
     "close": "Sed",
     "openMenu": "Hell le menu",
-    "closeMenu": "Sed le menu"
+    "closeMenu": "Sed le menu",
+    "login": "",
+    "signup": "",
+    "logout": "",
+    "ariaPrimary": "",
+    "ariaMobile": "",
+    "ariaLogo": ""
   },
   "hero": {
     "live": "Lessoiree jaya f {days}j {hours}h",
@@ -189,5 +195,57 @@
     "or": "wla",
     "and": "w",
     "loading": "Jay..."
+  },
+  "footer": {
+    "tagline": "",
+    "essentials": "",
+    "contact": "",
+    "navigation": "",
+    "information": "",
+    "opportunities": "",
+    "linkSecurity": "",
+    "linkParentsGuide": "",
+    "linkFaq": "",
+    "linkHelp": "",
+    "linkAbout": "",
+    "linkLegalNotice": "",
+    "linkPrivacy": "",
+    "linkTos": "",
+    "copyright": "",
+    "whatsappSupport": ""
+  },
+  "localeSwitcher": {
+    "label": "",
+    "currentLanguage": "",
+    "comingSoon": "",
+    "fr": "Français",
+    "ar": "العربية",
+    "darija": "Darija",
+    "en": "English"
+  },
+  "teen": {
+    "dashboard": {
+      "greeting": "",
+      "todayMission": "",
+      "yourLevel": "",
+      "nextReward": "",
+      "streak": "",
+      "viewAll": "",
+      "dailyLogin": "",
+      "dailyLoginDesc": "",
+      "missionCta": ""
+    }
+  },
+  "parent": {
+    "dashboard": {
+      "greeting": "",
+      "monthSpending": "",
+      "budgetLimit": "",
+      "pendingApprovals": "",
+      "yourTeens": "",
+      "manageBudget": "",
+      "history": "",
+      "noPending": ""
+    }
   }
 }

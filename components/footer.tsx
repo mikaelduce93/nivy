@@ -5,12 +5,15 @@ import { usePathname } from "next/navigation"
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Shield, Users, HelpCircle, Info, MessageSquare, Handshake } from 'lucide-react'
 import { getPublicAppConfig } from "@/lib/config/app-config"
 import { PandaLogo } from "@/components/brand/panda-logo"
+import { LocaleSwitcher } from "@/components/locale-switcher"
+import { useT } from "@/lib/i18n"
 
 const { contactEmail: CONTACT_EMAIL } = getPublicAppConfig()
 
 export function Footer() {
   const pathname = usePathname()
   const isHome = pathname === "/"
+  const t = useT()
 
   if (isHome) {
     return (
@@ -23,7 +26,7 @@ export function Footer() {
                 <PandaLogo variant="full" size="md" />
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                L’app safe & fun pour les 13–17 ans au Maroc. Soirées, clubs et défis IRL, 0% alcool.
+                {t("footer.tagline")}
               </p>
 
               {/* Social Links */}
@@ -65,7 +68,7 @@ export function Footer() {
 
             {/* Essentiels */}
             <div>
-              <h3 className="font-semibold mb-4 text-foreground">Essentiels</h3>
+              <h3 className="font-semibold mb-4 text-foreground">{t("footer.essentials")}</h3>
               <ul className="space-y-2">
                 <li>
                   <Link href="/agenda" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -97,7 +100,7 @@ export function Footer() {
 
             {/* Contact */}
             <div>
-              <h3 className="font-semibold mb-4 text-foreground">Contact</h3>
+              <h3 className="font-semibold mb-4 text-foreground">{t("footer.contact")}</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
                   <MapPin className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
@@ -118,7 +121,7 @@ export function Footer() {
                 <li className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MessageSquare className="w-4 h-4 text-success flex-shrink-0" />
                   <a href="https://wa.me/212661234567" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                    WhatsApp Support
+                    {t("footer.whatsappSupport")}
                   </a>
                 </li>
               </ul>
@@ -128,18 +131,20 @@ export function Footer() {
           {/* Bottom Bar */}
           <div className="pt-6 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground/70">
-              © 2026 Nivy. Tous droits réservés.
+              {t("footer.copyright")}
             </p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
               <Link href="/legal/mentions-legales" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                Mentions légales
+                {t("footer.linkLegalNotice")}
               </Link>
               <Link href="/legal/confidentialite" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                Confidentialité
+                {t("footer.linkPrivacy")}
               </Link>
               <Link href="/legal/cgu" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                CGU/CGV
+                {t("footer.linkTos")}
               </Link>
+              {/* i18n: locale switcher mounted in footer for discoverability. */}
+              <LocaleSwitcher variant="full" />
             </div>
           </div>
         </div>
@@ -339,21 +344,23 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground/70">
-            © 2026 Nivy. Tous droits réservés.
+            {t("footer.copyright")}
           </p>
           <div className="flex items-center gap-6 flex-wrap justify-center">
             <Link href="/legal/mentions-legales" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              Mentions légales
+              {t("footer.linkLegalNotice")}
             </Link>
             <Link href="/legal/confidentialite" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              Confidentialité
+              {t("footer.linkPrivacy")}
             </Link>
             <Link href="/legal/cgu" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              CGU/CGV
+              {t("footer.linkTos")}
             </Link>
             <Link href="/aide/faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              FAQ
+              {t("footer.linkFaq")}
             </Link>
+            {/* i18n: locale switcher (mirrors home footer placement). */}
+            <LocaleSwitcher variant="full" />
           </div>
         </div>
       </div>

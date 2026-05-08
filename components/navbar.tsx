@@ -43,8 +43,11 @@ import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { SearchModal } from "@/components/search"
 import { PandaLogo } from "@/components/brand/panda-logo"
+import { LocaleSwitcher } from "@/components/locale-switcher"
+import { useT } from "@/lib/i18n"
 
 export function Navbar() {
+  const t = useT()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -316,7 +319,7 @@ export function Navbar() {
           <Link
             href="/"
             className="flex items-center gap-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg"
-            aria-label="NIVY - Accueil"
+            aria-label={t("nav.ariaLogo")}
           >
             <PandaLogo variant="icon" size="md" />
             <span className="hidden sm:block">
@@ -438,11 +441,11 @@ export function Navbar() {
                     size="sm"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Connexion
+                    {t("nav.login")}
                   </Button>
                 </Link>
                 <Link href="/auth/sign-up" prefetch={true}>
-                  <Button size="sm">Inscription</Button>
+                  <Button size="sm">{t("nav.signup")}</Button>
                 </Link>
               </>
             )}
@@ -454,16 +457,18 @@ export function Navbar() {
                 className="text-destructive hover:text-destructive/80"
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Déconnexion
+                {t("nav.logout")}
               </Button>
             )}
+            {/* i18n: locale switcher (FR-only in V1; greyed-out for AR/Darija/EN). */}
+            <LocaleSwitcher variant="compact" />
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
-            aria-label={mobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
           >
@@ -523,11 +528,11 @@ export function Navbar() {
                 <>
                   <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="outline" className="w-full">
-                      Connexion
+                      {t("nav.login")}
                     </Button>
                   </Link>
                   <Link href="/auth/sign-up" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full">Inscription</Button>
+                    <Button className="w-full">{t("nav.signup")}</Button>
                   </Link>
                 </>
               ) : (
@@ -540,7 +545,7 @@ export function Navbar() {
                   className="w-full text-destructive border-destructive/20 hover:bg-destructive/10"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Déconnexion
+                  {t("nav.logout")}
                 </Button>
               )}
             </div>

@@ -22,6 +22,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 import { I18nProvider } from "@/lib/i18n"
 import { getLocale } from "@/lib/i18n/server"
+import { LOCALE_HTML_LANG, isRtlLocale } from "@/lib/i18n/types"
 import "./globals.css"
 import "leaflet/dist/leaflet.css"
 
@@ -156,8 +157,15 @@ export default async function RootLayout({
   const nonce = headersList.get('x-nonce') || ''
   const locale = await getLocale()
 
+  // i18n: derive `lang` and `dir` from the active locale so AR (MSA) renders
+  // RTL the moment translators flip the bundle on. See `lib/i18n/types.ts` for
+  // the canonical mapping (Darija stays `ar-MA` + LTR in V1 since it ships in
+  // Latin script).
+  const htmlLang = LOCALE_HTML_LANG[locale]
+  const htmlDir = isRtlLocale(locale) ? 'rtl' : 'ltr'
+
   return (
-    <html lang={locale === 'darija' ? 'ar-MA' : locale} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
         {/* Preconnect to external resources for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

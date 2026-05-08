@@ -132,6 +132,9 @@ export async function middleware(request: NextRequest) {
   const csrfExemptPrefixes = [
     '/api/csrf',
     '/api/webhooks/stripe',
+    '/api/webhooks/cashplus',  // Wave Ops-D — HMAC signature in header
+    '/api/webhooks/wafacash',  // Wave Ops-D — HMAC signature in header
+    '/api/webhooks/m2t',       // Wave Ops-D — HMAC signature in header
     '/api/payments/cmi/webhook',
     '/api/cron/', // Cron routes authenticate via CRON_SECRET bearer token
   ]

@@ -1,0 +1,212 @@
+{
+  "_meta": {
+    "_comment": "Modern Standard Arabic (MSA) bundle. EMPTY STUB — populate before flipping I18N_ENABLE_NON_FR=true. Tone: formal MSA, not Egyptian/Levantine colloquial. RTL: yes. See docs/vision/ops-runbooks/06-i18n-activation.md.",
+    "locale": "ar",
+    "direction": "rtl",
+    "status": "stub-empty"
+  },
+  "brand": {
+    "name": "NIVY",
+    "tagline": "",
+    "subtitle": ""
+  },
+  "nav": {
+    "agenda": "",
+    "anniversaires": "",
+    "clubs": "",
+    "programmes": "",
+    "opportunites": "",
+    "monEspace": "",
+    "parents": "",
+    "search": "",
+    "menu": "",
+    "close": "",
+    "openMenu": "",
+    "closeMenu": "",
+    "login": "",
+    "signup": "",
+    "logout": "",
+    "ariaPrimary": "",
+    "ariaMobile": "",
+    "ariaLogo": ""
+  },
+  "hero": {
+    "live": "",
+    "headlineLine1": "",
+    "headlineLine2": "",
+    "subtitle": "",
+    "pillars": "",
+    "ctaPrimary": "",
+    "ctaSecondary": "",
+    "trustSafe": "",
+    "trustAge": "",
+    "trustNoAlcohol": "",
+    "previewBadge": "",
+    "previewTitle": "",
+    "previewDesc": "",
+    "previewFooter": ""
+  },
+  "cta": {
+    "signup": "",
+    "signupShort": "",
+    "login": "",
+    "logout": "",
+    "explore": "",
+    "reserve": "",
+    "discover": "",
+    "joinNow": "",
+    "createProfile": "",
+    "learnMore": "",
+    "seeAll": "",
+    "back": "",
+    "next": "",
+    "save": "",
+    "cancel": "",
+    "retry": "",
+    "submit": "",
+    "continue": ""
+  },
+  "auth": {
+    "login": {
+      "title": "",
+      "subtitle": "",
+      "emailLabel": "",
+      "emailPlaceholder": "",
+      "passwordLabel": "",
+      "submit": "",
+      "loading": "",
+      "googleCta": "",
+      "appleCta": "",
+      "orEmail": "",
+      "noAccount": "",
+      "createAccount": "",
+      "forgotPassword": ""
+    },
+    "signup": {
+      "title": "",
+      "subtitle": "",
+      "firstName": "",
+      "lastName": "",
+      "email": "",
+      "phone": "",
+      "city": "",
+      "password": "",
+      "passwordHint": "",
+      "newsletterLabel": "",
+      "termsLabel": "",
+      "termsLink": "",
+      "submit": "",
+      "loading": "",
+      "haveAccount": "",
+      "signIn": "",
+      "termsRequired": ""
+    }
+  },
+  "errors": {
+    "generic": "",
+    "network": "",
+    "auth": "",
+    "validation": "",
+    "notFound": "",
+    "forbidden": "",
+    "rateLimit": "",
+    "server": ""
+  },
+  "toasts": {
+    "success": "",
+    "saved": "",
+    "error": "",
+    "errorRetry": "",
+    "loading": "",
+    "copied": "",
+    "deleted": "",
+    "updated": "",
+    "uploadFailed": "",
+    "exportFailed": "",
+    "validationFailed": "",
+    "loadFailed": "",
+    "createFailed": "",
+    "checkInFailed": "",
+    "verifyFailed": ""
+  },
+  "states": {
+    "loading": "",
+    "empty": {
+      "events": { "title": "", "description": "" },
+      "tickets": { "title": "", "description": "" },
+      "users": { "title": "", "description": "" },
+      "clubs": { "title": "", "description": "" },
+      "notifications": { "title": "", "description": "" },
+      "search": { "title": "", "description": "" },
+      "documents": { "title": "", "description": "" },
+      "favorites": { "title": "", "description": "" },
+      "reviews": { "title": "", "description": "" },
+      "cart": { "title": "", "description": "" },
+      "inbox": { "title": "", "description": "" },
+      "files": { "title": "", "description": "" },
+      "photos": { "title": "", "description": "" },
+      "messages": { "title": "", "description": "" },
+      "generic": { "title": "", "description": "" }
+    }
+  },
+  "common": {
+    "yes": "",
+    "no": "",
+    "ok": "",
+    "or": "",
+    "and": "",
+    "loading": ""
+  },
+  "footer": {
+    "tagline": "",
+    "essentials": "",
+    "contact": "",
+    "navigation": "",
+    "information": "",
+    "opportunities": "",
+    "linkSecurity": "",
+    "linkParentsGuide": "",
+    "linkFaq": "",
+    "linkHelp": "",
+    "linkAbout": "",
+    "linkLegalNotice": "",
+    "linkPrivacy": "",
+    "linkTos": "",
+    "copyright": "",
+    "whatsappSupport": ""
+  },
+  "localeSwitcher": {
+    "label": "",
+    "currentLanguage": "",
+    "comingSoon": "",
+    "fr": "Français",
+    "ar": "العربية",
+    "darija": "Darija",
+    "en": "English"
+  },
+  "teen": {
+    "dashboard": {
+      "greeting": "",
+      "todayMission": "",
+      "yourLevel": "",
+      "nextReward": "",
+      "streak": "",
+      "viewAll": "",
+      "dailyLogin": "",
+      "dailyLoginDesc": "",
+      "missionCta": ""
+    }
+  },
+  "parent": {
+    "dashboard": {
+      "greeting": "",
+      "monthSpending": "",
+      "budgetLimit": "",
+      "pendingApprovals": "",
+      "yourTeens": "",
+      "manageBudget": "",
+      "history": "",
+      "noPending": ""
+    }
+  }
+}
