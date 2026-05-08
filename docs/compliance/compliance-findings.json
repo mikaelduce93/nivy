@@ -44,7 +44,7 @@
         "Request without teen_email returns 400",
         "is_onboarded=false after approval"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-AUTH-002",
@@ -87,7 +87,7 @@
         "Partner pending → /partner with banner",
         "Unknown role → /auth/error"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-AUTH-004",
@@ -108,7 +108,7 @@
         "INSERT profiles with role='influencer' fails CHECK",
         "UserRole union compiles to 7 canonical values"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-AUTH-005",
@@ -2887,7 +2887,7 @@
         "No deprecated table writes",
         "Cascade RPCs invoked"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-PARENT-006",

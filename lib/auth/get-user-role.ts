@@ -1,6 +1,29 @@
 import { createClient } from "@/lib/supabase/server"
 
-export type UserRole = "parent" | "teen" | "ambassador" | "admin" | "super_admin" | "moderator" | "support" | "partner" | "mentor" | "unknown"
+/**
+ * Canonical top-level role enum — MUST match `profiles.role` CHECK constraint
+ * (migration 094) and `docs/canon/roles-permissions.locked.md` §1.
+ *
+ * 7 values + `unknown` runtime fallback. Admin sub-roles
+ * (`super_admin`/`moderator`/`support`) live in `admin_roles.role` and are
+ * exposed via `AdminSubRole` below — they MUST NOT be written to
+ * `profiles.role`.
+ */
+export type UserRole =
+  | "parent"
+  | "teen"
+  | "partner"
+  | "mentor"
+  | "driver"
+  | "ambassador"
+  | "admin"
+  | "unknown"
+
+/**
+ * Admin sub-role — only meaningful when `profiles.role === 'admin'`.
+ * Source of truth: `admin_roles.role` CHECK constraint.
+ */
+export type AdminSubRole = "super_admin" | "admin" | "moderator" | "support"
 
 export interface UserRoleInfo {
   role: UserRole
@@ -215,6 +238,8 @@ export function getDashboardPath(role: UserRole): string {
       return "/partner"
     case "mentor":
       return "/mentor/dashboard"
+    case "driver":
+      return "/driver/dashboard"
     case "admin":
       return "/admin"
     default:
@@ -223,17 +248,16 @@ export function getDashboardPath(role: UserRole): string {
 }
 
 export function canAccessRoute(userRole: UserRole, path: string): boolean {
-  // Routes par rôle
+  // Routes par rôle. Admin sub-roles all live behind /admin and are gated
+  // by admin_roles row presence in middleware — they are NOT keys here.
   const roleRoutes: Record<UserRole, string[]> = {
     teen: ["/teen", "/events", "/gamification", "/profile"],
     parent: ["/parent", "/events", "/profile", "/mes-"],
     ambassador: ["/ambassador", "/profile"],
     partner: ["/partner", "/profile"],
     mentor: ["/mentor", "/profile"],
+    driver: ["/driver", "/profile"],
     admin: ["/admin", "/profile"],
-    super_admin: ["/admin", "/profile"],
-    moderator: ["/admin", "/profile"],
-    support: ["/admin", "/profile"],
     unknown: ["/profile"],
   }
 

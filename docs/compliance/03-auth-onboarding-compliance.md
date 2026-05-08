@@ -1,6 +1,15 @@
 # Auth + Onboarding compliance
 
-## Score: 22/100
+## Score: 48/100  (was 22 — Wave 1A landed: AUTH-001, AUTH-003, AUTH-004 fixed; PARENT-005 fixed)
+
+> Wave 1A — Identity Truth (2026-05-08) closed the four highest-impact auth
+> P0s on the launch path: profiles.role enum is now CHECK-constrained to the
+> canonical 7 values, the validate-teen + parent/teens/create routes are
+> rebuilt around supabase.auth.admin.createUser with rollback on failure,
+> /auth/redirect implements the §3 LOCKED truth table including mentor +
+> driver + status-aware sub-routing. Migration 094 also adds is_onboarded,
+> admin_roles.permissions JSONB, parent_teen_links.status, and the singular
+> `audit_log` table.
 
 ## Launch status: BLOCKED — the canonical identity invariant (`auth.users.id == profiles.id`, no `profiles` row without an `auth.users` row, role assigned via `handle_new_user` trigger from `raw_user_meta_data.role`) is broken in three of the four account-creation surfaces. Teens validated by their parent get a `profiles` row with no `auth.users` mate (locked out forever). Partners registered via `/api/partners/register` cannot log in (no `auth.users` created). Ambassador candidature writes directly to a status-pending table that the admin approval flow does not flip back into a role. The marketing wizard runs a parallel `auth.signUp` call. The role enum is missing four canonical values (`mentor`, `driver`, `ambassador`, `admin` per `profiles.role` CHECK) — the redirect switch silently dumps `mentor`/`driver` users back to the pre-account marketing showcase. `is_onboarded` exists as a column for teens only and there is no middleware gate enforcing wizard completion. Two of the seven canonical signup entry points (`/devenir-mentor/candidature`, `/devenir-chauffeur/candidature`) and the entire `/driver/*` surface do not exist. No launch is possible until these are fixed; partial fixes (e.g. ship parent + teen flows clean) could enable a closed BETA on parent-only invites.
 
@@ -39,7 +48,7 @@
     "profiles.is_onboarded = false after approval; teen lands on /onboarding/interests on first login",
     "No orphan profiles row remains after a failed mid-flow rollback"
   ],
-  "status": "open"
+  "status": "fixed-2026-05-08"
 }
 ```
 
@@ -95,7 +104,7 @@
     "Profile with role='influencer' (not in enum) → /auth/error?reason=unknown_role (not /onboarding)",
     "Parent with is_onboarded=false → /onboarding/parent (NOT /parent)"
   ],
-  "status": "open"
+  "status": "fixed-2026-05-08"
 }
 ```
 
@@ -123,7 +132,7 @@
     "lib/auth/get-user-role.ts UserRole union compiles to canonical 7 values",
     "Existing rows with role IN ('super_admin','moderator','support') (if any) are migrated to role='admin' + admin_roles.role=<sub>"
   ],
-  "status": "open"
+  "status": "fixed-2026-05-08"
 }
 ```
 

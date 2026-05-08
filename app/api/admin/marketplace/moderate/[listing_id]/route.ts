@@ -19,7 +19,8 @@ export async function POST(
 ) {
   const { listing_id } = await ctx.params
   const userInfo = await getUserRole()
-  if (!userInfo || (userInfo.role !== "admin" && userInfo.role !== "super_admin" && userInfo.role !== "moderator")) {
+  // Admin sub-roles live in admin_roles.role; profiles.role is just 'admin'.
+  if (!userInfo || userInfo.role !== "admin") {
     return NextResponse.json({ success: false, error: "admin_only" }, { status: 403 })
   }
 

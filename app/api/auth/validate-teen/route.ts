@@ -1,20 +1,27 @@
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
+import { z } from "zod"
 
 /**
- * Validate a teen registration request (called by parent)
+ * POST /api/auth/validate-teen — canonical implementation per Wave 1A.
  *
- * Flow:
- * 1. Parent clicks validation link with token
- * 2. System verifies token is valid and not expired
- * 3. If parent not logged in, redirects to login/signup
- * 4. If parent logged in, creates parent-teen relationship
- * 5. Activates teen account
+ * Canon refs:
+ *   - docs/canon/auth-onboarding.locked.md §1 (teen row), §6 FORBIDDEN #1/#5/#6
+ *   - docs/canon/roles-permissions.locked.md §1 (profiles.role enum)
+ *   - Wave 0 founder ruling: audit_log singular, F1 parent-invited only.
+ *
+ * Identity invariant enforced:
+ *   auth.users.id === profiles.id === teens.id === parent_teen_links.teen_id.
+ *
+ * The route NEVER inserts directly into `profiles` — it relies on the
+ * `handle_new_user` trigger (which already creates the profiles row AND a
+ * teens row when raw_user_meta_data.role === 'teen').
  */
 
-// GET: Check token validity
+// ─── GET — token validity check (unchanged) ───────────────────────────────
 export async function GET(request: Request) {
   try {
     const supabase = await createClient()
@@ -28,7 +35,6 @@ export async function GET(request: Request) {
       )
     }
 
-    // Find pending registration
     const { data: registration, error } = await withSupabaseTimeout(
       supabase
         .from("pending_teen_registrations")
@@ -46,7 +52,6 @@ export async function GET(request: Request) {
       )
     }
 
-    // Check expiry
     if (new Date(registration.token_expires_at) < new Date()) {
       return NextResponse.json(
         { success: false, error: "Ce lien a expiré. Veuillez demander un nouveau lien." },
@@ -54,7 +59,6 @@ export async function GET(request: Request) {
       )
     }
 
-    // Check if already validated
     if (registration.status === "validated") {
       return NextResponse.json(
         { success: false, error: "Cette demande a déjà été validée" },
@@ -80,13 +84,41 @@ export async function GET(request: Request) {
   }
 }
 
-// POST: Approve or reject teen registration
+// ─── POST — approve/reject (canonical rewrite) ───────────────────────────
+const E164_RE = /^\+[1-9]\d{7,14}$/
+
+const approveSchema = z.object({
+  token: z.string().min(1),
+  action: z.literal("approve"),
+  teen_email: z.string().email().optional(),
+  teen_phone: z
+    .string()
+    .regex(E164_RE, "teen_phone must be E.164 (e.g. +212600000000)")
+    .optional(),
+})
+
+const rejectSchema = z.object({
+  token: z.string().min(1),
+  action: z.literal("reject"),
+})
+
+const bodySchema = z
+  .discriminatedUnion("action", [approveSchema, rejectSchema])
+  .superRefine((v, ctx) => {
+    if (v.action === "approve" && !v.teen_email && !v.teen_phone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["teen_email"],
+        message: "Either teen_email or teen_phone is required",
+      })
+    }
+  })
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     const userInfo = await getUserRole()
 
-    // Must be authenticated
     if (!userInfo) {
       return NextResponse.json(
         { success: false, error: "Vous devez être connecté pour valider" },
@@ -94,22 +126,21 @@ export async function POST(request: Request) {
       )
     }
 
-    const body = await request.json()
+    const rawBody = await request.json().catch(() => null)
+    const parsed = bodySchema.safeParse(rawBody)
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Requête invalide",
+          details: parsed.error.flatten(),
+        },
+        { status: 400 }
+      )
+    }
+
+    const body = parsed.data
     const { token, action } = body
-
-    if (!token || !action) {
-      return NextResponse.json(
-        { success: false, error: "Données manquantes" },
-        { status: 400 }
-      )
-    }
-
-    if (!["approve", "reject"].includes(action)) {
-      return NextResponse.json(
-        { success: false, error: "Action invalide" },
-        { status: 400 }
-      )
-    }
 
     // Find pending registration
     const { data: registration, error: regError } = await withSupabaseTimeout(
@@ -129,7 +160,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Verify parent email matches
     if (registration.parent_email.toLowerCase() !== userInfo.email?.toLowerCase()) {
       return NextResponse.json(
         { success: false, error: "Vous n'êtes pas autorisé à valider cette demande" },
@@ -137,7 +167,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check expiry
     if (new Date(registration.token_expires_at) < new Date()) {
       return NextResponse.json(
         { success: false, error: "Ce lien a expiré" },
@@ -145,7 +174,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Handle rejection
+    // ─── REJECT branch ──────────────────────────────────────────────────
     if (action === "reject") {
       await withSupabaseTimeout(
         supabase
@@ -160,127 +189,181 @@ export async function POST(request: Request) {
         10000
       )
 
-      return NextResponse.json({
-        success: true,
-        message: "Demande refusée",
-      })
+      return NextResponse.json({ success: true, message: "Demande refusée" })
     }
 
-    // Handle approval
-    // 1. Ensure current user is a parent
+    // ─── APPROVE branch — canonical identity creation ───────────────────
     if (userInfo.role !== "parent") {
-      // Update their role to parent
-      await withSupabaseTimeout(
-        supabase
-          .from("profiles")
-          .update({ role: "parent" })
-          .eq("id", userInfo.profileId),
-        `from('profiles').update()`,
-        10000
+      return NextResponse.json(
+        { success: false, error: "Seul un parent peut valider cette demande" },
+        { status: 403 }
       )
     }
 
-    // 2. Create teen profile
-    const { data: teenProfile, error: profileError } = await withSupabaseTimeout(
-      supabase
-        .from("profiles")
-        .insert({
-          email: registration.teen_email || `teen_${registration.id}@teensparty.local`,
-          full_name: `${registration.teen_first_name} ${registration.teen_last_name}`,
-          role: "teen",
-        })
-        .select()
-        .single(),
-      `from('profiles').insert()`,
-      10000
+    const teenEmail = body.teen_email
+    const teenPhone = body.teen_phone
+
+    const fullName = `${registration.teen_first_name} ${registration.teen_last_name}`.trim()
+
+    // Service-role client is required for auth.admin.* operations.
+    const admin = createServiceRoleClient()
+
+    // 1. Create the auth.users row. The handle_new_user trigger will create
+    //    the matching profiles row (role='teen') AND a teens row from
+    //    raw_user_meta_data.role='teen'. This is the ONLY supported entry
+    //    point — direct INSERT INTO public.profiles is forbidden by canon
+    //    §6 FORBIDDEN #1.
+    const createUserPayload: {
+      email?: string
+      phone?: string
+      email_confirm: boolean
+      phone_confirm?: boolean
+      user_metadata: Record<string, unknown>
+    } = {
+      email_confirm: false,
+      user_metadata: {
+        role: "teen",
+        full_name: fullName,
+        first_name: registration.teen_first_name,
+        last_name: registration.teen_last_name,
+        date_of_birth: registration.date_of_birth,
+        parent_id: userInfo.profileId,
+      },
+    }
+    if (teenEmail) createUserPayload.email = teenEmail
+    if (teenPhone) {
+      createUserPayload.phone = teenPhone
+      createUserPayload.phone_confirm = false
+    }
+
+    const { data: created, error: createErr } = await admin.auth.admin.createUser(
+      createUserPayload as Parameters<typeof admin.auth.admin.createUser>[0]
     )
 
-    if (profileError) {
-      console.error("Teen profile creation error:", profileError)
+    if (createErr || !created?.user) {
+      console.error("validate-teen: auth.admin.createUser failed", createErr)
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Impossible de créer le compte teen (Supabase Auth). " +
+            "Vérifie l'email/téléphone ou contacte le support.",
+        },
+        { status: 500 }
+      )
+    }
+
+    const teenUid = created.user.id
+
+    // 2. Insert teens row (id == auth.users.id). The trigger may have
+    //    already created a stub row (id only) — UPSERT semantics keep us
+    //    idempotent with the canonical FK invariant.
+    const { error: teenInsertErr } = await admin
+      .from("teens")
+      .upsert(
+        {
+          id: teenUid,
+          first_name: registration.teen_first_name,
+          last_name: registration.teen_last_name,
+          date_of_birth: registration.date_of_birth,
+        },
+        { onConflict: "id" }
+      )
+
+    if (teenInsertErr) {
+      console.error("validate-teen: teens upsert failed, rolling back", teenInsertErr)
+      const { error: rollbackErr } = await admin.auth.admin.deleteUser(teenUid)
+      console.error(
+        rollbackErr
+          ? `validate-teen: rollback deleteUser FAILED for ${teenUid}: ${rollbackErr.message}`
+          : `validate-teen: rollback deleteUser succeeded for ${teenUid}`
+      )
       return NextResponse.json(
         { success: false, error: "Erreur lors de la création du profil teen" },
         { status: 500 }
       )
     }
 
-    // 3. Create teen full profile
-    const { error: teenDataError } = await withSupabaseTimeout(
-      supabase
-        .from("teen_full_profile")
-        .insert({
-          id: teenProfile.id,
-          first_name: registration.teen_first_name,
-          last_name: registration.teen_last_name,
-          date_of_birth: registration.date_of_birth,
-          primary_parent_id: userInfo.profileId,
-          level: 1,
-          title: "Nouveau",
-          title_icon: "🌟",
-          coins_balance: 100, // Welcome bonus
-        }),
-      `from('teen_full_profile').insert()`,
-      10000
-    )
+    // 3. Insert parent_teen_links row (atomic with respect to the auth user).
+    const { error: linkErr } = await admin
+      .from("parent_teen_links")
+      .insert({
+        parent_id: userInfo.profileId,
+        teen_id: teenUid,
+        status: "active",
+        created_at: new Date().toISOString(),
+      })
 
-    if (teenDataError) {
-      console.error("Teen data creation error:", teenDataError)
-    }
-
-    // 4. Create parent-teen relationship
-    const { error: relationError } = await withSupabaseTimeout(
-      supabase
-        .from("parent_teen_links")
-        .insert({
-          parent_id: userInfo.profileId,
-          teen_id: teenProfile.id,
-          status: "active",
-          created_at: new Date().toISOString(),
-        }),
-      `from('parent_teen_links').insert()`,
-      10000
-    )
-
-    if (relationError) {
-      console.error("Relationship creation error:", relationError)
-    }
-
-    // 5. Update registration status
-    await withSupabaseTimeout(
-      supabase
-        .from("pending_teen_registrations")
-        .update({
-          status: "validated",
-          validated_at: new Date().toISOString(),
-          validated_by: userInfo.profileId,
-          created_teen_id: teenProfile.id,
-        })
-        .eq("id", registration.id),
-      `from('pending_teen_registrations').update()`,
-      10000
-    )
-
-    // 6. Award XP to parent for verifying (non-critical, ignore errors)
-    try {
-      await withSupabaseTimeout(
-        supabase.rpc("add_user_xp", {
-          p_user_id: userInfo.profileId,
-          p_xp_amount: 50,
-          p_source: "teen_verification",
-          p_source_id: registration.id,
-        }),
-        'rpc(add_user_xp)',
-        10000
+    if (linkErr) {
+      console.error("validate-teen: parent_teen_links insert failed, rolling back", linkErr)
+      const { error: rollbackErr } = await admin.auth.admin.deleteUser(teenUid)
+      console.error(
+        rollbackErr
+          ? `validate-teen: rollback deleteUser FAILED for ${teenUid}: ${rollbackErr.message}`
+          : `validate-teen: rollback deleteUser succeeded for ${teenUid}`
       )
-    } catch {
-      // Ignore XP errors - non-critical
+      return NextResponse.json(
+        { success: false, error: "Erreur lors de la liaison parent-teen" },
+        { status: 500 }
+      )
     }
+
+    // 4. Set is_onboarded=false explicitly (already the default; safe write).
+    await admin
+      .from("profiles")
+      .update({ is_onboarded: false })
+      .eq("id", teenUid)
+
+    // 5. Mark the registration validated.
+    await admin
+      .from("pending_teen_registrations")
+      .update({
+        status: "validated",
+        validated_at: new Date().toISOString(),
+        validated_by: userInfo.profileId,
+        created_teen_id: teenUid,
+      })
+      .eq("id", registration.id)
+
+    // 6. Generate a magic link / set-password link for the teen so the
+    //    parent can forward it. Email-based magic-link is the canon path
+    //    per §1 (teen row).
+    let actionLink: string | null = null
+    if (teenEmail) {
+      const { data: linkData, error: linkGenErr } = await admin.auth.admin.generateLink({
+        type: "magiclink",
+        email: teenEmail,
+      })
+      if (linkGenErr) {
+        console.error("validate-teen: generateLink failed", linkGenErr)
+      } else {
+        actionLink = linkData?.properties?.action_link ?? null
+      }
+    }
+
+    // 7. Audit (singular table per founder ruling).
+    await admin.from("audit_log").insert({
+      actor_id: userInfo.profileId,
+      actor_role: "parent",
+      action: "validate_teen.approve",
+      resource_type: "pending_teen_registration",
+      resource_id: registration.id,
+      target_user_id: teenUid,
+      description: `Parent validated teen registration; teen auth.users.id=${teenUid}`,
+      metadata: {
+        teen_email: teenEmail ?? null,
+        teen_phone: teenPhone ?? null,
+        magic_link_generated: actionLink !== null,
+      },
+    })
 
     return NextResponse.json({
       success: true,
       message: "Compte teen créé et lié à votre profil parent",
       data: {
-        teenId: teenProfile.id,
-        teenName: `${registration.teen_first_name} ${registration.teen_last_name}`,
+        teenId: teenUid,
+        teenName: fullName,
+        actionLink, // forward to teen out-of-band
       },
     })
   } catch (error) {

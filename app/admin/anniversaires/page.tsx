@@ -139,7 +139,9 @@ export default async function AdminAnniversairesPage({
   const { status } = await searchParams
   const userInfo = await getUserRole()
 
-  if (!userInfo || (userInfo.role !== "admin" && userInfo.role !== "super_admin")) {
+  // Admin sub-roles (super_admin/moderator/support) live in admin_roles.role,
+  // not in profiles.role — gate purely on the canonical 'admin' top-level role.
+  if (!userInfo || userInfo.role !== "admin") {
     redirect("/auth/login")
   }
 

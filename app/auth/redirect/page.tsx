@@ -1,77 +1,120 @@
-"use client"
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Loader2 } from "lucide-react"
+/**
+ * /auth/redirect — canonical post-login switch.
+ *
+ * Source of truth: docs/canon/auth-onboarding.locked.md §3 (LOCKED truth
+ * table). Implemented as a server component so we never flash a client-side
+ * intermediate state.
+ *
+ * Identity invariant per §6: profiles.role drives top-level routing.
+ *
+ * For status reads on per-role attribute tables (mentors, nivy_drivers,
+ * partners, ambassadors), we use `.maybeSingle()` and treat a NULL row as
+ * the conservative "not yet onboarded" state — pointing the user at the
+ * appropriate onboarding stub. This keeps the redirect deterministic even
+ * when the underlying status row hasn't been provisioned yet.
+ */
+export default async function AuthRedirectPage() {
+  const supabase = await createClient()
 
-export default function AuthRedirectPage() {
-  const router = useRouter()
-  const [status, setStatus] = useState("Vérification de votre compte...")
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  useEffect(() => {
-    async function redirectBasedOnRole() {
-      const supabase = createClient()
+  if (!user) {
+    redirect("/auth/login")
+  }
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_onboarded")
+    .eq("id", user.id)
+    .maybeSingle()
 
-      if (!user) {
-        router.push("/auth/login")
-        return
-      }
+  if (!profile) {
+    // No profile row → showcase / role-pick (canon §3 row "no row").
+    redirect("/onboarding")
+  }
 
-      setStatus("Chargement de votre profil...")
+  const role = profile.role as string | null
+  const isOnboarded = Boolean(profile.is_onboarded)
 
-      // Récupérer le profil et le rôle
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single()
+  switch (role) {
+    case "parent":
+      redirect(isOnboarded ? "/parent" : "/onboarding/parent")
+      break
 
-      if (!profile) {
-        // Nouveau utilisateur sans profil - envoyer vers onboarding
-        router.push("/onboarding")
-        return
-      }
+    case "teen":
+      redirect(isOnboarded ? "/teen" : "/onboarding/teen")
+      break
 
-      setStatus("Redirection vers votre espace...")
-
-      // Rediriger selon le rôle
-      switch (profile.role) {
-        case "teen":
-          router.push("/teen")
-          break
-        case "parent":
-          router.push("/parent")
-          break
-        case "ambassador":
-          router.push("/ambassador")
-          break
-        case "partner":
-          router.push("/partner")
-          break
-        case "admin":
-          router.push("/admin")
-          break
-        default:
-          // Fallback vers l'ancien dashboard ou onboarding
-          router.push("/onboarding")
-      }
+    case "partner": {
+      const { data: partnerRow } = await supabase
+        .from("partners")
+        .select("status")
+        .eq("email", user.email ?? "")
+        .maybeSingle()
+      const partnerStatus = partnerRow?.status as string | undefined
+      redirect(
+        partnerStatus === "active"
+          ? "/partner"
+          : "/partner/onboarding/awaiting-approval"
+      )
+      break
     }
 
-    redirectBasedOnRole()
-  }, [router])
+    case "mentor": {
+      const { data: mentorRow } = await supabase
+        .from("mentors")
+        .select("kyc_status")
+        .eq("user_id", user.id)
+        .maybeSingle()
+      const kyc = mentorRow?.kyc_status as string | undefined
+      redirect(
+        kyc === "approved" || kyc === "verified"
+          ? "/mentor/dashboard"
+          : "/mentor/onboarding/kyc"
+      )
+      break
+    }
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
-      <div className="text-center space-y-4">
-        <Loader2 className="h-12 w-12 animate-spin text-purple-600 mx-auto" />
-        <h1 className="text-2xl font-bold text-gray-900">Teen Club Morocco</h1>
-        <p className="text-gray-600">{status}</p>
-      </div>
-    </div>
-  )
+    case "driver": {
+      const { data: driverRow } = await supabase
+        .from("nivy_drivers")
+        .select("kyc_status")
+        .eq("user_id", user.id)
+        .maybeSingle()
+      const kyc = driverRow?.kyc_status as string | undefined
+      redirect(
+        kyc === "approved" || kyc === "verified"
+          ? "/driver/dashboard"
+          : "/driver/onboarding/kyc"
+      )
+      break
+    }
+
+    case "ambassador": {
+      const { data: ambassadorRow } = await supabase
+        .from("ambassadors")
+        .select("status")
+        .eq("user_id", user.id)
+        .maybeSingle()
+      const status = ambassadorRow?.status as string | undefined
+      redirect(
+        status === "active"
+          ? "/ambassador"
+          : "/ambassador/onboarding/awaiting-approval"
+      )
+      break
+    }
+
+    case "admin":
+      redirect("/admin")
+      break
+
+    default:
+      redirect("/auth/error?reason=unknown_role")
+  }
 }
