@@ -29,7 +29,7 @@ Generated 2026-05-08 from `docs/vision/**` (46 files) + `docs/vision/audit-front
 4. **No raw `framer-motion` import. Use `Motion` proxy from `@/components/ui/motion`.** (design-system-mobile + gamification)
 5. **`user_notifications` is the canonical notifications table. `notifications` and `activity_logs` are deprecated.** (parent-control + social-feed + admin-moderation)
 6. **All KYC / CIN / chore-evidence / payout-proof storage is private. Signed URLs only.** (parent-control + partner-ecosystem + admin-moderation)
-7. **`audit_log` (singular) is the canonical audit table.** Not `admin_audit_logs`. (admin-moderation + roles-permissions)
+7. **`audit_log` (singular) is the canonical audit table.** Not `admin_audit_logs`. **DECIDED 2026-05-08.** Resolves the social-feed §7 invariant 4 contradiction — `admin_audit_logs` is deprecated; canonical is `audit_log`. (admin-moderation + roles-permissions)
 8. **`record_signal` is the only signal-write entry point.** (personalization-ai + gamification)
 9. **AvatarCoach name = `Kai`. One canonical prompt. 5-turn cap.** (personalization-ai)
 10. **No `<img>`, no inline cubic-bezier, no bare `focus:` (must be `focus-visible:`), no `userScalable: false`, no hardcoded `cyan/emerald/sky/rose/amber/fuchsia/blue/gray/indigo/teal-(50-950)` outside the allowlist.** (design-system-mobile)
@@ -54,11 +54,11 @@ These contradict between docs. Pick ONE per row. Order by impact.
 
 | # | Question | Domains | Recommendation |
 |---|---|---|---|
-| F1 | Self-signup teen vs parent-invited only at launch | auth-onboarding | **Parent-invited only.** Defer self-signup to V1.4. |
-| F2 | Driver as first-class `profiles.role` or `partner_type='driver'` | partner + roles | **First-class role.** Driver workspace `/driver/**` exists in spec, treat as peer to mentor. |
-| F3 | Influencer = ambassador or distinct enum value | partner + roles | **Fold into ambassador.** Drop `/devenir-influenceur` candidature, keep `/devenir-ambassadeur`. |
+| F1 | Self-signup teen vs parent-invited only at launch | auth-onboarding | **Parent-invited only.** Defer self-signup to V1.4. **DECIDED 2026-05-08.** |
+| F2 | Driver as first-class `profiles.role` or `partner_type='driver'` | partner + roles | **First-class role.** Driver workspace `/driver/**` exists in spec, treat as peer to mentor. **DECIDED 2026-05-08.** |
+| F3 | Influencer = ambassador or distinct enum value | partner + roles | **Fold into ambassador.** Drop `/devenir-influenceur` candidature, keep `/devenir-ambassadeur`. **DECIDED 2026-05-08.** Resolves the `partner-ecosystem.locked.md` §8.3 contradiction — that file's "DISTINCT" lock is overruled. |
 | F4 | Coach + teacher = `partner_staff.role` or distinct partner_type | partner + gamification | **`partner_staff.role`.** Both extend an existing `partner` (school/club). |
-| F5 | Auto-topup packages launch policy | economy + parent-control | **Manual only at launch.** `PSP_AUTO_TOPUP_ENABLED=false`. Re-enable Cash Plus week +2. |
+| F5 | Auto-topup packages launch policy | economy + parent-control | **Manual only at launch.** `PSP_AUTO_TOPUP_ENABLED=false`. Re-enable Cash Plus week +2. **DECIDED 2026-05-08.** |
 | F6 | Top-up cap per parent per month | economy + parent-control | **500 DH/month default**, raised by admin on request. |
 | F7 | Single moderation inbox vs per-type queues | admin + social | **Single inbox.** `/admin/moderation` with tab filters; not separate routes. |
 | F8 | `support` admin sub-role: keep, build, or remove | admin + roles | **Keep + build `/admin/support`.** Build the tickets surface in V1.4. |

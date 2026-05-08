@@ -221,6 +221,160 @@ export default [js.configs.recommended, {
     ],
   },
 }, {
+  // ============================================================
+  // CANON COMPLIANCE GUARDS (Wave 0 — Safety Freeze, 2026-05-08)
+  // ------------------------------------------------------------
+  // Source: docs/canon/INDEX.locked.md + docs/compliance/16-implementation-roadmap.md
+  // Rule level: ERROR (CI fails on net-new violations).
+  // These rules block AI dev agents from re-introducing the regressions
+  // identified in the 2026-05-08 compliance audit. They DO NOT change
+  // product behavior — they only prevent regressions.
+  //
+  // Existing baseline violations are tolerated via `--max-warnings`
+  // ratchet in package.json; net-new violations FAIL CI.
+  //
+  // To intentionally bypass any rule, add an explicit
+  //   // eslint-disable-next-line no-restricted-syntax -- canon: <rationale>
+  // comment so the violation is visible in code review.
+  // ============================================================
+  files: ['app/**/*.{ts,tsx,js,jsx}', 'components/**/*.{ts,tsx,js,jsx}', 'lib/**/*.{ts,tsx,js,jsx}', 'hooks/**/*.{ts,tsx,js,jsx}'],
+  rules: {
+    'no-restricted-syntax': ['warn',
+      // [CANON-XP] phantom RPC `add_user_xp` — must be `add_xp_to_user` (canon: economy-payments §7, gamification §3)
+      {
+        selector: "Literal[value='add_user_xp']",
+        message: 'CANON VIOLATION: `add_user_xp` is a phantom RPC. Use `add_xp_to_user` (canon: economy-payments §7).',
+      },
+      {
+        selector: "Literal[value='deduct_user_xp']",
+        message: 'CANON VIOLATION: `deduct_user_xp` is a phantom RPC. Use the canonical spend_* RPC family (canon: economy-payments §7).',
+      },
+      {
+        selector: "Literal[value='get_user_xp']",
+        message: 'CANON VIOLATION: `get_user_xp` is a phantom RPC. Read `user_xp.total_xp` directly (canon: economy-payments §1).',
+      },
+      // [CANON-NOTIF] deprecated tables `notifications` / `activity_logs` (canon: parent-control §8, INDEX cross-cut #5)
+      {
+        selector: "CallExpression[callee.property.name='from'][arguments.0.value='notifications']",
+        message: 'CANON VIOLATION: `notifications` is deprecated. Use `user_notifications` (canon: parent-control §8, INDEX #5).',
+      },
+      {
+        selector: "CallExpression[callee.property.name='from'][arguments.0.value='activity_logs']",
+        message: 'CANON VIOLATION: `activity_logs` is deprecated. Use `user_notifications` or `audit_log` (canon: parent-control §8, INDEX #5).',
+      },
+      {
+        selector: "Literal[value=/INSERT\\s+INTO\\s+notifications\\b/i]",
+        message: 'CANON VIOLATION: SQL `INSERT INTO notifications` — table is deprecated. Use `user_notifications`.',
+      },
+      {
+        selector: "Literal[value=/INSERT\\s+INTO\\s+activity_logs\\b/i]",
+        message: 'CANON VIOLATION: SQL `INSERT INTO activity_logs` — table is deprecated. Use `user_notifications` or `audit_log`.',
+      },
+      // [CANON-AUDIT] `admin_audit_logs` deprecated; canonical is `audit_log` singular (canon: INDEX #7, admin-moderation §4 — DECIDED 2026-05-08)
+      {
+        selector: "CallExpression[callee.property.name='from'][arguments.0.value='admin_audit_logs']",
+        message: 'CANON VIOLATION: `admin_audit_logs` is deprecated. Use `audit_log` (singular) — canon: admin-moderation §4, DECIDED 2026-05-08.',
+      },
+      {
+        selector: "Literal[value='admin_audit_logs']",
+        message: 'CANON VIOLATION: `admin_audit_logs` literal — canonical table is `audit_log` (singular). Canon: admin-moderation §4.',
+      },
+      // [CANON-AUTH] `auth.signUp` outside /auth/sign-up — see file-scope override below
+      // [CANON-PROFILES] direct insert into `profiles` outside admin tools — see file-scope override below
+      // [CANON-ALERT] window.alert as success notification (canon: design-system §11, social-feed §10)
+      {
+        selector: "CallExpression[callee.object.name='window'][callee.property.name='alert']",
+        message: 'CANON VIOLATION: `window.alert()` is forbidden. Use sonner `toast()` for notifications. Canon: design-system §11.',
+      },
+      {
+        selector: "CallExpression[callee.object.name='window'][callee.property.name='confirm']",
+        message: 'CANON VIOLATION: `window.confirm()` is forbidden. Use ResponsiveModal with primitive buttons. Canon: design-system §11.',
+      },
+      // [CANON-MOTION] raw `framer-motion` import — must use `@/components/ui/motion` proxy (canon: INDEX #4, design-system §3)
+      // (handled via no-restricted-imports — see below in the same block)
+      // [CANON-AI-MODEL] hardcoded deprecated model literals (canon: personalization-ai §8)
+      {
+        selector: "Literal[value=/^claude-3-(sonnet|haiku|opus)/]",
+        message: 'CANON VIOLATION: hardcoded deprecated Claude model. Use `process.env.CLAUDE_MODEL_ID` (default `claude-sonnet-4-6`). Canon: personalization-ai §8.',
+      },
+      {
+        selector: "Literal[value=/^gpt-(3\\.5|4)$/]",
+        message: 'CANON VIOLATION: hardcoded OpenAI model literal. Use `process.env.OPENAI_MODEL_ID`. Canon: personalization-ai §8.',
+      },
+      // [CANON-SHOP] deprecated shop rails (canon: economy-payments §3 — sunset shop_items + token_rewards + transfer_tokens)
+      {
+        selector: "CallExpression[callee.property.name='from'][arguments.0.value='shop_items']",
+        message: 'CANON VIOLATION: `shop_items` is deprecated. Use canonical `shop_rewards` + `purchase_reward` RPC. Canon: economy-payments §3.',
+      },
+      {
+        selector: "CallExpression[callee.property.name='from'][arguments.0.value='token_rewards']",
+        message: 'CANON VIOLATION: `token_rewards` is deprecated. Use canonical `shop_rewards`. Canon: economy-payments §3.',
+      },
+      {
+        selector: "Literal[value='transfer_tokens']",
+        message: 'CANON VIOLATION: `transfer_tokens` RPC is deprecated (P2P bypassing parents — security hole). Canon: economy-payments §5.',
+      },
+      // [CANON-BUCKET] chore-evidence canonical bucket; `defi-proofs` deprecated (canon: gamification §3)
+      {
+        selector: "Literal[value='defi-proofs']",
+        message: 'CANON VIOLATION: `defi-proofs` bucket is deprecated. Use `chore-evidence` (private). Canon: gamification §3.',
+      },
+      // [CANON-MONEY-PK] user_xp / user_coins canonical PK is `teen_id`, NOT `user_id` (canon: economy-payments §1)
+      {
+        selector: "CallExpression[callee.property.name='from'][arguments.0.value=/^(user_xp|user_coins)$/]",
+        message: 'CANON HINT: `user_xp`/`user_coins` canonical PK is `teen_id`, NOT `user_id`. Verify .eq("teen_id", ...) downstream. Canon: economy-payments §1.',
+      },
+      // [CANON-PII-AI] never serialize profiles.full_name into AI prompts (canon: personalization-ai §6, P0 finding CANON-AI-001)
+      {
+        selector: "MemberExpression[object.property.name='profiles'][property.name='full_name']",
+        message: 'CANON VIOLATION: `profiles.full_name` selected — never forward into AI prompt context. Canon: personalization-ai §6, finding CANON-AI-001.',
+      },
+    ],
+    // [CANON-MOTION] raw framer-motion import — must use `@/components/ui/motion` proxy
+    // (Exception: the proxy itself + the easing tokens module — handled via file-scope overrides below.)
+    'no-restricted-imports': ['warn', {
+      paths: [
+        {
+          name: 'framer-motion',
+          message: 'CANON VIOLATION: import the `Motion` proxy from `@/components/ui/motion` instead. Canon: INDEX #4, design-system §3.',
+        },
+      ],
+    }],
+  },
+}, {
+  // [CANON-AUTH] auth.signUp ONLY allowed in /auth/sign-up flow + admin user-creation tools
+  files: ['app/**/*.{ts,tsx,js,jsx}', 'components/**/*.{ts,tsx,js,jsx}', 'lib/**/*.{ts,tsx,js,jsx}', 'hooks/**/*.{ts,tsx,js,jsx}'],
+  ignores: [
+    'app/auth/sign-up/**',
+    'app/api/auth/sign-up/**',
+    'app/api/admin/users/**',
+    'lib/auth/admin-create-user.ts',
+    'lib/supabase/admin.ts',
+  ],
+  rules: {
+    'no-restricted-syntax': ['warn',
+      {
+        selector: "CallExpression[callee.property.name='signUp'][callee.object.property.name='auth']",
+        message: 'CANON VIOLATION: `supabase.auth.signUp()` outside the canonical sign-up flow. Use `/auth/sign-up` for new users or `supabase.auth.admin.createUser()` for admin-provisioned users. Canon: auth-onboarding §1, FORBIDDEN #3.',
+      },
+      // [CANON-PROFILES-INSERT] direct insert into `profiles` outside admin tools (canon: auth-onboarding FORBIDDEN #1)
+      {
+        selector: "CallExpression[callee.property.name='insert'][callee.object.callee.property.name='from'][callee.object.arguments.0.value='profiles']",
+        message: 'CANON VIOLATION: direct INSERT INTO `profiles`. Profiles must only be created by the `handle_new_user` trigger or approved admin tools. Canon: auth-onboarding FORBIDDEN #1.',
+      },
+      {
+        selector: "CallExpression[callee.property.name='upsert'][callee.object.callee.property.name='from'][callee.object.arguments.0.value='profiles']",
+        message: 'CANON VIOLATION: direct UPSERT INTO `profiles`. Profiles must only be created by the `handle_new_user` trigger or approved admin tools. Canon: auth-onboarding FORBIDDEN #1.',
+      },
+    ],
+  },
+}, {
+  // [CANON-MOTION] proxy itself is allowed to import framer-motion
+  files: ['components/ui/motion.tsx', 'components/ui/motion/**', 'lib/motion/**'],
+  rules: {
+    'no-restricted-imports': 'off',
+  },
+}, {
   // TypeScript parsing + TS-friendly rules
   files: ['**/*.{ts,tsx}'],
   languageOptions: {

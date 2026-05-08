@@ -11,6 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 2928",
+    "lint:canon": "node scripts/canon-precommit.mjs --all",
+    "lint:canon:staged": "node scripts/canon-precommit.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",

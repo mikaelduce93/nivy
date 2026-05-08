@@ -4,6 +4,18 @@
 > All recommendations are quoted from canon — no decisions invented here.
 > Numbering: **F1–F18** = INDEX cross-cutting decisions (already enumerated by canon). **F19+** = decisions raised inside a single domain `*.locked.md` UNRESOLVED section but not consolidated into INDEX.
 
+## Rulings stamped 2026-05-08
+
+| ID | Status | Ruling |
+|---|---|---|
+| **F1** | DECIDED 2026-05-08 | **Parent-invited teen only at launch.** Self-signup deferred to V1.4. |
+| **F2** | DECIDED 2026-05-08 | **Driver = first-class `profiles.role`.** Driver workspace `/driver/**` peer to mentor. |
+| **F3** | DECIDED 2026-05-08 | **Influencer folds into ambassador.** Drops `/devenir-influenceur` candidature. Resolves `partner-ecosystem.locked.md` §8.3 contradiction. |
+| **F5** | DECIDED 2026-05-08 | **Manual top-up only at launch.** `PSP_AUTO_TOPUP_ENABLED=false`. Re-enable Cash Plus week +2. |
+| **AUDIT-LOG** | DECIDED 2026-05-08 | **`audit_log` (singular) is canonical.** `admin_audit_logs` is deprecated. Resolves social-feed §7 contradiction. |
+
+The remaining decisions below are still **OPEN**.
+
 ## Summary
 
 **51 decisions outstanding** (18 from INDEX + 33 domain-local).
