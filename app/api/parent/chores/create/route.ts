@@ -6,8 +6,18 @@
  *   verification of all required_completions, payout_chore_reward fires and
  *   pipes through the canonical top_up_teen rails (§29.4).
  *
+ * Wave 3 / TICKET-016 — Sibling fan-out:
+ *   The body now accepts `teen_ids: string[]` (≥1) so a single chore can be
+ *   targeted at multiple linked teens. We still write the legacy
+ *   `parent_chores.teen_id` column (set to the first targeted teen) for
+ *   backward compatibility, and fan out to the new `chore_targets` junction
+ *   table for every selected sibling. `teen_id` (singular) remains accepted
+ *   as a fallback for older clients.
+ *
  * Body: {
- *   teen_id, title, description?, reward_dh, reward_xp,
+ *   teen_ids: string[]                     // Wave 3 — multi-select
+ *   teen_id?: string                       // legacy single-teen fallback
+ *   title, description?, reward_dh, reward_xp,
  *   recurrence ('one_shot'|'daily'|'weekly'|'monthly'|'custom_days'),
  *   recurrence_config?, required_completions, evidence_required,
  *   starts_at?, ends_at?
@@ -19,6 +29,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 
 interface CreateChoreBody {
+  teen_ids?: string[]
   teen_id?: string
   title?: string
   description?: string | null
@@ -40,6 +51,9 @@ const ALLOWED_RECURRENCE = new Set([
   "custom_days",
 ])
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export async function POST(request: Request) {
   try {
     const userInfo = await getUserRole()
@@ -51,16 +65,31 @@ export async function POST(request: Request) {
     }
 
     const body = (await request.json()) as CreateChoreBody
-    const teenId = body.teen_id
+
+    // Resolve target teens: prefer the new `teen_ids` array, fall back to
+    // the legacy `teen_id` scalar so older clients keep working.
+    const rawTeenIds = Array.isArray(body.teen_ids)
+      ? body.teen_ids
+      : body.teen_id
+      ? [body.teen_id]
+      : []
+    const teenIds = Array.from(
+      new Set(
+        rawTeenIds
+          .map((v) => (typeof v === "string" ? v.trim() : ""))
+          .filter((v) => v.length > 0 && UUID_RE.test(v))
+      )
+    )
+
     const title = (body.title ?? "").trim()
     const recurrence = body.recurrence ?? "one_shot"
     const requiredCompletions = Number(body.required_completions ?? 1)
     const rewardDh = Number(body.reward_dh ?? 0)
     const rewardXp = Number(body.reward_xp ?? 0)
 
-    if (!teenId || !title) {
+    if (teenIds.length === 0 || !title) {
       return NextResponse.json(
-        { success: false, error: "Données manquantes (teen_id, title)" },
+        { success: false, error: "Données manquantes (teen_ids, title)" },
         { status: 400 }
       )
     }
@@ -92,27 +121,37 @@ export async function POST(request: Request) {
     const supabase = await createClient()
     const parentId = userInfo.profileId
 
-    // Validate parent-teen link.
-    const { data: link } = await supabase
+    // Validate every targeted teen is linked to this parent. We pull the full
+    // link set in one round-trip then assert each requested teen is in it.
+    const { data: links } = await supabase
       .from("parent_teen_links")
-      .select("id")
+      .select("teen_id")
       .eq("parent_id", parentId)
-      .eq("teen_id", teenId)
-      .limit(1)
-      .maybeSingle()
 
-    if (!link) {
+    const linkedSet = new Set(
+      (links ?? []).map((r) => (r as { teen_id: string }).teen_id)
+    )
+    const unlinked = teenIds.filter((t) => !linkedSet.has(t))
+    if (unlinked.length > 0) {
       return NextResponse.json(
-        { success: false, error: "Teen non lié à ce compte parent" },
+        {
+          success: false,
+          error: "Un ou plusieurs teens ne sont pas liés à ce compte parent",
+        },
         { status: 400 }
       )
     }
 
+    // Insert one parent_chores row. We keep the legacy NOT NULL `teen_id`
+    // column populated with the first targeted teen so existing reads
+    // (parent dashboard, teen_id-based queries) keep working until callers
+    // are migrated to the chore_targets junction.
+    const primaryTeenId = teenIds[0]
     const { data: chore, error } = await supabase
       .from("parent_chores")
       .insert({
         parent_id: parentId,
-        teen_id: teenId,
+        teen_id: primaryTeenId,
         title,
         description: body.description ?? null,
         reward_dh: rewardDh,
@@ -127,15 +166,46 @@ export async function POST(request: Request) {
       .select("*")
       .single()
 
-    if (error) {
+    if (error || !chore) {
       console.error("[chores/create] insert error:", error)
       return NextResponse.json(
-        { success: false, error: error.message || "Erreur serveur" },
+        { success: false, error: error?.message || "Erreur serveur" },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({ success: true, chore })
+    // Fan-out: one junction row per targeted teen. ON CONFLICT is harmless
+    // because (chore_id, teen_id) is the PK.
+    const targetRows = teenIds.map((tid) => ({
+      chore_id: (chore as { id: string }).id,
+      teen_id: tid,
+    }))
+    const { error: targetsError } = await supabase
+      .from("chore_targets")
+      .insert(targetRows)
+
+    if (targetsError) {
+      // Best-effort rollback: remove the parent_chores row we just wrote so
+      // we don't leave a chore with an incomplete target set.
+      console.error("[chores/create] targets insert error:", targetsError)
+      await supabase
+        .from("parent_chores")
+        .delete()
+        .eq("id", (chore as { id: string }).id)
+      return NextResponse.json(
+        {
+          success: false,
+          error: targetsError.message || "Erreur création des cibles",
+        },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      chore,
+      target_teen_ids: teenIds,
+    })
   } catch (err) {
     console.error("[chores/create] unexpected error:", err)
     return NextResponse.json(

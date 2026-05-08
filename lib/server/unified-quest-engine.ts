@@ -186,3 +186,106 @@ export function recordQuestEngineCompletion(
     },
   })
 }
+
+/**
+ * TICKET-015 — surface the most urgent open chore for the avatar coach.
+ *
+ * "Open" means: parent_chores row with is_active=true that has not yet
+ * reached `required_completions` parent-verified completions. We rank the
+ * remaining open chores by:
+ *   1. Imminence — `ends_at` ascending (NULLs last); a chore with a
+ *      deadline is more urgent than one without.
+ *   2. Reward weight — higher `reward_dh` first. (Personalization §15
+ *      treats DH as a strong intent proxy for chores.)
+ *   3. Created-at descending — newest among ties (parent just set it).
+ *
+ * Returns `null` when nothing is open. Empty-safe for any DB error so the
+ * coach surface never breaks the dashboard.
+ */
+export interface ChoreNudge {
+  chore_id: string
+  title: string
+  description: string | null
+  reward_dh: number
+  reward_xp: number
+  ends_at: string | null
+  remaining: number
+}
+
+export async function getChoreNudge(
+  teenId: string
+): Promise<ChoreNudge | null> {
+  if (!teenId) return null
+
+  const supabase = await createClient()
+
+  const { data: chores, error: choresError } = await supabase
+    .from("parent_chores")
+    .select(
+      "id, title, description, reward_dh, reward_xp, required_completions, ends_at, created_at"
+    )
+    .eq("teen_id", teenId)
+    .eq("is_active", true)
+
+  if (choresError || !chores || chores.length === 0) return null
+
+  const choreIds = chores.map((c: { id: string }) => c.id)
+
+  // Pull only verified completions to compute remaining capacity.
+  const { data: completions } = await supabase
+    .from("parent_chore_completions")
+    .select("chore_id, parent_verified")
+    .eq("teen_id", teenId)
+    .in("chore_id", choreIds)
+    .eq("parent_verified", true)
+
+  const verifiedByChore = new Map<string, number>()
+  for (const row of (completions ?? []) as { chore_id: string }[]) {
+    verifiedByChore.set(row.chore_id, (verifiedByChore.get(row.chore_id) ?? 0) + 1)
+  }
+
+  type ChoreRow = {
+    id: string
+    title: string
+    description: string | null
+    reward_dh: number
+    reward_xp: number
+    required_completions: number
+    ends_at: string | null
+    created_at: string
+  }
+
+  const open = (chores as ChoreRow[])
+    .map((c) => {
+      const verified = verifiedByChore.get(c.id) ?? 0
+      const remaining = Math.max(0, (c.required_completions ?? 1) - verified)
+      return { c, remaining }
+    })
+    .filter((row) => row.remaining > 0)
+
+  if (open.length === 0) return null
+
+  open.sort((a, b) => {
+    // 1. ends_at ascending, NULLs last
+    const aEnd = a.c.ends_at ? Date.parse(a.c.ends_at) : Number.POSITIVE_INFINITY
+    const bEnd = b.c.ends_at ? Date.parse(b.c.ends_at) : Number.POSITIVE_INFINITY
+    if (aEnd !== bEnd) return aEnd - bEnd
+    // 2. reward_dh descending
+    if ((b.c.reward_dh ?? 0) !== (a.c.reward_dh ?? 0)) {
+      return (b.c.reward_dh ?? 0) - (a.c.reward_dh ?? 0)
+    }
+    // 3. created_at descending
+    return Date.parse(b.c.created_at) - Date.parse(a.c.created_at)
+  })
+
+  const top = open[0].c
+  return {
+    chore_id: top.id,
+    title: top.title,
+    description: top.description,
+    reward_dh: top.reward_dh,
+    reward_xp: top.reward_xp,
+    ends_at: top.ends_at,
+    remaining: open[0].remaining,
+  }
+}

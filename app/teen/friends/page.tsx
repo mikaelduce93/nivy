@@ -1,259 +1,95 @@
-"use client"
+/**
+ * /teen/friends — Friends hub.
+ *
+ * TICKET-036 (Wave-3 P5) — surfaces FD3's friend recommendations
+ * (RPC `public.recommend_friends`, migration 079, exposed via
+ * `/api/teen/recommend-friends`) inside a "Suggestions" section.
+ *
+ * The page itself is a server component: it resolves the caller's teen_id
+ * via getUserRole() and invokes the SECURITY DEFINER RPC directly so the
+ * suggestions are part of the SSR payload (no client-side waterfall). All
+ * interactive state — search, tabs, invite buttons — lives in
+ * ./friends-client.tsx.
+ *
+ * Write-scope guardrails:
+ *   - We DO NOT touch the friend-challenges UI (FD2 owns it).
+ *   - We DO NOT modify the recommend_friends RPC (FD3 owns it).
+ */
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { Users, Search, UserPlus, MessageCircle, Zap, Trophy, MoreVertical, Check, X } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { Suspense } from "react"
+import { createClient } from "@/lib/supabase/server"
+import { getUserRole } from "@/lib/auth/get-user-role"
+import FriendsClient, { type FriendSuggestion } from "./friends-client"
 
-type ApiFriend = {
-  id: string
-  name: string
-  avatar_url?: string | null
-  status: string
-  xp: number
-  mutual: number
-  mutual_calculated?: boolean
+// Force dynamic — recommendations depend on auth + frequently changing
+// behavioural signals (teen_neighbours).
+export const dynamic = "force-dynamic"
+
+const SUGGESTION_FETCH_LIMIT = 10
+const SUGGESTION_RENDER_LIMIT = 5
+
+function parseSuggestionRows(data: unknown): FriendSuggestion[] {
+  if (!Array.isArray(data)) return []
+  return data
+    .map((row): FriendSuggestion | null => {
+      let parsed: unknown = row
+      if (typeof row === "string") {
+        try {
+          parsed = JSON.parse(row)
+        } catch {
+          return null
+        }
+      }
+      if (!parsed || typeof parsed !== "object") return null
+      const r = parsed as Record<string, unknown>
+      if (typeof r.teen_id !== "string") return null
+      const source: "neighbours" | "affinity" =
+        r.source === "affinity" ? "affinity" : "neighbours"
+      return {
+        teen_id: r.teen_id,
+        name: typeof r.name === "string" ? r.name : "Anonyme",
+        level: typeof r.level === "number" ? r.level : Number(r.level) || 1,
+        last_seen:
+          typeof r.last_seen === "string" || r.last_seen === null
+            ? (r.last_seen as string | null)
+            : null,
+        similarity:
+          typeof r.similarity === "number"
+            ? r.similarity
+            : Number(r.similarity) || 0,
+        source,
+      }
+    })
+    .filter((row): row is FriendSuggestion => row !== null)
 }
 
-// TODO(data): pending friend requests + suggestions endpoints are pending
-// (§17 friends spec). Until those land we surface honest empty states rather
-// than wiring placeholder fixtures.
-type PendingRequest = { id: string; name: string; mutual: number; sentAt: string }
-const PENDING_REQUESTS: PendingRequest[] = []
-
-const TABS = [
-  { id: "all", label: "Tous" },
-  { id: "online", label: "En ligne" },
-  { id: "requests", label: "Demandes" },
-]
-
-export default function FriendsPage() {
-  const [tab, setTab] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [friends, setFriends] = useState<ApiFriend[]>([])
-
-  useEffect(() => {
-    let cancelled = false
-    fetch("/api/teen/friends")
-      .then((r) => (r.ok ? r.json() : { friends: [] }))
-      .then((data) => {
-        if (cancelled) return
-        setFriends(Array.isArray(data?.friends) ? data.friends : [])
-      })
-      .catch(() => {
-        if (!cancelled) setFriends([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  const filteredFriends = friends.filter(friend => {
-    if (!friend.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
-    if (tab === "online" && friend.status !== "online") return false
-    return true
+async function getFriendSuggestions(teenId: string): Promise<FriendSuggestion[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("recommend_friends", {
+    p_teen_id: teenId,
+    p_limit: SUGGESTION_FETCH_LIMIT,
   })
+  if (error) {
+    console.error("[teen/friends] recommend_friends RPC error:", error)
+    return []
+  }
+  return parseSuggestionRows(data).slice(0, SUGGESTION_RENDER_LIMIT)
+}
 
-  const onlineCount = friends.filter(f => f.status === "online").length
+export default async function FriendsPage() {
+  const userInfo = await getUserRole()
+
+  // Unauthenticated / non-teen viewers fall back to an empty suggestions list
+  // — we still render the page so the existing /api/teen/friends client fetch
+  // can produce the "Aucun ami" empty state without a hard redirect.
+  let suggestions: FriendSuggestion[] = []
+  if (userInfo?.role === "teen" && userInfo.teenData?.id) {
+    suggestions = await getFriendSuggestions(userInfo.teenData.id).catch(() => [])
+  }
 
   return (
-    <div className="min-h-screen pb-32 space-y-8 pt-6">
-      {/* Header */}
-      <header className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-coral to-pink-500 flex items-center justify-center">
-                <Users className="w-6 h-6 text-black" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Amis</h1>
-                <p className="text-zinc-500 text-sm font-medium">{friends.length} amis • {onlineCount} en ligne</p>
-              </div>
-            </div>
-          </div>
-
-          <Button className="bg-gen-z-coral text-black font-bold">
-            <UserPlus className="w-4 h-4 mr-2" />
-            Ajouter
-          </Button>
-        </div>
-
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher un ami..."
-            className="pl-12 h-12 rounded-xl bg-zinc-900/50 border-white/10"
-          />
-        </div>
-
-        {/* Tabs */}
-        <div className="flex items-center gap-2">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={cn(
-                "px-4 py-2 rounded-xl font-bold text-sm transition-all",
-                tab === t.id
-                  ? "bg-gen-z-coral text-black"
-                  : "bg-zinc-900/50 text-zinc-400 hover:text-white"
-              )}
-            >
-              {t.label}
-              {t.id === "requests" && PENDING_REQUESTS.length > 0 && (
-                <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-[10px]">
-                  {PENDING_REQUESTS.length}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      {/* Pending Requests */}
-      {tab === "requests" && PENDING_REQUESTS.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-black uppercase">Demandes en attente</h2>
-
-          <div className="space-y-3">
-            {PENDING_REQUESTS.map((request, idx) => (
-              <motion.div
-                key={request.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-gen-z-coral/10 border border-gen-z-coral/30"
-              >
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-xl font-bold text-white">
-                  {request.name.charAt(0)}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-white">{request.name}</h4>
-                  <p className="text-sm text-zinc-400">{request.mutual} amis en commun • {request.sentAt}</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button size="icon" className="rounded-full bg-gen-z-mint text-black">
-                    <Check className="w-5 h-5" />
-                  </Button>
-                  <Button size="icon" variant="outline" className="rounded-full">
-                    <X className="w-5 h-5" />
-                  </Button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Friends List */}
-      {tab !== "requests" && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-black uppercase">
-            {tab === "online" ? "En ligne maintenant" : "Tous les amis"}
-          </h2>
-
-          {filteredFriends.length === 0 ? (
-            friends.length === 0 ? (
-              <EmptyState
-                preset="friends"
-                size="default"
-              />
-            ) : (
-              <EmptyState
-                preset="search"
-                size="small"
-                title={searchQuery ? "Aucun ami trouvé" : "Aucun ami en ligne"}
-                description={searchQuery ? "Essaie une autre recherche" : "Tes amis sont hors ligne pour le moment."}
-              />
-            )
-          ) : (
-            <div className="space-y-3">
-              {filteredFriends.map((friend, idx) => (
-                <motion.div
-                  key={friend.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-colors"
-                >
-                  {/* Avatar */}
-                  <div className="relative">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-xl font-bold text-white">
-                      {friend.name.charAt(0)}
-                    </div>
-                    <div className={cn(
-                      "absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-zinc-900",
-                      friend.status === "online" ? "bg-green-500" :
-                      friend.status === "away" ? "bg-yellow-500" : "bg-zinc-500"
-                    )} />
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-white">{friend.name}</h4>
-                    </div>
-                    {friend.mutual_calculated && friend.mutual > 0 && (
-                      <p className="text-sm text-zinc-400">{friend.mutual} amis en commun</p>
-                    )}
-                  </div>
-
-                  {/* XP */}
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 text-gen-z-lavender">
-                      <Zap className="w-4 h-4" />
-                      <span className="font-bold">{friend.xp.toLocaleString()}</span>
-                    </div>
-                    <p className="text-[10px] text-zinc-500 uppercase">XP</p>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <MessageCircle className="w-5 h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <MoreVertical className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* Suggestions — surfaced once a friend-suggestions endpoint exists.
-          For now we keep the section out of the DOM rather than fabricate users. */}
-
-      {/* Leaderboard Preview */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="p-6 rounded-3xl bg-gradient-to-r from-yellow-500/10 to-amber-500/5 border border-yellow-500/20"
-      >
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-yellow-500/20 flex items-center justify-center">
-            <Trophy className="w-7 h-7 text-yellow-500" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-black text-white">Classement Amis</h3>
-            <p className="text-sm text-zinc-400">Vois qui a le plus d'XP parmi tes amis</p>
-          </div>
-          <Button variant="outline">
-            Voir le classement
-          </Button>
-        </div>
-      </motion.div>
-    </div>
+    <Suspense fallback={null}>
+      <FriendsClient initialSuggestions={suggestions} />
+    </Suspense>
   )
 }

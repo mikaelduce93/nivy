@@ -1,13 +1,19 @@
-// Wave E.2 — three-quest-surfaces consolidation.
-// Canonical surface for quests (incl. friend challenges) is /teen/quests.
-// Friend-challenge UI (challenges-client.tsx) is being merged into a tab on
-// /teen/quests in V1.1; for now this route redirects and keeps the legacy
-// component file on disk as a reference until the merge lands.
-import { redirect, permanentRedirect } from "next/navigation"
+// TICKET-024 (Wave 3 FD6) — legacy redirect cleanup.
+//
+// Wave E.2 had this route 308-redirect to /teen/quests as a stop-gap while
+// the friend-challenge UI was being merged into the canonical quests
+// surface. With Wave-2 FD2 (TICKET-020) shipping the real
+// /teen/quests/friend-defis tab, the redirect target is now updated to
+// that more specific surface so legacy bookmarks land on the correct UI.
+//
+// The previous companion file challenges-client.tsx (legacy friend-defi
+// client kept on disk "for reference") has been deleted as part of this
+// ticket — the canonical friend-defi client now lives at
+// app/teen/quests/friend-defis/friend-defis-client.tsx.
+import { permanentRedirect } from "next/navigation"
 
 export default function DefisLegacyPage() {
-  permanentRedirect("/teen/quests")
-  redirect("/teen/quests")
+  permanentRedirect("/teen/quests/friend-defis")
 }
 
 export const metadata = {

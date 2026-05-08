@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -33,7 +34,10 @@ const RECURRENCE_OPTIONS = [
 export function ChoreForm({ teens }: { teens: Teen[] }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [teenId, setTeenId] = useState(teens[0]?.teen_id ?? "")
+  // Wave 3 / TICKET-016 — sibling fan-out. Default is "all teens selected".
+  const [teenIds, setTeenIds] = useState<string[]>(
+    teens.map((t) => t.teen_id)
+  )
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [rewardDh, setRewardDh] = useState("0")
@@ -42,10 +46,21 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
   const [requiredCompletions, setRequiredCompletions] = useState("1")
   const [evidenceRequired, setEvidenceRequired] = useState(false)
 
+  const toggleTeen = (id: string, checked: boolean) => {
+    setTeenIds((prev) =>
+      checked ? Array.from(new Set([...prev, id])) : prev.filter((t) => t !== id)
+    )
+  }
+
+  const allSelected = teenIds.length === teens.length && teens.length > 0
+  const toggleAll = (checked: boolean) => {
+    setTeenIds(checked ? teens.map((t) => t.teen_id) : [])
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!teenId || !title.trim()) {
-      toast.error("Teen et titre obligatoires")
+    if (teenIds.length === 0 || !title.trim()) {
+      toast.error("Au moins un teen et un titre sont obligatoires")
       return
     }
     setLoading(true)
@@ -54,7 +69,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          teen_id: teenId,
+          teen_ids: teenIds,
           title: title.trim(),
           description: description.trim() || null,
           reward_dh: Number(rewardDh) || 0,
@@ -66,7 +81,11 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       })
       const result = await res.json()
       if (result.success) {
-        toast.success("Corvée créée")
+        toast.success(
+          teenIds.length > 1
+            ? `Corvée créée pour ${teenIds.length} teens`
+            : "Corvée créée"
+        )
         router.push("/parent/chores")
         router.refresh()
       } else {
@@ -81,24 +100,46 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="space-y-2">
-        <Label className="text-zinc-300">Teen</Label>
-        <Select value={teenId} onValueChange={setTeenId}>
-          <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
-            <SelectValue placeholder="Choisir un teen" />
-          </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700">
-            {teens.map((t) => (
-              <SelectItem
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-zinc-300">
+            Teens concernés
+            <span className="text-zinc-500 font-normal ml-1">
+              ({teenIds.length}/{teens.length})
+            </span>
+          </Label>
+          {teens.length > 1 && (
+            <button
+              type="button"
+              onClick={() => toggleAll(!allSelected)}
+              className="text-xs text-emerald-400 hover:text-emerald-300"
+            >
+              {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
+            </button>
+          )}
+        </div>
+        <div className="space-y-2 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3">
+          {teens.map((t) => {
+            const checked = teenIds.includes(t.teen_id)
+            return (
+              <label
                 key={t.teen_id}
-                value={t.teen_id}
-                className="text-white hover:bg-zinc-700 focus:bg-zinc-700"
+                className="flex items-center gap-3 cursor-pointer rounded px-2 py-1.5 hover:bg-zinc-800"
               >
-                {t.teen_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={(v) => toggleTeen(t.teen_id, v === true)}
+                  className="border-zinc-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                />
+                <span className="text-sm text-white">{t.teen_name}</span>
+              </label>
+            )
+          })}
+        </div>
+        <p className="text-xs text-zinc-500">
+          La corvée sera assignée indépendamment à chaque teen sélectionné
+          (chacun la complète et est récompensé séparément).
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -200,7 +241,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
 
       <Button
         type="submit"
-        disabled={loading}
+        disabled={loading || teenIds.length === 0}
         className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-12"
       >
         {loading ? (

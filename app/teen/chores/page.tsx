@@ -17,6 +17,7 @@ interface Chore {
   required_completions: number
   evidence_required: boolean
   is_active: boolean
+  created_at: string
 }
 
 interface Completion {
@@ -36,14 +37,34 @@ export default async function TeenChoresPage() {
   const supabase = await createClient()
   const teenId = userInfo.profileId
 
-  const { data: choresData } = await supabase
-    .from("parent_chores")
-    .select("*")
-    .eq("teen_id", teenId)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
+  // Wave 3 / TICKET-016 — sibling fan-out. Pull chores assigned both via
+  // the legacy direct `parent_chores.teen_id` and via the new
+  // `chore_targets` junction, then de-dupe by id.
+  const [directRes, junctionRes] = await Promise.all([
+    supabase
+      .from("parent_chores")
+      .select("*")
+      .eq("teen_id", teenId)
+      .eq("is_active", true),
+    supabase
+      .from("chore_targets")
+      .select("parent_chores!inner(*)")
+      .eq("teen_id", teenId)
+      .eq("parent_chores.is_active", true),
+  ])
 
-  const chores = (choresData ?? []) as Chore[]
+  const choresMap = new Map<string, Chore>()
+  for (const c of (directRes.data ?? []) as Chore[]) choresMap.set(c.id, c)
+  for (const row of junctionRes.data ?? []) {
+    const linked = (row as { parent_chores: Chore | Chore[] | null })
+      .parent_chores
+    if (!linked) continue
+    const arr = Array.isArray(linked) ? linked : [linked]
+    for (const item of arr) choresMap.set(item.id, item)
+  }
+  const chores = Array.from(choresMap.values()).sort((a, b) =>
+    String(b.created_at ?? "").localeCompare(String(a.created_at ?? ""))
+  )
 
   const { data: comps } = await supabase
     .from("parent_chore_completions")

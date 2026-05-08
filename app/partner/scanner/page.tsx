@@ -19,10 +19,12 @@ import {
   Gift,
   Coins,
   Calendar,
-  ShoppingBag
+  ShoppingBag,
+  Trophy
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 
 interface ScannedMember {
   member: {
@@ -106,9 +108,85 @@ export default function PartnerScannerPage() {
     await handleScan(manualCode.trim())
   }
 
+  // ----------------------------------------------------------------
+  // TICKET-027: detect challenge offers and call check-in instead of
+  // apply-discount. We resolve offer_type at click-time via the Supabase
+  // browser client (read is allowed by the partner_offers self_read RLS
+  // policy) so verify-card's response shape stays untouched.
+  // ----------------------------------------------------------------
+  const resolveOfferType = async (
+    offerId: string
+  ): Promise<{ offerType: string | null; xpReward: number | null }> => {
+    try {
+      const sb = createClient()
+      const { data, error } = await sb
+        .from("partner_offers")
+        .select("offer_type, xp_reward")
+        .eq("id", offerId)
+        .single()
+      if (error || !data) {
+        return { offerType: null, xpReward: null }
+      }
+      return {
+        offerType: (data as { offer_type: string | null }).offer_type ?? null,
+        xpReward: (data as { xp_reward: number | null }).xp_reward ?? null,
+      }
+    } catch {
+      return { offerType: null, xpReward: null }
+    }
+  }
+
+  const handleChallengeCheckIn = async (offerId: string, memberId: string) => {
+    setIsApplying(true)
+    try {
+      const response = await fetch(
+        `/api/partner/challenges/${offerId}/check-in`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ memberId }),
+        }
+      )
+
+      const data = await response.json()
+
+      if (!data.success) {
+        toast.error(data.error || "Erreur lors du check-in")
+        return
+      }
+
+      setTransactionResult({
+        kind: "challenge",
+        challengeName: data.data?.offerTitle ?? "Défi partenaire",
+        xpAwarded: data.data?.xpAwarded ?? 0,
+        scannedAt: data.data?.scannedAt ?? new Date().toISOString(),
+        transactionId: data.data?.checkInId ?? "",
+      })
+      toast.success(`Check-in OK — +${data.data?.xpAwarded ?? 0} XP`)
+    } catch {
+      toast.error("Erreur lors du check-in")
+    } finally {
+      setIsApplying(false)
+    }
+  }
+
   const handleApplyDiscount = async () => {
-    if (!selectedOffer || !scannedMember || !purchaseAmount) {
-      toast.error("Sélectionnez une offre et entrez le montant")
+    if (!selectedOffer || !scannedMember) {
+      toast.error("Sélectionnez une offre")
+      return
+    }
+
+    // Branch on offer_type before requiring purchase amount: challenges
+    // do not need a purchase amount.
+    const { offerType } = await resolveOfferType(selectedOffer)
+
+    if (offerType === "challenge") {
+      await handleChallengeCheckIn(selectedOffer, scannedMember.member.id)
+      return
+    }
+
+    if (!purchaseAmount) {
+      toast.error("Entrez le montant de l'achat")
       return
     }
 
@@ -137,7 +215,7 @@ export default function PartnerScannerPage() {
         return
       }
 
-      setTransactionResult(data.data)
+      setTransactionResult({ kind: "discount", ...data.data })
       toast.success("Réduction appliquée!")
     } catch (err) {
       toast.error("Erreur lors de l'application")
@@ -183,47 +261,72 @@ export default function PartnerScannerPage() {
 
   // Transaction completed view
   if (transactionResult) {
+    const isChallenge = transactionResult.kind === "challenge"
+
     return (
       <div className="space-y-6 max-w-2xl mx-auto">
         <div className="text-center">
-          <h1 className="text-3xl font-black text-white">Transaction Complète</h1>
-          <p className="text-zinc-400">Réduction appliquée avec succès</p>
+          <h1 className="text-3xl font-black text-white">
+            {isChallenge ? "Check-in validé" : "Transaction Complète"}
+          </h1>
+          <p className="text-zinc-400">
+            {isChallenge
+              ? "Défi partenaire enregistré avec succès"
+              : "Réduction appliquée avec succès"}
+          </p>
         </div>
 
         <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30">
           <CardContent className="p-8 text-center">
             <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500 flex items-center justify-center mb-6">
-              <CheckCircle className="h-10 w-10 text-white" />
+              {isChallenge ? (
+                <Trophy className="h-10 w-10 text-white" />
+              ) : (
+                <CheckCircle className="h-10 w-10 text-white" />
+              )}
             </div>
 
             <h2 className="text-2xl font-bold text-white mb-2">
-              {transactionResult.discountName}
+              {isChallenge
+                ? transactionResult.challengeName
+                : transactionResult.discountName}
             </h2>
 
-            <div className="grid grid-cols-3 gap-4 mt-6">
-              <div className="bg-zinc-900/50 rounded-xl p-4">
-                <p className="text-xs text-zinc-400 mb-1">Achat</p>
-                <p className="text-xl font-bold text-white">
-                  {transactionResult.purchaseAmount} DH
+            {isChallenge ? (
+              <div className="bg-zinc-900/50 rounded-xl p-6 mt-6">
+                <p className="text-xs text-zinc-400 mb-1">XP attribués</p>
+                <p className="text-3xl font-bold text-amber-400">
+                  +{transactionResult.xpAwarded} XP
                 </p>
               </div>
-              <div className="bg-zinc-900/50 rounded-xl p-4">
-                <p className="text-xs text-zinc-400 mb-1">Réduction</p>
-                <p className="text-xl font-bold text-emerald-400">
-                  -{transactionResult.discountAmount} DH
-                </p>
+            ) : (
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                <div className="bg-zinc-900/50 rounded-xl p-4">
+                  <p className="text-xs text-zinc-400 mb-1">Achat</p>
+                  <p className="text-xl font-bold text-white">
+                    {transactionResult.purchaseAmount} DH
+                  </p>
+                </div>
+                <div className="bg-zinc-900/50 rounded-xl p-4">
+                  <p className="text-xs text-zinc-400 mb-1">Réduction</p>
+                  <p className="text-xl font-bold text-emerald-400">
+                    -{transactionResult.discountAmount} DH
+                  </p>
+                </div>
+                <div className="bg-zinc-900/50 rounded-xl p-4">
+                  <p className="text-xs text-zinc-400 mb-1">Total</p>
+                  <p className="text-xl font-bold text-white">
+                    {transactionResult.finalAmount} DH
+                  </p>
+                </div>
               </div>
-              <div className="bg-zinc-900/50 rounded-xl p-4">
-                <p className="text-xs text-zinc-400 mb-1">Total</p>
-                <p className="text-xl font-bold text-white">
-                  {transactionResult.finalAmount} DH
-                </p>
-              </div>
-            </div>
+            )}
 
-            <p className="text-sm text-zinc-400 mt-6">
-              Transaction #{transactionResult.transactionId.slice(0, 8)}
-            </p>
+            {transactionResult.transactionId && (
+              <p className="text-sm text-zinc-400 mt-6">
+                Transaction #{String(transactionResult.transactionId).slice(0, 8)}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -390,7 +493,7 @@ export default function PartnerScannerPage() {
           </Button>
           <Button
             onClick={handleApplyDiscount}
-            disabled={!selectedOffer || !purchaseAmount || isApplying}
+            disabled={!selectedOffer || isApplying}
             className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white"
           >
             {isApplying ? (

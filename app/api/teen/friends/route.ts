@@ -1,180 +1,109 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/get-user-role'
+import { NextRequest } from "next/server"
+import { getUserRole } from "@/lib/auth/get-user-role"
+import { APIResponse } from "../../lib/responses"
+import { FriendHandlers } from "./handlers"
 
-type ProfileJoin = {
-  id: string
-  full_name: string | null
-  avatar_url: string | null
-} | null
-
-export async function GET(request: NextRequest) {
-  try {
-    const userInfo = await getUserRole()
-    
-    if (!userInfo || userInfo.role !== 'teen') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const teenId = userInfo.teenData?.id
-    if (!teenId) {
-      return NextResponse.json({ error: 'Teen ID not found' }, { status: 400 })
-    }
-
-    const supabase = await createClient()
-
-    // Get friends from friendships table
-    const { data: friendships, error: friendshipsError } = await supabase
-      .from('friendships')
-      .select(`
-        id,
-        status,
-        friend:profiles!friendships_friend_id_fkey(
-          id,
-          full_name,
-          avatar_url
-        ),
-        user:profiles!friendships_user_id_fkey(
-          id,
-          full_name,
-          avatar_url
-        )
-      `)
-      .or(`user_id.eq.${teenId},friend_id.eq.${teenId}`)
-      .eq('status', 'accepted')
-
-    if (friendshipsError) {
-      console.error('Error fetching friendships:', friendshipsError)
-      // No fake friends: return an honest unavailable response.
-      return NextResponse.json({
-        friends: [],
-        total: 0,
-        status: 'unavailable',
-        error: 'Friends list temporarily unavailable',
-      })
-    }
-
-    // Get online status from presence table
-    const friendIds = friendships?.map(f => {
-      const friend = f.friend as unknown as ProfileJoin
-      const user = f.user as unknown as ProfileJoin
-      return friend?.id === teenId ? user?.id : friend?.id
-    }).filter(Boolean) || []
-
-    let presenceData: Record<string, string> = {}
-    if (friendIds.length > 0) {
-      const { data: presence } = await supabase
-        .from('user_presence')
-        .select('user_id, status')
-        .in('user_id', friendIds)
-
-      if (presence) {
-        presenceData = presence.reduce((acc, p) => {
-          acc[p.user_id] = p.status
-          return acc
-        }, {} as Record<string, string>)
-      }
-    }
-
-    // Get XP data for friends
-    let xpData: Record<string, number> = {}
-    if (friendIds.length > 0) {
-      const { data: xp } = await supabase
-        .from('user_xp')
-        .select('user_id, total_xp')
-        .in('user_id', friendIds)
-
-      if (xp) {
-        xpData = xp.reduce((acc, x) => {
-          acc[x.user_id] = x.total_xp
-          return acc
-        }, {} as Record<string, number>)
-      }
-    }
-
-    // Format response. Real mutual-friend counts are not computed yet:
-    // expose `mutual: 0` with `mutual_calculated: false` rather than a fake value.
-    const friends = friendships?.flatMap(f => {
-      const friend = f.friend as unknown as ProfileJoin
-      const user = f.user as unknown as ProfileJoin
-      const friendData: ProfileJoin = friend?.id === teenId ? user : friend
-      const friendId = friendData?.id
-      if (!friendId) return []
-
-      return [{
-        id: friendId,
-        name: friendData?.full_name || 'Unknown',
-        avatar_url: friendData?.avatar_url,
-        status: presenceData[friendId] || 'offline',
-        xp: xpData[friendId] || 0,
-        mutual: 0,
-        mutual_calculated: false,
-      }]
-    }) || []
-
-    return NextResponse.json({
-      friends,
-      total: friends.length,
-    })
-  } catch (error) {
-    console.error('Error in friends API:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+/**
+ * GET /api/teen/friends — list of accepted friends + lightweight stats.
+ *
+ * Shape returned to /teen/friends/page.tsx:
+ *   { friends: [{ id, name, avatar_url, status, xp, mutual, mutual_calculated }] }
+ *
+ * `status` here means presence (online/away/offline), not friendship status —
+ * the page filters tabs by it. We resolve presence from `user_presence` and XP
+ * from `user_xp` to keep parity with the previous implementation.
+ */
+export async function GET(_request: NextRequest) {
+  const userInfo = await getUserRole()
+  if (!userInfo || userInfo.role !== "teen") {
+    return APIResponse.unauthorized()
   }
+  const teenId = userInfo.teenData?.id
+  if (!teenId) return APIResponse.error("Teen profile not found", 400)
+
+  const result = await FriendHandlers.list(teenId)
+
+  // FriendHandlers.list returns the rich shape; reshape to what the UI consumes.
+  // We re-fetch presence + xp here in a single round-trip rather than threading
+  // them through handlers.ts (which is reused by other consumers expecting the
+  // richer shape).
+  const json = await result.json()
+  if (!json?.success) return APIResponse.success({ friends: [], total: 0 })
+
+  const rawFriends: any[] = json.friends || []
+  const friendIds = rawFriends.map((f) => f?.id).filter(Boolean) as string[]
+
+  const { createClient } = await import("@/lib/supabase/server")
+  const supabase = await createClient()
+
+  let presenceMap: Record<string, string> = {}
+  let xpMap: Record<string, number> = {}
+
+  if (friendIds.length > 0) {
+    const { data: presence } = await supabase
+      .from("user_presence")
+      .select("user_id, status")
+      .in("user_id", friendIds)
+    if (presence) {
+      for (const p of presence) presenceMap[p.user_id as string] = p.status as string
+    }
+
+    const { data: xpRows } = await supabase
+      .from("user_xp")
+      .select("user_id, total_xp")
+      .in("user_id", friendIds)
+    if (xpRows) {
+      for (const x of xpRows) xpMap[x.user_id as string] = (x.total_xp as number) || 0
+    }
+  }
+
+  const friends = rawFriends.map((f) => {
+    const fullName = [f?.first_name, f?.last_name].filter(Boolean).join(" ").trim()
+    return {
+      id: f?.id as string,
+      name: f?.friendship?.nickname || fullName || "Ami",
+      avatar_url: f?.avatar_url ?? null,
+      status: presenceMap[f?.id] || "offline",
+      xp: xpMap[f?.id] || 0,
+      mutual: 0,
+      mutual_calculated: false,
+    }
+  })
+
+  return APIResponse.success({
+    friends,
+    total: friends.length,
+    stats: json.stats ?? {
+      total_friends: friends.length,
+      pending_requests: 0,
+      best_friends: 0,
+    },
+  })
 }
 
-// Add friend
+/**
+ * POST /api/teen/friends — send a friend request.
+ * Body: { targetTeenId: string, message?: string }
+ */
 export async function POST(request: NextRequest) {
-  try {
-    const userInfo = await getUserRole()
-    
-    if (!userInfo || userInfo.role !== 'teen') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const teenId = userInfo.teenData?.id
-    if (!teenId) {
-      return NextResponse.json({ error: 'Teen ID not found' }, { status: 400 })
-    }
-
-    const body = await request.json()
-    const { friendId } = body
-
-    if (!friendId) {
-      return NextResponse.json({ error: 'Friend ID required' }, { status: 400 })
-    }
-
-    const supabase = await createClient()
-
-    // Check if friendship already exists
-    const { data: existing } = await supabase
-      .from('friendships')
-      .select('id')
-      .or(`and(user_id.eq.${teenId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${teenId})`)
-      .single()
-
-    if (existing) {
-      return NextResponse.json({ error: 'Friendship already exists' }, { status: 400 })
-    }
-
-    // Create friendship request
-    const { data, error } = await supabase
-      .from('friendships')
-      .insert({
-        user_id: teenId,
-        friend_id: friendId,
-        status: 'pending',
-      })
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Error creating friendship:', error)
-      return NextResponse.json({ error: 'Failed to send friend request' }, { status: 500 })
-    }
-
-    return NextResponse.json({ success: true, friendship: data })
-  } catch (error) {
-    console.error('Error in friends POST:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  const userInfo = await getUserRole()
+  if (!userInfo || userInfo.role !== "teen") {
+    return APIResponse.unauthorized()
   }
+  const teenId = userInfo.teenData?.id
+  if (!teenId) return APIResponse.error("Teen profile not found", 400)
+
+  let body: any
+  try {
+    body = await request.json()
+  } catch {
+    return APIResponse.error("Invalid JSON body")
+  }
+  const targetTeenId: string | undefined = body?.targetTeenId || body?.friendId
+  const message: string | undefined = body?.message
+
+  if (!targetTeenId) return APIResponse.error("targetTeenId is required")
+  if (targetTeenId === teenId) return APIResponse.error("Cannot friend yourself")
+
+  return FriendHandlers.sendRequest(teenId, targetTeenId, message)
 }

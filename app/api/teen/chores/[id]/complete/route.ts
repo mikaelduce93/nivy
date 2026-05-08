@@ -72,17 +72,39 @@ export async function POST(
     // We also pull title for the personalization signal payload below
     // (parent_chores has no tags/category column today — title is the
     // only free-text affinity hint we can carry).
+    //
+    // Wave 3 / TICKET-016 — chores can target multiple teens via the new
+    // `chore_targets` junction. Match either the legacy direct
+    // `parent_chores.teen_id` or a junction row for this teen.
     const { data: chore } = await supabase
       .from("parent_chores")
       .select("id, teen_id, evidence_required, is_active, title, recurrence")
       .eq("id", choreId)
-      .eq("teen_id", teenId)
       .maybeSingle()
 
     if (!chore || !chore.is_active) {
       return NextResponse.json(
         { success: false, error: "Corvée introuvable ou inactive" },
         { status: 404 }
+      )
+    }
+
+    const isDirectTarget =
+      (chore as { teen_id?: string | null }).teen_id === teenId
+    let isJunctionTarget = false
+    if (!isDirectTarget) {
+      const { data: target } = await supabase
+        .from("chore_targets")
+        .select("teen_id")
+        .eq("chore_id", choreId)
+        .eq("teen_id", teenId)
+        .maybeSingle()
+      isJunctionTarget = !!target
+    }
+    if (!isDirectTarget && !isJunctionTarget) {
+      return NextResponse.json(
+        { success: false, error: "Corvée non assignée à ce teen" },
+        { status: 403 }
       )
     }
 

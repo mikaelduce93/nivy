@@ -6,6 +6,14 @@
  * calls the `assign_missions_for_teen` RPC to top them up to:
  *   3 active daily / 3 weekly / 3 monthly / 1 seasonal mission.
  *
+ * Selection logic (TICKET-037, migration 086):
+ *   The RPC ranks candidate `mission_templates` by SUM(affinity_scores.score
+ *   WHERE tag = ANY(mission.tags)) with a random tiebreaker. Teens with
+ *   zero affinity rows (cold start) fall back to ORDER BY random(). Each
+ *   inserted `user_missions` row carries `assigned_via = 'profile' |
+ *   'fallback'` for observability. The cron route stays minimal: all
+ *   ranking/decisioning lives in the RPC.
+ *
  * Auth: must be a Vercel cron invocation (`x-vercel-cron` header) OR carry
  *       `Authorization: Bearer <CRON_SECRET>` (env var).
  *
@@ -101,6 +109,34 @@ export async function GET(request: Request) {
   const teensProcessed = activeTeenIds.length
   const durationMs = Date.now() - startedAt
 
+  // ---- Profile-vs-fallback breakdown for today (observability) ----------
+  // Count how many of *today's* inserts came from each path. Cheap aggregate:
+  // since the cron just ran, the set of rows inserted in the last few seconds
+  // is bounded by missionsAssigned. We use a window since `startedAt` instead
+  // of trying to thread row ids back from the RPC.
+  let assignedViaBreakdown: Record<string, number> = {}
+  try {
+    const { data: viaRows } = await supabase
+      .from("user_missions")
+      .select("assigned_via")
+      .gte("created_at", new Date(startedAt).toISOString())
+    if (Array.isArray(viaRows)) {
+      assignedViaBreakdown = viaRows.reduce(
+        (acc: Record<string, number>, row: { assigned_via: string | null }) => {
+          const k = row.assigned_via ?? "unknown"
+          acc[k] = (acc[k] ?? 0) + 1
+          return acc
+        },
+        {}
+      )
+    }
+  } catch (breakdownErr) {
+    console.error(
+      "[cron/assign-missions] assigned_via breakdown failed:",
+      breakdownErr
+    )
+  }
+
   // ---- Audit log (best effort) -------------------------------------------
   try {
     await supabase.from("admin_audit_logs").insert({
@@ -113,6 +149,7 @@ export async function GET(request: Request) {
         missions_assigned: missionsAssigned,
         duration_ms: durationMs,
         per_teen: perTeen,
+        assigned_via_breakdown: assignedViaBreakdown,
         triggered_by: isVercelCron ? "vercel-cron" : "bearer",
       },
     })
@@ -125,5 +162,6 @@ export async function GET(request: Request) {
     missions_assigned: missionsAssigned,
     duration_ms: durationMs,
     per_teen: perTeen,
+    assigned_via_breakdown: assignedViaBreakdown,
   })
 }
