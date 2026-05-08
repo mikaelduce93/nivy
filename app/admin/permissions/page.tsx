@@ -19,11 +19,16 @@ import { RoleChangeButton } from "@/components/admin/role-change-button"
 async function getAdminUsers() {
   const supabase = await createClient()
 
-  // Get all admin/staff users
-  const { data: admins, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .in("role", ["admin", "super_admin", "moderator", "support"])
+  // Wave 1A.5 — AUTH-011: profiles.role is exclusively 'admin' for admin
+  // users. Sub-role lives on admin_roles.role. The previous
+  // `.in("role", ["admin","super_admin","moderator","support"])` query is
+  // structurally invalid post-mig-094 (the CHECK constraint rejects the
+  // last three values). Read the join from admin_roles instead.
+  const { data: rows, error } = await supabase
+    .from("admin_roles")
+    .select(
+      "role, profile:profiles!admin_roles_profile_id_fkey(id, full_name, email, created_at)"
+    )
     .order("created_at", { ascending: false })
 
   if (error) {
@@ -31,7 +36,24 @@ async function getAdminUsers() {
     return []
   }
 
-  return admins || []
+  // Flatten so the existing render logic that reads `admin.role`,
+  // `admin.full_name`, etc. keeps working — but now `role` carries the
+  // sub-role from admin_roles, not the (always 'admin') profiles.role.
+  return (rows || [])
+    .map((r) => {
+      const profile = (r as { profile: unknown }).profile as
+        | { id: string; full_name: string | null; email: string | null; created_at: string | null }
+        | null
+      if (!profile) return null
+      return {
+        id: profile.id,
+        full_name: profile.full_name,
+        email: profile.email,
+        created_at: profile.created_at,
+        role: (r as { role: string }).role,
+      }
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null)
 }
 
 async function getAllUsers() {

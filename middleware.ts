@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
 
   // Generate nonce for inline scripts (CSP security)
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
-  
+
   // Store nonce in response headers for use in layout
   response.headers.set('x-nonce', nonce)
 
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
   // Build CSP header with nonce
   // Note: 'unsafe-eval' may be needed for Next.js dev mode, but removed in production
   const isDev = process.env.NODE_ENV === 'development'
-  
+
   const scriptSrc = [
     "'self'",
     `'nonce-${nonce}'`, // Allow scripts with this nonce
@@ -103,7 +103,7 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname
   let rateLimitConfig = RATE_LIMITS.api
-  
+
   if (isDev) {
     rateLimitConfig = { max: 1000, window: 60000 } // Relaxed for dev
   } else if (path.startsWith('/api/auth')) rateLimitConfig = RATE_LIMITS.auth
@@ -113,13 +113,13 @@ export async function middleware(request: NextRequest) {
 
   // Use distributed rate limiting (Redis) if available, falls back to in-memory
   const { allowed, remaining, resetAt } = await rateLimitDistributed(request, rateLimitConfig)
-  
+
   response.headers.set('X-RateLimit-Limit', rateLimitConfig.max.toString())
   response.headers.set('X-RateLimit-Remaining', remaining.toString())
   response.headers.set('X-RateLimit-Reset', resetAt.toString())
 
   if (!allowed) {
-    return new NextResponse('Too Many Requests', { 
+    return new NextResponse('Too Many Requests', {
       status: 429,
       headers: response.headers,
     })
@@ -167,7 +167,7 @@ export async function middleware(request: NextRequest) {
 
   try {
     response = await updateSession(request)
-    
+
     // Copier les headers de sécurité (including nonce)
     response.headers.set('Content-Security-Policy', cspHeader)
     response.headers.set('x-nonce', nonce) // Ensure nonce is available in response
@@ -227,6 +227,8 @@ export async function middleware(request: NextRequest) {
     "/teen",
     "/ambassador",
     "/partner",
+    "/mentor",
+    "/driver",
   ]
 
   const isProtectedRoute = protectedPaths.some((path) =>
@@ -257,15 +259,95 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url)
       }
 
-      // Vérification du rôle pour les routes spécifiques
+      // ────────────────────────────────────────────────────────────────────
+      // Wave 1A.5 — AUTH-006: is_onboarded gate
+      // Canon: docs/canon/auth-onboarding.locked.md §4 LOCKED.
+      //
+      // After auth resolution, we read profiles.role + profiles.is_onboarded
+      // (single round-trip with the existing role-route check) and:
+      //   - missing profile  →  /auth/error?reason=missing_profile
+      //   - admin           →  bypass is_onboarded gate (canon §4 policy)
+      //   - is_onboarded=false on a non-onboarding/non-API path →  redirect
+      //     to the role-canonical wizard root.
+      //   - is_onboarded=true falls through to the existing role-route check.
+      //
+      // Loop prevention: if the requested path is already inside the role's
+      // onboarding wizard (or any /onboarding/, /auth/, /api/, /_next/ path),
+      // the gate does not redirect.
+      // ────────────────────────────────────────────────────────────────────
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, is_onboarded")
         .eq("id", user.id)
-        .single()
+        .maybeSingle()
+
+      const pathname = request.nextUrl.pathname
+
+      // Per-role canonical onboarding wizard root.
+      // `null` means the role bypasses the onboarding gate entirely (admin).
+      // Source: canon §3 LOCKED redirect table + §4 LOCKED wizards.
+      const ONBOARDING_TARGETS: Record<string, string | null> = {
+        parent: "/onboarding/parent",
+        teen: "/onboarding/interests",
+        partner: "/partner/onboarding/awaiting-approval",
+        mentor: "/mentor/onboarding/kyc",
+        driver: "/driver/onboarding/kyc",
+        ambassador: "/ambassador/onboarding/awaiting-approval",
+        admin: null,
+      }
+
+      // Path prefixes that MUST NOT trigger an onboarding redirect (loop
+      // prevention + APIs/static never gated).
+      const ONBOARDING_PATH_PREFIXES = [
+        "/onboarding/",
+        "/partner/onboarding/",
+        "/mentor/onboarding/",
+        "/driver/onboarding/",
+        "/ambassador/onboarding/",
+        "/auth/",
+        "/api/",
+        "/_next/",
+      ]
+
+      const isOnboardingOrSystemPath = ONBOARDING_PATH_PREFIXES.some((p) =>
+        pathname.startsWith(p)
+      )
+
+      if (!profile) {
+        // Authed user with no profile row → canon §6 #13: never fall back to
+        // /onboarding (it's the pre-account showcase). Surface as an error so
+        // the bug is observable.
+        const url = request.nextUrl.clone()
+        url.pathname = "/auth/error"
+        url.searchParams.set("reason", "missing_profile")
+        return NextResponse.redirect(url)
+      }
 
       const userRole = profile?.role || "unknown"
-      const pathname = request.nextUrl.pathname
+      const isOnboarded = profile?.is_onboarded === true
+
+      if (
+        !isOnboarded &&
+        userRole !== "admin" &&
+        !isOnboardingOrSystemPath
+      ) {
+        const target = ONBOARDING_TARGETS[userRole as keyof typeof ONBOARDING_TARGETS]
+        if (target == null) {
+          // Unknown / unsupported role: route to /auth/error rather than
+          // bouncing to /onboarding (canon §6 FORBIDDEN #13).
+          const url = request.nextUrl.clone()
+          url.pathname = "/auth/error"
+          url.searchParams.set("reason", "unknown_role")
+          return NextResponse.redirect(url)
+        }
+
+        // Loop prevention: only redirect if we're not already at the target.
+        if (pathname !== target && !pathname.startsWith(`${target}/`)) {
+          const url = request.nextUrl.clone()
+          url.pathname = target
+          return NextResponse.redirect(url)
+        }
+      }
 
       // Vérifier si l'utilisateur accède à la bonne route pour son rôle
       const roleRouteMap: Record<string, string> = {
@@ -273,11 +355,13 @@ export async function middleware(request: NextRequest) {
         parent: "/parent",
         ambassador: "/ambassador",
         partner: "/partner",
+        mentor: "/mentor",
+        driver: "/driver",
         admin: "/admin",
       }
 
       // Si l'utilisateur essaie d'accéder à un dashboard qui n'est pas le sien
-      const dashboardPaths = ["/teen", "/parent", "/ambassador", "/partner"]
+      const dashboardPaths = ["/teen", "/parent", "/ambassador", "/partner", "/mentor", "/driver"]
       const isAccessingWrongDashboard = dashboardPaths.some((path) => {
         if (pathname.startsWith(path)) {
           const expectedRole = path.slice(1) // Enlève le "/"

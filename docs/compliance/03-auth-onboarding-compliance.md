@@ -1,19 +1,43 @@
 # Auth + Onboarding compliance
 
-## Score: 48/100  (was 22 — Wave 1A landed: AUTH-001, AUTH-003, AUTH-004 fixed; PARENT-005 fixed)
+## Score: 60/100  (was 48 — Wave 1A.5 landed: AUTH-005, AUTH-006, AUTH-011 fixed)
 
-> Wave 1A — Identity Truth (2026-05-08) closed the four highest-impact auth
-> P0s on the launch path: profiles.role enum is now CHECK-constrained to the
-> canonical 7 values, the validate-teen + parent/teens/create routes are
-> rebuilt around supabase.auth.admin.createUser with rollback on failure,
+> Wave 1A.5 — Identity Closure (2026-05-08) closed the last three identity-
+> truth gaps that did not require new product surfaces:
+>
+> - AUTH-005: the marketing wizard's `parent-setup-step.tsx` no longer calls
+>   `supabase.auth.signUp` and no longer inserts into the (non-canon)
+>   `parents` table. The "Créer mon compte" CTA now redirects to
+>   `/auth/sign-up?source=wizard` carrying `tempUserId` so pre-account XP
+>   can sync via `handle_new_user` after auth.
+> - AUTH-006: `middleware.ts` now reads `profiles.is_onboarded` after
+>   `getUser()` and redirects every authed non-admin user with
+>   `is_onboarded=false` to their canonical wizard root. Admin bypasses.
+>   Missing-profile case redirects to `/auth/error?reason=missing_profile`
+>   (canon §6 FORBIDDEN #13). Loop prevention is enforced via the
+>   onboarding-prefix list and an exact-target equality check. /api/* is
+>   never gated.
+> - AUTH-011: `lib/auth/admin-permissions.ts` is rewritten so
+>   `getAdminInfo()` requires `profiles.role='admin'` AND a row in
+>   `admin_roles`; the sub-role lives in `admin_roles.role`; permissions
+>   are computed from the canon §2 capability matrix and ADDITIVELY
+>   augmented by the JSONB override (cannot revoke a baseline). The
+>   audit-log helper now writes to the canonical singular `audit_log`
+>   table.
+>
+> Wave 1A — Identity Truth (2026-05-08, prior commits) closed the four
+> highest-impact auth P0s on the launch path: profiles.role enum is now
+> CHECK-constrained to the canonical 7 values, the validate-teen +
+> parent/teens/create routes are rebuilt around
+> supabase.auth.admin.createUser with rollback on failure,
 > /auth/redirect implements the §3 LOCKED truth table including mentor +
 > driver + status-aware sub-routing. Migration 094 also adds is_onboarded,
 > admin_roles.permissions JSONB, parent_teen_links.status, and the singular
 > `audit_log` table.
 
-## Launch status: BLOCKED — the canonical identity invariant (`auth.users.id == profiles.id`, no `profiles` row without an `auth.users` row, role assigned via `handle_new_user` trigger from `raw_user_meta_data.role`) is broken in three of the four account-creation surfaces. Teens validated by their parent get a `profiles` row with no `auth.users` mate (locked out forever). Partners registered via `/api/partners/register` cannot log in (no `auth.users` created). Ambassador candidature writes directly to a status-pending table that the admin approval flow does not flip back into a role. The marketing wizard runs a parallel `auth.signUp` call. The role enum is missing four canonical values (`mentor`, `driver`, `ambassador`, `admin` per `profiles.role` CHECK) — the redirect switch silently dumps `mentor`/`driver` users back to the pre-account marketing showcase. `is_onboarded` exists as a column for teens only and there is no middleware gate enforcing wizard completion. Two of the seven canonical signup entry points (`/devenir-mentor/candidature`, `/devenir-chauffeur/candidature`) and the entire `/driver/*` surface do not exist. No launch is possible until these are fixed; partial fixes (e.g. ship parent + teen flows clean) could enable a closed BETA on parent-only invites.
+## Launch status: BLOCKED — Wave 1A + Wave 1A.5 closed seven of the twelve auth P0s (AUTH-001/003/004/005/006/011 fixed; AUTH-002/007/008/009/010/012 still open). Identity-truth bugs that survive: partners registered via `/api/partners/register` still cannot log in (no `auth.users` created — AUTH-002). Two of the seven canonical signup entry points (`/devenir-mentor/candidature`, `/devenir-chauffeur/candidature`) and the entire `/driver/*` surface do not exist (AUTH-007 + AUTH-008). The ambassador candidature writes directly to a status-pending table that the admin approval flow does not flip back into a role (AUTH-009). The parent wizard chain (`/onboarding/parent/{e-signature,add-teen,topup,spend-mode}` + `POST /api/parent/onboarding/complete`) is still missing (AUTH-010) — the AUTH-006 middleware gate now redirects parents to `/onboarding/parent` but the wizard chain itself is not yet built end-to-end. Money Truth (Wave 1B) can start: the identity invariants the money pipeline depends on (`profiles.role` enum, `is_onboarded` middleware gate, admin sub-role contract) are all in place. Closed BETA on parent-only invites is feasible once AUTH-010 (parent wizard chain + complete endpoint) lands.
 
-## Findings count: P0=12, P1=8, P2=5, P3=2 (total 27)
+## Findings count: P0=12 (6 fixed, 6 open), P1=8, P2=5, P3=2 (total 27)
 
 ## Top 3 P0
 
@@ -158,7 +182,7 @@
     "ESLint rule rejects auth.signUp imports outside app/auth/sign-up/page.tsx",
     "tempUserId XP/badges merge into the post-signup teen/parent profile via trigger"
   ],
-  "status": "open"
+  "status": "fixed-2026-05-08"
 }
 ```
 
@@ -188,7 +212,8 @@
     "POST flips is_onboarded=true atomically",
     "Role change UPDATE on profiles resets is_onboarded=false"
   ],
-  "status": "open"
+  "status": "fixed-2026-05-08",
+  "wave_1a5_note": "middleware.ts now reads profiles.is_onboarded after getUser() and redirects every authed non-admin user with is_onboarded=false to their canonical wizard root via the ONBOARDING_TARGETS map (parent → /onboarding/parent, teen → /onboarding/interests, partner → /partner/onboarding/awaiting-approval, mentor → /mentor/onboarding/kyc, driver → /driver/onboarding/kyc, ambassador → /ambassador/onboarding/awaiting-approval, admin → bypass). Loop prevention via ONBOARDING_PATH_PREFIXES + exact-target equality check. /api/* and /auth/* are never gated. The actual POST /api/<role>/onboarding/complete endpoints (×5) and the role-change reset trigger remain open work for Wave 1B+ and are NOT closed by this fix."
 }
 ```
 
@@ -326,7 +351,8 @@
     "Admin with admin_roles.permissions = { 'analytics.financial': false } cannot view financial analytics even though sub-role='admin'",
     "profile.role='admin' without admin_roles row → getAdminInfo returns null"
   ],
-  "status": "open"
+  "status": "fixed-2026-05-08",
+  "wave_1a5_note": "lib/auth/admin-permissions.ts now requires profiles.role='admin' AND a row in admin_roles. Sub-role is read from admin_roles.role and validated against the canonical four values (super_admin|admin|moderator|support). Permissions are computed from the canon §2 capability matrix and ADDITIVELY augmented by admin_roles.permissions JSONB — the override CANNOT revoke a baseline (additive-only is the locked semantic per canon §2 last paragraph). buildAdminInfo() helper exported for unit tests covers all 8 invariants in tests/integration/admin-permissions.test.ts. The audit-log helper switched from the deprecated admin_audit_logs to the canonical singular `audit_log`. Sub-role test note: per canon, profiles.role='super_admin' is rejected by mig 094 CHECK; the code defensively also denies it. Open follow-up: app/api/admin/permissions/route.ts still writes admin sub-role values into profiles.role on PATCH — that endpoint is admin moderation territory and intentionally out of scope for Wave 1A.5."
 }
 ```
 

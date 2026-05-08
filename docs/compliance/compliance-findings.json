@@ -1,10 +1,10 @@
 {
   "generated_at": "2026-05-08",
   "audit_version": "v1.0",
-  "overall_score": 36,
+  "overall_score": 39,
   "launch_status": "BLOCKED",
   "domain_scores": {
-    "auth-onboarding": 22,
+    "auth-onboarding": 60,
     "economy-payments": 38,
     "routing-navigation": 42,
     "social-feed": 38,
@@ -128,7 +128,7 @@
         "Wizard Continue redirects to /auth/sign-up",
         "ESLint rejects auth.signUp outside sign-up page"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-AUTH-006",
@@ -150,7 +150,8 @@
         "Admin bypasses",
         "POST complete fails 412 if e_signatures.signed_at NULL"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08",
+      "wave_1a5_note": "middleware gate landed; per-role POST /api/<role>/onboarding/complete (×5) and the role-change reset trigger remain Wave 1B+ work."
     },
     {
       "id": "CANON-AUTH-007",
@@ -258,7 +259,8 @@
         "getAdminInfo reads sub-role from admin_roles",
         "permissions={'analytics.financial':false} blocks viewing"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08",
+      "wave_1a5_note": "lib/auth/admin-permissions.ts rewritten: profiles.role MUST be 'admin'; sub-role MUST come from admin_roles.role; permissions JSONB is ADDITIVE-only (cannot revoke baseline — locked test). audit_log singular replaces deprecated admin_audit_logs. tests/integration/admin-permissions.test.ts covers all 8 invariants."
     },
     {
       "id": "CANON-AUTH-012",
