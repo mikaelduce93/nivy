@@ -91,8 +91,8 @@ const fallbackActivities: FeedActivity[] = [
 // Activity type colors
 const activityTypeColors: Record<string, { bg: string; border: string; glow: string }> = {
   achievement: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', glow: 'rgba(245, 158, 11, 0.3)' },
-  event: { bg: 'bg-gen-z-coral/10', border: 'border-gen-z-coral/20', glow: 'rgba(244, 63, 94, 0.3)' },
-  xp: { bg: 'bg-gen-z-lavender/10', border: 'border-gen-z-lavender/20', glow: 'rgba(139, 92, 246, 0.3)' },
+  event: { bg: 'bg-accent-soft/10', border: 'border-accent-soft/20', glow: 'rgba(244, 63, 94, 0.3)' },
+  xp: { bg: 'bg-brand-soft/10', border: 'border-brand-soft/20', glow: 'rgba(139, 92, 246, 0.3)' },
   presence: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', glow: 'rgba(16, 185, 129, 0.3)' },
   default: { bg: 'bg-white/5', border: 'border-white/10', glow: 'rgba(255, 255, 255, 0.1)' },
 }
@@ -417,7 +417,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 border border-white/10 text-[10px] sm:text-xs font-bold hover:text-gen-z-lavender hover:border-gen-z-lavender/30 transition-all"
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 border border-white/10 text-[10px] sm:text-xs font-bold hover:text-brand-soft hover:border-brand-soft/30 transition-all"
               >
                 <MessageCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {activity.comments_count ?? 0}
@@ -428,7 +428,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 border border-white/10 text-[10px] sm:text-xs font-bold hover:text-gen-z-mint hover:border-gen-z-mint/30 transition-all"
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 border border-white/10 text-[10px] sm:text-xs font-bold hover:text-success-soft hover:border-success-soft/30 transition-all"
               >
                 <Share2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {activity.shares_count ?? 0}
@@ -444,7 +444,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               <motion.button
                 whileHover={{ scale: 1.03, y: -1 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-gen-z-lavender/10 border border-gen-z-lavender/30 text-gen-z-lavender text-[10px] sm:text-xs font-bold hover:bg-gen-z-lavender/20 transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-brand-soft/10 border border-brand-soft/30 text-brand-soft text-[10px] sm:text-xs font-bold hover:bg-brand-soft/20 transition-all"
               >
                 <MessageCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 Envoyer un message

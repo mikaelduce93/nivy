@@ -228,7 +228,11 @@ export default async function ParentDashboardPage() {
   return (
     <div className="relative min-h-screen bg-[#020408] text-white selection:bg-gen-z-teal/30 overflow-x-hidden">
       {/* 1. ULTRA-PREMIUM BACKGROUND */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      {/* V1.4 a11y: gate parallax background on prefers-reduced-motion (WCAG 2.3.3). */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 z-0 pointer-events-none overflow-hidden motion-reduce:hidden"
+      >
         <MeshGradient className="opacity-30" />
         <ParallaxLayer speed={-0.05}>
           <GlowBlob color="var(--gen-z-teal)" size={1000} className="-top-[20%] -left-[10%] opacity-20" />
@@ -362,12 +366,12 @@ export default async function ParentDashboardPage() {
             </BentoCard>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button className="h-20 rounded-3xl bg-gen-z-sky/10 border border-gen-z-sky/20 flex flex-col gap-1 items-center justify-center group hover:bg-gen-z-sky/20 transition-all">
-                <History className="w-6 h-6 text-gen-z-sky group-hover:scale-110 motion-safe:transition-transform" />
+              <Button className="h-20 rounded-3xl bg-info-soft/10 border border-info-soft/20 flex flex-col gap-1 items-center justify-center group hover:bg-info-soft/20 transition-all">
+                <History className="w-6 h-6 text-info-soft group-hover:scale-110 motion-safe:transition-transform" />
                 <span className="text-xs font-black uppercase text-white tracking-widest">Historique</span>
               </Button>
-              <Button className="h-20 rounded-3xl bg-gen-z-coral/10 border border-gen-z-coral/20 flex flex-col gap-1 items-center justify-center group hover:bg-gen-z-coral/20 transition-all">
-                <ShieldCheck className="w-6 h-6 text-gen-z-coral group-hover:scale-110 motion-safe:transition-transform" />
+              <Button className="h-20 rounded-3xl bg-accent-soft/10 border border-accent-soft/20 flex flex-col gap-1 items-center justify-center group hover:bg-accent-soft/20 transition-all">
+                <ShieldCheck className="w-6 h-6 text-accent-soft group-hover:scale-110 motion-safe:transition-transform" />
                 <span className="text-xs font-black uppercase text-white tracking-widest">Sécurité</span>
               </Button>
             </div>

@@ -522,20 +522,28 @@ export default function PartnerScannerPage() {
 
       {/* Error Display */}
       {error && (
-        <Card className="bg-red-500/10 border-red-500/30">
+        <Card
+          role="alert"
+          aria-live="assertive"
+          className="bg-red-500/10 border-red-500/30"
+        >
           <CardContent className="p-4 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+            <AlertCircle
+              className="h-5 w-5 text-red-400 flex-shrink-0"
+              aria-hidden="true"
+            />
             <div>
-              <p className="text-red-400 font-semibold">Erreur</p>
-              <p className="text-red-300 text-sm">{error}</p>
+              <p className="text-red-300 font-semibold">Erreur</p>
+              <p className="text-red-200 text-sm">{error}</p>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setError(null)}
-              className="ml-auto text-red-400"
+              aria-label="Fermer le message d'erreur"
+              className="ml-auto text-red-300"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </Button>
           </CardContent>
         </Card>
@@ -595,12 +603,17 @@ export default function PartnerScannerPage() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-3">
+                <label htmlFor="manual-card-code" className="sr-only">
+                  Numéro de carte VIP
+                </label>
                 <Input
+                  id="manual-card-code"
                   placeholder="TPVIP-XXXX-XXXX"
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value.toUpperCase())}
                   onKeyDown={(e) => e.key === "Enter" && handleManualSearch()}
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 font-mono text-lg tracking-wider"
+                  aria-label="Numéro de carte VIP"
+                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-400 font-mono text-lg tracking-wider"
                 />
                 <Button
                   className="bg-emerald-500 hover:bg-emerald-600 text-white"

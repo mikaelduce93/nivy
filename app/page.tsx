@@ -16,6 +16,10 @@ export default function HomePage() {
   const t = useT()
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([])
+  // Polish-F: track event-fetch lifecycle so the section can render a skeleton
+  // (instead of a blank flash) and a non-blocking error banner on failure.
+  const [eventsLoading, setEventsLoading] = useState(true)
+  const [eventsError, setEventsError] = useState<string | null>(null)
 
   // Static, neutral preview values displayed in the marketing AvatarDashboard.
   // These are NOT user stats - the home page is anonymous marketing content.
@@ -68,16 +72,42 @@ export default function HomePage() {
   }, [upcomingEvents])
 
   useEffect(() => {
+    let active = true
     async function loadHomeData() {
-      const supabase = createClient()
-      const { data: events } = await supabase.from("events").select("*").gte("event_date", new Date().toISOString()).order("event_date").limit(3)
-      if (events) setUpcomingEvents(events)
+      try {
+        const supabase = createClient()
+        const { data: events, error } = await supabase
+          .from("events")
+          .select("*")
+          .gte("event_date", new Date().toISOString())
+          .order("event_date")
+          .limit(3)
+        if (!active) return
+        if (error) {
+          // Polish-F: surface the failure instead of silently rendering an
+          // empty grid (the original code masked RLS / network errors as a
+          // permanently-empty "Aucun événement" state).
+          console.error("[home] events fetch failed:", error)
+          setEventsError("Impossible de charger les événements pour le moment.")
+        } else if (events) {
+          setUpcomingEvents(events)
+        }
+      } catch (err) {
+        if (!active) return
+        console.error("[home] events fetch threw:", err)
+        setEventsError("Impossible de charger les événements pour le moment.")
+      } finally {
+        if (active) setEventsLoading(false)
+      }
     }
     loadHomeData()
+    return () => {
+      active = false
+    }
   }, [])
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden selection:bg-gen-z-lavender/30">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden selection:bg-brand-soft/30">
       <div className="relative z-10">
         <TrustBanner />
 
@@ -103,7 +133,7 @@ export default function HomePage() {
               {/* Main heading - Gen-Z gradient
                   Responsive scale: xs (375px) → 4xl, then ramps to 8xl on lg+. */}
               <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] sm:leading-[0.85] tracking-tighter break-words">
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime animate-gradient-x bg-[length:200%_100%]">
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime animate-gradient-x bg-[length:200%_100%]">
                   TEEN&nbsp;LIFE
                 </span>
                 <span className="block text-foreground mt-2">
@@ -115,7 +145,7 @@ export default function HomePage() {
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed text-balance">
                 Bienvenue dans le <span className="text-foreground font-bold">1er Écosystème Lifestyle</span> pour les 13–17&nbsp;ans au Maroc.
                 <br/>
-                <span className="text-gen-z-grape font-semibold">Soirées</span> • <span className="text-gen-z-lime font-semibold">Sport</span> • <span className="text-gen-z-sky font-semibold">Études</span> • <span className="text-gen-z-coral font-semibold">Créativité</span>
+                <span className="text-gen-z-grape font-semibold">Soirées</span> • <span className="text-gen-z-lime font-semibold">Sport</span> • <span className="text-info-soft font-semibold">Études</span> • <span className="text-accent-soft font-semibold">Créativité</span>
               </p>
 
               {/* CTA buttons */}
@@ -139,10 +169,10 @@ export default function HomePage() {
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gen-z-lime/10 text-gen-z-lime text-sm font-semibold">
                   <Shield className="w-4 h-4" aria-hidden="true" /> {t("hero.trustSafe")}
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gen-z-lavender/10 text-gen-z-lavender text-sm font-semibold">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-brand-soft/10 text-brand-soft text-sm font-semibold">
                   <UserCheck className="w-4 h-4" aria-hidden="true" /> {t("hero.trustAge")}
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gen-z-coral/10 text-gen-z-coral text-sm font-semibold">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent-soft/10 text-accent-soft text-sm font-semibold">
                   <Shield className="w-4 h-4" aria-hidden="true" /> {t("hero.trustNoAlcohol")}
                 </div>
               </div>
@@ -180,7 +210,7 @@ export default function HomePage() {
         <section className="py-24 px-6" aria-labelledby="pillars-heading">
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-16">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-gen-z-lavender/10 text-gen-z-lavender text-sm font-bold mb-4">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-brand-soft/10 text-brand-soft text-sm font-bold mb-4">
                 🎮 GAMIFIE TA VIE
               </span>
               <h2 id="pillars-heading" className="text-4xl md:text-6xl font-black text-foreground mb-4 text-balance">4 Piliers pour <span className="text-gen-z-gradient">Level Up</span></h2>
@@ -262,8 +292,26 @@ export default function HomePage() {
               </Link>
             </div>
 
+            {eventsError && (
+              <div
+                role="alert"
+                className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+              >
+                {eventsError}
+              </div>
+            )}
+
             <div className="grid md:grid-cols-3 gap-8">
-              {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event) => (
+              {eventsLoading ? (
+                // Polish-F: skeleton placeholders while the client fetch resolves.
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={`evt-skel-${i}`}
+                    aria-hidden="true"
+                    className="h-72 rounded-3xl bg-white/5 border border-white/5 motion-safe:animate-pulse"
+                  />
+                ))
+              ) : upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event) => (
                 <GlassCard key={event.id} variant="hover" neon="party" className="overflow-hidden group h-full flex flex-col">
                   <div className="relative h-56">
                     <Image
@@ -304,7 +352,7 @@ export default function HomePage() {
         <section className="py-28 px-6 relative overflow-hidden" aria-labelledby="cta-heading">
           {/* Gen-Z gradient background */}
           <div className="absolute inset-0 bg-gen-z-hero pointer-events-none" aria-hidden="true" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gen-z-lavender/20 rounded-full blur-[150px]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-soft/20 rounded-full blur-[150px]" />
           
           <div className="container mx-auto max-w-4xl relative z-10 text-center">
             {/* Floating elements - hidden on reduced motion, subtle decorative */}
@@ -312,7 +360,7 @@ export default function HomePage() {
             <div className="hidden motion-safe:block absolute bottom-10 right-10 text-3xl animate-float delay-500 opacity-40 select-none" aria-hidden="true">🎮</div>
             
             <h2 id="cta-heading" className="text-4xl sm:text-5xl md:text-7xl font-black text-foreground mb-8 tracking-tight text-balance break-words">
-              PRÊT À <span className="text-transparent bg-clip-text bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime">LEVEL&nbsp;UP</span> ?
+              PRÊT À <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime">LEVEL&nbsp;UP</span> ?
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto text-balance">
               Crée ton profil, rejoins un crew et commence à gagner du XP dès aujourd'hui. Sport, études, créativité, soirées — gamifie tout ce que tu fais.
@@ -335,11 +383,11 @@ export default function HomePage() {
             {/* Honest value props (replaces fake social-proof counters) */}
             <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-gen-z-lavender" />
+                <Users className="w-4 h-4 text-brand-soft" />
                 <span>13–17&nbsp;ans · Maroc</span>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gen-z-coral" />
+                <Calendar className="w-4 h-4 text-accent-soft" />
                 <span>Lifestyle complet</span>
               </div>
               <div className="flex items-center gap-2">

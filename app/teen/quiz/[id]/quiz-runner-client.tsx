@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import type { Quiz } from "@/lib/quiz/schema"
 import { getCategoryMeta } from "@/lib/quiz/catalog"
+import { markPushPromptEligible } from "@/components/teen/push-permission-prompt"
 
 interface SubmitResponse {
   success: true
@@ -105,7 +106,15 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
         setSubmitting(false)
         return
       }
-      setResult((data as SubmitResponse).attempt)
+      const attempt = (data as SubmitResponse).attempt
+      setResult(attempt)
+      // V1.2 Wave 3 U3 — mark push prompt eligible after a *passing* quiz.
+      // The deferred prompt mounted in app/teen/layout.tsx will pick this up
+      // via the custom event + localStorage flag (no nag if already
+      // granted/denied/dismissed).
+      if (attempt?.passed) {
+        markPushPromptEligible()
+      }
       router.refresh()
     } catch {
       setError("Erreur réseau — réessaie")
@@ -131,15 +140,15 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
             className={cn(
               "p-8 rounded-3xl border text-center",
               result.passed
-                ? "bg-gen-z-mint/10 border-gen-z-mint/30"
-                : "bg-gen-z-coral/10 border-gen-z-coral/30",
+                ? "bg-success-soft/10 border-success-soft/30"
+                : "bg-accent-soft/10 border-accent-soft/30",
             )}
           >
             <div className="flex justify-center mb-4">
               {result.passed ? (
                 <Trophy className="w-16 h-16 text-yellow-500" />
               ) : (
-                <Brain className="w-16 h-16 text-gen-z-coral" />
+                <Brain className="w-16 h-16 text-accent-soft" />
               )}
             </div>
             <h1 className="text-4xl font-black mb-2 uppercase italic">
@@ -154,7 +163,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                 <div className="text-xs text-zinc-500 uppercase tracking-wider">Score</div>
               </div>
               <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5">
-                <div className="text-3xl font-black text-gen-z-lavender flex items-center justify-center gap-1">
+                <div className="text-3xl font-black text-brand-soft flex items-center justify-center gap-1">
                   <Zap className="w-6 h-6" />+{result.xpEarned}
                 </div>
                 <div className="text-xs text-zinc-500 uppercase tracking-wider">XP gagnés</div>
@@ -171,15 +180,15 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                 className={cn(
                   "p-4 rounded-2xl border",
                   r.isCorrect
-                    ? "bg-gen-z-mint/5 border-gen-z-mint/20"
-                    : "bg-gen-z-coral/5 border-gen-z-coral/20",
+                    ? "bg-success-soft/5 border-success-soft/20"
+                    : "bg-accent-soft/5 border-accent-soft/20",
                 )}
               >
                 <div className="flex items-start gap-3">
                   {r.isCorrect ? (
-                    <CheckCircle2 className="w-5 h-5 text-gen-z-mint shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-5 h-5 text-success-soft shrink-0 mt-0.5" />
                   ) : (
-                    <X className="w-5 h-5 text-gen-z-coral shrink-0 mt-0.5" />
+                    <X className="w-5 h-5 text-accent-soft shrink-0 mt-0.5" />
                   )}
                   <div className="flex-1">
                     <p className="font-medium text-white">{r.question}</p>
@@ -201,7 +210,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
               </Button>
             </Link>
             <Link href="/teen/quiz/history" className="flex-1">
-              <Button className="w-full bg-gen-z-lavender text-black font-bold">
+              <Button className="w-full bg-brand-soft text-black font-bold">
                 Voir l'historique
               </Button>
             </Link>
@@ -276,7 +285,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                     className={cn(
                       "w-full p-4 rounded-2xl border text-left transition-all",
                       isSelected
-                        ? "bg-gen-z-lavender/20 border-gen-z-lavender text-white"
+                        ? "bg-brand-soft/20 border-brand-soft text-white"
                         : "bg-zinc-900/50 border-white/5 text-zinc-300 hover:border-white/20",
                     )}
                     data-testid={`quiz-option-${idx}`}
@@ -290,7 +299,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
         </AnimatePresence>
 
         {error && (
-          <div className="p-3 rounded-xl bg-gen-z-coral/10 border border-gen-z-coral/30 text-sm text-gen-z-coral">
+          <div className="p-3 rounded-xl bg-accent-soft/10 border border-accent-soft/30 text-sm text-accent-soft">
             {error}
           </div>
         )}
@@ -311,7 +320,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
               type="button"
               disabled={answers[currentIndex] < 0}
               onClick={() => setCurrentIndex((i) => Math.min(totalQuestions - 1, i + 1))}
-              className="flex-1 bg-gen-z-lavender text-black font-bold"
+              className="flex-1 bg-brand-soft text-black font-bold"
               data-testid="quiz-next-button"
             >
               Suivant <ArrowRight className="w-4 h-4 ml-2" />
@@ -321,7 +330,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
               type="button"
               disabled={!allAnswered || submitting}
               onClick={submit}
-              className="flex-1 bg-gen-z-mint text-black font-bold"
+              className="flex-1 bg-success-soft text-black font-bold"
               data-testid="quiz-submit-button"
             >
               {submitting ? "Envoi..." : "Valider"}

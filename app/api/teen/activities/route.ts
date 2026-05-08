@@ -57,37 +57,37 @@ export async function GET(request: NextRequest) {
           type = 'quest'
           text = `Completed quest: ${metadata.quest_name || 'Quest'}`
           icon = 'Target'
-          color = 'text-gen-z-mint'
+          color = 'text-success-soft'
           break
         case 'xp_earned':
           type = 'xp'
           text = `Earned ${metadata.amount || 0} XP`
           icon = 'Zap'
-          color = 'text-gen-z-lavender'
+          color = 'text-brand-soft'
           break
         case 'badge_unlocked':
           type = 'badge'
           text = `Unlocked badge: ${metadata.badge_name || 'Badge'}`
           icon = 'Award'
-          color = 'text-gen-z-lavender'
+          color = 'text-brand-soft'
           break
         case 'friend_added':
           type = 'social'
           text = `Made a new friend: ${metadata.friend_name || 'Friend'}`
           icon = 'Users'
-          color = 'text-gen-z-coral'
+          color = 'text-accent-soft'
           break
         case 'event_attended':
           type = 'event'
           text = `Attended event: ${metadata.event_name || 'Event'}`
           icon = 'Calendar'
-          color = 'text-gen-z-sky'
+          color = 'text-info-soft'
           break
         case 'level_up':
           type = 'level'
           text = `Reached Level ${metadata.new_level || 0}!`
           icon = 'TrendingUp'
-          color = 'text-gen-z-mint'
+          color = 'text-success-soft'
           break
         case 'streak':
           type = 'streak'

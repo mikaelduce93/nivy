@@ -81,7 +81,7 @@ export default async function TeenFoodDiscoveryPage({
   return (
     <div className="mx-auto max-w-5xl">
       <header className="mb-6 flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-gen-z-coral to-gen-z-lavender">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-soft to-brand-soft">
           <Utensils className="h-6 w-6 text-black" aria-hidden />
         </div>
         <div>
@@ -94,11 +94,17 @@ export default async function TeenFoodDiscoveryPage({
         </div>
       </header>
 
+      <h2 className="sr-only">Filtres de recherche</h2>
       <form
         method="GET"
+        aria-label="Filtres restaurants"
         className="mb-6 flex flex-wrap items-end gap-2 rounded-3xl border border-white/10 bg-white/[0.02] p-3 backdrop-blur-md"
       >
+        <label htmlFor="food-sub-category" className="sr-only">
+          Catégorie
+        </label>
         <select
+          id="food-sub-category"
           name="sub_category"
           defaultValue={sp.sub_category ?? ""}
           aria-label="Catégorie"
@@ -111,7 +117,11 @@ export default async function TeenFoodDiscoveryPage({
             </option>
           ))}
         </select>
+        <label htmlFor="food-tag" className="sr-only">
+          Tag nutrition
+        </label>
         <select
+          id="food-tag"
           name="tag"
           defaultValue={sp.tag ?? ""}
           aria-label="Tag nutrition"
@@ -141,8 +151,13 @@ export default async function TeenFoodDiscoveryPage({
         </button>
       </form>
 
+      <h2 className="sr-only">Restaurants partenaires</h2>
       {restaurants.length === 0 ? (
-        <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur-md">
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur-md"
+        >
           <p className="text-sm text-muted-foreground">
             Aucun restaurant partenaire ne correspond.
           </p>

@@ -44,7 +44,7 @@ interface MapPreviewProps {
 const EVENT_COLORS: Record<string, { bg: string; text: string; glow: string }> = {
   meetup: { bg: 'bg-emerald-500/90', text: 'text-white', glow: 'rgba(16, 185, 129, 0.5)' },
   challenge: { bg: 'bg-orange-500/90', text: 'text-white', glow: 'rgba(249, 115, 22, 0.5)' },
-  party: { bg: 'bg-gen-z-coral/90', text: 'text-white', glow: 'rgba(244, 63, 94, 0.5)' },
+  party: { bg: 'bg-accent-soft/90', text: 'text-white', glow: 'rgba(244, 63, 94, 0.5)' },
 }
 
 export function MapPreview({ userId, className }: MapPreviewProps) {
@@ -214,7 +214,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
             {/* Center point (user location) */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
               <motion.div
-                className="w-3 h-3 rounded-full bg-gen-z-lavender"
+                className="w-3 h-3 rounded-full bg-brand-soft"
                 style={{ boxShadow: '0 0 20px rgba(139, 92, 246, 0.8)' }}
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
@@ -223,7 +223,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
               {[1, 2, 3].map((i) => (
                 <motion.div
                   key={i}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gen-z-lavender/40"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-brand-soft/40"
                   animate={{ 
                     width: [0, 100 + i * 40],
                     height: [0, 100 + i * 40],
@@ -249,7 +249,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
               >
                 {/* Glow */}
                 <motion.div
-                  className="absolute -inset-3 rounded-full bg-gen-z-lavender/30"
+                  className="absolute -inset-3 rounded-full bg-brand-soft/30"
                   animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }}
                   transition={{ duration: 2, repeat: Infinity, delay: i * 0.4 }}
                 />
@@ -259,9 +259,9 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                   whileHover={{ scale: 1.2 }}
                   className="relative"
                 >
-                  <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-gen-z-lavender shadow-lg">
+                  <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-brand-soft shadow-lg">
                     <AvatarImage src={friend.avatar_url} />
-                    <AvatarFallback className="bg-gen-z-lavender text-white text-xs font-bold">
+                    <AvatarFallback className="bg-brand-soft text-white text-xs font-bold">
                       {friend.name[0]}
                     </AvatarFallback>
                   </Avatar>
@@ -337,7 +337,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
               >
-                <Compass className="w-4 h-4 sm:w-5 sm:h-5 text-gen-z-mint" />
+                <Compass className="w-4 h-4 sm:w-5 sm:h-5 text-success-soft" />
               </motion.div>
               <span className="text-xs sm:text-sm font-black text-white tracking-tight">Discovery Map</span>
               <motion.div
@@ -363,7 +363,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <Users className="w-3.5 h-3.5 text-gen-z-lavender" />
+                    <Users className="w-3.5 h-3.5 text-brand-soft" />
                   </motion.div>
                   <span className="text-[10px] sm:text-xs font-bold text-white">
                     {nearbyFriends.length} amis
@@ -382,7 +382,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-gen-z-coral" />
+                      <Sparkles className="w-3.5 h-3.5 text-accent-soft" />
                     </motion.div>
                     <span className="text-xs font-bold text-white">{nearbyEvents.length} events</span>
                   </motion.div>
@@ -393,7 +393,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
               <motion.div
                 whileHover={{ scale: 1.08, x: 3 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gen-z-lavender text-white shadow-lg font-bold text-[10px] sm:text-xs"
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-brand-soft text-white shadow-lg font-bold text-[10px] sm:text-xs"
                 style={{ boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)' }}
               >
                 <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -414,7 +414,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
 
           {/* Hover overlay */}
           <motion.div
-            className="absolute inset-0 bg-gen-z-lavender/5 pointer-events-none"
+            className="absolute inset-0 bg-brand-soft/5 pointer-events-none"
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.3 }}
           />

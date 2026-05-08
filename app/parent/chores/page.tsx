@@ -27,18 +27,26 @@ interface Chore {
   created_at: string
 }
 
-async function getChores(parentId: string) {
+// Polish-F: return both rows and an error string so the page can surface a
+// banner instead of silently rendering "Aucune corvée" on RLS / network
+// failure (the previous behaviour masked the bug as an empty state).
+async function getChores(parentId: string): Promise<{ rows: Chore[]; error: string | null }> {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("parent_chores")
-    .select("*")
-    .eq("parent_id", parentId)
-    .order("created_at", { ascending: false })
-  if (error) {
-    console.error("Error fetching chores:", error)
-    return []
+  try {
+    const { data, error } = await supabase
+      .from("parent_chores")
+      .select("*")
+      .eq("parent_id", parentId)
+      .order("created_at", { ascending: false })
+    if (error) {
+      console.error("Error fetching chores:", error)
+      return { rows: [], error: "Impossible de charger les corvées pour le moment." }
+    }
+    return { rows: (data ?? []) as Chore[], error: null }
+  } catch (err) {
+    console.error("Error fetching chores (threw):", err)
+    return { rows: [], error: "Impossible de charger les corvées pour le moment." }
   }
-  return (data ?? []) as Chore[]
 }
 
 async function getCompletionStats(choreIds: string[]) {
@@ -83,7 +91,7 @@ export default async function ParentChoresPage() {
     redirect("/auth/redirect")
   }
 
-  const chores = await getChores(userInfo.profileId)
+  const { rows: chores, error: choresError } = await getChores(userInfo.profileId)
   const stats = await getCompletionStats(chores.map((c) => c.id))
   const teens = await getTeensMap(userInfo.profileId)
 
@@ -117,6 +125,15 @@ export default async function ParentChoresPage() {
             </Link>
           </Button>
         </div>
+
+        {choresError && (
+          <div
+            role="alert"
+            className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          >
+            {choresError}
+          </div>
+        )}
 
         {chores.length === 0 ? (
           <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">

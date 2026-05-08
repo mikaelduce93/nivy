@@ -24,11 +24,11 @@ interface HomeDashboardClientProps {
 
 // Quick Actions configuration - links to new hubs
 const QUICK_ACTIONS = [
-  { href: "/anniversaires/organiser", icon: Cake, label: "B-Day", color: "from-gen-z-lavender to-purple-600" },
-  { href: "/teen/quests", icon: Swords, label: "Quests", color: "from-gen-z-sky to-cyan-600" },
-  { href: "/teen/social", icon: Users, label: "Social", color: "from-gen-z-coral to-pink-600" },
+  { href: "/anniversaires/organiser", icon: Cake, label: "B-Day", color: "from-brand-soft to-purple-600" },
+  { href: "/teen/quests", icon: Swords, label: "Quests", color: "from-info-soft to-cyan-600" },
+  { href: "/teen/social", icon: Users, label: "Social", color: "from-accent-soft to-pink-600" },
   { href: "/teen/wallet", icon: ShoppingBag, label: "Shop", color: "from-yellow-500 to-amber-600" },
-  { href: "/teen/social?tab=map", icon: Map, label: "Radar", color: "from-gen-z-mint to-emerald-600" },
+  { href: "/teen/social?tab=map", icon: Map, label: "Radar", color: "from-success-soft to-emerald-600" },
 ]
 
 export function HomeDashboardClient({ data }: HomeDashboardClientProps) {
@@ -54,9 +54,9 @@ export function HomeDashboardClient({ data }: HomeDashboardClientProps) {
             
             {/* Quick Stats Row */}
             <div className="flex items-center justify-center lg:justify-start gap-4 pt-2">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gen-z-lavender/10 border border-gen-z-lavender/20">
-                <Zap className="w-4 h-4 text-gen-z-lavender" />
-                <span className="font-bold text-gen-z-lavender">Lvl {xp.level}</span>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-soft/10 border border-brand-soft/20">
+                <Zap className="w-4 h-4 text-brand-soft" />
+                <span className="font-bold text-brand-soft">Lvl {xp.level}</span>
               </div>
               {streak > 0 && (
                 <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/20">
@@ -122,7 +122,7 @@ export function HomeDashboardClient({ data }: HomeDashboardClientProps) {
       <section className="space-y-4">
         <div className="flex items-center justify-between px-2">
           <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Today's Quests</h2>
-          <Link href="/teen/quests" className="flex items-center gap-1 text-sm text-gen-z-lavender font-bold hover:underline">
+          <Link href="/teen/quests" className="flex items-center gap-1 text-sm text-brand-soft font-bold hover:underline">
             See all <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -146,7 +146,7 @@ export function HomeDashboardClient({ data }: HomeDashboardClientProps) {
         <section className="space-y-4">
           <div className="flex items-center justify-between px-2">
             <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Upcoming Events</h2>
-            <Link href="/agenda" className="flex items-center gap-1 text-sm text-gen-z-mint font-bold hover:underline">
+            <Link href="/agenda" className="flex items-center gap-1 text-sm text-success-soft font-bold hover:underline">
               See all <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -164,7 +164,7 @@ export function HomeDashboardClient({ data }: HomeDashboardClientProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-3xl p-8 border border-white/10 bg-gradient-to-br from-gen-z-lavender/10 via-gen-z-sky/5 to-gen-z-mint/10"
+          className="relative overflow-hidden rounded-3xl p-8 border border-white/10 bg-gradient-to-br from-brand-soft/10 via-info-soft/5 to-success-soft/10"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -194,10 +194,10 @@ export function HomeDashboardClient({ data }: HomeDashboardClientProps) {
 
 function QuestPreviewCard({ quest, index }: { quest: UnifiedQuest; index: number }) {
   const pillarColors = {
-    intellect: "from-gen-z-lavender/20 to-gen-z-lavender/5 border-gen-z-lavender/30",
-    vitality: "from-gen-z-coral/20 to-gen-z-coral/5 border-gen-z-coral/30",
-    creativity: "from-gen-z-mint/20 to-gen-z-mint/5 border-gen-z-mint/30",
-    social: "from-gen-z-sky/20 to-gen-z-sky/5 border-gen-z-sky/30",
+    intellect: "from-brand-soft/20 to-brand-soft/5 border-brand-soft/30",
+    vitality: "from-accent-soft/20 to-accent-soft/5 border-accent-soft/30",
+    creativity: "from-success-soft/20 to-success-soft/5 border-success-soft/30",
+    social: "from-info-soft/20 to-info-soft/5 border-info-soft/30",
   }
 
   const pillarIcons = {
@@ -236,7 +236,7 @@ function QuestPreviewCard({ quest, index }: { quest: UnifiedQuest; index: number
               </div>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10">
-              <Zap className="w-3 h-3 text-gen-z-lavender" />
+              <Zap className="w-3 h-3 text-brand-soft" />
               <span className="font-bold text-sm">{quest.xp_reward}</span>
             </div>
           </div>
@@ -258,8 +258,8 @@ function EventCard({ event, index }: { event: any; index: number }) {
           whileHover={{ scale: 1.01, x: 4 }}
           className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-all cursor-pointer"
         >
-          <div className="w-14 h-14 rounded-2xl bg-gen-z-sky/20 flex items-center justify-center">
-            <Calendar className="w-6 h-6 text-gen-z-sky" />
+          <div className="w-14 h-14 rounded-2xl bg-info-soft/20 flex items-center justify-center">
+            <Calendar className="w-6 h-6 text-info-soft" />
           </div>
           <div className="flex-1">
             <h4 className="font-bold text-white">{event.title}</h4>

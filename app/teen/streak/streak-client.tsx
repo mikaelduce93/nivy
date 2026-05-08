@@ -110,7 +110,7 @@ export function StreakClient({
           <div className="grid grid-cols-3 gap-4 mt-8">
             <div className="p-4 rounded-2xl bg-black/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <Zap className="w-4 h-4 text-gen-z-lavender" />
+                <Zap className="w-4 h-4 text-brand-soft" />
                 <span className="font-black text-xl">{totalStreakXP}</span>
               </div>
               <p className="text-[10px] text-zinc-500 uppercase tracking-wider">XP Streak</p>
@@ -124,7 +124,7 @@ export function StreakClient({
             </div>
             <div className="p-4 rounded-2xl bg-black/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <Target className="w-4 h-4 text-gen-z-mint" />
+                <Target className="w-4 h-4 text-success-soft" />
                 <span className="font-black text-xl">{daysToNextMilestone}</span>
               </div>
               <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Au prochain</p>
@@ -137,7 +137,7 @@ export function StreakClient({
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-black uppercase">Progression du jour</h2>
-          <span className="text-sm text-gen-z-mint font-bold">{Math.round(dailyProgress)}% complété</span>
+          <span className="text-sm text-success-soft font-bold">{Math.round(dailyProgress)}% complété</span>
         </div>
 
         <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
@@ -161,14 +161,14 @@ export function StreakClient({
                   className={cn(
                     "flex items-center gap-4 p-4 rounded-2xl border transition-all",
                     task.completed
-                      ? "bg-gen-z-mint/10 border-gen-z-mint/30"
+                      ? "bg-success-soft/10 border-success-soft/30"
                       : "bg-zinc-800/50 border-white/5"
                   )}
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
                     task.completed
-                      ? "bg-gen-z-mint border-gen-z-mint"
+                      ? "bg-success-soft border-success-soft"
                       : "border-zinc-500"
                   )}>
                     {task.completed && <Check className="w-5 h-5 text-black" />}
@@ -181,7 +181,7 @@ export function StreakClient({
                       {task.title}
                     </h4>
                   </div>
-                  <div className="flex items-center gap-1 text-gen-z-lavender">
+                  <div className="flex items-center gap-1 text-brand-soft">
                     <Zap className="w-4 h-4" />
                     <span className="font-bold">+{task.xp}</span>
                   </div>
@@ -227,13 +227,13 @@ export function StreakClient({
               <h4 className="font-black text-white mb-1">{milestone.title}</h4>
               <p className="text-sm text-zinc-400 mb-3">{milestone.days} jours</p>
 
-              <div className="flex items-center justify-center gap-2 text-gen-z-lavender">
+              <div className="flex items-center justify-center gap-2 text-brand-soft">
                 <Zap className="w-4 h-4" />
                 <span className="font-bold">+{milestone.xpReward} XP</span>
               </div>
 
               {milestone.unlocked && (
-                <div className="flex items-center justify-center gap-1 mt-3 text-gen-z-mint text-sm">
+                <div className="flex items-center justify-center gap-1 mt-3 text-success-soft text-sm">
                   <Check className="w-4 h-4" />
                   <span className="font-bold">Débloqué</span>
                 </div>
@@ -302,18 +302,18 @@ export function StreakClient({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-3xl bg-gradient-to-r from-gen-z-lavender/10 to-purple-500/5 border border-gen-z-lavender/20"
+        className="p-6 rounded-3xl bg-gradient-to-r from-brand-soft/10 to-purple-500/5 border border-brand-soft/20"
       >
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gen-z-lavender/20 flex items-center justify-center">
-            <Clock className="w-7 h-7 text-gen-z-lavender" />
+          <div className="w-14 h-14 rounded-2xl bg-brand-soft/20 flex items-center justify-center">
+            <Clock className="w-7 h-7 text-brand-soft" />
           </div>
           <div className="flex-1">
             <h3 className="font-black text-white">Protection Streak</h3>
             <p className="text-sm text-zinc-400">Utilise un pass pour ne pas perdre ta streak si tu manques un jour</p>
           </div>
           <div className="text-right">
-            <p className="font-black text-2xl text-gen-z-lavender">{streakPasses}</p>
+            <p className="font-black text-2xl text-brand-soft">{streakPasses}</p>
             <p className="text-xs text-zinc-500">disponibles</p>
           </div>
         </div>

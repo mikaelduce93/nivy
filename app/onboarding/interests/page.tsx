@@ -26,21 +26,32 @@ export default async function OnboardingInterestsPage() {
 
   const supabase = await createClient()
 
-  const [{ data: taxonomy }, { data: existing }] = await Promise.all([
-    supabase
-      .from("interest_taxonomy")
-      .select("tag, category, display_fr, display_en, icon")
-      .eq("is_active", true)
-      .order("category", { ascending: true })
-      .order("tag", { ascending: true }),
-    supabase
-      .from("teen_interests")
-      .select("tag")
-      .eq("teen_id", userInfo.profileId),
-  ])
-
-  const rows: InterestTaxonomyRow[] = (taxonomy ?? []) as InterestTaxonomyRow[]
-  const initialSelected = (existing ?? []).map((r) => r.tag as string)
+  // Polish-F: wrap with try/catch — taxonomy is critical for the picker to
+  // render anything; failure should produce an empty selector with a banner
+  // rather than crash onboarding.
+  let rows: InterestTaxonomyRow[] = []
+  let initialSelected: string[] = []
+  try {
+    const [{ data: taxonomy, error: taxErr }, { data: existing, error: existErr }] =
+      await Promise.all([
+        supabase
+          .from("interest_taxonomy")
+          .select("tag, category, display_fr, display_en, icon")
+          .eq("is_active", true)
+          .order("category", { ascending: true })
+          .order("tag", { ascending: true }),
+        supabase
+          .from("teen_interests")
+          .select("tag")
+          .eq("teen_id", userInfo.profileId),
+      ])
+    if (taxErr) console.error("[onboarding/interests] taxonomy error:", taxErr)
+    if (existErr) console.error("[onboarding/interests] existing error:", existErr)
+    rows = (taxonomy ?? []) as InterestTaxonomyRow[]
+    initialSelected = (existing ?? []).map((r) => r.tag as string)
+  } catch (err) {
+    console.error("[onboarding/interests] queries threw:", err)
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 p-4 sm:p-6 lg:p-10">

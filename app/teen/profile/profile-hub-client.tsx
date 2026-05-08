@@ -63,7 +63,7 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
             animate={{ scale: 1, opacity: 1 }}
             className="relative"
           >
-            <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-4xl font-black text-black overflow-hidden">
+            <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-4xl font-black text-black overflow-hidden">
               {profile?.avatar_url ? (
                 <Image
                   src={profile.avatar_url}
@@ -90,7 +90,7 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
           <div className="flex-1">
             <h1 className="text-3xl font-black tracking-tight">{userInfo.fullName}</h1>
             {profile?.username && (
-              <p className="text-gen-z-lavender font-medium">@{profile.username}</p>
+              <p className="text-brand-soft font-medium">@{profile.username}</p>
             )}
             <div className="flex items-center gap-2 mt-2">
               <span className="text-xl">{titleIcon}</span>
@@ -112,10 +112,10 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
         {/* Quick Stats */}
         <div className="grid grid-cols-4 gap-4">
           {[
-            { label: "Level", value: stats.level, icon: Star, color: "text-gen-z-mint" },
+            { label: "Level", value: stats.level, icon: Star, color: "text-success-soft" },
             { label: "Coins", value: stats.coins.toLocaleString(), icon: Coins, color: "text-yellow-500" },
-            { label: "Rank", value: stats.rank ? `#${stats.rank}` : "-", icon: Trophy, color: "text-gen-z-lavender" },
-            { label: "Friends", value: stats.friendsCount, icon: Users, color: "text-gen-z-coral" },
+            { label: "Rank", value: stats.rank ? `#${stats.rank}` : "-", icon: Trophy, color: "text-brand-soft" },
+            { label: "Friends", value: stats.friendsCount, icon: Users, color: "text-accent-soft" },
           ].map((stat) => (
             <motion.div
               key={stat.label}
@@ -169,7 +169,7 @@ function ProfileTab({ data }: { data: ProfileHubClientProps["data"] }) {
       <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Achievements</h3>
-          <Link href="/teen/wallet?tab=badges" className="text-sm text-gen-z-lavender font-bold hover:underline">
+          <Link href="/teen/wallet?tab=badges" className="text-sm text-brand-soft font-bold hover:underline">
             See all
           </Link>
         </div>
@@ -177,12 +177,12 @@ function ProfileTab({ data }: { data: ProfileHubClientProps["data"] }) {
           <div className="flex-1">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-zinc-500">Progress</span>
-              <span className="font-bold text-gen-z-lavender">{stats.badges}/{stats.totalBadges}</span>
+              <span className="font-bold text-brand-soft">{stats.badges}/{stats.totalBadges}</span>
             </div>
             <Progress value={(stats.badges / stats.totalBadges) * 100} className="h-3" />
           </div>
           <div className="text-center px-4">
-            <p className="text-3xl font-black text-gen-z-lavender">
+            <p className="text-3xl font-black text-brand-soft">
               {Math.round((stats.badges / stats.totalBadges) * 100)}%
             </p>
           </div>
@@ -190,11 +190,11 @@ function ProfileTab({ data }: { data: ProfileHubClientProps["data"] }) {
       </div>
 
       {/* Privacy Notice */}
-      <div className="p-4 rounded-2xl bg-gen-z-sky/10 border border-gen-z-sky/20">
+      <div className="p-4 rounded-2xl bg-info-soft/10 border border-info-soft/20">
         <div className="flex items-center gap-3">
-          <Shield className="w-5 h-5 text-gen-z-sky" />
+          <Shield className="w-5 h-5 text-info-soft" />
           <div>
-            <p className="text-sm font-bold text-gen-z-sky">Privacy</p>
+            <p className="text-sm font-bold text-info-soft">Privacy</p>
             <p className="text-xs text-zinc-400">Your profile is only visible to friends</p>
           </div>
         </div>
@@ -207,14 +207,14 @@ function StatsTab({ stats }: { stats: ProfileHubClientProps["data"]["stats"] }) 
   return (
     <div className="space-y-6">
       {/* XP Overview */}
-      <div className="p-6 rounded-3xl bg-gradient-to-br from-gen-z-lavender/10 to-gen-z-sky/5 border border-gen-z-lavender/20">
+      <div className="p-6 rounded-3xl bg-gradient-to-br from-brand-soft/10 to-info-soft/5 border border-brand-soft/20">
         <div className="flex items-center justify-between mb-6">
           <div>
             <p className="text-sm text-zinc-400 uppercase tracking-wider">Total XP</p>
-            <p className="text-5xl font-black text-gen-z-lavender">{stats.totalXp.toLocaleString()}</p>
+            <p className="text-5xl font-black text-brand-soft">{stats.totalXp.toLocaleString()}</p>
           </div>
-          <div className="w-20 h-20 rounded-3xl bg-gen-z-lavender/20 flex items-center justify-center">
-            <Zap className="w-10 h-10 text-gen-z-lavender" />
+          <div className="w-20 h-20 rounded-3xl bg-brand-soft/20 flex items-center justify-center">
+            <Zap className="w-10 h-10 text-brand-soft" />
           </div>
         </div>
       </div>
@@ -223,9 +223,9 @@ function StatsTab({ stats }: { stats: ProfileHubClientProps["data"]["stats"] }) 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Best Streak", value: stats.bestStreak, icon: Flame, color: "text-orange-500", suffix: " days" },
-          { label: "Badges", value: stats.badges, icon: Award, color: "text-gen-z-lavender", suffix: "" },
-          { label: "Events", value: stats.eventsAttended, icon: Calendar, color: "text-gen-z-mint", suffix: "" },
-          { label: "Missions", value: stats.missionsCompleted, icon: Target, color: "text-gen-z-coral", suffix: "" },
+          { label: "Badges", value: stats.badges, icon: Award, color: "text-brand-soft", suffix: "" },
+          { label: "Events", value: stats.eventsAttended, icon: Calendar, color: "text-success-soft", suffix: "" },
+          { label: "Missions", value: stats.missionsCompleted, icon: Target, color: "text-accent-soft", suffix: "" },
         ].map((stat, idx) => (
           <motion.div
             key={stat.label}
@@ -246,9 +246,9 @@ function StatsTab({ stats }: { stats: ProfileHubClientProps["data"]["stats"] }) 
         <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Vs. Average</h3>
         <div className="space-y-4">
           {[
-            { label: "XP", yours: stats.totalXp, avg: 1500, color: "bg-gen-z-lavender" },
-            { label: "Badges", yours: stats.badges, avg: 5, color: "bg-gen-z-coral" },
-            { label: "Events", yours: stats.eventsAttended, avg: 3, color: "bg-gen-z-mint" },
+            { label: "XP", yours: stats.totalXp, avg: 1500, color: "bg-brand-soft" },
+            { label: "Badges", yours: stats.badges, avg: 5, color: "bg-accent-soft" },
+            { label: "Events", yours: stats.eventsAttended, avg: 3, color: "bg-success-soft" },
           ].map((item) => {
             const pct = Math.min(100, (item.yours / (item.avg * 2)) * 100)
             return (
@@ -292,12 +292,12 @@ function ActivityTab({ stats, teenId }: { stats: ProfileHubClientProps["data"]["
 
   const colorMap: Record<string, string> = {
     streak: "text-orange-500",
-    quest: "text-gen-z-mint",
-    social: "text-gen-z-coral",
-    event: "text-gen-z-sky",
-    badge: "text-gen-z-lavender",
-    xp: "text-gen-z-lavender",
-    level: "text-gen-z-mint",
+    quest: "text-success-soft",
+    social: "text-accent-soft",
+    event: "text-info-soft",
+    badge: "text-brand-soft",
+    xp: "text-brand-soft",
+    level: "text-success-soft",
     general: "text-zinc-400",
   }
 
@@ -325,7 +325,7 @@ function ActivityTab({ stats, teenId }: { stats: ProfileHubClientProps["data"]["
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-8 h-8 animate-spin text-gen-z-lavender" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-soft" />
       </div>
     )
   }

@@ -28,11 +28,21 @@ export default async function ParentMentorSessionsPage() {
 
   const supabase = await createClient()
 
+  // Polish-F: capture errors from each Supabase read so the page can surface
+  // a banner instead of silently rendering an empty list when RLS or the
+  // network fails. Each read still degrades to [] on failure so the rest of
+  // the page renders normally.
+  let loadError: string | null = null
+
   // Get linked teens (we use this to scope sessions and to display names)
-  const { data: linkRows } = await supabase
+  const { data: linkRows, error: linkErr } = await supabase
     .from("parent_teen_links")
     .select("teen_id, profiles:teen_id (full_name, avatar_url)")
     .eq("parent_id", userInfo.profileId)
+  if (linkErr) {
+    console.error("[parent/mentor-sessions] parent_teen_links error:", linkErr)
+    loadError = "Impossible de charger vos teens liés."
+  }
 
   const teenIds = (linkRows ?? []).map((r: any) => r.teen_id)
   const teenMap = new Map<string, { full_name?: string; avatar_url?: string }>()
@@ -51,7 +61,7 @@ export default async function ParentMentorSessionsPage() {
   >()
 
   if (teenIds.length > 0) {
-    const { data: rows } = await supabase
+    const { data: rows, error: sessErr } = await supabase
       .from("mentor_sessions")
       .select(
         "id, mentor_id, mentee_user_id, scheduled_for, duration_minutes, amount_dh, amount_coins, is_intro, status, created_at"
@@ -59,6 +69,10 @@ export default async function ParentMentorSessionsPage() {
       .in("mentee_user_id", teenIds)
       .order("scheduled_for", { ascending: true })
       .limit(100)
+    if (sessErr) {
+      console.error("[parent/mentor-sessions] mentor_sessions error:", sessErr)
+      loadError = loadError ?? "Impossible de charger les sessions."
+    }
     sessions = (rows ?? []) as MentorSessionRow[]
 
     const mentorIds = Array.from(new Set(sessions.map((s) => s.mentor_id)))
@@ -154,6 +168,15 @@ export default async function ParentMentorSessionsPage() {
           </p>
         </div>
       </div>
+
+      {loadError && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+        >
+          {loadError}
+        </div>
+      )}
 
       <Card>
         <CardHeader>

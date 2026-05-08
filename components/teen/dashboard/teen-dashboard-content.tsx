@@ -88,7 +88,7 @@ export function TeenDashboardContent({
 
   // Wrap content with elite providers on desktop
   const content = (
-    <div className="relative min-h-screen bg-[#020203] text-white selection:bg-gen-z-lavender/30 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#020203] text-white selection:bg-brand-soft/30 overflow-x-hidden">
       {/* 1. BACKGROUND - Reduced on mobile for performance */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <MeshGradient className="opacity-20" />
@@ -97,10 +97,10 @@ export function TeenDashboardContent({
         {!mobile && !reducedMotion && (
           <>
             <ParallaxLayer speed={-0.05}>
-              <GlowBlob color="var(--gen-z-lavender)" size={1000} className="-top-[10%] -right-[10%] opacity-15" />
+              <GlowBlob color="var(--brand-soft)" size={1000} className="-top-[10%] -right-[10%] opacity-15" />
             </ParallaxLayer>
             <ParallaxLayer speed={0.08}>
-              <GlowBlob color="var(--gen-z-coral)" size={800} className="bottom-[10%] -left-[10%] opacity-10" />
+              <GlowBlob color="var(--accent-soft)" size={800} className="bottom-[10%] -left-[10%] opacity-10" />
             </ParallaxLayer>
           </>
         )}
@@ -108,8 +108,8 @@ export function TeenDashboardContent({
         {/* Simpler background for mobile */}
         {mobile && (
           <>
-            <div className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] rounded-full bg-gen-z-lavender/10 blur-[100px]" />
-            <div className="absolute bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full bg-gen-z-coral/10 blur-[80px]" />
+            <div className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] rounded-full bg-brand-soft/10 blur-[100px]" />
+            <div className="absolute bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full bg-accent-soft/10 blur-[80px]" />
           </>
         )}
         
@@ -145,7 +145,7 @@ export function TeenDashboardContent({
             variant="glow"
             tiltIntensity={mobile ? 0 : 8}
             className="col-span-full md:col-span-6 order-1"
-            style={{ "--primary-glow": "var(--gen-z-coral)" } as React.CSSProperties}
+            style={{ "--primary-glow": "var(--accent-soft)" } as React.CSSProperties}
           >
             <PriorityMission action={displayAction} />
           </BentoCard>
@@ -243,12 +243,12 @@ export function TeenDashboardContent({
           >
             <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8 px-4 pt-4 sm:px-6 sm:pt-6">
               <h2 className="text-base sm:text-lg md:text-xl font-black text-white tracking-tighter flex items-center gap-2 sm:gap-3 italic">
-                <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gen-z-coral/10 flex items-center justify-center text-gen-z-coral border border-gen-z-coral/20 shadow-inner text-sm sm:text-base">🎉</span>
+                <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-accent-soft/10 flex items-center justify-center text-accent-soft border border-accent-soft/20 shadow-inner text-sm sm:text-base">🎉</span>
                 LIVE FEED
               </h2>
               <div className="flex gap-1.5 items-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-gen-z-coral animate-ping" />
-                <span className="text-[9px] sm:text-[10px] font-black text-gen-z-coral uppercase tracking-widest">Live</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-accent-soft animate-ping" />
+                <span className="text-[9px] sm:text-[10px] font-black text-accent-soft uppercase tracking-widest">Live</span>
               </div>
             </div>
             <div className="flex-1 overflow-hidden">
@@ -268,8 +268,8 @@ export function TeenDashboardContent({
       {/* 4. FLOATING ORBS - Only on desktop */}
       {!mobile && (
         <>
-          <div className="fixed bottom-0 -left-40 w-[500px] h-[500px] bg-gen-z-coral/5 rounded-full blur-[150px] pointer-events-none animate-pulse-slow" />
-          <div className="fixed top-0 -right-40 w-[600px] h-[600px] bg-gen-z-lavender/5 rounded-full blur-[180px] pointer-events-none animate-pulse-slow delay-700" />
+          <div className="fixed bottom-0 -left-40 w-[500px] h-[500px] bg-accent-soft/5 rounded-full blur-[150px] pointer-events-none animate-pulse-slow" />
+          <div className="fixed top-0 -right-40 w-[600px] h-[600px] bg-brand-soft/5 rounded-full blur-[180px] pointer-events-none animate-pulse-slow delay-700" />
         </>
       )}
 

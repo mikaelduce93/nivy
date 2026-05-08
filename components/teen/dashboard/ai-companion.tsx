@@ -31,10 +31,10 @@ const typeIcons = {
 }
 
 const typeColors = {
-  education: 'var(--gen-z-sky)',
-  crew: 'var(--gen-z-coral)',
-  entertainment: 'var(--gen-z-lavender)',
-  event: 'var(--gen-z-mint)',
+  education: 'var(--info-soft)',
+  crew: 'var(--accent-soft)',
+  entertainment: 'var(--brand-soft)',
+  event: 'var(--success-soft)',
   mission: 'var(--gen-z-lime)',
 }
 
@@ -137,7 +137,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
           whileHover={{ scale: 1.1, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center justify-center border border-white/20 group overflow-hidden"
+          className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-brand-soft to-info-soft shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center justify-center border border-white/20 group overflow-hidden"
         >
           <motion.div
             animate={{ 
@@ -151,7 +151,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
           
           {/* Notification dot if there are recommendations */}
           {recommendations.length > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 sm:top-0 sm:right-0 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-gen-z-coral border-2 border-zinc-950 animate-pulse" />
+            <span className="absolute -top-0.5 -right-0.5 sm:top-0 sm:right-0 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-accent-soft border-2 border-zinc-950 animate-pulse" />
           )}
           
           <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -170,16 +170,16 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
             <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] bg-zinc-950 border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.8)] max-h-[60vh] sm:max-h-[70vh] flex flex-col">
               {/* Animated Background */}
               <div className="absolute inset-0 z-0 pointer-events-none">
-                <GlowBlob color="var(--gen-z-lavender)" size={300} className="-top-20 -right-20 opacity-20" blur={60} />
-                <GlowBlob color="var(--gen-z-sky)" size={250} className="-bottom-20 -left-20 opacity-10" blur={60} />
+                <GlowBlob color="var(--brand-soft)" size={300} className="-top-20 -right-20 opacity-20" blur={60} />
+                <GlowBlob color="var(--info-soft)" size={250} className="-bottom-20 -left-20 opacity-10" blur={60} />
               </div>
 
               {/* Header */}
               <div className="relative z-10 p-4 sm:p-6 pb-3 sm:pb-4 border-b border-white/5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gen-z-lavender/20 flex items-center justify-center border border-gen-z-lavender/30">
-                      <Brain className="w-4 h-4 sm:w-6 sm:h-6 text-gen-z-lavender" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-soft/20 flex items-center justify-center border border-brand-soft/30">
+                      <Brain className="w-4 h-4 sm:w-6 sm:h-6 text-brand-soft" />
                     </div>
                     <div>
                       <h3 className="font-black text-white text-base sm:text-lg tracking-tight">KAI</h3>
@@ -216,7 +216,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                     <div className={cn(
                       "max-w-[85%] rounded-2xl px-4 py-3",
                       message.role === 'user' 
-                        ? "bg-gen-z-lavender text-black rounded-br-md" 
+                        ? "bg-brand-soft text-black rounded-br-md" 
                         : "bg-white/5 border border-white/10 text-white rounded-bl-md"
                     )}>
                       <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
@@ -235,7 +235,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                   >
                     <div className="bg-white/5 border border-white/10 rounded-2xl rounded-bl-md px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin text-gen-z-lavender" />
+                        <Loader2 className="w-4 h-4 animate-spin text-brand-soft" />
                         <span className="text-sm text-zinc-400">Kai réfléchit...</span>
                       </div>
                     </div>
@@ -331,13 +331,13 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                     value={safeInput}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Écris ton message..."
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-gen-z-lavender/50 transition-colors"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-brand-soft/50 transition-colors"
                     disabled={isLoading}
                   />
                   <Button
                     type="submit"
                     disabled={isLoading || !safeInput.trim()}
-                    className="h-11 w-11 rounded-xl bg-gen-z-lavender text-black hover:scale-105 transition-transform disabled:opacity-50"
+                    className="h-11 w-11 rounded-xl bg-brand-soft text-black hover:scale-105 transition-transform disabled:opacity-50"
                   >
                     {isLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin" />

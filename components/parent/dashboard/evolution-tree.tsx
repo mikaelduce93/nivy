@@ -19,8 +19,8 @@ interface EvolutionTreeProps {
 export function EvolutionTree({ teenName, stats }: EvolutionTreeProps) {
   const metrics = [
     { label: "Responsabilité", value: stats.responsibility, icon: Shield, color: "var(--gen-z-teal)", description: "Fiabilité & Engagement" },
-    { label: "Social", value: stats.social, icon: Users, color: "var(--gen-z-lavender)", description: "Crew & Community" },
-    { label: "Créativité", value: stats.creativity, icon: Zap, color: "var(--gen-z-coral)", description: "Projets & Innovation" },
+    { label: "Social", value: stats.social, icon: Users, color: "var(--brand-soft)", description: "Crew & Community" },
+    { label: "Créativité", value: stats.creativity, icon: Zap, color: "var(--accent-soft)", description: "Projets & Innovation" },
     { label: "Académie", value: stats.academic, icon: Brain, color: "var(--gen-z-lime)", description: "Quêtes de savoir" },
   ]
 
@@ -101,8 +101,8 @@ export function EvolutionTree({ teenName, stats }: EvolutionTreeProps) {
 
         {/* AI Insight Box */}
         <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-xl flex flex-col md:flex-row items-center gap-6">
-          <div className="w-12 h-12 rounded-full bg-gen-z-lavender/20 flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-6 h-6 text-gen-z-lavender" />
+          <div className="w-12 h-12 rounded-full bg-brand-soft/20 flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-6 h-6 text-brand-soft" />
           </div>
           <div className="flex-1 text-center md:text-left">
             <p className="text-sm text-zinc-300 font-medium leading-relaxed italic">

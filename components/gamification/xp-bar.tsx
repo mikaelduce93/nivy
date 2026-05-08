@@ -81,21 +81,21 @@ export function XPBar({
           >
             <div className="relative">
               <motion.div
-                className="w-8 h-8 rounded-xl bg-gradient-to-br from-gen-z-lavender to-gen-z-grape flex items-center justify-center shadow-lg"
+                className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-soft to-gen-z-grape flex items-center justify-center shadow-lg"
                 animate={isAnimating ? { scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] } : {}}
                 transition={{ duration: 0.4 }}
               >
                 <span className="text-white font-black text-sm">{level}</span>
               </motion.div>
               {/* Gen-Z Glow effect */}
-              <div className="absolute inset-0 rounded-xl bg-gen-z-lavender/40 blur-lg -z-10" />
+              <div className="absolute inset-0 rounded-xl bg-brand-soft/40 blur-lg -z-10" />
             </div>
             <span className="text-muted-foreground text-sm font-semibold">Niveau {level}</span>
           </motion.div>
         )}
 
         <motion.div
-          className="flex items-center gap-1.5 text-gen-z-lavender"
+          className="flex items-center gap-1.5 text-brand-soft"
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
         >
@@ -114,12 +114,12 @@ export function XPBar({
           )}
         >
           <motion.div
-            className="h-full bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime rounded-full relative"
+            className="h-full bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime rounded-full relative"
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
             transition={{ duration: animate ? 1 : 0, ease: "easeOut" }}
             style={{
-              boxShadow: `0 0 20px var(--gen-z-lavender)`
+              boxShadow: `0 0 20px var(--brand-soft)`
             }}
           >
             {/* Shimmer effect */}
@@ -192,7 +192,7 @@ export function XPGainPopup({ amount, reason, onComplete }: XPGainPopupProps) {
       exit={{ opacity: 0, y: -20, scale: 0.8 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <div className="relative overflow-hidden bg-gradient-to-r from-gen-z-lavender/20 to-gen-z-grape/20 backdrop-blur-xl border border-gen-z-lavender/30 rounded-2xl px-5 py-4 shadow-xl">
+      <div className="relative overflow-hidden bg-gradient-to-r from-brand-soft/20 to-gen-z-grape/20 backdrop-blur-xl border border-brand-soft/30 rounded-2xl px-5 py-4 shadow-xl">
         {/* Animated background shimmer */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
@@ -202,7 +202,7 @@ export function XPGainPopup({ amount, reason, onComplete }: XPGainPopupProps) {
         
         <div className="relative flex items-center gap-4">
           <motion.div
-            className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-lavender to-gen-z-grape flex items-center justify-center shadow-lg"
+            className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-gen-z-grape flex items-center justify-center shadow-lg"
             animate={{ 
               rotate: [0, 15, -15, 10, -10, 0],
               scale: [1, 1.1, 1]
@@ -213,7 +213,7 @@ export function XPGainPopup({ amount, reason, onComplete }: XPGainPopupProps) {
           </motion.div>
           <div>
             <motion.p
-              className="text-gen-z-lavender font-black text-2xl"
+              className="text-brand-soft font-black text-2xl"
               initial={{ scale: 1 }}
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 0.4 }}
@@ -247,21 +247,21 @@ export function XPMiniBar({ currentXP, level, className }: XPMiniBarProps) {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <motion.div 
-        className="w-7 h-7 rounded-xl bg-gradient-to-br from-gen-z-lavender to-gen-z-grape flex items-center justify-center shadow-md"
+        className="w-7 h-7 rounded-xl bg-gradient-to-br from-brand-soft to-gen-z-grape flex items-center justify-center shadow-md"
         whileHover={{ scale: 1.1, rotate: 5 }}
       >
         <span className="text-white font-black text-xs">{level}</span>
       </motion.div>
       <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-gradient-to-r from-gen-z-lavender to-gen-z-coral rounded-full"
+          className="h-full bg-gradient-to-r from-brand-soft to-accent-soft rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          style={{ boxShadow: '0 0 10px var(--gen-z-lavender)' }}
+          style={{ boxShadow: '0 0 10px var(--brand-soft)' }}
         />
       </div>
-      <span className="text-gen-z-lavender text-xs font-bold">{currentXP.toLocaleString()} XP</span>
+      <span className="text-brand-soft text-xs font-bold">{currentXP.toLocaleString()} XP</span>
     </div>
   )
 }

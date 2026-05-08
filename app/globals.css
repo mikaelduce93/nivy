@@ -223,6 +223,18 @@
   --gen-z-yellow: oklch(0.88 0.16 95);         /* Soft yellow */
   --gen-z-teal: oklch(0.72 0.14 180);          /* Ocean teal */
 
+  /* --------------------------------------------------------------------------
+     SEMANTIC SOFT ALIASES (V1.3 design-system reconciliation — TICKET-048)
+     Same OKLCH values as the gen-z-* tokens above. Defined as semantic-named
+     aliases so feature code can drop the "gen-z" naming and refer to
+     decorative roles by purpose. The legacy gen-z-* tokens stay defined for
+     backwards compatibility until the codemod sweep (Day 4) removes them.
+     -------------------------------------------------------------------------- */
+  --brand-soft: oklch(0.75 0.12 290);          /* = gen-z-lavender (decorative companion to --primary) */
+  --accent-soft: oklch(0.72 0.14 25);          /* = gen-z-coral    (decorative companion to --accent)  */
+  --success-soft: oklch(0.80 0.12 165);        /* = gen-z-mint     (decorative companion to --success) */
+  --info-soft: oklch(0.78 0.12 230);           /* = gen-z-sky      (decorative companion to --info)    */
+
   /* Base - Warm off-white backgrounds */
   --background: oklch(0.98 0.005 80);
   --foreground: oklch(0.20 0.02 280);
@@ -334,6 +346,12 @@
   --gen-z-rose: oklch(0.78 0.16 350);
   --gen-z-yellow: oklch(0.90 0.18 95);
   --gen-z-teal: oklch(0.75 0.16 180);
+
+  /* Semantic soft aliases — dark-mode mirror (see light theme above). */
+  --brand-soft: oklch(0.78 0.14 290);          /* = gen-z-lavender */
+  --accent-soft: oklch(0.75 0.16 25);          /* = gen-z-coral    */
+  --success-soft: oklch(0.82 0.14 165);        /* = gen-z-mint     */
+  --info-soft: oklch(0.80 0.14 230);           /* = gen-z-sky      */
 
   /* Base - Deep navy (NOT pure black) for Gen-Z aesthetic */
   --background: oklch(0.12 0.025 280);
@@ -488,7 +506,7 @@
   --color-neon-creativity: var(--neon-creativity);
   --color-neon-prestige: var(--neon-prestige);
 
-  /* Gen-Z Muted Neon Palette */
+  /* Gen-Z Muted Neon Palette (legacy — being deprecated, see --*-soft below) */
   --color-gen-z-lavender: var(--gen-z-lavender);
   --color-gen-z-lime: var(--gen-z-lime);
   --color-gen-z-coral: var(--gen-z-coral);
@@ -499,6 +517,15 @@
   --color-gen-z-rose: var(--gen-z-rose);
   --color-gen-z-yellow: var(--gen-z-yellow);
   --color-gen-z-teal: var(--gen-z-teal);
+
+  /* Semantic soft aliases (V1.3 design-system reconciliation — TICKET-048).
+     Exposes `bg-brand-soft`, `text-accent-soft`, `border-success-soft`,
+     `ring-info-soft`, etc. Same OKLCH values as the corresponding gen-z-*
+     tokens — coexist additively until the legacy names are removed. */
+  --color-brand-soft: var(--brand-soft);
+  --color-accent-soft: var(--accent-soft);
+  --color-success-soft: var(--success-soft);
+  --color-info-soft: var(--info-soft);
 
   /* On-Bright text token (theme-invariant) */
   --color-on-bright: var(--color-on-bright);

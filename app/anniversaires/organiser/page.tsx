@@ -17,7 +17,7 @@ const PACKS = [
     label: "Intimate Crew", 
     guests: 10, 
     price: 3500, 
-    color: "var(--gen-z-lavender)",
+    color: "var(--brand-soft)",
     icon: Users,
     tag: "MOST POPULAR"
   },
@@ -26,7 +26,7 @@ const PACKS = [
     label: "The Big Bash", 
     guests: 20, 
     price: 5500, 
-    color: "var(--gen-z-coral)",
+    color: "var(--accent-soft)",
     icon: Star,
     tag: "HYPE"
   },
@@ -71,10 +71,10 @@ export default function OrganizeBirthdayPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#020203] text-white overflow-hidden selection:bg-gen-z-lavender/30">
+    <div className="relative min-h-screen bg-[#020203] text-white overflow-hidden selection:bg-brand-soft/30">
       <MeshGradient className="opacity-30" />
       <GrainOverlay opacity={0.05} />
-      <GlowBlob color="var(--gen-z-lavender)" className="-top-20 -right-20 opacity-20" size={600} />
+      <GlowBlob color="var(--brand-soft)" className="-top-20 -right-20 opacity-20" size={600} />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-20">
         <AnimatePresence mode="wait">
@@ -88,7 +88,7 @@ export default function OrganizeBirthdayPage() {
             >
               <div className="text-center space-y-6">
                 <div className="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto border border-white/10 shadow-2xl">
-                  <Cake className="w-12 h-12 text-gen-z-lavender animate-pulse" />
+                  <Cake className="w-12 h-12 text-brand-soft animate-pulse" />
                 </div>
                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">
                   Plan thy <span className="text-gen-z-gradient">Legendary Night.</span>
@@ -172,8 +172,8 @@ export default function OrganizeBirthdayPage() {
               animate={{ scale: 1, opacity: 1 }} 
               className="text-center space-y-12 py-10"
             >
-              <div className="w-40 h-40 bg-gen-z-mint/20 rounded-full flex items-center justify-center mx-auto shadow-[0_0_100px_rgba(45,212,191,0.3)] border border-gen-z-mint/30">
-                <ShieldCheck className="w-20 h-20 text-gen-z-mint" />
+              <div className="w-40 h-40 bg-success-soft/20 rounded-full flex items-center justify-center mx-auto shadow-[0_0_100px_rgba(45,212,191,0.3)] border border-success-soft/30">
+                <ShieldCheck className="w-20 h-20 text-success-soft" />
               </div>
               <div className="space-y-6">
                 <h2 className="text-6xl font-black uppercase italic tracking-tighter">REQUEST ACTIVE.</h2>

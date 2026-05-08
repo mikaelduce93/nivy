@@ -71,8 +71,8 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
         <div className="relative z-10 h-full flex flex-col p-8 items-center text-center justify-between" style={{ transform: "translateZ(50px)" }}>
           {/* Header */}
           <div className="flex justify-between w-full">
-            <div className="w-10 h-10 rounded-xl bg-gen-z-lavender/20 flex items-center justify-center border border-white/10">
-              <Shield className="w-5 h-5 text-gen-z-lavender" />
+            <div className="w-10 h-10 rounded-xl bg-brand-soft/20 flex items-center justify-center border border-white/10">
+              <Shield className="w-5 h-5 text-brand-soft" />
             </div>
             <HolographicBadge rarity={user.level > 10 ? "legendary" : "rare"}>
               <span className="text-[10px] font-black uppercase tracking-widest px-2">ID Verified</span>
@@ -123,7 +123,7 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${xpData.progressPercent}%` }}
-                className="h-full bg-gradient-to-r from-gen-z-lavender to-gen-z-sky"
+                className="h-full bg-gradient-to-r from-brand-soft to-info-soft"
               />
             </div>
           </div>
@@ -139,7 +139,7 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
         </div>
 
         {/* Footer Accent */}
-        <div className="absolute bottom-0 inset-x-0 h-2 bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-mint" />
+        <div className="absolute bottom-0 inset-x-0 h-2 bg-gradient-to-r from-brand-soft via-accent-soft to-success-soft" />
       </motion.div>
 
       {/* Social Actions */}
@@ -148,7 +148,7 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
           onClick={handleShare}
           className="h-14 px-8 rounded-2xl bg-white/[0.05] border border-white/10 hover:bg-white/10 text-white font-bold flex items-center gap-3 shadow-xl backdrop-blur-xl transition-all"
         >
-          <Share2 className="w-5 h-5 text-gen-z-lavender" />
+          <Share2 className="w-5 h-5 text-brand-soft" />
           SHARE STORY
         </Button>
         <Button 

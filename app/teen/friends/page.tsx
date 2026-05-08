@@ -88,8 +88,35 @@ export default async function FriendsPage() {
   }
 
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<FriendsSkeleton />}>
       <FriendsClient initialSuggestions={suggestions} />
     </Suspense>
+  )
+}
+
+// Polish-F: replace `fallback={null}` (which produced a blank flash on slow
+// networks) with a layout-matching skeleton. Pure presentational + a11y
+// hidden so screen readers don't announce shimmer rows.
+function FriendsSkeleton() {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-6 space-y-6" aria-hidden="true">
+      <div className="h-10 w-48 rounded-xl bg-white/5 motion-safe:animate-pulse" />
+      <div className="grid gap-3 sm:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-24 rounded-2xl border border-white/5 bg-white/5 motion-safe:animate-pulse"
+          />
+        ))}
+      </div>
+      <div className="space-y-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-16 rounded-xl bg-white/5 motion-safe:animate-pulse"
+          />
+        ))}
+      </div>
+    </div>
   )
 }

@@ -1,10 +1,11 @@
 /**
- * Wave V1.2-F — Partner invoices.
+ * Wave Polish-D — Partner invoices.
  *
- * The dedicated `partner_invoices` table does NOT exist in the schema (verified
- * via information_schema). Per V1.2-F spec, treat each `partner_payouts` row
- * AS an invoice (`Facture de payout`). When a real invoices table is added
- * later, swap the source query — the UI shape stays the same.
+ * Reads from the real `partner_invoices` table (migration 091). When the
+ * partner has no rows yet (transitional state — invoices are auto-materialised
+ * by the trigger on partner_payouts succeeded), falls back to the V1.2-F
+ * derivative view that synthesises one invoice per payout. The fallback is
+ * read-only and goes away naturally as the trigger backfills new payouts.
  *
  * RSC. Service-role read filtered by partner_id (mirrors payouts page).
  */
@@ -24,6 +25,7 @@ import {
   Clock,
   XCircle,
   AlertTriangle,
+  FileEdit,
 } from "lucide-react"
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
@@ -48,13 +50,28 @@ function formatPeriod(start: string, end: string): string {
   return `${formatDate(start)} → ${formatDate(end)}`
 }
 
-function invoiceNumber(payout: {
+/** Unified invoice shape rendered by the table (real or derivative). */
+type InvoiceRow = {
+  id: string
+  invoice_number: string
+  period_start: string
+  period_end: string
+  total_dh: number
+  status: string
+  issued_at: string | null
+  paid_at: string | null
+  created_at: string
+  source: "real" | "derived"
+}
+
+function syntheticInvoiceNumber(payout: {
   reference: string | null
   created_at: string
   id: string
 }): string {
-  if (payout.reference) return payout.reference
-  // Synthesize an invoice number from the creation date + short id.
+  if (payout.reference && !payout.reference.trim().startsWith("{")) {
+    return payout.reference
+  }
   const yr = new Date(payout.created_at).getFullYear()
   const short = payout.id.replace(/-/g, "").slice(0, 6).toUpperCase()
   return `INV-${yr}-${short}`
@@ -70,6 +87,20 @@ function statusBadge(status: string) {
           Payée
         </Badge>
       )
+    case "issued":
+      return (
+        <Badge className="bg-blue-500/20 text-blue-400">
+          <FileText className="w-3 h-3 mr-1" />
+          Émise
+        </Badge>
+      )
+    case "draft":
+      return (
+        <Badge className="bg-zinc-500/20 text-zinc-400">
+          <FileEdit className="w-3 h-3 mr-1" />
+          Brouillon
+        </Badge>
+      )
     case "pending":
     case "processing":
       return (
@@ -79,16 +110,19 @@ function statusBadge(status: string) {
         </Badge>
       )
     case "failed":
+    case "cancelled":
       return (
         <Badge className="bg-red-500/20 text-red-400">
           <XCircle className="w-3 h-3 mr-1" />
-          Échouée
+          {status === "cancelled" ? "Annulée" : "Échouée"}
         </Badge>
       )
     default:
       return <Badge variant="outline">{status}</Badge>
   }
 }
+
+const num = (v: number | string | null | undefined): number => Number(v ?? 0)
 
 export default async function PartnerInvoicesPage() {
   const userInfo = await getUserRole()
@@ -126,33 +160,78 @@ export default async function PartnerInvoicesPage() {
 
   const sr = createServiceRoleClient()
 
-  // Each payout = one "Facture de payout" invoice line.
-  const { data: payoutsRaw } = await sr
-    .from("partner_payouts")
-    .select("id, period_start, period_end, total_dh, status, paid_at, reference, created_at")
+  // Primary: real partner_invoices.
+  const { data: realRaw, error: realErr } = await sr
+    .from("partner_invoices")
+    .select(
+      "id, invoice_number, period_start, period_end, total_dh, status, issued_at, paid_at, created_at",
+    )
     .eq("partner_id", partnerId)
     .order("created_at", { ascending: false })
     .limit(100)
 
-  const invoices = (payoutsRaw ?? []) as Array<{
-    id: string
-    period_start: string
-    period_end: string
-    total_dh: number | string
-    status: string
-    paid_at: string | null
-    reference: string | null
-    created_at: string
-  }>
+  let invoices: InvoiceRow[] = []
+  let usedFallback = false
 
-  const num = (v: number | string) => Number(v || 0)
-  const totalInvoiced = invoices.reduce((s, i) => s + num(i.total_dh), 0)
+  if (!realErr && realRaw && realRaw.length > 0) {
+    invoices = realRaw.map((r) => ({
+      id: r.id as string,
+      invoice_number: (r.invoice_number as string | null) ?? "—",
+      period_start: r.period_start as string,
+      period_end: r.period_end as string,
+      total_dh: num(r.total_dh as number | string | null),
+      status: r.status as string,
+      issued_at: (r.issued_at as string | null) ?? null,
+      paid_at: (r.paid_at as string | null) ?? null,
+      created_at: r.created_at as string,
+      source: "real",
+    }))
+  } else {
+    // Fallback: synthesise from partner_payouts (transitional / pre-trigger).
+    usedFallback = true
+    const { data: payoutsRaw } = await sr
+      .from("partner_payouts")
+      .select("id, period_start, period_end, total_dh, status, paid_at, reference, created_at")
+      .eq("partner_id", partnerId)
+      .order("created_at", { ascending: false })
+      .limit(100)
+
+    invoices = ((payoutsRaw ?? []) as Array<{
+      id: string
+      period_start: string
+      period_end: string
+      total_dh: number | string
+      status: string
+      paid_at: string | null
+      reference: string | null
+      created_at: string
+    }>).map((p) => ({
+      id: p.id,
+      invoice_number: syntheticInvoiceNumber(p),
+      period_start: p.period_start,
+      period_end: p.period_end,
+      total_dh: num(p.total_dh),
+      status: p.status,
+      issued_at: null,
+      paid_at: p.paid_at,
+      created_at: p.created_at,
+      source: "derived",
+    }))
+  }
+
+  const totalInvoiced = invoices.reduce((s, i) => s + i.total_dh, 0)
   const totalPaid = invoices
     .filter((i) => i.status === "paid" || i.status === "completed")
-    .reduce((s, i) => s + num(i.total_dh), 0)
+    .reduce((s, i) => s + i.total_dh, 0)
   const totalPending = invoices
-    .filter((i) => i.status === "pending" || i.status === "processing")
-    .reduce((s, i) => s + num(i.total_dh), 0)
+    .filter(
+      (i) =>
+        i.status === "pending" ||
+        i.status === "processing" ||
+        i.status === "draft" ||
+        i.status === "issued",
+    )
+    .reduce((s, i) => s + i.total_dh, 0)
 
   return (
     <div className="space-y-6">
@@ -163,7 +242,7 @@ export default async function PartnerInvoicesPage() {
           Mes Factures
         </h1>
         <p className="text-zinc-400 mt-1">
-          Chaque virement Nivy génère une facture de payout. La facture PDF est disponible sur
+          Chaque virement Nivy génère une facture. La facture PDF est disponible sur
           demande auprès du support.
         </p>
       </div>
@@ -203,8 +282,9 @@ export default async function PartnerInvoicesPage() {
             <AlertTriangle className="w-5 h-5 text-blue-400 mt-0.5" />
             <p className="text-sm text-zinc-300">
               <span className="font-medium text-blue-400">Facturation mensuelle —</span>{" "}
-              chaque ligne ci-dessous correspond au cycle de versement (cron mensuel
-              partner-payout-monthly).
+              {usedFallback
+                ? "vue dérivée (transition) — les factures officielles seront émises au prochain cycle de versement."
+                : "chaque ligne ci-dessous correspond à une facture émise par Nivy (cron mensuel partner-payout-monthly)."}
             </p>
           </div>
         </CardContent>
@@ -213,7 +293,7 @@ export default async function PartnerInvoicesPage() {
       {/* Invoices table */}
       <Card className="bg-zinc-900 border-zinc-800">
         <CardHeader>
-          <CardTitle className="text-white">Factures de payout</CardTitle>
+          <CardTitle className="text-white">Factures</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {invoices.length === 0 ? (
@@ -221,7 +301,7 @@ export default async function PartnerInvoicesPage() {
               <FileText className="w-12 h-12 mx-auto mb-4 text-zinc-700" />
               <p className="text-zinc-300 font-semibold">Aucune facture</p>
               <p className="text-sm text-zinc-500 mt-2">
-                Vos factures de payout apparaîtront ici dès le premier cycle de versement.
+                Vos factures apparaîtront ici dès le premier cycle de versement.
               </p>
             </div>
           ) : (
@@ -239,16 +319,16 @@ export default async function PartnerInvoicesPage() {
                 {invoices.map((inv) => (
                   <TableRow key={inv.id} className="border-zinc-800 hover:bg-zinc-800/50">
                     <TableCell className="font-mono font-bold text-purple-400">
-                      {invoiceNumber(inv)}
+                      {inv.invoice_number}
                     </TableCell>
                     <TableCell className="text-white">
                       {formatPeriod(inv.period_start, inv.period_end)}
                     </TableCell>
                     <TableCell className="text-zinc-400">
-                      {formatDate(inv.paid_at || inv.created_at)}
+                      {formatDate(inv.paid_at || inv.issued_at || inv.created_at)}
                     </TableCell>
                     <TableCell className="font-bold text-white">
-                      {Math.round(num(inv.total_dh)).toLocaleString()} DH
+                      {Math.round(inv.total_dh).toLocaleString()} DH
                     </TableCell>
                     <TableCell>{statusBadge(inv.status)}</TableCell>
                   </TableRow>

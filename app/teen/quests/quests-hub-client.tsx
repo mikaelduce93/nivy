@@ -52,26 +52,26 @@ const PILLAR_CONFIG = {
   daily: {
     title: "Daily Quests",
     subtitle: "Complete these for bonus XP",
-    gradient: "from-gen-z-yellow via-gen-z-coral to-gen-z-lavender",
+    gradient: "from-gen-z-yellow via-accent-soft to-brand-soft",
     bgGlow: "bg-gen-z-yellow/20",
   },
   brain: {
     title: "Brain Challenges",
     subtitle: "Quizzes, puzzles & academic quests",
-    gradient: "from-gen-z-lavender via-gen-z-sky to-gen-z-mint",
-    bgGlow: "bg-gen-z-lavender/20",
+    gradient: "from-brand-soft via-info-soft to-success-soft",
+    bgGlow: "bg-brand-soft/20",
   },
   body: {
     title: "Body Challenges",
     subtitle: "Physical activities & sports",
-    gradient: "from-gen-z-coral via-orange-500 to-red-500",
-    bgGlow: "bg-gen-z-coral/20",
+    gradient: "from-accent-soft via-orange-500 to-red-500",
+    bgGlow: "bg-accent-soft/20",
   },
   creative: {
     title: "Creative Quests",
     subtitle: "Art, music, passion projects",
-    gradient: "from-gen-z-mint via-gen-z-sky to-gen-z-lavender",
-    bgGlow: "bg-gen-z-mint/20",
+    gradient: "from-success-soft via-info-soft to-brand-soft",
+    bgGlow: "bg-success-soft/20",
   },
 }
 
@@ -149,8 +149,8 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
               <Flame className="w-4 h-4 text-orange-500" />
               <span className="font-bold text-sm">{completedCount} Done</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gen-z-lavender/10 border border-gen-z-lavender/20">
-              <Zap className="w-4 h-4 text-gen-z-lavender" />
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-soft/10 border border-brand-soft/20">
+              <Zap className="w-4 h-4 text-brand-soft" />
               <span className="font-bold text-sm">{totalXpAvailable} XP</span>
             </div>
           </div>
@@ -310,9 +310,9 @@ function QuickActionCard({
   color: "lavender" | "coral" | "mint" | "yellow"
 }) {
   const colorClasses = {
-    lavender: "from-gen-z-lavender/20 to-gen-z-lavender/5 border-gen-z-lavender/30 hover:border-gen-z-lavender/50",
-    coral: "from-gen-z-coral/20 to-gen-z-coral/5 border-gen-z-coral/30 hover:border-gen-z-coral/50",
-    mint: "from-gen-z-mint/20 to-gen-z-mint/5 border-gen-z-mint/30 hover:border-gen-z-mint/50",
+    lavender: "from-brand-soft/20 to-brand-soft/5 border-brand-soft/30 hover:border-brand-soft/50",
+    coral: "from-accent-soft/20 to-accent-soft/5 border-accent-soft/30 hover:border-accent-soft/50",
+    mint: "from-success-soft/20 to-success-soft/5 border-success-soft/30 hover:border-success-soft/50",
     yellow: "from-gen-z-yellow/20 to-gen-z-yellow/5 border-gen-z-yellow/30 hover:border-gen-z-yellow/50",
   }
 

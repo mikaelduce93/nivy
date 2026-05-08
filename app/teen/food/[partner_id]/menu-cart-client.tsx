@@ -16,6 +16,13 @@ interface MenuItem {
   prep_time_minutes?: number | null
 }
 
+const FILTER_LABELS: Record<"all" | "halal" | "vegetarian" | "healthy", string> = {
+  all: "Tous",
+  halal: "Halal",
+  vegetarian: "Végétarien",
+  healthy: "Healthy",
+}
+
 export default function MenuCartClient({
   partnerId,
   items,
@@ -26,7 +33,11 @@ export default function MenuCartClient({
   const [cart, setCart] = useState<Record<string, number>>({})
   const [filter, setFilter] = useState<"all" | "halal" | "vegetarian" | "healthy">("all")
   const [submitting, setSubmitting] = useState(false)
-  const [result, setResult] = useState<unknown>(null)
+  const [orderResult, setOrderResult] = useState<{
+    ok: boolean
+    message: string
+    orderId?: string
+  } | null>(null)
 
   const filtered = useMemo(() => {
     if (filter === "all") return items
@@ -46,40 +57,68 @@ export default function MenuCartClient({
 
   const submit = async () => {
     setSubmitting(true)
-    setResult(null)
+    setOrderResult(null)
     const itemsPayload = Object.entries(cart)
       .filter(([, q]) => q > 0)
       .map(([id, qty]) => ({ menuItemId: id, qty }))
-    const res = await fetch("/api/teen/food/order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        partnerId,
-        deliveryType: "pickup",
-        items: itemsPayload,
-        paymentMethod: "coins",
-      }),
-    })
-    const json = await res.json()
-    setResult(json)
-    setSubmitting(false)
+    try {
+      const res = await fetch("/api/teen/food/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          partnerId,
+          deliveryType: "pickup",
+          items: itemsPayload,
+          paymentMethod: "coins",
+        }),
+      })
+      const json = await res.json()
+      if (res.ok && json?.success) {
+        setOrderResult({
+          ok: true,
+          message: "Commande envoyée avec succès.",
+          orderId: json?.data?.orderId ?? json?.orderId,
+        })
+        setCart({})
+      } else {
+        setOrderResult({
+          ok: false,
+          message: json?.error ?? "Erreur lors de la commande.",
+        })
+      }
+    } catch (err) {
+      setOrderResult({
+        ok: false,
+        message: err instanceof Error ? err.message : "Erreur réseau.",
+      })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-2 text-sm">
-        {(["all", "halal", "vegetarian", "healthy"] as const).map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFilter(f)}
-            className={`rounded border px-3 py-1 ${
-              filter === f ? "bg-blue-600 text-white" : "bg-white"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
+      <div
+        role="group"
+        aria-label="Filtres du menu"
+        className="mb-4 flex flex-wrap gap-2 text-sm"
+      >
+        {(["all", "halal", "vegetarian", "healthy"] as const).map((f) => {
+          const active = filter === f
+          return (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFilter(f)}
+              aria-pressed={active}
+              className={`rounded border px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                active ? "bg-blue-600 text-white" : "bg-white text-zinc-900"
+              }`}
+            >
+              {FILTER_LABELS[f]}
+            </button>
+          )
+        })}
       </div>
 
       <ul className="space-y-3">
@@ -89,18 +128,18 @@ export default function MenuCartClient({
           return (
             <li key={it.id} className="rounded border p-3 flex justify-between gap-4">
               <div className="flex-1">
-                <div className="font-medium">
+                <h3 className="font-medium text-base m-0">
                   {it.name}{" "}
                   {!it.is_halal && (
                     <span className="ml-1 rounded bg-red-100 px-1 text-xs text-red-700">
                       non-halal
                     </span>
                   )}
-                </div>
+                </h3>
                 {it.description && (
-                  <div className="text-xs text-gray-600">{it.description}</div>
+                  <div className="text-xs text-zinc-600">{it.description}</div>
                 )}
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-zinc-700 mt-1">
                   {coins} coins · {it.price_dh} DH
                   {it.calories ? ` · ${it.calories} kcal` : ""}
                   {it.prep_time_minutes ? ` · ${it.prep_time_minutes} min` : ""}
@@ -115,17 +154,25 @@ export default function MenuCartClient({
                 <button
                   type="button"
                   onClick={() => setCart((c) => ({ ...c, [it.id]: Math.max(0, qty - 1) }))}
-                  className="rounded bg-gray-100 px-2 py-1 text-sm"
+                  aria-label={`Diminuer la quantité de ${it.name}`}
+                  className="rounded bg-gray-100 px-2 py-1 text-sm text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
-                  −
+                  <span aria-hidden="true">−</span>
                 </button>
-                <span className="w-6 text-center text-sm">{qty}</span>
+                <span
+                  className="w-6 text-center text-sm"
+                  aria-label={`Quantité de ${it.name}: ${qty}`}
+                  aria-live="polite"
+                >
+                  {qty}
+                </span>
                 <button
                   type="button"
                   onClick={() => setCart((c) => ({ ...c, [it.id]: qty + 1 }))}
-                  className="rounded bg-gray-100 px-2 py-1 text-sm"
+                  aria-label={`Augmenter la quantité de ${it.name}`}
+                  className="rounded bg-gray-100 px-2 py-1 text-sm text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
-                  +
+                  <span aria-hidden="true">+</span>
                 </button>
               </div>
             </li>
@@ -134,23 +181,36 @@ export default function MenuCartClient({
       </ul>
 
       <div className="sticky bottom-0 mt-6 flex items-center justify-between rounded-lg bg-blue-50 p-3">
-        <div className="text-sm">
+        <div className="text-sm text-zinc-900">
           Total: <strong>{totalCoins} coins</strong>
         </div>
         <button
           type="button"
           disabled={submitting || totalCoins === 0}
           onClick={submit}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-md bg-blue-600 px-4 py-2 text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
         >
           {submitting ? "Envoi..." : "Commander"}
         </button>
       </div>
 
-      {result != null && (
-        <pre className="mt-4 rounded bg-gray-50 p-3 text-xs overflow-auto">
-          {JSON.stringify(result, null, 2)}
-        </pre>
+      {orderResult && (
+        <div
+          role={orderResult.ok ? "status" : "alert"}
+          aria-live={orderResult.ok ? "polite" : "assertive"}
+          className={`mt-4 rounded p-3 text-sm ${
+            orderResult.ok
+              ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
+              : "bg-red-50 text-red-900 border border-red-200"
+          }`}
+        >
+          <p className="font-medium">{orderResult.message}</p>
+          {orderResult.orderId && (
+            <p className="mt-1 text-xs opacity-80">
+              Commande #{orderResult.orderId.slice(0, 8)}
+            </p>
+          )}
+        </div>
       )}
     </div>
   )

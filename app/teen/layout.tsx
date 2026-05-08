@@ -23,6 +23,7 @@ import { TeenHeader } from "@/components/dashboard/teen/header"
 import { GamificationProvider } from "@/components/gamification/gamification-provider"
 import { EliteAICompanion } from "@/components/ai/elite-ai-companion"
 import { ClientErrorBoundary } from "@/components/common/client-error-boundary"
+import { PushPermissionPrompt } from "@/components/teen/push-permission-prompt"
 
 export default async function TeenLayout({
   children,
@@ -58,12 +59,24 @@ export default async function TeenLayout({
           </main>
         </div>
         <ClientErrorBoundary>
-          <EliteAICompanion 
-            role="teen" 
+          <EliteAICompanion
+            role="teen"
             teenName={userInfo.fullName?.split(' ')[0] || 'Champ'}
             userId={userInfo.teenData?.id}
-            context={userInfo.teenData} 
+            context={userInfo.teenData}
           />
+        </ClientErrorBoundary>
+        {/*
+          V1.2 Wave 3 U3 — deferred push permission prompt. Mounts globally for
+          the teen domain, but only renders after the user has demonstrated
+          engagement (first quiz pass / first chore complete). The wrapper
+          lifts the prompt above the ~80px mobile dock without modifying the
+          component itself (constraint: do not touch push-permission-prompt).
+        */}
+        <ClientErrorBoundary>
+          <div className="[&>div]:!bottom-24 md:[&>div]:!bottom-6">
+            <PushPermissionPrompt />
+          </div>
         </ClientErrorBoundary>
       </div>
     </GamificationProvider>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Check, Loader2, Camera } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
+import { markPushPromptEligible } from "@/components/teen/push-permission-prompt"
 
 export function TeenChoreCompleteButton({
   choreId,
@@ -60,6 +61,10 @@ export function TeenChoreCompleteButton({
       const data = await res.json()
       if (data.success) {
         toast.success("Complétion enregistrée. En attente de validation parent.")
+        // V1.2 Wave 3 U3 — engagement signal: a completed chore is a
+        // qualifying event for the deferred push prompt (mounted globally
+        // in app/teen/layout.tsx). No-op if already granted/dismissed.
+        markPushPromptEligible()
         router.refresh()
       } else {
         toast.error(data.error || "Erreur")

@@ -262,16 +262,39 @@ export const gradients = {
 } as const
 
 /**
+ * Semantic soft aliases (V1.3 design-system reconciliation — TICKET-048).
+ * Same OKLCH values as the four most-used gen-z-* decorative tokens, exposed
+ * under role-based names so feature code can drop the "gen-z" vocabulary.
+ *
+ * NOTE: The canonical runtime values come from `app/globals.css` (which is
+ * theme-aware: light/dark variants). The constants below are a TS mirror for
+ * TS consumers (charts, server-rendered SVGs, fixtures). Keep in sync with
+ * globals.css if either side changes.
+ */
+export const semanticSoft = {
+  brandSoft: palette.lavender[300],   // ≈ oklch(0.75 0.12 290) — gen-z-lavender
+  accentSoft: 'oklch(0.72 0.14 25)',  // gen-z-coral
+  successSoft: 'oklch(0.80 0.12 165)', // gen-z-mint
+  infoSoft: 'oklch(0.78 0.12 230)',    // gen-z-sky
+} as const
+
+/**
  * CSS custom properties for use in stylesheets
  */
 export const cssVariables = `
-  /* Gen-Z Palette */
+  /* Gen-Z Palette (legacy — prefer semantic soft aliases below) */
   --gen-z-lavender: ${palette.lavender[400]};
   --gen-z-coral: ${palette.coral[500]};
   --gen-z-mint: ${palette.mint[400]};
   --gen-z-yellow: ${palette.yellow[400]};
   --gen-z-grape: ${palette.grape[500]};
   --gen-z-lime: ${palette.lime[400]};
+
+  /* Semantic Soft Aliases (V1.3 reconciliation — TICKET-048) */
+  --brand-soft: ${semanticSoft.brandSoft};
+  --accent-soft: ${semanticSoft.accentSoft};
+  --success-soft: ${semanticSoft.successSoft};
+  --info-soft: ${semanticSoft.infoSoft};
   
   /* Semantic Colors */
   --color-primary: ${semantic.primary};
@@ -300,6 +323,7 @@ export const cssVariables = `
 
 export type ColorPalette = typeof palette
 export type SemanticColors = typeof semantic
+export type SemanticSoftColors = typeof semanticSoft
 export type Gradients = typeof gradients
 
-export default { palette, semantic, gradients, cssVariables }
+export default { palette, semantic, semanticSoft, gradients, cssVariables }

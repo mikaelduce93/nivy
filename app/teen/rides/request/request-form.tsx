@@ -98,7 +98,15 @@ export function RequestRideForm({ eventId }: Props) {
               <option value="split_with_parent">Partagé avec le parent</option>
             </select>
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p
+              role="alert"
+              aria-live="polite"
+              className="text-sm text-destructive"
+            >
+              {error}
+            </p>
+          )}
           <Button type="submit" disabled={submitting}>
             {submitting ? "Envoi…" : "Demander le trajet"}
           </Button>

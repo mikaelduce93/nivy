@@ -34,7 +34,7 @@ function getMissionStyle(type?: string) {
   switch (type) {
     case 'daily':
       return { 
-        gradient: 'from-gen-z-lavender via-gen-z-grape to-gen-z-lavender', 
+        gradient: 'from-brand-soft via-gen-z-grape to-brand-soft', 
         icon: '🌟', 
         color: 'lavender',
         borderGradient: 'lavender' as const,
@@ -43,7 +43,7 @@ function getMissionStyle(type?: string) {
       }
     case 'weekly':
       return { 
-        gradient: 'from-gen-z-coral via-gen-z-peach to-gen-z-coral', 
+        gradient: 'from-accent-soft via-gen-z-peach to-accent-soft', 
         icon: '🔥', 
         color: 'coral',
         borderGradient: 'coral' as const,
@@ -52,7 +52,7 @@ function getMissionStyle(type?: string) {
       }
     case 'challenge':
       return { 
-        gradient: 'from-gen-z-lime via-gen-z-mint to-gen-z-lime', 
+        gradient: 'from-gen-z-lime via-success-soft to-gen-z-lime', 
         icon: '⚡', 
         color: 'lime',
         borderGradient: 'mint' as const,
@@ -70,7 +70,7 @@ function getMissionStyle(type?: string) {
       }
     default:
       return { 
-        gradient: 'from-gen-z-coral via-gen-z-peach to-gen-z-coral', 
+        gradient: 'from-accent-soft via-gen-z-peach to-accent-soft', 
         icon: '🎯', 
         color: 'default',
         borderGradient: 'holographic' as const,

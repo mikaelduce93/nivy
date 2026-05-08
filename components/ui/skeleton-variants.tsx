@@ -283,7 +283,7 @@ export function HeroSkeleton() {
     <SkeletonContainer className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-card/95 via-card/90 to-card p-4 sm:p-6 md:p-8 border border-border/50">
       {/* Background glow */}
       <motion.div
-        className="absolute top-0 right-0 w-64 h-64 rounded-full bg-gen-z-lavender/10 blur-[80px]"
+        className="absolute top-0 right-0 w-64 h-64 rounded-full bg-brand-soft/10 blur-[80px]"
         animate={{ opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 3, repeat: Infinity }}
       />
@@ -295,7 +295,7 @@ export function HeroSkeleton() {
             <Skeleton className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20" variant="circular" premium glow />
           </SkeletonItem>
           <motion.div
-            className="absolute inset-0 border-2 border-gen-z-lavender/30 rounded-full"
+            className="absolute inset-0 border-2 border-brand-soft/30 rounded-full"
             animate={{ rotate: 360 }}
             transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
           />
@@ -497,8 +497,8 @@ export function MapSkeleton() {
             repeatDelay: 1,
           }}
         >
-          <div className="w-4 h-4 rounded-full bg-gen-z-lavender/40 blur-sm" />
-          <div className="absolute inset-0 w-4 h-4 rounded-full bg-gen-z-lavender animate-ping" />
+          <div className="w-4 h-4 rounded-full bg-brand-soft/40 blur-sm" />
+          <div className="absolute inset-0 w-4 h-4 rounded-full bg-brand-soft animate-ping" />
         </motion.div>
       ))}
     </div>
@@ -576,7 +576,7 @@ export function DashboardSkeleton() {
       {/* Animated background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <motion.div 
-          className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] rounded-full bg-gen-z-lavender/5 blur-[100px]"
+          className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] rounded-full bg-brand-soft/5 blur-[100px]"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -584,7 +584,7 @@ export function DashboardSkeleton() {
           transition={{ duration: 8, repeat: Infinity }}
         />
         <motion.div 
-          className="absolute bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full bg-gen-z-coral/5 blur-[80px]"
+          className="absolute bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full bg-accent-soft/5 blur-[80px]"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.2, 0.4, 0.2],

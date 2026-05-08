@@ -17,8 +17,8 @@ interface EvolutionTrackerProps {
 export function EvolutionTracker({ teenName, stats }: EvolutionTrackerProps) {
   const metrics = [
     { label: "Responsabilité", value: stats.responsibility, icon: Award, color: "var(--gen-z-teal)" },
-    { label: "Vie Sociale", value: stats.social, icon: Users, color: "var(--gen-z-lavender)" },
-    { label: "Créativité", value: stats.creativity, icon: Heart, color: "var(--gen-z-coral)" },
+    { label: "Vie Sociale", value: stats.social, icon: Users, color: "var(--brand-soft)" },
+    { label: "Créativité", value: stats.creativity, icon: Heart, color: "var(--accent-soft)" },
     { label: "Académie", value: stats.academic, icon: Brain, color: "var(--gen-z-lime)" },
   ]
 

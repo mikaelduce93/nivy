@@ -49,22 +49,22 @@ const badgeVariants = cva(
           'border-destructive/50 text-destructive bg-destructive/10 [a&]:hover:bg-destructive/20',
         // Gen-Z Vibrant Colors
         lavender:
-          'border-transparent bg-gen-z-lavender text-white shadow-sm [a&]:hover:shadow-md',
+          'border-transparent bg-brand-soft text-white shadow-sm [a&]:hover:shadow-md',
         coral:
-          'border-transparent bg-gen-z-coral text-white shadow-sm [a&]:hover:shadow-md',
+          'border-transparent bg-accent-soft text-white shadow-sm [a&]:hover:shadow-md',
         lime:
           'border-transparent bg-gen-z-lime text-on-bright shadow-sm [a&]:hover:shadow-md',
         mint:
-          'border-transparent bg-gen-z-mint text-on-bright shadow-sm [a&]:hover:shadow-md',
+          'border-transparent bg-success-soft text-on-bright shadow-sm [a&]:hover:shadow-md',
         grape:
           'border-transparent bg-gen-z-grape text-white shadow-sm [a&]:hover:shadow-md',
         peach:
           'border-transparent bg-gen-z-peach text-on-bright shadow-sm [a&]:hover:shadow-md',
         sky:
-          'border-transparent bg-gen-z-sky text-on-bright shadow-sm [a&]:hover:shadow-md',
+          'border-transparent bg-info-soft text-on-bright shadow-sm [a&]:hover:shadow-md',
         // Gradient
         gradient:
-          'border-transparent bg-gradient-to-r from-gen-z-lavender to-gen-z-coral text-white shadow-sm',
+          'border-transparent bg-gradient-to-r from-brand-soft to-accent-soft text-white shadow-sm',
         // Glass
         glass:
           'border-white/20 bg-white/10 backdrop-blur-md text-foreground [a&]:hover:bg-white/20',

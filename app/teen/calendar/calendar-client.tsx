@@ -23,10 +23,10 @@ const MONTHS = [
 const DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
 
 const TYPE_CONFIG: Record<string, { color: string; icon: string }> = {
-  event:     { color: "from-gen-z-coral to-pink-500",       icon: "🎉" },
-  challenge: { color: "from-gen-z-lavender to-purple-500",  icon: "🧠" },
+  event:     { color: "from-accent-soft to-pink-500",       icon: "🎉" },
+  challenge: { color: "from-brand-soft to-purple-500",  icon: "🧠" },
   battle:    { color: "from-orange-500 to-red-500",         icon: "⚔️" },
-  workshop:  { color: "from-gen-z-mint to-emerald-500",     icon: "💻" },
+  workshop:  { color: "from-success-soft to-emerald-500",     icon: "💻" },
   sport:     { color: "from-blue-500 to-cyan-500",          icon: "🏃" },
 }
 
@@ -100,7 +100,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
       {/* Header */}
       <header>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-sky to-blue-500 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-info-soft to-blue-500 flex items-center justify-center">
             <CalendarIcon className="w-6 h-6 text-black" />
           </div>
           <div>
@@ -158,9 +158,9 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
                   className={cn(
                     "relative aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all",
                     isSelected
-                      ? "bg-gen-z-sky text-black"
+                      ? "bg-info-soft text-black"
                       : isToday
-                        ? "bg-gen-z-lavender/20 text-white border border-gen-z-lavender/30"
+                        ? "bg-brand-soft/20 text-white border border-brand-soft/30"
                         : "hover:bg-white/5"
                   )}
                 >
@@ -172,7 +172,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
                           key={i}
                           className={cn(
                             "w-1.5 h-1.5 rounded-full",
-                            isSelected ? "bg-black/50" : "bg-gen-z-coral"
+                            isSelected ? "bg-black/50" : "bg-accent-soft"
                           )}
                         />
                       ))}
@@ -217,7 +217,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
                       className={cn(
                         "p-4 rounded-2xl border transition-all",
                         event.registered
-                          ? "bg-gen-z-mint/10 border-gen-z-mint/30"
+                          ? "bg-success-soft/10 border-success-soft/30"
                           : "bg-zinc-800/50 border-white/5"
                       )}
                     >
@@ -241,17 +241,17 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
                           </div>
                           <div className="flex items-center justify-between mt-3">
                             {event.xpReward > 0 && (
-                              <div className="flex items-center gap-2 text-gen-z-lavender">
+                              <div className="flex items-center gap-2 text-brand-soft">
                                 <Zap className="w-4 h-4" />
                                 <span className="font-bold">+{event.xpReward} XP</span>
                               </div>
                             )}
                             {event.registered ? (
-                              <span className="flex items-center gap-1 text-gen-z-mint text-sm font-bold">
+                              <span className="flex items-center gap-1 text-success-soft text-sm font-bold">
                                 <Check className="w-4 h-4" /> {event.rsvpLabel}
                               </span>
                             ) : (
-                              <Button size="sm" className="bg-gen-z-sky text-black font-bold">
+                              <Button size="sm" className="bg-info-soft text-black font-bold">
                                 S'inscrire
                               </Button>
                             )}

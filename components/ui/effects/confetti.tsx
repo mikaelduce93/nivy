@@ -527,7 +527,7 @@ export function XPCelebration({
     <div className={cn('fixed inset-0 pointer-events-none z-[100] flex items-center justify-center', className)}>
       {/* Background flash */}
       <motion.div
-        className="absolute inset-0 bg-gen-z-lavender/20"
+        className="absolute inset-0 bg-brand-soft/20"
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 1, 0] }}
         transition={{ duration: 0.5 }}
@@ -556,7 +556,7 @@ export function XPCelebration({
 
         {/* Badge */}
         <motion.div
-          className="relative bg-gradient-to-br from-gen-z-lavender to-gen-z-grape rounded-2xl p-6 shadow-2xl"
+          className="relative bg-gradient-to-br from-brand-soft to-gen-z-grape rounded-2xl p-6 shadow-2xl"
           style={{
             boxShadow: `0 0 60px ${colors[0]}60`,
           }}

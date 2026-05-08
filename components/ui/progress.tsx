@@ -35,11 +35,11 @@ const indicatorVariants = cva(
     variants: {
       color: {
         default: 'bg-primary',
-        gradient: 'bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime',
-        lavender: 'bg-gen-z-lavender',
-        coral: 'bg-gen-z-coral',
+        gradient: 'bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime',
+        lavender: 'bg-brand-soft',
+        coral: 'bg-accent-soft',
         lime: 'bg-gen-z-lime',
-        mint: 'bg-gen-z-mint',
+        mint: 'bg-success-soft',
         grape: 'bg-gen-z-grape',
         // Gamification pillars
         party: 'bg-neon-party',
@@ -48,7 +48,7 @@ const indicatorVariants = cva(
         creativity: 'bg-neon-creativity',
         prestige: 'bg-neon-prestige',
         // XP gradient
-        xp: 'bg-gradient-to-r from-gen-z-lavender to-gen-z-grape',
+        xp: 'bg-gradient-to-r from-brand-soft to-gen-z-grape',
       },
       glow: {
         none: '',

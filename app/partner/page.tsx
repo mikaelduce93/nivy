@@ -132,15 +132,15 @@ export default async function PartnerDashboardPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#050505] text-white selection:bg-gen-z-lavender/30 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#050505] text-white selection:bg-brand-soft/30 overflow-x-hidden">
       {/* 1. BUSINESS ELITE BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <MeshGradient className="opacity-25" />
         <ParallaxLayer speed={-0.08}>
-          <GlowBlob color="var(--gen-z-lavender)" size={900} className="-top-[10%] -right-[15%] opacity-20" />
+          <GlowBlob color="var(--brand-soft)" size={900} className="-top-[10%] -right-[15%] opacity-20" />
         </ParallaxLayer>
         <ParallaxLayer speed={0.12}>
-          <GlowBlob color="var(--gen-z-sky)" size={700} className="bottom-[5%] -left-[10%] opacity-15" />
+          <GlowBlob color="var(--info-soft)" size={700} className="bottom-[5%] -left-[10%] opacity-15" />
         </ParallaxLayer>
         <GrainOverlay opacity={0.05} />
       </div>
@@ -150,7 +150,7 @@ export default async function PartnerDashboardPage() {
         {/* 2. PARTNER HERO CARD */}
         <StaggerItem>
           <div className="relative overflow-hidden rounded-[3rem] bg-zinc-900/40 border border-white/10 p-10 md:p-16 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] backdrop-blur-3xl group">
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gen-z-lavender/10 rounded-full blur-[150px] -mr-48 -mt-48 transition-all duration-700 group-hover:bg-gen-z-lavender/20" />
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-soft/10 rounded-full blur-[150px] -mr-48 -mt-48 transition-all duration-700 group-hover:bg-brand-soft/20" />
             
             <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-12">
               <div className="flex items-center gap-8 text-center md:text-left flex-col md:flex-row">
@@ -161,7 +161,7 @@ export default async function PartnerDashboardPage() {
                   </div>
                 </Float>
                 <div className="space-y-3">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gen-z-lavender/10 text-gen-z-lavender text-xs font-black tracking-widest uppercase border border-gen-z-lavender/20">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-soft/10 text-brand-soft text-xs font-black tracking-widest uppercase border border-brand-soft/20">
                     <Store className="w-4 h-4" /> Accès Partenaire Premium
                   </div>
                   <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none">{companyName}</h1>
@@ -170,7 +170,7 @@ export default async function PartnerDashboardPage() {
               </div>
 
               <div className="flex flex-wrap justify-center gap-6">
-                <PulseGlow color="var(--gen-z-lavender)">
+                <PulseGlow color="var(--brand-soft)">
                   <MagneticButton className="h-20 px-10 bg-white text-black hover:bg-white/90 font-black rounded-3xl shadow-2xl shadow-white/10 transition-all text-lg tracking-tighter" asChild intensity={0.2}>
                     <Link href="/partner/offers/new">
                       <Plus className="h-6 w-6 mr-3 stroke-[3]" /> NOUVELLE OFFRE
@@ -196,12 +196,12 @@ export default async function PartnerDashboardPage() {
             rows={1} 
             variant="accent"
             tiltIntensity={3}
-            className="flex flex-col justify-center border-gen-z-lavender/20 bg-gradient-to-br from-gen-z-lavender/10 to-transparent"
+            className="flex flex-col justify-center border-brand-soft/20 bg-gradient-to-br from-brand-soft/10 to-transparent"
           >
             <div className="flex items-center justify-between mb-6">
-              <p className="text-xs font-black uppercase text-gen-z-lavender tracking-widest">Chiffre d'Affaires</p>
-              <div className="w-10 h-10 rounded-xl bg-gen-z-lavender/20 flex items-center justify-center border border-gen-z-lavender/20">
-                <TrendingUp className="w-5 h-5 text-gen-z-lavender" />
+              <p className="text-xs font-black uppercase text-brand-soft tracking-widest">Chiffre d'Affaires</p>
+              <div className="w-10 h-10 rounded-xl bg-brand-soft/20 flex items-center justify-center border border-brand-soft/20">
+                <TrendingUp className="w-5 h-5 text-brand-soft" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
@@ -224,7 +224,7 @@ export default async function PartnerDashboardPage() {
           >
             <div className="flex items-center justify-between mb-10">
               <p className="text-xs font-black uppercase text-zinc-500 tracking-widest">Clients</p>
-              <Users className="w-5 h-5 text-gen-z-sky opacity-50" />
+              <Users className="w-5 h-5 text-info-soft opacity-50" />
             </div>
             <p className="text-5xl font-black text-white tracking-tighter tabular-nums">{uniqueCustomers}</p>
             <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest mt-2">Utilisateurs actifs</p>
@@ -256,9 +256,9 @@ export default async function PartnerDashboardPage() {
           >
             <div className="p-8 pb-4 flex items-center justify-between">
               <h3 className="text-xl font-black tracking-tighter flex items-center gap-3">
-                <Tag className="w-6 h-6 text-gen-z-coral" /> OFFRES ACTIVES
+                <Tag className="w-6 h-6 text-accent-soft" /> OFFRES ACTIVES
               </h3>
-              <div className="px-3 py-1 rounded-full bg-gen-z-coral/10 text-gen-z-coral text-xs font-black uppercase tracking-widest">
+              <div className="px-3 py-1 rounded-full bg-accent-soft/10 text-accent-soft text-xs font-black uppercase tracking-widest">
                 {activeOffersCount} EN LIGNE
               </div>
             </div>
@@ -266,10 +266,10 @@ export default async function PartnerDashboardPage() {
             <div className="flex-1 overflow-y-auto px-8 pb-8 space-y-4 custom-scrollbar">
               {activeOffers.length > 0 ? (
                   activeOffers.map((offer: any) => (
-                  <div key={offer.id} className="group relative p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-gen-z-coral/30 hover:bg-white/[0.05] transition-all duration-500 cursor-default">
+                  <div key={offer.id} className="group relative p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-accent-soft/30 hover:bg-white/[0.05] transition-all duration-500 cursor-default">
                     <div className="flex items-center justify-between relative z-10">
                       <div className="space-y-1">
-                        <p className="font-black text-white text-lg group-hover:text-gen-z-coral transition-colors">{offer.discount_name}</p>
+                        <p className="font-black text-white text-lg group-hover:text-accent-soft transition-colors">{offer.discount_name}</p>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">
                             {offer.discount_type === 'percentage' ? `${offer.discount_value}% RÉDUCTION` : `-${offer.discount_value} DH`}
@@ -301,7 +301,7 @@ export default async function PartnerDashboardPage() {
           >
             <div className="p-8 pb-4 flex items-center justify-between">
               <h3 className="text-xl font-black tracking-tighter flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-gen-z-sky" /> FIL EN DIRECT
+                <BarChart3 className="w-6 h-6 text-info-soft" /> FIL EN DIRECT
               </h3>
               <Button variant="ghost" size="sm" asChild className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white">
                 <Link href="/partner/transactions">Tout voir <ArrowRight className="h-3 w-3 ml-2" /></Link>
@@ -316,9 +316,9 @@ export default async function PartnerDashboardPage() {
                   const timeText = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
                   return (
-                    <div key={tx.id} className="flex items-center justify-between p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-gen-z-sky/30 transition-all duration-500">
+                    <div key={tx.id} className="flex items-center justify-between p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-info-soft/30 transition-all duration-500">
                       <div className="flex items-center gap-5">
-                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-gen-z-sky via-gen-z-lavender to-gen-z-coral flex items-center justify-center text-black font-black text-2xl shadow-xl">
+                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-info-soft via-brand-soft to-accent-soft flex items-center justify-center text-black font-black text-2xl shadow-xl">
                           {customerName.charAt(0)}
                         </div>
                         <div>
@@ -348,9 +348,9 @@ export default async function PartnerDashboardPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-full">
               {[
                 { label: "SCAN QR", icon: QrCode, color: "var(--gen-z-lime)", href: "/partner/scanner" },
-                { label: "CAMPAGNE", icon: Tag, color: "var(--gen-z-coral)", href: "/partner/offers/new" },
-                { label: "ANALYTICS", icon: TrendingUp, color: "var(--gen-z-lavender)", href: "/partner/stats" },
-                { label: "SUPPORT VIP", icon: Users, color: "var(--gen-z-sky)", href: "/partner/support" }
+                { label: "CAMPAGNE", icon: Tag, color: "var(--accent-soft)", href: "/partner/offers/new" },
+                { label: "ANALYTICS", icon: TrendingUp, color: "var(--brand-soft)", href: "/partner/stats" },
+                { label: "SUPPORT VIP", icon: Users, color: "var(--info-soft)", href: "/partner/support" }
               ].map((action) => (
                 <Button key={action.label} variant="outline" className="h-full py-10 flex-col gap-4 rounded-[2.5rem] bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20 transition-all duration-500 group relative overflow-hidden" asChild>
                   <Link href={action.href}>

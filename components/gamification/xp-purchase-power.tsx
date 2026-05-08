@@ -134,11 +134,11 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
             >
               <div className="flex items-center gap-2">
                 <motion.div
-                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gen-z-lavender/20 flex items-center justify-center"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-brand-soft/20 flex items-center justify-center"
                   animate={isHovered ? { rotate: [0, 10, -10, 0] } : {}}
                   transition={{ duration: 0.5 }}
                 >
-                  <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gen-z-lavender" />
+                  <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
                 </motion.div>
                 <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-zinc-400">
                   Prochain Objectif
@@ -190,7 +190,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                   "relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center border",
                   canAfford 
                     ? "bg-emerald-500/20 border-emerald-500/30" 
-                    : "bg-gen-z-lavender/20 border-gen-z-lavender/30"
+                    : "bg-brand-soft/20 border-brand-soft/30"
                 )}
                 whileHover={{ scale: 1.08, rotate: 5 }}
                 animate={canAfford ? {
@@ -218,7 +218,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                   ) : (
                     <Ticket className={cn(
                       "w-6 h-6 sm:w-7 sm:h-7",
-                      canAfford ? "text-emerald-400" : "text-gen-z-lavender"
+                      canAfford ? "text-emerald-400" : "text-brand-soft"
                     )} />
                   )}
                 </GlowPulse>
@@ -246,9 +246,9 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                       animate={{ rotate: 360 }}
                       transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
                     >
-                      <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gen-z-lavender" />
+                      <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-soft" />
                     </motion.div>
-                    <span className="text-xs sm:text-sm font-bold text-gen-z-lavender font-mono">
+                    <span className="text-xs sm:text-sm font-bold text-brand-soft font-mono">
                       {nextReward.xpCost.toLocaleString()}
                     </span>
                   </div>
@@ -262,7 +262,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                         "h-full rounded-full",
                         canAfford 
                           ? "bg-gradient-to-r from-emerald-500 to-emerald-400" 
-                          : "bg-gradient-to-r from-gen-z-lavender via-purple-500 to-pink-500"
+                          : "bg-gradient-to-r from-brand-soft via-purple-500 to-pink-500"
                       )}
                       style={{
                         boxShadow: canAfford 

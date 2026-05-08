@@ -58,7 +58,7 @@ export function HubTabs({ tabs, defaultTab, className, onChange }: HubTabsProps)
                   layoutId="hub-tab-active"
                   className={cn(
                     "absolute inset-0 rounded-xl",
-                    tab.color || "bg-gradient-to-r from-gen-z-lavender/20 to-gen-z-sky/20 border border-white/10"
+                    tab.color || "bg-gradient-to-r from-brand-soft/20 to-info-soft/20 border border-white/10"
                   )}
                   transition={{ type: "spring", duration: 0.5 }}
                 />
@@ -77,7 +77,7 @@ export function HubTabs({ tabs, defaultTab, className, onChange }: HubTabsProps)
 
               {/* Badge */}
               {tab.badge !== undefined && tab.badge > 0 && (
-                <span className="relative z-10 min-w-5 h-5 flex items-center justify-center px-1.5 rounded-full bg-gen-z-coral text-white text-[10px] font-black">
+                <span className="relative z-10 min-w-5 h-5 flex items-center justify-center px-1.5 rounded-full bg-accent-soft text-white text-[10px] font-black">
                   {tab.badge > 99 ? "99+" : tab.badge}
                 </span>
               )}

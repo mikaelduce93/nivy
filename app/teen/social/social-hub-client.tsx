@@ -81,7 +81,7 @@ export function SocialHubClient({ teenId, teenName }: SocialHubClientProps) {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-coral to-pink-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
                 <Users className="w-6 h-6 text-black" />
               </div>
               <div>
@@ -94,7 +94,7 @@ export function SocialHubClient({ teenId, teenName }: SocialHubClientProps) {
           {/* Quick Stats */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
-              <Users className="w-4 h-4 text-gen-z-coral" />
+              <Users className="w-4 h-4 text-accent-soft" />
               <span className="font-bold text-sm">
                 {friendsCount !== null ? `${friendsCount} Friends` : 'Loading...'}
               </span>
@@ -154,7 +154,7 @@ function CrewTab({ teenId }: { teenId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-gen-z-coral" />
+        <Loader2 className="w-8 h-8 animate-spin text-accent-soft" />
       </div>
     )
   }
@@ -162,13 +162,13 @@ function CrewTab({ teenId }: { teenId: string }) {
   if (!hasCrew || !crewData) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gen-z-coral/20 to-pink-500/20 flex items-center justify-center mb-6 border border-gen-z-coral/30">
-          <Shield className="w-12 h-12 text-gen-z-coral" />
+        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-accent-soft/20 to-pink-500/20 flex items-center justify-center mb-6 border border-accent-soft/30">
+          <Shield className="w-12 h-12 text-accent-soft" />
         </div>
         <h3 className="text-2xl font-black text-white mb-2">No Crew Yet</h3>
         <p className="text-zinc-500 max-w-sm mb-8">Join forces with your friends to compete in crew battles and earn bonus XP!</p>
         <div className="flex gap-4">
-          <Button className="bg-gen-z-coral text-black font-bold">
+          <Button className="bg-accent-soft text-black font-bold">
             <Shield className="w-4 h-4 mr-2" />
             Create Crew
           </Button>
@@ -189,16 +189,16 @@ function CrewTab({ teenId }: { teenId: string }) {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-3xl p-8 border border-white/10 bg-gradient-to-br from-gen-z-coral/10 to-pink-500/5"
+        className="relative overflow-hidden rounded-3xl p-8 border border-white/10 bg-gradient-to-br from-accent-soft/10 to-pink-500/5"
       >
         <div className="absolute top-4 right-4">
-          <div className="px-3 py-1 rounded-full bg-gen-z-coral/20 text-gen-z-coral text-xs font-black uppercase tracking-wider">
+          <div className="px-3 py-1 rounded-full bg-accent-soft/20 text-accent-soft text-xs font-black uppercase tracking-wider">
             {crewData.tier || 'Bronze'} Tier
           </div>
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gen-z-coral to-pink-500 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
             {crewData.emoji ? (
               <span className="text-4xl">{crewData.emoji}</span>
             ) : (
@@ -214,15 +214,15 @@ function CrewTab({ teenId }: { teenId: string }) {
         {/* Crew Stats */}
         <div className="grid grid-cols-3 gap-6 mt-8">
           <div className="text-center p-4 rounded-2xl bg-black/20">
-            <p className="text-3xl font-black text-gen-z-coral">{(stats?.totalXp || 0).toLocaleString()}</p>
+            <p className="text-3xl font-black text-accent-soft">{(stats?.totalXp || 0).toLocaleString()}</p>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Total XP</p>
           </div>
           <div className="text-center p-4 rounded-2xl bg-black/20">
-            <p className="text-3xl font-black text-gen-z-mint">{stats?.battlesWon || 0}</p>
+            <p className="text-3xl font-black text-success-soft">{stats?.battlesWon || 0}</p>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Battles Won</p>
           </div>
           <div className="text-center p-4 rounded-2xl bg-black/20">
-            <p className="text-3xl font-black text-gen-z-lavender">#{stats?.cityRank || '-'}</p>
+            <p className="text-3xl font-black text-brand-soft">#{stats?.cityRank || '-'}</p>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">City Rank</p>
           </div>
         </div>
@@ -242,7 +242,7 @@ function CrewTab({ teenId }: { teenId: string }) {
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-sm font-bold text-white">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-sm font-bold text-white">
                     {member.name?.charAt(0) || '?'}
                   </div>
                 )}
@@ -259,7 +259,7 @@ function CrewTab({ teenId }: { teenId: string }) {
 
         {/* Actions */}
         <div className="flex gap-4 mt-8">
-          <Button className="flex-1 bg-gen-z-coral text-black font-bold">
+          <Button className="flex-1 bg-accent-soft text-black font-bold">
             <Swords className="w-4 h-4 mr-2" />
             Start Battle
           </Button>
@@ -306,7 +306,7 @@ function BattleCard({ opponent, status, ourScore, theirScore, endsIn }: any) {
       </div>
       <div className="flex items-center justify-between">
         <div className="text-center">
-          <p className="text-2xl font-black text-gen-z-coral">{ourScore}</p>
+          <p className="text-2xl font-black text-accent-soft">{ourScore}</p>
           <p className="text-xs text-zinc-500">US</p>
         </div>
         <div className="text-2xl font-black text-zinc-600">VS</div>
@@ -316,7 +316,7 @@ function BattleCard({ opponent, status, ourScore, theirScore, endsIn }: any) {
         </div>
       </div>
       {isWinning && ourScore > 0 && (
-        <div className="mt-4 text-center text-xs font-bold text-gen-z-mint">
+        <div className="mt-4 text-center text-xs font-bold text-success-soft">
           You're winning! Keep it up!
         </div>
       )}
@@ -356,7 +356,7 @@ function FriendsTab({ teenId }: { teenId?: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-gen-z-coral" />
+        <Loader2 className="w-8 h-8 animate-spin text-accent-soft" />
       </div>
     )
   }
@@ -412,7 +412,7 @@ function FriendsTab({ teenId }: { teenId?: string }) {
                     className="w-14 h-14 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-xl font-bold text-white">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
                     {friend.name.charAt(0)}
                   </div>
                 )}
@@ -427,7 +427,7 @@ function FriendsTab({ teenId }: { teenId?: string }) {
                 <p className="text-sm text-zinc-500">{friend.mutual} mutual friends</p>
               </div>
               <div className="text-right">
-                <div className="flex items-center gap-1 text-gen-z-lavender">
+                <div className="flex items-center gap-1 text-brand-soft">
                   <Zap className="w-4 h-4" />
                   <span className="font-bold">{friend.xp.toLocaleString()}</span>
                 </div>
@@ -442,7 +442,7 @@ function FriendsTab({ teenId }: { teenId?: string }) {
       )}
 
       {/* Add Friends */}
-      <Button className="w-full h-14 rounded-2xl bg-gen-z-coral text-black font-bold">
+      <Button className="w-full h-14 rounded-2xl bg-accent-soft text-black font-bold">
         <UserPlus className="w-5 h-5 mr-2" />
         Add New Friends
       </Button>
@@ -486,7 +486,7 @@ function RankingTab({ teenId }: { teenId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-gen-z-lavender" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-soft" />
       </div>
     )
   }
@@ -514,7 +514,7 @@ function RankingTab({ teenId }: { teenId: string }) {
               transition={{ delay: rank * 0.1 }}
               className="flex flex-col items-center"
             >
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky mb-2" />
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-soft to-info-soft mb-2" />
               <span className="font-bold text-sm mb-2">{player.name}</span>
               <div className={cn(
                 "w-20 rounded-t-xl flex items-end justify-center pb-3",
@@ -539,18 +539,18 @@ function RankingTab({ teenId }: { teenId: string }) {
             className={cn(
               "flex items-center gap-4 p-4 rounded-2xl border transition-colors",
               player.isYou 
-                ? "bg-gen-z-lavender/10 border-gen-z-lavender/30" 
+                ? "bg-brand-soft/10 border-brand-soft/30" 
                 : "bg-zinc-900/50 border-white/5"
             )}
           >
             <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-black">
               {player.rank}
             </div>
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky" />
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft" />
             <div className="flex-1">
               <h4 className="font-bold text-white">{player.name}</h4>
             </div>
-            <div className="flex items-center gap-2 text-gen-z-lavender">
+            <div className="flex items-center gap-2 text-brand-soft">
               <Zap className="w-4 h-4" />
               <span className="font-black">{player.xp.toLocaleString()}</span>
             </div>
@@ -566,7 +566,7 @@ function MapTab() {
     <div className="space-y-6">
       <div className="relative overflow-hidden rounded-3xl border border-white/10">
         <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-4 py-2 rounded-xl bg-black/60 backdrop-blur-xl border border-white/10">
-          <MapPin className="w-4 h-4 text-gen-z-mint" />
+          <MapPin className="w-4 h-4 text-success-soft" />
           <span className="text-sm font-bold">3 friends nearby</span>
         </div>
         <div className="h-[400px]">
@@ -580,8 +580,8 @@ function MapTab() {
           className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5 cursor-pointer"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gen-z-coral/20 flex items-center justify-center">
-              <Swords className="w-6 h-6 text-gen-z-coral" />
+            <div className="w-12 h-12 rounded-2xl bg-accent-soft/20 flex items-center justify-center">
+              <Swords className="w-6 h-6 text-accent-soft" />
             </div>
             <div>
               <h4 className="font-bold text-white">Active Event</h4>
@@ -595,8 +595,8 @@ function MapTab() {
           className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5 cursor-pointer"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gen-z-mint/20 flex items-center justify-center">
-              <Users className="w-6 h-6 text-gen-z-mint" />
+            <div className="w-12 h-12 rounded-2xl bg-success-soft/20 flex items-center justify-center">
+              <Users className="w-6 h-6 text-success-soft" />
             </div>
             <div>
               <h4 className="font-bold text-white">Crew Meetup</h4>

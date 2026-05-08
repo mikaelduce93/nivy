@@ -184,15 +184,15 @@ export function VipCardClient({ userXP, tierSlug, memberSince }: VipCardClientPr
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-gen-z-mint/10 border border-gen-z-mint/30"
+                className="flex items-center gap-4 p-4 rounded-2xl bg-success-soft/10 border border-success-soft/30"
               >
-                <div className="w-10 h-10 rounded-xl bg-gen-z-mint/20 flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-gen-z-mint" />
+                <div className="w-10 h-10 rounded-xl bg-success-soft/20 flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-success-soft" />
                 </div>
                 <div className="flex-1">
                   <h4 className="font-bold text-white">{benefit.text}</h4>
                 </div>
-                <Check className="w-5 h-5 text-gen-z-mint" />
+                <Check className="w-5 h-5 text-success-soft" />
               </motion.div>
             )
           })}
@@ -234,7 +234,7 @@ export function VipCardClient({ userXP, tierSlug, memberSince }: VipCardClientPr
                     <div className="flex items-center gap-3">
                       <h4 className="font-black text-xl">{tier.name}</h4>
                       {isCurrent && (
-                        <span className="px-2 py-0.5 rounded-full bg-gen-z-mint/20 text-gen-z-mint text-[10px] font-bold uppercase">
+                        <span className="px-2 py-0.5 rounded-full bg-success-soft/20 text-success-soft text-[10px] font-bold uppercase">
                           Actuel
                         </span>
                       )}
@@ -293,14 +293,14 @@ export function VipCardClient({ userXP, tierSlug, memberSince }: VipCardClientPr
                 className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gen-z-lavender/20 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-gen-z-lavender" />
+                  <div className="w-12 h-12 rounded-xl bg-brand-soft/20 flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-brand-soft" />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-white">{perk.perk}</h4>
                     <p className="text-sm text-zinc-400">Utilisé {perk.usedCount} fois</p>
                   </div>
-                  <TrendingUp className="w-5 h-5 text-gen-z-mint" />
+                  <TrendingUp className="w-5 h-5 text-success-soft" />
                 </div>
               </motion.div>
             )

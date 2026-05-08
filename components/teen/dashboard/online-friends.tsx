@@ -25,7 +25,7 @@ const activityLabels: Record<PresenceStatus, string> = {
 const statusColors: Record<PresenceStatus, string> = {
   online: 'bg-success',
   away: 'bg-yellow-500',
-  playing: 'bg-gen-z-lavender',
+  playing: 'bg-brand-soft',
   busy: 'bg-destructive',
   offline: 'bg-muted-foreground',
 }
@@ -177,7 +177,7 @@ function FriendAvatar({ friend, index }: { friend: FriendPresence; index: number
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gen-z-lavender flex items-center justify-center"
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-soft flex items-center justify-center"
             >
               <Gamepad2 className="w-3 h-3 text-white" />
             </motion.div>
@@ -190,7 +190,7 @@ function FriendAvatar({ friend, index }: { friend: FriendPresence; index: number
           {friend.full_name?.split(' ')[0] || 'Ami'}
         </span>
         {friend.current_activity && isActive && (
-          <span className="text-[10px] text-gen-z-lavender truncate block max-w-[64px]">
+          <span className="text-[10px] text-brand-soft truncate block max-w-[64px]">
             {friend.current_activity}
           </span>
         )}

@@ -53,15 +53,15 @@ const typeIcons = {
 }
 
 const typeColors = {
-  education: 'var(--gen-z-sky)',
-  crew: 'var(--gen-z-coral)',
-  entertainment: 'var(--gen-z-lavender)',
-  event: 'var(--gen-z-mint)',
+  education: 'var(--info-soft)',
+  crew: 'var(--accent-soft)',
+  entertainment: 'var(--brand-soft)',
+  event: 'var(--success-soft)',
   mission: 'var(--gen-z-lime)',
 }
 
 const agentConfig = {
-  teen: { name: 'Kai', gradient: 'from-gen-z-lavender to-gen-z-sky', icon: Sparkles },
+  teen: { name: 'Kai', gradient: 'from-brand-soft to-info-soft', icon: Sparkles },
   parent: { name: 'Aura', gradient: 'from-indigo-500 to-purple-600', icon: Brain },
   partner: { name: 'Biz', gradient: 'from-emerald-500 to-teal-600', icon: Zap },
   ambassador: { name: 'Hype', gradient: 'from-amber-500 to-orange-600', icon: Zap },
@@ -274,7 +274,7 @@ export function EliteAICompanion({
           
           {/* Notification dot */}
           {recommendations.length > 0 && (
-            <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-gen-z-coral border-2 border-zinc-950 animate-pulse" />
+            <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-accent-soft border-2 border-zinc-950 animate-pulse" />
           )}
           
           <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -320,8 +320,8 @@ export function EliteAICompanion({
               )}>
                 {/* Animated Background */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
-                  <GlowBlob color="var(--gen-z-lavender)" size={300} className="-top-20 -right-20 opacity-20" blur={60} />
-                  <GlowBlob color="var(--gen-z-sky)" size={250} className="-bottom-20 -left-20 opacity-10" blur={60} />
+                  <GlowBlob color="var(--brand-soft)" size={300} className="-top-20 -right-20 opacity-20" blur={60} />
+                  <GlowBlob color="var(--info-soft)" size={250} className="-bottom-20 -left-20 opacity-10" blur={60} />
                 </div>
 
                 {/* Drag indicator (mobile) */}
@@ -388,7 +388,7 @@ export function EliteAICompanion({
                       <div className={cn(
                         "max-w-[85%] rounded-2xl px-4 py-3",
                         message.role === 'user' 
-                          ? "bg-gen-z-lavender text-black rounded-br-md" 
+                          ? "bg-brand-soft text-black rounded-br-md" 
                           : "bg-white/5 border border-white/10 text-white rounded-bl-md"
                       )}>
                         <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
@@ -399,12 +399,12 @@ export function EliteAICompanion({
                         {message.toolInvocations?.map((tool: any) => (
                           <div key={tool.toolCallId} className="mt-3 p-3 rounded-xl bg-white/5 border border-white/10">
                             {tool.state === 'result' ? (
-                              <div className="flex items-center gap-2 text-xs text-gen-z-mint">
-                                <span className="w-2 h-2 rounded-full bg-gen-z-mint animate-pulse" />
+                              <div className="flex items-center gap-2 text-xs text-success-soft">
+                                <span className="w-2 h-2 rounded-full bg-success-soft animate-pulse" />
                                 {tool.result?.message || "Action effectuée !"}
                               </div>
                             ) : (
-                              <div className="flex items-center gap-2 text-xs text-gen-z-lavender">
+                              <div className="flex items-center gap-2 text-xs text-brand-soft">
                                 <Loader2 className="w-3 h-3 animate-spin" />
                                 {config.name} travaille sur: {tool.toolName}...
                               </div>
@@ -424,7 +424,7 @@ export function EliteAICompanion({
                     >
                       <div className="bg-white/5 border border-white/10 rounded-2xl rounded-bl-md px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin text-gen-z-lavender" />
+                          <Loader2 className="w-4 h-4 animate-spin text-brand-soft" />
                           <span className="text-sm text-zinc-400">{config.name} réfléchit...</span>
                         </div>
                       </div>
@@ -538,7 +538,7 @@ export function EliteAICompanion({
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder={listening ? "Je t'écoute..." : "Écris ton message..."}
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-gen-z-lavender/50 transition-colors"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-brand-soft/50 transition-colors"
                       disabled={isLoading}
                     />
                     

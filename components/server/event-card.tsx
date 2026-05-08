@@ -142,7 +142,7 @@ export function EventCard({
           
           {/* Gen-Z gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-90" />
-          <div className="absolute inset-0 bg-gradient-to-br from-gen-z-lavender/10 via-transparent to-gen-z-coral/10 opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-soft/10 via-transparent to-accent-soft/10 opacity-60" />
 
           {/* Badges overlay - Gen-Z styled */}
           <div className="absolute top-4 left-4 flex gap-2">
@@ -181,18 +181,18 @@ export function EventCard({
 
           {/* Meta info - Gen-Z styled pills */}
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gen-z-lavender/10 text-gen-z-lavender text-xs font-semibold">
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-soft/10 text-brand-soft text-xs font-semibold">
               <Calendar className="w-3.5 h-3.5" />
               {formatDate(event.event_date)}
             </span>
             {event.start_time && (
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gen-z-coral/10 text-gen-z-coral text-xs font-semibold">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent-soft/10 text-accent-soft text-xs font-semibold">
                 <Clock className="w-3.5 h-3.5" />
                 {formatTime(event.start_time)}
               </span>
             )}
             {event.city && (
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gen-z-mint/10 text-gen-z-mint text-xs font-semibold">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-success-soft/10 text-success-soft text-xs font-semibold">
                 <MapPin className="w-3.5 h-3.5" />
                 {event.city}
               </span>
@@ -270,13 +270,13 @@ export function EventCard({
         {/* Meta - Gen-Z styled */}
         <div className="flex flex-wrap gap-2 mb-3">
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Calendar className="w-3.5 h-3.5 text-gen-z-lavender" />
+            <Calendar className="w-3.5 h-3.5 text-brand-soft" />
             {formatDate(event.event_date)}
             {event.start_time && ` à ${formatTime(event.start_time)}`}
           </span>
           {event.city && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <MapPin className="w-3.5 h-3.5 text-gen-z-coral" />
+              <MapPin className="w-3.5 h-3.5 text-accent-soft" />
               {event.city}
             </span>
           )}

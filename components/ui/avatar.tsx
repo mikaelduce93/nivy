@@ -24,7 +24,7 @@ const avatarVariants = cva(
         none: '',
         default: 'ring-2 ring-border ring-offset-2 ring-offset-background',
         primary: 'ring-2 ring-primary ring-offset-2 ring-offset-background',
-        gradient: 'ring-2 ring-gen-z-lavender ring-offset-2 ring-offset-background',
+        gradient: 'ring-2 ring-brand-soft ring-offset-2 ring-offset-background',
         // Neon rings for gamification
         party: 'ring-2 ring-neon-party ring-offset-2 ring-offset-background shadow-[0_0_10px_var(--neon-party)]',
         vitality: 'ring-2 ring-neon-vitality ring-offset-2 ring-offset-background shadow-[0_0_10px_var(--neon-vitality)]',
@@ -54,7 +54,7 @@ interface AvatarProps
 const presenceColors: Record<PresenceStatus, string> = {
   online: 'bg-success',
   away: 'bg-yellow-500',
-  playing: 'bg-gen-z-lavender',
+  playing: 'bg-brand-soft',
   busy: 'bg-destructive',
   offline: 'bg-muted-foreground',
 }
@@ -126,11 +126,11 @@ const fallbackVariants = cva(
       variant: {
         default: 'bg-muted text-muted-foreground',
         primary: 'bg-primary text-primary-foreground',
-        gradient: 'bg-gradient-to-br from-gen-z-lavender to-gen-z-coral text-white',
-        lavender: 'bg-gen-z-lavender text-white',
-        coral: 'bg-gen-z-coral text-white',
+        gradient: 'bg-gradient-to-br from-brand-soft to-accent-soft text-white',
+        lavender: 'bg-brand-soft text-white',
+        coral: 'bg-accent-soft text-white',
         lime: 'bg-gen-z-lime text-on-bright',
-        mint: 'bg-gen-z-mint text-on-bright',
+        mint: 'bg-success-soft text-on-bright',
         grape: 'bg-gen-z-grape text-white',
       }
     },

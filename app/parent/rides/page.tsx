@@ -14,19 +14,46 @@ export default async function ParentRidesPage() {
   if (!userInfo || userInfo.role !== "parent") redirect("/login")
   const supabase = await createClient()
 
-  const { data: rides } = await supabase
-    .from("ride_bookings")
-    .select(
-      "id,status,pickup_address,dropoff_address,scheduled_for,estimated_dh,actual_dh,driver_id,teen_id"
-    )
-    .eq("parent_id", userInfo.profileId)
-    .order("scheduled_for", { ascending: false })
-    .limit(50)
+  // Polish-F: wrap with try/catch + capture error, surface as a banner.
+  // Previously a silent `(rides ?? [])` would mask RLS / network failures
+  // as a permanently-empty list.
+  type RideRow = {
+    id: string
+    status: string
+    pickup_address: string
+    dropoff_address: string
+    scheduled_for: string
+    estimated_dh: number | null
+    actual_dh: number | null
+    driver_id?: string | null
+    teen_id?: string | null
+  }
+  let rides: RideRow[] = []
+  let loadError: string | null = null
+  try {
+    const { data, error } = await supabase
+      .from("ride_bookings")
+      .select(
+        "id,status,pickup_address,dropoff_address,scheduled_for,estimated_dh,actual_dh,driver_id,teen_id"
+      )
+      .eq("parent_id", userInfo.profileId)
+      .order("scheduled_for", { ascending: false })
+      .limit(50)
+    if (error) {
+      console.error("[parent/rides] ride_bookings error:", error)
+      loadError = "Impossible de charger les trajets pour le moment."
+    } else {
+      rides = (data ?? []) as RideRow[]
+    }
+  } catch (err) {
+    console.error("[parent/rides] ride_bookings threw:", err)
+    loadError = "Impossible de charger les trajets pour le moment."
+  }
 
-  const active = (rides ?? []).filter((r) =>
+  const active = rides.filter((r) =>
     ["requested", "approved", "dispatched", "in_progress"].includes(r.status)
   )
-  const past = (rides ?? []).filter((r) =>
+  const past = rides.filter((r) =>
     ["completed", "cancelled", "denied"].includes(r.status)
   )
 
@@ -39,13 +66,30 @@ export default async function ParentRidesPage() {
         </p>
       </div>
 
+      {loadError && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+        >
+          {loadError}
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Actifs</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {active.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun trajet actif.</p>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Aucun trajet actif.</p>
+              <Link
+                href="/parent/teens"
+                className="inline-block text-xs text-emerald-400 hover:underline"
+              >
+                Configurer les autorisations transport →
+              </Link>
+            </div>
           ) : (
             active.map((r) => <ParentRow key={r.id} ride={r} />)
           )}

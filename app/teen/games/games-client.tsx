@@ -57,7 +57,7 @@ export function GamesClient({ games, stats }: Props) {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-coral to-pink-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
                 <Gamepad2 className="w-6 h-6 text-black" />
               </div>
               <div>
@@ -83,7 +83,7 @@ export function GamesClient({ games, stats }: Props) {
             className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Play className="w-4 h-4 text-gen-z-coral" />
+              <Play className="w-4 h-4 text-accent-soft" />
               <span className="font-black text-xl">{todayPlayed}</span>
             </div>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Joués aujourd'hui</p>
@@ -96,7 +96,7 @@ export function GamesClient({ games, stats }: Props) {
             className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-gen-z-lavender" />
+              <Zap className="w-4 h-4 text-brand-soft" />
               <span className="font-black text-xl">+{totalXpToday}</span>
             </div>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider">XP aujourd'hui</p>
@@ -127,7 +127,7 @@ export function GamesClient({ games, stats }: Props) {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
                   category === cat.id
-                    ? "bg-gen-z-coral text-black"
+                    ? "bg-accent-soft text-black"
                     : "bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800/50"
                 )}
               >
@@ -160,7 +160,7 @@ export function GamesClient({ games, stats }: Props) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               whileHover={{ scale: 1.02, y: -4 }}
-              className="relative p-6 rounded-3xl border transition-all cursor-pointer bg-zinc-900/50 border-white/5 hover:border-gen-z-coral/50"
+              className="relative p-6 rounded-3xl border transition-all cursor-pointer bg-zinc-900/50 border-white/5 hover:border-accent-soft/50"
             >
               <div className="flex items-start gap-4">
                 <div className="text-5xl">{game.icon || "🎮"}</div>
@@ -168,13 +168,13 @@ export function GamesClient({ games, stats }: Props) {
                   <h3 className="font-black text-lg text-white">{game.name}</h3>
                   <p className="text-sm text-zinc-400 mb-3">{game.description}</p>
                   <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-gen-z-lavender" />
-                    <span className="font-bold text-gen-z-lavender">+{game.base_xp} XP</span>
+                    <Zap className="w-4 h-4 text-brand-soft" />
+                    <span className="font-bold text-brand-soft">+{game.base_xp} XP</span>
                   </div>
                 </div>
               </div>
 
-              <Button className="w-full mt-4 bg-gen-z-coral text-black font-bold">
+              <Button className="w-full mt-4 bg-accent-soft text-black font-bold">
                 <Play className="w-4 h-4 mr-2" />
                 Jouer
               </Button>
@@ -199,7 +199,7 @@ export function GamesClient({ games, stats }: Props) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 whileHover={{ scale: 1.02 }}
-                className="relative overflow-hidden p-6 rounded-3xl bg-gradient-to-r from-gen-z-coral/10 to-transparent border border-gen-z-coral/20 cursor-pointer"
+                className="relative overflow-hidden p-6 rounded-3xl bg-gradient-to-r from-accent-soft/10 to-transparent border border-accent-soft/20 cursor-pointer"
               >
                 <div className="flex items-center gap-4">
                   <div className="text-5xl">{game.icon || "🎮"}</div>
@@ -208,7 +208,7 @@ export function GamesClient({ games, stats }: Props) {
                     <p className="text-sm text-zinc-400">{game.description}</p>
                   </div>
                   <div className="text-right">
-                    <div className="flex items-center gap-2 text-gen-z-lavender mb-1">
+                    <div className="flex items-center gap-2 text-brand-soft mb-1">
                       <Zap className="w-4 h-4" />
                       <span className="font-black">+{game.base_xp} XP</span>
                     </div>

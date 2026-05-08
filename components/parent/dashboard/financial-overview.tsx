@@ -82,7 +82,7 @@ export function FinancialOverview({
             value={spendingProgress} 
             max={100} 
             size={220} 
-            color={isOverBudget ? "var(--gen-z-coral)" : "var(--gen-z-teal)"}
+            color={isOverBudget ? "var(--accent-soft)" : "var(--gen-z-teal)"}
           >
             <div className="flex flex-col items-center">
               <span className="text-4xl font-black text-white leading-none tracking-tighter">

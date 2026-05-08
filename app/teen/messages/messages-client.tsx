@@ -209,7 +209,7 @@ function ConversationList({
       <header className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-sky to-blue-500 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-info-soft to-blue-500 flex items-center justify-center">
               <MessageCircle className="w-6 h-6 text-black" />
             </div>
             <div>
@@ -219,7 +219,7 @@ function ConversationList({
               </p>
             </div>
           </div>
-          <Button size="icon" className="rounded-full bg-gen-z-sky text-black">
+          <Button size="icon" className="rounded-full bg-info-soft text-black">
             <Plus className="w-5 h-5" />
           </Button>
         </div>
@@ -253,17 +253,17 @@ function ConversationList({
               className={cn(
                 "flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all",
                 selectedId === convo.id
-                  ? "bg-gen-z-sky/10 border border-gen-z-sky/30"
+                  ? "bg-info-soft/10 border border-info-soft/30"
                   : "bg-zinc-900/50 border border-white/5 hover:border-white/10"
               )}
             >
               <div className="relative">
                 {convo.isGroup ? (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gen-z-coral to-pink-500 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
                     <Users className="w-7 h-7 text-white" />
                   </div>
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-xl font-bold text-white">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
                     {convo.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -284,7 +284,7 @@ function ConversationList({
               <div className="text-right shrink-0">
                 <span className="text-xs text-zinc-500">{formatTime(convo.lastMessageAt)}</span>
                 {convo.unreadCount > 0 && (
-                  <div className="mt-1 w-6 h-6 rounded-full bg-gen-z-sky text-black text-xs font-black flex items-center justify-center ml-auto">
+                  <div className="mt-1 w-6 h-6 rounded-full bg-info-soft text-black text-xs font-black flex items-center justify-center ml-auto">
                     {convo.unreadCount}
                   </div>
                 )}
@@ -329,7 +329,7 @@ function ChatView({
           </Button>
         )}
         <div className="relative">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center text-lg font-bold text-white">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-lg font-bold text-white">
             {conversation.name.charAt(0).toUpperCase()}
           </div>
         </div>
@@ -373,7 +373,7 @@ function ChatView({
             <div className={cn(
               "max-w-[70%] p-4 rounded-2xl",
               msg.sender === "me"
-                ? "bg-gen-z-sky text-black rounded-br-md"
+                ? "bg-info-soft text-black rounded-br-md"
                 : "bg-zinc-800 text-white rounded-bl-md"
             )}>
               <p>{msg.text}</p>
@@ -414,7 +414,7 @@ function ChatView({
           </Button>
           <Button
             size="icon"
-            className="shrink-0 rounded-full bg-gen-z-sky text-black"
+            className="shrink-0 rounded-full bg-info-soft text-black"
             onClick={onSend}
           >
             <Send className="w-5 h-5" />

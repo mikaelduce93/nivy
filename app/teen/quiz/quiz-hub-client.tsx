@@ -88,7 +88,7 @@ export function QuizHubClient({
       <header className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-lavender to-purple-500 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-purple-500 flex items-center justify-center">
               <Brain className="w-6 h-6 text-black" />
             </div>
             <div>
@@ -108,18 +108,18 @@ export function QuizHubClient({
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">
           <StatCard
-            icon={<CheckCircle className="w-4 h-4 text-gen-z-mint" />}
+            icon={<CheckCircle className="w-4 h-4 text-success-soft" />}
             value={stats.totalCompleted.toString()}
             label="Complétés"
           />
           <StatCard
-            icon={<Target className="w-4 h-4 text-gen-z-coral" />}
+            icon={<Target className="w-4 h-4 text-accent-soft" />}
             value={`${stats.averageScore}%`}
             label="Moyenne"
             delay={0.1}
           />
           <StatCard
-            icon={<Zap className="w-4 h-4 text-gen-z-lavender" />}
+            icon={<Zap className="w-4 h-4 text-brand-soft" />}
             value={stats.totalXpEarned.toLocaleString()}
             label="XP Total"
             delay={0.2}
@@ -138,15 +138,15 @@ export function QuizHubClient({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative overflow-hidden rounded-3xl p-8 bg-gradient-to-br from-gen-z-lavender/20 to-purple-500/10 border border-gen-z-lavender/30"
+          className="relative overflow-hidden rounded-3xl p-8 bg-gradient-to-br from-brand-soft/20 to-purple-500/10 border border-brand-soft/30"
           data-testid="daily-quiz-card"
         >
-          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-gen-z-lavender/20 text-gen-z-lavender text-xs font-black uppercase">
+          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-brand-soft/20 text-brand-soft text-xs font-black uppercase">
             Quotidien
           </div>
 
           <div className="flex items-center gap-6 flex-wrap">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-gen-z-lavender to-purple-500 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-soft to-purple-500 flex items-center justify-center">
               <Brain className="w-10 h-10 text-black" />
             </div>
             <div className="flex-1 min-w-[240px]">
@@ -157,8 +157,8 @@ export function QuizHubClient({
               </p>
               <div className="flex items-center gap-6 flex-wrap">
                 <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-gen-z-lavender" />
-                  <span className="font-bold text-gen-z-lavender">
+                  <Zap className="w-5 h-5 text-brand-soft" />
+                  <span className="font-bold text-brand-soft">
                     +{dailyQuiz.quiz.xp_reward ?? 50} XP
                   </span>
                 </div>
@@ -177,7 +177,7 @@ export function QuizHubClient({
               </div>
             </div>
             <Link href={`/teen/quiz/${dailyQuiz.quiz.id}`}>
-              <Button className="bg-gen-z-lavender text-black font-bold hover:bg-gen-z-lavender/80">
+              <Button className="bg-brand-soft text-black font-bold hover:bg-brand-soft/80">
                 <Play className="w-4 h-4 mr-2" />
                 {dailyQuiz.completedToday ? "Rejouer" : "Commencer"}
               </Button>
@@ -271,7 +271,7 @@ export function QuizHubClient({
                         {quiz.grade_level && <span>{quiz.grade_level}</span>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-gen-z-lavender shrink-0">
+                    <div className="flex items-center gap-1 text-brand-soft shrink-0">
                       <Zap className="w-4 h-4" />
                       <span className="text-sm font-bold">+{quiz.xp_reward ?? 50}</span>
                     </div>
@@ -301,8 +301,8 @@ export function QuizHubClient({
                 transition={{ delay: idx * 0.04 }}
                 className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
               >
-                <div className="w-12 h-12 rounded-xl bg-gen-z-lavender/20 flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-gen-z-lavender" />
+                <div className="w-12 h-12 rounded-xl bg-brand-soft/20 flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-brand-soft" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-bold text-white truncate">
@@ -317,16 +317,16 @@ export function QuizHubClient({
                     className={cn(
                       "font-black text-lg",
                       attempt.score >= 90
-                        ? "text-gen-z-mint"
+                        ? "text-success-soft"
                         : attempt.score >= 70
                           ? "text-yellow-500"
-                          : "text-gen-z-coral",
+                          : "text-accent-soft",
                     )}
                   >
                     {attempt.score}%
                   </div>
                   {(attempt.xp_earned ?? 0) > 0 && (
-                    <div className="flex items-center gap-1 text-xs text-gen-z-lavender">
+                    <div className="flex items-center gap-1 text-xs text-brand-soft">
                       <Zap className="w-3 h-3" />
                       <span>+{attempt.xp_earned}</span>
                     </div>

@@ -81,10 +81,10 @@ export function LevelUpModal({
                   key={i}
                   className={cn(
                     "absolute w-2 h-2 rounded-full",
-                    i % 5 === 0 ? "bg-gen-z-lavender" :
-                    i % 5 === 1 ? "bg-gen-z-coral" :
+                    i % 5 === 0 ? "bg-brand-soft" :
+                    i % 5 === 1 ? "bg-accent-soft" :
                     i % 5 === 2 ? "bg-gen-z-lime" :
-                    i % 5 === 3 ? "bg-gen-z-mint" : "bg-gen-z-peach"
+                    i % 5 === 3 ? "bg-success-soft" : "bg-gen-z-peach"
                   )}
                   initial={{ 
                     x: '50vw',
@@ -144,7 +144,7 @@ export function LevelUpModal({
           >
             {/* Gen-Z Glow rings */}
             <motion.div 
-              className="absolute -inset-8 bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime rounded-full blur-3xl opacity-40"
+              className="absolute -inset-8 bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime rounded-full blur-3xl opacity-40"
               animate={{ 
                 scale: [1, 1.2, 1],
                 opacity: [0.3, 0.5, 0.3]
@@ -152,7 +152,7 @@ export function LevelUpModal({
               transition={{ repeat: Infinity, duration: 2 }}
             />
             <motion.div 
-              className="absolute -inset-4 bg-gradient-to-r from-gen-z-mint via-gen-z-grape to-gen-z-coral rounded-full blur-2xl opacity-30"
+              className="absolute -inset-4 bg-gradient-to-r from-success-soft via-gen-z-grape to-accent-soft rounded-full blur-2xl opacity-30"
               animate={{ 
                 scale: [1.2, 1, 1.2],
                 opacity: [0.2, 0.4, 0.2],
@@ -174,7 +174,7 @@ export function LevelUpModal({
               {/* Header section - Gen-Z styled */}
               <div className="relative pt-12 pb-8 px-8 text-center overflow-hidden">
                 {/* Background pattern - Gen-Z gradient */}
-                <div className="absolute inset-0 bg-gradient-to-b from-gen-z-lavender/20 via-gen-z-coral/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-brand-soft/20 via-accent-soft/10 to-transparent" />
                 <div className="absolute inset-0 opacity-5">
                   <div className="absolute top-4 left-4 w-20 h-20 border-2 border-white rounded-full" />
                   <div className="absolute bottom-8 right-8 w-16 h-16 border-2 border-white rounded-full" />
@@ -190,14 +190,14 @@ export function LevelUpModal({
                   <div className="relative inline-block">
                     {/* Glow - Gen-Z gradient */}
                     <motion.div 
-                      className="absolute inset-0 bg-gradient-to-r from-gen-z-lavender to-gen-z-coral rounded-full blur-2xl"
+                      className="absolute inset-0 bg-gradient-to-r from-brand-soft to-accent-soft rounded-full blur-2xl"
                       animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0.8, 0.5] }}
                       transition={{ repeat: Infinity, duration: 2 }}
                     />
                     
                     {/* Badge - Gen-Z holographic */}
                     <motion.div 
-                      className="relative w-36 h-36 mx-auto flex items-center justify-center rounded-full bg-gradient-to-br from-gen-z-lavender via-gen-z-coral to-gen-z-lime border-4 border-white/30 shadow-2xl"
+                      className="relative w-36 h-36 mx-auto flex items-center justify-center rounded-full bg-gradient-to-br from-brand-soft via-accent-soft to-gen-z-lime border-4 border-white/30 shadow-2xl"
                       animate={{ 
                         rotate: [0, 5, -5, 0],
                         scale: [1, 1.02, 1]
@@ -237,8 +237,8 @@ export function LevelUpModal({
                       >
                         <Star className={cn(
                           "w-5 h-5 fill-current",
-                          i % 3 === 0 ? "text-gen-z-lavender" :
-                          i % 3 === 1 ? "text-gen-z-coral" : "text-gen-z-lime"
+                          i % 3 === 0 ? "text-brand-soft" :
+                          i % 3 === 1 ? "text-accent-soft" : "text-gen-z-lime"
                         )} />
                       </motion.div>
                     ))}
@@ -252,7 +252,7 @@ export function LevelUpModal({
                   transition={{ delay: 0.6 }}
                   className="mt-6"
                 >
-                  <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime">
+                  <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime">
                     LEVEL UP !
                   </h2>
                   <p className="text-muted-foreground mt-2 text-lg">
@@ -266,11 +266,11 @@ export function LevelUpModal({
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 1, type: 'spring' }}
-                    className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-gen-z-grape/20 to-gen-z-lavender/20 border border-gen-z-lavender/30"
+                    className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-gen-z-grape/20 to-brand-soft/20 border border-brand-soft/30"
                   >
                     <span className="text-2xl">{newTitleIcon || '🏆'}</span>
                     <span className="font-bold text-foreground">{newTitle}</span>
-                    <Sparkles className="w-4 h-4 text-gen-z-lavender" />
+                    <Sparkles className="w-4 h-4 text-brand-soft" />
                   </motion.div>
                 )}
               </div>
@@ -286,7 +286,7 @@ export function LevelUpModal({
                   >
                     <div className="border-t border-border/50 pt-6">
                       <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2 mb-4">
-                        <Gift className="w-4 h-4 text-gen-z-coral" />
+                        <Gift className="w-4 h-4 text-accent-soft" />
                         Récompenses débloquées
                       </h3>
                       
@@ -302,9 +302,9 @@ export function LevelUpModal({
                               reward.type === 'xp_bonus' && "bg-gen-z-lime/10 border-gen-z-lime/20",
                               reward.type === 'coins' && "bg-gen-z-yellow/10 border-gen-z-yellow/20",
                               reward.type === 'badge' && "bg-gen-z-grape/10 border-gen-z-grape/20",
-                              reward.type === 'title' && "bg-gen-z-coral/10 border-gen-z-coral/20",
-                              reward.type === 'item' && "bg-gen-z-mint/10 border-gen-z-mint/20",
-                              reward.type === 'feature' && "bg-gen-z-lavender/10 border-gen-z-lavender/20",
+                              reward.type === 'title' && "bg-accent-soft/10 border-accent-soft/20",
+                              reward.type === 'item' && "bg-success-soft/10 border-success-soft/20",
+                              reward.type === 'feature' && "bg-brand-soft/10 border-brand-soft/20",
                             )}
                           >
                             <span className="text-2xl">{reward.icon || getRewardIcon(reward.type)}</span>
@@ -329,7 +329,7 @@ export function LevelUpModal({
               <div className="px-6 pb-6">
                 {xpToNextLevel && (
                   <p className="text-center text-sm text-muted-foreground mb-4">
-                    <Zap className="w-3 h-3 inline mr-1 text-gen-z-lavender" />
+                    <Zap className="w-3 h-3 inline mr-1 text-brand-soft" />
                     {xpToNextLevel.toLocaleString()} XP pour le niveau {newLevel + 1}
                   </p>
                 )}

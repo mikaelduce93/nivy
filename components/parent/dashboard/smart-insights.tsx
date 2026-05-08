@@ -36,14 +36,14 @@ const typeStyles = {
   warning: "bg-red-500/10 border-red-500/20 text-red-200",
   info: "bg-blue-500/10 border-blue-500/20 text-blue-200",
   success: "bg-emerald-500/10 border-emerald-500/20 text-emerald-200",
-  ai: "bg-gen-z-lavender/10 border-gen-z-lavender/20 text-gen-z-lavender",
+  ai: "bg-brand-soft/10 border-brand-soft/20 text-brand-soft",
 }
 
 const iconStyles = {
   warning: "text-red-400",
   info: "text-blue-400",
   success: "text-emerald-400",
-  ai: "text-gen-z-lavender",
+  ai: "text-brand-soft",
 }
 
 export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsProps) {
@@ -123,7 +123,7 @@ export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsPro
       {/* Header with refresh */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-          <Brain className="h-4 w-4 text-gen-z-lavender" />
+          <Brain className="h-4 w-4 text-brand-soft" />
           Insights Intelligents
         </h3>
         <Button
@@ -198,7 +198,7 @@ export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsPro
         >
           <Link
             href="/parent/ai-assistant"
-            className="flex items-center gap-2 text-xs text-zinc-500 hover:text-gen-z-lavender transition-colors group"
+            className="flex items-center gap-2 text-xs text-zinc-500 hover:text-brand-soft transition-colors group"
           >
             <Brain className="h-3.5 w-3.5 group-hover:animate-pulse" />
             <span>Demander des conseils à l'assistant IA</span>

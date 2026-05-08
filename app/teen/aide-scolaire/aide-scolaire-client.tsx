@@ -39,7 +39,7 @@ export function AideScolaireClient({
       {/* Header */}
       <header className="space-y-6">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-lavender to-purple-500 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-purple-500 flex items-center justify-center">
             <GraduationCap className="w-6 h-6 text-black" />
           </div>
           <div>
@@ -53,26 +53,26 @@ export function AideScolaireClient({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-2xl bg-gradient-to-br from-gen-z-lavender/10 to-purple-500/5 border border-gen-z-lavender/20"
+            className="p-4 rounded-2xl bg-gradient-to-br from-brand-soft/10 to-purple-500/5 border border-brand-soft/20"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-5 h-5 text-gen-z-lavender" />
+              <Zap className="w-5 h-5 text-brand-soft" />
               <span className="text-xs text-zinc-400 uppercase tracking-wider">XP Total</span>
             </div>
-            <p className="text-2xl font-black text-gen-z-lavender">{totalXP.toLocaleString()}</p>
+            <p className="text-2xl font-black text-brand-soft">{totalXP.toLocaleString()}</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 rounded-2xl bg-gradient-to-br from-gen-z-mint/10 to-emerald-500/5 border border-gen-z-mint/20"
+            className="p-4 rounded-2xl bg-gradient-to-br from-success-soft/10 to-emerald-500/5 border border-success-soft/20"
           >
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-gen-z-mint" />
+              <CheckCircle className="w-5 h-5 text-success-soft" />
               <span className="text-xs text-zinc-400 uppercase tracking-wider">Notes</span>
             </div>
-            <p className="text-2xl font-black text-gen-z-mint">{gradeCount}</p>
+            <p className="text-2xl font-black text-success-soft">{gradeCount}</p>
           </motion.div>
 
           <motion.div
@@ -82,7 +82,7 @@ export function AideScolaireClient({
             className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Target className="w-5 h-5 text-gen-z-coral" />
+              <Target className="w-5 h-5 text-accent-soft" />
               <span className="text-xs text-zinc-400 uppercase tracking-wider">Matières</span>
             </div>
             <p className="text-2xl font-black text-white">{subjects.length}</p>
@@ -134,9 +134,9 @@ export function AideScolaireClient({
                   {subject.average !== null && (
                     <span className={cn(
                       "text-sm font-bold",
-                      subject.average >= 14 ? "text-gen-z-mint" :
+                      subject.average >= 14 ? "text-success-soft" :
                       subject.average >= 10 ? "text-yellow-500" :
-                      "text-gen-z-coral"
+                      "text-accent-soft"
                     )}>
                       {subject.average >= 14 ? "Excellent" :
                        subject.average >= 10 ? "Bien" : "À améliorer"}
@@ -158,7 +158,7 @@ export function AideScolaireClient({
       {/* Recommended — no backend yet */}
       <section className="space-y-4">
         <div className="flex items-center gap-3">
-          <Brain className="w-5 h-5 text-gen-z-coral" />
+          <Brain className="w-5 h-5 text-accent-soft" />
           <h2 className="text-xl font-black uppercase">Recommandé pour toi</h2>
         </div>
 
@@ -176,7 +176,7 @@ export function AideScolaireClient({
       {/* Recent Activity — no dedicated endpoint yet */}
       <section className="space-y-4">
         <div className="flex items-center gap-3">
-          <BookOpen className="w-5 h-5 text-gen-z-lavender" />
+          <BookOpen className="w-5 h-5 text-brand-soft" />
           <h2 className="text-xl font-black uppercase">Activité Récente</h2>
         </div>
 

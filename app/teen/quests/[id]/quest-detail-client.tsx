@@ -57,9 +57,9 @@ interface QuestDetailClientProps {
 const PILLAR_CONFIG = {
   intellect: {
     icon: Brain,
-    color: 'var(--gen-z-sky)',
-    gradient: 'from-gen-z-sky to-cyan-600',
-    bg: 'bg-gen-z-sky/10',
+    color: 'var(--info-soft)',
+    gradient: 'from-info-soft to-cyan-600',
+    bg: 'bg-info-soft/10',
     label: 'INTELLECT',
   },
   vitality: {
@@ -71,16 +71,16 @@ const PILLAR_CONFIG = {
   },
   creativity: {
     icon: Palette,
-    color: 'var(--gen-z-lavender)',
-    gradient: 'from-gen-z-lavender to-purple-600',
-    bg: 'bg-gen-z-lavender/10',
+    color: 'var(--brand-soft)',
+    gradient: 'from-brand-soft to-purple-600',
+    bg: 'bg-brand-soft/10',
     label: 'CREATIVITY',
   },
   social: {
     icon: Users,
-    color: 'var(--gen-z-coral)',
-    gradient: 'from-gen-z-coral to-rose-600',
-    bg: 'bg-gen-z-coral/10',
+    color: 'var(--accent-soft)',
+    gradient: 'from-accent-soft to-rose-600',
+    bg: 'bg-accent-soft/10',
     label: 'SOCIAL',
   },
 }
@@ -300,7 +300,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
                 <p className="text-2xl font-black text-white">+{quest.xp_reward} XP</p>
                 {optimisticXpDelta > 0 && (
                   <p
-                    className="mt-1 text-xs font-bold text-gen-z-mint animate-in fade-in slide-in-from-bottom-1"
+                    className="mt-1 text-xs font-bold text-success-soft animate-in fade-in slide-in-from-bottom-1"
                     aria-live="polite"
                   >
                     +{optimisticXpDelta} XP gagnés
@@ -359,7 +359,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
                   className={cn(
                     "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left",
                     step.completed
-                      ? "bg-gen-z-mint/10 border-gen-z-mint/30"
+                      ? "bg-success-soft/10 border-success-soft/30"
                       : "bg-white/5 border-white/10 hover:bg-white/10",
                     !isInProgress && "opacity-60 cursor-not-allowed"
                   )}
@@ -367,7 +367,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors",
                     step.completed
-                      ? "bg-gen-z-mint text-black"
+                      ? "bg-success-soft text-black"
                       : "bg-white/10 text-zinc-500"
                   )}>
                     {step.completed ? (
@@ -379,7 +379,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
                   <div className="flex-1 min-w-0">
                     <p className={cn(
                       "font-bold",
-                      step.completed ? "text-gen-z-mint line-through" : "text-white"
+                      step.completed ? "text-success-soft line-through" : "text-white"
                     )}>
                       {step.title}
                     </p>
@@ -401,11 +401,11 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
           className="pt-4"
         >
           {isCompleted ? (
-            <div className="flex items-center justify-center gap-4 p-6 rounded-3xl bg-gen-z-mint/20 border border-gen-z-mint/30">
-              <Trophy className="w-8 h-8 text-gen-z-mint" />
+            <div className="flex items-center justify-center gap-4 p-6 rounded-3xl bg-success-soft/20 border border-success-soft/30">
+              <Trophy className="w-8 h-8 text-success-soft" />
               <div>
-                <p className="text-xl font-black text-gen-z-mint">Quête Complétée !</p>
-                <p className="text-sm text-gen-z-mint/70">+{quest.xp_reward} XP gagnés</p>
+                <p className="text-xl font-black text-success-soft">Quête Complétée !</p>
+                <p className="text-sm text-success-soft/70">+{quest.xp_reward} XP gagnés</p>
               </div>
             </div>
           ) : isInProgress ? (

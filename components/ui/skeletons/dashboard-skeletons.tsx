@@ -246,7 +246,7 @@ export function MapPreviewSkeleton() {
         animate={{ opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        <div className="w-32 h-32 rounded-full bg-gen-z-lavender/10 blur-xl" />
+        <div className="w-32 h-32 rounded-full bg-brand-soft/10 blur-xl" />
       </motion.div>
 
       {/* Center marker */}

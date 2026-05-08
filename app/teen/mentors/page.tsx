@@ -102,14 +102,14 @@ export default async function TeenMentorsPage({
 
         <header className="mb-8">
           <div className="flex items-start gap-3">
-            <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-gen-z-sky to-gen-z-mint flex items-center justify-center">
+            <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-info-soft to-success-soft flex items-center justify-center">
               <GraduationCap className="h-6 w-6 text-black" aria-hidden />
             </div>
             <div className="min-w-0">
               <h1 className="text-4xl font-black tracking-tighter uppercase italic text-white leading-none">
                 Mentors
               </h1>
-              <p className="mt-1 text-zinc-500 text-sm font-medium">
+              <p className="mt-1 text-zinc-400 text-sm font-medium">
                 Trouve un mentor verifie pour t'accompagner sur ton chemin.
               </p>
             </div>
@@ -117,7 +117,11 @@ export default async function TeenMentorsPage({
         </header>
 
         {error ? (
-          <div className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="mb-6 rounded-2xl border border-red-500/40 bg-red-500/15 p-4 text-sm text-red-100"
+          >
             Impossible de charger les mentors pour le moment.
           </div>
         ) : null}
@@ -125,13 +129,22 @@ export default async function TeenMentorsPage({
         {/* Filters */}
         <form
           method="GET"
+          aria-label="Filtres mentors"
           className="mb-8 rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-4 flex flex-wrap gap-3 items-end"
         >
           <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-none">
-            <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+            <label
+              htmlFor="mentor-tag"
+              className="text-xs font-black uppercase tracking-wider text-zinc-400"
+            >
               Domaine
             </label>
-            <select name="tag" defaultValue={tag} className={`${selectClass} w-full sm:w-auto`}>
+            <select
+              id="mentor-tag"
+              name="tag"
+              defaultValue={tag}
+              className={`${selectClass} w-full sm:w-auto`}
+            >
               <option value="">Tous les domaines</option>
               {EXPERTISE_PRESETS.map((p) => (
                 <option key={p.slug} value={p.slug}>
@@ -141,10 +154,14 @@ export default async function TeenMentorsPage({
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+            <label
+              htmlFor="mentor-age"
+              className="text-xs font-black uppercase tracking-wider text-zinc-400"
+            >
               Mon age
             </label>
             <input
+              id="mentor-age"
               type="number"
               name="age"
               min={13}
@@ -155,10 +172,14 @@ export default async function TeenMentorsPage({
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+            <label
+              htmlFor="mentor-min-rating"
+              className="text-xs font-black uppercase tracking-wider text-zinc-400"
+            >
               Note min.
             </label>
             <select
+              id="mentor-min-rating"
               name="min_rating"
               defaultValue={sp.min_rating ?? ""}
               className={selectClass}

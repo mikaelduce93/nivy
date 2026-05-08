@@ -333,7 +333,7 @@ export function CrewHub() {
                 >
                   <Swords className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   Lancer une Crew Battle
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-2 text-gen-z-lavender" />
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-2 text-brand-soft" />
                 </PremiumButton>
               </motion.div>
             </Link>

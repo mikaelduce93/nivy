@@ -110,12 +110,12 @@ export function ErrorState({
           {action && (
             action.href ? (
               <Link href={action.href}>
-                <Button className="bg-gen-z-lavender hover:bg-gen-z-lavender/80">
+                <Button className="bg-brand-soft hover:bg-brand-soft/80">
                   {action.label}
                 </Button>
               </Link>
             ) : (
-              <Button className="bg-gen-z-lavender hover:bg-gen-z-lavender/80" onClick={action.onClick}>
+              <Button className="bg-brand-soft hover:bg-brand-soft/80" onClick={action.onClick}>
                 <RefreshCw className="w-4 h-4 mr-2" />
                 {action.label}
               </Button>
@@ -243,12 +243,12 @@ export function EmptyState({ icon, title, message, action, className }: EmptySta
       {action && (
         action.href ? (
           <Link href={action.href}>
-            <Button className="bg-gen-z-lavender hover:bg-gen-z-lavender/80">
+            <Button className="bg-brand-soft hover:bg-brand-soft/80">
               {action.label}
             </Button>
           </Link>
         ) : (
-          <Button className="bg-gen-z-lavender hover:bg-gen-z-lavender/80" onClick={action.onClick}>
+          <Button className="bg-brand-soft hover:bg-brand-soft/80" onClick={action.onClick}>
             {action.label}
           </Button>
         )

@@ -30,8 +30,8 @@ export function UnifiedQuestFeed({ quests }: UnifiedQuestFeedProps) {
       <div className="space-y-6 sm:space-y-8 md:space-y-10">
         <div className="flex items-center justify-between px-2 sm:px-4 flex-wrap gap-3">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gen-z-lavender/10 flex items-center justify-center shrink-0">
-              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gen-z-lavender" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-soft/10 flex items-center justify-center shrink-0">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-brand-soft" />
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tighter uppercase italic">The Feed</h2>

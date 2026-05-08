@@ -52,7 +52,7 @@ export default async function QuizHistoryPage() {
           <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Moyenne</div>
         </div>
         <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center">
-          <div className="text-2xl font-black text-gen-z-lavender">
+          <div className="text-2xl font-black text-brand-soft">
             {stats.totalXpEarned.toLocaleString()}
           </div>
           <div className="text-[10px] text-zinc-500 uppercase tracking-wider">XP Total</div>
@@ -72,7 +72,7 @@ export default async function QuizHistoryPage() {
           </p>
           <Link
             href="/teen/quiz"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gen-z-lavender text-black font-bold"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-soft text-black font-bold"
           >
             Voir les quiz
           </Link>
@@ -85,8 +85,8 @@ export default async function QuizHistoryPage() {
               href={attempt.quiz_id ? `/teen/quiz/${attempt.quiz_id}` : "#"}
               className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/15 transition-colors"
             >
-              <div className="w-12 h-12 rounded-xl bg-gen-z-lavender/20 flex items-center justify-center">
-                <Brain className="w-6 h-6 text-gen-z-lavender" />
+              <div className="w-12 h-12 rounded-xl bg-brand-soft/20 flex items-center justify-center">
+                <Brain className="w-6 h-6 text-brand-soft" />
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-white truncate">
@@ -101,16 +101,16 @@ export default async function QuizHistoryPage() {
                   className={cn(
                     "font-black text-lg",
                     attempt.score >= 90
-                      ? "text-gen-z-mint"
+                      ? "text-success-soft"
                       : attempt.score >= 70
                         ? "text-yellow-500"
-                        : "text-gen-z-coral",
+                        : "text-accent-soft",
                   )}
                 >
                   {attempt.score}%
                 </div>
                 {(attempt.xp_earned ?? 0) > 0 && (
-                  <div className="flex items-center justify-end gap-1 text-xs text-gen-z-lavender">
+                  <div className="flex items-center justify-end gap-1 text-xs text-brand-soft">
                     <Zap className="w-3 h-3" />
                     <span>+{attempt.xp_earned}</span>
                   </div>

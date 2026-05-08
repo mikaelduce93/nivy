@@ -181,7 +181,7 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-black/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <Zap className="w-4 h-4 text-gen-z-lavender" />
+                <Zap className="w-4 h-4 text-brand-soft" />
                 <span className="font-black text-xl">{walletData.xp.total.toLocaleString()}</span>
               </div>
               <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Total XP</p>
@@ -202,7 +202,7 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
             </div>
             <div className="p-4 rounded-2xl bg-black/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <TrendingUp className="w-4 h-4 text-gen-z-mint" />
+                <TrendingUp className="w-4 h-4 text-success-soft" />
                 <span className="font-black text-xl">Lvl {walletData.xp.level}</span>
               </div>
               <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Level</p>
@@ -215,7 +215,7 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
       <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold">Level Progress</h3>
-          <span className="text-sm text-gen-z-lavender font-bold">Level {walletData.xp.level + 1}</span>
+          <span className="text-sm text-brand-soft font-bold">Level {walletData.xp.level + 1}</span>
         </div>
         <Progress value={walletData.xp.progressPercent} className="h-3" />
         <p className="text-sm text-zinc-500 mt-2">{walletData.xp.progressPercent}% to next level</p>
@@ -341,8 +341,8 @@ function ShopTab({
     return (
       <div className="flex flex-col items-end">
         <div className="flex items-center gap-1">
-          <Zap className="w-4 h-4 text-gen-z-lavender" />
-          <span className="font-black text-gen-z-lavender">
+          <Zap className="w-4 h-4 text-brand-soft" />
+          <span className="font-black text-brand-soft">
             {xpCost.toLocaleString()}
           </span>
         </div>
@@ -357,7 +357,7 @@ function ShopTab({
       <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 flex items-center justify-between flex-wrap gap-3">
         <div className="text-sm text-zinc-300">
           Tu as{" "}
-          <span className="text-gen-z-lavender font-bold">
+          <span className="text-brand-soft font-bold">
             {userXP.toLocaleString()} XP
           </span>{" "}
           (≈{" "}
@@ -373,32 +373,39 @@ function ShopTab({
 
       {/* Category filters */}
       {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Filtres catégories" className="flex flex-wrap gap-2">
           <button
+            type="button"
             onClick={() => setActiveCategory(null)}
+            aria-pressed={!activeCategory}
             className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors",
+              "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-soft",
               !activeCategory
-                ? "bg-gen-z-lavender text-black"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
+                ? "bg-brand-soft text-black"
+                : "bg-zinc-800 text-zinc-300 hover:text-white"
             )}
           >
             Tous
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.slug)}
-              className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors",
-                activeCategory === cat.slug
-                  ? "bg-gen-z-lavender text-black"
-                  : "bg-zinc-800 text-zinc-400 hover:text-white"
-              )}
-            >
-              {cat.name}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const active = activeCategory === cat.slug
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setActiveCategory(cat.slug)}
+                aria-pressed={active}
+                className={cn(
+                  "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-soft",
+                  active
+                    ? "bg-brand-soft text-black"
+                    : "bg-zinc-800 text-zinc-300 hover:text-white"
+                )}
+              >
+                {cat.name}
+              </button>
+            )
+          })}
         </div>
       )}
 
@@ -407,21 +414,21 @@ function ShopTab({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative overflow-hidden rounded-3xl p-8 border border-gen-z-lavender/20 bg-gradient-to-br from-gen-z-lavender/10 to-gen-z-sky/5"
+          className="relative overflow-hidden rounded-3xl p-8 border border-brand-soft/20 bg-gradient-to-br from-brand-soft/10 to-info-soft/5"
         >
-          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-gen-z-lavender/20 text-gen-z-lavender text-xs font-black uppercase">
+          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-brand-soft/20 text-brand-soft text-xs font-black uppercase">
             Featured
           </div>
           <div className="flex items-center gap-6 flex-wrap">
             <div className="w-24 h-24 rounded-3xl bg-white/10 flex items-center justify-center text-5xl">
-              <Gift className="w-10 h-10 text-gen-z-lavender" />
+              <Gift className="w-10 h-10 text-brand-soft" />
             </div>
             <div className="flex-1 min-w-[200px]">
               <h3 className="text-2xl font-black">{featured.name}</h3>
               <p className="text-zinc-400 mt-1">{featured.description || "Limited edition reward"}</p>
               <div className="flex items-center gap-2 mt-4">
-                <Zap className="w-5 h-5 text-gen-z-lavender" />
-                <span className="font-black text-xl text-gen-z-lavender">
+                <Zap className="w-5 h-5 text-brand-soft" />
+                <span className="font-black text-xl text-brand-soft">
                   {featured.xp_cost.toLocaleString()} XP
                 </span>
                 <span className="text-sm text-zinc-500">
@@ -430,7 +437,7 @@ function ShopTab({
               </div>
             </div>
             <Button
-              className="bg-gen-z-lavender text-black font-bold"
+              className="bg-brand-soft text-black font-bold"
               disabled={
                 !featured.can_purchase ||
                 userXP < featured.xp_cost ||
@@ -471,13 +478,13 @@ function ShopTab({
                 className={cn(
                   "p-5 rounded-3xl bg-zinc-900/50 border transition-all flex flex-col",
                   canAfford
-                    ? "border-white/5 hover:border-gen-z-lavender/40"
+                    ? "border-white/5 hover:border-brand-soft/40"
                     : "border-white/5 opacity-70"
                 )}
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-14 h-14 rounded-2xl bg-gen-z-lavender/10 flex items-center justify-center">
-                    <Gift className="w-7 h-7 text-gen-z-lavender" />
+                  <div className="w-14 h-14 rounded-2xl bg-brand-soft/10 flex items-center justify-center">
+                    <Gift className="w-7 h-7 text-brand-soft" />
                   </div>
                   {renderPriceTag(item.xp_cost)}
                 </div>
@@ -560,7 +567,7 @@ function BadgesTab({ teenId }: { teenId?: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-gen-z-lavender" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-soft" />
       </div>
     )
   }
@@ -569,8 +576,8 @@ function BadgesTab({ teenId }: { teenId?: string }) {
     <div className="space-y-8">
       {/* Stats */}
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-gen-z-mint/10 border border-gen-z-mint/20">
-          <Check className="w-5 h-5 text-gen-z-mint" />
+        <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-success-soft/10 border border-success-soft/20">
+          <Check className="w-5 h-5 text-success-soft" />
           <span className="font-bold">{unlockedCount} Unlocked</span>
         </div>
         <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-zinc-800/50 border border-white/5">
@@ -664,7 +671,7 @@ function VIPTab() {
                 <div className="flex items-center gap-3">
                   <h4 className="font-black text-lg">{tier.name}</h4>
                   {tier.current && (
-                    <span className="px-2 py-0.5 rounded-full bg-gen-z-mint/20 text-gen-z-mint text-[10px] font-bold uppercase">
+                    <span className="px-2 py-0.5 rounded-full bg-success-soft/20 text-success-soft text-[10px] font-bold uppercase">
                       Current
                     </span>
                   )}

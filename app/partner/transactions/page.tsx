@@ -91,16 +91,29 @@ export default async function PartnerTransactionsPage() {
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
-  const { data: monthData } = await supabase
-    .from("partner_transactions")
-    .select("id, amount_dh, commission_dh, status")
-    .eq("partner_id", partnerId)
-    .gte("created_at", startOfMonth.toISOString())
-
-  const monthRows = (monthData ?? []) as Pick<
+  // Polish-F: wrap with try/catch so a thrown query degrades to zeroed KPIs
+  // and an inline banner instead of 500-ing the route.
+  let monthRows: Pick<
     PartnerTransactionRow,
     "id" | "amount_dh" | "commission_dh" | "status"
-  >[]
+  >[] = []
+  let loadError: string | null = null
+  try {
+    const { data: monthData, error } = await supabase
+      .from("partner_transactions")
+      .select("id, amount_dh, commission_dh, status")
+      .eq("partner_id", partnerId)
+      .gte("created_at", startOfMonth.toISOString())
+    if (error) {
+      console.error("[partner/transactions] month error:", error)
+      loadError = "Impossible de charger les statistiques du mois."
+    } else {
+      monthRows = (monthData ?? []) as typeof monthRows
+    }
+  } catch (err) {
+    console.error("[partner/transactions] month threw:", err)
+    loadError = "Impossible de charger les statistiques du mois."
+  }
 
   const monthCount = monthRows.length
   const monthRevenue = monthRows.reduce((s, r) => s + Number(r.amount_dh || 0), 0)
@@ -108,16 +121,26 @@ export default async function PartnerTransactionsPage() {
   const monthAverage = monthCount > 0 ? Math.round(monthRevenue / monthCount) : 0
 
   // Latest 50 transactions, regardless of date, for the history list.
-  const { data: recentData } = await supabase
-    .from("partner_transactions")
-    .select(
-      "id, partner_id, teen_id, amount_dh, amount_coins, cashback_xp, commission_dh, status, scanner_user_id, scanned_at, created_at"
-    )
-    .eq("partner_id", partnerId)
-    .order("created_at", { ascending: false })
-    .limit(50)
-
-  const transactions = (recentData ?? []) as PartnerTransactionRow[]
+  let transactions: PartnerTransactionRow[] = []
+  try {
+    const { data: recentData, error } = await supabase
+      .from("partner_transactions")
+      .select(
+        "id, partner_id, teen_id, amount_dh, amount_coins, cashback_xp, commission_dh, status, scanner_user_id, scanned_at, created_at"
+      )
+      .eq("partner_id", partnerId)
+      .order("created_at", { ascending: false })
+      .limit(50)
+    if (error) {
+      console.error("[partner/transactions] recent error:", error)
+      loadError = loadError ?? "Impossible de charger l'historique."
+    } else {
+      transactions = (recentData ?? []) as PartnerTransactionRow[]
+    }
+  } catch (err) {
+    console.error("[partner/transactions] recent threw:", err)
+    loadError = loadError ?? "Impossible de charger l'historique."
+  }
 
   return (
     <div className="space-y-6">
@@ -132,6 +155,15 @@ export default async function PartnerTransactionsPage() {
           Exporter CSV
         </Button>
       </div>
+
+      {loadError && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+        >
+          {loadError}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

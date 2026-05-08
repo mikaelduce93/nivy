@@ -96,7 +96,7 @@ function ApprovalItem({ request, onAction }: { request: any, onAction: (id: stri
           <div className="flex items-center gap-4">
             <div className={cn(
               "w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl",
-              isBirthday ? "bg-gen-z-lavender/20 text-gen-z-lavender" : "bg-gen-z-teal/20 text-gen-z-teal"
+              isBirthday ? "bg-brand-soft/20 text-brand-soft" : "bg-gen-z-teal/20 text-gen-z-teal"
             )}>
               {isBirthday ? <Cake className="w-7 h-7" /> : <Ticket className="w-7 h-7" />}
             </div>

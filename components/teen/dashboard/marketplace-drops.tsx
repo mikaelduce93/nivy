@@ -13,7 +13,7 @@ const DROPS = [
     offer: "Crew Menu -30%",
     cost: 200,
     timeLeft: "2h 15m",
-    color: "var(--gen-z-coral)",
+    color: "var(--accent-soft)",
     image: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=400&h=400&fit=crop"
   },
   {
@@ -22,7 +22,7 @@ const DROPS = [
     offer: "Gaming Pass 24h",
     cost: 500,
     timeLeft: "5h 40m",
-    color: "var(--gen-z-lavender)",
+    color: "var(--brand-soft)",
     image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=400&fit=crop"
   }
 ]
@@ -55,7 +55,7 @@ export function MarketplaceDrops() {
             <div className="flex justify-between items-start gap-2">
               <div className="space-y-1.5 sm:space-y-2 min-w-0">
                 <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/10 border border-white/10 backdrop-blur-md">
-                  <Timer className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-gen-z-coral shrink-0" />
+                  <Timer className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-accent-soft shrink-0" />
                   <span className="text-[7px] sm:text-[8px] font-black text-white uppercase tracking-widest truncate">{drop.timeLeft} LEFT</span>
                 </div>
                 <h3 className="text-xs sm:text-sm font-black text-zinc-500 uppercase tracking-[0.2em] sm:tracking-[0.3em] truncate">{drop.brand}</h3>

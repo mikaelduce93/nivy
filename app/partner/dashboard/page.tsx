@@ -86,30 +86,42 @@ export default async function PartnerDashboard() {
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
-  const [
-    { data: monthTxRaw },
-    { data: recentTxRaw },
-    { data: offersRaw },
-  ] = await Promise.all([
-    supabase
-      .from("partner_transactions")
-      .select("id, teen_id, amount_dh, cashback_xp, status, created_at")
-      .eq("partner_id", partnerId)
-      .gte("created_at", startOfMonth.toISOString()),
-    supabase
-      .from("partner_transactions")
-      .select("id, teen_id, amount_dh, cashback_xp, status, created_at")
-      .eq("partner_id", partnerId)
-      .order("created_at", { ascending: false })
-      .limit(4),
-    supabase
-      .from("partner_discounts")
-      .select("id, discount_name, current_total_uses, is_active, valid_until")
-      .eq("partner_id", partnerId)
-      .eq("is_active", true)
-      .order("current_total_uses", { ascending: false })
-      .limit(2),
-  ])
+  // Polish-F: previously a thrown query (RLS / network) bubbled up and
+  // 500-ed the whole dashboard. Wrap in try/catch and fall through to empty
+  // arrays so the KPIs render at zero gracefully.
+  let monthTxRaw: unknown[] | null = []
+  let recentTxRaw: unknown[] | null = []
+  let offersRaw: unknown[] | null = []
+  try {
+    const [m, r, o] = await Promise.all([
+      supabase
+        .from("partner_transactions")
+        .select("id, teen_id, amount_dh, cashback_xp, status, created_at")
+        .eq("partner_id", partnerId)
+        .gte("created_at", startOfMonth.toISOString()),
+      supabase
+        .from("partner_transactions")
+        .select("id, teen_id, amount_dh, cashback_xp, status, created_at")
+        .eq("partner_id", partnerId)
+        .order("created_at", { ascending: false })
+        .limit(4),
+      supabase
+        .from("partner_discounts")
+        .select("id, discount_name, current_total_uses, is_active, valid_until")
+        .eq("partner_id", partnerId)
+        .eq("is_active", true)
+        .order("current_total_uses", { ascending: false })
+        .limit(2),
+    ])
+    if (m.error) console.error("[partner/dashboard] month tx:", m.error)
+    if (r.error) console.error("[partner/dashboard] recent tx:", r.error)
+    if (o.error) console.error("[partner/dashboard] offers:", o.error)
+    monthTxRaw = m.data ?? []
+    recentTxRaw = r.data ?? []
+    offersRaw = o.data ?? []
+  } catch (err) {
+    console.error("[partner/dashboard] queries threw:", err)
+  }
 
   const monthTx = (monthTxRaw ?? []) as {
     id: string
@@ -223,10 +235,13 @@ export default async function PartnerDashboard() {
   return (
     <ParallaxContainer className="min-h-screen bg-[#030303] text-white selection:bg-purple-500/30 overflow-hidden">
       {/* Dynamic Background Elements */}
-      <ParallaxLayer speed={-0.15} className="z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-      </ParallaxLayer>
+      {/* V1.4 a11y: gate parallax on prefers-reduced-motion (WCAG 2.3.3). */}
+      <div aria-hidden="true" className="motion-reduce:hidden">
+        <ParallaxLayer speed={-0.15} className="z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[120px] rounded-full" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
+        </ParallaxLayer>
+      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto p-6 md:p-10 space-y-10">
         {/* Header */}
@@ -511,7 +526,7 @@ export default async function PartnerDashboard() {
             <Link
               key={link.label}
               href={link.href}
-              className="px-6 py-3 rounded-2xl bg-white/5 border border-white/5 text-xs font-bold text-zinc-500 hover:bg-white/10 hover:text-white hover:border-white/10 transition-all"
+              className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-sm font-bold text-zinc-300 hover:bg-white/10 hover:text-white hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 transition-all"
             >
               {link.label}
             </Link>

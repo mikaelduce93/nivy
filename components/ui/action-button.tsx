@@ -129,7 +129,7 @@ export function ActionButton({
   label,
   variant = 'bubble',
   size = 'md',
-  color = 'bg-gen-z-lavender',
+  color = 'bg-brand-soft',
   shadow = 'shadow-xl',
   badge,
   disableEffects = false,
@@ -392,7 +392,7 @@ function InlineContent({
         )}
       </div>
       
-      <span className="text-sm font-medium text-white group-hover:text-gen-z-lavender transition-colors">
+      <span className="text-sm font-medium text-white group-hover:text-brand-soft transition-colors">
         {label}
       </span>
     </motion.div>

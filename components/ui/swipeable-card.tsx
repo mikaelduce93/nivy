@@ -463,7 +463,7 @@ export function SwipeTabs({
         ))}
         {/* Active indicator */}
         <motion.div
-          className="absolute bottom-0 h-0.5 bg-gradient-to-r from-gen-z-lavender to-gen-z-coral"
+          className="absolute bottom-0 h-0.5 bg-gradient-to-r from-brand-soft to-accent-soft"
           initial={false}
           animate={{
             left: `${(activeIndex / tabs.length) * 100}%`,

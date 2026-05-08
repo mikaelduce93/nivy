@@ -36,23 +36,37 @@ export default async function CreatorLeaderboardPage({
   if (!user) redirect("/login")
 
   const sr = createServiceRoleClient()
-  await sr.rpc("refresh_creator_monthly_stats")
-
+  // Polish-F: refresh + read can both fail. Previously a thrown RPC bubbled
+  // straight to the framework error boundary; now we degrade gracefully.
+  let entries: Row[] = []
+  let loadError: string | null = null
   const now = new Date()
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
     .toISOString()
     .slice(0, 10)
-
-  let q = sr
-    .from("creator_monthly_stats")
-    .select("user_id,category,submissions_count,total_likes,total_views,xp_earned,rank_overall")
-    .eq("month", monthStart)
-    .order("xp_earned", { ascending: false })
-    .limit(20)
-  if (category && category !== "all") q = q.eq("category", category)
-
-  const { data } = await q
-  const entries = (data ?? []) as Row[]
+  try {
+    const { error: refreshErr } = await sr.rpc("refresh_creator_monthly_stats")
+    if (refreshErr) {
+      console.warn("[teen/leaderboard] refresh RPC error:", refreshErr)
+    }
+    let q = sr
+      .from("creator_monthly_stats")
+      .select("user_id,category,submissions_count,total_likes,total_views,xp_earned,rank_overall")
+      .eq("month", monthStart)
+      .order("xp_earned", { ascending: false })
+      .limit(20)
+    if (category && category !== "all") q = q.eq("category", category)
+    const { data, error } = await q
+    if (error) {
+      console.error("[teen/leaderboard] read error:", error)
+      loadError = "Impossible de charger le classement pour le moment."
+    } else {
+      entries = (data ?? []) as Row[]
+    }
+  } catch (err) {
+    console.error("[teen/leaderboard] threw:", err)
+    loadError = "Impossible de charger le classement pour le moment."
+  }
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-6">
@@ -84,6 +98,15 @@ export default async function CreatorLeaderboardPage({
           )
         })}
       </div>
+
+      {loadError && (
+        <div
+          role="alert"
+          className="mb-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700"
+        >
+          {loadError}
+        </div>
+      )}
 
       {entries.length === 0 ? (
         <p className="text-gray-500">Pas encore de classement ce mois-ci.</p>

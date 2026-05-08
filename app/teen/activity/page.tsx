@@ -23,13 +23,13 @@ const ICON_MAP: Record<string, any> = {
 
 // Map API type -> background color class (visual catalogue, not data)
 const BG_MAP: Record<string, string> = {
-  xp: "bg-gen-z-lavender/20",
-  quest: "bg-gen-z-mint/20",
+  xp: "bg-brand-soft/20",
+  quest: "bg-success-soft/20",
   badge: "bg-yellow-500/20",
   achievement: "bg-yellow-500/20",
-  social: "bg-gen-z-coral/20",
-  event: "bg-gen-z-mint/20",
-  level: "bg-gen-z-mint/20",
+  social: "bg-accent-soft/20",
+  event: "bg-success-soft/20",
+  level: "bg-success-soft/20",
   streak: "bg-orange-500/20",
   challenge: "bg-orange-500/20",
   reward: "bg-pink-500/20",
@@ -84,7 +84,7 @@ export default function ActivityPage() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gen-z-mint to-emerald-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-success-soft to-emerald-500 flex items-center justify-center">
                 <Activity className="w-6 h-6 text-black" />
               </div>
               <div>
@@ -100,26 +100,26 @@ export default function ActivityPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-2xl bg-gradient-to-br from-gen-z-lavender/10 to-gen-z-sky/5 border border-gen-z-lavender/20"
+            className="p-4 rounded-2xl bg-gradient-to-br from-brand-soft/10 to-info-soft/5 border border-brand-soft/20"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-5 h-5 text-gen-z-lavender" />
+              <Zap className="w-5 h-5 text-brand-soft" />
               <span className="text-xs text-zinc-400 uppercase tracking-wider">Aujourd'hui</span>
             </div>
-            <p className="text-2xl font-black text-gen-z-lavender">+{todayXP} XP</p>
+            <p className="text-2xl font-black text-brand-soft">+{todayXP} XP</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 rounded-2xl bg-gradient-to-br from-gen-z-mint/10 to-emerald-500/5 border border-gen-z-mint/20"
+            className="p-4 rounded-2xl bg-gradient-to-br from-success-soft/10 to-emerald-500/5 border border-success-soft/20"
           >
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-5 h-5 text-gen-z-mint" />
+              <TrendingUp className="w-5 h-5 text-success-soft" />
               <span className="text-xs text-zinc-400 uppercase tracking-wider">Cette semaine</span>
             </div>
-            <p className="text-2xl font-black text-gen-z-mint">+{weekXP} XP</p>
+            <p className="text-2xl font-black text-success-soft">+{weekXP} XP</p>
           </motion.div>
 
           <motion.div

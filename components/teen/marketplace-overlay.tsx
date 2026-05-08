@@ -11,7 +11,7 @@ export function MarketplaceOverlay() {
       brand: "Nike Morocco",
       offer: "-20% sur la collection Jordan",
       cost: "500 XP",
-      color: "var(--gen-z-coral)",
+      color: "var(--accent-soft)",
       icon: "👟"
     },
     {
@@ -19,7 +19,7 @@ export function MarketplaceOverlay() {
       brand: "Megarama",
       offer: "1 place achetée = 1 offerte",
       cost: "1200 XP",
-      color: "var(--gen-z-lavender)",
+      color: "var(--brand-soft)",
       icon: "🎬"
     }
   ]
@@ -51,7 +51,7 @@ export function MarketplaceOverlay() {
 
             <div className="space-y-1">
               <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">{deal.brand}</p>
-              <h4 className="text-lg font-black text-white leading-tight group-hover:text-gen-z-coral transition-colors">
+              <h4 className="text-lg font-black text-white leading-tight group-hover:text-accent-soft transition-colors">
                 {deal.offer}
               </h4>
             </div>

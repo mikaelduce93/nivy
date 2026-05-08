@@ -53,7 +53,7 @@ interface GlowBlobProps {
  * Ambient glow blob for backgrounds
  */
 export function GlowBlob({
-  color = "var(--gen-z-lavender)",
+  color = "var(--brand-soft)",
   size = 400,
   blur = 60, // Reduced from 120 for better performance
   className,
@@ -97,18 +97,18 @@ export function MeshGradient({ className }: MeshGradientProps) {
   return (
     <div className={cn("absolute inset-0 overflow-hidden", className)}>
       <GlowBlob 
-        color="var(--gen-z-lavender)" 
+        color="var(--brand-soft)" 
         className="top-[-20%] left-[-10%]" 
         size={600}
       />
       <GlowBlob 
-        color="var(--gen-z-coral)" 
+        color="var(--accent-soft)" 
         className="top-[10%] right-[-20%]" 
         size={500}
         blur={100}
       />
       <GlowBlob 
-        color="var(--gen-z-mint)" 
+        color="var(--success-soft)" 
         className="bottom-[-10%] left-[20%]" 
         size={450}
         blur={140}
@@ -319,7 +319,7 @@ export function StreakFlame({ days, size = "md", className }: StreakFlameProps) 
   const isLegendary = days >= 100
 
   const flameColor = isLegendary 
-    ? "var(--gen-z-coral)" 
+    ? "var(--accent-soft)" 
     : isOnFire 
     ? "var(--neon-creativity)" 
     : isHot 
@@ -439,7 +439,7 @@ export function LevelUpEffect({ level, show, onComplete }: LevelUpEffectProps) {
       <motion.div
         className="absolute w-[600px] h-[600px] rounded-full"
         style={{
-          background: "radial-gradient(circle, var(--gen-z-lavender) 0%, transparent 70%)",
+          background: "radial-gradient(circle, var(--brand-soft) 0%, transparent 70%)",
           opacity: 0.5
         }}
         animate={{
@@ -483,11 +483,11 @@ export function LevelUpEffect({ level, show, onComplete }: LevelUpEffectProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gen-z-lavender to-gen-z-coral flex items-center justify-center">
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-brand-soft to-accent-soft flex items-center justify-center">
             <span className="text-5xl font-black text-white">{level}</span>
           </div>
           <GlowRing 
-            color="var(--gen-z-lavender)" 
+            color="var(--brand-soft)" 
             size={140} 
             className="-top-1 -left-1"
           />
@@ -504,7 +504,7 @@ export function LevelUpEffect({ level, show, onComplete }: LevelUpEffectProps) {
       </motion.div>
 
       {/* Confetti particles */}
-      <ParticleField count={40} color="var(--gen-z-coral)" />
+      <ParticleField count={40} color="var(--accent-soft)" />
     </motion.div>
   )
 }

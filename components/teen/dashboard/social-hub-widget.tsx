@@ -26,8 +26,8 @@ interface TabConfig {
 }
 
 const tabs: TabConfig[] = [
-  { id: 'friends', label: 'Amis', icon: Users, color: 'text-gen-z-lavender', bgColor: 'bg-gen-z-lavender/10' },
-  { id: 'crew', label: 'Crew', icon: Swords, color: 'text-gen-z-coral', bgColor: 'bg-gen-z-coral/10' },
+  { id: 'friends', label: 'Amis', icon: Users, color: 'text-brand-soft', bgColor: 'bg-brand-soft/10' },
+  { id: 'crew', label: 'Crew', icon: Swords, color: 'text-accent-soft', bgColor: 'bg-accent-soft/10' },
   { id: 'clubs', label: 'Clubs', icon: Crown, color: 'text-gen-z-yellow', bgColor: 'bg-gen-z-yellow/10' },
 ]
 
@@ -183,7 +183,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
                   <Users className="w-10 h-10 text-zinc-600 mb-3" />
                   <p className="text-sm text-zinc-500 font-medium">Aucun ami connecté</p>
-                  <Button size="sm" variant="ghost" className="mt-2 text-gen-z-lavender">
+                  <Button size="sm" variant="ghost" className="mt-2 text-brand-soft">
                     <Plus className="w-4 h-4 mr-1" />
                     Inviter des amis
                   </Button>
@@ -252,7 +252,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
                   <Swords className="w-10 h-10 text-zinc-600 mb-3" />
                   <p className="text-sm text-zinc-500 font-medium">Rejoins un Crew</p>
-                  <Button size="sm" className="mt-2 bg-gen-z-coral hover:bg-gen-z-coral/80">
+                  <Button size="sm" className="mt-2 bg-accent-soft hover:bg-accent-soft/80">
                     Explorer les Crews
                   </Button>
                 </div>
@@ -263,7 +263,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                       key={crew.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-gen-z-coral/30 transition-colors cursor-pointer group"
+                      className="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-accent-soft/30 transition-colors cursor-pointer group"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-bold text-white">{crew.name}</h4>
@@ -279,7 +279,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                           {crew.members}
                         </span>
                         <span>Rank #{crew.rank}</span>
-                        <span className="text-gen-z-coral font-semibold">{crew.xpTotal.toLocaleString()} XP</span>
+                        <span className="text-accent-soft font-semibold">{crew.xpTotal.toLocaleString()} XP</span>
                       </div>
                     </motion.div>
                   ))}

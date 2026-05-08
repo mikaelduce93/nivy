@@ -38,7 +38,7 @@ interface QuickAccessItem {
 // Badge styles
 const badgeStyles = {
   hot: "bg-gradient-to-r from-orange-500 to-red-500 animate-pulse",
-  new: "bg-gradient-to-r from-gen-z-lavender to-gen-z-grape",
+  new: "bg-gradient-to-r from-brand-soft to-gen-z-grape",
   live: "bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse",
 }
 
@@ -319,8 +319,8 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       description: "Convertis tes XP en récompenses exclusives",
       href: "/teen/shop",
       icon: ShoppingBag,
-      gradient: "from-gen-z-lavender to-gen-z-grape",
-      iconBg: "bg-gen-z-lavender/20",
+      gradient: "from-brand-soft to-gen-z-grape",
+      iconBg: "bg-brand-soft/20",
       badge: "NEW",
       badgeType: 'new',
       notificationCount: notificationCounts.wallet,
@@ -333,8 +333,8 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       description: "Missions quotidiennes et défis",
       href: "/teen/quests",
       icon: Target,
-      gradient: "from-gen-z-coral to-rose-600",
-      iconBg: "bg-gen-z-coral/20",
+      gradient: "from-accent-soft to-rose-600",
+      iconBg: "bg-accent-soft/20",
       notificationCount: notificationCounts.quests,
       particleColor: PALETTES.coral,
       borderGradient: 'coral',
@@ -358,8 +358,8 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       description: "Défie d'autres crews et grimpe le classement",
       href: "/teen/circles",
       icon: Swords,
-      gradient: "from-gen-z-mint to-teal-600",
-      iconBg: "bg-gen-z-mint/20",
+      gradient: "from-success-soft to-teal-600",
+      iconBg: "bg-success-soft/20",
       badge: "LIVE",
       badgeType: 'live',
       notificationCount: notificationCounts.social,
@@ -378,18 +378,18 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       >
         <div className="flex items-center gap-2 sm:gap-3">
           <motion.div 
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gen-z-lavender/20 flex items-center justify-center relative"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-soft/20 flex items-center justify-center relative"
             whileHover={{ scale: 1.1, rotate: 5 }}
           >
             <motion.div
-              className="absolute inset-0 rounded-lg sm:rounded-xl bg-gen-z-lavender/30"
+              className="absolute inset-0 rounded-lg sm:rounded-xl bg-brand-soft/30"
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.5, 0.2, 0.5],
               }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <Zap className="w-4 h-4 sm:w-6 sm:h-6 text-gen-z-lavender relative z-10" />
+            <Zap className="w-4 h-4 sm:w-6 sm:h-6 text-brand-soft relative z-10" />
           </motion.div>
           <div>
             <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
@@ -398,7 +398,7 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
               >
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-gen-z-lavender" />
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-brand-soft" />
               </motion.span>
             </h2>
             <p className="text-[10px] sm:text-xs text-white/50 font-medium hidden sm:block">Tes raccourcis favoris</p>
@@ -426,9 +426,9 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
               }}
               className={cn(
                 "w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full",
-                i === 0 && "bg-gen-z-lavender",
-                i === 1 && "bg-gen-z-coral",
-                i === 2 && "bg-gen-z-mint",
+                i === 0 && "bg-brand-soft",
+                i === 1 && "bg-accent-soft",
+                i === 2 && "bg-success-soft",
               )}
             />
           ))}

@@ -98,15 +98,28 @@ export default async function PartnerOffersPage() {
 
   const supabase = await createClient()
 
-  const { data: offersRaw } = await supabase
-    .from("partner_offers")
-    .select(
-      "id, title, discount_value, discount_type, valid_from, valid_until, current_total_uses, is_active, created_at",
-    )
-    .eq("partner_id", partnerId)
-    .order("created_at", { ascending: false })
-
-  const offers = (offersRaw ?? []) as OfferRow[]
+  // Polish-F: wrap with try/catch and capture error so RLS / network failures
+  // surface as a banner instead of a permanently-empty list.
+  let offers: OfferRow[] = []
+  let loadError: string | null = null
+  try {
+    const { data: offersRaw, error } = await supabase
+      .from("partner_offers")
+      .select(
+        "id, title, discount_value, discount_type, valid_from, valid_until, current_total_uses, is_active, created_at",
+      )
+      .eq("partner_id", partnerId)
+      .order("created_at", { ascending: false })
+    if (error) {
+      console.error("[partner/offers] partner_offers error:", error)
+      loadError = "Impossible de charger les offres pour le moment."
+    } else {
+      offers = (offersRaw ?? []) as OfferRow[]
+    }
+  } catch (err) {
+    console.error("[partner/offers] partner_offers threw:", err)
+    loadError = "Impossible de charger les offres pour le moment."
+  }
 
   const activeOffers = offers.filter((o) => o.is_active === true)
   const totalUses = offers.reduce(
@@ -132,6 +145,15 @@ export default async function PartnerOffersPage() {
           </Link>
         </Button>
       </div>
+
+      {loadError && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+        >
+          {loadError}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
@@ -164,7 +186,7 @@ export default async function PartnerOffersPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {offers.length === 0 ? (
-            <div className="p-10 text-center">
+            <div role="status" className="p-10 text-center">
               <p className="text-zinc-300 font-semibold">
                 Aucune offre publiée
               </p>
@@ -255,8 +277,11 @@ export default async function PartnerOffersPage() {
                       className="text-zinc-400 hover:text-white"
                       title="Modifier"
                     >
-                      <Link href={`/partner/offers/${offer.id}/edit`}>
-                        <Edit className="h-4 w-4" />
+                      <Link
+                        href={`/partner/offers/${offer.id}/edit`}
+                        aria-label={`Modifier l'offre ${offer.title || "sans titre"}`}
+                      >
+                        <Edit className="h-4 w-4" aria-hidden="true" />
                       </Link>
                     </Button>
                   </div>

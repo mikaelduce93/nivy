@@ -54,7 +54,7 @@ export const GENERIC_CATEGORY: QuizCategoryMeta = {
   id: "general",
   name: "Général",
   icon: Brain,
-  color: "from-gen-z-lavender to-purple-500",
+  color: "from-brand-soft to-purple-500",
 }
 
 const CATEGORY_BY_ID = new Map(QUIZ_CATEGORIES.map((c) => [c.id, c]))

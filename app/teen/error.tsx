@@ -22,7 +22,7 @@ export default function TeenDashboardError({ error, reset }: ErrorProps) {
       {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] rounded-full bg-red-500/5 blur-[100px]" />
-        <div className="absolute bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full bg-gen-z-coral/5 blur-[80px]" />
+        <div className="absolute bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full bg-accent-soft/5 blur-[80px]" />
       </div>
 
       <motion.div
@@ -67,7 +67,7 @@ export default function TeenDashboardError({ error, reset }: ErrorProps) {
         >
           <Button
             onClick={reset}
-            className="bg-gen-z-lavender hover:bg-gen-z-lavender/80 text-white font-bold rounded-2xl px-6 py-3 h-auto"
+            className="bg-brand-soft hover:bg-brand-soft/80 text-white font-bold rounded-2xl px-6 py-3 h-auto"
           >
             <RefreshCw className="w-5 h-5 mr-2" />
             Réessayer
@@ -106,7 +106,7 @@ export default function TeenDashboardError({ error, reset }: ErrorProps) {
         )}
 
         {/* Decorative elements */}
-        <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-gradient-to-r from-red-500/5 to-gen-z-coral/5 blur-[100px]" />
+        <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-gradient-to-r from-red-500/5 to-accent-soft/5 blur-[100px]" />
       </motion.div>
     </div>
   )

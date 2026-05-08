@@ -186,16 +186,16 @@ export function AIUnavailableFallback({
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         "flex flex-col items-center justify-center text-center p-8 rounded-2xl",
-        "bg-gen-z-lavender/5 border border-gen-z-lavender/20",
+        "bg-brand-soft/5 border border-brand-soft/20",
         className
       )}
     >
       <div className="relative mb-4">
-        <Brain className="h-12 w-12 text-gen-z-lavender opacity-50" />
+        <Brain className="h-12 w-12 text-brand-soft opacity-50" />
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 border-2 border-gen-z-lavender/30 border-t-gen-z-lavender rounded-full"
+          className="absolute inset-0 border-2 border-brand-soft/30 border-t-brand-soft rounded-full"
         />
       </div>
       <h3 className="text-lg font-bold text-foreground mb-2">IA en maintenance</h3>
@@ -206,7 +206,7 @@ export function AIUnavailableFallback({
       <div className="flex flex-wrap gap-3 justify-center">
         {alternatives.map((alt, idx) => (
           <Link key={idx} href={alt.href}>
-            <Button variant="outline" size="sm" className="gap-2 border-gen-z-lavender/30 hover:bg-gen-z-lavender/10">
+            <Button variant="outline" size="sm" className="gap-2 border-brand-soft/30 hover:bg-brand-soft/10">
               {alt.icon}
               {alt.label}
             </Button>

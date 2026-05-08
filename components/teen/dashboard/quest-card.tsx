@@ -27,10 +27,10 @@ interface QuestCardProps {
 const PILLAR_CONFIG = {
   intellect: {
     icon: Brain,
-    color: "var(--gen-z-sky)",
-    bg: "bg-gen-z-sky/10",
+    color: "var(--info-soft)",
+    bg: "bg-info-soft/10",
     label: "INTELLECT",
-    border: "border-gen-z-sky/20"
+    border: "border-info-soft/20"
   },
   vitality: {
     icon: Dumbbell,
@@ -41,17 +41,17 @@ const PILLAR_CONFIG = {
   },
   creativity: {
     icon: Palette,
-    color: "var(--gen-z-lavender)",
-    bg: "bg-gen-z-lavender/10",
+    color: "var(--brand-soft)",
+    bg: "bg-brand-soft/10",
     label: "CREATIVITY",
-    border: "border-gen-z-lavender/20"
+    border: "border-brand-soft/20"
   },
   social: {
     icon: Users,
-    color: "var(--gen-z-coral)",
-    bg: "bg-gen-z-coral/10",
+    color: "var(--accent-soft)",
+    bg: "bg-accent-soft/10",
     label: "SOCIAL",
-    border: "border-gen-z-coral/20"
+    border: "border-accent-soft/20"
   }
 }
 
@@ -122,7 +122,7 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
               <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8" style={{ color: config.color }} />
             </div>
             <div className="space-y-0.5 sm:space-y-1 min-w-0">
-              <h3 className="text-base sm:text-lg md:text-2xl font-black text-white tracking-tight leading-tight sm:leading-none group-hover:text-gen-z-lavender transition-colors line-clamp-2">
+              <h3 className="text-base sm:text-lg md:text-2xl font-black text-white tracking-tight leading-tight sm:leading-none group-hover:text-brand-soft transition-colors line-clamp-2">
                 {quest.title}
               </h3>
               <p className="text-zinc-500 text-xs sm:text-sm font-medium line-clamp-2">
@@ -136,11 +136,11 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
         <div className="mt-4 sm:mt-6 md:mt-8 flex items-center justify-between flex-wrap gap-2">
           <div className="flex gap-2 sm:gap-4">
             {isCompleted ? (
-              <div className="flex items-center gap-1.5 sm:gap-2 text-gen-z-mint font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-success-soft font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest">
                 <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">COMPLETED</span><span className="sm:hidden">DONE</span>
               </div>
             ) : isInProgress ? (
-              <div className="flex items-center gap-1.5 sm:gap-2 text-gen-z-lavender font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-brand-soft font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest">
                 <Play className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">IN PROGRESS</span><span className="sm:hidden">ACTIVE</span>
               </div>
             ) : (
@@ -158,7 +158,7 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
               isCompleted 
                 ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
                 : isInProgress
-                  ? "bg-gen-z-lavender text-black hover:scale-105"
+                  ? "bg-brand-soft text-black hover:scale-105"
                   : "bg-white text-black hover:scale-105"
             )}
           >

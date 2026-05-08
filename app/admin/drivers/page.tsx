@@ -13,17 +13,32 @@ export default async function AdminDriversPage() {
   if (!userInfo || userInfo.role !== "admin") redirect("/login")
   const supabase = await createClient()
 
-  const { data: drivers } = await supabase
-    .from("nivy_drivers")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(100)
+  // Polish-F: wrap with try/catch so RLS / network failures surface as a
+  // banner instead of silently rendering "Aucune demande / Aucun chauffeur".
+  let drivers: any[] = []
+  let loadError: string | null = null
+  try {
+    const { data, error } = await supabase
+      .from("nivy_drivers")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(100)
+    if (error) {
+      console.error("[admin/drivers] error:", error)
+      loadError = "Impossible de charger la liste des chauffeurs."
+    } else {
+      drivers = data ?? []
+    }
+  } catch (err) {
+    console.error("[admin/drivers] threw:", err)
+    loadError = "Impossible de charger la liste des chauffeurs."
+  }
 
-  const queue = (drivers ?? []).filter((d) => d.kyc_status === "pending")
-  const active = (drivers ?? []).filter(
+  const queue = drivers.filter((d) => d.kyc_status === "pending")
+  const active = drivers.filter(
     (d) => d.kyc_status === "approved" && d.is_active === true
   )
-  const other = (drivers ?? []).filter(
+  const other = drivers.filter(
     (d) => !(d.kyc_status === "pending") && !(d.kyc_status === "approved" && d.is_active === true)
   )
 
@@ -35,6 +50,15 @@ export default async function AdminDriversPage() {
           Validez les KYC et gérez la flotte de chauffeurs partenaires.
         </p>
       </div>
+
+      {loadError && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+        >
+          {loadError}
+        </div>
+      )}
 
       <Card>
         <CardHeader>

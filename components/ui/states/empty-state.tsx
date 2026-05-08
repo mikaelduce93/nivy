@@ -301,12 +301,12 @@ export function EmptyState({
             
             {/* Rotating ring */}
             <motion.div
-              className="absolute inset-0 border-2 border-gen-z-lavender/20 rounded-2xl"
+              className="absolute inset-0 border-2 border-brand-soft/20 rounded-2xl"
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
             />
             
-            <Icon className={cn('text-gen-z-lavender relative z-10', classes.icon)} />
+            <Icon className={cn('text-brand-soft relative z-10', classes.icon)} />
           </motion.div>
         </GlowPulse>
       </motion.div>

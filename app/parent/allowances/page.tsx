@@ -26,23 +26,42 @@ export default async function ParentAllowancesPage() {
   if (!userInfo || userInfo.role !== "parent") redirect("/login")
 
   const supabase = await createClient()
-  const { data: rows } = await supabase
-    .from("parent_allowances")
-    .select("*")
-    .eq("parent_id", userInfo.profileId)
-    .order("created_at", { ascending: false })
 
-  const allowances = (rows ?? []) as AllowanceRow[]
-
-  const { data: teens } = await supabase
-    .from("parent_teen_links")
-    .select("teen_id, profiles:teen_id (full_name)")
-    .eq("parent_id", userInfo.profileId)
+  // Polish-F: surface RLS / network failures rather than masking them as
+  // "Aucune allowance configurée".
+  let allowances: AllowanceRow[] = []
+  let teens: Array<{ teen_id: string; profiles?: { full_name?: string } | null }> = []
+  let loadError: string | null = null
+  try {
+    const [rowsRes, teensRes] = await Promise.all([
+      supabase
+        .from("parent_allowances")
+        .select("*")
+        .eq("parent_id", userInfo.profileId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("parent_teen_links")
+        .select("teen_id, profiles:teen_id (full_name)")
+        .eq("parent_id", userInfo.profileId),
+    ])
+    if (rowsRes.error) {
+      console.error("[parent/allowances] parent_allowances error:", rowsRes.error)
+      loadError = "Impossible de charger les allowances pour le moment."
+    } else {
+      allowances = (rowsRes.data ?? []) as AllowanceRow[]
+    }
+    if (teensRes.error) {
+      console.error("[parent/allowances] parent_teen_links error:", teensRes.error)
+    } else {
+      teens = (teensRes.data ?? []) as typeof teens
+    }
+  } catch (err) {
+    console.error("[parent/allowances] queries threw:", err)
+    loadError = "Impossible de charger les allowances pour le moment."
+  }
 
   const teenName = (id: string): string => {
-    const row = (teens ?? []).find((t) => t.teen_id === id) as
-      | { profiles?: { full_name?: string } | null }
-      | undefined
+    const row = teens.find((t) => t.teen_id === id)
     return row?.profiles?.full_name ?? id.slice(0, 8)
   }
 

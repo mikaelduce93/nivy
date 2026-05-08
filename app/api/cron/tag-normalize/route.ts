@@ -16,6 +16,13 @@
  *     (action='cron.tag_normalize') with the full report payload, so
  *     unmapped tags are queueable for admin review (acceptance criterion).
  *
+ * Polish-E (migration 092):
+ *   - Loads `tag_aliases` (status='approved') and substitutes
+ *     `alias → canonical_tag` BEFORE the canonical-membership check, so
+ *     admin-approved aliases stop showing up as unmapped on subsequent
+ *     runs and the matching tag value is rewritten in-place. Counts of
+ *     substitutions are surfaced per-table in the report.
+ *
  * Auth: Vercel cron header OR Bearer CRON_SECRET, fail-CLOSED.
  */
 
@@ -41,6 +48,7 @@ type TableReport = {
   rows_with_drift: number
   rows_updated: number
   tags_dropped: number
+  tags_aliased: number
   unmapped_sample: Array<{ tag: string; count: number }>
   table_missing?: boolean
   error?: string
@@ -93,8 +101,34 @@ export async function GET(request: NextRequest) {
     })
   }
 
+  // Polish-E: load admin-approved aliases (alias → canonical_tag).
+  // Best-effort: if the table doesn't exist (older deploy), we proceed
+  // with the empty map.
+  const aliasMap = new Map<string, string>()
+  const { data: aliasRows, error: aliasErr } = await supabase
+    .from("tag_aliases")
+    .select("alias, canonical_tag, status")
+    .eq("status", "approved")
+  if (aliasErr) {
+    console.warn(
+      "[cron/tag-normalize] tag_aliases query failed (treating as empty):",
+      aliasErr.message,
+    )
+  } else {
+    for (const r of aliasRows ?? []) {
+      const alias = typeof r.alias === "string" ? r.alias : null
+      const target =
+        typeof r.canonical_tag === "string" ? r.canonical_tag : null
+      // Only honour aliases that resolve to a still-canonical tag — a
+      // taxonomy retraction must not bring back orphaned aliases.
+      if (alias && target && canonical.has(target)) {
+        aliasMap.set(alias, target)
+      }
+    }
+  }
+
   console.log(
-    `[cron/tag-normalize] start dry_run=${dryRun} canonical_tags=${canonical.size} tables=${TARGET_TABLES.length}`,
+    `[cron/tag-normalize] start dry_run=${dryRun} canonical_tags=${canonical.size} aliases=${aliasMap.size} tables=${TARGET_TABLES.length}`,
   )
 
   const report: TableReport[] = []
@@ -115,6 +149,7 @@ export async function GET(request: NextRequest) {
         rows_with_drift: 0,
         rows_updated: 0,
         tags_dropped: 0,
+        tags_aliased: 0,
         unmapped_sample: [],
         table_missing: true,
       })
@@ -125,6 +160,7 @@ export async function GET(request: NextRequest) {
     let drift = 0
     let updated = 0
     let tagsDropped = 0
+    let tagsAliased = 0
     const unmappedCounts = new Map<string, number>()
     let pageError: string | undefined
 
@@ -151,10 +187,18 @@ export async function GET(request: NextRequest) {
           : []
         // Reject free-text tags: only keep those present in the canonical
         // taxonomy. De-duplicate while preserving order.
+        // Polish-E: BEFORE the canonical check, substitute any alias that
+        // an admin has approved (tag_aliases.status='approved'). This
+        // mutates the row's tags array so the alias is rewritten in-place
+        // and the count of substitutions is reported per-table.
         const seen = new Set<string>()
         const filtered: string[] = []
         const dropped: string[] = []
-        for (const t of rawTags) {
+        let rowAliased = 0
+        for (const tIn of rawTags) {
+          const aliasTarget = aliasMap.get(tIn)
+          const t = aliasTarget ?? tIn
+          if (aliasTarget && aliasTarget !== tIn) rowAliased++
           if (canonical.has(t)) {
             if (!seen.has(t)) {
               seen.add(t)
@@ -164,7 +208,14 @@ export async function GET(request: NextRequest) {
             dropped.push(t)
           }
         }
-        if (dropped.length > 0 || filtered.length !== rawTags.length) {
+        tagsAliased += rowAliased
+        // Drift counts (1) any dropped tag, (2) any alias substitution,
+        // and (3) any de-dup that changed length.
+        if (
+          dropped.length > 0 ||
+          rowAliased > 0 ||
+          filtered.length !== rawTags.length
+        ) {
           drift++
           tagsDropped += dropped.length
           for (const d of dropped) {
@@ -197,7 +248,7 @@ export async function GET(request: NextRequest) {
       .map(([tag, count]) => ({ tag, count }))
 
     console.log(
-      `[cron/tag-normalize] ${table}: examined=${examined} drift=${drift} updated=${updated} tags_dropped=${tagsDropped} distinct_unmapped=${unmappedCounts.size}${dryRun ? " (DRY)" : ""}`,
+      `[cron/tag-normalize] ${table}: examined=${examined} drift=${drift} updated=${updated} tags_dropped=${tagsDropped} tags_aliased=${tagsAliased} distinct_unmapped=${unmappedCounts.size}${dryRun ? " (DRY)" : ""}`,
     )
 
     report.push({
@@ -206,6 +257,7 @@ export async function GET(request: NextRequest) {
       rows_with_drift: drift,
       rows_updated: updated,
       tags_dropped: tagsDropped,
+      tags_aliased: tagsAliased,
       unmapped_sample: unmappedSample,
       ...(pageError ? { error: pageError } : {}),
     })
@@ -217,8 +269,15 @@ export async function GET(request: NextRequest) {
       rows_with_drift: acc.rows_with_drift + r.rows_with_drift,
       rows_updated: acc.rows_updated + r.rows_updated,
       tags_dropped: acc.tags_dropped + r.tags_dropped,
+      tags_aliased: acc.tags_aliased + r.tags_aliased,
     }),
-    { rows_examined: 0, rows_with_drift: 0, rows_updated: 0, tags_dropped: 0 },
+    {
+      rows_examined: 0,
+      rows_with_drift: 0,
+      rows_updated: 0,
+      tags_dropped: 0,
+      tags_aliased: 0,
+    },
   )
 
   const durationMs = Date.now() - startedAt
@@ -229,6 +288,7 @@ export async function GET(request: NextRequest) {
   const auditPayload = {
     dry_run: dryRun,
     canonical_tag_count: canonical.size,
+    alias_count: aliasMap.size,
     totals,
     report,
     duration_ms: durationMs,
@@ -248,12 +308,13 @@ export async function GET(request: NextRequest) {
   }
 
   console.log(
-    `[cron/tag-normalize] done dry_run=${dryRun} examined=${totals.rows_examined} drift=${totals.rows_with_drift} updated=${totals.rows_updated} tags_dropped=${totals.tags_dropped} duration_ms=${durationMs}`,
+    `[cron/tag-normalize] done dry_run=${dryRun} examined=${totals.rows_examined} drift=${totals.rows_with_drift} updated=${totals.rows_updated} tags_dropped=${totals.tags_dropped} tags_aliased=${totals.tags_aliased} duration_ms=${durationMs}`,
   )
 
   return NextResponse.json({
     dry_run: dryRun,
     canonical_tag_count: canonical.size,
+    alias_count: aliasMap.size,
     totals,
     report,
     duration_ms: durationMs,

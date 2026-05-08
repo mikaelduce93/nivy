@@ -42,12 +42,12 @@ export function StatusBar({ teenId, initialData }: StatusBarProps) {
           <div className="flex items-center gap-3">
             <div className="relative">
               <motion.div
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-gen-z-lavender to-gen-z-sky flex items-center justify-center font-black text-black text-sm shadow-lg"
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center font-black text-black text-sm shadow-lg"
                 whileHover={{ scale: 1.1, rotate: 5 }}
               >
                 {level}
               </motion.div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-gen-z-mint flex items-center justify-center">
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-success-soft flex items-center justify-center">
                 <TrendingUp className="w-2.5 h-2.5 text-black" />
               </div>
             </div>
@@ -58,7 +58,7 @@ export function StatusBar({ teenId, initialData }: StatusBarProps) {
               </span>
               <div className="w-24 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-gen-z-lavender to-gen-z-sky rounded-full"
+                  className="h-full bg-gradient-to-r from-brand-soft to-info-soft rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercent}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
@@ -95,11 +95,11 @@ export function StatusBar({ teenId, initialData }: StatusBarProps) {
 
             {/* XP */}
             <motion.div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gen-z-lavender/10 border border-gen-z-lavender/20"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-brand-soft/10 border border-brand-soft/20"
               whileHover={{ scale: 1.05 }}
             >
-              <Zap className="w-4 h-4 text-gen-z-lavender fill-current" />
-              <span className="font-black text-sm text-gen-z-lavender">
+              <Zap className="w-4 h-4 text-brand-soft fill-current" />
+              <span className="font-black text-sm text-brand-soft">
                 {currentXp.toLocaleString()}
               </span>
             </motion.div>
@@ -119,7 +119,7 @@ export function StatusBar({ teenId, initialData }: StatusBarProps) {
       </div>
 
       {/* Subtle glow effect */}
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gen-z-lavender/30 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-soft/30 to-transparent" />
     </motion.div>
   )
 }

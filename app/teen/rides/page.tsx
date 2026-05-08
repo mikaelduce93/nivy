@@ -47,7 +47,7 @@ export default async function TeenRidesPage() {
     <div className="container mx-auto space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-gen-z-sky to-gen-z-mint">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-info-soft to-success-soft">
             <Car className="h-6 w-6 text-black" aria-hidden />
           </div>
           <div className="min-w-0">

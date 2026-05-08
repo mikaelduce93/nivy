@@ -20,7 +20,7 @@ export function EnergyOrb({
   value,
   max,
   size = 120,
-  color = "var(--gen-z-lavender)",
+  color = "var(--brand-soft)",
   className,
   children
 }: EnergyOrbProps) {

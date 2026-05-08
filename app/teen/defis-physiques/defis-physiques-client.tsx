@@ -178,7 +178,7 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
             className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-gen-z-lavender" />
+              <Zap className="w-4 h-4 text-brand-soft" />
               <span className="font-black text-xl">{totalXPEarned.toLocaleString()}</span>
             </div>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider">XP Total</p>
@@ -191,7 +191,7 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
             className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Timer className="w-4 h-4 text-gen-z-mint" />
+              <Timer className="w-4 h-4 text-success-soft" />
               <span className="font-black text-xl">{minutesThisWeek}</span>
             </div>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Min/Semaine</p>
@@ -204,7 +204,7 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
             className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Check className="w-4 h-4 text-gen-z-coral" />
+              <Check className="w-4 h-4 text-accent-soft" />
               <span className="font-black text-xl">{completedToday}/{totalToday}</span>
             </div>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Aujourd'hui</p>
@@ -362,11 +362,11 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-gen-z-lavender">
+                <div className="flex items-center gap-1 text-brand-soft">
                   <Zap className="w-4 h-4" />
                   <span className="font-bold">+{workout.xp}</span>
                 </div>
-                <Check className="w-5 h-5 text-gen-z-mint" />
+                <Check className="w-5 h-5 text-success-soft" />
               </motion.div>
             ))}
           </div>

@@ -45,19 +45,19 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
     label: 'Home',
     href: '/teen',
     icon: Home,
-    activeColor: 'text-gen-z-lavender',
+    activeColor: 'text-brand-soft',
   },
   {
     label: 'Explore',
     href: '/teen/map',
     icon: Map,
-    activeColor: 'text-gen-z-mint',
+    activeColor: 'text-success-soft',
   },
   {
     label: 'Crew',
     href: '/teen/circles',
     icon: Users,
-    activeColor: 'text-gen-z-coral',
+    activeColor: 'text-accent-soft',
   },
   {
     label: 'Profile',
@@ -105,7 +105,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
             layoutId="mobile-nav-active"
             className={cn(
               'absolute -inset-2 rounded-full blur-lg opacity-30',
-              item.activeColor?.replace('text-', 'bg-') || 'bg-gen-z-lavender'
+              item.activeColor?.replace('text-', 'bg-') || 'bg-brand-soft'
             )}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           />
@@ -114,7 +114,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
         <Icon
           className={cn(
             'w-6 h-6 transition-colors relative z-10',
-            isActive ? item.activeColor || 'text-gen-z-lavender' : 'text-zinc-400'
+            isActive ? item.activeColor || 'text-brand-soft' : 'text-zinc-400'
           )}
           strokeWidth={isActive ? 2.5 : 2}
         />
@@ -146,7 +146,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
           layoutId="mobile-nav-indicator"
           className={cn(
             'absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full',
-            item.activeColor?.replace('text-', 'bg-') || 'bg-gen-z-lavender'
+            item.activeColor?.replace('text-', 'bg-') || 'bg-brand-soft'
           )}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         />

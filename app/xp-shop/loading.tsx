@@ -5,7 +5,7 @@ export default function XpShopLoading() {
     <div className="min-h-screen bg-background py-10 px-4">
       <div className="mx-auto max-w-5xl">
         <header className="mb-8 flex items-center gap-3">
-          <ShoppingBag className="h-8 w-8 text-gen-z-coral" />
+          <ShoppingBag className="h-8 w-8 text-accent-soft" />
           <div>
             <div className="h-8 w-40 animate-pulse rounded-md bg-muted" />
             <div className="mt-2 h-4 w-72 animate-pulse rounded-md bg-muted" />

@@ -12,21 +12,37 @@ export default async function CommunautePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: posts } = await supabase
-    .from("posts")
-    .select(`
-      *,
-      profiles (
-        full_name
-      ),
-      events (
-        title,
-        event_date
-      )
-    `)
-    .eq("is_approved", true)
-    .order("created_at", { ascending: false })
-    .limit(20)
+  // Polish-F: wrap with try/catch and capture error so a feed failure renders
+  // a banner above the empty state instead of letting the route 500 / look
+  // permanently empty.
+  let posts: any[] | null = null
+  let loadError: string | null = null
+  try {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(`
+        *,
+        profiles (
+          full_name
+        ),
+        events (
+          title,
+          event_date
+        )
+      `)
+      .eq("is_approved", true)
+      .order("created_at", { ascending: false })
+      .limit(20)
+    if (error) {
+      console.error("[communaute] posts error:", error)
+      loadError = "Impossible de charger le feed pour le moment."
+    } else {
+      posts = data
+    }
+  } catch (err) {
+    console.error("[communaute] posts threw:", err)
+    loadError = "Impossible de charger le feed pour le moment."
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -46,6 +62,15 @@ export default async function CommunautePage() {
               </Button>
             )}
           </div>
+
+          {loadError && (
+            <div
+              role="alert"
+              className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+            >
+              {loadError}
+            </div>
+          )}
 
           {posts && posts.length > 0 ? (
             <div className="space-y-6">

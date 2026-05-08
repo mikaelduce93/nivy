@@ -29,11 +29,20 @@ import { InvoiceButton } from "@/components/parent/invoice-button"
 async function getTransactionHistory(profileId: string) {
   const supabase = await createClient()
 
-  // Get linked teens
-  const { data: teens } = await supabase
-    .from("parent_teens_overview")
-    .select("*")
-    .eq("parent_id", profileId)
+  // Polish-F: wrap each Supabase read so one failing query doesn't 500 the
+  // whole history page. Empty fallbacks keep the rest of the dashboard
+  // alive; the page will still render KPIs at zero.
+  let teens: any[] = []
+  try {
+    const { data, error } = await supabase
+      .from("parent_teens_overview")
+      .select("*")
+      .eq("parent_id", profileId)
+    if (error) console.error("[parent/history] teens error:", error)
+    teens = data ?? []
+  } catch (err) {
+    console.error("[parent/history] teens threw:", err)
+  }
 
   if (!teens || teens.length === 0) {
     return { transactions: [], teens: [], totalSpent: 0, monthlySpent: 0, totalTopup: 0 }

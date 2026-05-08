@@ -38,10 +38,10 @@ const buttonVariants = cva(
         ].join(' '),
         // Gen-Z Gradient - eye-catching
         gradient: [
-          'bg-gradient-to-r from-gen-z-lavender via-gen-z-coral to-gen-z-lime',
+          'bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime',
           'text-white font-bold',
           'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_32px_-8px_var(--gen-z-lavender)]',
+          'hover:shadow-[0_8px_32px_-8px_var(--brand-soft)]',
           'bg-[length:200%_100%] hover:bg-[position:100%_0]',
           'transition-all duration-300',
         ].join(' '),
@@ -86,14 +86,14 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline p-0 h-auto',
         // Gen-Z Pill colors
         lavender: [
-          'bg-gen-z-lavender text-white',
+          'bg-brand-soft text-white',
           'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--gen-z-lavender)]',
+          'hover:shadow-[0_8px_24px_-8px_var(--brand-soft)]',
         ].join(' '),
         coral: [
-          'bg-gen-z-coral text-white',
+          'bg-accent-soft text-white',
           'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--gen-z-coral)]',
+          'hover:shadow-[0_8px_24px_-8px_var(--accent-soft)]',
         ].join(' '),
         lime: [
           'bg-gen-z-lime text-on-bright',
@@ -101,9 +101,9 @@ const buttonVariants = cva(
           'hover:shadow-[0_8px_24px_-8px_var(--gen-z-lime)]',
         ].join(' '),
         mint: [
-          'bg-gen-z-mint text-on-bright',
+          'bg-success-soft text-on-bright',
           'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--gen-z-mint)]',
+          'hover:shadow-[0_8px_24px_-8px_var(--success-soft)]',
         ].join(' '),
         grape: [
           'bg-gen-z-grape text-white',
@@ -234,10 +234,10 @@ function PremiumButton({
   const getGlowColor = () => {
     if (glowColor) return glowColor
     switch (variant) {
-      case 'lavender': return 'var(--gen-z-lavender)'
-      case 'coral': return 'var(--gen-z-coral)'
+      case 'lavender': return 'var(--brand-soft)'
+      case 'coral': return 'var(--accent-soft)'
       case 'lime': return 'var(--gen-z-lime)'
-      case 'mint': return 'var(--gen-z-mint)'
+      case 'mint': return 'var(--success-soft)'
       case 'grape': return 'var(--gen-z-grape)'
       case 'success': return 'var(--success)'
       case 'destructive': return 'var(--destructive)'
