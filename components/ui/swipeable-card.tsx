@@ -1,7 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { motion, useMotionValue, useTransform, animate, PanInfo, AnimatePresence } from "framer-motion"
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  animate,
+  useReducedMotion,
+  PanInfo,
+  AnimatePresence,
+} from "framer-motion"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
@@ -20,18 +28,52 @@ import { cn } from "@/lib/utils"
    SWIPEABLE CARD
    ========================================================================== */
 
+/**
+ * SwipeableCard — TICKET-038 (Wave 2)
+ * ===================================
+ *
+ * Drag-to-dismiss horizontal gesture primitive.
+ *
+ * - `dismissThreshold` is a ratio of container width that triggers dismiss
+ *   (default 0.3 — 30 %, per TICKET-038 acceptance).
+ * - `onSwipeDelete` fires when the threshold is crossed in any allowed
+ *   direction. `onSwipeLeft` / `onSwipeRight` fire instead/also if you need
+ *   per-side actions (e.g. accept-on-left, dismiss-on-right for friend
+ *   requests).
+ * - `direction` restricts which way the user can swipe.
+ * - Reveal layers (`leftAction`, `rightAction`) render behind the card and
+ *   fade in proportional to drag distance.
+ * - `prefers-reduced-motion: reduce` disables the spring — the card snaps
+ *   to its rest or exit position with no easing.
+ *
+ * Backward-compat: `threshold` (number in px) is still accepted as a soft
+ * trigger for `onSwipeLeft` / `onSwipeRight` when no `onSwipeDelete` is
+ * provided (legacy SwipeTabs / list-item usages).
+ */
 interface SwipeableCardProps {
   children: React.ReactNode
   className?: string
   onSwipeLeft?: () => void
   onSwipeRight?: () => void
   onSwipeUp?: () => void
-  /** Threshold in pixels to trigger swipe action */
+  /** Fires when the swipe crosses dismissThreshold in any allowed direction. */
+  onSwipeDelete?: (direction: "left" | "right") => void
+  /** Pixel threshold used by legacy onSwipeLeft / onSwipeRight detection. */
   threshold?: number
-  /** Enable vertical swiping */
+  /** Ratio of container width (0–1) that triggers dismiss. Default: 0.3. */
+  dismissThreshold?: number
+  /** Allowed swipe direction for dismiss. Default: "both". */
+  direction?: "left" | "right" | "both"
+  /** Optional reveal layer rendered behind the card on left swipe. */
+  leftAction?: React.ReactNode
+  /** Optional reveal layer rendered behind the card on right swipe. */
+  rightAction?: React.ReactNode
+  /** Enable vertical swiping (legacy). */
   enableVertical?: boolean
-  /** Enable horizontal swiping */
+  /** Enable horizontal swiping. Default true. */
   enableHorizontal?: boolean
+  /** Disable gesture entirely (e.g. while an action is mid-flight). */
+  disabled?: boolean
 }
 
 export function SwipeableCard({
@@ -40,56 +82,152 @@ export function SwipeableCard({
   onSwipeLeft,
   onSwipeRight,
   onSwipeUp,
+  onSwipeDelete,
   threshold = 100,
+  dismissThreshold = 0.3,
+  direction = "both",
+  leftAction,
+  rightAction,
   enableVertical = false,
   enableHorizontal = true,
+  disabled = false,
 }: SwipeableCardProps) {
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  
-  // Opacity based on swipe distance
-  const opacity = useTransform(
-    x,
-    [-threshold * 2, 0, threshold * 2],
-    [0.5, 1, 0.5]
-  )
-  
-  // Rotate slightly on horizontal swipe
+  const prefersReducedMotion = useReducedMotion()
+  const [isExiting, setIsExiting] = React.useState(false)
+
+  // Fade slightly past 60 % of width so partial drags stay fully visible.
+  const opacity = useTransform(x, (v) => {
+    const w = containerRef.current?.clientWidth ?? 320
+    return Math.max(0.4, 1 - Math.max(0, Math.abs(v) / w - 0.6))
+  })
+
+  // Reveal-layer opacities track drag distance against the dismiss threshold.
+  const leftRevealOpacity = useTransform(x, (v) => {
+    if (v >= 0) return 0
+    const w = containerRef.current?.clientWidth ?? 320
+    return Math.min(1, Math.abs(v) / Math.max(1, w * dismissThreshold))
+  })
+  const rightRevealOpacity = useTransform(x, (v) => {
+    if (v <= 0) return 0
+    const w = containerRef.current?.clientWidth ?? 320
+    return Math.min(1, v / Math.max(1, w * dismissThreshold))
+  })
+
+  // Legacy "tinder-like" rotation only when no dismiss/reveal is configured.
+  const legacyMode = !onSwipeDelete && !leftAction && !rightAction
   const rotate = useTransform(x, [-threshold, 0, threshold], [-5, 0, 5])
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (disabled) return
     const { offset, velocity } = info
-    
-    // Horizontal swipes
-    if (enableHorizontal) {
+    const w = containerRef.current?.clientWidth ?? 320
+    const ratio = Math.abs(offset.x) / Math.max(1, w)
+
+    // ----- Dismiss when ratio crosses dismissThreshold or velocity is high.
+    const dismissTriggered =
+      enableHorizontal && (ratio >= dismissThreshold || Math.abs(velocity.x) > 800)
+
+    if (dismissTriggered && onSwipeDelete) {
+      const dir: "left" | "right" = offset.x < 0 ? "left" : "right"
+      const allowed =
+        direction === "both" ||
+        (direction === "left" && dir === "left") ||
+        (direction === "right" && dir === "right")
+
+      if (allowed) {
+        if (dir === "left") onSwipeLeft?.()
+        else onSwipeRight?.()
+        onSwipeDelete(dir)
+
+        const target = dir === "left" ? -w * 1.2 : w * 1.2
+        if (prefersReducedMotion) {
+          x.set(target)
+        } else {
+          animate(x, target, { type: "spring", stiffness: 500, damping: 40 })
+        }
+        setIsExiting(true)
+        return
+      }
+    }
+
+    // ----- Legacy px-threshold callbacks (kept for back-compat) -----
+    if (enableHorizontal && !onSwipeDelete) {
       if (offset.x > threshold || (offset.x > 50 && velocity.x > 500)) {
         onSwipeRight?.()
       } else if (offset.x < -threshold || (offset.x < -50 && velocity.x < -500)) {
         onSwipeLeft?.()
       }
     }
-    
-    // Vertical swipes
+
     if (enableVertical && offset.y < -threshold) {
       onSwipeUp?.()
     }
-    
-    // Animate back to center
-    animate(x, 0, { type: "spring", stiffness: 500, damping: 30 })
-    animate(y, 0, { type: "spring", stiffness: 500, damping: 30 })
+
+    // Spring back to rest (or snap if reduced-motion).
+    if (prefersReducedMotion) {
+      x.set(0)
+      y.set(0)
+    } else {
+      animate(x, 0, { type: "spring", stiffness: 500, damping: 30 })
+      animate(y, 0, { type: "spring", stiffness: 500, damping: 30 })
+    }
   }
 
+  if (disabled) {
+    return (
+      <div ref={containerRef} className={className}>
+        {children}
+      </div>
+    )
+  }
+
+  // dragConstraints lock the swipe to allowed direction(s) when dismiss is on.
+  const dragConstraints =
+    onSwipeDelete && direction === "left"
+      ? { left: -10000, right: 0, top: 0, bottom: 0 }
+      : onSwipeDelete && direction === "right"
+        ? { left: 0, right: 10000, top: 0, bottom: 0 }
+        : { left: 0, right: 0, top: 0, bottom: 0 }
+
   return (
-    <motion.div
-      className={cn("touch-pan-y", className)}
-      style={{ x, y, opacity, rotate }}
-      drag={enableHorizontal ? "x" : enableVertical ? "y" : false}
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-      dragElastic={0.7}
-      onDragEnd={handleDragEnd}
-    >
-      {children}
-    </motion.div>
+    <div ref={containerRef} className={cn("relative isolate", className)}>
+      {/* Reveal layers */}
+      {leftAction && (
+        <motion.div
+          aria-hidden="true"
+          style={{ opacity: leftRevealOpacity }}
+          className="absolute inset-0 flex items-center justify-end pr-6 pointer-events-none rounded-2xl"
+        >
+          {leftAction}
+        </motion.div>
+      )}
+      {rightAction && (
+        <motion.div
+          aria-hidden="true"
+          style={{ opacity: rightRevealOpacity }}
+          className="absolute inset-0 flex items-center justify-start pl-6 pointer-events-none rounded-2xl"
+        >
+          {rightAction}
+        </motion.div>
+      )}
+
+      <motion.div
+        className={cn("touch-pan-y will-change-transform", isExiting && "pointer-events-none")}
+        style={{ x, y, opacity, rotate: legacyMode ? rotate : 0 }}
+        drag={enableHorizontal ? "x" : enableVertical ? "y" : false}
+        dragConstraints={dragConstraints}
+        dragElastic={legacyMode ? 0.7 : 0.2}
+        dragMomentum={false}
+        onDragEnd={handleDragEnd}
+        animate={isExiting ? { opacity: 0 } : undefined}
+        transition={prefersReducedMotion ? { duration: 0 } : undefined}
+      >
+        {children}
+      </motion.div>
+    </div>
   )
 }
 
@@ -344,7 +482,7 @@ export function BottomSheet({
         onDragEnd={handleDragEnd}
         style={{ y, height: `${currentHeight}vh` }}
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-zinc-900 border-t border-white/10",
+          "fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-zinc-900 border-t border-white/10 pb-[env(safe-area-inset-bottom)]",
           className
         )}
       >

@@ -232,6 +232,9 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
                     ctaHref={`/teen/quests/${quest.id}`}
                     ctaLabel={quest.status === "completed" ? "DONE" : quest.status === "in_progress" ? "CONTINUE" : "START"}
                     imageUrl={quest.image_url}
+                    // TICKET-024 — morph anchor for View Transitions API.
+                    // Pairs with the hero on /teen/quests/[id].
+                    morphId={`vt-quest-${quest.id}`}
                   />
                 </motion.div>
               ))}

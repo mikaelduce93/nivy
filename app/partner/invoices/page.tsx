@@ -30,6 +30,7 @@ import {
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -297,13 +298,11 @@ export default async function PartnerInvoicesPage() {
         </CardHeader>
         <CardContent className="p-0">
           {invoices.length === 0 ? (
-            <div className="p-10 text-center">
-              <FileText className="w-12 h-12 mx-auto mb-4 text-zinc-700" />
-              <p className="text-zinc-300 font-semibold">Aucune facture</p>
-              <p className="text-sm text-zinc-500 mt-2">
-                Vos factures apparaîtront ici dès le premier cycle de versement.
-              </p>
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="Aucune facture"
+              description="Vos factures apparaîtront ici dès le premier cycle de versement."
+            />
           ) : (
             <Table>
               <TableHeader>

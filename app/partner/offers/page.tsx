@@ -5,6 +5,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Tag, Edit } from "lucide-react"
+import { EmptyState } from "@/components/ui/states/empty-state"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
@@ -186,23 +187,12 @@ export default async function PartnerOffersPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {offers.length === 0 ? (
-            <div role="status" className="p-10 text-center">
-              <p className="text-zinc-300 font-semibold">
-                Aucune offre publiée
-              </p>
-              <p className="text-sm text-zinc-500 mt-2">
-                Créez votre première offre pour attirer les membres Nivy.
-              </p>
-              <Button
-                className="mt-4 bg-emerald-500 hover:bg-emerald-600 text-white"
-                asChild
-              >
-                <Link href="/partner/offers/new">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nouvelle offre
-                </Link>
-              </Button>
-            </div>
+            <EmptyState
+              icon={Tag}
+              title="Aucune offre publiée"
+              description="Créez votre première offre pour attirer les membres Nivy."
+              action={{ label: "Nouvelle offre", href: "/partner/offers/new" }}
+            />
           ) : (
             offers.map((offer) => {
               const active = offer.is_active === true

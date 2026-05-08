@@ -235,10 +235,14 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
         </motion.button>
 
         {/* Header Card */}
+        {/* TICKET-024 — destination half of the View Transitions morph.
+            Pairs with the DefiCard on /teen/quests (same `vt-quest-${id}`).
+            The browser auto-tweens the card → hero on navigation. */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative overflow-hidden rounded-3xl bg-zinc-900/60 backdrop-blur-xl border border-white/10 p-6 sm:p-8"
+          style={{ viewTransitionName: `vt-quest-${quest.id}` }}
         >
           {/* Pillar badge */}
           <div className="flex items-center justify-between mb-6">

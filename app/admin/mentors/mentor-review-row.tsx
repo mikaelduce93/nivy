@@ -2,6 +2,46 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+
+function kycVariant(status: string): StatusVariant {
+  switch (status) {
+    case "approved":
+      return "success"
+    case "rejected":
+      return "danger"
+    case "pending":
+      return "pending"
+    default:
+      return "neutral"
+  }
+}
+
+function statusVariant(status: string): StatusVariant {
+  switch (status) {
+    case "active":
+      return "success"
+    case "rejected":
+    case "suspended":
+      return "danger"
+    case "paused":
+      return "info"
+    default:
+      return "pending"
+  }
+}
+
+function docVariant(status: string): StatusVariant {
+  switch (status) {
+    case "approved":
+      return "success"
+    case "rejected":
+      return "danger"
+    default:
+      return "warning"
+  }
+}
 
 interface DocLite {
   id: string
@@ -94,47 +134,33 @@ export function MentorReviewRow({
       : "—"
 
   return (
-    <li className="rounded border border-zinc-800 bg-zinc-900 p-4">
+    <li className="rounded border border-border bg-card p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <div className="font-semibold text-white">
+          <div className="font-semibold text-foreground">
             {mentor.full_name ?? "Sans nom"}
           </div>
-          <div className="text-xs text-zinc-500">
+          <div className="text-xs text-muted-foreground">
             {mentor.email ?? "(email inconnu)"}
             {mentor.years_experience != null
               ? ` · ${mentor.years_experience} ans d'exp.`
               : ""}
           </div>
-          <div className="text-xs text-zinc-600">
+          <div className="text-xs text-muted-foreground/80">
             Inscrit le {new Date(mentor.created_at).toLocaleString("fr-FR")}
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span
-            className={`rounded px-2 py-0.5 text-xs ${
-              mentor.kyc_status === "approved"
-                ? "bg-green-500/20 text-green-300"
-                : mentor.kyc_status === "rejected"
-                  ? "bg-red-500/20 text-red-300"
-                  : "bg-yellow-500/20 text-yellow-300"
-            }`}
-          >
-            KYC: {mentor.kyc_status}
-          </span>
-          <span
-            className={`rounded px-2 py-0.5 text-xs ${
-              mentor.status === "active"
-                ? "bg-green-500/20 text-green-300"
-                : mentor.status === "rejected" || mentor.status === "suspended"
-                  ? "bg-red-500/20 text-red-300"
-                  : mentor.status === "paused"
-                    ? "bg-blue-500/20 text-blue-300"
-                    : "bg-yellow-500/20 text-yellow-300"
-            }`}
-          >
-            Statut: {mentor.status}
-          </span>
+          <StatusBadge
+            variant={kycVariant(mentor.kyc_status)}
+            label={`KYC : ${mentor.kyc_status}`}
+            size="sm"
+          />
+          <StatusBadge
+            variant={statusVariant(mentor.status)}
+            label={`Statut : ${mentor.status}`}
+            size="sm"
+          />
         </div>
       </header>
 
@@ -154,7 +180,7 @@ export function MentorReviewRow({
           {mentor.expertise_tags.map((t) => (
             <span
               key={t}
-              className="rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300"
+              className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground"
             >
               {t}
             </span>
@@ -163,20 +189,20 @@ export function MentorReviewRow({
       )}
 
       {mentor.bio && (
-        <p className="mb-3 line-clamp-3 rounded bg-zinc-950 px-3 py-2 text-xs text-zinc-300">
+        <p className="mb-3 line-clamp-3 rounded bg-background px-3 py-2 text-xs text-foreground/90">
           {mentor.bio}
         </p>
       )}
 
       <div className="mb-3">
-        <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+        <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
           <span>Documents KYC</span>
           <span>
             {verifiedCount}/{mentor.documents.length} approuvés
           </span>
         </div>
         {mentor.documents.length === 0 ? (
-          <div className="rounded bg-zinc-950 px-3 py-2 text-xs text-zinc-500">
+          <div className="rounded bg-background px-3 py-2 text-xs text-muted-foreground">
             Aucun document soumis.
           </div>
         ) : (
@@ -184,32 +210,26 @@ export function MentorReviewRow({
             {mentor.documents.map((d) => (
               <li
                 key={d.id}
-                className="flex items-center justify-between rounded bg-zinc-950 px-3 py-2 text-xs"
+                className="flex items-center justify-between rounded bg-background px-3 py-2 text-xs"
               >
-                <span className="text-zinc-300">{d.doc_type}</span>
+                <span className="text-foreground/90">{d.doc_type}</span>
                 <span className="flex items-center gap-3">
-                  <span
-                    className={
-                      d.status === "approved"
-                        ? "text-green-400"
-                        : d.status === "rejected"
-                          ? "text-red-400"
-                          : "text-yellow-400"
-                    }
-                  >
-                    {d.status}
-                  </span>
+                  <StatusBadge
+                    variant={docVariant(d.status)}
+                    label={d.status}
+                    size="sm"
+                  />
                   {d.signedUrl ? (
                     <a
                       href={d.signedUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-blue-400 underline-offset-4 hover:underline"
+                      className="text-info underline-offset-4 hover:underline"
                     >
                       Ouvrir
                     </a>
                   ) : (
-                    <span className="text-zinc-600">URL indisponible</span>
+                    <span className="text-muted-foreground/70">URL indisponible</span>
                   )}
                 </span>
               </li>
@@ -226,54 +246,58 @@ export function MentorReviewRow({
             placeholder="Motif de rejet (obligatoire)"
             rows={2}
             maxLength={1000}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className="w-full rounded border border-input bg-background p-2 text-sm text-foreground"
           />
         </div>
       )}
 
-      {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
 
       {actionable && (
         <div className="flex flex-wrap gap-2">
-          <button
+          <Button
             type="button"
+            size="sm"
             disabled={busy}
             onClick={approve}
-            className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
+            className="bg-success text-success-foreground hover:bg-success/90"
           >
             Approuver
-          </button>
+          </Button>
           {!showReject ? (
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="destructive"
               disabled={busy}
               onClick={() => setShowReject(true)}
-              className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
             >
               Rejeter
-            </button>
+            </Button>
           ) : (
             <>
-              <button
+              <Button
                 type="button"
+                size="sm"
+                variant="destructive"
                 disabled={busy}
                 onClick={reject}
-                className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
               >
                 Confirmer le rejet
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                size="sm"
+                variant="secondary"
                 disabled={busy}
                 onClick={() => {
                   setShowReject(false)
                   setReason("")
                   setError(null)
                 }}
-                className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
               >
                 Annuler
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -284,9 +308,9 @@ export function MentorReviewRow({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded bg-zinc-950 px-2 py-1">
-      <div className="text-[10px] uppercase tracking-wide text-zinc-500">{label}</div>
-      <div className="text-zinc-200">{children}</div>
+    <div className="rounded bg-background px-2 py-1">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-foreground/90">{children}</div>
     </div>
   )
 }

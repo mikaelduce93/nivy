@@ -19,6 +19,7 @@ import {
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -204,13 +205,11 @@ export default async function PartnerPayoutsPage() {
         </CardHeader>
         <CardContent>
           {payouts.length === 0 ? (
-            <div className="p-10 text-center">
-              <Wallet className="w-12 h-12 mx-auto mb-4 text-zinc-700" />
-              <p className="text-zinc-300 font-semibold">Aucun paiement</p>
-              <p className="text-sm text-zinc-500 mt-2">
-                Vos virements apparaîtront ici une fois le premier cycle de versement clôturé.
-              </p>
-            </div>
+            <EmptyState
+              icon={Wallet}
+              title="Aucun paiement"
+              description="Vos virements apparaîtront ici une fois le premier cycle de versement clôturé."
+            />
           ) : (
             <div className="space-y-3">
               {payouts.map((p) => (

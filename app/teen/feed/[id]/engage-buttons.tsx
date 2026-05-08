@@ -1,7 +1,16 @@
 "use client"
 
+/**
+ * Engagement actions on a feed submission detail.
+ *
+ * Wave 2 / TICKET-002 — design-system token sweep:
+ *  - Native <button> → <Button variant="outline" size="sm">.
+ *  - Raw text-gray-* / hover:bg-gray-* removed.
+ */
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 type Action = "view" | "like" | "comment" | "share" | "save"
 
@@ -33,35 +42,19 @@ export default function EngageButtons({ submissionId }: { submissionId: string }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button
-        disabled={busy}
-        onClick={() => fire("like")}
-        className="rounded border px-3 py-1 text-sm hover:bg-gray-50 disabled:opacity-50"
-      >
+      <Button disabled={busy} onClick={() => fire("like")} variant="outline" size="sm">
         ♥ Like
-      </button>
-      <button
-        disabled={busy}
-        onClick={() => fire("comment")}
-        className="rounded border px-3 py-1 text-sm hover:bg-gray-50 disabled:opacity-50"
-      >
+      </Button>
+      <Button disabled={busy} onClick={() => fire("comment")} variant="outline" size="sm">
         💬 Comment
-      </button>
-      <button
-        disabled={busy}
-        onClick={() => fire("share")}
-        className="rounded border px-3 py-1 text-sm hover:bg-gray-50 disabled:opacity-50"
-      >
+      </Button>
+      <Button disabled={busy} onClick={() => fire("share")} variant="outline" size="sm">
         ↗ Share
-      </button>
-      <button
-        disabled={busy}
-        onClick={() => fire("save")}
-        className="rounded border px-3 py-1 text-sm hover:bg-gray-50 disabled:opacity-50"
-      >
+      </Button>
+      <Button disabled={busy} onClick={() => fire("save")} variant="outline" size="sm">
         🔖 Save
-      </button>
-      {msg && <span className="ml-2 text-xs text-gray-500">{msg}</span>}
+      </Button>
+      {msg && <span className="ml-2 text-xs text-muted-foreground">{msg}</span>}
     </div>
   )
 }

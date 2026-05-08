@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import Link from "next/link"
-import { Plus, Coins, Lock } from "lucide-react"
+import { Plus, Coins, Lock, PiggyBank } from "lucide-react"
 import { GoalLockButton } from "@/components/teen/goal-lock-button"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -62,11 +63,12 @@ export default async function TeenSavingsPage() {
       </Card>
 
       {(goals ?? []).length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center text-muted-foreground">
-            Aucun objectif. Crée le premier.
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={PiggyBank}
+          title="Aucun objectif d'épargne"
+          description="Crée ton premier objectif et commence à mettre tes coins de côté pour ce qui compte."
+          action={{ label: "Créer un objectif", href: "/teen/savings/new" }}
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {(goals ?? []).map((g) => {

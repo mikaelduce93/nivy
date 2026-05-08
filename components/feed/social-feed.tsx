@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect, useState, useOptimistic, startTransition } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button, PremiumButton } from '@/components/ui/button'
 import { Heart, MessageCircle, Share2, Wifi, Gamepad2, LogIn, Sparkles, Zap, Trophy, Star } from 'lucide-react'
@@ -104,9 +104,24 @@ const presenceEventConfig: Record<PresenceActivityType, { emoji: string; label: 
   activity_update: { emoji: '⚡', label: 'Activité', icon: Wifi, color: '#f59e0b' },
 }
 
+// TICKET-031 — likes use useOptimistic. We track confirmed (server-acked) likes
+// in `likedPosts`, and useOptimistic projects pending toggles on top so the UI
+// flips instantly. On error we toast + rollback by *not* committing the change
+// to confirmed state; the optimistic layer will reconcile on next render.
+type LikeAction = { id: string; nextLiked: boolean }
+
 export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) {
   const [presenceEvents, setPresenceEvents] = useState<FeedActivity[]>([])
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
+  const [optimisticLiked, applyLike] = useOptimistic(
+    likedPosts,
+    (state: Set<string>, action: LikeAction) => {
+      const next = new Set(state)
+      if (action.nextLiked) next.add(action.id)
+      else next.delete(action.id)
+      return next
+    },
+  )
 
   useEffect(() => {
     const handlePresenceEvent = (event: CustomEvent) => {
@@ -163,14 +178,45 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
   }, [initialActivities, presenceEvents])
 
   const handleLike = (id: string) => {
-    setLikedPosts(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
+    const wasLiked = likedPosts.has(id)
+    const nextLiked = !wasLiked
+
+    // Optimistic flip — must be wrapped in a transition because `useOptimistic`
+    // is a transition-only API in React 19.
+    startTransition(async () => {
+      applyLike({ id, nextLiked })
+
+      // Demo / fallback rows are not real submissions, skip the network call
+      // but keep the UI flip (commit to confirmed state immediately).
+      if (id.startsWith('demo-') || id.startsWith('presence-')) {
+        setLikedPosts(prev => {
+          const next = new Set(prev)
+          if (nextLiked) next.add(id)
+          else next.delete(id)
+          return next
+        })
+        return
       }
-      return next
+
+      try {
+        const res = await fetch(`/api/teen/feed/${id}/engage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'like' }),
+        })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        // Confirm: commit the new state so the optimistic layer matches reality.
+        setLikedPosts(prev => {
+          const next = new Set(prev)
+          if (nextLiked) next.add(id)
+          else next.delete(id)
+          return next
+        })
+      } catch {
+        // Rollback: optimistic state will fall back to `likedPosts` (unchanged)
+        // automatically once this transition settles.
+        toast.error('Impossible de mettre à jour le like — réessaie')
+      }
     })
   }
 
@@ -226,7 +272,7 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
                   <EliteActivityCard
                     activity={activity}
                     index={index}
-                    isLiked={likedPosts.has(activity.id)}
+                    isLiked={optimisticLiked.has(activity.id)}
                     onLike={() => handleLike(activity.id)}
                   />
                 </div>

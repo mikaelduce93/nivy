@@ -14,6 +14,7 @@ import { ServiceWorkerRegistration, PWAInstallBanner } from "@/components/pwa"
 import { MobileDock } from "@/components/layouts/mobile-dock"
 import { AmbientBackground } from "@/components/layouts/ambient-background"
 import { PerformanceProvider } from "@/components/providers/performance-provider"
+import { ViewTransitionsProvider } from "@/components/providers/view-transitions-provider"
 import { SentryBreadcrumbsSetup } from "@/components/monitoring/sentry-breadcrumbs-setup"
 import { SentryUserContext } from "@/components/monitoring/sentry-user-context"
 import { SentryWebVitals } from "@/components/monitoring/sentry-web-vitals"
@@ -223,6 +224,7 @@ export default async function RootLayout({
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <PerformanceProvider>
+        <ViewTransitionsProvider>
         <AppProviders>
         <ThemeProvider
           attribute="class"
@@ -285,6 +287,7 @@ export default async function RootLayout({
           </I18nProvider>
         </ThemeProvider>
         </AppProviders>
+        </ViewTransitionsProvider>
         </PerformanceProvider>
       </body>
     </html>

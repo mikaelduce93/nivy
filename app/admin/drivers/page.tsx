@@ -3,6 +3,8 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { H1 } from "@/components/ui/headings"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -45,7 +47,7 @@ export default async function AdminDriversPage() {
   return (
     <div className="container mx-auto p-4 md:p-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Chauffeurs Nivy</h1>
+        <H1 className="text-2xl">Chauffeurs Nivy</H1>
         <p className="text-muted-foreground text-sm">
           Validez les KYC et gérez la flotte de chauffeurs partenaires.
         </p>
@@ -54,7 +56,7 @@ export default async function AdminDriversPage() {
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
@@ -131,7 +133,11 @@ function DriverRow({ d }: RowProps) {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Badge variant={d.kyc_status === "approved" ? "default" : "outline"}>{d.kyc_status}</Badge>
+        <StatusBadge
+          variant={kycVariant(d.kyc_status)}
+          label={`KYC : ${d.kyc_status}`}
+          size="sm"
+        />
         {d.is_active && <Badge variant="secondary">actif</Badge>}
         <Link href={`/admin/drivers/${d.id}`}>
           <Button size="sm" variant="outline">
@@ -141,4 +147,17 @@ function DriverRow({ d }: RowProps) {
       </div>
     </div>
   )
+}
+
+function kycVariant(status: string): StatusVariant {
+  switch (status) {
+    case "approved":
+      return "success"
+    case "rejected":
+      return "danger"
+    case "pending":
+      return "pending"
+    default:
+      return "neutral"
+  }
 }

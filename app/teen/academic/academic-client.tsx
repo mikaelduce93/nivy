@@ -47,6 +47,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { submitGrade } from "@/gamification-system/features/pillars/actions"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 interface Subject {
   id: string
@@ -413,10 +414,12 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
             </div>
 
             {filteredQuizzes.length === 0 && (
-              <div className="text-center py-12">
-                <FileQuestion className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                <p className="text-gray-500">Aucun quiz disponible pour cette matière</p>
-              </div>
+              <EmptyState
+                size="small"
+                icon={FileQuestion}
+                title="Aucun quiz disponible"
+                description="Aucun quiz disponible pour cette matière. Sélectionne une autre matière ou reviens plus tard."
+              />
             )}
           </TabsContent>
 
@@ -474,10 +477,12 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
             </div>
 
             {filteredTutorials.length === 0 && (
-              <div className="text-center py-12">
-                <Video className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                <p className="text-gray-500">Aucun tutoriel disponible pour cette matière</p>
-              </div>
+              <EmptyState
+                size="small"
+                icon={Video}
+                title="Aucun tutoriel disponible"
+                description="Aucun tutoriel disponible pour cette matière. Sélectionne une autre matière ou reviens plus tard."
+              />
             )}
           </TabsContent>
         </Tabs>

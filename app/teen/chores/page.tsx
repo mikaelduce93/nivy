@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, ListChecks, Coins, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { TeenChoreCompleteButton } from "@/components/teen/teen-chore-complete-button"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 interface Chore {
   id: string
@@ -100,15 +101,11 @@ export default async function TeenChoresPage() {
         </div>
 
         {chores.length === 0 ? (
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-            <CardContent className="py-16 text-center">
-              <ListChecks className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-              <h3 className="text-xl font-bold text-white mb-2">Aucune corvée</h3>
-              <p className="text-zinc-400">
-                Aucune corvée n'a été créée pour le moment.
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={ListChecks}
+            title="Aucune corvée"
+            description="Aucune corvée n'a été créée pour le moment. Demande à tes parents de t'en assigner pour gagner des coins et de l'XP."
+          />
         ) : (
           <div className="space-y-4">
             {chores.map((c) => {

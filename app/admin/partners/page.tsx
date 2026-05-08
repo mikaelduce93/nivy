@@ -15,6 +15,8 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { PartnerReviewRow } from "./partner-review-row"
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { Store } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -136,9 +138,12 @@ export default async function AdminPartnersPage() {
         </h2>
 
         {(!pending || pending.length === 0) && (
-          <p className="rounded border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
-            Aucun partenaire en attente d&apos;approbation.
-          </p>
+          <EmptyState
+            size="small"
+            icon={Store}
+            title="Aucun partenaire en attente"
+            description="Aucun partenaire en attente d'approbation."
+          />
         )}
 
         <ul className="space-y-3">

@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { EmptyState } from "@/components/ui/states/empty-state"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
@@ -230,13 +231,11 @@ export default async function PartnerKYCPage() {
         </CardHeader>
         <CardContent>
           {signed.length === 0 ? (
-            <div className="p-10 text-center">
-              <FileText className="w-12 h-12 mx-auto mb-4 text-zinc-700" />
-              <p className="text-zinc-300 font-semibold">Aucun document KYC</p>
-              <p className="text-sm text-zinc-500 mt-2">
-                Aucune pièce justificative n'a encore été déposée pour votre fiche partenaire.
-              </p>
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="Aucun document KYC"
+              description="Aucune pièce justificative n'a encore été déposée pour votre fiche partenaire."
+            />
           ) : (
             <div className="space-y-3">
               {signed.map((d) => (

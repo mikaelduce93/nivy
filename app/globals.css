@@ -1770,3 +1770,76 @@
    └─────────────────────────────────────────────────────────────────────────┘
 
    ============================================================================ */
+
+/* ============================================================================
+   11. View Transitions API — TICKET-024 (Wave 2 UX sprint)
+   ============================================================================
+
+   Audit finding #2 was zero usage of the native View Transitions API. We
+   pilot it on five list -> detail pairs. The morph contract is:
+
+     1. List card (/teen/quests, /teen/mentors, /marketplace, /teen/food,
+        /teen/feed) carries `view-transition-name: vt-<surface>-<id>` on
+        its anchor.
+     2. The matching detail page (/teen/quests/[id], etc.) sets the same
+        name on its hero element.
+     3. components/providers/view-transitions-provider.tsx intercepts the
+        click and wraps router.push in document.startViewTransition so the
+        browser captures both DOM snapshots and tweens the matching names
+        automatically.
+
+   Names themselves are assigned via inline styles (see callsites) because
+   they are per-row dynamic — Tailwind's JIT can't generate them and they
+   must be unique within a single document. This file owns the *animation*
+   half: easing, duration, and the reduced-motion kill switch.
+
+   Browser support (May 2026):
+     - Chromium 111+, Edge 111+ — full
+     - Safari 18+ — full
+     - Firefox — behind dom.viewTransitions.enabled flag
+   Anything else falls back to a regular client-router navigation; the
+   named elements still render normally.
+   ============================================================================ */
+
+/* Default timing for the root crossfade (whole document). The cubic
+   bezier matches PAGE_TRANSITION_EASINGS.smooth in
+   components/providers/page-transition-provider.tsx for visual
+   consistency with framer-motion-driven page transitions. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Per-surface morph groups. We can't enumerate every individual id so we
+   target the group pseudo on the wildcard, then re-tighten timing for
+   the morphing pairs. The 5-name allowlist below documents which
+   surfaces are wired up — adding a sixth requires adding both the
+   inline view-transition-name at the callsites AND a comment here. */
+::view-transition-group(*) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/*
+  Active morph allowlist (TICKET-024 — 5-morph cap):
+    1. vt-quest-<id>       — /teen/quests        -> /teen/quests/[id]
+    2. vt-mentor-<id>      — /teen/mentors       -> /teen/mentors/[id]
+    3. vt-listing-<id>     — /marketplace        -> /marketplace/listings/[id]
+    4. vt-restaurant-<id>  — /teen/food          -> /teen/food/[partner_id]
+    5. vt-feed-<id>        — /teen/feed          -> /teen/feed/[id]
+*/
+
+/* Reduced-motion kill switch. The provider also bails out of
+   startViewTransition when the user prefers reduced motion (so we don't
+   even snapshot), but we keep this @media rule as defence in depth: if
+   anyone ever calls startViewTransition directly without going through
+   the provider, the browser will still skip the morph. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+

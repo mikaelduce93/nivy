@@ -5,6 +5,7 @@ import { QuestsHubClient } from "./quests-hub-client"
 import { getUnifiedQuests } from "@/lib/server/unified-quest-engine"
 import { getDailyChallenges, getTeenXP } from "@/features/gamification/actions"
 import { createClient } from "@/lib/supabase/server"
+import { PullToRefresh } from "@/components/teen/pull-to-refresh"
 
 export default async function QuestsHubPage() {
   const userInfo = await getUserRole()
@@ -47,17 +48,19 @@ export default async function QuestsHubPage() {
   const coinsBalance = (coinsRow as { balance?: number } | null)?.balance ?? 0
 
   return (
-    <div className="min-h-screen pb-32">
-      <Suspense fallback={<QuestsHubSkeleton />}>
-        <QuestsHubClient
-          quests={serializedQuests}
-          dailyChallenges={serializedChallenges}
-          xpData={serializedXp}
-          coinsBalance={coinsBalance}
-          teenId={teenId}
-        />
-      </Suspense>
-    </div>
+    <PullToRefresh>
+      <div className="min-h-screen pb-32">
+        <Suspense fallback={<QuestsHubSkeleton />}>
+          <QuestsHubClient
+            quests={serializedQuests}
+            dailyChallenges={serializedChallenges}
+            xpData={serializedXp}
+            coinsBalance={coinsBalance}
+            teenId={teenId}
+          />
+        </Suspense>
+      </div>
+    </PullToRefresh>
   )
 }
 

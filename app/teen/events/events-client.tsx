@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export function TeenEventsClient({ initialEvents }: { initialEvents: any[] }) {
   const [filter, setFilter] = useState<"all" | "confirmed" | "pending" | "featured">("all")
@@ -141,7 +142,12 @@ export function TeenEventsClient({ initialEvents }: { initialEvents: any[] }) {
               )
             })
           ) : (
-            <div className="text-sm text-muted-foreground">Aucun event trouvé pour ce filtre.</div>
+            <EmptyState
+              size="small"
+              preset="events"
+              title="Aucun event trouvé"
+              description="Aucun event ne correspond à ce filtre. Essaie une autre catégorie ou explore tous les events."
+            />
           )}
         </CardContent>
       </Card>

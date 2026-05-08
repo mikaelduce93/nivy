@@ -106,6 +106,8 @@ export function TeenDashboardContent({
         )}
         
         {/* Simpler background for mobile */}
+        {/* NOTE: orb sizes 400-600px and blur-[80px]/[100px]/[150px]/[180px] are intentionally
+            above Tailwind canonical scale — ambient full-viewport gradient orbs. */}
         {mobile && (
           <>
             <div className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] rounded-full bg-brand-soft/10 blur-[100px]" />

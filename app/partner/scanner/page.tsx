@@ -23,6 +23,7 @@ import {
   Trophy
 } from "lucide-react"
 import { toast } from "sonner"
+import { EmptyState } from "@/components/ui/states/empty-state"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 
@@ -436,10 +437,12 @@ export default function PartnerScannerPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {scannedMember.eligibleOffers.length === 0 ? (
-              <div className="text-center py-8">
-                <Tag className="h-12 w-12 text-zinc-600 mx-auto mb-3" />
-                <p className="text-zinc-400">Aucune offre disponible</p>
-              </div>
+              <EmptyState
+                size="small"
+                icon={Tag}
+                title="Aucune offre disponible"
+                description="Ce membre n'a pas d'offre éligible pour le moment."
+              />
             ) : (
               scannedMember.eligibleOffers.map((offer) => (
                 <button

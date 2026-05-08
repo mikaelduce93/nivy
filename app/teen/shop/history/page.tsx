@@ -16,6 +16,7 @@ import {
   Filter
 } from "lucide-react"
 import Link from "next/link"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 async function getPurchaseHistory(teenId: string) {
   const supabase = await createClient()
@@ -311,18 +312,12 @@ export default async function ShopHistoryPage() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <ShoppingBag className="h-20 w-20 mx-auto mb-6 text-muted-foreground" />
-                <h3 className="text-2xl font-bold text-foreground mb-2">Aucun achat</h3>
-                <p className="text-muted-foreground mb-6">
-                  Tu n'as pas encore effectué d'achats dans la boutique
-                </p>
-                <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                  <Link href="/teen/shop">
-                    Découvrir la boutique
-                  </Link>
-                </Button>
-              </div>
+              <EmptyState
+                icon={ShoppingBag}
+                title="Aucun achat"
+                description="Tu n'as pas encore effectué d'achats dans la boutique. Découvre les rewards disponibles !"
+                action={{ label: "Découvrir la boutique", href: "/teen/shop" }}
+              />
             )}
           </CardContent>
         </Card>

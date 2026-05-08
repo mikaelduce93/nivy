@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Activity, Zap, Trophy, Calendar, BookOpen, Dumbbell, Users, MessageCircle, Gift, TrendingUp, Clock, Award, Target, Flame } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 type ApiActivity = {
   id: string
@@ -196,11 +197,12 @@ export default function ActivityPage() {
         })}
 
         {!loading && filteredActivities.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Activity className="w-16 h-16 text-zinc-700 mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Aucune activité</h3>
-            <p className="text-zinc-500">Rien à afficher pour ce filtre</p>
-          </div>
+          <EmptyState
+            icon={Activity}
+            title="Aucune activité"
+            description="Rien à afficher pour ce filtre. Lance-toi dans une quête pour faire grimper le compteur !"
+            action={{ label: "Voir les quêtes", href: "/teen/quests" }}
+          />
         )}
       </div>
 

@@ -25,7 +25,7 @@ export function AgentFloatingButton({ role, context }: AgentFloatingButtonProps)
   const Icon = config.icon
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-[calc(1.5rem+env(safe-area-inset-right))] z-50">
       <AgentSheet role={role} context={context}>
         <motion.button
           whileHover={{ scale: 1.05 }}

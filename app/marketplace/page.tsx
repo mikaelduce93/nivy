@@ -110,7 +110,13 @@ export default async function MarketplacePage({
         <ul className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {listings.map((l, idx) => (
             <li key={l.id} className="border rounded-lg overflow-hidden bg-white">
-              <Link href={`/marketplace/listings/${l.id}`} className="block">
+              {/* TICKET-024 — View Transitions morph anchor. Pairs with the
+                  hero on /marketplace/listings/[id]. */}
+              <Link
+                href={`/marketplace/listings/${l.id}`}
+                className="block"
+                style={{ viewTransitionName: `vt-listing-${l.id}` }}
+              >
                 <div className="relative aspect-square bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden">
                   {l.images && l.images[0] ? (
                     <Image

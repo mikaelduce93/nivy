@@ -29,7 +29,7 @@ export function CookieBanner() {
   if (!showBanner) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 animate-in slide-in-from-bottom">
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-6 md:pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom">
       <Card className="max-w-4xl mx-auto p-6 bg-background/95 backdrop-blur-lg border-2">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex-1">

@@ -4,6 +4,8 @@
 
 import { notFound } from "next/navigation"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { H1, H2 } from "@/components/ui/headings"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
 
 export const dynamic = "force-dynamic"
 
@@ -38,34 +40,44 @@ export default async function FoodOrderTrackingPage({
     .eq("order_id", id)
 
   const currentIdx = STATUSES.indexOf(order.status as (typeof STATUSES)[number])
+  const isTerminated =
+    order.status === "rejected" || order.status === "cancelled"
 
   return (
     <main className="min-h-screen mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-2">Suivi commande</h1>
-      <p className="text-sm text-gray-600 mb-6">
+      <H1 className="text-4xl font-black tracking-tighter uppercase leading-none mb-2">
+        Suivi commande
+      </H1>
+      <p className="text-sm text-muted-foreground mb-6">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {(order.partners as any)?.company_name} · {order.delivery_type} · #{String(id).slice(0, 8)}
       </p>
 
       <ol className="mb-6 flex flex-wrap gap-2 text-xs">
-        {STATUSES.map((s, idx) => (
-          <li
-            key={s}
-            className={`rounded px-2 py-1 ${
-              idx <= currentIdx
-                ? "bg-blue-600 text-white"
-                : order.status === "rejected" || order.status === "cancelled"
-                ? "bg-gray-200 text-gray-500"
-                : "bg-gray-100 text-gray-500"
-            }`}
-          >
-            {s}
-          </li>
-        ))}
+        {STATUSES.map((s, idx) => {
+          const variant: StatusVariant = isTerminated
+            ? "neutral"
+            : idx < currentIdx
+            ? "success"
+            : idx === currentIdx
+            ? "pending"
+            : "neutral"
+          return (
+            <li key={s}>
+              <StatusBadge
+                variant={variant}
+                size="sm"
+                label={s}
+                icon={false}
+                pulse={!isTerminated && idx === currentIdx}
+              />
+            </li>
+          )
+        })}
       </ol>
 
-      <h2 className="text-lg font-semibold mb-2">Articles</h2>
-      <ul className="mb-6 space-y-1 text-sm">
+      <H2 className="text-lg font-semibold mb-2">Articles</H2>
+      <ul className="mb-6 space-y-1 text-sm text-foreground">
         {(items ?? []).map((it, i) => (
           <li key={i}>
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -75,17 +87,19 @@ export default async function FoodOrderTrackingPage({
         ))}
       </ul>
 
-      <div className="rounded-lg bg-gray-50 p-3 text-sm">
+      <div className="rounded-lg bg-muted p-3 text-sm text-foreground">
         <div>
           Total: <strong>{order.total_coins} coins</strong> ({order.total_dh} DH)
         </div>
         {order.cashback_xp ? (
-          <div className="text-green-700">+{order.cashback_xp} XP cashback</div>
+          <div className="text-success">+{order.cashback_xp} XP cashback</div>
         ) : null}
         {order.parent_approval_id && (
-          <div className="text-amber-700">En attente d'approbation parent</div>
+          <div className="text-warning-foreground">En attente d&apos;approbation parent</div>
         )}
-        {order.notes && <div className="text-gray-500 mt-1">Notes: {order.notes}</div>}
+        {order.notes && (
+          <div className="text-muted-foreground mt-1">Notes: {order.notes}</div>
+        )}
       </div>
     </main>
   )

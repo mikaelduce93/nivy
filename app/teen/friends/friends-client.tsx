@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useOptimistic, startTransition } from "react"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 import {
   Users,
   Search,
@@ -18,6 +19,9 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { SwipeableCard } from "@/components/ui/swipeable-card"
+import { useOptimisticRunner } from "@/lib/hooks/use-optimistic-mutation"
+import { toast as juicyToast } from "@/lib/utils/toast"
 
 type ApiFriend = {
   id: string
@@ -86,8 +90,28 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
   const [loadingRequests, setLoadingRequests] = useState(false)
   const [actioningRequestId, setActioningRequestId] = useState<string | null>(null)
 
-  // Show only the top 5 suggestions per TICKET-036 acceptance criteria.
-  const suggestions = initialSuggestions.slice(0, 5)
+  // TICKET-031 — accept/decline are high-frequency, so the row should slide
+  // out instantly. useOptimistic projects a "pending removal" set on top of
+  // the canonical request list; we drop the row from confirmed state only on
+  // a 2xx response.
+  const [optimisticRequests, removeRequestOptimistic] = useOptimistic(
+    requests,
+    (state: PendingRequest[], removedId: string) =>
+      state.filter((r) => r.id !== removedId),
+  )
+
+  // TICKET-038: swipe-to-dismiss suggestions. Track locally-dismissed ids so
+  // swiping a card removes it from this session's view (the next page-load
+  // re-fetches fresh recommendations from FD3).
+  const [dismissedSuggestionIds, setDismissedSuggestionIds] = useState<Set<string>>(
+    () => new Set<string>(),
+  )
+
+  // Show only the top 5 suggestions per TICKET-036 acceptance criteria,
+  // minus any the user has just swiped away.
+  const suggestions = initialSuggestions
+    .filter((s) => !dismissedSuggestionIds.has(s.teen_id))
+    .slice(0, 5)
 
   useEffect(() => {
     let cancelled = false
@@ -142,15 +166,24 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
     }
   }, [])
 
-  async function respondToRequest(requestId: string, action: "accept" | "decline") {
+  function respondToRequest(requestId: string, action: "accept" | "decline") {
     if (actioningRequestId) return
     setActioningRequestId(requestId)
-    try {
-      const res = await fetch(`/api/teen/friends/requests/${requestId}/${action}`, {
-        method: "POST",
-      })
-      if (res.ok) {
+
+    // Optimistic removal — must run inside a transition so useOptimistic
+    // can revert if the network call fails.
+    startTransition(async () => {
+      removeRequestOptimistic(requestId)
+      try {
+        const res = await fetch(`/api/teen/friends/requests/${requestId}/${action}`, {
+          method: "POST",
+        })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+        // Confirm — commit removal to the canonical state. The optimistic
+        // layer now matches reality.
         setRequests((prev) => prev.filter((r) => r.id !== requestId))
+
         if (action === "accept") {
           // Refresh friends list so the newly-accepted peer shows up.
           try {
@@ -160,41 +193,69 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
             /* ignore — list will refresh on next mount */
           }
         }
+      } catch {
+        // Rollback: optimistic state auto-reverts to `requests` once the
+        // transition settles, so the row reappears.
+        toast.error(
+          action === "accept"
+            ? "Impossible d'accepter la demande — réessaie"
+            : "Impossible de refuser la demande — réessaie",
+        )
+      } finally {
+        setActioningRequestId(null)
       }
-    } finally {
-      setActioningRequestId(null)
-    }
+    })
   }
 
-  async function inviteSuggestion(targetTeenId: string) {
-    if (invitedIds.has(targetTeenId)) return
-    // Optimistic UI — flip immediately, revert on hard failure.
-    setInvitedIds((prev) => {
-      const next = new Set(prev)
-      next.add(targetTeenId)
-      return next
-    })
-    try {
+  // TICKET-031 (W2-A18): friend-request *send* via useOptimisticRunner —
+  // the "Inviter" pill flips to "Invité" instantly. On error we roll back
+  // the optimistic flag and surface a juicy toast so the user can retry.
+  // (Accept/decline of incoming requests is owned by W2-A17.)
+  const inviteRunner = useOptimisticRunner<
+    { targetTeenId: string },
+    { ok: true },
+    { targetTeenId: string; wasInvited: boolean }
+  >(
+    async ({ targetTeenId }) => {
       const res = await fetch("/api/teen/friends", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetTeenId }),
       })
       if (!res.ok) {
-        // Roll back the optimistic flag so the user can retry.
+        throw new Error(`HTTP ${res.status}`)
+      }
+      return { ok: true as const }
+    },
+    {
+      onMutate: ({ targetTeenId }) => {
+        const wasInvited = invitedIds.has(targetTeenId)
         setInvitedIds((prev) => {
           const next = new Set(prev)
-          next.delete(targetTeenId)
+          next.add(targetTeenId)
           return next
         })
-      }
-    } catch {
-      setInvitedIds((prev) => {
-        const next = new Set(prev)
-        next.delete(targetTeenId)
-        return next
-      })
-    }
+        return { targetTeenId, wasInvited }
+      },
+      onError: (_err, _input, ctx) => {
+        if (ctx && !ctx.wasInvited) {
+          setInvitedIds((prev) => {
+            const next = new Set(prev)
+            next.delete(ctx.targetTeenId)
+            return next
+          })
+        }
+        juicyToast.error("Demande d'ami non envoyée. Réessaie dans un instant.")
+      },
+      onSuccess: () => {
+        juicyToast.success("Demande envoyée !")
+      },
+    },
+  )
+
+  function inviteSuggestion(targetTeenId: string) {
+    if (invitedIds.has(targetTeenId)) return
+    inviteRunner.mutate({ targetTeenId })
   }
 
   const filteredFriends = friends.filter((friend) => {
@@ -268,12 +329,12 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                 )}
               >
                 {t.label}
-                {t.id === "requests" && requests.length > 0 && (
+                {t.id === "requests" && optimisticRequests.length > 0 && (
                   <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-xs">
                     <span className="sr-only">
-                      {requests.length} demande{requests.length > 1 ? "s" : ""} en attente
+                      {optimisticRequests.length} demande{optimisticRequests.length > 1 ? "s" : ""} en attente
                     </span>
-                    <span aria-hidden="true">{requests.length}</span>
+                    <span aria-hidden="true">{optimisticRequests.length}</span>
                   </span>
                 )}
               </button>
@@ -289,7 +350,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
 
           {loadingRequests ? (
             <div className="text-zinc-500 text-sm">Chargement…</div>
-          ) : requests.length === 0 ? (
+          ) : optimisticRequests.length === 0 ? (
             <EmptyState
               preset="search"
               size="small"
@@ -298,48 +359,71 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
             />
           ) : (
             <div className="space-y-3">
-              {requests.map((request, idx) => (
-                <motion.div
+              {optimisticRequests.map((request, idx) => (
+                // TICKET-038: friend-request gestures.
+                //   Right-swipe → accept (green reveal)
+                //   Left-swipe  → decline (red reveal)
+                // Both buttons remain available for keyboard / non-touch users.
+                <SwipeableCard
                   key={request.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-accent-soft/10 border border-accent-soft/30"
+                  onSwipeRight={() => respondToRequest(request.id, "accept")}
+                  onSwipeLeft={() => respondToRequest(request.id, "decline")}
+                  onSwipeDelete={() => {
+                    /* dismiss handled by callbacks above */
+                  }}
+                  disabled={actioningRequestId === request.id}
+                  leftAction={
+                    <span className="px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                      Refuser
+                    </span>
+                  }
+                  rightAction={
+                    <span className="px-3 py-1 rounded-full bg-green-500 text-white text-xs font-bold">
+                      Accepter
+                    </span>
+                  }
                 >
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
-                    {request.name.charAt(0).toUpperCase()}
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-center gap-4 p-4 rounded-2xl bg-accent-soft/10 border border-accent-soft/30"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
+                      {request.name.charAt(0).toUpperCase()}
+                    </div>
 
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-white">{request.name}</h4>
-                    <p className="text-sm text-zinc-400">
-                      {request.mutual > 0 ? `${request.mutual} amis en commun • ` : ""}
-                      {request.sentAt}
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-white">{request.name}</h4>
+                      <p className="text-sm text-zinc-400">
+                        {request.mutual > 0 ? `${request.mutual} amis en commun • ` : ""}
+                        {request.sentAt}
+                      </p>
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="icon"
-                      className="rounded-full bg-success-soft text-black"
-                      onClick={() => respondToRequest(request.id, "accept")}
-                      disabled={actioningRequestId === request.id}
-                      aria-label={`Accepter la demande de ${request.name}`}
-                    >
-                      <Check className="w-5 h-5" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="rounded-full"
-                      onClick={() => respondToRequest(request.id, "decline")}
-                      disabled={actioningRequestId === request.id}
-                      aria-label={`Refuser la demande de ${request.name}`}
-                    >
-                      <X className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </motion.div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="icon"
+                        className="rounded-full bg-success-soft text-black"
+                        onClick={() => respondToRequest(request.id, "accept")}
+                        disabled={actioningRequestId === request.id}
+                        aria-label={`Accepter la demande de ${request.name}`}
+                      >
+                        <Check className="w-5 h-5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="rounded-full"
+                        onClick={() => respondToRequest(request.id, "decline")}
+                        disabled={actioningRequestId === request.id}
+                        aria-label={`Refuser la demande de ${request.name}`}
+                      >
+                        <X className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                </SwipeableCard>
               ))}
             </div>
           )}
@@ -469,13 +553,35 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                   Math.max(0, Math.min(1, sugg.similarity)) * 100,
                 )
                 return (
-                  <motion.div
+                  // TICKET-038: dismiss a suggestion by swiping it away in
+                  // either direction. We only update local state — the
+                  // server-side recommender will re-rank on next visit.
+                  <SwipeableCard
                     key={sugg.teen_id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-brand-soft/30 transition-colors"
+                    onSwipeDelete={() =>
+                      setDismissedSuggestionIds((prev) => {
+                        const next = new Set(prev)
+                        next.add(sugg.teen_id)
+                        return next
+                      })
+                    }
+                    leftAction={
+                      <span className="px-3 py-1 rounded-full bg-zinc-700 text-white text-xs font-bold">
+                        Masquer
+                      </span>
+                    }
+                    rightAction={
+                      <span className="px-3 py-1 rounded-full bg-zinc-700 text-white text-xs font-bold">
+                        Masquer
+                      </span>
+                    }
                   >
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-brand-soft/30 transition-colors"
+                    >
                     {/* Avatar */}
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
                       {sugg.name.charAt(0).toUpperCase()}
@@ -524,7 +630,8 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                         </>
                       )}
                     </Button>
-                  </motion.div>
+                    </motion.div>
+                  </SwipeableCard>
                 )
               })}
             </div>

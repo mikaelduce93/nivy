@@ -2,8 +2,22 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect, notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { H1 } from "@/components/ui/headings"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
 import { DriverActions } from "./driver-actions"
+
+function kycVariant(status: string): StatusVariant {
+  switch (status) {
+    case "approved":
+      return "success"
+    case "rejected":
+      return "danger"
+    case "pending":
+      return "pending"
+    default:
+      return "neutral"
+  }
+}
 
 export const dynamic = "force-dynamic"
 
@@ -25,8 +39,11 @@ export default async function AdminDriverDetailPage({ params }: Props) {
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{d.full_name}</h1>
-        <Badge variant="outline">{d.kyc_status}</Badge>
+        <H1 className="text-2xl">{d.full_name}</H1>
+        <StatusBadge
+          variant={kycVariant(d.kyc_status)}
+          label={`KYC : ${d.kyc_status}`}
+        />
       </div>
       <Card>
         <CardHeader>

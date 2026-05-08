@@ -3,7 +3,8 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarDays, Coins } from "lucide-react"
+import { CalendarDays, Coins, Wallet } from "lucide-react"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -55,11 +56,12 @@ export default async function TeenAllowancePage() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardContent className="p-6 text-muted-foreground">
-            Aucune allowance active. Demande à ton parent d&apos;en configurer une.
-          </CardContent>
-        </Card>
+        <EmptyState
+          size="small"
+          icon={Wallet}
+          title="Aucune allowance active"
+          description="Demande à ton parent d'en configurer une depuis son espace pour recevoir tes coins automatiquement."
+        />
       )}
 
       <Card>
@@ -68,7 +70,12 @@ export default async function TeenAllowancePage() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           {(history ?? []).length === 0 ? (
-            <p className="text-muted-foreground">Pas encore de disbursement.</p>
+            <EmptyState
+              size="small"
+              icon={CalendarDays}
+              title="Pas encore de disbursement"
+              description="Tes versements d'argent de poche apparaîtront ici dès le premier."
+            />
           ) : (
             (history ?? []).map((h) => (
               <div key={h.id} className="flex items-center justify-between border-b pb-2 last:border-b-0">

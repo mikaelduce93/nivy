@@ -18,6 +18,7 @@ import {
   Shield
 } from "lucide-react"
 import Link from "next/link"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 async function getLinkedTeens(parentId: string) {
   const supabase = await createClient()
@@ -295,19 +296,13 @@ export default async function ParentTeensPage() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <Users className="h-20 w-20 mx-auto mb-6 text-zinc-700" />
-                <h3 className="text-2xl font-bold text-white mb-2">Aucun teen lié</h3>
-                <p className="text-zinc-400 mb-6">
-                  Ajoutez votre premier teen pour commencer à gérer son compte
-                </p>
-                <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                  <Link href="/parent/teens/add">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Ajouter un Teen
-                  </Link>
-                </Button>
-              </div>
+              <EmptyState
+                icon={Users}
+                size="large"
+                title="Aucun teen lié"
+                description="Ajoutez votre premier teen pour commencer à gérer son compte"
+                action={{ label: "Ajouter un Teen", href: "/parent/teens/add" }}
+              />
             )}
           </CardContent>
         </Card>

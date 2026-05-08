@@ -49,7 +49,7 @@ export function InstallPWAPrompt() {
   if (!showPrompt) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-gradient-to-br from-zinc-900 to-zinc-950 border border-cyan-500/30 rounded-2xl p-6 shadow-2xl z-50 animate-in slide-in-from-bottom-5">
+    <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 right-4 md:left-auto md:right-4 md:w-96 bg-gradient-to-br from-zinc-900 to-zinc-950 border border-cyan-500/30 rounded-2xl p-6 shadow-2xl z-50 animate-in slide-in-from-bottom-5">
       <button
         onClick={handleDismiss}
         className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"

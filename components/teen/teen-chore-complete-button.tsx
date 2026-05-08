@@ -1,12 +1,18 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useOptimistic, startTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Check, Loader2, Camera } from "lucide-react"
+import { Check, Loader2, Camera, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { markPushPromptEligible } from "@/components/teen/push-permission-prompt"
+
+// TICKET-031 — chore completion uses useOptimistic. We immediately flip the
+// button to a "submitted" state on click; on hard failure the optimistic state
+// reverts so the user can retry. router.refresh() re-syncs server data once
+// the mutation succeeds.
+type ChoreState = "idle" | "submitted"
 
 export function TeenChoreCompleteButton({
   choreId,
@@ -18,8 +24,14 @@ export function TeenChoreCompleteButton({
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
+  const [confirmed, setConfirmed] = useState<ChoreState>("idle")
+  const [optimisticState, applyOptimistic] = useOptimistic(
+    confirmed,
+    (_prev: ChoreState, next: ChoreState) => next,
+  )
 
   const handleClick = () => {
+    if (loading || optimisticState === "submitted") return
     if (evidenceRequired) {
       fileInputRef.current?.click()
     } else {
@@ -52,29 +64,42 @@ export function TeenChoreCompleteButton({
 
   const submit = async (evidenceUrl: string | null) => {
     setLoading(true)
-    try {
-      const res = await fetch(`/api/teen/chores/${choreId}/complete`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ evidence_url: evidenceUrl }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        toast.success("Complétion enregistrée. En attente de validation parent.")
-        // V1.2 Wave 3 U3 — engagement signal: a completed chore is a
-        // qualifying event for the deferred push prompt (mounted globally
-        // in app/teen/layout.tsx). No-op if already granted/dismissed.
-        markPushPromptEligible()
-        router.refresh()
-      } else {
-        toast.error(data.error || "Erreur")
+
+    startTransition(async () => {
+      // Optimistic flip — button instantly looks "done".
+      applyOptimistic("submitted")
+
+      try {
+        const res = await fetch(`/api/teen/chores/${choreId}/complete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ evidence_url: evidenceUrl }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (res.ok && data?.success) {
+          toast.success("Complétion enregistrée. En attente de validation parent.")
+          // V1.2 Wave 3 U3 — engagement signal: a completed chore is a
+          // qualifying event for the deferred push prompt (mounted globally
+          // in app/teen/layout.tsx). No-op if already granted/dismissed.
+          markPushPromptEligible()
+          // Confirm: commit submitted state, then re-sync from server. After
+          // refresh the parent typically re-renders without this button.
+          setConfirmed("submitted")
+          router.refresh()
+        } else {
+          // Rollback: optimistic state auto-reverts to confirmed ("idle")
+          // when this transition settles.
+          toast.error(data?.error || "Erreur")
+        }
+      } catch {
+        toast.error("Erreur réseau")
+      } finally {
+        setLoading(false)
       }
-    } catch {
-      toast.error("Erreur réseau")
-    } finally {
-      setLoading(false)
-    }
+    })
   }
+
+  const isSubmitted = optimisticState === "submitted"
 
   return (
     <>
@@ -88,10 +113,15 @@ export function TeenChoreCompleteButton({
       />
       <Button
         onClick={handleClick}
-        disabled={loading}
+        disabled={loading || isSubmitted}
         className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
       >
-        {loading ? (
+        {isSubmitted && !loading ? (
+          <>
+            <CheckCircle2 className="h-4 w-4 mr-2" />
+            Envoyé pour validation
+          </>
+        ) : loading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
             En cours...

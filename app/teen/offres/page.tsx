@@ -32,6 +32,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { DefiCard, type DefiVariant } from "@/components/teen/defi-card"
 import { recordSignal, recordSignalAsync } from "@/lib/analytics/signals"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 // ----------------------------------------------------------------------------
 // Types
@@ -365,36 +366,13 @@ export default async function TeenOffresPage() {
 
       {/* Empty state */}
       {offers.length === 0 ? (
-        <section
-          aria-label="Aucune offre disponible"
-          className="rounded-3xl border border-white/10 bg-zinc-950/50 p-8 text-center backdrop-blur-md"
-        >
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5">
-            <MapPin className="h-5 w-5 text-zinc-400" aria-hidden />
-          </div>
-          <h2 className="text-base font-black text-white">
-            Pas encore d&apos;offres pour toi
-          </h2>
-          <p className="mx-auto mt-1 max-w-xs text-sm text-zinc-400">
-            Affine tes centres d&apos;intérêt pour débloquer des défis et
-            réductions chez nos partenaires près de chez toi.
-          </p>
-          <div className="mt-5 flex items-center justify-center gap-2">
-            <Link
-              href="/onboarding/interests"
-              className="inline-flex items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white/90"
-            >
-              Choisir mes intérêts
-            </Link>
-            <Link
-              href="/teen/map"
-              className="inline-flex items-center gap-1 rounded-full bg-white/10 px-4 py-2 text-sm font-black text-white ring-1 ring-white/15 transition-colors hover:bg-white/15"
-            >
-              <MapPin className="h-3 w-3" aria-hidden />
-              Voir la map
-            </Link>
-          </div>
-        </section>
+        <EmptyState
+          icon={MapPin}
+          title="Pas encore d'offres pour toi"
+          description="Affine tes centres d'intérêt pour débloquer des défis et réductions chez nos partenaires près de chez toi."
+          action={{ label: "Choisir mes intérêts", href: "/onboarding/interests" }}
+          secondaryAction={{ label: "Voir la map", href: "/teen/map", variant: "outline" }}
+        />
       ) : (
         <section
           aria-label="Offres recommandées"

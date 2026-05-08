@@ -76,7 +76,7 @@ export function HolographicBorder({
       {/* Outer glow layer */}
       {glow && (
         <motion.div
-          className="absolute -inset-[1px] pointer-events-none"
+          className="absolute -inset-px pointer-events-none"
           style={{
             borderRadius,
             background: gradientString,
@@ -96,7 +96,7 @@ export function HolographicBorder({
 
       {/* Main rotating border */}
       <motion.div
-        className="absolute -inset-[1px] pointer-events-none"
+        className="absolute -inset-px pointer-events-none"
         style={{
           borderRadius,
           padding: borderWidth,
@@ -118,7 +118,7 @@ export function HolographicBorder({
 
       {/* Second layer - counter rotation for depth */}
       <motion.div
-        className="absolute -inset-[1px] pointer-events-none"
+        className="absolute -inset-px pointer-events-none"
         style={{
           borderRadius,
           padding: borderWidth * 0.5,
@@ -144,10 +144,7 @@ export function HolographicBorder({
         style={{ borderRadius }}
       >
         <motion.div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)',
-          }}
+          className="absolute inset-0 bg-[linear-gradient(105deg,transparent_40%,rgba(255,255,255,0.15)_50%,transparent_60%)]"
           animate={shouldAnimate ? {
             x: ['-100%', '200%'],
           } : {}}
@@ -195,7 +192,7 @@ export function GlowingBorder({
     <div className={cn('relative', className)}>
       {/* Glow layer */}
       <motion.div
-        className="absolute -inset-[1px] pointer-events-none"
+        className="absolute -inset-px pointer-events-none"
         style={{
           borderRadius,
           background: color,
@@ -309,7 +306,7 @@ export function RainbowBorder({
     <div className={cn('relative', className)}>
       {/* Animated gradient border */}
       <motion.div
-        className="absolute -inset-[1px] pointer-events-none"
+        className="absolute -inset-px pointer-events-none"
         style={{
           borderRadius,
           padding: borderWidth,
@@ -372,7 +369,7 @@ export function SpotlightBorder({
     >
       {/* Spotlight gradient border */}
       <motion.div
-        className="absolute -inset-[1px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute -inset-px pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
         style={{
           borderRadius,
           padding: borderWidth,

@@ -51,9 +51,9 @@ export function DeclarePathwayButton({ slug, title }: Props) {
         disabled={isPending}
         aria-label={`Declarer ${title}`}
         className={cn(
-          "inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-black",
-          "hover:bg-white/90 transition-colors disabled:opacity-50",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          "inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-black text-background",
+          "hover:bg-foreground/90 transition-colors disabled:opacity-50",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         )}
       >
         {isPending ? (
@@ -64,7 +64,7 @@ export function DeclarePathwayButton({ slug, title }: Props) {
         Declarer
       </button>
       {error ? (
-        <span className="text-[10px] text-red-300">Reessaye dans un instant.</span>
+        <span className="text-[10px] text-destructive">Reessaye dans un instant.</span>
       ) : null}
     </div>
   )

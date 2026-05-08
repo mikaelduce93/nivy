@@ -20,6 +20,7 @@ import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import FriendsClient, { type FriendSuggestion } from "./friends-client"
+import { PullToRefresh } from "@/components/teen/pull-to-refresh"
 
 // Force dynamic — recommendations depend on auth + frequently changing
 // behavioural signals (teen_neighbours).
@@ -88,9 +89,11 @@ export default async function FriendsPage() {
   }
 
   return (
-    <Suspense fallback={<FriendsSkeleton />}>
-      <FriendsClient initialSuggestions={suggestions} />
-    </Suspense>
+    <PullToRefresh>
+      <Suspense fallback={<FriendsSkeleton />}>
+        <FriendsClient initialSuggestions={suggestions} />
+      </Suspense>
+    </PullToRefresh>
   )
 }
 

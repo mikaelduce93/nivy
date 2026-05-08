@@ -18,7 +18,10 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { H1, H2 } from "@/components/ui/headings"
 import { MentorReviewRow } from "./mentor-review-row"
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { GraduationCap } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -74,8 +77,8 @@ export default async function AdminMentorsPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Mentors · KYC</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <H1 className="mb-2 text-2xl">Mentors · KYC</H1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -191,36 +194,39 @@ export default async function AdminMentorsPage() {
       <div className="mb-6 flex items-center gap-3">
         <Link
           href="/admin"
-          className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           ← Retour
         </Link>
       </div>
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Mentors · KYC</h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <H1>Mentors · KYC</H1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Validez les dossiers mentors. Les pièces justificatives sont signées 15 min.
         </p>
       </header>
 
       <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <StatCard label="Total" value={stats.total} tone="zinc" />
-        <StatCard label="En attente" value={stats.pending} tone="yellow" />
-        <StatCard label="Actifs" value={stats.active} tone="green" />
-        <StatCard label="Pause/susp." value={stats.paused} tone="blue" />
-        <StatCard label="Rejetés" value={stats.rejected} tone="red" />
+        <StatCard label="Total" value={stats.total} tone="neutral" />
+        <StatCard label="En attente" value={stats.pending} tone="warning" />
+        <StatCard label="Actifs" value={stats.active} tone="success" />
+        <StatCard label="Pause/susp." value={stats.paused} tone="info" />
+        <StatCard label="Rejetés" value={stats.rejected} tone="danger" />
       </section>
 
       <section className="mb-10">
-        <h2 className="mb-3 font-semibold text-white">
+        <H2 className="mb-3 text-base">
           File en attente ({pendingView.length})
-        </h2>
+        </H2>
 
         {pendingView.length === 0 && (
-          <p className="rounded border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
-            Aucun mentor en attente d&apos;approbation.
-          </p>
+          <EmptyState
+            size="small"
+            icon={GraduationCap}
+            title="Aucun mentor en attente"
+            description="Aucun mentor en attente d'approbation."
+          />
         )}
 
         <ul className="space-y-3">
@@ -231,12 +237,12 @@ export default async function AdminMentorsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold text-white">
+        <H2 className="mb-3 text-base">
           Mentors actifs ({activeView.length})
-        </h2>
+        </H2>
 
         {activeView.length === 0 && (
-          <p className="rounded border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
+          <p className="rounded border border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Aucun mentor actif.
           </p>
         )}
@@ -251,6 +257,8 @@ export default async function AdminMentorsPage() {
   )
 }
 
+type StatTone = "neutral" | "warning" | "info" | "success" | "danger"
+
 function StatCard({
   label,
   value,
@@ -258,14 +266,14 @@ function StatCard({
 }: {
   label: string
   value: number
-  tone: "zinc" | "yellow" | "blue" | "green" | "red"
+  tone: StatTone
 }) {
-  const palette: Record<typeof tone, string> = {
-    zinc: "border-zinc-800 bg-zinc-900 text-zinc-300",
-    yellow: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
-    blue: "border-blue-500/30 bg-blue-500/10 text-blue-300",
-    green: "border-green-500/30 bg-green-500/10 text-green-300",
-    red: "border-red-500/30 bg-red-500/10 text-red-300",
+  const palette: Record<StatTone, string> = {
+    neutral: "border-border bg-card text-muted-foreground",
+    warning: "border-warning/30 bg-warning/10 text-warning",
+    info: "border-info/30 bg-info/10 text-info",
+    success: "border-success/30 bg-success/10 text-success",
+    danger: "border-destructive/30 bg-destructive/10 text-destructive",
   }
   return (
     <div className={`rounded border p-3 ${palette[tone]}`}>

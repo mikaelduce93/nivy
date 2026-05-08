@@ -62,6 +62,15 @@ export interface DefiCardProps {
   /** Days-left countdown chip. 0 = "Dernier jour", negative hidden. */
   daysLeft?: number
   className?: string
+  /**
+   * Optional `view-transition-name` morph id (TICKET-024). When set the
+   * whole card participates in the native View Transitions morph to its
+   * detail page. The matching name must be applied to the detail-page
+   * hero — see `app/teen/quests/[id]/quest-detail-client.tsx`. Names must
+   * be unique within a single document, so callers should derive them
+   * from the row id (e.g. `vt-quest-${quest.id}`).
+   */
+  morphId?: string
 }
 
 /** Tailwind-stable variant tokens. Each entry uses literal class strings (no interpolation)
@@ -200,6 +209,7 @@ export function DefiCard({
   ctaHref,
   daysLeft,
   className,
+  morphId,
 }: DefiCardProps) {
   const tokens = VARIANT_TOKENS[type]
   const Icon = resolveIcon(iconName, tokens.defaultIcon)
@@ -450,9 +460,18 @@ export function DefiCard({
           : ""
   }`
 
+  // TICKET-024 — when a morphId is supplied we pin the View Transitions
+  // name as an inline style. Inline keeps the value out of the Tailwind JIT
+  // (the id is per-instance and unique per row) and means the browser is the
+  // only consumer. Anchors that share the same name with an element on the
+  // destination page get auto-morphed by the engine.
+  const morphStyle = morphId
+    ? ({ viewTransitionName: morphId } as React.CSSProperties)
+    : undefined
+
   if (cardHref) {
     return (
-      <Link href={cardHref} aria-label={ariaLabel} className={baseClasses}>
+      <Link href={cardHref} aria-label={ariaLabel} className={baseClasses} style={morphStyle}>
         {body}
       </Link>
     )

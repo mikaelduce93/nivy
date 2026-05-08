@@ -14,6 +14,9 @@
 import Link from "next/link"
 import { Utensils } from "lucide-react"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { H1, H2 } from "@/components/ui/headings"
+import { PullToRefresh } from "@/components/teen/pull-to-refresh"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -76,29 +79,30 @@ export default async function TeenFoodDiscoveryPage({
 
   // Shared control class — 44px min-height for touch compliance, design-system tokens.
   const controlClass =
-    "min-h-11 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+    "min-h-11 rounded-xl border border-border bg-card/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
 
   return (
+    <PullToRefresh>
     <div className="mx-auto max-w-5xl">
       <header className="mb-6 flex items-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-soft to-brand-soft">
           <Utensils className="h-6 w-6 text-black" aria-hidden />
         </div>
         <div>
-          <h1 className="text-4xl font-black tracking-tighter uppercase italic text-foreground leading-none">
+          <H1 className="text-4xl font-black tracking-tighter uppercase leading-none">
             Food
-          </h1>
+          </H1>
           <p className="mt-1 text-sm text-muted-foreground">
             Restaurants partenaires Nivy. Halal par défaut, payable en coins.
           </p>
         </div>
       </header>
 
-      <h2 className="sr-only">Filtres de recherche</h2>
+      <H2 className="sr-only">Filtres de recherche</H2>
       <form
         method="GET"
         aria-label="Filtres restaurants"
-        className="mb-6 flex flex-wrap items-end gap-2 rounded-3xl border border-white/10 bg-white/[0.02] p-3 backdrop-blur-md"
+        className="mb-6 flex flex-wrap items-end gap-2 rounded-3xl border border-border bg-card/30 p-3 backdrop-blur-md"
       >
         <label htmlFor="food-sub-category" className="sr-only">
           Catégorie
@@ -133,7 +137,7 @@ export default async function TeenFoodDiscoveryPage({
           <option value="vegan">Vegan</option>
           <option value="gluten_free">Gluten-free</option>
         </select>
-        <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-foreground">
+        <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card/40 px-3 py-2 text-sm text-foreground">
           <input
             type="checkbox"
             name="halal"
@@ -151,24 +155,20 @@ export default async function TeenFoodDiscoveryPage({
         </button>
       </form>
 
-      <h2 className="sr-only">Restaurants partenaires</h2>
+      <H2 className="sr-only">Restaurants partenaires</H2>
       {restaurants.length === 0 ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur-md"
-        >
-          <p className="text-sm text-muted-foreground">
-            Aucun restaurant partenaire ne correspond.
-          </p>
-        </div>
+        <EmptyState
+          icon={Utensils}
+          title="Aucun restaurant partenaire"
+          description="Aucun restaurant ne correspond à tes filtres. Essaie d'élargir ta recherche ou reviens plus tard."
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {restaurants.map((p) => (
             <Link
               key={p.id}
               href={`/teen/food/${p.id}`}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-white/20 hover:shadow-2xl hover:shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="rounded-2xl border border-border bg-card/30 p-4 backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-2xl hover:shadow-background/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <div className="font-bold text-foreground">{p.company_name}</div>
               <div className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
@@ -179,5 +179,6 @@ export default async function TeenFoodDiscoveryPage({
         </div>
       )}
     </div>
+    </PullToRefresh>
   )
 }

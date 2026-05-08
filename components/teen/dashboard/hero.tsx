@@ -458,11 +458,7 @@ interface HeroStreakCounterProps {
 function HeroStreakCounter({ streak, showAnimation }: HeroStreakCounterProps) {
   return (
     <div
-      className="relative p-3 sm:p-4 rounded-xl sm:rounded-2xl overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(239, 68, 68, 0.2))',
-        border: '1px solid rgba(251, 146, 60, 0.3)',
-      }}
+      className="relative p-3 sm:p-4 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400/20 to-red-500/20 border border-orange-400/30"
     >
       <HStack gap="sm" align="center">
         {showAnimation ? (
@@ -595,10 +591,7 @@ function HeroXPBar({
           {/* Shimmer effect */}
           {showAnimation && (
             <motion.div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-              }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
               animate={{ x: ['-100%', '200%'] }}
               transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
             />

@@ -45,7 +45,7 @@ export default async function MentorLayout({
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 p-4 md:p-8 lg:p-10 md:ml-64 pt-24 outline-none"
+          className="flex-1 p-4 md:p-8 lg:p-10 md:ml-64 pt-24 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-10 outline-none"
         >
           {children}
         </main>

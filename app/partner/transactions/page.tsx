@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Download, Filter, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { Search, Download, Filter, ArrowUpRight, ArrowDownRight, Receipt } from "lucide-react"
+import { EmptyState } from "@/components/ui/states/empty-state"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
@@ -238,12 +239,11 @@ export default async function PartnerTransactionsPage() {
         </CardHeader>
         <CardContent>
           {transactions.length === 0 ? (
-            <div className="p-10 text-center">
-              <p className="text-zinc-300 font-semibold">Aucune transaction pour le moment</p>
-              <p className="text-sm text-zinc-500 mt-2">
-                Dès qu'un membre scannera votre QR code, l'opération apparaîtra ici en temps réel.
-              </p>
-            </div>
+            <EmptyState
+              icon={Receipt}
+              title="Aucune transaction pour le moment"
+              description="Dès qu'un membre scannera votre QR code, l'opération apparaîtra ici en temps réel."
+            />
           ) : (
             <div className="space-y-2">
               {transactions.map((tx) => {

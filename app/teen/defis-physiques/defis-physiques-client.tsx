@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { DefiCard } from "@/components/teen/defi-card"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export type ApiChallenge = {
   id: string
@@ -295,10 +296,12 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
         <h2 className="text-xl font-black uppercase">Programmes</h2>
 
         {programs.length === 0 && !loading && (
-          <div className="p-8 rounded-3xl bg-zinc-900/50 border border-white/5 text-center">
-            <Calendar className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-            <p className="text-zinc-500">Aucun programme disponible.</p>
-          </div>
+          <EmptyState
+            size="small"
+            icon={Calendar}
+            title="Aucun programme disponible"
+            description="Aucun programme physique n'est disponible pour le moment. Reviens bientôt !"
+          />
         )}
 
         <div className="space-y-4">

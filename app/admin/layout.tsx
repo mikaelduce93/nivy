@@ -28,7 +28,7 @@ export default async function AdminLayout({
       <main
         id="main-content"
         tabIndex={-1}
-        className="pl-64 transition-all duration-300 outline-none"
+        className="pl-64 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 transition-all duration-300 outline-none"
       >
         <div className="min-h-screen">
           {children}

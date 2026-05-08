@@ -24,6 +24,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DeclarePathwayButton } from "./declare-pathway-button"
+import { H1, H2, H3 } from "@/components/ui/headings"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 export const dynamic = "force-dynamic"
 
@@ -83,11 +85,11 @@ export default async function TeenPathwaysPage() {
   const undeclared = pathways.filter((p) => !progressById.has(p.id))
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32 max-w-5xl">
         <Link
           href="/teen"
-          className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white mb-6"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
@@ -95,14 +97,12 @@ export default async function TeenPathwaysPage() {
 
         <header className="mb-8">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
-              <Compass className="h-6 w-6 text-black" />
+            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-info-soft to-success-soft flex items-center justify-center">
+              <Compass className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic text-white">
-                Mes parcours
-              </h1>
-              <p className="text-zinc-500 text-sm font-medium">
+              <H1 className="uppercase">Mes parcours</H1>
+              <p className="text-muted-foreground text-sm font-medium">
                 Choisis un metier qui t'interesse et avance pas a pas.
               </p>
             </div>
@@ -110,25 +110,25 @@ export default async function TeenPathwaysPage() {
         </header>
 
         {pathwaysRes.error ? (
-          <div className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             Impossible de charger les parcours pour le moment.
           </div>
         ) : null}
 
         {/* Declared / in progress */}
         <section className="mb-10">
-          <h2 className="text-sm font-black uppercase tracking-wider text-zinc-300 mb-3">
+          <H2 className="text-sm font-black uppercase tracking-wider text-foreground mb-3">
             En exploration
-          </h2>
+          </H2>
           {declared.length === 0 ? (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-8 text-center">
-              <div className="mx-auto mb-3 h-12 w-12 rounded-2xl bg-cyan-500/15 flex items-center justify-center">
-                <Compass className="h-6 w-6 text-cyan-300" />
+            <div className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-8 text-center">
+              <div className="mx-auto mb-3 h-12 w-12 rounded-2xl bg-info-soft/15 flex items-center justify-center">
+                <Compass className="h-6 w-6 text-info" />
               </div>
-              <h3 className="text-base font-black text-white">
+              <H3 className="text-base font-black text-foreground">
                 Tu n'as pas encore declare de parcours
-              </h3>
-              <p className="mt-1 text-sm text-zinc-400">
+              </H3>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Choisis ci-dessous celui qui t'attire et commence ton aventure.
               </p>
             </div>
@@ -147,11 +147,11 @@ export default async function TeenPathwaysPage() {
 
         {/* Catalogue */}
         <section>
-          <h2 className="text-sm font-black uppercase tracking-wider text-zinc-300 mb-3">
+          <H2 className="text-sm font-black uppercase tracking-wider text-foreground mb-3">
             Decouvrir
-          </h2>
+          </H2>
           {undeclared.length === 0 ? (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-8 text-center text-sm text-zinc-400">
+            <div className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-8 text-center text-sm text-muted-foreground">
               Tu as deja declare tous les parcours disponibles. Bravo !
             </div>
           ) : (
@@ -192,16 +192,16 @@ function PathwayCard({
       className={cn(
         "group relative overflow-hidden rounded-3xl border backdrop-blur-md p-5 sm:p-6 transition-all",
         isDeclared
-          ? "border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/[0.03] to-transparent"
-          : "border-white/10 bg-gradient-to-br from-cyan-500/10 via-cyan-500/[0.03] to-transparent",
-        "hover:border-white/20 hover:shadow-2xl hover:shadow-black/40"
+          ? "border-success/20 bg-gradient-to-br from-success-soft/10 via-success-soft/[0.03] to-transparent"
+          : "border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent",
+        "hover:border-foreground/20 hover:shadow-2xl hover:shadow-background/40"
       )}
     >
       <div
         aria-hidden
         className={cn(
           "pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full blur-3xl opacity-50",
-          isDeclared ? "bg-emerald-500/40" : "bg-cyan-500/40"
+          isDeclared ? "bg-success-soft/40" : "bg-info-soft/40"
         )}
       />
       <div className="relative">
@@ -209,34 +209,38 @@ function PathwayCard({
           <div
             className={cn(
               "h-10 w-10 rounded-xl flex items-center justify-center",
-              isDeclared ? "bg-emerald-500/15" : "bg-cyan-500/15"
+              isDeclared ? "bg-success-soft/15" : "bg-info-soft/15"
             )}
           >
             <Icon
               className={cn(
                 "h-5 w-5",
-                isDeclared ? "text-emerald-300" : "text-cyan-300"
+                isDeclared ? "text-success" : "text-info"
               )}
             />
           </div>
           {isDeclared ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/30">
-              <CheckCircle2 className="h-3 w-3" />
-              Declare
-            </span>
+            <StatusBadge
+              variant="success"
+              size="sm"
+              icon={CheckCircle2}
+              label="Declare"
+            />
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-cyan-300 ring-1 ring-cyan-400/30">
-              <Sparkles className="h-3 w-3" />
-              Decouvrir
-            </span>
+            <StatusBadge
+              variant="info"
+              size="sm"
+              icon={Sparkles}
+              label="Decouvrir"
+            />
           )}
         </div>
 
-        <h3 className="text-lg font-black leading-snug text-white">
+        <H3 className="text-lg font-black leading-snug text-foreground">
           {pathway.title}
-        </h3>
+        </H3>
         {pathway.description ? (
-          <p className="mt-1 line-clamp-2 text-sm leading-snug text-zinc-400">
+          <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
             {pathway.description}
           </p>
         ) : null}
@@ -246,7 +250,7 @@ function PathwayCard({
             {tags.map((t) => (
               <span
                 key={t}
-                className="rounded-full bg-white/[0.04] border border-white/10 px-2 py-0.5 text-[10px] font-bold text-zinc-300"
+                className="rounded-full bg-card/40 border border-border px-2 py-0.5 text-[10px] font-bold text-foreground/80"
               >
                 #{t}
               </span>
@@ -257,17 +261,17 @@ function PathwayCard({
         {isDeclared && progress ? (
           <div className="mt-4">
             <div className="mb-1 flex items-center justify-between text-[10px]">
-              <span className="font-bold uppercase tracking-wider text-zinc-500">
+              <span className="font-bold uppercase tracking-wider text-muted-foreground">
                 Progression
               </span>
-              <span className="font-black tabular-nums text-zinc-300">
+              <span className="font-black tabular-nums text-foreground/80">
                 {progress.milestones_completed} / {progress.total_milestones}
-                <span className="ml-1 text-zinc-500">({pct}%)</span>
+                <span className="ml-1 text-muted-foreground">({pct}%)</span>
               </span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-[width] duration-500 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-success to-info transition-[width] duration-500 ease-out"
                 style={{ width: `${pct}%` }}
                 aria-hidden
               />
@@ -279,7 +283,7 @@ function PathwayCard({
           {isDeclared ? (
             <Link
               href={`/teen/mentors${tags[0] ? `?tag=${encodeURIComponent(tags[0])}` : ""}`}
-              className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-black hover:bg-white/90"
+              className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-black text-background hover:bg-foreground/90"
             >
               <GraduationCap className="h-3 w-3" />
               Voir les mentors
@@ -289,7 +293,7 @@ function PathwayCard({
           )}
           <Link
             href={`/teen/internships${tags[0] ? `?tag=${encodeURIComponent(tags[0])}` : ""}`}
-            className="inline-flex items-center gap-1 text-[11px] font-black text-zinc-400 hover:text-white"
+            className="inline-flex items-center gap-1 text-[11px] font-black text-muted-foreground hover:text-foreground"
           >
             <Briefcase className="h-3 w-3" />
             Stages

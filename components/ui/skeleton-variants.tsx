@@ -6,7 +6,15 @@ import { motion, AnimatePresence, Variants } from 'framer-motion'
 
 /* ==========================================================================
    SKELETON SYSTEM - Silicon Valley Grade Premium Loading States
-   
+
+   NOTE: This file uses arbitrary px values (h-[120px], w-[600px], blur-[80px],
+   max-w-[1600px], min-h-[180px]/[200px]) that intentionally fall OUTSIDE
+   Tailwind's canonical spacing scale. They are reserved for:
+   - Decorative ambient orbs (450-600px) above max scale (w-96=384px)
+   - Skeleton card/map heights tuned to match real content layouts
+   - Filter blur radii (80-180px) — no canonical Tailwind blur token equivalent
+   Do not migrate these to canonical scale; they are NOT magic-px violations.
+
    Features:
    - Staggered reveal animations
    - Morphing transitions to real content

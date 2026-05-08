@@ -63,10 +63,12 @@ export function AnimatedMeshGradient({
   const blob4Bottom = useTransform(time, (t) => `${20 + Math.cos(t * 0.9) * 15}%`)
 
   return (
-    <div 
+    <div
       className={cn('absolute inset-0 overflow-hidden', className)}
       style={{ opacity }}
     >
+      {/* NOTE: blob sizes (450-600px) are intentionally above Tailwind's max scale (w-96=384px)
+          to create ambient full-viewport gradient effects. Cannot be replaced with canonical scale. */}
       {/* Gradient blob 1 */}
       <motion.div
         className="absolute w-[600px] h-[600px] rounded-full"

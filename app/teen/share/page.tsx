@@ -32,6 +32,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { getPublicAppConfig } from "@/lib/config/app-config"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 const { socialBaseUrl: SHARE_BASE_URL, brandName: BRAND_NAME } = getPublicAppConfig()
 // Domaine affiche dans les watermarks d'images partagees (sans protocole).
@@ -268,13 +269,13 @@ export default function TeenSharePage() {
           </CardHeader>
           <CardContent>
             {shareableItems.length === 0 ? (
-              <div className="p-8 rounded-2xl border border-dashed border-border text-center">
-                <Trophy className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                <h3 className="font-bold text-foreground mb-1">Aucun accomplissement à partager pour le moment</h3>
-                <p className="text-sm text-muted-foreground">
-                  Termine des quêtes, gagne des badges ou atteins un nouveau palier de streak — ils apparaîtront ici.
-                </p>
-              </div>
+              <EmptyState
+                size="small"
+                icon={Trophy}
+                title="Aucun accomplissement à partager"
+                description="Termine des quêtes, gagne des badges ou atteins un nouveau palier de streak — ils apparaîtront ici."
+                action={{ label: "Voir mes quêtes", href: "/teen/quests" }}
+              />
             ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {shareableItems.map((item) => (

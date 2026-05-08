@@ -34,6 +34,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 interface Grade {
   id: string
@@ -526,18 +527,14 @@ export default function ParentGradesPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <GraduationCap className="h-20 w-20 mx-auto mb-6 text-zinc-700" />
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  {filter === "pending" ? "Aucune note en attente" : "Aucune note trouvée"}
-                </h3>
-                <p className="text-zinc-400">
-                  {filter === "pending"
-                    ? "Les nouvelles notes soumises par vos teens apparaîtront ici"
-                    : "Modifiez vos filtres pour voir d'autres notes"
-                  }
-                </p>
-              </div>
+              <EmptyState
+                icon={GraduationCap}
+                size="large"
+                title={filter === "pending" ? "Aucune note en attente" : "Aucune note trouvée"}
+                description={filter === "pending"
+                  ? "Les nouvelles notes soumises par vos teens apparaîtront ici"
+                  : "Modifiez vos filtres pour voir d'autres notes"}
+              />
             )}
           </CardContent>
         </Card>

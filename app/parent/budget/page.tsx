@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { BudgetLimitForm } from "@/components/parent/budget-limit-form"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 async function getParentBudgetData(profileId: string) {
   const supabase = await createClient()
@@ -279,18 +280,12 @@ export default async function ParentBudgetPage() {
               })}
             </div>
           ) : (
-            <Card className="bg-zinc-900 border-zinc-800">
-              <CardContent className="p-12 text-center">
-                <Users className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                <h3 className="text-xl font-bold text-white mb-2">Aucun teen lié</h3>
-                <p className="text-zinc-400 mb-4">
-                  Liez d'abord des comptes teen pour gérer leur budget.
-                </p>
-                <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                  <Link href="/parent/teens/add">Ajouter un teen</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={Users}
+              title="Aucun teen lié"
+              description="Liez d'abord des comptes teen pour gérer leur budget."
+              action={{ label: "Ajouter un teen", href: "/parent/teens/add" }}
+            />
           )}
         </div>
 

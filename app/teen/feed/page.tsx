@@ -3,10 +3,23 @@
  *
  * Server-rendered paginated by created_at DESC for now. When recommend_for_teen
  * gets a 'feed_post' content_type wired (§19.5), swap the query.
+ *
+ * Wave 2 / TICKET-002 — design-system token sweep:
+ *  - Heading routed through <H1> (teen 4xl + italic + uppercase pattern).
+ *  - Raw bg-blue-600 / text-blue-600 / text-gray-* removed → tokens.
+ *  - List card uses semantic surface tokens.
+ *  - <img> → next/image (TICKET-008 list view).
+ *  - Empty state routed through <EmptyState preset="feed" />.
  */
 import Link from "next/link"
+import Image from "next/image"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { H1 } from "@/components/ui/headings"
+import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { PullToRefresh } from "@/components/teen/pull-to-refresh"
+import { FeedPostLongPress } from "./post-card"
 
 export const dynamic = "force-dynamic"
 
@@ -48,76 +61,110 @@ export default async function TeenFeedPage() {
   const posts = (error ? [] : (data ?? [])) as FeedRow[]
 
   return (
+    <PullToRefresh>
     <div className="container mx-auto max-w-2xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Feed Créateurs</h1>
-        <div className="flex gap-2">
-          <Link href="/teen/leaderboard" className="text-sm text-blue-600 hover:underline">
-            Classement
-          </Link>
-          <Link
-            href="/teen/create"
-            className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
-          >
-            + Créer
-          </Link>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <H1 className="text-4xl font-black tracking-tighter uppercase italic leading-none">
+          Feed Créateurs
+        </H1>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/teen/leaderboard">Classement</Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link href="/teen/create">+ Créer</Link>
+          </Button>
         </div>
       </div>
 
       {error && (
-        <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+        >
           Erreur de chargement: {error.message}
         </div>
       )}
 
       {posts.length === 0 ? (
-        <p className="text-gray-500">Aucun post pour l&apos;instant. Sois le premier !</p>
+        <EmptyState
+          preset="feed"
+          size="default"
+          title="Aucun post pour l'instant"
+          description="Sois le premier à publier !"
+          action={{ label: "Créer un post", href: "/teen/create" }}
+        />
       ) : (
         <ul className="space-y-4">
           {posts.map((p) => {
             const title = p.metadata?.title ?? null
             const media = Array.isArray(p.media_urls) ? p.media_urls[0] : null
             return (
-              <li
+              // TICKET-039: long-press / right-click opens a context menu
+              // (copy / share / report / block). Tap behaviour (the inner
+              // <Link>) is preserved.
+              <FeedPostLongPress
                 key={p.id}
-                className="rounded-lg border bg-white p-4 shadow-sm hover:shadow-md transition"
+                postId={p.id}
+                postTitle={title}
+                postContent={p.content}
+                className="rounded-2xl border border-border bg-card/30 p-4 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md select-none"
               >
-                <Link href={`/teen/feed/${p.id}`} className="block">
-                  <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
+                {/* TICKET-024 — View Transitions morph anchor. Pairs with
+                    the article hero on /teen/feed/[id]. */}
+                <Link
+                  href={`/teen/feed/${p.id}`}
+                  className="block"
+                  style={{ viewTransitionName: `vt-feed-${p.id}` }}
+                >
+                  <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     {p.featured && (
-                      <span className="rounded bg-yellow-100 px-2 py-0.5 text-yellow-800">
+                      <span className="rounded-full bg-warning/15 px-2 py-0.5 text-warning-foreground">
                         ★ Featured
                       </span>
                     )}
                     {p.type && (
-                      <span className="rounded bg-gray-100 px-2 py-0.5 capitalize">{p.type}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 capitalize text-muted-foreground">
+                        {p.type}
+                      </span>
                     )}
                     {p.category && (
-                      <span className="rounded bg-blue-50 px-2 py-0.5 text-blue-700">
+                      <span className="rounded-full bg-info-soft/15 px-2 py-0.5 text-info">
                         {p.category}
                       </span>
                     )}
                   </div>
-                  {title && <h2 className="text-lg font-medium">{title}</h2>}
-                  {p.content && <p className="text-sm text-gray-700 line-clamp-3">{p.content}</p>}
-                  {media && (
-                    <img
-                      src={media}
-                      alt={title ?? ""}
-                      className="mt-3 max-h-64 w-full rounded object-cover"
-                    />
+                  {title && (
+                    <h2 className="text-lg font-medium text-foreground">{title}</h2>
                   )}
-                  <div className="mt-3 flex gap-4 text-xs text-gray-500">
+                  {p.content && (
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {p.content}
+                    </p>
+                  )}
+                  {media && (
+                    <div className="relative mt-3 aspect-video w-full overflow-hidden rounded-xl">
+                      <Image
+                        src={media}
+                        alt={title ?? ""}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 672px"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
                     <span>♥ {p.likes_count ?? 0}</span>
                     <span>💬 {p.comments_count ?? 0}</span>
                     <span>↗ {p.shares_count ?? 0}</span>
                   </div>
                 </Link>
-              </li>
+              </FeedPostLongPress>
             )
           })}
         </ul>
       )}
     </div>
+    </PullToRefresh>
   )
 }

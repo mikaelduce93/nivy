@@ -18,11 +18,14 @@ import {
   GraduationCap,
   Star,
   Sparkles,
-  Users,
   CheckCircle2,
   Search,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { PullToRefresh } from "@/components/teen/pull-to-refresh"
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { H1, H3 } from "@/components/ui/headings"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 export const dynamic = "force-dynamic"
 
@@ -87,14 +90,15 @@ export default async function TeenMentorsPage({
 
   // V1.3-B: shared control class — 44px min-height for WCAG AAA touch.
   const selectClass =
-    "min-h-11 rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+    "min-h-11 rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
 
   return (
-    <div className="-m-4 md:-m-6 min-h-screen bg-zinc-950">
+    <PullToRefresh>
+    <div className="-m-4 md:-m-6 min-h-screen bg-background">
       <div className="container mx-auto max-w-5xl px-4 sm:px-6 pt-6 pb-32 md:pt-12 md:pb-12">
         <Link
           href="/teen"
-          className="inline-flex min-h-11 items-center gap-2 text-sm text-zinc-400 hover:text-white mb-4"
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
@@ -103,13 +107,11 @@ export default async function TeenMentorsPage({
         <header className="mb-8">
           <div className="flex items-start gap-3">
             <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-info-soft to-success-soft flex items-center justify-center">
-              <GraduationCap className="h-6 w-6 text-black" aria-hidden />
+              <GraduationCap className="h-6 w-6 text-primary-foreground" aria-hidden />
             </div>
             <div className="min-w-0">
-              <h1 className="text-4xl font-black tracking-tighter uppercase italic text-white leading-none">
-                Mentors
-              </h1>
-              <p className="mt-1 text-zinc-400 text-sm font-medium">
+              <H1 className="uppercase leading-none">Mentors</H1>
+              <p className="mt-1 text-muted-foreground text-sm font-medium">
                 Trouve un mentor verifie pour t'accompagner sur ton chemin.
               </p>
             </div>
@@ -120,7 +122,7 @@ export default async function TeenMentorsPage({
           <div
             role="alert"
             aria-live="assertive"
-            className="mb-6 rounded-2xl border border-red-500/40 bg-red-500/15 p-4 text-sm text-red-100"
+            className="mb-6 rounded-2xl border border-destructive/40 bg-destructive/15 p-4 text-sm text-destructive"
           >
             Impossible de charger les mentors pour le moment.
           </div>
@@ -130,12 +132,12 @@ export default async function TeenMentorsPage({
         <form
           method="GET"
           aria-label="Filtres mentors"
-          className="mb-8 rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-4 flex flex-wrap gap-3 items-end"
+          className="mb-8 rounded-3xl border border-border bg-card/40 backdrop-blur-md p-4 flex flex-wrap gap-3 items-end"
         >
           <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-none">
             <label
               htmlFor="mentor-tag"
-              className="text-xs font-black uppercase tracking-wider text-zinc-400"
+              className="text-xs font-black uppercase tracking-wider text-muted-foreground"
             >
               Domaine
             </label>
@@ -156,7 +158,7 @@ export default async function TeenMentorsPage({
           <div className="flex flex-col gap-1">
             <label
               htmlFor="mentor-age"
-              className="text-xs font-black uppercase tracking-wider text-zinc-400"
+              className="text-xs font-black uppercase tracking-wider text-muted-foreground"
             >
               Mon age
             </label>
@@ -174,7 +176,7 @@ export default async function TeenMentorsPage({
           <div className="flex flex-col gap-1">
             <label
               htmlFor="mentor-min-rating"
-              className="text-xs font-black uppercase tracking-wider text-zinc-400"
+              className="text-xs font-black uppercase tracking-wider text-muted-foreground"
             >
               Note min.
             </label>
@@ -191,7 +193,7 @@ export default async function TeenMentorsPage({
           </div>
           <button
             type="submit"
-            className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-black hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-black text-background hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Search className="h-4 w-4" />
             Filtrer
@@ -200,18 +202,11 @@ export default async function TeenMentorsPage({
 
         {/* Grid */}
         {list.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-12 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-cyan-500/15 flex items-center justify-center">
-              <Users className="h-7 w-7 text-cyan-300" />
-            </div>
-            <h3 className="text-lg font-black text-white">
-              Aucun mentor disponible pour le moment
-            </h3>
-            <p className="mt-1 text-sm text-zinc-400">
-              Reviens bientot — l'equipe Nivy onboarde de nouveaux mentors chaque
-              semaine.
-            </p>
-          </div>
+          <EmptyState
+            icon={GraduationCap}
+            title="Aucun mentor disponible"
+            description="Reviens bientôt — l'équipe Nivy onboarde de nouveaux mentors chaque semaine."
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((m) => (
@@ -221,6 +216,7 @@ export default async function TeenMentorsPage({
         )}
       </div>
     </div>
+    </PullToRefresh>
   )
 }
 
@@ -236,70 +232,78 @@ function MentorCard({ mentor }: { mentor: MentorRow }) {
   return (
     <Link
       href={`/teen/mentors/${mentor.id}`}
+      // TICKET-024 — origin half of the View Transitions morph. The detail
+      // page assigns the same `vt-mentor-${id}` to its hero card so the
+      // browser auto-tweens the bounding box + opacity.
+      style={{ viewTransitionName: `vt-mentor-${mentor.id}` }}
       className={cn(
         "group relative block overflow-hidden rounded-3xl border backdrop-blur-md transition-all duration-300",
-        "border-white/10 bg-gradient-to-br from-cyan-500/10 via-cyan-500/[0.03] to-transparent",
-        "hover:-translate-y-0.5 hover:border-white/20 hover:shadow-2xl hover:shadow-black/40",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40"
+        "border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent",
+        "hover:-translate-y-0.5 hover:border-info/30 hover:shadow-2xl hover:shadow-background/40",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/40"
       )}
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full blur-3xl bg-cyan-500/40 opacity-50 transition-opacity duration-300 group-hover:opacity-80"
+        className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full blur-3xl bg-info-soft/40 opacity-50 transition-opacity duration-300 group-hover:opacity-80"
       />
       <div className="relative p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/15">
-              <GraduationCap className="h-5 w-5 text-cyan-300" aria-hidden />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-info-soft/15">
+              <GraduationCap className="h-5 w-5 text-info" aria-hidden />
             </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-info">
                 Mentor
               </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-300">
-                <CheckCircle2 className="h-3 w-3" aria-hidden />
-                KYC verifie
-              </span>
+              <StatusBadge
+                variant="success"
+                size="sm"
+                icon={CheckCircle2}
+                label="KYC verifie"
+              />
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">
             {rating !== null ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-black tabular-nums text-amber-300 ring-1 ring-amber-400/30">
-                <Star className="h-3 w-3" aria-hidden />
-                {rating.toFixed(1)}
-              </span>
+              <StatusBadge
+                variant="warning"
+                size="sm"
+                icon={Star}
+                label={rating.toFixed(1)}
+              />
             ) : (
-              <span className="rounded-full bg-zinc-800/60 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 ring-1 ring-zinc-700/40">
-                Nouveau
-              </span>
+              <StatusBadge variant="neutral" size="sm" icon={false} label="Nouveau" />
             )}
             {freeIntro ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/30">
-                <Sparkles className="h-3 w-3" aria-hidden />
-                Intro gratuite
-              </span>
+              <StatusBadge
+                variant="success"
+                size="sm"
+                icon={Sparkles}
+                label="Intro gratuite"
+              />
             ) : null}
           </div>
         </div>
 
-        <h3 className="text-base font-black leading-snug text-white sm:text-lg">
+        <H3 className="text-base font-black leading-snug text-foreground sm:text-lg">
           {tags.length > 0 ? tags.map(prettyTag).join(" / ") : "Mentor Nivy"}
-        </h3>
+        </H3>
         {mentor.bio ? (
-          <p className="mt-1 line-clamp-2 text-sm leading-snug text-zinc-400">
+          <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
             {mentor.bio}
           </p>
         ) : null}
 
-        <div className="mt-4 flex items-center justify-between gap-3 text-[11px] font-semibold text-zinc-400">
+        <div className="mt-4 flex items-center justify-between gap-3 text-[11px] font-semibold text-muted-foreground">
           <span>
             {ageMin}-{ageMax} ans
           </span>
           <span>
             {sessions} session{sessions > 1 ? "s" : ""}
           </span>
-          <span className="font-black tabular-nums text-white">
+          <span className="font-black tabular-nums text-foreground">
             {hourly > 0 ? `${hourly.toFixed(0)} DH/h` : "Volontaire"}
           </span>
         </div>

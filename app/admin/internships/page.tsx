@@ -17,8 +17,26 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { H1, H2 } from "@/components/ui/headings"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
 import { InternshipForm } from "./internship-form"
 import { CloseInternshipButton } from "./internship-form"
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { Briefcase } from "lucide-react"
+
+function internshipStatusVariant(status: string): StatusVariant {
+  switch (status) {
+    case "open":
+      return "success"
+    case "closed":
+    case "filled":
+      return "info"
+    case "cancelled":
+      return "danger"
+    default:
+      return "neutral"
+  }
+}
 
 export const dynamic = "force-dynamic"
 
@@ -80,8 +98,8 @@ export default async function AdminInternshipsPage({
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Stages</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <H1 className="mb-2 text-2xl">Stages</H1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -138,36 +156,36 @@ export default async function AdminInternshipsPage({
       <div className="mb-6 flex items-center gap-3">
         <Link
           href="/admin"
-          className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           ← Retour
         </Link>
       </div>
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Stages · Modération</h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <H1>Stages · Modération</H1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Publiez et fermez les offres de stage. Les candidatures se gèrent depuis chaque stage.
         </p>
       </header>
 
       <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Total" value={stats.total} tone="zinc" />
-        <StatCard label="Ouverts" value={stats.open} tone="green" />
-        <StatCard label="Fermés" value={stats.closed} tone="blue" />
-        <StatCard label="Archivés" value={stats.archived} tone="zinc" />
+        <StatCard label="Total" value={stats.total} tone="neutral" />
+        <StatCard label="Ouverts" value={stats.open} tone="success" />
+        <StatCard label="Fermés" value={stats.closed} tone="info" />
+        <StatCard label="Archivés" value={stats.archived} tone="neutral" />
       </section>
 
       <section className="mb-10">
-        <h2 className="mb-3 font-semibold text-white">Publier un nouveau stage</h2>
+        <H2 className="mb-3 text-base">Publier un nouveau stage</H2>
         <InternshipForm partners={activePartners ?? []} />
       </section>
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold text-white">
+          <H2 className="text-base">
             Stages ({internships?.length ?? 0})
-          </h2>
+          </H2>
           <nav className="flex gap-1 text-xs">
             {(["open", "closed", "archived"] as StatusFilter[]).map((s) => (
               <Link
@@ -175,8 +193,8 @@ export default async function AdminInternshipsPage({
                 href={`/admin/internships?status=${s}`}
                 className={`rounded px-3 py-1 ${
                   statusFilter === s
-                    ? "bg-white text-black"
-                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                    ? "bg-foreground text-background"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
               >
                 {s === "open" ? "Ouverts" : s === "closed" ? "Fermés" : "Archivés"}
@@ -186,9 +204,12 @@ export default async function AdminInternshipsPage({
         </div>
 
         {(!internships || internships.length === 0) && (
-          <p className="rounded border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
-            Aucun stage dans cette catégorie.
-          </p>
+          <EmptyState
+            size="small"
+            icon={Briefcase}
+            title="Aucun stage"
+            description="Aucun stage dans cette catégorie."
+          />
         )}
 
         <ul className="space-y-3">
@@ -197,35 +218,27 @@ export default async function AdminInternshipsPage({
             return (
               <li
                 key={i.id}
-                className="rounded border border-zinc-800 bg-zinc-900 p-4"
+                className="rounded border border-border bg-card p-4"
               >
                 <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-white">{i.title}</div>
-                    <div className="text-xs text-zinc-500">
+                    <div className="font-semibold text-foreground">{i.title}</div>
+                    <div className="text-xs text-muted-foreground">
                       {partner?.company_name ?? "(partenaire inconnu)"} · {i.duration}
                     </div>
-                    <div className="text-xs text-zinc-600">
+                    <div className="text-xs text-muted-foreground/80">
                       Publié le {new Date(i.created_at).toLocaleString("fr-FR")}
                     </div>
                   </div>
-                  <span
-                    className={`rounded px-2 py-0.5 text-xs ${
-                      i.status === "open"
-                        ? "bg-green-500/20 text-green-300"
-                        : i.status === "closed" || i.status === "filled"
-                          ? "bg-blue-500/20 text-blue-300"
-                          : i.status === "cancelled"
-                            ? "bg-red-500/20 text-red-300"
-                            : "bg-zinc-700 text-zinc-300"
-                    }`}
-                  >
-                    {i.status}
-                  </span>
+                  <StatusBadge
+                    variant={internshipStatusVariant(i.status)}
+                    label={i.status}
+                    size="sm"
+                  />
                 </header>
 
                 {i.description && (
-                  <p className="mb-3 line-clamp-3 rounded bg-zinc-950 px-3 py-2 text-xs text-zinc-300">
+                  <p className="mb-3 line-clamp-3 rounded bg-background px-3 py-2 text-xs text-foreground/90">
                     {i.description}
                   </p>
                 )}
@@ -263,12 +276,14 @@ export default async function AdminInternshipsPage({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded bg-zinc-950 px-2 py-1">
-      <div className="text-[10px] uppercase tracking-wide text-zinc-500">{label}</div>
-      <div className="text-zinc-200">{children}</div>
+    <div className="rounded bg-background px-2 py-1">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-foreground/90">{children}</div>
     </div>
   )
 }
+
+type StatTone = "neutral" | "info" | "success"
 
 function StatCard({
   label,
@@ -277,12 +292,12 @@ function StatCard({
 }: {
   label: string
   value: number
-  tone: "zinc" | "blue" | "green"
+  tone: StatTone
 }) {
-  const palette: Record<typeof tone, string> = {
-    zinc: "border-zinc-800 bg-zinc-900 text-zinc-300",
-    blue: "border-blue-500/30 bg-blue-500/10 text-blue-300",
-    green: "border-green-500/30 bg-green-500/10 text-green-300",
+  const palette: Record<StatTone, string> = {
+    neutral: "border-border bg-card text-muted-foreground",
+    info: "border-info/30 bg-info/10 text-info",
+    success: "border-success/30 bg-success/10 text-success",
   }
   return (
     <div className={`rounded border p-3 ${palette[tone]}`}>

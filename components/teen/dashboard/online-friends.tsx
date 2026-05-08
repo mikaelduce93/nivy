@@ -90,7 +90,7 @@ export function OnlineFriends({ userId, className }: OnlineFriendsProps) {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                className="flex flex-col items-center gap-2 min-w-[64px]"
+                className="flex flex-col items-center gap-2 min-w-16"
               >
                 <div className="w-14 h-14 rounded-full bg-muted animate-pulse" />
                 <div className="w-10 h-3 rounded bg-muted animate-pulse" />
@@ -126,7 +126,7 @@ export function OnlineFriends({ userId, className }: OnlineFriendsProps) {
           <motion.div 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer"
+            className="flex flex-col items-center gap-2 min-w-16 cursor-pointer"
           >
             <div className="w-14 h-14 rounded-full border-2 border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-muted-foreground transition-colors bg-muted/40">
               <UserPlus className="w-5 h-5" />
@@ -149,7 +149,7 @@ function FriendAvatar({ friend, index }: { friend: FriendPresence; index: number
       animate={{ opacity: 1, scale: 1, x: 0 }}
       exit={{ opacity: 0, scale: 0.8, x: 20 }}
       transition={{ delay: index * 0.05 }}
-      className="flex flex-col items-center gap-2 min-w-[64px]"
+      className="flex flex-col items-center gap-2 min-w-16"
     >
       <Link 
         href={`/teen/profile/${friend.user_id}`}
@@ -186,11 +186,11 @@ function FriendAvatar({ friend, index }: { friend: FriendPresence; index: number
       </Link>
       
       <div className="text-center">
-        <span className="text-xs font-medium text-muted-foreground block truncate max-w-[64px]">
+        <span className="text-xs font-medium text-muted-foreground block truncate max-w-16">
           {friend.full_name?.split(' ')[0] || 'Ami'}
         </span>
         {friend.current_activity && isActive && (
-          <span className="text-[10px] text-brand-soft truncate block max-w-[64px]">
+          <span className="text-[10px] text-brand-soft truncate block max-w-16">
             {friend.current_activity}
           </span>
         )}

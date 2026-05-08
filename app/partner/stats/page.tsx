@@ -4,6 +4,7 @@ import { TrendingUp, Users, ShoppingBag, Tag, Calendar, Download } from "lucide-
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 type TxRow = {
   teen_id: string | null
@@ -194,9 +195,12 @@ export default async function PartnerStatsPage() {
           </CardHeader>
           <CardContent>
             {history.every((h) => h.transactions === 0) ? (
-              <p className="text-sm text-zinc-500 py-8 text-center">
-                Aucune activité sur les 4 derniers mois.
-              </p>
+              <EmptyState
+                size="small"
+                icon={Calendar}
+                title="Aucune activité"
+                description="Aucune activité sur les 4 derniers mois."
+              />
             ) : (
               <div className="space-y-4">
                 {history.map((stat) => (

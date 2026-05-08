@@ -32,6 +32,7 @@ import {
   Clock,
   Check,
 } from "lucide-react"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 // ============================================================================
 // TYPES
@@ -424,11 +425,13 @@ function TransactionHistory({ transactions, loading }: TransactionHistoryProps) 
 
   if (transactions.length === 0) {
     return (
-      <div className="text-center py-12">
-        <History className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-        <p className="text-zinc-400">Aucune transaction XP</p>
-        <p className="text-sm text-zinc-500">Gagne des XP pour voir ton historique!</p>
-      </div>
+      <EmptyState
+        size="small"
+        icon={History}
+        title="Aucune transaction XP"
+        description="Gagne des XP pour voir ton historique apparaître ici !"
+        action={{ label: "Voir les quêtes", href: "/teen/quests" }}
+      />
     )
   }
 

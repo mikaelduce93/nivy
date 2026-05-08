@@ -15,9 +15,11 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { H1 } from "@/components/ui/headings"
 import Link from "next/link"
 import { Plus, MapPin, Car } from "lucide-react"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -51,9 +53,9 @@ export default async function TeenRidesPage() {
             <Car className="h-6 w-6 text-black" aria-hidden />
           </div>
           <div className="min-w-0">
-            <h1 className="text-4xl font-black tracking-tighter uppercase italic text-foreground leading-none">
+            <H1 className="text-4xl font-black tracking-tighter uppercase leading-none">
               Mes trajets
-            </h1>
+            </H1>
             <p className="mt-1 text-sm text-muted-foreground">
               Réservez vos trajets — chaque demande est validée par votre parent.
             </p>
@@ -74,7 +76,13 @@ export default async function TeenRidesPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {upcoming.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun trajet à venir.</p>
+            <EmptyState
+              size="small"
+              icon={Car}
+              title="Aucun trajet à venir"
+              description="Réserve un trajet pour rejoindre tes amis ou aller à un événement."
+              action={{ label: "Nouveau trajet", href: "/teen/rides/request" }}
+            />
           ) : (
             upcoming.map((r) => <RideRow key={r.id} ride={r} />)
           )}
@@ -87,7 +95,12 @@ export default async function TeenRidesPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {history.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun trajet passé.</p>
+            <EmptyState
+              size="small"
+              icon={MapPin}
+              title="Aucun trajet passé"
+              description="Tes trajets terminés s'afficheront ici une fois ton premier ride complété."
+            />
           ) : (
             history.map((r) => <RideRow key={r.id} ride={r} />)
           )}
@@ -114,9 +127,9 @@ interface RideRowProps {
 function RideRow({ ride }: RideRowProps) {
   const dt = new Date(ride.scheduled_for)
   return (
-    <div className="flex items-start justify-between gap-3 rounded-md border p-3">
+    <div className="flex items-start justify-between gap-3 rounded-md border border-border p-3">
       <div className="min-w-0 flex-1">
-        <div className="flex items-start gap-2 text-sm font-medium">
+        <div className="flex items-start gap-2 text-sm font-medium text-foreground">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <span className="line-clamp-2 break-words">
             {ride.pickup_address} → {ride.dropoff_address}
@@ -127,10 +140,12 @@ function RideRow({ ride }: RideRowProps) {
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
-        <Badge variant={statusVariant(ride.status)} className="text-[11px]">
-          {ride.status}
-        </Badge>
-        <span className="text-sm font-semibold tabular-nums">
+        <StatusBadge
+          variant={statusVariant(ride.status)}
+          size="sm"
+          label={ride.status}
+        />
+        <span className="text-sm font-semibold tabular-nums text-foreground">
           {ride.actual_dh ?? ride.estimated_dh ?? "—"} DH
         </span>
       </div>
@@ -138,9 +153,10 @@ function RideRow({ ride }: RideRowProps) {
   )
 }
 
-function statusVariant(status: string): "default" | "destructive" | "secondary" | "outline" {
-  if (status === "completed") return "default"
-  if (status === "cancelled" || status === "denied") return "destructive"
-  if (status === "in_progress" || status === "dispatched") return "secondary"
-  return "outline"
+function statusVariant(status: string): StatusVariant {
+  if (status === "completed") return "success"
+  if (status === "cancelled" || status === "denied") return "danger"
+  if (status === "in_progress" || status === "dispatched") return "info"
+  if (status === "pending" || status === "approved") return "pending"
+  return "neutral"
 }

@@ -5,6 +5,7 @@
 import { notFound } from "next/navigation"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import MenuCartClient from "./menu-cart-client"
+import { H1 } from "@/components/ui/headings"
 
 export const dynamic = "force-dynamic"
 
@@ -36,10 +37,18 @@ export default async function TeenRestaurantMenuPage({
 
   return (
     <main className="min-h-screen mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-bold">{partner.company_name}</h1>
-      <p className="text-sm text-gray-500 mb-6 uppercase tracking-wide">
-        {partner.sub_category ?? "restaurant"}
-      </p>
+      {/* TICKET-024 — destination half of the View Transitions morph.
+          Pairs with the restaurant card on /teen/food. We wrap the title
+          + sub-category band in a single named element so the browser
+          tweens the whole hero block as one. */}
+      <div style={{ viewTransitionName: `vt-restaurant-${partner_id}` }}>
+        <H1 className="text-4xl font-black tracking-tighter uppercase leading-none">
+          {partner.company_name}
+        </H1>
+        <p className="text-sm text-muted-foreground mt-2 mb-6 uppercase tracking-wide">
+          {partner.sub_category ?? "restaurant"}
+        </p>
+      </div>
       <MenuCartClient
         partnerId={partner_id}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

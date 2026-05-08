@@ -22,6 +22,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 import { NewTicketForm } from "./new-ticket-form"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -216,13 +217,11 @@ export default async function PartnerSupportPage() {
           </CardHeader>
           <CardContent>
             {tickets.length === 0 ? (
-              <div className="p-10 text-center">
-                <MessageSquare className="w-12 h-12 mx-auto mb-4 text-zinc-700" />
-                <p className="text-zinc-300 font-semibold">Aucune demande de support</p>
-                <p className="text-sm text-zinc-500 mt-2">
-                  Vos tickets apparaîtront ici une fois soumis.
-                </p>
-              </div>
+              <EmptyState
+                icon={MessageSquare}
+                title="Aucune demande de support"
+                description="Vos tickets apparaîtront ici une fois soumis."
+              />
             ) : (
               <div className="space-y-3">
                 {tickets.map((t) => (

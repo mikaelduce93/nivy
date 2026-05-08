@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Gamepad2, Zap, Clock, Trophy, Play, Users, Flame, Target, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export type GameType = {
   id: string
@@ -147,10 +148,12 @@ export function GamesClient({ games, stats }: Props) {
         </div>
 
         {dailyGames.length === 0 ? (
-          <div className="p-8 rounded-3xl bg-zinc-900/50 border border-white/5 text-center">
-            <Gamepad2 className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-            <p className="text-zinc-500">Aucun jeu disponible.</p>
-          </div>
+          <EmptyState
+            size="small"
+            icon={Gamepad2}
+            title="Aucun jeu disponible"
+            description="Reviens plus tard — de nouveaux jeux quotidiens arrivent chaque jour."
+          />
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {dailyGames.map((game, idx) => (

@@ -322,12 +322,11 @@ export function Elite3DCard({
               {children}
             </motion.div>
 
-            {/* Glass reflection at bottom */}
+            {/* Glass reflection at bottom — borderRadius is dynamic from prop */}
             <div
-              className="absolute bottom-0 left-0 right-0 h-1/3 pointer-events-none z-20"
+              className="absolute bottom-0 left-0 right-0 h-1/3 pointer-events-none z-20 bg-gradient-to-t from-white/5 to-transparent"
               style={{
                 borderRadius: `0 0 ${borderRadius}px ${borderRadius}px`,
-                background: 'linear-gradient(to top, rgba(255,255,255,0.05), transparent)',
               }}
             />
           </div>
@@ -419,10 +418,7 @@ export function EliteGlassCard({
 
         {/* Top reflection */}
         <div
-          className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), transparent)',
-          }}
+          className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none bg-gradient-to-b from-white/10 to-transparent"
         />
 
         {children}
@@ -526,12 +522,9 @@ export function EliteBadge({
       >
         {children}
 
-        {/* Shine effect */}
+        {/* Shine effect — static gradient via Tailwind arbitrary value */}
         <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%)',
-          }}
+          className="absolute inset-0 pointer-events-none bg-[linear-gradient(105deg,transparent_40%,rgba(255,255,255,0.3)_50%,transparent_60%)]"
           animate={{
             x: ['-100%', '200%'],
           }}

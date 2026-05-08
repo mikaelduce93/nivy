@@ -14,6 +14,8 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { TopupRequestRow } from "./topup-request-row"
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { CreditCard } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -161,9 +163,11 @@ export default async function AdminTopupsPage({
         </div>
 
         {requests.length === 0 ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-12 text-center text-zinc-500">
-            Aucune demande {status === "pending" ? "en attente" : status === "confirmed" ? "confirmée" : "rejetée"}.
-          </div>
+          <EmptyState
+            icon={CreditCard}
+            title="Aucune demande"
+            description={`Aucune demande ${status === "pending" ? "en attente" : status === "confirmed" ? "confirmée" : "rejetée"}.`}
+          />
         ) : (
           <div className="space-y-3">
             {requests.map((req) => (

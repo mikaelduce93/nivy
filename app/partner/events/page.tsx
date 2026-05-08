@@ -5,6 +5,7 @@ import Link from "next/link"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 type EventRow = {
   id: string
@@ -279,9 +280,12 @@ export default async function PartnerEventsPage() {
         </CardHeader>
         <CardContent>
           {pastWithStats.length === 0 ? (
-            <p className="text-sm text-zinc-500 py-6 text-center">
-              Aucune participation passée.
-            </p>
+            <EmptyState
+              size="small"
+              icon={Calendar}
+              title="Aucune participation passée"
+              description="Vos événements passés apparaîtront ici."
+            />
           ) : (
             <div className="space-y-3">
               {pastWithStats.map(({ event, scans, revenue }) => {

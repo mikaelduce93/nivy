@@ -9,10 +9,13 @@
  * receives a notification and must approve before it moves to 'approved'.
  */
 
-import { useState, useTransition } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Calendar, Clock, Loader2, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useOptimisticRunner } from "@/lib/hooks/use-optimistic-mutation"
+import { toast } from "@/lib/utils/toast"
+import { H3 } from "@/components/ui/headings"
 
 interface Props {
   mentorId: string
@@ -38,7 +41,6 @@ export function BookMentorSessionButton({
   const [consentRecorded, setConsentRecorded] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [isPending, startTransition] = useTransition()
 
   // Default schedule: tomorrow at 18:00 local time. Computed lazily once.
   const defaultDate = (() => {
@@ -47,6 +49,60 @@ export function BookMentorSessionButton({
     d.setHours(18, 0, 0, 0)
     return formatDatetimeLocal(d)
   })()
+
+  // TICKET-031 (W2-A18): mentor-session-book — optimistically flip to the
+  // success card the instant the user confirms. The success card already
+  // says the request awaits parental approval, so the optimistic state is
+  // safe even before the server responds. On error we roll back the success
+  // banner, restore an inline error, and surface a juicy toast.
+  const bookRunner = useOptimisticRunner<
+    { iso: string },
+    { success: true },
+    { previousSuccess: boolean }
+  >(
+    async ({ iso }) => {
+      const res = await fetch("/api/teen/mentor-sessions/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mentor_id: mentorId,
+          scheduled_for: iso,
+          duration_minutes: duration,
+          consent_recorded: consentRecorded,
+        }),
+      })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok || json?.success === false) {
+        const message = translateError(json?.error) ?? "Reservation impossible. Reessaye."
+        throw new Error(message)
+      }
+      return { success: true as const }
+    },
+    {
+      onMutate: () => {
+        const ctx = { previousSuccess: success }
+        setSuccess(true)
+        setError(null)
+        return ctx
+      },
+      onError: (err, _input, ctx) => {
+        if (ctx) setSuccess(ctx.previousSuccess)
+        const message = err.message || "Erreur reseau. Reessaye."
+        setError(message)
+        toast.error(message)
+      },
+      onSuccess: () => {
+        toast.success("Demande envoyee a ton parent !")
+        // Refresh server data + push to sessions hub after a beat.
+        setTimeout(() => {
+          router.push("/teen/mentor-sessions")
+          router.refresh()
+        }, 1200)
+      },
+    },
+  )
+
+  const isPending = bookRunner.isPending
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -66,36 +122,7 @@ export function BookMentorSessionButton({
       return
     }
 
-    startTransition(async () => {
-      try {
-        const res = await fetch("/api/teen/mentor-sessions/book", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            mentor_id: mentorId,
-            scheduled_for: iso,
-            duration_minutes: duration,
-            consent_recorded: consentRecorded,
-          }),
-        })
-        const json = await res.json().catch(() => ({}))
-        if (!res.ok || json?.success === false) {
-          setError(
-            translateError(json?.error) ?? "Reservation impossible. Reessaye."
-          )
-          return
-        }
-        setSuccess(true)
-        // Refresh server data + push to sessions hub after a beat.
-        setTimeout(() => {
-          router.push("/teen/mentor-sessions")
-          router.refresh()
-        }, 1200)
-      } catch (err) {
-        console.error(err)
-        setError("Erreur reseau. Reessaye.")
-      }
-    })
+    void bookRunner.mutate({ iso })
   }
 
   if (!open) {
@@ -104,15 +131,15 @@ export function BookMentorSessionButton({
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 px-6 py-4 text-base font-black text-black",
-          "hover:brightness-110 transition-all duration-200 shadow-lg shadow-cyan-500/20",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+          "w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-info to-success px-6 py-4 text-base font-black text-primary-foreground",
+          "hover:brightness-110 transition-all duration-200 shadow-lg shadow-info/20",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/60"
         )}
       >
         <Calendar className="h-5 w-5" />
         Reserver une session
         {freeIntro ? (
-          <span className="ml-2 rounded-full bg-black/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
+          <span className="ml-2 rounded-full bg-background/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
             Premiere offerte
           </span>
         ) : null}
@@ -122,11 +149,11 @@ export function BookMentorSessionButton({
 
   if (success) {
     return (
-      <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-6 flex gap-3 items-start">
-        <CheckCircle2 className="h-6 w-6 text-emerald-300 shrink-0" />
+      <div className="rounded-3xl border border-success/30 bg-success-soft/10 p-6 flex gap-3 items-start">
+        <CheckCircle2 className="h-6 w-6 text-success shrink-0" />
         <div>
-          <h3 className="font-black text-white">Demande envoyee !</h3>
-          <p className="text-sm text-emerald-100/90 mt-1">
+          <H3 className="font-black text-foreground">Demande envoyee !</H3>
+          <p className="text-sm text-foreground/80 mt-1">
             Ton parent doit approuver la session avant qu'elle ne soit
             confirmee. On t'emmene vers tes sessions...
           </p>
@@ -138,18 +165,18 @@ export function BookMentorSessionButton({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-6 space-y-4"
+      className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-6 space-y-4"
     >
       <div>
-        <h3 className="text-lg font-black text-white">Nouvelle session</h3>
-        <p className="text-sm text-zinc-400 mt-1">
+        <H3 className="text-lg font-black text-foreground">Nouvelle session</H3>
+        <p className="text-sm text-muted-foreground mt-1">
           La demande sera envoyee a ton parent pour approbation.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+          <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
             Date et heure
           </label>
           <input
@@ -158,17 +185,17 @@ export function BookMentorSessionButton({
             onChange={(e) => setScheduledFor(e.target.value)}
             min={formatDatetimeLocal(new Date(Date.now() + 60_000))}
             required
-            className="rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/40"
+            className="rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-info/40"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+          <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
             Duree
           </label>
           <select
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
-            className="rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/40"
+            className="rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-info/40"
           >
             {DURATIONS.map((d) => (
               <option key={d.value} value={d.value}>
@@ -179,12 +206,12 @@ export function BookMentorSessionButton({
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-sm text-zinc-300 rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+      <div className="flex items-center justify-between text-sm text-foreground rounded-2xl border border-border bg-card/40 p-3">
         <span className="inline-flex items-center gap-2">
-          <Clock className="h-4 w-4 text-cyan-300" />
+          <Clock className="h-4 w-4 text-info" />
           Estimation
         </span>
-        <span className="font-black tabular-nums text-white">
+        <span className="font-black tabular-nums text-foreground">
           {freeIntro
             ? "Premiere session gratuite"
             : `${Math.round((hourlyDh * duration) / 60)} DH`}
@@ -198,18 +225,18 @@ export function BookMentorSessionButton({
         className={cn(
           "flex items-start gap-3 rounded-2xl border p-3 cursor-pointer transition-colors",
           consentRecorded
-            ? "border-cyan-400/40 bg-cyan-500/5"
-            : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
+            ? "border-info/40 bg-info-soft/5"
+            : "border-border bg-card/40 hover:bg-card/60"
         )}
       >
         <input
           type="checkbox"
           checked={consentRecorded}
           onChange={(e) => setConsentRecorded(e.target.checked)}
-          className="mt-1 h-4 w-4 rounded border-white/20 bg-zinc-900 accent-cyan-400"
+          className="mt-1 h-4 w-4 rounded border-border bg-card accent-info"
         />
-        <span className="text-sm text-zinc-200 leading-snug">
-          <ShieldCheck className="h-4 w-4 text-cyan-300 inline-block mr-1 -mt-0.5" />
+        <span className="text-sm text-foreground leading-snug">
+          <ShieldCheck className="h-4 w-4 text-info inline-block mr-1 -mt-0.5" />
           J&apos;accepte que la session soit enregistree pour des raisons de
           securite (90 jours de conservation). Mon parent et le mentor seront
           informes; l&apos;enregistrement sera supprime automatiquement.
@@ -217,7 +244,7 @@ export function BookMentorSessionButton({
       </label>
 
       {error ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 flex gap-2 items-start text-sm text-red-200">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-3 flex gap-2 items-start text-sm text-destructive">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -228,7 +255,7 @@ export function BookMentorSessionButton({
           type="button"
           onClick={() => setOpen(false)}
           disabled={isPending}
-          className="flex-1 rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm font-black text-zinc-300 hover:bg-white/[0.05] disabled:opacity-50"
+          className="flex-1 rounded-2xl border border-border bg-card/40 px-4 py-3 text-sm font-black text-muted-foreground hover:bg-card/60 disabled:opacity-50"
         >
           Annuler
         </button>
@@ -236,7 +263,7 @@ export function BookMentorSessionButton({
           type="submit"
           disabled={isPending || !consentRecorded}
           className={cn(
-            "flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 px-4 py-3 text-sm font-black text-black",
+            "flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-info to-success px-4 py-3 text-sm font-black text-primary-foreground",
             "hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         >

@@ -62,7 +62,7 @@ export default async function TeenLayout({
           <main
             id="main-content"
             tabIndex={-1}
-            className="relative flex-1 p-4 pb-24 md:p-6 md:pb-6 md:ml-64 outline-none"
+            className="relative flex-1 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-6 md:pb-6 md:ml-64 outline-none"
           >
             {children}
           </main>

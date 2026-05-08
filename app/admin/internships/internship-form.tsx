@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 interface PartnerOption {
   id: string
@@ -89,10 +90,13 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
     }
   }
 
+  const inputCls =
+    "w-full rounded border border-input bg-background p-2 text-sm text-foreground"
+
   return (
     <form
       onSubmit={submit}
-      className="space-y-3 rounded border border-zinc-800 bg-zinc-900 p-4"
+      className="space-y-3 rounded border border-border bg-card p-4"
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Label text="Titre">
@@ -100,7 +104,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={200}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className={inputCls}
           />
         </Label>
 
@@ -108,7 +112,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
           <select
             value={partnerId}
             onChange={(e) => setPartnerId(e.target.value)}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className={inputCls}
           >
             <option value="">— sélectionner —</option>
             {partners.map((p) => (
@@ -124,7 +128,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
             value={city}
             onChange={(e) => setCity(e.target.value)}
             maxLength={120}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className={inputCls}
           />
         </Label>
 
@@ -133,9 +137,9 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
             type="checkbox"
             checked={remoteOk}
             onChange={(e) => setRemoteOk(e.target.checked)}
-            className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 accent-blue-600"
+            className="h-4 w-4 rounded border-input bg-background accent-primary"
           />
-          <span className="text-xs uppercase tracking-wide text-zinc-300">
+          <span className="text-xs uppercase tracking-wide text-muted-foreground">
             Possible à distance
           </span>
         </label>
@@ -146,7 +150,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             maxLength={2000}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className={inputCls}
           />
         </Label>
 
@@ -157,7 +161,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
             max={18}
             value={ageMin}
             onChange={(e) => setAgeMin(parseInt(e.target.value || "0", 10))}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className={inputCls}
           />
         </Label>
 
@@ -168,7 +172,7 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
             max={18}
             value={ageMax}
             onChange={(e) => setAgeMax(parseInt(e.target.value || "0", 10))}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className={inputCls}
           />
         </Label>
 
@@ -178,21 +182,17 @@ export function InternshipForm({ partners }: { partners: PartnerOption[] }) {
             min={1}
             value={spotsTotal}
             onChange={(e) => setSpotsTotal(parseInt(e.target.value || "0", 10))}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className={inputCls}
           />
         </Label>
       </div>
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      {ok && <p className="text-xs text-green-400">Stage publié.</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      {ok && <p className="text-xs text-success">Stage publié.</p>}
 
-      <button
-        type="submit"
-        disabled={busy}
-        className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
-      >
+      <Button type="submit" size="sm" disabled={busy}>
         {busy ? "Publication…" : "Publier"}
-      </button>
+      </Button>
     </form>
   )
 }
@@ -208,7 +208,7 @@ function Label({
 }) {
   return (
     <label className={`block ${full ? "sm:col-span-2" : ""}`}>
-      <span className="mb-1 block text-xs uppercase tracking-wide text-zinc-400">
+      <span className="mb-1 block text-xs uppercase tracking-wide text-muted-foreground">
         {text}
       </span>
       {children}
@@ -250,15 +250,16 @@ export function CloseInternshipButton({ id }: { id: string }) {
 
   return (
     <div className="flex flex-col gap-1">
-      <button
+      <Button
         type="button"
+        size="sm"
+        variant="destructive"
         onClick={close}
         disabled={busy}
-        className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
       >
         {busy ? "Fermeture…" : "Fermer le stage"}
-      </button>
-      {error && <span className="text-xs text-red-400">{error}</span>}
+      </Button>
+      {error && <span className="text-xs text-destructive">{error}</span>}
     </div>
   )
 }

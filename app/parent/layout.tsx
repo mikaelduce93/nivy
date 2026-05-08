@@ -40,7 +40,7 @@ export default async function ParentLayout({
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 p-4 md:p-8 lg:p-10 md:ml-64 pt-24 pb-32 md:pb-10 outline-none"
+          className="flex-1 p-4 md:p-8 lg:p-10 md:ml-64 pt-24 pb-[calc(8rem+env(safe-area-inset-bottom))] md:pb-10 outline-none"
         >
           {children}
         </main>

@@ -16,6 +16,8 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { ModerationReviewRow } from "./moderation-review-row"
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { ShieldCheck } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -166,9 +168,12 @@ export default async function AdminProofsPage() {
         </h2>
 
         {rows.length === 0 && (
-          <p className="rounded border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
-            Aucun contenu en attente de modération.
-          </p>
+          <EmptyState
+            size="small"
+            icon={ShieldCheck}
+            title="File vide"
+            description="Aucun contenu en attente de modération."
+          />
         )}
 
         <ul className="space-y-3">

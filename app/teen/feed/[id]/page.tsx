@@ -1,10 +1,16 @@
 /**
  * Wave 2.3 — Submission detail with engagement actions.
+ *
+ * Wave 2 / TICKET-002 — design-system token sweep:
+ *  - Heading routed through <H1> (teen pattern).
+ *  - Raw text-gray-* / bg-blue-* / bg-yellow-* removed → semantic tokens
+ *    (muted-foreground, info-soft, warning).
  */
 import { redirect, notFound } from "next/navigation"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { recordSignalAsync } from "@/lib/analytics/signals"
+import { H1 } from "@/components/ui/headings"
 import EngageButtons from "./engage-buttons"
 
 export const dynamic = "force-dynamic"
@@ -71,23 +77,40 @@ export default async function SubmissionDetailPage({
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-6">
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <div className="mb-3 flex items-center gap-2 text-xs text-gray-500">
+      {/* TICKET-024 — destination half of the View Transitions morph.
+          Pairs with the feed card on /teen/feed. */}
+      <article
+        className="rounded-2xl border border-border bg-card/30 p-6 shadow-sm backdrop-blur-md"
+        style={{ viewTransitionName: `vt-feed-${post.id}` }}
+      >
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {post.featured && (
-            <span className="rounded bg-yellow-100 px-2 py-0.5 text-yellow-800">★ Featured</span>
+            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-warning-foreground">
+              ★ Featured
+            </span>
           )}
           {post.type && (
-            <span className="rounded bg-gray-100 px-2 py-0.5 capitalize">{post.type}</span>
+            <span className="rounded-full bg-muted px-2 py-0.5 capitalize text-muted-foreground">
+              {post.type}
+            </span>
           )}
           {post.category && (
-            <span className="rounded bg-blue-50 px-2 py-0.5 text-blue-700">{post.category}</span>
+            <span className="rounded-full bg-info-soft/15 px-2 py-0.5 text-info">
+              {post.category}
+            </span>
           )}
           <span>· {post.status}</span>
         </div>
-        {title && <h1 className="mb-2 text-2xl font-semibold">{title}</h1>}
-        {post.content && <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>}
+        {title && (
+          <H1 className="mb-2 text-4xl font-black tracking-tighter uppercase italic leading-none">
+            {title}
+          </H1>
+        )}
+        {post.content && (
+          <p className="text-foreground/90 whitespace-pre-wrap">{post.content}</p>
+        )}
         {media && (
-          <div className="relative mt-4 aspect-video w-full overflow-hidden rounded">
+          <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-xl">
             <Image
               src={media}
               alt={title ?? "Image de la publication"}
@@ -98,18 +121,20 @@ export default async function SubmissionDetailPage({
             />
           </div>
         )}
-        <div className="mt-4 flex gap-4 text-sm text-gray-600">
+        <div className="mt-4 flex gap-4 text-sm text-muted-foreground">
           <span>♥ {post.likes_count ?? 0}</span>
           <span>💬 {post.comments_count ?? 0}</span>
           <span>↗ {post.shares_count ?? 0}</span>
-          <span className="ml-auto text-xs text-gray-400">XP: {post.xp_earned ?? 0}</span>
+          <span className="ml-auto text-xs text-muted-foreground/70">
+            XP: {post.xp_earned ?? 0}
+          </span>
         </div>
         {post.user_id !== user.id && (
-          <div className="mt-4 border-t pt-4">
+          <div className="mt-4 border-t border-border pt-4">
             <EngageButtons submissionId={post.id} />
           </div>
         )}
-      </div>
+      </article>
     </div>
   )
 }

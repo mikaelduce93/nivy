@@ -4,6 +4,7 @@ import { Brain, Zap, ArrowLeft } from "lucide-react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { getRecentQuizAttempts, getTeenQuizStats } from "@/lib/quiz/server"
 import { cn } from "@/lib/utils"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -61,21 +62,13 @@ export default async function QuizHistoryPage() {
 
       {/* Attempts list */}
       {attempts.length === 0 ? (
-        <div
-          className="p-12 rounded-3xl bg-zinc-900/40 border border-dashed border-white/10 text-center"
-          data-testid="quiz-history-empty"
-        >
-          <Brain className="w-12 h-12 mx-auto text-zinc-500 mb-3" />
-          <h3 className="text-xl font-bold text-white mb-1">Aucun quiz joué</h3>
-          <p className="text-sm text-zinc-400 mb-4">
-            Lance ton premier quiz pour commencer à gagner de l'XP.
-          </p>
-          <Link
-            href="/teen/quiz"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-soft text-black font-bold"
-          >
-            Voir les quiz
-          </Link>
+        <div data-testid="quiz-history-empty">
+          <EmptyState
+            icon={Brain}
+            title="Aucun quiz joué"
+            description="Lance ton premier quiz pour commencer à gagner de l'XP."
+            action={{ label: "Voir les quiz", href: "/teen/quiz" }}
+          />
         </div>
       ) : (
         <div className="space-y-2" data-testid="quiz-history-list">

@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 async function getTeenBookings(parentId: string) {
   const supabase = await createClient()
@@ -318,11 +319,10 @@ export default async function ParentEventsPage() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <Calendar className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                <h3 className="text-xl font-bold text-white mb-2">Aucune réservation</h3>
-                <p className="text-zinc-400">Vos teens n'ont pas encore de réservations à venir</p>
-              </div>
+              <EmptyState
+                preset="tickets"
+                description="Vos teens n'ont pas encore de réservations à venir"
+              />
             )}
           </CardContent>
         </Card>

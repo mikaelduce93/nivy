@@ -15,6 +15,7 @@ import {
   FileSignature,
 } from "lucide-react"
 import Link from "next/link"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 // Server-rendered parent document vault.
 // Whitepaper §10/§22: signed authorizations live in `e_signatures` (PRIVATE bucket).
@@ -129,10 +130,12 @@ export default async function ParentDocumentsPage() {
           </CardHeader>
           <CardContent>
             {signatures.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="h-12 w-12 mx-auto mb-3 text-zinc-700" />
-                <p className="text-zinc-400">Aucun document signé pour le moment.</p>
-              </div>
+              <EmptyState
+                size="small"
+                icon={FileText}
+                title="Aucun document signé"
+                description="Aucun document signé pour le moment."
+              />
             ) : (
               <div className="space-y-3">
                 {signatures.map((sig: any) => (

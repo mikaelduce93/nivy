@@ -5,6 +5,7 @@ import { Coins, ArrowDownRight, ArrowUpRight, Loader2, ChevronDown } from "lucid
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { getCoinsTransactions } from "@/gamification-system/features/pillars/actions"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("fr-FR", {
@@ -118,7 +119,13 @@ export function TeenCoinsClient({ initialTransactions, profile, teenId }: { init
               )
             })
           ) : (
-            <div className="text-sm text-muted-foreground">Aucune transaction récente.</div>
+            <EmptyState
+              size="small"
+              preset="coins"
+              title="Aucune transaction récente"
+              description="Termine des quêtes ou des défis pour voir tes premières transactions ici."
+              action={{ label: "Voir les quêtes", href: "/teen/quests" }}
+            />
           )}
 
           {hasMore && (
@@ -145,7 +152,13 @@ export function TeenCoinsClient({ initialTransactions, profile, teenId }: { init
               </div>
             ))
           ) : (
-            <div className="text-sm text-muted-foreground">Aucune dépense récente.</div>
+            <EmptyState
+              size="small"
+              icon={ArrowDownRight}
+              title="Aucune dépense récente"
+              description="Tes dépenses dans la boutique ou pour les rewards apparaîtront ici."
+              action={{ label: "Voir la boutique", href: "/teen/shop" }}
+            />
           )}
         </CardContent>
       </Card>

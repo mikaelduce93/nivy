@@ -1,6 +1,28 @@
 "use client"
 
-import { useState, useMemo } from "react"
+/**
+ * MenuCartClient — TICKET-042 [forms] (W2-A13) over TICKET-031 (W2-A18).
+ *
+ * - Cart UI + optimistic order runner are preserved verbatim from W2-A18.
+ * - Checkout block is now a react-hook-form + zod form (deliveryType,
+ *   deliveryAddress when delivery, notes, paymentMethod) inside a
+ *   <FormKeyboardAware>, with a <PremiumButton> for loading/success state.
+ * - First field auto-focused; field-level inline validation on blur.
+ */
+
+import { useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { StatusBadge } from "@/components/ui/status-badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { PremiumButton } from "@/components/ui/button"
+import { FormKeyboardAware } from "@/lib/hooks/use-keyboard-aware"
+import { useOptimisticRunner } from "@/lib/hooks/use-optimistic-mutation"
+import { toast } from "@/lib/utils/toast"
+import { useJuice } from "@/lib/hooks/use-juice"
 
 interface MenuItem {
   id: string
@@ -23,6 +45,25 @@ const FILTER_LABELS: Record<"all" | "halal" | "vegetarian" | "healthy", string> 
   healthy: "Healthy",
 }
 
+const checkoutSchema = z
+  .object({
+    deliveryType: z.enum(["pickup", "delivery"]),
+    deliveryAddress: z.string().max(300, "Adresse trop longue").optional(),
+    notes: z.string().max(500, "Notes trop longues").optional(),
+    paymentMethod: z.enum(["coins", "dh"]),
+  })
+  .refine(
+    (v) =>
+      v.deliveryType !== "delivery" ||
+      (v.deliveryAddress && v.deliveryAddress.trim().length >= 5),
+    {
+      path: ["deliveryAddress"],
+      message: "Adresse de livraison requise",
+    }
+  )
+
+type CheckoutValues = z.infer<typeof checkoutSchema>
+
 export default function MenuCartClient({
   partnerId,
   items,
@@ -32,12 +73,36 @@ export default function MenuCartClient({
 }) {
   const [cart, setCart] = useState<Record<string, number>>({})
   const [filter, setFilter] = useState<"all" | "halal" | "vegetarian" | "healthy">("all")
-  const [submitting, setSubmitting] = useState(false)
   const [orderResult, setOrderResult] = useState<{
     ok: boolean
     message: string
     orderId?: string
   } | null>(null)
+  const [success, setSuccess] = useState(false)
+  const { play: playJuice } = useJuice()
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setFocus,
+    formState: { errors },
+  } = useForm<CheckoutValues>({
+    resolver: zodResolver(checkoutSchema),
+    mode: "onBlur",
+    defaultValues: {
+      deliveryType: "pickup",
+      deliveryAddress: "",
+      notes: "",
+      paymentMethod: "coins",
+    },
+  })
+
+  const deliveryType = watch("deliveryType")
+
+  useEffect(() => {
+    setFocus("deliveryType")
+  }, [setFocus])
 
   const filtered = useMemo(() => {
     if (filter === "all") return items
@@ -55,45 +120,97 @@ export default function MenuCartClient({
     [cart, items]
   )
 
-  const submit = async () => {
-    setSubmitting(true)
-    setOrderResult(null)
-    const itemsPayload = Object.entries(cart)
-      .filter(([, q]) => q > 0)
-      .map(([id, qty]) => ({ menuItemId: id, qty }))
-    try {
+  // TICKET-031 (W2-A18): cart add/remove fires a `pop` haptic+sound so the
+  // tap feels instantaneous — quantities are local state but the juice cue
+  // is what makes it feel optimistic. The state itself updates synchronously.
+  const addToCart = (itemId: string) => {
+    setCart((c) => ({ ...c, [itemId]: (c[itemId] ?? 0) + 1 }))
+    playJuice("pop")
+  }
+
+  const removeFromCart = (itemId: string) => {
+    setCart((c) => ({ ...c, [itemId]: Math.max(0, (c[itemId] ?? 0) - 1) }))
+    playJuice("tap")
+  }
+
+  // TICKET-031 (W2-A18): food-order-place — surface the success banner and
+  // empty the cart instantly. On error we restore the cart, drop the banner
+  // back to the failure state, and surface a juicy toast for retry.
+  const orderRunner = useOptimisticRunner<
+    CheckoutValues,
+    { orderId?: string },
+    { previousCart: Record<string, number>; previousResult: typeof orderResult }
+  >(
+    async (values) => {
+      const itemsPayload = Object.entries(cart)
+        .filter(([, q]) => q > 0)
+        .map(([id, qty]) => ({ menuItemId: id, qty }))
       const res = await fetch("/api/teen/food/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           partnerId,
-          deliveryType: "pickup",
+          deliveryType: values.deliveryType,
+          deliveryAddress:
+            values.deliveryType === "delivery"
+              ? values.deliveryAddress?.trim() || undefined
+              : undefined,
+          notes: values.notes?.trim() || undefined,
           items: itemsPayload,
-          paymentMethod: "coins",
+          paymentMethod: values.paymentMethod,
         }),
       })
-      const json = await res.json()
-      if (res.ok && json?.success) {
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok || !json?.success) {
+        const message =
+          (typeof json?.error === "string" && json.error) ||
+          "Erreur lors de la commande."
+        throw new Error(message)
+      }
+      return { orderId: json?.data?.orderId ?? json?.orderId }
+    },
+    {
+      onMutate: () => {
+        const ctx = { previousCart: cart, previousResult: orderResult }
+        // Optimistic: show success banner and clear cart immediately.
+        setOrderResult({ ok: true, message: "Commande envoyée avec succès." })
+        setCart({})
+        return ctx
+      },
+      onError: (err, _input, ctx) => {
+        // Rollback: restore the cart so the user can retry without re-typing.
+        if (ctx) {
+          setCart(ctx.previousCart)
+        }
+        const message = err.message || "Erreur réseau."
+        setOrderResult({ ok: false, message })
+        setSuccess(false)
+        toast.error(message)
+      },
+      onSuccess: (output) => {
         setOrderResult({
           ok: true,
           message: "Commande envoyée avec succès.",
-          orderId: json?.data?.orderId ?? json?.orderId,
+          orderId: output.orderId,
         })
-        setCart({})
-      } else {
-        setOrderResult({
-          ok: false,
-          message: json?.error ?? "Erreur lors de la commande.",
-        })
-      }
-    } catch (err) {
-      setOrderResult({
-        ok: false,
-        message: err instanceof Error ? err.message : "Erreur réseau.",
-      })
-    } finally {
-      setSubmitting(false)
-    }
+        setSuccess(true)
+        toast.success("Commande envoyée !")
+      },
+    },
+  )
+
+  const submitting = orderRunner.isPending
+
+  const cartCount = useMemo(
+    () => Object.values(cart).reduce((s, q) => s + q, 0),
+    [cart]
+  )
+
+  const onSubmit = (values: CheckoutValues) => {
+    if (submitting || cartCount === 0) return
+    setOrderResult(null)
+    setSuccess(false)
+    void orderRunner.mutate(values)
   }
 
   return (
@@ -111,8 +228,10 @@ export default function MenuCartClient({
               type="button"
               onClick={() => setFilter(f)}
               aria-pressed={active}
-              className={`rounded border px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                active ? "bg-blue-600 text-white" : "bg-white text-zinc-900"
+              className={`rounded border border-border px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                active
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-foreground"
               }`}
             >
               {FILTER_LABELS[f]}
@@ -126,26 +245,33 @@ export default function MenuCartClient({
           const qty = cart[it.id] ?? 0
           const coins = it.price_coins ?? Math.round(it.price_dh * 100)
           return (
-            <li key={it.id} className="rounded border p-3 flex justify-between gap-4">
+            <li
+              key={it.id}
+              className="rounded border border-border bg-card p-3 flex justify-between gap-4"
+            >
               <div className="flex-1">
-                <h3 className="font-medium text-base m-0">
+                <h3 className="font-medium text-base m-0 text-foreground">
                   {it.name}{" "}
                   {!it.is_halal && (
-                    <span className="ml-1 rounded bg-red-100 px-1 text-xs text-red-700">
-                      non-halal
-                    </span>
+                    <StatusBadge
+                      variant="danger"
+                      size="sm"
+                      label="non-halal"
+                      icon={false}
+                      className="ml-1"
+                    />
                   )}
                 </h3>
                 {it.description && (
-                  <div className="text-xs text-zinc-600">{it.description}</div>
+                  <div className="text-xs text-muted-foreground">{it.description}</div>
                 )}
-                <div className="text-xs text-zinc-700 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   {coins} coins · {it.price_dh} DH
                   {it.calories ? ` · ${it.calories} kcal` : ""}
                   {it.prep_time_minutes ? ` · ${it.prep_time_minutes} min` : ""}
                 </div>
                 {(it.nutrition_tags ?? []).length > 0 && (
-                  <div className="text-xs text-blue-700 mt-1">
+                  <div className="text-xs text-info mt-1">
                     {(it.nutrition_tags ?? []).join(" · ")}
                   </div>
                 )}
@@ -153,14 +279,14 @@ export default function MenuCartClient({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setCart((c) => ({ ...c, [it.id]: Math.max(0, qty - 1) }))}
+                  onClick={() => removeFromCart(it.id)}
                   aria-label={`Diminuer la quantité de ${it.name}`}
-                  className="rounded bg-gray-100 px-2 py-1 text-sm text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="rounded bg-muted px-2 py-1 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <span aria-hidden="true">−</span>
                 </button>
                 <span
-                  className="w-6 text-center text-sm"
+                  className="w-6 text-center text-sm text-foreground"
                   aria-label={`Quantité de ${it.name}: ${qty}`}
                   aria-live="polite"
                 >
@@ -168,9 +294,9 @@ export default function MenuCartClient({
                 </span>
                 <button
                   type="button"
-                  onClick={() => setCart((c) => ({ ...c, [it.id]: qty + 1 }))}
+                  onClick={() => addToCart(it.id)}
                   aria-label={`Augmenter la quantité de ${it.name}`}
-                  className="rounded bg-gray-100 px-2 py-1 text-sm text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="rounded bg-muted px-2 py-1 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <span aria-hidden="true">+</span>
                 </button>
@@ -180,19 +306,91 @@ export default function MenuCartClient({
         })}
       </ul>
 
-      <div className="sticky bottom-0 mt-6 flex items-center justify-between rounded-lg bg-blue-50 p-3">
-        <div className="text-sm text-zinc-900">
-          Total: <strong>{totalCoins} coins</strong>
+      <FormKeyboardAware
+        onSubmit={handleSubmit(onSubmit)}
+        className="mt-6 space-y-4 rounded-lg border border-border bg-card p-4"
+        aria-label="Finaliser la commande"
+      >
+        <h2 className="text-base font-semibold text-foreground">
+          Finaliser la commande
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label htmlFor="deliveryType">Type</Label>
+            <select
+              id="deliveryType"
+              className="w-full border border-border bg-background text-foreground rounded px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              {...register("deliveryType")}
+            >
+              <option value="pickup">À emporter</option>
+              <option value="delivery">Livraison</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="paymentMethod">Paiement</Label>
+            <select
+              id="paymentMethod"
+              className="w-full border border-border bg-background text-foreground rounded px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              {...register("paymentMethod")}
+            >
+              <option value="coins">Coins</option>
+              <option value="dh">DH</option>
+            </select>
+          </div>
         </div>
-        <button
-          type="button"
-          disabled={submitting || totalCoins === 0}
-          onClick={submit}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
-        >
-          {submitting ? "Envoi..." : "Commander"}
-        </button>
-      </div>
+
+        {deliveryType === "delivery" && (
+          <div className="space-y-1">
+            <Label htmlFor="deliveryAddress">Adresse de livraison</Label>
+            <Input
+              id="deliveryAddress"
+              autoComplete="street-address"
+              aria-invalid={!!errors.deliveryAddress}
+              {...register("deliveryAddress")}
+            />
+            {errors.deliveryAddress && (
+              <p role="alert" className="text-sm text-destructive">
+                {errors.deliveryAddress.message}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="space-y-1">
+          <Label htmlFor="notes">Notes (optionnel)</Label>
+          <Textarea
+            id="notes"
+            placeholder="Allergies, préférences…"
+            aria-invalid={!!errors.notes}
+            {...register("notes")}
+          />
+          {errors.notes && (
+            <p role="alert" className="text-sm text-destructive">
+              {errors.notes.message}
+            </p>
+          )}
+        </div>
+
+        <div className="sticky bottom-0 flex items-center justify-between rounded-lg bg-info-soft/15 border border-info/20 p-3">
+          <div className="text-sm text-foreground">
+            Total: <strong>{totalCoins} coins</strong>
+          </div>
+          <PremiumButton
+            type="submit"
+            loading={submitting}
+            success={success}
+            disabled={submitting || success || cartCount === 0}
+          >
+            {success
+              ? "Envoyée !"
+              : submitting
+                ? "Envoi..."
+                : "Commander"}
+          </PremiumButton>
+        </div>
+      </FormKeyboardAware>
 
       {orderResult && (
         <div
@@ -200,8 +398,8 @@ export default function MenuCartClient({
           aria-live={orderResult.ok ? "polite" : "assertive"}
           className={`mt-4 rounded p-3 text-sm ${
             orderResult.ok
-              ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
-              : "bg-red-50 text-red-900 border border-red-200"
+              ? "bg-success-soft/15 text-success border border-success/30"
+              : "bg-destructive/10 text-destructive border border-destructive/30"
           }`}
         >
           <p className="font-medium">{orderResult.message}</p>
@@ -212,6 +410,7 @@ export default function MenuCartClient({
           )}
         </div>
       )}
+
     </div>
   )
 }

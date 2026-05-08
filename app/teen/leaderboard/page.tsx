@@ -5,9 +5,12 @@
  * Reads creator_monthly_stats and surfaces the current month's top creators.
  */
 import Link from "next/link"
+import { Trophy } from "lucide-react"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { PullToRefresh } from "@/components/teen/pull-to-refresh"
 
 export const dynamic = "force-dynamic"
 
@@ -69,6 +72,7 @@ export default async function CreatorLeaderboardPage({
   }
 
   return (
+    <PullToRefresh>
     <div className="container mx-auto max-w-2xl px-4 py-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Top Créateurs · {monthStart.slice(0, 7)}</h1>
@@ -109,7 +113,12 @@ export default async function CreatorLeaderboardPage({
       )}
 
       {entries.length === 0 ? (
-        <p className="text-gray-500">Pas encore de classement ce mois-ci.</p>
+        <EmptyState
+          icon={Trophy}
+          title="Pas encore de classement"
+          description="Le classement pour ce mois est en cours de constitution. Publie tes créations pour grimper en haut !"
+          action={{ label: "Créer un post", href: "/teen/create" }}
+        />
       ) : (
         <ol className="space-y-2">
           {entries.map((row, idx) => (
@@ -138,5 +147,6 @@ export default async function CreatorLeaderboardPage({
         </ol>
       )}
     </div>
+    </PullToRefresh>
   )
 }

@@ -42,6 +42,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { uploadCreation } from "@/gamification-system/features/pillars/actions"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 interface PassionPath {
   id: string
@@ -398,7 +399,12 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
                       </CardContent>
                     </Card>
                   )) : (
-                    <p className="text-gray-500 text-center py-8">Aucun tutoriel disponible pour ce parcours</p>
+                    <EmptyState
+                      size="small"
+                      icon={Video}
+                      title="Aucun tutoriel disponible"
+                      description="Aucun tutoriel n'est disponible pour ce parcours pour le moment."
+                    />
                   )}
                 </div>
               </div>

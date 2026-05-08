@@ -22,6 +22,8 @@ import {
   ShieldCheck,
 } from "lucide-react"
 import { BookMentorSessionButton } from "./book-mentor-session-button"
+import { H1, H2 } from "@/components/ui/headings"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 export const dynamic = "force-dynamic"
 
@@ -90,54 +92,63 @@ export default async function TeenMentorDetailPage({
   const ageMax = mentor.age_max_mentee ?? 17
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32 max-w-3xl">
         <Link
           href="/teen/mentors"
-          className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white mb-6"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour aux mentors
         </Link>
 
         {/* Hero card */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-500/10 via-cyan-500/[0.03] to-transparent backdrop-blur-md p-6 sm:p-8 mb-6">
+        {/* TICKET-024 — destination half of the View Transitions morph.
+            Pairs with the MentorCard on /teen/mentors. */}
+        <div
+          className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent backdrop-blur-md p-6 sm:p-8 mb-6"
+          style={{ viewTransitionName: `vt-mentor-${mentor.id}` }}
+        >
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full blur-3xl bg-cyan-500/40 opacity-50"
+            className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full blur-3xl bg-info-soft/40 opacity-50"
           />
           <div className="relative">
             <div className="flex items-start gap-4 flex-wrap">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shrink-0">
-                <GraduationCap className="h-8 w-8 text-black" />
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-info-soft to-success-soft flex items-center justify-center shrink-0">
+                <GraduationCap className="h-8 w-8 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
+                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-info">
                     Mentor Nivy
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/30">
-                    <CheckCircle2 className="h-3 w-3" aria-hidden />
-                    KYC {mentor.kyc_status}
-                  </span>
+                  <StatusBadge
+                    variant="success"
+                    size="sm"
+                    icon={CheckCircle2}
+                    label={`KYC ${mentor.kyc_status}`}
+                  />
                   {freeIntro ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-300 ring-1 ring-amber-400/30">
-                      <Sparkles className="h-3 w-3" aria-hidden />
-                      Premiere session offerte
-                    </span>
+                    <StatusBadge
+                      variant="warning"
+                      size="sm"
+                      icon={Sparkles}
+                      label="Premiere session offerte"
+                    />
                   ) : null}
                 </div>
-                <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                <H1 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-foreground leading-tight">
                   {tags.length > 0 ? tags.join(" / ") : "Mentor Nivy"}
-                </h1>
-                <div className="mt-3 flex items-center gap-4 text-sm text-zinc-400 flex-wrap">
+                </H1>
+                <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                   {rating !== null ? (
-                    <span className="inline-flex items-center gap-1 text-amber-300 font-black">
+                    <span className="inline-flex items-center gap-1 text-warning font-black">
                       <Star className="h-4 w-4" aria-hidden />
                       {rating.toFixed(1)}
                     </span>
                   ) : (
-                    <span className="text-zinc-500 font-semibold">Nouveau mentor</span>
+                    <span className="text-muted-foreground font-semibold">Nouveau mentor</span>
                   )}
                   <span className="inline-flex items-center gap-1">
                     <Users className="h-4 w-4" aria-hidden />
@@ -149,10 +160,10 @@ export default async function TeenMentorDetailPage({
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <div className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+                <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
                   Tarif horaire
                 </div>
-                <div className="text-2xl font-black tabular-nums text-white mt-0.5">
+                <div className="text-2xl font-black tabular-nums text-foreground mt-0.5">
                   {hourly > 0 ? `${hourly.toFixed(0)} DH` : "Volontaire"}
                 </div>
               </div>
@@ -161,11 +172,11 @@ export default async function TeenMentorDetailPage({
         </div>
 
         {/* Bio */}
-        <section className="rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-6 mb-6">
-          <h2 className="text-sm font-black uppercase tracking-wider text-zinc-300 mb-3">
+        <section className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-6 mb-6">
+          <H2 className="text-sm font-black uppercase tracking-wider text-foreground mb-3">
             Bio
-          </h2>
-          <p className="text-zinc-300 leading-relaxed whitespace-pre-line">
+          </H2>
+          <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
             {mentor.bio ?? "Ce mentor n'a pas encore renseigne de bio."}
           </p>
           {mentor.intro_video_url ? (
@@ -173,7 +184,7 @@ export default async function TeenMentorDetailPage({
               href={mentor.intro_video_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-cyan-300 hover:text-cyan-200 text-sm font-black"
+              className="mt-4 inline-flex items-center gap-2 text-info hover:text-info/80 text-sm font-black"
             >
               <Sparkles className="h-4 w-4" />
               Voir la video d'introduction
@@ -201,10 +212,10 @@ export default async function TeenMentorDetailPage({
         </section>
 
         {/* Trust & safety */}
-        <section className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-5 mb-6 flex gap-3 items-start">
-          <ShieldCheck className="h-5 w-5 text-emerald-300 shrink-0 mt-0.5" />
-          <div className="text-sm text-emerald-100/90 leading-relaxed">
-            <strong className="font-black text-emerald-200">
+        <section className="rounded-3xl border border-success/20 bg-success-soft/5 p-5 mb-6 flex gap-3 items-start">
+          <ShieldCheck className="h-5 w-5 text-success shrink-0 mt-0.5" />
+          <div className="text-sm text-foreground/90 leading-relaxed">
+            <strong className="font-black text-success">
               Securite Nivy.
             </strong>{" "}
             Toute reservation passe par l'accord de ton parent. La premiere
@@ -222,7 +233,7 @@ export default async function TeenMentorDetailPage({
             hourlyDh={hourly}
           />
         ) : (
-          <div className="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-5 text-sm text-amber-200">
+          <div className="rounded-3xl border border-warning/20 bg-warning/5 p-5 text-sm text-warning-foreground">
             Ce mentor n'est pas disponible pour des reservations actuellement.
           </div>
         )}
@@ -241,12 +252,12 @@ function StatTile({
   icon: React.ReactNode
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-4">
-      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-zinc-500">
-        <span className="text-cyan-300">{icon}</span>
+    <div className="rounded-2xl border border-border bg-card/40 backdrop-blur-md p-4">
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+        <span className="text-info">{icon}</span>
         {label}
       </div>
-      <div className="mt-1 text-lg font-black text-white tabular-nums">
+      <div className="mt-1 text-lg font-black text-foreground tabular-nums">
         {value}
       </div>
     </div>

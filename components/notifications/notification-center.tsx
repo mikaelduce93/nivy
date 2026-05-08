@@ -45,6 +45,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { SwipeableCard } from '@/components/ui/swipeable-card'
 import { cn } from '@/lib/utils'
 import {
   useNotifications,
@@ -251,13 +252,31 @@ export function NotificationCenter({ userId, className }: NotificationCenterProp
             ) : (
               <div className="divide-y">
                 {notifications.slice(0, 10).map((notification) => (
-                  <NotificationItem
+                  // TICKET-038: swipe-to-dismiss. A 30 % horizontal drag in
+                  // either direction calls deleteNotification. The card
+                  // animates off-screen (or snaps under reduced-motion) and
+                  // the realtime subscription will drop it from the list.
+                  <SwipeableCard
                     key={notification.id}
-                    notification={notification}
-                    onClick={() => handleNotificationClick(notification)}
-                    onMarkRead={() => markAsRead(notification.id)}
-                    onDelete={() => deleteNotification(notification.id)}
-                  />
+                    onSwipeDelete={() => deleteNotification(notification.id)}
+                    leftAction={
+                      <span className="px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                        Supprimer
+                      </span>
+                    }
+                    rightAction={
+                      <span className="px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                        Supprimer
+                      </span>
+                    }
+                  >
+                    <NotificationItem
+                      notification={notification}
+                      onClick={() => handleNotificationClick(notification)}
+                      onMarkRead={() => markAsRead(notification.id)}
+                      onDelete={() => deleteNotification(notification.id)}
+                    />
+                  </SwipeableCard>
                 ))}
               </div>
             )}
@@ -410,7 +429,7 @@ function PushPermissionPrompt({ onEnable, onDismiss }: PushPermissionPromptProps
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed bottom-4 right-4 z-50 max-w-sm"
+      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))] z-50 max-w-sm"
     >
       <Card className="p-4 shadow-lg border-primary/20">
         <div className="flex gap-3">

@@ -13,6 +13,7 @@ import {
   CheckCheck,
 } from "lucide-react"
 import Link from "next/link"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 // Server-rendered notifications inbox.
 // Whitepaper §16: reads `user_notifications` (not bespoke mock arrays).
@@ -94,24 +95,13 @@ export default async function ParentNotificationsPage() {
         </div>
 
         {notifications.length === 0 ? (
-          <Card className="bg-zinc-900 border-zinc-800">
-            <CardContent className="py-16 text-center">
-              <BellOff className="w-12 h-12 mx-auto mb-4 text-zinc-600" />
-              <p className="text-white font-bold">Aucune notification</p>
-              <p className="text-zinc-400 mt-1 max-w-md mx-auto">
-                Quand votre teen demandera une approbation, fera un check-in
-                ou quand un paiement sera confirmé, le message apparaîtra ici.
-              </p>
-              <div className="mt-6 flex items-center justify-center gap-3">
-                <Button asChild variant="outline" className="border-zinc-700 text-zinc-200">
-                  <Link href="/parent/approvals">Voir les approbations</Link>
-                </Button>
-                <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold">
-                  <Link href="/parent/settings">Régler les préférences</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={BellOff}
+            title="Aucune notification"
+            description="Quand votre teen demandera une approbation, fera un check-in ou quand un paiement sera confirmé, le message apparaîtra ici."
+            action={{ label: "Voir les approbations", href: "/parent/approvals", variant: "outline" }}
+            secondaryAction={{ label: "Régler les préférences", href: "/parent/settings" }}
+          />
         ) : (
           <div className="space-y-3">
             {unreadCount > 0 && (

@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { TransactionFilters } from "@/components/parent/transaction-filters"
+import { EmptyState } from "@/components/ui/states/empty-state"
 import { ExportButton } from "@/components/parent/export-button"
 import { InvoiceButton } from "@/components/parent/invoice-button"
 
@@ -425,11 +426,11 @@ export default async function ParentHistoryPage() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <History className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                <h3 className="text-xl font-bold text-white mb-2">Aucune transaction</h3>
-                <p className="text-zinc-400">L'historique des transactions apparaîtra ici</p>
-              </div>
+              <EmptyState
+                icon={History}
+                title="Aucune transaction"
+                description="L'historique des transactions apparaîtra ici"
+              />
             )}
           </CardContent>
         </Card>

@@ -1,10 +1,15 @@
 /**
  * /partner/restaurant/orders — incoming orders feed (kitchen ticker).
+ *
+ * Wave 2 / TICKET-002 — design-system token sweep:
+ *  - Heading routed through <H1> primitive.
+ *  - Raw text-gray-* removed → text-muted-foreground.
  */
 
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { H1 } from "@/components/ui/headings"
 import OrdersFeedClient from "./orders-feed-client"
 
 export const dynamic = "force-dynamic"
@@ -32,8 +37,10 @@ export default async function PartnerRestaurantOrdersPage() {
 
   return (
     <main className="min-h-screen mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-2">Commandes — {partner?.company_name}</h1>
-      <p className="text-sm text-gray-600 mb-6">Accepter ou rejeter les commandes entrantes.</p>
+      <H1 className="mb-2">Commandes — {partner?.company_name}</H1>
+      <p className="text-sm text-muted-foreground mb-6">
+        Accepter ou rejeter les commandes entrantes.
+      </p>
       <OrdersFeedClient
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialOrders={(orders ?? []) as any[]}

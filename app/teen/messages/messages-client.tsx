@@ -1,5 +1,16 @@
 "use client"
 
+/**
+ * Teen direct messages — list + thread view.
+ *
+ * Wave 2 / TICKET-002 — design-system token sweep:
+ *  - Surface backgrounds switched from raw zinc-9xx → semantic tokens
+ *    (card/30, muted, border).
+ *  - Body copy text-zinc-* → text-muted-foreground (per role).
+ *  - Headings still use the teen 4xl/black/italic pattern.
+ *  - Buttons + Input continue to be routed through their primitives.
+ */
+
 import { useState } from "react"
 import { motion } from "framer-motion"
 import {
@@ -21,6 +32,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { H1 } from "@/components/ui/headings"
 
 interface Conversation {
   id: string
@@ -176,11 +188,11 @@ export function MessagesClient({ conversations, currentUserId }: MessagesClientP
             isDesktop
           />
         ) : (
-          <div className="flex items-center justify-center h-[600px] rounded-3xl bg-zinc-900/50 border border-white/5">
+          <div className="flex items-center justify-center h-[600px] rounded-3xl bg-card/30 border border-border backdrop-blur-md">
             <div className="text-center">
-              <MessageCircle className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Sélectionne une conversation</h3>
-              <p className="text-zinc-500">Choisis une conversation pour commencer</p>
+              <MessageCircle className="w-16 h-16 text-muted-foreground/60 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-foreground mb-2">Sélectionne une conversation</h3>
+              <p className="text-muted-foreground">Choisis une conversation pour commencer</p>
             </div>
           </div>
         )}
@@ -213,8 +225,10 @@ function ConversationList({
               <MessageCircle className="w-6 h-6 text-black" />
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase italic">Messages</h1>
-              <p className="text-zinc-500 text-sm font-medium">
+              <H1 className="text-4xl font-black tracking-tighter uppercase italic leading-none">
+                Messages
+              </H1>
+              <p className="text-muted-foreground text-sm font-medium">
                 {totalUnread > 0 ? `${totalUnread} non lus` : "Tous lus"}
               </p>
             </div>
@@ -225,12 +239,12 @@ function ConversationList({
         </div>
 
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Rechercher..."
-            className="pl-12 h-12 rounded-xl bg-zinc-900/50 border-white/10"
+            className="pl-12 h-12 rounded-xl bg-card/40 border-border"
           />
         </div>
       </header>
@@ -254,16 +268,16 @@ function ConversationList({
                 "flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all",
                 selectedId === convo.id
                   ? "bg-info-soft/10 border border-info-soft/30"
-                  : "bg-zinc-900/50 border border-white/5 hover:border-white/10"
+                  : "bg-card/30 border border-border hover:border-border/80 backdrop-blur-md"
               )}
             >
               <div className="relative">
                 {convo.isGroup ? (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
-                    <Users className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent-soft to-brand-soft flex items-center justify-center">
+                    <Users className="w-7 h-7 text-primary-foreground" />
                   </div>
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-primary-foreground">
                     {convo.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -271,18 +285,18 @@ function ConversationList({
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-bold text-white truncate">{convo.name}</h4>
+                  <h4 className="font-bold text-foreground truncate">{convo.name}</h4>
                 </div>
                 <p className={cn(
                   "text-sm truncate",
-                  convo.unreadCount > 0 ? "text-white font-medium" : "text-zinc-400"
+                  convo.unreadCount > 0 ? "text-foreground font-medium" : "text-muted-foreground"
                 )}>
                   {convo.lastMessage ?? "Nouvelle conversation"}
                 </p>
               </div>
 
               <div className="text-right shrink-0">
-                <span className="text-xs text-zinc-500">{formatTime(convo.lastMessageAt)}</span>
+                <span className="text-xs text-muted-foreground">{formatTime(convo.lastMessageAt)}</span>
                 {convo.unreadCount > 0 && (
                   <div className="mt-1 w-6 h-6 rounded-full bg-info-soft text-black text-xs font-black flex items-center justify-center ml-auto">
                     {convo.unreadCount}
@@ -319,23 +333,23 @@ function ChatView({
   return (
     <div className={cn(
       "flex flex-col",
-      isDesktop ? "h-[600px] rounded-3xl bg-zinc-900/50 border border-white/5" : "min-h-screen"
+      isDesktop ? "h-[600px] rounded-3xl bg-card/30 border border-border backdrop-blur-md" : "min-h-screen"
     )}>
       {/* Chat Header */}
-      <div className={cn("flex items-center gap-4 p-4 border-b border-white/5", !isDesktop && "pt-6")}>
+      <div className={cn("flex items-center gap-4 p-4 border-b border-border", !isDesktop && "pt-6")}>
         {!isDesktop && (
           <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
         <div className="relative">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-lg font-bold text-white">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-lg font-bold text-primary-foreground">
             {conversation.name.charAt(0).toUpperCase()}
           </div>
         </div>
         <div className="flex-1">
-          <h4 className="font-bold text-white">{conversation.name}</h4>
-          <p className="text-sm text-zinc-400">
+          <h4 className="font-bold text-foreground">{conversation.name}</h4>
+          <p className="text-sm text-muted-foreground">
             {conversation.isGroup ? `${conversation.participantIds.length} membres` : "Conversation privée"}
           </p>
         </div>
@@ -355,11 +369,11 @@ function ChatView({
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading && (
-          <div className="text-center text-zinc-500 py-8">Chargement...</div>
+          <div className="text-center text-muted-foreground py-8">Chargement...</div>
         )}
         {!loading && messages.length === 0 && (
-          <div className="text-center text-zinc-500 py-8">
-            <MessageCircle className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
+          <div className="text-center text-muted-foreground py-8">
+            <MessageCircle className="w-12 h-12 text-muted-foreground/60 mx-auto mb-3" />
             <p>Aucun message. Dis bonjour !</p>
           </div>
         )}
@@ -374,14 +388,14 @@ function ChatView({
               "max-w-[70%] p-4 rounded-2xl",
               msg.sender === "me"
                 ? "bg-info-soft text-black rounded-br-md"
-                : "bg-zinc-800 text-white rounded-bl-md"
+                : "bg-muted text-foreground rounded-bl-md"
             )}>
               <p>{msg.text}</p>
               <div className={cn(
                 "flex items-center gap-1 mt-1",
                 msg.sender === "me" ? "justify-end" : "justify-start"
               )}>
-                <span className={cn("text-xs", msg.sender === "me" ? "text-black/60" : "text-zinc-500")}>
+                <span className={cn("text-xs", msg.sender === "me" ? "text-black/60" : "text-muted-foreground")}>
                   {msg.time}
                 </span>
                 {msg.sender === "me" && (
@@ -394,7 +408,7 @@ function ChatView({
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
             <Paperclip className="w-5 h-5" />
@@ -407,7 +421,7 @@ function ChatView({
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSend()}
             placeholder="Écrire un message..."
-            className="flex-1 h-12 rounded-xl bg-zinc-800 border-0"
+            className="flex-1 h-12 rounded-xl bg-muted border-0"
           />
           <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
             <Smile className="w-5 h-5" />

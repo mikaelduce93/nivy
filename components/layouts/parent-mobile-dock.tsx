@@ -66,7 +66,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
   if (!mounted) {
     return (
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 p-3 md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:hidden"
         style={{
           position: 'fixed',
           bottom: 0,
@@ -74,6 +74,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
           right: 0,
           zIndex: 50,
           padding: '12px',
+          paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
         }}
         role="navigation"
         aria-label="Navigation mobile parent"
@@ -120,7 +121,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 p-3 md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:hidden"
       role="navigation"
       aria-label="Navigation mobile parent"
     >

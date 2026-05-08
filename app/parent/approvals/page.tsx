@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { ApprovalButtons } from "@/components/parent/approval-buttons"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 async function getParentSignature(parentId: string) {
   const supabase = await createClient()
@@ -368,13 +369,11 @@ export default async function ParentApprovalsPage() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <FileCheck className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                <h3 className="text-xl font-bold text-white mb-2">Aucune approbation</h3>
-                <p className="text-zinc-400">
-                  Les demandes de vos teens apparaîtront ici
-                </p>
-              </div>
+              <EmptyState
+                icon={FileCheck}
+                title="Aucune approbation"
+                description="Les demandes de vos teens apparaîtront ici"
+              />
             )}
           </CardContent>
         </Card>

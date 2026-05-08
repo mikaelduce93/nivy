@@ -6,6 +6,7 @@ import { Shield, Users, Crown, Zap, Trophy, MessageCircle, Search, Plus, UserPlu
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { EmptyState } from "@/components/ui/states/empty-state"
 
 type Member = {
   user_id: string
@@ -225,25 +226,13 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
             </section>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-accent-soft/20 to-pink-500/20 flex items-center justify-center mb-6 border border-accent-soft/30">
-              <Shield className="w-12 h-12 text-accent-soft" />
-            </div>
-            <h3 className="text-2xl font-black text-white mb-2">Pas encore de Crew</h3>
-            <p className="text-zinc-500 max-w-sm mb-8">
-              Rejoins ou crée une crew pour participer aux défis et gagner des bonus XP!
-            </p>
-            <div className="flex gap-4">
-              <Button className="bg-accent-soft text-black font-bold">
-                <Shield className="w-4 h-4 mr-2" />
-                Créer une Crew
-              </Button>
-              <Button variant="outline" onClick={() => setTab("discover")}>
-                <Search className="w-4 h-4 mr-2" />
-                Trouver une Crew
-              </Button>
-            </div>
-          </div>
+          <EmptyState
+            size="large"
+            icon={Shield}
+            title="Pas encore de Crew"
+            description="Rejoins ou crée une crew pour participer aux défis et gagner des bonus XP !"
+            secondaryAction={{ label: "Trouver une Crew", onClick: () => setTab("discover"), variant: "outline" }}
+          />
         )
       ) : (
         <>
@@ -261,10 +250,12 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
             <h2 className="text-xl font-black uppercase">Crews populaires</h2>
 
             {filteredCrews.length === 0 ? (
-              <div className="p-8 rounded-3xl bg-zinc-900/50 border border-white/5 text-center">
-                <Users className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500">Aucune crew publique pour l'instant.</p>
-              </div>
+              <EmptyState
+                size="small"
+                icon={Users}
+                title="Aucune crew publique"
+                description="Aucune crew ne correspond à ta recherche pour le moment."
+              />
             ) : (
               <div className="space-y-4">
                 {filteredCrews.map((c, idx) => {

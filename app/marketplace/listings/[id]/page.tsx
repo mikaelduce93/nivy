@@ -44,7 +44,12 @@ export default async function ListingDetailPage({
       <div className="text-sm text-gray-600 mb-4">
         {listing.category} · {listing.condition ?? "—"} · {listing.city ?? "—"}
       </div>
-      <div className="relative aspect-video bg-gray-100 mb-4 flex items-center justify-center text-gray-400 overflow-hidden">
+      {/* TICKET-024 — destination half of the View Transitions morph.
+          Pairs with the listing card on /marketplace. */}
+      <div
+        className="relative aspect-video bg-gray-100 mb-4 flex items-center justify-center text-gray-400 overflow-hidden"
+        style={{ viewTransitionName: `vt-listing-${listing.id}` }}
+      >
         {Array.isArray(listing.images) && listing.images[0] ? (
           <Image
             src={listing.images[0]}

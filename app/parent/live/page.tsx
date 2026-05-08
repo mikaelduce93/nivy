@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { EmptyState } from "@/components/ui/states/empty-state"
 import {
   Dialog,
   DialogContent,
@@ -377,15 +378,12 @@ export default function ParentLiveDashboardPage() {
         </div>
 
         {teenStatuses.length === 0 ? (
-          <Card className="bg-zinc-900 border-zinc-800">
-            <CardContent className="py-16 text-center">
-              <Users className="w-16 h-16 mx-auto mb-4 text-zinc-700" />
-              <p className="text-zinc-500 mb-4">Aucun teen lié à votre compte</p>
-              <Button asChild className="bg-emerald-500 hover:bg-emerald-600">
-                <Link href="/parent/teens/add">Ajouter un teen</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={Users}
+            title="Aucun teen lié"
+            description="Aucun teen lié à votre compte."
+            action={{ label: "Ajouter un teen", href: "/parent/teens/add" }}
+          />
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Teen Status Cards */}
