@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 import { GlowPulse, PALETTES } from '@/components/ui/effects/particle-system'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 import { LongPressMenu, type LongPressMenuItem } from '@/components/ui/long-press-menu'
-import { Copy, Pin, Flag } from 'lucide-react'
+import { Copy, Flag } from 'lucide-react'
 import { toast } from 'sonner'
 
 /* ==========================================================================
@@ -226,6 +226,12 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
       <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide">
         <AnimatePresence mode="popLayout">
           {activities.map((activity, index) => {
+            // Only attach Signaler when this is a real feed_post id (UUID).
+            // Demo/presence fixtures are never reportable.
+            const isReportable =
+              !activity.id.startsWith('demo-') &&
+              !activity.id.startsWith('presence-')
+
             const items: LongPressMenuItem[] = [
               {
                 id: 'copy',
@@ -252,19 +258,33 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
                   }
                 },
               },
-              {
-                id: 'pin',
-                label: 'Épingler',
-                icon: Pin,
-                onSelect: () => toast.message('Épinglé sur ton profil'),
-              },
-              {
-                id: 'report',
-                label: 'Signaler',
-                icon: Flag,
-                onSelect: () => toast.message('Signalement envoyé'),
-                variant: 'destructive',
-              },
+              ...(isReportable
+                ? [
+                    {
+                      id: 'report',
+                      label: 'Signaler',
+                      icon: Flag,
+                      onSelect: async () => {
+                        try {
+                          const res = await fetch('/api/teen/report', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              resource_type: 'feed_post',
+                              resource_id: activity.id,
+                              reason: 'inappropriate',
+                            }),
+                          })
+                          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+                          toast.success('Signalement envoyé.')
+                        } catch {
+                          toast.error('Échec du signalement, réessaie')
+                        }
+                      },
+                      variant: 'destructive' as const,
+                    },
+                  ]
+                : []),
             ]
             return (
               <LongPressMenu key={activity.id} items={items} title="Actions">

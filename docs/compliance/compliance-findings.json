@@ -1,13 +1,13 @@
 {
   "generated_at": "2026-05-08",
   "audit_version": "v1.1-wave1b",
-  "overall_score": 47,
+  "overall_score": 60,
   "launch_status": "BLOCKED",
   "domain_scores": {
     "auth-onboarding": 60,
     "economy-payments": 50,
     "routing-navigation": 42,
-    "social-feed": 38,
+    "social-feed": 72,
     "gamification": 48,
     "parent-control": 50,
     "partner-ecosystem": 22,
@@ -17,11 +17,11 @@
     "design-system-mobile": 62
   },
   "totals": {
-    "P0": 70,
+    "P0": 63,
     "P1": 101,
     "P2": 67,
     "P3": 20,
-    "total": 258
+    "total": 251
   },
   "findings": [
     {
@@ -1999,7 +1999,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-002",
@@ -2020,7 +2020,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-003",
@@ -2045,7 +2045,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-004",
@@ -2065,7 +2065,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-005",
@@ -2087,7 +2087,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-006",
@@ -2127,7 +2127,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-008",
@@ -2147,7 +2147,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-009",
@@ -2167,7 +2167,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-010",
@@ -2187,7 +2187,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-011",
@@ -2207,7 +2207,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-012",
@@ -2228,7 +2228,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-013",
@@ -2250,7 +2250,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-014",
@@ -2290,7 +2290,7 @@
         "Canonical surface returns expected data",
         "Forbidden pattern eliminated"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08"
     },
     {
       "id": "CANON-SOCIAL-016",

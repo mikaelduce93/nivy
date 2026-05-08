@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/server"
 import { recordSignalAsync } from "@/lib/analytics/signals"
 import { H1 } from "@/components/ui/headings"
 import EngageButtons from "./engage-buttons"
+import { CommentsThread } from "./comments-thread"
 
 export const dynamic = "force-dynamic"
 
@@ -135,6 +136,10 @@ export default async function SubmissionDetailPage({
           </div>
         )}
       </article>
+
+      <div className="mt-6">
+        <CommentsThread postId={post.id} currentUserId={user.id} />
+      </div>
     </div>
   )
 }

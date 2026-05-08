@@ -11,8 +11,10 @@
  *  - Buttons + Input continue to be routed through their primitives.
  */
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
+import { createClient as createBrowserClient } from "@/lib/supabase/client"
 import {
   MessageCircle,
   Search,
@@ -52,6 +54,8 @@ interface Message {
   text: string
   time: string
   read?: boolean
+  attachment_path?: string | null
+  attachment_signed_url?: string | null
 }
 
 interface MessagesClientProps {
@@ -86,27 +90,71 @@ export function MessagesClient({ conversations, currentUserId }: MessagesClientP
   const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0)
   const selectedConvo = conversations.find((c) => c.id === selectedId)
 
+  // Wave 2A canonical realtime channel — `dm:{conversationId}`.
+  const channelRef = useRef<ReturnType<ReturnType<typeof createBrowserClient>["channel"]> | null>(null)
+
+  function teardownChannel() {
+    if (channelRef.current) {
+      const supabase = createBrowserClient()
+      supabase.removeChannel(channelRef.current)
+      channelRef.current = null
+    }
+  }
+
+  useEffect(() => {
+    return () => teardownChannel()
+  }, [])
+
+  function mapServerMessage(m: any): Message {
+    return {
+      id: m.id as string,
+      sender: m.sender_id === currentUserId ? "me" : "them",
+      text: (m.content ?? "") as string,
+      time: new Date(m.created_at).toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      read: m.is_read,
+      attachment_path: m.attachment_path ?? null,
+    }
+  }
+
   async function openConversation(id: string) {
+    teardownChannel()
     setSelectedId(id)
     setLoadingMessages(true)
     try {
       const res = await fetch(`/api/teen/messages?conversationId=${id}`)
-      if (res.ok) {
-        const json = await res.json()
-        const msgs: Message[] = (json.data || []).map((m: any) => ({
-          id: m.id as string,
-          sender: m.sender_id === currentUserId ? "me" : "them",
-          text: m.content as string,
-          time: new Date(m.created_at).toLocaleTimeString("fr-FR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          read: m.is_read,
-        }))
-        setMessages(msgs)
-      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      const msgs: Message[] = (json.data || []).map(mapServerMessage)
+      setMessages(msgs)
+
+      // Subscribe to realtime INSERTs for this conversation.
+      const supabase = createBrowserClient()
+      const ch = supabase
+        .channel(`dm:${id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "direct_messages",
+            filter: `conversation_id=eq.${id}`,
+          },
+          (payload: any) => {
+            const incoming = mapServerMessage(payload.new)
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === incoming.id)) return prev
+              return [...prev, incoming]
+            })
+          }
+        )
+        .subscribe()
+      channelRef.current = ch
     } catch {
       setMessages([])
+      toast.error("Impossible d'ouvrir la conversation")
     } finally {
       setLoadingMessages(false)
     }
@@ -117,18 +165,23 @@ export function MessagesClient({ conversations, currentUserId }: MessagesClientP
     const content = messageInput.trim()
     setMessageInput("")
 
-    // Optimistic UI
+    // Optimistic UI with tempId — reconciled against server response.
+    const tempId = `temp-${Date.now()}`
     const tempMsg: Message = {
-      id: `temp-${Date.now()}`,
+      id: tempId,
       sender: "me",
       text: content,
-      time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+      time: new Date().toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
       read: false,
     }
     setMessages((prev) => [...prev, tempMsg])
 
+    let res: Response
     try {
-      await fetch("/api/teen/messages", {
+      res = await fetch("/api/teen/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -138,7 +191,33 @@ export function MessagesClient({ conversations, currentUserId }: MessagesClientP
         }),
       })
     } catch {
-      // silent — optimistic message already shown
+      setMessages((prev) => prev.filter((m) => m.id !== tempId))
+      setMessageInput(content)
+      toast.error("Message non envoyé, réessaie")
+      return
+    }
+
+    if (!res.ok) {
+      setMessages((prev) => prev.filter((m) => m.id !== tempId))
+      setMessageInput(content)
+      const status = res.status
+      if (status === 403) toast.error("Tu ne peux pas envoyer de message à cette personne")
+      else toast.error("Message non envoyé, réessaie")
+      return
+    }
+
+    try {
+      const json = await res.json()
+      const real = json?.data
+      if (real) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === tempId ? { ...mapServerMessage(real), sender: "me" } : m
+          )
+        )
+      }
+    } catch {
+      // server returned non-JSON; leave optimistic in place.
     }
   }
 

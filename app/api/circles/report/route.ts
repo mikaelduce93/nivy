@@ -64,11 +64,28 @@ export const POST = withSecurity(
         return errorResponse("Vous ne pouvez pas signaler votre propre message", 400)
       }
 
-      // Audit the report. Wave 1C: this REPLACES the broken multi-table writes.
-      // Failure to audit MUST surface as 5xx — silent fail is forbidden.
+      // Wave 2A: write to canonical user_reports (idempotent on UNIQUE
+      // (reporter_user_id, target_type, target_id)) AND audit_log.
+      const { error: reportError } = await supabase
+        .from("user_reports")
+        .insert({
+          reporter_user_id: user.id,
+          target_type: "circle_message",
+          target_id: messageId,
+          reason,
+          details: details ?? null,
+          status: "open",
+        })
+
+      if (reportError && reportError.code !== "23505") {
+        // 23505 = duplicate (idempotent replay) — accepted.
+        console.error("[circles/report] user_reports insert failed:", reportError)
+        return errorResponse("Erreur lors du signalement", 500)
+      }
+
       const { error: auditError } = await supabase.from("audit_log").insert({
         actor_id: user.id,
-        actor_role: "teen", // best-effort; circles are teen-only
+        actor_role: "teen",
         action: "content_reported",
         resource_type: "circle_message",
         resource_id: messageId,
@@ -86,8 +103,6 @@ export const POST = withSecurity(
         return errorResponse("Erreur lors du signalement", 500)
       }
 
-      // The full moderation queue (`user_reports` table + admin inbox) is
-      // Wave 2 social-safety scope. For now we acknowledge the reporter.
       return jsonResponse({
         success: true,
         message:

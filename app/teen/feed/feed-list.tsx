@@ -1,19 +1,14 @@
 'use client'
 
 /**
- * Wave 3 / TICKET-026 — Feed list with FLIP animations.
+ * Wave 2A — Feed list with FLIP animations + cursor pagination + real
+ * report/block wired to canonical APIs.
  *
- * Lifted out of app/teen/feed/page.tsx so the post rows can live inside an
- * <AnimatePresence> + motion-layout tree. The server page still does the
- * Supabase query and hands us a serialized list of `FeedRow`s.
+ * Each row carries `user_liked / user_saved / user_reported` from the server
+ * (RPC get_feed_cursor_page). Long-press menu: Copier, Partager, Signaler,
+ * Bloquer — all wired to /api/teen/report or /api/teen/block.
  *
- * Each row is a `<motion.li>` that owns the long-press / right-click
- * context-menu behaviour previously housed in <FeedPostLongPress>. The li
- * itself drives FLIP via framer-motion's `layout` prop and animates in /
- * out via AnimatePresence above. We re-implement the menu inline here
- * instead of nesting another <li>, which would be invalid HTML.
- *
- * Reduced-motion: layout animation skipped, items snap into place.
+ * Sonner toast() only on server confirmation/failure (no window-level alerts).
  */
 
 import * as React from 'react'
@@ -21,6 +16,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Copy, Flag, Share2, UserX } from 'lucide-react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 import {
   Sheet,
   SheetContent,
@@ -47,32 +44,107 @@ export type FeedRow = {
   comments_count: number | null
   shares_count: number | null
   created_at: string
+  user_liked: boolean
+  user_saved: boolean
+  user_reported: boolean
 }
 
 interface FeedListProps {
   posts: FeedRow[]
+  initialNextCursor?: string | null
+  currentUserId?: string
 }
 
-export function FeedList({ posts }: FeedListProps) {
+export function FeedList({
+  posts: initialPosts,
+  initialNextCursor = null,
+  currentUserId,
+}: FeedListProps) {
+  const [posts, setPosts] = React.useState<FeedRow[]>(initialPosts)
+  const [nextCursor, setNextCursor] = React.useState<string | null>(initialNextCursor)
+  const [loadingMore, setLoadingMore] = React.useState(false)
+  const [hiddenAuthors, setHiddenAuthors] = React.useState<Set<string>>(new Set())
+
+  const visiblePosts = posts.filter((p) => !hiddenAuthors.has(p.user_id))
+
+  async function loadMore() {
+    if (!nextCursor || loadingMore) return
+    setLoadingMore(true)
+    try {
+      const res = await fetch(`/api/teen/feed?cursor=${encodeURIComponent(nextCursor)}&limit=20`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      const newPosts = (json.posts ?? []) as FeedRow[]
+      // Dedupe by id (defensive against any race).
+      setPosts((prev) => {
+        const seen = new Set(prev.map((p) => p.id))
+        return [...prev, ...newPosts.filter((p) => !seen.has(p.id))]
+      })
+      setNextCursor(json.nextCursor ?? null)
+    } catch {
+      toast.error('Impossible de charger plus de posts')
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
+  function markReported(postId: string) {
+    setPosts((prev) =>
+      prev.map((p) => (p.id === postId ? { ...p, user_reported: true } : p))
+    )
+  }
+
+  function hideAuthor(userId: string) {
+    setHiddenAuthors((prev) => new Set(prev).add(userId))
+  }
+
   return (
-    <ul className="space-y-4">
-      <AnimatePresence mode="popLayout" initial={false}>
-        {posts.map((p) => (
-          <FeedListRow key={p.id} post={p} />
-        ))}
-      </AnimatePresence>
-    </ul>
+    <div className="space-y-4">
+      <ul className="space-y-4">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {visiblePosts.map((p) => (
+            <FeedListRow
+              key={p.id}
+              post={p}
+              currentUserId={currentUserId}
+              onReported={() => markReported(p.id)}
+              onAuthorBlocked={() => hideAuthor(p.user_id)}
+            />
+          ))}
+        </AnimatePresence>
+      </ul>
+
+      {nextCursor && (
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="outline"
+            onClick={loadMore}
+            disabled={loadingMore}
+            aria-label="Charger plus de posts"
+          >
+            {loadingMore ? 'Chargement…' : 'Charger plus'}
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }
 
-/**
- * Single feed row: motion.li with FLIP + enter/exit, plus long-press
- * context menu (kept colocated rather than splitting into yet another
- * wrapper component).
- */
-function FeedListRow({ post: p }: { post: FeedRow }) {
+function FeedListRow({
+  post: p,
+  currentUserId,
+  onReported,
+  onAuthorBlocked,
+}: {
+  post: FeedRow
+  currentUserId?: string
+  onReported: () => void
+  onAuthorBlocked: () => void
+}) {
   const reduced = usePrefersReducedMotion()
   const [menuOpen, setMenuOpen] = React.useState(false)
+  const [reporting, setReporting] = React.useState(false)
+  const [blocking, setBlocking] = React.useState(false)
   const { trigger: triggerHaptic } = useHaptic()
   const longPress = useLongPress(
     () => {
@@ -85,6 +157,7 @@ function FeedListRow({ post: p }: { post: FeedRow }) {
   const title = p.metadata?.title ?? null
   const media = Array.isArray(p.media_urls) ? p.media_urls[0] : null
   const postUrl = `/teen/feed/${p.id}`
+  const isOwnPost = currentUserId && p.user_id === currentUserId
 
   async function copyLink() {
     try {
@@ -93,8 +166,9 @@ function FeedListRow({ post: p }: { post: FeedRow }) {
           ? `${window.location.origin}${postUrl}`
           : postUrl
       await navigator.clipboard?.writeText(absolute)
+      toast.success('Lien copié')
     } catch {
-      /* clipboard may be blocked — silently ignore */
+      toast.error('Impossible de copier le lien')
     }
     setMenuOpen(false)
   }
@@ -116,17 +190,55 @@ function FeedListRow({ post: p }: { post: FeedRow }) {
     setMenuOpen(false)
   }
 
-  function reportPost() {
-    setMenuOpen(false)
-    if (typeof window !== 'undefined') {
-      window.alert('Merci, le post a été signalé.')
+  async function reportPost() {
+    if (p.user_reported) {
+      toast.message('Tu as déjà signalé ce post')
+      setMenuOpen(false)
+      return
+    }
+    setReporting(true)
+    try {
+      const res = await fetch('/api/teen/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resource_type: 'feed_post',
+          resource_id: p.id,
+          reason: 'inappropriate',
+        }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      onReported()
+      toast.success('Signalement envoyé. Notre équipe va examiner ce post.')
+    } catch {
+      toast.error('Échec du signalement, réessaie')
+    } finally {
+      setReporting(false)
+      setMenuOpen(false)
     }
   }
 
-  function blockAuthor() {
-    setMenuOpen(false)
-    if (typeof window !== 'undefined') {
-      window.alert("L'auteur a été bloqué pour cette session.")
+  async function blockAuthor() {
+    if (isOwnPost) {
+      toast.error('Tu ne peux pas te bloquer toi-même')
+      setMenuOpen(false)
+      return
+    }
+    setBlocking(true)
+    try {
+      const res = await fetch('/api/teen/block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocked_id: p.user_id }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      onAuthorBlocked()
+      toast.success("L'auteur a été bloqué")
+    } catch {
+      toast.error('Échec du blocage, réessaie')
+    } finally {
+      setBlocking(false)
+      setMenuOpen(false)
     }
   }
 
@@ -143,7 +255,6 @@ function FeedListRow({ post: p }: { post: FeedRow }) {
       }}
       className="rounded-2xl border border-border bg-card/30 p-4 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md select-none"
     >
-      {/* TICKET-024 — View Transitions morph anchor. */}
       <Link
         href={postUrl}
         className="block"
@@ -186,9 +297,12 @@ function FeedListRow({ post: p }: { post: FeedRow }) {
           </div>
         )}
         <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
-          <span>♥ {p.likes_count ?? 0}</span>
+          <span aria-label={p.user_liked ? 'Aimé' : 'Likes'}>
+            {p.user_liked ? '♥' : '♡'} {p.likes_count ?? 0}
+          </span>
           <span>💬 {p.comments_count ?? 0}</span>
           <span>↗ {p.shares_count ?? 0}</span>
+          {p.user_saved && <span aria-label="Sauvegardé">🔖</span>}
         </div>
       </Link>
 
@@ -217,19 +331,25 @@ function FeedListRow({ post: p }: { post: FeedRow }) {
             <button
               type="button"
               onClick={reportPost}
-              className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted"
+              disabled={reporting || p.user_reported}
+              aria-disabled={reporting || p.user_reported}
+              className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
             >
               <Flag className="h-5 w-5 text-orange-500" />
-              <span>Signaler</span>
+              <span>{p.user_reported ? 'Déjà signalé' : reporting ? 'Signalement…' : 'Signaler'}</span>
             </button>
-            <button
-              type="button"
-              onClick={blockAuthor}
-              className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted"
-            >
-              <UserX className="h-5 w-5 text-red-500" />
-              <span>Bloquer l&apos;auteur</span>
-            </button>
+            {!isOwnPost && (
+              <button
+                type="button"
+                onClick={blockAuthor}
+                disabled={blocking}
+                aria-disabled={blocking}
+                className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
+              >
+                <UserX className="h-5 w-5 text-red-500" />
+                <span>{blocking ? 'Blocage…' : "Bloquer l'auteur"}</span>
+              </button>
+            )}
           </div>
         </SheetContent>
       </Sheet>

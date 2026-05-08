@@ -139,8 +139,19 @@ export async function POST(request: NextRequest) {
   }
 
   const content: string = (body?.content ?? "").toString().trim()
-  if (!content) return APIResponse.error("content is required")
-  if (content.length > 4000) return APIResponse.error("content too long (max 4000 chars)")
+  const attachmentPath: string | null = body?.attachment_path ?? null
+  const attachmentMime: string | null = body?.attachment_mime ?? null
+  const attachmentSize: number | null = body?.attachment_size_bytes ?? null
+
+  if (!content && !attachmentPath) {
+    return APIResponse.error("content or attachment_path is required")
+  }
+  if (content && content.length > 4000) {
+    return APIResponse.error("content too long (max 4000 chars)")
+  }
+  if (attachmentPath && attachmentSize && attachmentSize > 5 * 1024 * 1024) {
+    return APIResponse.error("attachment exceeds 5 MB", 413)
+  }
 
   let conversationId: string | null = body?.conversationId ?? null
   let recipientId: string | null = body?.recipientId ?? null
@@ -193,6 +204,26 @@ export async function POST(request: NextRequest) {
     return APIResponse.error("Could not resolve conversation")
   }
 
+  // ---- Block enforcement (canon §4) ----------------------------------------
+  const { data: blockedEither } = await supabase.rpc("is_blocked_either", {
+    p_a: teenId,
+    p_b: recipientId,
+  })
+  if (blockedEither === true) {
+    return APIResponse.forbidden("Tu ne peux pas envoyer de message à cette personne")
+  }
+
+  // ---- Mentor↔teen DM gate (canon §4) --------------------------------------
+  // mentor_can_dm_teen returns true only when both parties are role=teen.
+  // (Wave 2A stub; full mentor-authorization graph is Wave 2B.)
+  const { data: dmAllowed } = await supabase.rpc("mentor_can_dm_teen", {
+    p_mentor_id: teenId,
+    p_teen_id: recipientId,
+  })
+  if (dmAllowed === false) {
+    return APIResponse.forbidden("Échange non autorisé")
+  }
+
   // ---- Insert the message --------------------------------------------------
   const { data: inserted, error: insertError } = await supabase
     .from("direct_messages")
@@ -200,9 +231,12 @@ export async function POST(request: NextRequest) {
       conversation_id: conversationId,
       sender_id: teenId,
       recipient_id: recipientId,
-      content,
+      content: content || null,
+      attachment_path: attachmentPath,
+      attachment_mime: attachmentMime,
+      attachment_size_bytes: attachmentSize,
     })
-    .select("id, conversation_id, sender_id, recipient_id, content, is_read, created_at")
+    .select("id, conversation_id, sender_id, recipient_id, content, attachment_path, attachment_mime, is_read, created_at")
     .single()
 
   if (insertError) return APIResponse.serverError("Failed to send message", insertError)
@@ -216,8 +250,9 @@ export async function POST(request: NextRequest) {
 
   if (convo) {
     const recipientIsUser1 = convo.user1_id === recipientId
+    const previewSource = content || (attachmentPath ? "[pièce jointe]" : "")
     const update: Record<string, any> = {
-      last_message: content.slice(0, 200),
+      last_message: previewSource.slice(0, 200),
       last_message_at: new Date().toISOString(),
       last_sender_id: teenId,
       updated_at: new Date().toISOString(),
@@ -230,9 +265,9 @@ export async function POST(request: NextRequest) {
     await supabase.from("direct_conversations").update(update).eq("id", conversationId)
   }
 
-  // ---- Notify recipient (best-effort) --------------------------------------
+  // ---- Notify recipient (canonical user_notifications) ---------------------
   await supabase
-    .from("notifications")
+    .from("user_notifications")
     .insert({
       user_id: recipientId,
       type: "message",

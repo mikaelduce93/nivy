@@ -17,6 +17,7 @@
 import * as React from 'react'
 import { useLongPress } from '@/lib/hooks/use-long-press'
 import { useHaptic } from '@/lib/hooks/use-haptic'
+import { toast } from 'sonner'
 import {
   Sheet,
   SheetContent,
@@ -27,6 +28,7 @@ import { Copy, Flag, Share2, UserX } from 'lucide-react'
 
 export interface FeedPostLongPressProps {
   postId: string
+  postAuthorId?: string
   postTitle?: string | null
   postContent?: string | null
   className?: string
@@ -35,12 +37,16 @@ export interface FeedPostLongPressProps {
 
 export function FeedPostLongPress({
   postId,
+  postAuthorId,
   postTitle,
   postContent,
   className,
   children,
 }: FeedPostLongPressProps) {
   const [menuOpen, setMenuOpen] = React.useState(false)
+  const [reporting, setReporting] = React.useState(false)
+  const [blocking, setBlocking] = React.useState(false)
+  const [reported, setReported] = React.useState(false)
   const { trigger: triggerHaptic } = useHaptic()
 
   const longPress = useLongPress(
@@ -81,17 +87,54 @@ export function FeedPostLongPress({
     setMenuOpen(false)
   }
 
-  function reportPost() {
-    setMenuOpen(false)
-    if (typeof window !== 'undefined') {
-      window.alert('Merci, le post a été signalé.')
+  async function reportPost() {
+    if (reported) {
+      toast.message('Tu as déjà signalé ce post')
+      setMenuOpen(false)
+      return
+    }
+    setReporting(true)
+    try {
+      const res = await fetch('/api/teen/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resource_type: 'feed_post',
+          resource_id: postId,
+          reason: 'inappropriate',
+        }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      setReported(true)
+      toast.success('Signalement envoyé.')
+    } catch {
+      toast.error('Échec du signalement, réessaie')
+    } finally {
+      setReporting(false)
+      setMenuOpen(false)
     }
   }
 
-  function blockAuthor() {
-    setMenuOpen(false)
-    if (typeof window !== 'undefined') {
-      window.alert("L'auteur a été bloqué pour cette session.")
+  async function blockAuthor() {
+    if (!postAuthorId) {
+      toast.error("Impossible d'identifier l'auteur")
+      setMenuOpen(false)
+      return
+    }
+    setBlocking(true)
+    try {
+      const res = await fetch('/api/teen/block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocked_id: postAuthorId }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      toast.success("L'auteur a été bloqué")
+    } catch {
+      toast.error('Échec du blocage, réessaie')
+    } finally {
+      setBlocking(false)
+      setMenuOpen(false)
     }
   }
 
@@ -124,18 +167,22 @@ export function FeedPostLongPress({
             <button
               type="button"
               onClick={reportPost}
-              className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted"
+              disabled={reporting || reported}
+              aria-disabled={reporting || reported}
+              className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
             >
               <Flag className="h-5 w-5 text-orange-500" />
-              <span>Signaler</span>
+              <span>{reported ? 'Déjà signalé' : reporting ? 'Signalement…' : 'Signaler'}</span>
             </button>
             <button
               type="button"
               onClick={blockAuthor}
-              className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted"
+              disabled={blocking || !postAuthorId}
+              aria-disabled={blocking || !postAuthorId}
+              className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
             >
               <UserX className="h-5 w-5 text-red-500" />
-              <span>Bloquer l&apos;auteur</span>
+              <span>{blocking ? 'Blocage…' : "Bloquer l'auteur"}</span>
             </button>
           </div>
         </SheetContent>

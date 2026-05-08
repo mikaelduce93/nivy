@@ -112,10 +112,10 @@ export async function POST(request: NextRequest) {
           )
         }
 
-        // Vérifier la longueur
-        if (content.length > 1000) {
+        // Canon §2: max 500 chars on comments.
+        if (content.length > 500) {
           return NextResponse.json(
-            { error: "Commentaire trop long (max 1000 caractères)" },
+            { error: "Commentaire trop long (max 500 caractères)" },
             { status: 400 }
           )
         }
@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true })
       }
 
-      // Supprimer un commentaire
+      // Soft-delete un commentaire (canon §2 / §7 invariant 3)
       case "delete": {
         const { comment_id } = body
 
@@ -185,7 +185,6 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "comment_id requis" }, { status: 400 })
         }
 
-        // Récupérer les infos du commentaire
         const { data: comment } = await supabase
           .from("feed_comments")
           .select("post_id, parent_id")
@@ -197,26 +196,19 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Commentaire non trouvé" }, { status: 404 })
         }
 
+        // Canon: never hard-delete; flip is_deleted/deleted_at, content stays
+        // for thread structure but renders as "[supprimé]" client-side.
         const { error } = await supabase
           .from("feed_comments")
-          .delete()
+          .update({
+            is_deleted: true,
+            deleted_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
           .eq("id", comment_id)
           .eq("user_id", user.id)
 
         if (error) throw error
-
-        // Mettre à jour les compteurs
-        await supabase
-          .from("feed_posts")
-          .update({ comments_count: supabase.rpc("decrement", { x: 1 }) })
-          .eq("id", comment.post_id)
-
-        if (comment.parent_id) {
-          await supabase
-            .from("feed_comments")
-            .update({ replies_count: supabase.rpc("decrement", { x: 1 }) })
-            .eq("id", comment.parent_id)
-        }
 
         return NextResponse.json({ success: true })
       }
@@ -286,7 +278,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true })
       }
 
-      // Signaler un commentaire
+      // Signaler un commentaire — Wave 2A: canonical user_reports.
       case "report": {
         const { comment_id, reason } = body
 
@@ -294,17 +286,37 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "comment_id requis" }, { status: 400 })
         }
 
-        // Insérer le signalement dans une table de modération
+        const allowedReasons = [
+          "spam","harassment","sexual_content","violence","self_harm",
+          "underage","impersonation","illegal","inappropriate","hate_speech",
+          "personal_info","other",
+        ]
+        const safeReason = allowedReasons.includes(reason) ? reason : "inappropriate"
+
+        // Idempotent insert (UNIQUE on reporter+target+target_id).
         const { error } = await supabase
-          .from("reports")
+          .from("user_reports")
           .insert({
-            reporter_id: user.id,
-            content_type: "comment",
-            content_id: comment_id,
-            reason: reason || "inappropriate",
+            reporter_user_id: user.id,
+            target_type: "feed_comment",
+            target_id: comment_id,
+            reason: safeReason,
+            status: "open",
           })
 
         if (error && error.code !== "23505") throw error
+
+        await supabase
+          .from("audit_log")
+          .insert({
+            actor_id: user.id,
+            actor_role: "teen",
+            action: "content_reported",
+            resource_type: "feed_comment",
+            resource_id: comment_id,
+            metadata: { reason: safeReason },
+          })
+          .then(() => undefined, () => undefined)
 
         return NextResponse.json({ success: true })
       }
