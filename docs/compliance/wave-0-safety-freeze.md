@@ -47,15 +47,35 @@ A cross-platform Node script that greps STAGED files (`git diff --cached`) for t
 
 Scope: scans only `app/`, `components/`, `lib/`, `hooks/`. Excludes `scripts/`, `docs/`, `gamification-system/database/migrations/`, `tests/`.
 
-### 3. NPM scripts
+### 3. NPM scripts (CI gate is non-bypassable)
 
 ```json
-"lint:canon": "node scripts/canon-precommit.mjs --all",
-"lint:canon:staged": "node scripts/canon-precommit.mjs"
+"lint:canon":          "node scripts/canon-precommit.mjs --enforce",
+"lint:canon:all":      "node scripts/canon-precommit.mjs --all",
+"lint:canon:baseline": "node scripts/canon-precommit.mjs --baseline-write",
+"lint:canon:staged":   "node scripts/canon-precommit.mjs"
 ```
 
-- `npm run lint:canon` — full-tree scan (CI fallback, baseline visibility).
-- `npm run lint:canon:staged` — stage-only scan (pre-commit / PR diff).
+- `npm run lint:canon` — **CI hard gate.** Compares full-tree scan to `docs/compliance/canon-baseline.json`. Fails on (1) any (file, ruleId) NOT in baseline = net-new violation, (2) any (file, ruleId) where current count > baseline = regression. Exit 1 ⇒ CI red.
+- `npm run lint:canon:all` — informational full-tree scan. Always exits 0. Used to inspect baseline.
+- `npm run lint:canon:baseline` — regenerates `docs/compliance/canon-baseline.json` after a wave fix lands. Commit the updated baseline in the same PR as the fix.
+- `npm run lint:canon:staged` — pre-commit local hook. Scans `git diff --cached` for net-new violations.
+
+### 4. Baseline file (`docs/compliance/canon-baseline.json`)
+
+Stores the 320 baseline violations as `{ file → { ruleId → count } }`. Fixed waves shrink this file; the gate ensures it never grows without an explicit founder-approved baseline regen.
+
+### 5. CI workflow (`.github/workflows/canon-compliance.yml`)
+
+Runs on every PR and push to `main`:
+
+```yaml
+- npm run lint:canon       # canon enforce — hard gate
+- npm run typecheck        # TypeScript clean
+- npm run lint             # ESLint (warn-level canon, error-level a11y/hooks)
+```
+
+The gate is non-bypassable from the local machine — even if a developer skips the local pre-commit hook, the PR cannot merge without the CI gate green.
 
 ## Current baseline (counted today)
 

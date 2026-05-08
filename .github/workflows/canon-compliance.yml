@@ -1,0 +1,45 @@
+# Canon Compliance Gate (Wave 0 — Safety Freeze)
+#
+# Source of truth: docs/canon/INDEX.locked.md
+# Baseline: docs/compliance/canon-baseline.json
+#
+# This workflow blocks PRs that introduce NET-NEW canon violations or
+# regress existing baseline counts. Existing baseline violations are
+# tolerated until Wave 1+ fixes them.
+#
+# To intentionally update the baseline (after a Wave fix), commit a
+# regenerated `docs/compliance/canon-baseline.json` in the same PR.
+
+name: canon-compliance
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Canon enforce (hard gate — fails on net-new + regressions)
+        run: npm run lint:canon
+
+      - name: TypeScript typecheck
+        run: npm run typecheck
+
+      - name: ESLint (warn-level canon visibility, error-level a11y/hooks)
+        run: npm run lint

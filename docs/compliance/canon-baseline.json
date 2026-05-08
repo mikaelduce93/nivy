@@ -1,0 +1,770 @@
+{
+  "generated_at": "2026-05-08",
+  "audit_source": "docs/compliance/* (Wave 0 — Safety Freeze)",
+  "total_violations": 320,
+  "files_in_scope": 1235,
+  "violations_by_rule": {
+    "CANON-NOTIF-002": 10,
+    "CANON-BUCKET-001": 6,
+    "CANON-AUDIT-001": 45,
+    "CANON-AUDIT-002": 45,
+    "CANON-MOTION-001": 160,
+    "CANON-XP-001": 4,
+    "CANON-NOTIF-001": 35,
+    "CANON-SHOP-001": 2,
+    "CANON-XP-002": 1,
+    "CANON-SHOP-002": 3,
+    "CANON-SHOP-003": 1,
+    "CANON-ALERT-001": 4,
+    "CANON-AUTH-001": 1,
+    "CANON-AI-002": 1,
+    "CANON-AI-001": 1,
+    "CANON-XP-003": 1
+  },
+  "violations_by_file_rule": {
+    "app/admin/analytics/page.tsx": {
+      "CANON-NOTIF-002": 1
+    },
+    "app/admin/logs/page.tsx": {
+      "CANON-NOTIF-002": 1
+    },
+    "app/admin/proofs/page.tsx": {
+      "CANON-BUCKET-001": 1
+    },
+    "app/admin/tag-normalize/page.tsx": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/anniversaires/organiser/page.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/api/admin/audit-log/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/broadcasts/route.ts": {
+      "CANON-AUDIT-001": 3,
+      "CANON-AUDIT-002": 3
+    },
+    "app/api/admin/content/review/[id]/route.ts": {
+      "CANON-AUDIT-001": 2,
+      "CANON-AUDIT-002": 2
+    },
+    "app/api/admin/creator/moderate/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/internships/[id]/close/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/internships/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/kpis/route.ts": {
+      "CANON-NOTIF-002": 1
+    },
+    "app/api/admin/marketplace/moderate/[listing_id]/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/mentor-reports/[id]/resolve/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/mentors/[id]/reject/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/moderation/[id]/approve/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/moderation/[id]/reject/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/partners/[id]/approve/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/partners/[id]/reject/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/refunds/route.ts": {
+      "CANON-AUDIT-001": 4,
+      "CANON-AUDIT-002": 4
+    },
+    "app/api/admin/signals/cap-stats/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/tag-aliases/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/topups/[id]/confirm/route.ts": {
+      "CANON-AUDIT-001": 2,
+      "CANON-AUDIT-002": 2
+    },
+    "app/api/admin/users/[id]/anonymize/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/admin/users/[id]/export/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/auth/validate-teen/route.ts": {
+      "CANON-XP-001": 2
+    },
+    "app/api/bookings/create/route.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/circles/report/route.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/circles/route.ts": {
+      "CANON-NOTIF-001": 2
+    },
+    "app/api/cron/assign-missions/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/cron/disburse-allowances/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/cron/evolve-teen-profiles/route.ts": {
+      "CANON-AUDIT-001": 2,
+      "CANON-AUDIT-002": 2
+    },
+    "app/api/cron/friend-challenge-resolve/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/cron/marketplace-escrow-release/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/cron/mentor-recording-retention/route.ts": {
+      "CANON-AUDIT-001": 2,
+      "CANON-AUDIT-002": 2
+    },
+    "app/api/cron/parent-chore-rollover/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/cron/recommendation-metrics-rollup/route.ts": {
+      "CANON-AUDIT-001": 3,
+      "CANON-AUDIT-002": 3
+    },
+    "app/api/cron/ride-curfew-check/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/cron/tag-normalize/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/me/data-delete/route.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "app/api/notifications/delete/route.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/notifications/mark-all-read/route.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/notifications/mark-read/route.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/notifications/route.ts": {
+      "CANON-NOTIF-001": 5
+    },
+    "app/api/parent/budget/route.ts": {
+      "CANON-NOTIF-001": 1,
+      "CANON-NOTIF-002": 1
+    },
+    "app/api/parent/grades/route.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/parent/live/route.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/parent/teens/create/route.ts": {
+      "CANON-NOTIF-002": 1,
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/parent/teens/route.ts": {
+      "CANON-NOTIF-001": 1,
+      "CANON-NOTIF-002": 1
+    },
+    "app/api/partner/apply-discount/route.ts": {
+      "CANON-XP-001": 1
+    },
+    "app/api/partner/offers/[id]/route.ts": {
+      "CANON-NOTIF-002": 2
+    },
+    "app/api/partner/offers/route.ts": {
+      "CANON-NOTIF-002": 1
+    },
+    "app/api/payments/hybrid/route.ts": {
+      "CANON-NOTIF-001": 2
+    },
+    "app/api/teen/evidence/record/route.ts": {
+      "CANON-BUCKET-001": 1
+    },
+    "app/api/teen/evidence/sign-upload/route.ts": {
+      "CANON-BUCKET-001": 2
+    },
+    "app/api/teen/messages/route.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/teen/profile/route.ts": {
+      "CANON-NOTIF-002": 1
+    },
+    "app/api/teen/quests/complete/route.ts": {
+      "CANON-XP-001": 1
+    },
+    "app/api/teen/shop/route.ts": {
+      "CANON-SHOP-001": 2,
+      "CANON-XP-002": 1,
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/teen/subscription/handlers.ts": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/teen/tokens/route.ts": {
+      "CANON-SHOP-002": 3,
+      "CANON-SHOP-003": 1,
+      "CANON-NOTIF-001": 1
+    },
+    "app/api/webhooks/stripe/dispatcher.ts": {
+      "CANON-NOTIF-001": 4
+    },
+    "app/gamification/boutique/shop-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/gamification/collections/collections-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/gamification/crews/crews-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/gamification/leaderboard/leaderboard-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/gamification/missions/missions-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/gamification/roue/fortune-wheel-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/notifications/page.tsx": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/offline/page.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/onboarding/page.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/parent/live/page.tsx": {
+      "CANON-NOTIF-001": 1
+    },
+    "app/parent/page.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/partenaires/merci/page.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/activity/page.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/aide-scolaire/aide-scolaire-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/calendar/calendar-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/circles/circles-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/defis-physiques/defis-physiques-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/error.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/feed/feed-list.tsx": {
+      "CANON-MOTION-001": 1,
+      "CANON-ALERT-001": 2
+    },
+    "app/teen/feed/post-card.tsx": {
+      "CANON-ALERT-001": 2
+    },
+    "app/teen/friends/friends-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/games/games-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/home-dashboard-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/messages/messages-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/profile/profile-hub-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/quests/[id]/quest-detail-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/quests/friend-defis/friend-defis-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/quests/quests-hub-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/quiz/[id]/quiz-runner-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/quiz/quiz-hub-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/social/social-hub-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/streak/streak-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/vip-card/vip-card-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/wallet/wallet-hub-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "app/teen/xp-value/page.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/admin/gamification/proof-review.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ai/AgentFloatingButton.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ai/elite-ai-companion.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/circles/circle-chat.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/circles/circles-list.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/creativity/creations-gallery.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/creativity/passion-paths.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/education/grades.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/education/quiz-player.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/education/recommendations.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/education/tutorial-player.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/feed/activity-feed.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/feed/post-composer.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/feed/social-feed.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/friends/friends-list.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/achievement-unlock.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/avatar-dashboard.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/buddy-selector.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/celebration-overlay.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/challenges/video-proof-uploader.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/daily-challenges.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/gamification-dashboard.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/gamification-provider.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/level-badge.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/level-up-modal.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/pillars.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/quest-card.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/streak-counter.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/streak-flame.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/tools/focus-timer.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/xp-bar.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/xp-display.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/xp-float.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/gamification/xp-purchase-power.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/layouts/mobile-dock.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/layouts/page-transition.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/layouts/parent-mobile-dock.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/notifications/notification-center.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/completion-step.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/features-step.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/gamification/gamification-intro.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/gamification/onboarding-missions-preview.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/gamification/onboarding-reward-popup.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/gamification/onboarding-xp-display.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/interest-picker.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/learning-style-quiz.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/onboarding-complete-client.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/onboarding-transition.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/parent-setup-step.tsx": {
+      "CANON-MOTION-001": 1,
+      "CANON-AUTH-001": 1
+    },
+    "components/onboarding/profile-type-step.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/showcase-step.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/teen-setup-step.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/onboarding/welcome-step.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/parent/dashboard/evolution-tracker.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/parent/dashboard/evolution-tree.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/parent/dashboard/financial-overview.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/parent/dashboard/smart-insights.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/parent/dashboard/teen-sponsor-header.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/parent/parental-approval-list.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/parent/sponsor-challenge-form.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/partners/ClubPartnerForm.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/partners/EducationPartnerForm.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/partners/RetailPartnerForm.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/partners/VenuePartnerForm.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/providers/page-transition-provider.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/pwa/pwa-install-prompt.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/pwa/service-worker-registration.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/share/share-card.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/share/share-modal.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/sport/personal-records.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/sport/physical-challenges.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/sport/sport-clubs.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/subscription/pricing-plans.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/subscription/subscription-manager.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/ai-companion.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/ai-oracle-card.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/crew-hub.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/dashboard-error-boundary.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/hero.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/map-preview.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/marketplace-drops.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/mobile-nav.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/online-friends.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/priority-mission.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/profile-quest.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/quest-card.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/quick-access-grid.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/social-hub-widget.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/dashboard/unified-quest-feed.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/evidence-upload.tsx": {
+      "CANON-BUCKET-001": 1
+    },
+    "components/teen/friends-social-hub.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/hub-tabs.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/status-bar.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/teen-chore-complete-button.tsx": {
+      "CANON-BUCKET-001": 1
+    },
+    "components/teen/teen-id-card.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/teen/twin-currency-gauge.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/tokens/token-rewards.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/tokens/token-wallet.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/action-button.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/animated-counter.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/animated-icons/index.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/bento-grid.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/button.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/animated-border.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/cinematic-transition.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/confetti.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/elite-3d-card.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/elite-background.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/elite-cursor.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/magnetic-element.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/particle-system.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/effects/text-effects.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/energy-orb.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/error-states.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/fallback-states.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/form-success-overlay.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/gen-z-effects.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/magnetic-button.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/micro-interactions.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/morphing-skeleton.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/parallax-container.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/primitives/surface.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/skeleton-variants.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/skeletons/dashboard-skeletons.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/states/empty-state.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "components/ui/tabs-animated.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "lib/ai/providers/factory.ts": {
+      "CANON-AI-002": 1,
+      "CANON-AI-001": 1
+    },
+    "lib/analytics/signals.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "lib/animations.ts": {
+      "CANON-MOTION-001": 1
+    },
+    "lib/auth/admin-permissions.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "lib/design-system/motion.ts": {
+      "CANON-MOTION-001": 1
+    },
+    "lib/hooks/notifications/use-realtime.ts": {
+      "CANON-NOTIF-001": 4
+    },
+    "lib/hooks/teen-dashboard.ts": {
+      "CANON-XP-003": 1,
+      "CANON-NOTIF-001": 1
+    },
+    "lib/hooks/use-reduced-motion.tsx": {
+      "CANON-MOTION-001": 1
+    },
+    "lib/payments/psp-webhook.ts": {
+      "CANON-AUDIT-001": 1,
+      "CANON-AUDIT-002": 1
+    },
+    "lib/server/data-fetching.ts": {
+      "CANON-NOTIF-001": 1
+    }
+  }
+}
