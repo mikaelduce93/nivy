@@ -22,7 +22,18 @@ import {
   Share2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import { EASE_STANDARD, SPRING_SNAPPY } from "@/lib/motion/easing"
+
+// W3-A5 / TICKET-019 — iOS-grade dock indicator spring. Slightly stiffer
+// than the canonical SPRING_SNAPPY (380/32/0.8 vs. 380/30/1) so the pill
+// settles a hair faster under thumb. SPRING_SNAPPY remains the fallback
+// for any consumer that wants the canonical preset.
+const DOCK_PILL_SPRING = {
+  ...SPRING_SNAPPY,
+  damping: 32,
+  mass: 0.8,
+}
 
 interface NavItem {
   label: string
@@ -48,6 +59,7 @@ export function MobileDock() {
   const pathname = usePathname()
   const notifications = useNotifications()
   const [mounted, setMounted] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   const isTeenArea = pathname?.startsWith("/teen")
   const isParentArea = pathname?.startsWith("/parent")
@@ -336,23 +348,52 @@ export function MobileDock() {
             >
               <motion.div
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-xl py-2.5 min-h-touch transition-colors duration-200",
+                  "relative flex flex-col items-center gap-0.5 rounded-xl py-2.5 min-h-touch",
                   !isActive && "hover:bg-white/5"
                 )}
-                style={{
-                  background: isActive 
-                    ? `linear-gradient(to top, ${item.glowColor.replace('0.5', '0.15')}, transparent)` 
-                    : 'transparent',
-                }}
-                whileTap={{ scale: 0.95 }}
+                // Tap feedback: 1 -> 0.92 -> 1 over ~80ms (TICKET-019).
+                whileTap={
+                  prefersReducedMotion
+                    ? undefined
+                    : { scale: 0.92, transition: { duration: 0.08, ease: EASE_STANDARD } }
+                }
+                transition={{ duration: 0.08, ease: EASE_STANDARD }}
               >
-                {/* Icon container */}
-                <div className="relative">
+                {/* Animated active pill — slides between tabs via layoutId.
+                    With prefers-reduced-motion the indicator jumps instantly. */}
+                {isActive && (
                   <motion.div
-                    animate={{
-                      scale: isActive ? 1.1 : 1,
+                    layoutId="mobile-dock-active-pill"
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-xl"
+                    style={{
+                      background: `linear-gradient(to top, ${item.glowColor.replace('0.5', '0.18')}, transparent)`,
                     }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0 }
+                        : DOCK_PILL_SPRING
+                    }
+                  />
+                )}
+
+                {/* Icon container */}
+                <div className="relative z-10">
+                  <motion.div
+                    // Subtle bounce when an icon becomes the active tab.
+                    initial={false}
+                    animate={
+                      isActive
+                        ? prefersReducedMotion
+                          ? { scale: 1 }
+                          : { scale: [1, 1.15, 1] }
+                        : { scale: 1 }
+                    }
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0 }
+                        : { duration: 0.32, ease: EASE_STANDARD, times: [0, 0.55, 1] }
+                    }
                   >
                     <Icon
                       className={cn(
@@ -382,15 +423,22 @@ export function MobileDock() {
                   </AnimatePresence>
                 </div>
 
-                {/* Label */}
-                <span
+                {/* Label — opacity fade 0.6 -> 1 on activation */}
+                <motion.span
                   className={cn(
-                    "text-[10px] font-semibold transition-all duration-300",
-                    isActive ? "text-white opacity-100" : "text-zinc-600 opacity-70"
+                    "relative z-10 text-[10px] font-semibold",
+                    isActive ? "text-white" : "text-zinc-500"
                   )}
+                  initial={false}
+                  animate={{ opacity: isActive ? 1 : 0.6 }}
+                  transition={
+                    prefersReducedMotion
+                      ? { duration: 0 }
+                      : { duration: 0.2, ease: EASE_STANDARD }
+                  }
                 >
                   {item.label}
-                </span>
+                </motion.span>
 
                 {/* Active dot indicator */}
                 <AnimatePresence>
@@ -399,7 +447,7 @@ export function MobileDock() {
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
-                      className="mt-0.5 h-1 w-1 rounded-full"
+                      className="relative z-10 mt-0.5 h-1 w-1 rounded-full"
                       style={{
                         backgroundColor: item.color,
                         boxShadow: `0 0 8px ${item.glowColor}`,

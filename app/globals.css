@@ -286,6 +286,16 @@
   /* Ring - Focus states (lavender) */
   --ring: oklch(0.60 0.18 290);
 
+  /* --------------------------------------------------------------------------
+     SURFACE-AWARE FOCUS RING (TICKET-018)
+     Adapts to parent surface contrast. Components that use
+     `ring-[color:var(--focus-ring-color,...)]` will pick up overrides set by
+     ancestor surfaces (e.g. dark hero cards override to white/contrast token).
+     Default falls back to the primary token for surfaces that don't override.
+     WCAG 2.4.7 — visible focus must remain at 2px ring + 2px offset minimum.
+     -------------------------------------------------------------------------- */
+  --focus-ring-color: var(--ring);
+
   /* Charts - Gen-Z vibrant palette */
   --chart-1: oklch(0.60 0.18 290); /* Lavender */
   --chart-2: oklch(0.68 0.18 25);  /* Coral */
@@ -403,6 +413,9 @@
 
   /* Ring */
   --ring: oklch(0.72 0.18 290);
+
+  /* Surface-aware focus ring (TICKET-018) — dark mode default */
+  --focus-ring-color: var(--ring);
 
   /* Charts - Vibrant Gen-Z palette for dark mode */
   --chart-1: oklch(0.72 0.18 290); /* Lavender */

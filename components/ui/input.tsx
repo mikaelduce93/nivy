@@ -20,8 +20,11 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
         'file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground',
         // Transitions
         'transition-colors duration-200',
-        // Focus states
-        'outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+        // Focus states — surface-aware ring (TICKET-018).
+        // Falls back to --ring on surfaces that do not override --focus-ring-color.
+        // Keeps 3px ring + border highlight — WCAG 2.4.7.
+        'outline-none focus-visible:border-[color:var(--focus-ring-color,var(--ring))]',
+        'focus-visible:ring-[3px] focus-visible:ring-[color:var(--focus-ring-color,var(--ring))]/50',
         // Invalid states
         'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
         // Disabled states

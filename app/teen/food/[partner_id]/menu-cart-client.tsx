@@ -363,6 +363,7 @@ export default function MenuCartClient({
           <Textarea
             id="notes"
             placeholder="Allergies, préférences…"
+            autoComplete="off"
             aria-invalid={!!errors.notes}
             {...register("notes")}
           />

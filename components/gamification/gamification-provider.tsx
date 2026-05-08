@@ -43,6 +43,8 @@ import { StreakBrokenModal } from "./streak-flame"
 import { CelebrationOverlay, CelebrationType } from "./celebration-overlay"
 import { useXPFloat, XPFloatContainer } from "./xp-float"
 import { useJuice } from "@/lib/hooks/use-juice"
+import { Celebrate } from "@/components/ui/celebrate"
+import { useAnnounce } from "@/components/a11y/announce-region"
 
 /* ==========================================================================
    TYPES
@@ -104,7 +106,10 @@ export function GamificationProvider({
   const [achievementModal, setAchievementModal] = useState<Achievement | null>(null)
   const [achievementToast, setAchievementToast] = useState<Achievement | null>(null)
   const [streakBroken, setStreakBroken] = useState<number | null>(null)
-  
+  // Wave 3 / TICKET-022 — unified <Celebrate> burst for level-ups.
+  // Edge-triggered: handlers flip true; onComplete flips it back.
+  const [celebrateLevelUp, setCelebrateLevelUp] = useState(false)
+
   // New Celebration Overlay State
   const [celebration, setCelebration] = useState<{
     isOpen: boolean
@@ -124,6 +129,11 @@ export function GamificationProvider({
 
   // Juice hook — sound + haptic + confetti for the big moments.
   const { play: playJuice } = useJuice()
+
+  // Wave 3 / TICKET-050 — SR announcement on level-up, paired with the
+  // existing modal + juice trigger so AT users hear "Niveau supérieur
+  // débloqué!" while sighted users see the confetti.
+  const announce = useAnnounce()
 
   // Streak milestones that deserve a flame burst (Phase 1 spec).
   const STREAK_MILESTONES = React.useMemo(() => new Set([3, 7, 14, 30, 60, 100]), [])
@@ -152,8 +162,14 @@ export function GamificationProvider({
     })
     // Big juicy moment: fanfare sound + success haptic + fireworks confetti.
     playJuice('level_up')
+    // Wave 3 / TICKET-022 — fire the unified Celebrate burst on top of the
+    // existing modal stack so reduced-motion users still get a check-icon
+    // acknowledgement.
+    setCelebrateLevelUp(true)
+    // Wave 3 / TICKET-050 — single SR announcement on the same trigger.
+    announce("Niveau supérieur débloqué!")
     // setLevelUp({ from: oldLevel, to: newLevel }) // Disable old animation
-  }, [playJuice])
+  }, [playJuice, announce])
 
   const handleAchievementUnlock = useCallback((event: AchievementUnlockEvent) => {
     const rarity = event.achievement.rarity || "common"
@@ -224,11 +240,13 @@ export function GamificationProvider({
       subtitle: `Tu es passé du niveau ${fromLevel} au niveau ${toLevel}`,
     })
     playJuice('level_up')
+    setCelebrateLevelUp(true)
   }, [playJuice])
 
   const triggerLevelUp = useCallback((level: number, xpToNext?: number) => {
     setLevelUpModal({ level, xpToNext })
     playJuice('level_up')
+    setCelebrateLevelUp(true)
   }, [playJuice])
 
   const showAchievementUnlock = useCallback((achievement: Achievement, fullModal = false) => {
@@ -351,6 +369,13 @@ export function GamificationProvider({
         newLevel={levelUpModal?.level ?? 1}
         xpToNextLevel={levelUpModal?.xpToNext}
         onClose={() => setLevelUpModal(null)}
+      />
+
+      {/* Wave 3 / TICKET-022 — unified Celebrate burst for level-ups */}
+      <Celebrate
+        trigger={celebrateLevelUp}
+        variant="levelup"
+        onComplete={() => setCelebrateLevelUp(false)}
       />
 
       {/* New Celebration Overlay */}

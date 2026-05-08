@@ -5,6 +5,15 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Users, FileCheck, Wallet, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion, useReducedMotion } from "framer-motion"
+import { EASE_STANDARD, SPRING_SNAPPY } from "@/lib/motion/easing"
+
+// W3-A5 / TICKET-019 — see mobile-dock.tsx for rationale.
+const DOCK_PILL_SPRING = {
+  ...SPRING_SNAPPY,
+  damping: 32,
+  mass: 0.8,
+}
 
 interface NavItem {
   label: string
@@ -18,6 +27,7 @@ interface NavItem {
 export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
     setMounted(true)
@@ -155,29 +165,63 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
               aria-current={isActive ? "page" : undefined}
               className="relative z-10 flex-1"
             >
-              <div
+              <motion.div
                 className={cn(
-                  "flex flex-col items-center gap-0.5 py-2 rounded-xl transition-all duration-200",
+                  "relative flex flex-col items-center gap-0.5 py-2 rounded-xl",
                   isActive ? "" : "hover:bg-white/5"
                 )}
-                style={{
-                  background: isActive 
-                    ? `linear-gradient(to top, ${item.glowColor.replace('0.5', '0.15')}, transparent)` 
-                    : 'transparent',
-                }}
+                // Tap feedback: 1 -> 0.92 -> 1 over ~80ms (TICKET-019).
+                whileTap={
+                  prefersReducedMotion
+                    ? undefined
+                    : { scale: 0.92, transition: { duration: 0.08, ease: EASE_STANDARD } }
+                }
+                transition={{ duration: 0.08, ease: EASE_STANDARD }}
               >
-                {/* Icon container */}
-                <div className="relative">
-                  <Icon
+                {/* Animated active pill — slides between tabs via layoutId. */}
+                {isActive && (
+                  <motion.div
+                    layoutId="parent-mobile-dock-active-pill"
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-xl"
                     style={{
-                      width: '24px',
-                      height: '24px',
-                      color: isActive ? item.color : '#71717a',
-                      filter: isActive ? `drop-shadow(0 0 8px ${item.glowColor})` : 'none',
-                      transition: 'all 0.3s ease',
-                      transform: isActive ? 'scale(1.1)' : 'scale(1)',
+                      background: `linear-gradient(to top, ${item.glowColor.replace('0.5', '0.18')}, transparent)`,
                     }}
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0 }
+                        : DOCK_PILL_SPRING
+                    }
                   />
+                )}
+
+                {/* Icon container */}
+                <div className="relative z-10">
+                  <motion.div
+                    initial={false}
+                    animate={
+                      isActive
+                        ? prefersReducedMotion
+                          ? { scale: 1 }
+                          : { scale: [1, 1.15, 1] }
+                        : { scale: 1 }
+                    }
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0 }
+                        : { duration: 0.32, ease: EASE_STANDARD, times: [0, 0.55, 1] }
+                    }
+                  >
+                    <Icon
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        color: isActive ? item.color : '#71717a',
+                        filter: isActive ? `drop-shadow(0 0 8px ${item.glowColor})` : 'none',
+                        transition: 'color 0.3s ease, filter 0.3s ease',
+                      }}
+                    />
+                  </motion.div>
 
                   {/* Badge */}
                   {item.badge !== undefined && item.badge > 0 && (
@@ -205,21 +249,29 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
                   )}
                 </div>
 
-                {/* Label */}
-                <span
+                {/* Label — opacity fade 0.6 -> 1 on activation */}
+                <motion.span
+                  className="relative z-10"
                   style={{
                     fontSize: '10px',
                     fontWeight: 600,
                     color: isActive ? 'white' : '#52525b',
-                    transition: 'all 0.3s ease',
                   }}
+                  initial={false}
+                  animate={{ opacity: isActive ? 1 : 0.6 }}
+                  transition={
+                    prefersReducedMotion
+                      ? { duration: 0 }
+                      : { duration: 0.2, ease: EASE_STANDARD }
+                  }
                 >
                   {item.label}
-                </span>
+                </motion.span>
 
                 {/* Active dot indicator */}
                 {isActive && (
                   <div
+                    className="relative z-10"
                     style={{
                       width: '4px',
                       height: '4px',
@@ -230,7 +282,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
                     }}
                   />
                 )}
-              </div>
+              </motion.div>
             </Link>
           )
         })}

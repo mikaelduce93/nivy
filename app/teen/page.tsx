@@ -1,11 +1,13 @@
+import { Suspense } from "react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { getAchievementStats, getRecentlyUnlocked } from "@/gamification-system/features/achievements/actions"
 import { getUserRank } from "@/gamification-system/features/leaderboard/actions"
 import { getTeenDashboardData } from "@/lib/server/teen-dashboard"
-import { TeenDashboardContent } from "@/components/teen/dashboard/teen-dashboard-content"
+import { LazyTeenDashboardContent } from "./lazy-components"
 import { AvatarCoach } from "@/components/teen/avatar-coach"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
+import { SkeletonCard } from "@/components/ui/skeletons/presets"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function TeenDashboardPage() {
@@ -113,15 +115,23 @@ export default async function TeenDashboardPage() {
           variant="full"
         />
       </div>
-      <TeenDashboardContent
-        userInfo={userInfo}
-        teenId={teenId}
-        xpData={xpData}
-        currentStreak={currentStreak}
-        displayAction={displayAction}
-        socialFeed={socialFeed}
-        nextReward={nextReward}
-      />
+      {/*
+        Below-the-fold: the full bento dashboard (priority mission, map,
+        crew hub, social feed, marketplace overlay…). Streamed via Suspense
+        so the AvatarCoach + TwinCurrencyGauge ship and paint first;
+        `LazyTeenDashboardContent` is a chunked client bundle.
+      */}
+      <Suspense fallback={<SkeletonCard noImage lines={6} className="mt-6 max-w-[1600px] mx-auto" />}>
+        <LazyTeenDashboardContent
+          userInfo={userInfo}
+          teenId={teenId}
+          xpData={xpData}
+          currentStreak={currentStreak}
+          displayAction={displayAction}
+          socialFeed={socialFeed}
+          nextReward={nextReward}
+        />
+      </Suspense>
     </>
   )
 }

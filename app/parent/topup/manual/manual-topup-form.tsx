@@ -2,7 +2,10 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { fetchWithCSRF } from "@/lib/security/fetch-with-csrf"
+import {
+  CSRFAwareForm,
+  useCSRFAwareSubmit,
+} from "@/components/forms/csrf-aware-form"
 
 interface TeenOption {
   id: string
@@ -20,6 +23,7 @@ const PROVIDERS = [
 
 export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
   const router = useRouter()
+  const submitWithCSRF = useCSRFAwareSubmit()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [ok, setOk] = useState<string | null>(null)
@@ -51,7 +55,7 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
 
     setBusy(true)
     try {
-      const res = await fetchWithCSRF("/api/parent/topup/manual", {
+      const res = await submitWithCSRF("/api/parent/topup/manual", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,9 +90,10 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
   }
 
   return (
-    <form
+    <CSRFAwareForm
       onSubmit={submit}
       className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6"
+      autoComplete="off"
     >
       <div className="grid gap-4 md:grid-cols-2">
         <div>
@@ -114,6 +119,8 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
             step="0.01"
             value={amountDh}
             onChange={(e) => setAmountDh(e.target.value)}
+            inputMode="decimal"
+            autoComplete="transaction-amount"
             className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
           />
         </div>
@@ -142,6 +149,9 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
             value={providerRef}
             onChange={(e) => setProviderRef(e.target.value)}
             placeholder="ex. CP12345678"
+            autoComplete="off"
+            spellCheck={false}
+            autoCapitalize="characters"
             className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
           />
         </div>
@@ -155,6 +165,8 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
             value={screenshotPath}
             onChange={(e) => setScreenshotPath(e.target.value)}
             placeholder="topup-evidence/<parent_id>/<file>.jpg"
+            autoComplete="off"
+            spellCheck={false}
             className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
           />
           <p className="mt-1 text-xs text-zinc-500">
@@ -182,6 +194,6 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
       >
         {busy ? "Envoi..." : "Soumettre la demande"}
       </button>
-    </form>
+    </CSRFAwareForm>
   )
 }

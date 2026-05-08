@@ -209,7 +209,12 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
   }
 
   return (
-    <FormKeyboardAware ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+    <FormKeyboardAware
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="space-y-5"
+      autoComplete="off"
+    >
       <FormField name="teenIds" error={touched.teenIds ? errors.teenIds : undefined}>
         <div className="space-y-3">
           <div className="flex items-center justify-between">

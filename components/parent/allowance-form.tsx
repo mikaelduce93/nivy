@@ -216,7 +216,12 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
   }
 
   return (
-    <FormKeyboardAware ref={formRef} onSubmit={submit} className="space-y-4">
+    <FormKeyboardAware
+      ref={formRef}
+      onSubmit={submit}
+      className="space-y-4"
+      autoComplete="off"
+    >
       <FormField name="teenId" required error={touched.teenId ? errors.teenId : undefined}>
         <FormLabel>Ado</FormLabel>
         <Select

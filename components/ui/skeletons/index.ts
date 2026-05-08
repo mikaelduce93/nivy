@@ -47,6 +47,11 @@ export {
   FiltersSkeleton,
 } from './page-skeleton'
 
+/* --- page-skeletons (TICKET-032 / W3-A10) --------------------------------- */
+export { TeenDashboardSkeleton } from './page-skeletons/teen-dashboard-skeleton'
+export { ParentDashboardSkeleton } from './page-skeletons/parent-dashboard-skeleton'
+export { PartnerDashboardSkeleton } from './page-skeletons/partner-dashboard-skeleton'
+
 /* --- legacy: dashboard-skeletons (back-compat) ---------------------------- */
 export {
   Skeleton,

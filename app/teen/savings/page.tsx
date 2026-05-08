@@ -101,7 +101,12 @@ export default async function TeenSavingsPage() {
                     </Badge>
                   )}
                   {g.status === "active" && (
-                    <GoalLockButton goalId={g.id} spendable={spendable?.spendable ?? 0} />
+                    <GoalLockButton
+                      goalId={g.id}
+                      spendable={spendable?.spendable ?? 0}
+                      currentSavedCoins={g.current_saved_coins}
+                      targetCoins={g.target_coins}
+                    />
                   )}
                 </CardContent>
               </Card>

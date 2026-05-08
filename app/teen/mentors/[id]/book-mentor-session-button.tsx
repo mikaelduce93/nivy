@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils"
 import { useOptimisticRunner } from "@/lib/hooks/use-optimistic-mutation"
 import { toast } from "@/lib/utils/toast"
 import { H3 } from "@/components/ui/headings"
+import { Celebrate } from "@/components/ui/celebrate"
+import { useAnnounce } from "@/components/a11y/announce-region"
 
 interface Props {
   mentorId: string
@@ -41,6 +43,11 @@ export function BookMentorSessionButton({
   const [consentRecorded, setConsentRecorded] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  // Wave 3 / TICKET-022 — fire <Celebrate> when the booking submission is
+  // accepted (the teen-side "session confirmed" moment). Edge-triggered.
+  const [celebrate, setCelebrate] = useState(false)
+  // Wave 3 / TICKET-050 — paired SR announcement on the same trigger.
+  const announce = useAnnounce()
 
   // Default schedule: tomorrow at 18:00 local time. Computed lazily once.
   const defaultDate = (() => {
@@ -93,6 +100,8 @@ export function BookMentorSessionButton({
       },
       onSuccess: () => {
         toast.success("Demande envoyee a ton parent !")
+        setCelebrate(true)
+        announce("Session mentor confirmée!")
         // Refresh server data + push to sessions hub after a beat.
         setTimeout(() => {
           router.push("/teen/mentor-sessions")
@@ -125,48 +134,64 @@ export function BookMentorSessionButton({
     void bookRunner.mutate({ iso })
   }
 
+  const celebrateNode = (
+    <Celebrate
+      trigger={celebrate}
+      variant="sparkles"
+      onComplete={() => setCelebrate(false)}
+    />
+  )
+
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={cn(
-          "w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-info to-success px-6 py-4 text-base font-black text-primary-foreground",
-          "hover:brightness-110 transition-all duration-200 shadow-lg shadow-info/20",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/60"
-        )}
-      >
-        <Calendar className="h-5 w-5" />
-        Reserver une session
-        {freeIntro ? (
-          <span className="ml-2 rounded-full bg-background/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-            Premiere offerte
-          </span>
-        ) : null}
-      </button>
+      <>
+        {celebrateNode}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className={cn(
+            "w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-info to-success px-6 py-4 text-base font-black text-primary-foreground",
+            "hover:brightness-110 transition-all duration-200 shadow-lg shadow-info/20",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/60"
+          )}
+        >
+          <Calendar className="h-5 w-5" />
+          Reserver une session
+          {freeIntro ? (
+            <span className="ml-2 rounded-full bg-background/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
+              Premiere offerte
+            </span>
+          ) : null}
+        </button>
+      </>
     )
   }
 
   if (success) {
     return (
-      <div className="rounded-3xl border border-success/30 bg-success-soft/10 p-6 flex gap-3 items-start">
-        <CheckCircle2 className="h-6 w-6 text-success shrink-0" />
-        <div>
-          <H3 className="font-black text-foreground">Demande envoyee !</H3>
-          <p className="text-sm text-foreground/80 mt-1">
-            Ton parent doit approuver la session avant qu'elle ne soit
-            confirmee. On t'emmene vers tes sessions...
-          </p>
+      <>
+        {celebrateNode}
+        <div className="rounded-3xl border border-success/30 bg-success-soft/10 p-6 flex gap-3 items-start">
+          <CheckCircle2 className="h-6 w-6 text-success shrink-0" />
+          <div>
+            <H3 className="font-black text-foreground">Demande envoyee !</H3>
+            <p className="text-sm text-foreground/80 mt-1">
+              Ton parent doit approuver la session avant qu'elle ne soit
+              confirmee. On t'emmene vers tes sessions...
+            </p>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-6 space-y-4"
-    >
+    <>
+      {celebrateNode}
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-6 space-y-4"
+      >
       <div>
         <H3 className="text-lg font-black text-foreground">Nouvelle session</H3>
         <p className="text-sm text-muted-foreground mt-1">
@@ -280,7 +305,8 @@ export function BookMentorSessionButton({
           )}
         </button>
       </div>
-    </form>
+      </form>
+    </>
   )
 }
 

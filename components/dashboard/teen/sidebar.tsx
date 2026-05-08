@@ -58,6 +58,10 @@ export function TeenSidebar() {
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                     : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
                 )}
+                // TICKET-018 — surface-aware focus ring: active link has bg-primary,
+                // so a primary-coloured ring would disappear. Override to the on-primary
+                // (foreground) token so the focus indicator stays visible (WCAG 2.4.7).
+                style={isActive ? { ['--focus-ring-color' as string]: 'var(--primary-foreground)' } : undefined}
               >
                 <item.icon
                   className={cn(

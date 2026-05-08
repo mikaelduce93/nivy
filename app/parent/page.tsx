@@ -1,19 +1,21 @@
+import { Suspense } from "react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { FinancialOverview } from "@/components/parent/dashboard/financial-overview"
 import { ControlCenter } from "@/components/parent/dashboard/control-center"
 import { UpcomingEvents } from "@/components/parent/dashboard/upcoming-events"
-import { TeenCardEnhanced } from "@/components/parent/dashboard/teen-card-enhanced"
-import { SmartInsights } from "@/components/parent/dashboard/smart-insights"
 import { GrainOverlay, MeshGradient, GlowBlob } from "@/components/ui/gen-z-effects"
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid"
 import { ParallaxContainer, ParallaxLayer } from "@/components/ui/parallax-container"
 import { StaggerItem } from "@/components/ui/micro-interactions"
-import { SponsorChallengeForm } from "@/components/parent/sponsor-challenge-form"
-import { EvolutionTracker } from "@/components/parent/dashboard/evolution-tracker"
 import { ParentalApprovalList } from "@/components/parent/parental-approval-list"
 import { TeenSponsorHeader } from "@/components/parent/dashboard/teen-sponsor-header"
+import {
+  LazyFinancialOverview,
+  LazyEvolutionTracker,
+  LazySponsorChallengeForm,
+} from "./lazy-components"
+import { SkeletonCard } from "@/components/ui/skeletons/presets"
 import { CreditCard, TrendingUp, Zap, ShieldCheck, History } from 'lucide-react'
 import { AnimatePresence } from "framer-motion"
 import Link from "next/link"
@@ -270,19 +272,55 @@ export default async function ParentDashboardPage() {
           </section>
         </header>
 
-        {/* SECTION 2: CRITICAL ACTION STREAM (APPROVALS) */}
-        <AnimatePresence>
-          {pendingApprovals && pendingApprovals.length > 0 && (
-            <StaggerItem>
-              <section className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-transparent blur-2xl opacity-50" />
-                <ParentalApprovalList requests={pendingApprovals} />
-              </section>
-            </StaggerItem>
-          )}
-        </AnimatePresence>
+        {/*
+          SECTION 2: CRITICAL ACTION STREAM (APPROVALS) — below-the-fold.
+          Streams the approval list independently so the header (above-the-fold)
+          can paint without waiting for ParentalApprovalList interactivity.
+        */}
+        <Suspense
+          fallback={
+            <SkeletonCard
+              noImage
+              lines={3}
+              className="min-h-[180px] border-white/5 bg-zinc-900/40"
+            />
+          }
+        >
+          <AnimatePresence>
+            {pendingApprovals && pendingApprovals.length > 0 && (
+              <StaggerItem>
+                <section className="relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-transparent blur-2xl opacity-50" />
+                  <ParentalApprovalList requests={pendingApprovals} />
+                </section>
+              </StaggerItem>
+            )}
+          </AnimatePresence>
+        </Suspense>
 
-        {/* SECTION 3: EVOLUTION & PERFORMANCE FEED */}
+        {/*
+          SECTION 3: EVOLUTION & PERFORMANCE FEED — below-the-fold.
+          Streams the analytics column (per-teen evolution charts, sponsor
+          challenge form) and the financial pilot column (chart-heavy
+          FinancialOverview, upcoming events). All chunks are dynamically
+          imported via `./lazy-components` so the header bundle stays tight.
+        */}
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <SkeletonCard
+                noImage
+                lines={6}
+                className="lg:col-span-8 min-h-[400px] border-white/5 bg-zinc-900/40"
+              />
+              <SkeletonCard
+                noImage
+                lines={5}
+                className="lg:col-span-4 min-h-[400px] border-white/5 bg-zinc-900/40"
+              />
+            </div>
+          }
+        >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left Column: Tactical Evolution */}
           <div className="lg:col-span-8 space-y-10">
@@ -297,7 +335,7 @@ export default async function ParentDashboardPage() {
             <div className="space-y-10">
               {teens?.map((teen: any) => (
                 <div key={teen.teen_id} className="space-y-8 animate-fade-in-up">
-                  <EvolutionTracker
+                  <LazyEvolutionTracker
                     teenName={teen.full_name || teen.teen_name || teen.first_name || "Teen"}
                     stats={
                       statsByTeen[teen.teen_id] ?? {
@@ -308,12 +346,12 @@ export default async function ParentDashboardPage() {
                       }
                     }
                   />
-                  
+
                   {/* Strategic Actions */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <SponsorChallengeForm 
-                      teenId={teen.teen_id} 
-                      teenName={teen.full_name || "ton teen"} 
+                    <LazySponsorChallengeForm
+                      teenId={teen.teen_id}
+                      teenName={teen.full_name || "ton teen"}
                     />
                     {/* Audit fix (V4 P1): previously hardcoded "Limite Active 500 DH /mois".
                         Now reads the real teen_budget_limits row for this teen and falls
@@ -356,7 +394,7 @@ export default async function ParentDashboardPage() {
             </h3>
             
             <BentoCard cols={12} rows={2} variant="glass" className="p-0 border-white/5 shadow-2xl overflow-hidden">
-              <FinancialOverview 
+              <LazyFinancialOverview
                 monthlySpending={monthlySpending}
                 budgetLimit={totalBudgetLimit}
                 previousMonthSpending={0}
@@ -381,6 +419,7 @@ export default async function ParentDashboardPage() {
             </BentoCard>
           </div>
         </div>
+        </Suspense>
 
       </ParallaxContainer>
     </div>

@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { usePrefersReducedMotion } from "@/lib/hooks/use-reduced-motion"
+import { EASE_STANDARD, DURATION_NORMAL } from "@/lib/motion/easing"
 import { Brain, Dumbbell, Palette, Zap, Swords, Sparkles, ArrowRight, Trophy, Flame, Target, Clock, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { HubTabs, useHubTab, type HubTab } from "@/components/teen/hub-tabs"
@@ -76,6 +78,8 @@ const PILLAR_CONFIG = {
 }
 
 export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance = 0, teenId }: QuestsHubClientProps) {
+  // TICKET-026 (Wave 3 / W3-A9) — quest reorder / completion FLIP support.
+  const reduced = usePrefersReducedMotion()
   const searchParams = useSearchParams()
   const router = useRouter()
   const currentTab = searchParams.get("tab") || "daily"
@@ -215,29 +219,41 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
         >
           {filteredQuests.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredQuests.map((quest, idx) => (
-                <motion.div
-                  key={quest.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                >
-                  <DefiCard
-                    type={pickDefiType(currentTab)}
-                    title={quest.title}
-                    description={quest.description}
-                    xpReward={quest.xp_reward}
-                    status={mapQuestStatus(quest.status)}
-                    href={`/teen/quests/${quest.id}`}
-                    ctaHref={`/teen/quests/${quest.id}`}
-                    ctaLabel={quest.status === "completed" ? "DONE" : quest.status === "in_progress" ? "CONTINUE" : "START"}
-                    imageUrl={quest.image_url}
-                    // TICKET-024 — morph anchor for View Transitions API.
-                    // Pairs with the hero on /teen/quests/[id].
-                    morphId={`vt-quest-${quest.id}`}
-                  />
-                </motion.div>
-              ))}
+              {/* TICKET-026 — inner AnimatePresence with `layout` so quests
+                  reorder smoothly when their status changes (e.g. one
+                  completes and slides to the bottom of the list). The
+                  outer `mode="wait"` AnimatePresence still owns the whole-
+                  grid swap when the user switches tabs. */}
+              <AnimatePresence mode="popLayout" initial={false}>
+                {filteredQuests.map((quest) => (
+                  <motion.div
+                    key={quest.id}
+                    layout={reduced ? false : true}
+                    initial={reduced ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+                    transition={{
+                      duration: reduced ? 0 : DURATION_NORMAL,
+                      ease: EASE_STANDARD,
+                    }}
+                  >
+                    <DefiCard
+                      type={pickDefiType(currentTab)}
+                      title={quest.title}
+                      description={quest.description}
+                      xpReward={quest.xp_reward}
+                      status={mapQuestStatus(quest.status)}
+                      href={`/teen/quests/${quest.id}`}
+                      ctaHref={`/teen/quests/${quest.id}`}
+                      ctaLabel={quest.status === "completed" ? "DONE" : quest.status === "in_progress" ? "CONTINUE" : "START"}
+                      imageUrl={quest.image_url}
+                      // TICKET-024 — morph anchor for View Transitions API.
+                      // Pairs with the hero on /teen/quests/[id].
+                      morphId={`vt-quest-${quest.id}`}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           ) : (
             <EmptyState tab={currentTab} />

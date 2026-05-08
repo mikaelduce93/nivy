@@ -1,34 +1,17 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ListChecks, Coins, Sparkles } from "lucide-react"
+import { ArrowLeft, ListChecks } from "lucide-react"
 import Link from "next/link"
-import { TeenChoreCompleteButton } from "@/components/teen/teen-chore-complete-button"
 import { EmptyState } from "@/components/ui/states/empty-state"
+// TICKET-026 (Wave 3 / W3-A9) — FLIP animations on chore reorder. The
+// row-rendering moves into a client component so the list can sit inside
+// an <AnimatePresence mode="popLayout"> tree.
+import { ChoresList, type ChoresListChore, type ChoresListCompletion } from "./chores-list"
 
-interface Chore {
-  id: string
-  title: string
-  description: string | null
-  reward_dh: number
-  reward_xp: number
-  recurrence: string
-  required_completions: number
-  evidence_required: boolean
-  is_active: boolean
-  created_at: string
-}
-
-interface Completion {
-  id: string
-  chore_id: string
-  parent_verified: boolean | null
-  rejection_reason: string | null
-  paid_at: string | null
-  completed_at: string
-}
+type Chore = ChoresListChore
+type Completion = ChoresListCompletion
 
 export default async function TeenChoresPage() {
   const userInfo = await getUserRole()
@@ -107,59 +90,10 @@ export default async function TeenChoresPage() {
             description="Aucune corvée n'a été créée pour le moment. Demande à tes parents de t'en assigner pour gagner des coins et de l'XP."
           />
         ) : (
-          <div className="space-y-4">
-            {chores.map((c) => {
-              const list = byChore.get(c.id) ?? []
-              const verified = list.filter((x) => x.parent_verified).length
-              const pending = list.filter(
-                (x) => !x.parent_verified && !x.rejection_reason
-              ).length
-              const lastRejection = list.find((x) => x.rejection_reason)
-              return (
-                <Card
-                  key={c.id}
-                  className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800"
-                >
-                  <CardHeader>
-                    <CardTitle className="text-white">{c.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {c.description && (
-                      <p className="text-sm text-zinc-400">{c.description}</p>
-                    )}
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 flex items-center gap-1">
-                        <Coins className="h-3 w-3" /> {c.reward_dh} DH
-                      </span>
-                      <span className="px-2 py-1 rounded bg-purple-500/10 text-purple-400 flex items-center gap-1">
-                        <Sparkles className="h-3 w-3" /> {c.reward_xp} XP
-                      </span>
-                      <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-300">
-                        {c.recurrence}
-                      </span>
-                      <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-300">
-                        {verified}/{c.required_completions} validées
-                      </span>
-                      {pending > 0 && (
-                        <span className="px-2 py-1 rounded bg-amber-500/10 text-amber-400">
-                          {pending} en attente
-                        </span>
-                      )}
-                    </div>
-                    {lastRejection?.rejection_reason && (
-                      <p className="text-xs text-red-400">
-                        Dernier refus: {lastRejection.rejection_reason}
-                      </p>
-                    )}
-                    <TeenChoreCompleteButton
-                      choreId={c.id}
-                      evidenceRequired={c.evidence_required}
-                    />
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+          <ChoresList
+            chores={chores}
+            completionsByChore={Object.fromEntries(byChore)}
+          />
         )}
       </div>
     </div>

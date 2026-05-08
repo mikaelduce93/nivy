@@ -6,6 +6,7 @@ import { notFound } from "next/navigation"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { H1, H2 } from "@/components/ui/headings"
 import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { OrderDeliveredCelebrate } from "./order-delivered-celebrate"
 
 export const dynamic = "force-dynamic"
 
@@ -45,6 +46,10 @@ export default async function FoodOrderTrackingPage({
 
   return (
     <main className="min-h-screen mx-auto max-w-2xl px-4 py-8">
+      {/* Wave 3 / TICKET-022 — celebrate on the first render where the
+          server reports status === "delivered". The client gate dedupes
+          per-orderId via sessionStorage so a refresh doesn't re-fire. */}
+      <OrderDeliveredCelebrate orderId={String(id)} status={String(order.status)} />
       <H1 className="text-4xl font-black tracking-tighter uppercase leading-none mb-2">
         Suivi commande
       </H1>

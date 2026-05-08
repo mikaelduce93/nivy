@@ -9,6 +9,7 @@ import { Footer } from "@/components/footer"
 import { CookieBanner } from "@/components/cookie-banner"
 import { CSRFProvider } from "@/components/csrf-provider"
 import { SkipLinks } from "@/components/ui/accessibility"
+import { AnnounceRegion } from "@/components/a11y/announce-region"
 import { OfflineBanner } from "@/components/ui/states"
 import { ServiceWorkerRegistration, PWAInstallBanner } from "@/components/pwa"
 import { MobileDock } from "@/components/layouts/mobile-dock"
@@ -234,6 +235,7 @@ export default async function RootLayout({
         >
           <I18nProvider initialLocale={locale}>
           <CSRFProvider>
+          <AnnounceRegion>
             {/* Skip Links for keyboard navigation */}
             <SkipLinks />
 
@@ -283,6 +285,7 @@ export default async function RootLayout({
             
             {/* Sonner Toaster for toast notifications */}
             <Toaster />
+          </AnnounceRegion>
           </CSRFProvider>
           </I18nProvider>
         </ThemeProvider>

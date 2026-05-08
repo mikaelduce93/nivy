@@ -1,16 +1,21 @@
+import { Suspense } from "react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ShoppingBag, Users, TrendingUp, QrCode, Tag, Plus, ArrowRight, BarChart3, Store } from "lucide-react"
+import { ShoppingBag, Users, TrendingUp, QrCode, Tag, Plus, Store } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { GrainOverlay, MeshGradient, GlowBlob } from "@/components/ui/gen-z-effects"
-import { StaggerContainer, StaggerItem, PulseGlow, Float } from "@/components/ui/micro-interactions"
+import { StaggerItem, PulseGlow, Float } from "@/components/ui/micro-interactions"
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid"
 import { ParallaxContainer, ParallaxLayer } from "@/components/ui/parallax-container"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { PartnerAwaitingApproval } from "@/components/dashboard/partner/awaiting-approval"
+import {
+  LazyPartnerActiveOffersFeed,
+  LazyPartnerLiveTransactionsFeed,
+} from "./lazy-components"
+import { SkeletonCard } from "@/components/ui/skeletons/presets"
 
 // Statuses that mean the partner is fully onboarded and may use the dashboard.
 // Anything else (pending, in_review, rejected, suspended) renders the
@@ -246,101 +251,59 @@ export default async function PartnerDashboardPage() {
             <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest mt-2">Ce mois-ci</p>
           </BentoCard>
 
-          {/* Active Offers Feed */}
-          <BentoCard 
-            cols={6} 
-            rows={2} 
+          {/*
+            Active Offers Feed — below-the-fold. Streamed via Suspense and
+            lazy-loaded as its own client chunk. Skeleton mirrors the
+            real card height to avoid CLS.
+          */}
+          <BentoCard
+            cols={6}
+            rows={2}
             variant="glass"
             tiltIntensity={2}
             className="border-white/5 flex flex-col p-0"
           >
-            <div className="p-8 pb-4 flex items-center justify-between">
-              <h3 className="text-xl font-black tracking-tighter flex items-center gap-3">
-                <Tag className="w-6 h-6 text-accent-soft" /> OFFRES ACTIVES
-              </h3>
-              <div className="px-3 py-1 rounded-full bg-accent-soft/10 text-accent-soft text-xs font-black uppercase tracking-widest">
-                {activeOffersCount} EN LIGNE
-              </div>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto px-8 pb-8 space-y-4 custom-scrollbar">
-              {activeOffers.length > 0 ? (
-                  activeOffers.map((offer: any) => (
-                  <div key={offer.id} className="group relative p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-accent-soft/30 hover:bg-white/[0.05] transition-all duration-500 cursor-default">
-                    <div className="flex items-center justify-between relative z-10">
-                      <div className="space-y-1">
-                        <p className="font-black text-white text-lg group-hover:text-accent-soft transition-colors">{offer.discount_name}</p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">
-                            {offer.discount_type === 'percentage' ? `${offer.discount_value}% RÉDUCTION` : `-${offer.discount_value} DH`}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-3xl font-black text-white tabular-nums">{offer.current_total_uses || 0}</p>
-                        <p className="text-xs font-bold text-zinc-600 uppercase tracking-tighter">UTILISATIONS</p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center text-zinc-700 font-black uppercase tracking-widest py-20">
-                  Aucune campagne active
-                </div>
-              )}
-            </div>
+            <Suspense
+              fallback={
+                <SkeletonCard
+                  noImage
+                  lines={5}
+                  className="min-h-[440px] border-white/0 bg-transparent"
+                />
+              }
+            >
+              <LazyPartnerActiveOffersFeed
+                offers={activeOffers as any}
+                activeCount={activeOffersCount}
+              />
+            </Suspense>
           </BentoCard>
 
-          {/* Realtime Transaction Feed */}
-          <BentoCard 
-            cols={6} 
-            rows={2} 
+          {/*
+            Realtime Transaction Feed — below-the-fold. Streamed via Suspense
+            so the hero + KPI strip can paint without waiting for the
+            transaction client bundle.
+          */}
+          <BentoCard
+            cols={6}
+            rows={2}
             variant="glass"
             tiltIntensity={2}
             className="border-white/5 flex flex-col p-0"
           >
-            <div className="p-8 pb-4 flex items-center justify-between">
-              <h3 className="text-xl font-black tracking-tighter flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-info-soft" /> FIL EN DIRECT
-              </h3>
-              <Button variant="ghost" size="sm" asChild className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white">
-                <Link href="/partner/transactions">Tout voir <ArrowRight className="h-3 w-3 ml-2" /></Link>
-              </Button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-8 pb-8 space-y-4 custom-scrollbar">
-              {recentTransactions.length > 0 ? (
-                recentTransactions.map((tx: any) => {
-                  const customerName = tx.profile?.full_name || "Member"
-                  const date = new Date(tx.used_at)
-                  const timeText = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-
-                  return (
-                    <div key={tx.id} className="flex items-center justify-between p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-info-soft/30 transition-all duration-500">
-                      <div className="flex items-center gap-5">
-                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-info-soft via-brand-soft to-accent-soft flex items-center justify-center text-black font-black text-2xl shadow-xl">
-                          {customerName.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-black text-white text-lg tracking-tight">{customerName}</p>
-                          <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">{timeText} • VALIDÉ</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xl font-black text-white tabular-nums">{tx.final_amount} <span className="text-sm">DH</span></p>
-                        <div className="inline-block px-2 py-0.5 rounded-lg bg-gen-z-lime/10 text-gen-z-lime text-xs font-black uppercase tracking-tighter mt-1">
-                          -{tx.discount_amount} DH
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center text-zinc-700 font-black uppercase tracking-widest py-20">
-                  En attente de transaction
-                </div>
-              )}
-            </div>
+            <Suspense
+              fallback={
+                <SkeletonCard
+                  noImage
+                  lines={5}
+                  className="min-h-[440px] border-white/0 bg-transparent"
+                />
+              }
+            >
+              <LazyPartnerLiveTransactionsFeed
+                transactions={recentTransactions as any}
+              />
+            </Suspense>
           </BentoCard>
 
           {/* Action Dock (Bottom Full Width) */}

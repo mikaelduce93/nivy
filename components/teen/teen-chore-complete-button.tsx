@@ -7,6 +7,8 @@ import { Check, Loader2, Camera, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { markPushPromptEligible } from "@/components/teen/push-permission-prompt"
+import { Celebrate } from "@/components/ui/celebrate"
+import { useAnnounce } from "@/components/a11y/announce-region"
 
 // TICKET-031 — chore completion uses useOptimistic. We immediately flip the
 // button to a "submitted" state on click; on hard failure the optimistic state
@@ -25,6 +27,11 @@ export function TeenChoreCompleteButton({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [confirmed, setConfirmed] = useState<ChoreState>("idle")
+  // Wave 3 / TICKET-022 — fire <Celebrate> when the chore submission is
+  // accepted (teen-side proxy for the parent-approval moment).
+  const [celebrate, setCelebrate] = useState(false)
+  // Wave 3 / TICKET-050 — paired SR announcement on the same trigger.
+  const announce = useAnnounce()
   const [optimisticState, applyOptimistic] = useOptimistic(
     confirmed,
     (_prev: ChoreState, next: ChoreState) => next,
@@ -85,6 +92,8 @@ export function TeenChoreCompleteButton({
           // Confirm: commit submitted state, then re-sync from server. After
           // refresh the parent typically re-renders without this button.
           setConfirmed("submitted")
+          setCelebrate(true)
+          announce("Mission validée. Bravo!")
           router.refresh()
         } else {
           // Rollback: optimistic state auto-reverts to confirmed ("idle")
@@ -103,6 +112,11 @@ export function TeenChoreCompleteButton({
 
   return (
     <>
+      <Celebrate
+        trigger={celebrate}
+        variant="confetti"
+        onComplete={() => setCelebrate(false)}
+      />
       <input
         ref={fileInputRef}
         type="file"

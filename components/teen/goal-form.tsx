@@ -86,7 +86,11 @@ export function GoalForm() {
   }
 
   return (
-    <FormKeyboardAware onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <FormKeyboardAware
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4"
+      autoComplete="off"
+    >
       <div className="space-y-1">
         <Label htmlFor="goal-title">Titre</Label>
         <Input

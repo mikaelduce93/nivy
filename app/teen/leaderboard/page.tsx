@@ -11,20 +11,16 @@ import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { EmptyState } from "@/components/ui/states/empty-state"
 import { PullToRefresh } from "@/components/teen/pull-to-refresh"
+// TICKET-026 (Wave 3 / W3-A9) — FLIP animations on rank changes. Lifts
+// the row rendering into a client component so it can live inside an
+// <AnimatePresence mode="popLayout"> tree.
+import { LeaderboardList, type LeaderboardRow } from "./leaderboard-list"
 
 export const dynamic = "force-dynamic"
 
 const CATEGORIES = ["all", "sport", "art", "tech", "academic", "food", "lifestyle"] as const
 
-type Row = {
-  user_id: string
-  category: string | null
-  submissions_count: number
-  total_likes: number
-  total_views: number
-  xp_earned: number
-  rank_overall: number | null
-}
+type Row = LeaderboardRow
 
 export default async function CreatorLeaderboardPage({
   searchParams,
@@ -120,31 +116,7 @@ export default async function CreatorLeaderboardPage({
           action={{ label: "Créer un post", href: "/teen/create" }}
         />
       ) : (
-        <ol className="space-y-2">
-          {entries.map((row, idx) => (
-            <li
-              key={row.user_id}
-              className="flex items-center justify-between rounded border bg-white p-3 shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <span className="w-6 text-right font-bold text-gray-400">#{idx + 1}</span>
-                <span className="font-mono text-xs text-gray-700">
-                  {row.user_id.slice(0, 8)}…
-                </span>
-                {row.category && (
-                  <span className="rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
-                    {row.category}
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-4 text-xs text-gray-600">
-                <span>{row.submissions_count} posts</span>
-                <span>♥ {row.total_likes}</span>
-                <span className="font-semibold text-blue-700">{row.xp_earned} XP</span>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <LeaderboardList entries={entries} />
       )}
     </div>
     </PullToRefresh>

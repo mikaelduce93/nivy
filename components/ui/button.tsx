@@ -22,8 +22,11 @@ const buttonVariants = cva(
     "disabled:pointer-events-none disabled:opacity-50",
     // SVG handling
     "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0",
-    // Focus state - Gen-Z glow
-    "outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40",
+    // Focus state - Gen-Z glow, surface-aware (TICKET-018).
+    // Uses --focus-ring-color (set by parent surface) with fallback to --ring.
+    // Keeps 3px ring + 2px transparent offset — WCAG 2.4.7.
+    "outline-none focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+    "focus-visible:ring-[color:var(--focus-ring-color,var(--ring))]",
     // Invalid state
     "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   ].join(' '),

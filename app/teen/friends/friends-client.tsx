@@ -1,8 +1,10 @@
 "use client"
 
 import { useEffect, useState, useOptimistic, startTransition } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
+import { usePrefersReducedMotion } from "@/lib/hooks/use-reduced-motion"
+import { EASE_STANDARD, DURATION_NORMAL } from "@/lib/motion/easing"
 import {
   Users,
   Search,
@@ -22,6 +24,8 @@ import { EmptyState } from "@/components/ui/states/empty-state"
 import { SwipeableCard } from "@/components/ui/swipeable-card"
 import { useOptimisticRunner } from "@/lib/hooks/use-optimistic-mutation"
 import { toast as juicyToast } from "@/lib/utils/toast"
+import { useAnnounce } from "@/components/a11y/announce-region"
+import { Celebrate } from "@/components/ui/celebrate"
 
 type ApiFriend = {
   id: string
@@ -82,6 +86,10 @@ interface FriendsClientProps {
 }
 
 export default function FriendsClient({ initialSuggestions }: FriendsClientProps) {
+  // TICKET-026 (Wave 3 / W3-A9) — honour prefers-reduced-motion. When the
+  // user has motion disabled we skip the FLIP `layout` prop and the
+  // initial enter animation; rows simply snap in.
+  const reduced = usePrefersReducedMotion()
   const [tab, setTab] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [friends, setFriends] = useState<ApiFriend[]>([])
@@ -89,6 +97,13 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
   const [requests, setRequests] = useState<PendingRequest[]>([])
   const [loadingRequests, setLoadingRequests] = useState(false)
   const [actioningRequestId, setActioningRequestId] = useState<string | null>(null)
+  // Wave 3 / TICKET-022 — fire <Celebrate> when an incoming friend request
+  // is accepted. Edge-triggered.
+  const [celebrate, setCelebrate] = useState(false)
+
+  // Wave 3 / TICKET-050 — SR announcement when an incoming friend request
+  // is accepted. Personalised with the sender's name when available.
+  const announce = useAnnounce()
 
   // TICKET-031 — accept/decline are high-frequency, so the row should slide
   // out instantly. useOptimistic projects a "pending removal" set on top of
@@ -170,6 +185,11 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
     if (actioningRequestId) return
     setActioningRequestId(requestId)
 
+    // Capture the sender's name BEFORE the optimistic removal — once the
+    // row is filtered out we lose access to it and the SR announcement
+    // would lose its personalisation.
+    const senderName = requests.find((r) => r.id === requestId)?.name ?? null
+
     // Optimistic removal — must run inside a transition so useOptimistic
     // can revert if the network call fails.
     startTransition(async () => {
@@ -185,6 +205,14 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
         setRequests((prev) => prev.filter((r) => r.id !== requestId))
 
         if (action === "accept") {
+          // Wave 3 / TICKET-022 — celebrate the new friendship.
+          setCelebrate(true)
+          // Wave 3 / TICKET-050 — SR announcement on accept-success.
+          announce(
+            senderName
+              ? `${senderName} a accepté ton invitation!`
+              : "Invitation acceptée!",
+          )
           // Refresh friends list so the newly-accepted peer shows up.
           try {
             const json = await fetch("/api/teen/friends").then((r) => r.json())
@@ -268,6 +296,12 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
 
   return (
     <div className="min-h-screen pb-32 space-y-8 pt-6">
+      {/* Wave 3 / TICKET-022 — friend-request acceptance celebration */}
+      <Celebrate
+        trigger={celebrate}
+        variant="sparkles"
+        onComplete={() => setCelebrate(false)}
+      />
       {/* Header */}
       <header className="space-y-6">
         <div className="flex items-center justify-between">
@@ -453,13 +487,23 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
               />
             )
           ) : (
+            // TICKET-026 (Wave 3 / W3-A9) — FLIP layout animations on the
+            // filtered friends list. AnimatePresence + popLayout pulls
+            // exiting rows out of flow so the rest reflow smoothly when
+            // the user toggles "all"/"online" or types in the search box.
             <div className="space-y-3">
-              {filteredFriends.map((friend, idx) => (
+              <AnimatePresence mode="popLayout" initial={false}>
+                {filteredFriends.map((friend) => (
                 <motion.div
                   key={friend.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
+                  layout={reduced ? false : true}
+                  initial={reduced ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+                  transition={{
+                    duration: reduced ? 0 : DURATION_NORMAL,
+                    ease: EASE_STANDARD,
+                  }}
                   className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-colors"
                 >
                   {/* Avatar */}
@@ -526,7 +570,8 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                     </Button>
                   </div>
                 </motion.div>
-              ))}
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </section>

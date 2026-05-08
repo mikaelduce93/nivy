@@ -177,7 +177,15 @@ export function Hero({
       animate="visible"
       exit="exit"
       className={className}
-      style={{ perspective: showPremiumEffects ? 1200 : undefined }}
+      // TICKET-018 — surface-aware focus ring: the hero is rendered on a deep
+      // tier-tinted surface (zinc-900 + radial gradients). The default primary
+      // ring blends into the lavender glow, so we promote the ring to a
+      // high-contrast white token. Cascades to any focusable descendants
+      // (buttons, links inside the hero). Keeps WCAG 2.4.7 visibility intact.
+      style={{
+        perspective: showPremiumEffects ? 1200 : undefined,
+        ['--focus-ring-color' as string]: 'oklch(1 0 0)',
+      }}
     >
       <motion.div
         onMouseMove={handleMouseMove}

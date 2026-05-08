@@ -3,7 +3,16 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
-// Gen-Z Card Styles: Rounded, glassmorphism, hover lift
+// Gen-Z Card Styles: Rounded, glassmorphism, hover lift.
+// TICKET-011 — extended with semantic-tinted variants (brand/accent/success/
+// info/warning/danger) backed by the color-mix()-derived *-soft tokens added
+// in TICKET-012. Existing variants (default/glass/glow/interactive/flat/
+// gradient) are preserved verbatim for backwards compatibility.
+//
+// NOTE: the base style intentionally sets `bg-card` and `border-border/50`.
+// Tinted variants override `bg-*`, `border-*`, and `text-card-foreground` to
+// `text-foreground` so the foreground adapts to the surrounding background
+// instead of staying locked to the card neutral.
 const cardVariants = cva(
   [
     // Base styles
@@ -21,11 +30,62 @@ const cardVariants = cva(
           'hover:shadow-lg hover:shadow-primary/5',
           'hover:-translate-y-1 hover:border-primary/20',
         ].join(' '),
+        // ── Semantic tinted surfaces (TICKET-011) ─────────────────────────
+        // Each uses the corresponding `--color-*-soft` token (mathematically
+        // derived from its semantic source via color-mix in OKLCH) plus a
+        // 1px border in the source color at reduced opacity for definition.
+        brand: [
+          'bg-brand-soft text-foreground',
+          'border-primary/30',
+          'shadow-sm',
+          'hover:shadow-lg hover:shadow-primary/10',
+          'hover:-translate-y-1 hover:border-primary/50',
+        ].join(' '),
+        accent: [
+          'bg-accent-soft text-foreground',
+          'border-accent/30',
+          'shadow-sm',
+          'hover:shadow-lg hover:shadow-accent/10',
+          'hover:-translate-y-1 hover:border-accent/50',
+        ].join(' '),
+        success: [
+          'bg-success-soft text-foreground',
+          'border-success/30',
+          'shadow-sm',
+          'hover:shadow-lg hover:shadow-success/10',
+          'hover:-translate-y-1 hover:border-success/50',
+        ].join(' '),
+        info: [
+          'bg-info-soft text-foreground',
+          'border-info/30',
+          'shadow-sm',
+          'hover:shadow-lg hover:shadow-info/10',
+          'hover:-translate-y-1 hover:border-info/50',
+        ].join(' '),
+        warning: [
+          'bg-warning-soft text-foreground',
+          'border-warning/30',
+          'shadow-sm',
+          'hover:shadow-lg hover:shadow-warning/10',
+          'hover:-translate-y-1 hover:border-warning/50',
+        ].join(' '),
+        danger: [
+          'bg-danger-soft text-foreground',
+          'border-destructive/30',
+          'shadow-sm',
+          'hover:shadow-lg hover:shadow-destructive/10',
+          'hover:-translate-y-1 hover:border-destructive/50',
+        ].join(' '),
+        // ── Existing decorative variants ──────────────────────────────────
+        // glass: TICKET-011 spec — over-image translucent surface. Note this
+        // changes from the prior `bg-card/60 backdrop-blur-xl` look; existing
+        // call sites that relied on the heavier card-tint look should switch
+        // to the new `gradient` or `flat` variants if needed.
         glass: [
-          'bg-card/60 backdrop-blur-xl',
-          'border-white/10',
+          'bg-white/10 backdrop-blur-md',
+          'border-white/20',
           'shadow-xl shadow-black/5',
-          'hover:bg-card/70 hover:border-white/20',
+          'hover:bg-white/15 hover:border-white/30',
         ].join(' '),
         glow: [
           'bg-card/80 backdrop-blur-md',

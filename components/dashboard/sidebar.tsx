@@ -87,6 +87,10 @@ export function DashboardSidebar() {
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
+              // TICKET-018 — surface-aware focus ring: on the active item the
+              // background IS primary, so the default primary ring would be invisible.
+              // Override to the on-primary token so the ring is visible against the surface.
+              style={isActive ? { ['--focus-ring-color' as string]: 'var(--primary-foreground)' } : undefined}
               aria-current={isActive ? "page" : undefined}
             >
               <item.icon className="size-4" aria-hidden="true" />
