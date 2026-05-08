@@ -3,6 +3,7 @@ import "server-only"
 import { createClient } from "@/lib/supabase/server"
 import { getDailyMissions } from "@/gamification-system/features/missions/actions"
 import { getTeenDashboardData } from "@/lib/server/teen-dashboard"
+import { recordSignalAsync } from "@/lib/analytics/signals"
 
 export type QuestType = "quiz" | "challenge" | "passion" | "event" | "club"
 export type QuestStatus = "available" | "in_progress" | "completed" | "pending_review"
@@ -116,4 +117,72 @@ export async function getUnifiedQuests(): Promise<UnifiedQuest[]> {
 
   // Randomize or sort by priority
   return quests.sort(() => Math.random() - 0.5)
+}
+
+/**
+ * TICKET-033 — central signal capture for quest-engine completions.
+ *
+ * Any consumer of the unified quest feed (e.g. mission-complete actions,
+ * the future inline "mark done" CTA on quest-card.tsx) should call this
+ * helper after a successful completion to feed the personalization
+ * recommender. Mirrors the `recordSignalAsync` semantics used by the
+ * quiz / chore / shop / event paths so the recommender sees a uniform
+ * shape regardless of which surface fired the signal.
+ *
+ * Mapping rationale:
+ *   - QuestType ('quiz'|'challenge'|'passion'|'event'|'club') needs to
+ *     project onto the fixed `target_type` enum from migration 052.
+ *     'challenge' / 'passion' / 'club' all collapse to 'mission' (the
+ *     closest semantic bucket per spec §19.5); 'quiz' and 'event' map
+ *     1:1.
+ *   - Pillar is preserved in metadata so downstream rollups can split
+ *     the four pillars without re-joining quests.
+ *   - Weight scales 0.5-1.0 with `progress` when supplied, defaulting
+ *     to 0.8 (a pillar quest is a strong but not max-confidence signal,
+ *     leaving headroom for explicit favourites at 1.0).
+ */
+export function recordQuestEngineCompletion(
+  teenId: string,
+  quest: Pick<UnifiedQuest, "id" | "type" | "pillar" | "metadata"> & {
+    title?: string
+    progress?: number
+  }
+): void {
+  if (!teenId || !quest?.id) return
+
+  const targetType: "quiz" | "event" | "mission" =
+    quest.type === "quiz" ? "quiz" : quest.type === "event" ? "event" : "mission"
+
+  const tags: string[] = []
+  if (quest.pillar) tags.push(`pillar:${quest.pillar}`)
+  if (quest.type) tags.push(`quest:${quest.type}`)
+  const metaCategory = (quest.metadata as { category?: string | null } | null | undefined)
+    ?.category
+  const metaSubject = (quest.metadata as { subject?: string | null } | null | undefined)
+    ?.subject
+  if (typeof metaCategory === "string" && metaCategory.length > 0) {
+    tags.push(metaCategory.toLowerCase())
+  }
+  if (typeof metaSubject === "string" && metaSubject.length > 0) {
+    tags.push(metaSubject.toLowerCase())
+  }
+
+  const progress = typeof quest.progress === "number" ? quest.progress : 100
+  const weight = Math.min(1.0, Math.max(0.5, 0.5 + (progress / 100) * 0.5))
+
+  recordSignalAsync({
+    teenId,
+    signalType: "complete",
+    targetType,
+    targetId: quest.id,
+    weight,
+    metadata: {
+      signal_subtype: "quest_completed",
+      quest_type: quest.type,
+      pillar: quest.pillar,
+      title: quest.title ?? null,
+      tags,
+      progress,
+    },
+  })
 }

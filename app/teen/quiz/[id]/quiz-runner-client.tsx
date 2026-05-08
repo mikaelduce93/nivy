@@ -57,6 +57,25 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
     return () => clearInterval(tick)
   }, [timeLimitSec, result])
 
+  // TICKET-009 — fire "quiz started" once when the runner mounts.
+  // This is what burns the no-repeat slot in quiz_seen_history, instead of
+  // the previous behaviour where merely loading the hub burned it.
+  // Fire-and-forget: a network failure should not block the run.
+  useEffect(() => {
+    let cancelled = false
+    void fetch(`/api/teen/quiz/${quiz.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    }).catch(() => {
+      if (!cancelled) {
+        // Swallow — start tracking is best-effort.
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [quiz.id])
+
   function selectAnswer(idx: number) {
     setAnswers((prev) => {
       const next = [...prev]

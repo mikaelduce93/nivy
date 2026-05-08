@@ -6,6 +6,7 @@ import { validateCSRFToken } from "@/lib/security/csrf"
 import { rateLimit, RATE_LIMITS } from "@/lib/security/rate-limiter"
 import { checkTeenBudget } from "@/lib/budget/check-budget"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
+import { recordSignalAsync } from "@/lib/analytics/signals"
 
 export const runtime = "nodejs"
 
@@ -156,6 +157,52 @@ export async function POST(request: NextRequest) {
     })
 
     if (ticketError) throw ticketError
+
+    // TICKET-033 — best-effort personalization signal for event_booked.
+    // The DB-level record_signal RPC enforces a fixed signal_type enum; we
+    // map the booking semantic to 'start' (booked != attended yet) against
+    // target_type='event'. Subtype carried in metadata for downstream rollups.
+    //
+    // Tag enrichment: the bookings table itself has no tag column, so we
+    // pull the event row's category/tags by id and pass them through.
+    // The recommender's tag-overlap scoring (migration 052) keys off these.
+    //
+    // Weight 0.7 — booking is a strong intent signal but lower than
+    // completion since teens may no-show; recommender can up-weight on
+    // attendance via the check-in route later.
+    try {
+      // events.category is the only canonical taxonomy field on this table
+      // (no tags column today). We synthesise a one-element tag list from
+      // category so the recommender's tag-overlap scoring still has signal.
+      const { data: eventRow } = await supabase
+        .from("events")
+        .select("id, category, title")
+        .eq("id", eventId)
+        .maybeSingle()
+      const eventCategory = (eventRow as { category?: string | null } | null)?.category ?? null
+      const eventTags: string[] = []
+      if (eventCategory) {
+        eventTags.push(eventCategory.toLowerCase())
+      }
+      recordSignalAsync({
+        teenId: childId,
+        signalType: "start",
+        targetType: "event",
+        targetId: eventId,
+        weight: 0.7,
+        metadata: {
+          signal_subtype: "event_booked",
+          booking_id: booking.id,
+          ticket_type: ticketType,
+          price,
+          category: eventCategory,
+          tags: eventTags,
+          event_title: (eventRow as { title?: string | null } | null)?.title ?? null,
+        },
+      })
+    } catch (sigErr) {
+      console.warn("[bookings/create] signal lookup failed:", sigErr)
+    }
 
     return NextResponse.redirect(new URL(`/reservation/paiement?booking=${booking.id}`, request.url))
   } catch (error) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getUserRole } from '@/lib/auth/get-user-role'
+import { recordSignalAsync } from '@/lib/analytics/signals'
 
 export async function GET(request: NextRequest) {
   try {
@@ -142,6 +143,36 @@ export async function POST(request: NextRequest) {
       type: 'purchase',
       title: 'Achat réussi !',
       body: `Tu as obtenu ${item.name}`,
+    })
+
+    // TICKET-033 — best-effort personalization signal for reward_redeemed.
+    // Mapped to signal_type='complete' against target_type='reward' (the
+    // record_signal enum already supports 'reward'). The richer label is
+    // preserved in metadata.signal_subtype for downstream consumers.
+    //
+    // Tags come from item.category (shop_items has no tags column today,
+    // so we synthesise a single-tag list from category, matching the
+    // pattern the recommender uses for partner_offers without tags).
+    //
+    // Weight 0.9 — spending earned XP on a reward is a near-perfect
+    // preference signal; we reserve 1.0 for explicit favourites.
+    const rewardTags: string[] = []
+    if (typeof item.category === 'string' && item.category.length > 0) {
+      rewardTags.push(item.category.toLowerCase())
+    }
+    recordSignalAsync({
+      teenId,
+      signalType: 'complete',
+      targetType: 'reward',
+      targetId: itemId,
+      weight: 0.9,
+      metadata: {
+        signal_subtype: 'reward_redeemed',
+        item_name: item.name,
+        category: item.category ?? null,
+        tags: rewardTags,
+        xp_spent: item.xp_cost,
+      },
     })
 
     return NextResponse.json({

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import {
   ArrowRight, ArrowLeft, User, Mail, Phone, Calendar,
   ChevronLeft, ChevronRight, Loader2, CheckCircle2, Heart, Info,
-  Sparkles
+  Sparkles, Brain, Compass
 } from 'lucide-react'
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -47,6 +47,34 @@ const INTEREST_PREVIEW_CHIPS: Array<{ tag: string; label: string; icon: string }
   { tag: 'social_volunteering', label: 'Bénévolat', icon: '🤝' },
 ]
 
+/**
+ * TICKET-032 — Learning style + archetype pre-auth teaser.
+ *
+ * Mirrors the TICKET-031 pattern: pre-auth selection writes to localStorage,
+ * post-auth /api/onboarding/profile (called from /onboarding/* pages) reads
+ * the cached value and persists it to teens.learning_style / teens.archetype.
+ *
+ * Schema values match docs/vision/personalization-engine.md §10 Step C +
+ * the canonical 4-archetype set used across the recommender (creator,
+ * explorer, competitor, social).
+ */
+type LearningStyle = 'visual' | 'auditory' | 'kinesthetic' | 'reading'
+type Archetype = 'creator' | 'explorer' | 'competitor' | 'social'
+
+const LEARNING_STYLE_CHIPS: Array<{ value: LearningStyle; label: string; icon: string; hint: string }> = [
+  { value: 'visual', label: 'Visuel', icon: '📺', hint: 'Schémas, vidéos, infographies' },
+  { value: 'auditory', label: 'Audio', icon: '🎧', hint: 'Podcasts, discussions, musique' },
+  { value: 'kinesthetic', label: 'Action', icon: '🤸', hint: 'Pratique, sport, expériences' },
+  { value: 'reading', label: 'Lecture', icon: '📖', hint: 'Textes, livres, articles' },
+]
+
+const ARCHETYPE_CHIPS: Array<{ value: Archetype; label: string; icon: string; hint: string }> = [
+  { value: 'creator', label: 'Créateur', icon: '🎨', hint: 'Tu aimes imaginer et fabriquer' },
+  { value: 'explorer', label: 'Explorateur', icon: '🧭', hint: 'Tu aimes découvrir et comprendre' },
+  { value: 'competitor', label: 'Compétiteur', icon: '🏆', hint: 'Tu aimes les défis et progresser' },
+  { value: 'social', label: 'Social', icon: '🤝', hint: 'Tu aimes collaborer et partager' },
+]
+
 interface TeenSetupStepProps {
   onNext: () => void
   onBack: () => void
@@ -69,6 +97,12 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
   // /onboarding/interests page (which calls /api/onboarding/interests) can
   // pre-fill the selection from the teen's pre-registration choices.
   const [previewSelected, setPreviewSelected] = useState<Set<string>>(new Set())
+
+  // TICKET-032 — learning style + archetype pre-auth teasers. Single-pick
+  // each. Persisted to localStorage so the post-auth flow can hydrate
+  // /api/onboarding/profile without forcing the teen to re-pick.
+  const [learningStyle, setLearningStyle] = useState<LearningStyle | null>(null)
+  const [archetype, setArchetype] = useState<Archetype | null>(null)
 
   const togglePreview = (tag: string) => {
     setPreviewSelected((prev) => {
@@ -197,6 +231,22 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
           )
         } catch {
           // localStorage may be disabled — non-fatal, the user simply re-picks.
+        }
+      }
+
+      // TICKET-032 — pre-seed learning_style + archetype. Hydrated post-auth
+      // by the /onboarding/* flow which calls POST /api/onboarding/profile.
+      if (learningStyle || archetype) {
+        try {
+          localStorage.setItem(
+            'teen_onboarding_profile_preview',
+            JSON.stringify({
+              learning_style: learningStyle,
+              archetype,
+            })
+          )
+        } catch {
+          // localStorage may be disabled — non-fatal, teen re-picks post-auth.
         }
       }
 
@@ -430,6 +480,107 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 <span className="text-muted-foreground">
                   Plus de 50 catégories à découvrir ensuite
                 </span>
+              </div>
+            </div>
+
+            {/* TICKET-032 — Learning style chips (Step C from
+                personalization-engine.md §10). Single-pick, optional.
+                Persisted to localStorage; post-auth flow calls
+                /api/onboarding/profile to write to teens.learning_style. */}
+            <div className="space-y-3 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 ring-1 ring-violet-500/30">
+                  <Brain className="w-4 h-4 text-violet-500" aria-hidden="true" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base leading-tight">Comment tu apprends le mieux&nbsp;?</h3>
+                  <p className="text-xs text-muted-foreground">
+                    On adapte le contenu à ta façon de capter (optionnel).
+                  </p>
+                </div>
+              </div>
+
+              <div
+                role="radiogroup"
+                aria-label="Style d'apprentissage préféré"
+                className="grid grid-cols-2 gap-2"
+              >
+                {LEARNING_STYLE_CHIPS.map((opt) => {
+                  const isOn = learningStyle === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={isOn}
+                      onClick={() => setLearningStyle(isOn ? null : opt.value)}
+                      className={cn(
+                        "flex items-start gap-2.5 p-3 rounded-2xl text-left",
+                        "border transition-all duration-150 active:scale-[0.98] select-none",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        isOn
+                          ? "bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 border-violet-500/60 shadow-sm"
+                          : "bg-background hover:bg-muted/60 border-border/80"
+                      )}
+                    >
+                      <span className="text-2xl shrink-0" aria-hidden="true">{opt.icon}</span>
+                      <span className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold">{opt.label}</span>
+                        <span className="text-xs text-muted-foreground leading-tight">{opt.hint}</span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* TICKET-032 — Archetype quick-pick. 4 archetypes
+                (creator/explorer/competitor/social) drive avatar tone +
+                content-type bias in the recommender. Single-pick, optional. */}
+            <div className="space-y-3 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 ring-1 ring-amber-500/30">
+                  <Compass className="w-4 h-4 text-amber-500" aria-hidden="true" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base leading-tight">Tu te reconnais dans quel profil&nbsp;?</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Choisis celui qui te ressemble le plus (optionnel).
+                  </p>
+                </div>
+              </div>
+
+              <div
+                role="radiogroup"
+                aria-label="Profil d'archetype"
+                className="grid grid-cols-2 gap-2"
+              >
+                {ARCHETYPE_CHIPS.map((opt) => {
+                  const isOn = archetype === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={isOn}
+                      onClick={() => setArchetype(isOn ? null : opt.value)}
+                      className={cn(
+                        "flex items-start gap-2.5 p-3 rounded-2xl text-left",
+                        "border transition-all duration-150 active:scale-[0.98] select-none",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        isOn
+                          ? "bg-gradient-to-br from-amber-500/15 to-orange-500/15 border-amber-500/60 shadow-sm"
+                          : "bg-background hover:bg-muted/60 border-border/80"
+                      )}
+                    >
+                      <span className="text-2xl shrink-0" aria-hidden="true">{opt.icon}</span>
+                      <span className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold">{opt.label}</span>
+                        <span className="text-xs text-muted-foreground leading-tight">{opt.hint}</span>
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 

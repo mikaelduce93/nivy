@@ -76,3 +76,73 @@ export async function GET(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+
+/**
+ * POST /api/teen/quiz/[id]
+ *
+ * "Start" signal — the teen has actually begun this quiz (clicked into the
+ * runner). This is when we burn the no-repeat slot in `quiz_seen_history`,
+ * NOT on mere impression in the hub. (TICKET-009 / whitepaper §29.9)
+ *
+ * Idempotent: upsert on (teen_id, quiz_id). Re-starting the same quiz simply
+ * refreshes `last_seen`.
+ */
+export async function POST(
+  _request: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  try {
+    const userInfo = await getUserRole()
+    if (!userInfo || userInfo.role !== "teen" || !userInfo.teenData?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const params = await context.params
+    const validation = paramsSchema.safeParse(params)
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error.errors[0].message },
+        { status: 400 },
+      )
+    }
+
+    const supabase = await createClient()
+
+    // Confirm quiz exists & is active before claiming a "seen" slot.
+    const { data: quiz, error: quizErr } = await supabase
+      .from("educational_quizzes")
+      .select("id")
+      .eq("id", validation.data.id)
+      .eq("is_active", true)
+      .maybeSingle()
+
+    if (quizErr) {
+      console.error("[teen/quiz/[id] POST] fetch error:", quizErr)
+      return NextResponse.json({ error: "Failed to start quiz" }, { status: 500 })
+    }
+    if (!quiz) {
+      return NextResponse.json({ error: "Quiz not found" }, { status: 404 })
+    }
+
+    const { error: upsertErr } = await supabase
+      .from("quiz_seen_history")
+      .upsert(
+        {
+          teen_id: userInfo.teenData.id,
+          quiz_id: quiz.id,
+          last_seen: new Date().toISOString(),
+        },
+        { onConflict: "teen_id,quiz_id" },
+      )
+
+    if (upsertErr) {
+      console.error("[teen/quiz/[id] POST] seen_history upsert:", upsertErr)
+      // Non-fatal — the user can still take the quiz; just log it.
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("[teen/quiz/[id] POST] unexpected:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}

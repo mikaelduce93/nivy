@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Load the quiz answer key
     const { data: quiz, error: quizError } = await supabase
       .from("educational_quizzes")
-      .select("id, title, questions, passing_score, xp_reward, subject")
+      .select("id, title, questions, passing_score, xp_reward, subject, tags")
       .eq("id", quizId)
       .eq("is_active", true)
       .maybeSingle()
@@ -145,18 +145,42 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Wave 1.2 — capture personalization signal (best-effort, non-blocking).
+    // Wave 2 — TICKET-010: capture personalization signal (best-effort, non-blocking).
+    //
+    // The DB-level `record_signal` RPC enforces a fixed `signal_type` enum
+    // ('view'|'click'|'start'|'complete'|'abandon'|'share'|'favorite'|'dismiss'|'report'),
+    // so we map the ticket's semantic distinction (quiz_completed vs quiz_attempted)
+    // to (complete vs abandon) at the RPC layer and preserve the richer name in
+    // metadata.signal_subtype for downstream consumers (recommender / analytics).
+    //
+    // Tags come straight from the quiz row so the recommender's tag-overlap
+    // affinity scoring (see migration 052) can attribute this signal to the
+    // canonical interest_taxonomy buckets.
+    //
+    // Weight scales 0.5-1.0 with score: a perfect pass should reinforce affinity
+    // strongly, a marginal-pass or fail should reinforce weakly. Score is 0-100,
+    // so weight = 0.5 + (score/100)*0.5, clamped to [0.5, 1.0].
+    const signalWeight = Math.min(
+      1.0,
+      Math.max(0.5, 0.5 + (score / 100) * 0.5),
+    )
+    const signalSubtype = passed ? "quiz_completed" : "quiz_attempted"
+    const quizTags = Array.isArray(quiz.tags) ? (quiz.tags as string[]) : []
+
     recordSignalAsync({
       teenId,
       signalType: passed ? "complete" : "abandon",
       targetType: "quiz",
       targetId: quizId,
+      weight: signalWeight,
       metadata: {
+        signal_subtype: signalSubtype,
         score,
         passing_score: passingScore,
         correct_count: correctCount,
         total_questions: questions.length,
         subject: quiz.subject ?? null,
+        tags: quizTags,
       },
     })
 

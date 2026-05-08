@@ -1,8 +1,13 @@
 // Nivy service worker — handles push notifications + offline shell + deep links.
 // Per docs/vision/PRODUCT_WHITEPAPER.md §16 (notifications) and §25 (PWA-first).
 
-const CACHE_NAME = 'nivy-shell-v1'
-const SHELL = ['/', '/manifest.json', '/icons/icon-192x192.png', '/icons/icon-512x512.png']
+// Bump CACHE_NAME whenever the shell list or fetch policy changes so the
+// activate handler purges stale entries on the next visit.
+const CACHE_NAME = 'nivy-shell-v2'
+// /manifest.webmanifest is generated dynamically by app/manifest.ts (Next 16).
+// Wave D.4 removed the legacy public/manifest.json to fix a collision with
+// the dynamic route — keep this list aligned with reality, don't re-add it.
+const SHELL = ['/', '/manifest.webmanifest', '/icons/icon-192x192.png', '/icons/icon-512x512.png']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()))
@@ -87,17 +92,25 @@ self.addEventListener('notificationclick', (event) => {
   )
 })
 
-// Subscription change (browser may rotate the endpoint)
+// Subscription change (browser may rotate the endpoint).
+// The real subscribe route lives at /api/notifications/push/subscribe and
+// requires an authenticated userId in the body — which the SW context does
+// not have. We post a minimal "rotated" signal and let the next foreground
+// session re-subscribe through lib/hooks/use-notifications.ts.
 self.addEventListener('pushsubscriptionchange', (event) => {
   event.waitUntil(
     self.registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: event.oldSubscription ? event.oldSubscription.options.applicationServerKey : undefined,
     }).then((newSub) =>
-      fetch('/api/notifications/subscribe', {
+      fetch('/api/notifications/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription: newSub }),
+        body: JSON.stringify({ subscription: newSub, rotated: true }),
+        credentials: 'include',
+      }).catch(() => {
+        // Server may reject (no userId) — that's fine, the next foreground
+        // session will resubscribe through the consent-gated flow.
       })
     )
   )

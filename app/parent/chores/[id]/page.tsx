@@ -3,7 +3,7 @@ import { redirect, notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Coins, Sparkles, Clock, CheckCircle, XCircle } from "lucide-react"
+import { ArrowLeft, Coins, Sparkles, Clock, CheckCircle, XCircle, ImageOff } from "lucide-react"
 import Link from "next/link"
 import { ChoreVerifyButtons } from "@/components/parent/chore-verify-buttons"
 
@@ -20,6 +20,9 @@ interface Completion {
   payout_payment_id: string | null
   payout_xp: number | null
 }
+
+/** TTL for signed-read URLs surfaced in the parent UI (TICKET-014). */
+const EVIDENCE_SIGNED_URL_TTL_SECONDS = 15 * 60 // 15 min
 
 export default async function ChoreDetailPage({
   params,
@@ -53,6 +56,33 @@ export default async function ChoreDetailPage({
   const verified = list.filter((c) => c.parent_verified)
   const rejected = list.filter((c) => !c.parent_verified && c.rejection_reason)
   const verifiedCount = verified.length
+
+  // ---- TICKET-014: re-sign each evidence path server-side ---------------
+  // `evidence_url` stores a bucket-relative path inside the PRIVATE
+  // `chore-evidence` bucket. We surface the photo to the parent via a
+  // short-TTL signed URL (15 min) so the link auto-expires if shared.
+  // Any failure is non-fatal — the UI falls back to a "preuve indisponible"
+  // placeholder rather than blocking the verification flow.
+  const evidenceSignedUrls = new Map<string, string>()
+  const pathsToSign = Array.from(
+    new Set(
+      list
+        .map((c) => c.evidence_url)
+        .filter((p): p is string => typeof p === "string" && p.length > 0)
+    )
+  )
+  if (pathsToSign.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from("chore-evidence")
+      .createSignedUrls(pathsToSign, EVIDENCE_SIGNED_URL_TTL_SECONDS)
+    if (Array.isArray(signed)) {
+      for (const row of signed) {
+        if (row?.path && row.signedUrl && !row.error) {
+          evidenceSignedUrls.set(row.path, row.signedUrl)
+        }
+      }
+    }
+  }
 
   const formatDate = (s: string | null) =>
     s
@@ -115,6 +145,7 @@ export default async function ChoreDetailPage({
           items={pending}
           emptyText="Aucune complétion en attente."
           formatDate={formatDate}
+          evidenceSignedUrls={evidenceSignedUrls}
           showActions
           choreId={chore.id}
         />
@@ -125,6 +156,7 @@ export default async function ChoreDetailPage({
           items={verified}
           emptyText="Aucune complétion validée."
           formatDate={formatDate}
+          evidenceSignedUrls={evidenceSignedUrls}
         />
 
         <CompletionSection
@@ -133,6 +165,7 @@ export default async function ChoreDetailPage({
           items={rejected}
           emptyText="Aucun refus."
           formatDate={formatDate}
+          evidenceSignedUrls={evidenceSignedUrls}
         />
       </div>
     </div>
@@ -145,6 +178,7 @@ function CompletionSection({
   items,
   emptyText,
   formatDate,
+  evidenceSignedUrls,
   showActions,
   choreId,
 }: {
@@ -153,6 +187,8 @@ function CompletionSection({
   items: Completion[]
   emptyText: string
   formatDate: (s: string | null) => string
+  /** Map of evidence_url (path) → 15-min signed-read URL (TICKET-014). */
+  evidenceSignedUrls: Map<string, string>
   showActions?: boolean
   choreId?: string
 }) {
@@ -170,38 +206,77 @@ function CompletionSection({
           <p className="text-sm text-zinc-500">{emptyText}</p>
         ) : (
           <div className="space-y-3">
-            {items.map((c) => (
-              <div
-                key={c.id}
-                className="p-3 rounded-lg bg-zinc-800 border border-zinc-700"
-              >
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <div>
-                    <p className="text-sm text-zinc-200">
-                      Complétion · {formatDate(c.completed_at)}
-                    </p>
-                    {c.evidence_url && (
-                      <p className="text-xs text-zinc-500 mt-1">
-                        Preuve: {c.evidence_url}
+            {items.map((c) => {
+              const signedUrl = c.evidence_url
+                ? evidenceSignedUrls.get(c.evidence_url) ?? null
+                : null
+              const isVideo =
+                typeof c.evidence_url === "string" &&
+                /\.(mp4|webm|mov)$/i.test(c.evidence_url)
+              return (
+                <div
+                  key={c.id}
+                  className="p-3 rounded-lg bg-zinc-800 border border-zinc-700"
+                >
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-zinc-200">
+                        Complétion · {formatDate(c.completed_at)}
                       </p>
-                    )}
-                    {c.rejection_reason && (
-                      <p className="text-xs text-red-400 mt-1">
-                        Motif refus: {c.rejection_reason}
-                      </p>
-                    )}
-                    {c.paid_at && (
-                      <p className="text-xs text-emerald-400 mt-1">
-                        Récompense versée le {formatDate(c.paid_at)}
-                      </p>
+                      {c.evidence_url && (
+                        <div className="mt-2">
+                          {signedUrl ? (
+                            isVideo ? (
+                              <video
+                                src={signedUrl}
+                                controls
+                                preload="metadata"
+                                className="max-w-xs max-h-64 rounded-lg border border-zinc-700"
+                              />
+                            ) : (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <a
+                                href={signedUrl}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                className="inline-block"
+                              >
+                                <img
+                                  src={signedUrl}
+                                  alt="Preuve photo de la corvée"
+                                  className="max-w-xs max-h-64 rounded-lg border border-zinc-700 object-cover"
+                                />
+                              </a>
+                            )
+                          ) : (
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-zinc-500">
+                              <ImageOff className="h-4 w-4" />
+                              <span>Preuve indisponible (lien expiré ou supprimé).</span>
+                            </div>
+                          )}
+                          <p className="mt-1 text-[10px] text-zinc-600">
+                            Lien privé — expire dans 15 min.
+                          </p>
+                        </div>
+                      )}
+                      {c.rejection_reason && (
+                        <p className="text-xs text-red-400 mt-2">
+                          Motif refus: {c.rejection_reason}
+                        </p>
+                      )}
+                      {c.paid_at && (
+                        <p className="text-xs text-emerald-400 mt-2">
+                          Récompense versée le {formatDate(c.paid_at)}
+                        </p>
+                      )}
+                    </div>
+                    {showActions && choreId && (
+                      <ChoreVerifyButtons choreId={choreId} completionId={c.id} />
                     )}
                   </div>
-                  {showActions && choreId && (
-                    <ChoreVerifyButtons choreId={choreId} completionId={c.id} />
-                  )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </CardContent>

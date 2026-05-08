@@ -163,6 +163,64 @@ export async function POST(request: Request) {
       )
     }
 
+    // ----------------------------------------------------------------
+    // TICKET-030: tags must be a closed-set subset of `interest_taxonomy`,
+    // bounded to 0-5 entries. Closed-set match is enforced at write time
+    // (DB has no CHECK constraint so legacy rows can keep being read; the
+    // nightly cron `tag-normalize` sweeps drift).
+    // ----------------------------------------------------------------
+    let normalizedTags: string[] = []
+    if (tags !== undefined && tags !== null) {
+      if (!Array.isArray(tags)) {
+        return NextResponse.json(
+          { success: false, error: "Le champ 'tags' doit être un tableau" },
+          { status: 400 }
+        )
+      }
+      // De-dup, trim, drop falsy, enforce string type.
+      const cleaned = Array.from(
+        new Set(
+          tags
+            .filter((t): t is string => typeof t === "string")
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0)
+        )
+      )
+      if (cleaned.length > 5) {
+        return NextResponse.json(
+          { success: false, error: "Maximum 5 tags autorisés" },
+          { status: 400 }
+        )
+      }
+      if (cleaned.length > 0) {
+        const { data: taxonomyRows, error: taxErr } = await supabase
+          .from("interest_taxonomy")
+          .select("tag")
+          .eq("is_active", true)
+          .in("tag", cleaned)
+        if (taxErr) {
+          console.error("Tag taxonomy validation error:", taxErr)
+          return NextResponse.json(
+            { success: false, error: "Erreur lors de la validation des tags" },
+            { status: 500 }
+          )
+        }
+        const allowed = new Set((taxonomyRows ?? []).map((r) => r.tag))
+        const invalid = cleaned.filter((t) => !allowed.has(t))
+        if (invalid.length > 0) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Tags non reconnus: ${invalid.join(", ")}`,
+              invalid_tags: invalid,
+            },
+            { status: 400 }
+          )
+        }
+      }
+      normalizedTags = cleaned
+    }
+
     const numericDiscount = parseFloat(discountValue)
 
     // Build the row using partner_offers' canonical column names. We
@@ -191,7 +249,7 @@ export async function POST(request: Request) {
       applicable_categories: Array.isArray(applicableCategories) && applicableCategories.length > 0
         ? applicableCategories
         : null,
-      tags: Array.isArray(tags) && tags.length > 0 ? tags : [],
+      tags: normalizedTags,
     }
 
     const { data: newOffer, error: insertError } = await supabase

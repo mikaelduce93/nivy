@@ -264,6 +264,10 @@ export async function POST(request: NextRequest) {
               reason: safety.reason,
             })
           } else {
+            // TICKET-007: stamp cohort_key + cohort dimensions so the
+            // recommender (recommend_for_teen v2) only surfaces this quiz
+            // to teens whose (grade, school_type, curriculum, language)
+            // matches. cohortLabel is already the cohortId() value.
             const { data: savedQuiz, error: quizError } = await supabase
               .from("educational_quizzes")
               .insert({
@@ -273,6 +277,12 @@ export async function POST(request: NextRequest) {
                 subject: quiz.subject,
                 difficulty: quiz.difficulty,
                 grade_level: quiz.grade_level,
+                school_type:
+                  cohort.key.school_type !== "unknown" ? cohort.key.school_type : null,
+                curriculum:
+                  cohort.key.curriculum !== "unknown" ? cohort.key.curriculum : null,
+                language: cohort.key.language,
+                cohort_key: cohortLabel,
                 questions: quiz.questions,
                 time_limit_minutes: quiz.time_limit_minutes,
                 passing_score: quiz.passing_score,

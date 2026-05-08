@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Brain, Dumbbell, Palette, Zap, Swords, Sparkles, ArrowRight, Trophy, Flame, Target, Clock } from "lucide-react"
+import { Brain, Dumbbell, Palette, Zap, Swords, Sparkles, ArrowRight, Trophy, Flame, Target, Clock, Users } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { HubTabs, useHubTab, type HubTab } from "@/components/teen/hub-tabs"
 import { DefiCard, type DefiCardProps } from "@/components/teen/defi-card"
 import { Button } from "@/components/ui/button"
@@ -40,6 +41,11 @@ const QUEST_TABS: HubTab[] = [
   { id: "brain", label: "Brain", icon: Brain },
   { id: "body", label: "Body", icon: Dumbbell },
   { id: "creative", label: "Creative", icon: Palette },
+  // TICKET-020 — friend-défis tab. Selecting this tab navigates to the
+  // dedicated /teen/quests/friend-defis route (see effect below). The tab
+  // sits beside the four pillar tabs so it stays discoverable while the
+  // detailed list / accept-decline UI lives on its own page.
+  { id: "friends", label: "Défis amis", icon: Users },
 ]
 
 const PILLAR_CONFIG = {
@@ -71,7 +77,18 @@ const PILLAR_CONFIG = {
 
 export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance = 0, teenId }: QuestsHubClientProps) {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const currentTab = searchParams.get("tab") || "daily"
+
+  // TICKET-020 — when the "friends" tab becomes active on this hub,
+  // redirect to the dedicated friend-défis page. We keep the tab visible
+  // here (it stays selected on the friend-défis page since HubTabs reads
+  // the same `?tab=friends` query string) so users can still toggle back.
+  useEffect(() => {
+    if (currentTab === "friends") {
+      router.push("/teen/quests/friend-defis?tab=friends")
+    }
+  }, [currentTab, router])
 
   // Filter quests by pillar/type
   const filteredQuests = useMemo(() => {
