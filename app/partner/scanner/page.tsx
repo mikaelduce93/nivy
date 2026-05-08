@@ -442,11 +442,14 @@ export default function PartnerScannerPage() {
               </div>
             ) : (
               scannedMember.eligibleOffers.map((offer) => (
-                <div
+                <button
                   key={offer.id}
+                  type="button"
                   onClick={() => setSelectedOffer(offer.id)}
+                  aria-pressed={selectedOffer === offer.id}
+                  aria-label={`Sélectionner l'offre ${offer.name}`}
                   className={cn(
-                    "flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer",
+                    "w-full text-left flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900",
                     selectedOffer === offer.id
                       ? "bg-emerald-500/20 border-emerald-500"
                       : "bg-zinc-800 border-zinc-700 hover:border-zinc-600"
@@ -473,9 +476,9 @@ export default function PartnerScannerPage() {
                     </div>
                   </div>
                   {selectedOffer === offer.id && (
-                    <CheckCircle className="h-6 w-6 text-emerald-400" />
+                    <CheckCircle className="h-6 w-6 text-emerald-400" aria-hidden="true" />
                   )}
-                </div>
+                </button>
               ))
             )}
           </CardContent>

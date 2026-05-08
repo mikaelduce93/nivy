@@ -46,7 +46,14 @@ export default async function TeenLayout({
         <TeenHeader userInfo={userInfo} />
         <div className="flex relative">
           <TeenSidebar />
-          <main className="relative flex-1 p-4 md:p-6 md:ml-64">
+          {/*
+            V1.3-B: layout adds a baseline pb-24 mobile / pb-6 desktop to clear the
+            ~80px mobile dock for any page that forgets it (e.g. Wave 3 stubs like
+            /teen/food, /teen/rides). Pages that already specify pb-32 simply get
+            slightly extra trailing space — no layout breakage. This is the
+            "lift dock-clearance to layout" recommendation from V3 §1 systemic fix.
+          */}
+          <main className="relative flex-1 p-4 pb-24 md:p-6 md:pb-6 md:ml-64">
             {children}
           </main>
         </div>

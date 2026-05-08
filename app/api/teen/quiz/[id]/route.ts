@@ -140,6 +140,32 @@ export async function POST(
       // Non-fatal — the user can still take the quiz; just log it.
     }
 
+    // V1.3-A — correlate this start with any pending impression in the
+    // last 24h. Flips status from 'shown' → 'accepted' so the nightly
+    // rollup's clicked_count picks it up. Best-effort, non-fatal.
+    try {
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+      const { error: corrErr } = await supabase
+        .from("content_recommendations")
+        .update({ status: "accepted" })
+        .eq("teen_id", userInfo.teenData.id)
+        .eq("content_type", "quiz")
+        .eq("content_id", quiz.id)
+        .eq("status", "shown")
+        .gte("recommended_at", oneDayAgo)
+      if (corrErr) {
+        console.warn(
+          "[teen/quiz/[id] POST] reco correlation failed:",
+          corrErr.message,
+        )
+      }
+    } catch (err) {
+      console.warn(
+        "[teen/quiz/[id] POST] reco correlation threw:",
+        (err as Error).message,
+      )
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[teen/quiz/[id] POST] unexpected:", error)

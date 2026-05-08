@@ -113,15 +113,74 @@ export async function getDailyQuizForTeen(teenId: string): Promise<DailyQuizPayl
     if (rpcError) {
       console.warn("[getDailyQuizForTeen] recommend_for_teen rpc error:", rpcError.message)
     } else if (Array.isArray(recos) && recos.length > 0) {
-      const top = recos[0] as { id?: string } | string | null
+      const top = recos[0] as { id?: string; score?: number; reason?: string } | string | null
+      let topObj: { id?: string; score?: number; reason?: string } | null = null
       if (top && typeof top === "object" && typeof top.id === "string") {
+        topObj = top
         recommendedId = top.id
       } else if (typeof top === "string") {
         try {
-          const parsed = JSON.parse(top) as { id?: string }
-          if (parsed?.id) recommendedId = parsed.id
+          const parsed = JSON.parse(top) as { id?: string; score?: number; reason?: string }
+          if (parsed?.id) {
+            topObj = parsed
+            recommendedId = parsed.id
+          }
         } catch {
           // ignore
+        }
+      }
+
+      // V1.3-A — persist this served recommendation as an impression so the
+      // nightly /api/cron/recommendation-metrics-rollup has a row to count.
+      // Best-effort: never break the daily-quiz fetch on persistence failure.
+      if (topObj?.id) {
+        try {
+          const nowIso = new Date().toISOString()
+          const expiresIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          const reason = typeof topObj.reason === "string" ? topObj.reason : ""
+          const factors: Record<string, number | boolean> = {}
+          for (const k of ["aff", "col", "fr", "nov", "ctx", "diff"]) {
+            const m = new RegExp(`\\b${k}=(-?[0-9]+(?:\\.[0-9]+)?)`).exec(reason)
+            if (m) factors[k] = Number(m[1])
+          }
+          if (/seen7d=1/.test(reason)) factors.seen7d = true
+          if (/\[coldstart\]/.test(reason)) factors.coldstart = true
+          if (/\[no-neighbours\]/.test(reason)) factors.no_neighbours = true
+          if (/\[lang-fallback\]/.test(reason)) factors.lang_fallback = true
+
+          const { error: impErr } = await supabase
+            .from("content_recommendations")
+            .upsert(
+              [
+                {
+                  teen_id: teenId,
+                  content_type: "quiz",
+                  content_id: topObj.id,
+                  recommendation_score: Math.max(
+                    -99.99,
+                    Math.min(99.99, Number(topObj.score ?? 0)),
+                  ),
+                  confidence_level: null,
+                  recommendation_factors: factors,
+                  status: "shown",
+                  recommended_at: nowIso,
+                  shown_at: nowIso,
+                  expires_at: expiresIso,
+                },
+              ],
+              { ignoreDuplicates: true },
+            )
+          if (impErr) {
+            console.warn(
+              "[getDailyQuizForTeen] impression persist failed:",
+              impErr.message,
+            )
+          }
+        } catch (err) {
+          console.warn(
+            "[getDailyQuizForTeen] impression persist threw:",
+            (err as Error).message,
+          )
         }
       }
     }

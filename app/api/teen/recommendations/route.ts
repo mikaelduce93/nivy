@@ -36,6 +36,90 @@ function parseRecRows(data: unknown): RecRow[] {
     .filter((r): r is RecRow => !!r && typeof r.id === 'string')
 }
 
+/**
+ * V1.3-A — parse recommend_for_teen v4's `reason` text blob into a JSONB
+ * `recommendation_factors` payload. Format produced by mig 085:
+ *   "aff=0.50 col=0.10 fr=0.00 nov=0.50 ctx=1.00 diff=0.61 [coldstart]"
+ * We pluck the numeric factors so the rollup cron can later compute
+ * novelty_count via `(recommendation_factors->>'nov')::numeric >= 0.5`
+ * without re-parsing the string at aggregation time.
+ */
+function parseReasonToFactors(reason: string | undefined): Record<string, number | boolean> {
+  const out: Record<string, number | boolean> = {}
+  if (!reason || typeof reason !== 'string') return out
+  const numeric = ['aff', 'col', 'fr', 'nov', 'ctx', 'diff']
+  for (const k of numeric) {
+    const m = new RegExp(`\\b${k}=(-?[0-9]+(?:\\.[0-9]+)?)`).exec(reason)
+    if (m) out[k] = Number(m[1])
+  }
+  if (/seen7d=1/.test(reason)) out.seen7d = true
+  if (/\[coldstart\]/.test(reason)) out.coldstart = true
+  if (/\[no-neighbours\]/.test(reason)) out.no_neighbours = true
+  if (/\[lang-fallback\]/.test(reason)) out.lang_fallback = true
+  return out
+}
+
+/**
+ * V1.3-A (Layer 1) — persist each served recommendation as an impression row
+ * in `content_recommendations`. Best-effort: failures here MUST NOT break
+ * the user-facing recommendation response. The unique index
+ * `idx_recommendations_unique_per_day` enforces 1 row per
+ * (teen_id, content_type, content_id, UTC date), so re-calls within the
+ * same UTC day are de-duped via UPSERT.
+ *
+ * Schema reminder (mig 034):
+ *   id, teen_id, content_type, content_id, recommendation_score,
+ *   confidence_level, recommendation_factors jsonb, status, user_feedback,
+ *   actual_performance, recommended_at, shown_at, expires_at.
+ *
+ * status='shown' is set immediately because the server returns these rows
+ * to the client which renders them on receipt; the click correlation in
+ * /api/teen/quiz/[id] (POST start) flips status to 'accepted' on click and
+ * /api/teen/quiz/submit (or signal=complete) flips it to 'completed'.
+ */
+async function persistImpressions(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  teenId: string,
+  contentType: string,
+  rows: RecRow[],
+): Promise<void> {
+  if (rows.length === 0) return
+  const now = new Date()
+  const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const payload = rows.map((r) => ({
+    teen_id: teenId,
+    content_type: contentType,
+    content_id: r.id,
+    // Cast: `recommend_for_teen` returns score on a [-1, ~1.5] scale; the
+    // schema column is numeric(5,2). Round to 2 decimals and clamp to a
+    // safe band so a stray weight never bursts the precision budget.
+    recommendation_score: Math.max(-99.99, Math.min(99.99, Number(r.score ?? 0))),
+    confidence_level: null,
+    recommendation_factors: parseReasonToFactors(r.reason),
+    status: 'shown',
+    recommended_at: now.toISOString(),
+    shown_at: now.toISOString(),
+    expires_at: expires.toISOString(),
+  }))
+  try {
+    const { error } = await supabase
+      .from('content_recommendations')
+      .upsert(payload, {
+        // The functional unique index `idx_recommendations_unique_per_day`
+        // covers (teen_id, content_type, content_id, to_utc_date(recommended_at)).
+        // PostgREST cannot target a functional unique index by name in upsert
+        // hints; use ignoreDuplicates so a same-day re-impression is a no-op
+        // rather than an error.
+        ignoreDuplicates: true,
+      })
+    if (error) {
+      console.warn('[teen/recommendations] impression persist failed:', error.message)
+    }
+  } catch (err) {
+    console.warn('[teen/recommendations] impression persist threw:', (err as Error).message)
+  }
+}
+
 async function hydrateRecommendations(
   supabase: Awaited<ReturnType<typeof createClient>>,
   rows: RecRow[],
@@ -125,6 +209,10 @@ export async function GET(request: NextRequest) {
     }
 
     const rows = parseRecRows(data)
+    // V1.3-A — persist impressions BEFORE hydration so the rollup ledger
+    // is filled even if hydration errors. Best-effort, non-blocking on
+    // failure (logged inside).
+    await persistImpressions(supabase, teenId, contentType, rows)
     const hydrated = await hydrateRecommendations(supabase, rows, contentType)
     return NextResponse.json({ success: true, type: contentType, count: hydrated.length, recommendations: hydrated })
   }

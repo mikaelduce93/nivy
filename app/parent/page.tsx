@@ -311,15 +311,33 @@ export default async function ParentDashboardPage() {
                       teenId={teen.teen_id} 
                       teenName={teen.full_name || "ton teen"} 
                     />
-                    <BentoCard cols={12} rows={1} variant="default" className="bg-zinc-900/40 border-white/5 flex flex-col justify-center h-full">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-black text-white uppercase tracking-widest">Limite Active</p>
-                          <p className="text-2xl font-black text-gen-z-teal">500 DH <span className="text-xs text-zinc-500">/mois</span></p>
-                        </div>
-                        <Button variant="outline" className="rounded-xl border-white/10 text-xs font-black uppercase">Ajuster</Button>
-                      </div>
-                    </BentoCard>
+                    {/* Audit fix (V4 P1): previously hardcoded "Limite Active 500 DH /mois".
+                        Now reads the real teen_budget_limits row for this teen and falls
+                        back to an honest "Limites non configurées" copy when none exists. */}
+                    {(() => {
+                      const teenLimit = budgetLimits.find((bl: any) => bl.teen_id === teen.teen_id)
+                      const monthly = teenLimit?.monthly_limit
+                      const hasLimit = typeof monthly === "number" && monthly > 0
+                      return (
+                        <BentoCard cols={12} rows={1} variant="default" className="bg-zinc-900/40 border-white/5 flex flex-col justify-center h-full">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs font-black text-white uppercase tracking-widest">Limite Active</p>
+                              {hasLimit ? (
+                                <p className="text-2xl font-black text-gen-z-teal">
+                                  {monthly.toLocaleString()} DH <span className="text-xs text-zinc-500">/mois</span>
+                                </p>
+                              ) : (
+                                <p className="text-sm font-bold text-zinc-400">Limites non configurées</p>
+                              )}
+                            </div>
+                            <Button variant="outline" className="rounded-xl border-white/10 text-xs font-black uppercase">
+                              {hasLimit ? "Ajuster" : "Configurer"}
+                            </Button>
+                          </div>
+                        </BentoCard>
+                      )
+                    })()}
                   </div>
                 </div>
               ))}

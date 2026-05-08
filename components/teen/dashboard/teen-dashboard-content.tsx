@@ -58,7 +58,7 @@ interface TeenDashboardContentProps {
     name: string
     xpCost: number
     progressPercent: number
-  }
+  } | null
 }
 
 export function TeenDashboardContent({

@@ -85,27 +85,31 @@ export default async function TeenMentorsPage({
 
   const list = (mentors ?? []) as MentorRow[]
 
+  // V1.3-B: shared control class — 44px min-height for WCAG AAA touch.
+  const selectClass =
+    "min-h-11 rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="container mx-auto px-6 py-32 max-w-5xl">
+    <div className="-m-4 md:-m-6 min-h-screen bg-zinc-950">
+      <div className="container mx-auto max-w-5xl px-4 sm:px-6 pt-6 pb-32 md:pt-12 md:pb-12">
         <Link
           href="/teen"
-          className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white mb-6"
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-zinc-400 hover:text-white mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
         </Link>
 
         <header className="mb-8">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
-              <GraduationCap className="h-6 w-6 text-black" />
+          <div className="flex items-start gap-3">
+            <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-gen-z-sky to-gen-z-mint flex items-center justify-center">
+              <GraduationCap className="h-6 w-6 text-black" aria-hidden />
             </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic text-white">
+            <div className="min-w-0">
+              <h1 className="text-4xl font-black tracking-tighter uppercase italic text-white leading-none">
                 Mentors
               </h1>
-              <p className="text-zinc-500 text-sm font-medium">
+              <p className="mt-1 text-zinc-500 text-sm font-medium">
                 Trouve un mentor verifie pour t'accompagner sur ton chemin.
               </p>
             </div>
@@ -123,15 +127,11 @@ export default async function TeenMentorsPage({
           method="GET"
           className="mb-8 rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-4 flex flex-wrap gap-3 items-end"
         >
-          <div className="flex flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-none">
             <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
               Domaine
             </label>
-            <select
-              name="tag"
-              defaultValue={tag}
-              className="rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/40"
-            >
+            <select name="tag" defaultValue={tag} className={`${selectClass} w-full sm:w-auto`}>
               <option value="">Tous les domaines</option>
               {EXPERTISE_PRESETS.map((p) => (
                 <option key={p.slug} value={p.slug}>
@@ -151,7 +151,7 @@ export default async function TeenMentorsPage({
               max={17}
               defaultValue={sp.age ?? ""}
               placeholder="13-17"
-              className="rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white w-24 focus:outline-none focus:ring-2 focus:ring-cyan-400/40"
+              className={`${selectClass} w-24`}
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -161,7 +161,7 @@ export default async function TeenMentorsPage({
             <select
               name="min_rating"
               defaultValue={sp.min_rating ?? ""}
-              className="rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/40"
+              className={selectClass}
             >
               <option value="">Toutes</option>
               <option value="4">4+</option>
@@ -170,7 +170,7 @@ export default async function TeenMentorsPage({
           </div>
           <button
             type="submit"
-            className="ml-auto inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-black hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-black hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           >
             <Search className="h-4 w-4" />
             Filtrer

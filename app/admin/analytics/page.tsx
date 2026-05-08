@@ -17,7 +17,13 @@ export default async function AdminAnalyticsPage() {
     redirect("/auth/login?redirect=/admin/analytics")
   }
 
-  const { data: adminRole } = await supabase.from("admin_roles").select("*").eq("profile_id", user.id).single()
+  // Audit fix (V4 P0): .maybeSingle() avoids a 500 when the user has no
+  // admin_roles row (vs .single() which throws PGRST116 / 406).
+  const { data: adminRole } = await supabase
+    .from("admin_roles")
+    .select("*")
+    .eq("profile_id", user.id)
+    .maybeSingle()
 
   if (!adminRole) {
     redirect("/")

@@ -43,7 +43,12 @@ export default async function TeenDashboardPage() {
   }
   const nextBestAction = dashboardData?.nextBestAction
   const socialFeed = dashboardData?.socialFeed || []
-  const nextReward = dashboardData?.nextReward || { name: "Place de Cinéma", xpCost: 5000, progressPercent: 0 }
+  // Audit fix (V4 P1): previously hardcoded "Place de Cinéma 5000 XP" fixture
+  // would leak into production for any new teen with no shop rewards seeded.
+  // Now we pass through `null` so PurchasingPower renders nothing rather than
+  // a fake reward the teen can't act on. getTeenDashboardData already returns
+  // null when no candidate reward exists.
+  const nextReward = dashboardData?.nextReward ?? null
 
   // Twin-currency gauge inputs (whitepaper §5).
   // Coins balance → user_coins.balance (canonical source, already fetched in

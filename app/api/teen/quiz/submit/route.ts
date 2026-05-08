@@ -184,6 +184,39 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // V1.3-A — correlate this attempt with any pending impression for the
+    // rollup. Flips status to 'completed' (when passed) or 'rejected'
+    // (when failed) and records actual_performance. Window: 7 days,
+    // matching the impression's expires_at. Best-effort, non-fatal.
+    try {
+      const sevenDaysAgo = new Date(
+        Date.now() - 7 * 24 * 60 * 60 * 1000,
+      ).toISOString()
+      const newStatus = passed ? "completed" : "rejected"
+      const { error: corrErr } = await supabase
+        .from("content_recommendations")
+        .update({
+          status: newStatus,
+          actual_performance: score,
+        })
+        .eq("teen_id", teenId)
+        .eq("content_type", "quiz")
+        .eq("content_id", quizId)
+        .in("status", ["shown", "accepted"])
+        .gte("recommended_at", sevenDaysAgo)
+      if (corrErr) {
+        console.warn(
+          "[teen/quiz/submit] reco correlation failed:",
+          corrErr.message,
+        )
+      }
+    } catch (err) {
+      console.warn(
+        "[teen/quiz/submit] reco correlation threw:",
+        (err as Error).message,
+      )
+    }
+
     return NextResponse.json({
       success: true,
       attempt: {

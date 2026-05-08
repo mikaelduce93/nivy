@@ -35,7 +35,15 @@ export default async function AdminDashboardPage() {
     redirect("/auth/login?redirect=/admin")
   }
 
-  const { data: adminRole } = await supabase.from("admin_roles").select("*").eq("profile_id", user.id).single()
+  // Audit fix (V4 P0): .single() throws Postgres error when no admin_roles row
+  // exists for the user (a non-admin slipping past middleware would 500 the
+  // route). .maybeSingle() returns null instead, letting the redirect handle
+  // unauthorised access cleanly.
+  const { data: adminRole } = await supabase
+    .from("admin_roles")
+    .select("*")
+    .eq("profile_id", user.id)
+    .maybeSingle()
 
   if (!adminRole) {
     redirect("/")
