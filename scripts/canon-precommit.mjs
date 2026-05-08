@@ -76,6 +76,23 @@ const CANON_RULES = [
     message: 'direct INSERT INTO `profiles` — only `handle_new_user` trigger or admin tools.',
     allowFiles: [/app[\\/]api[\\/]admin[\\/]users[\\/]/, /lib[\\/]auth[\\/]admin-create-user\.ts$/, /scripts[\\/]seed-/],
   },
+  // [CANON-AI-PII] Wave 1B — PII forbidden in AI prompts/contexts.
+  // Scope-limited via `onlyFiles`: only flag files in lib/ai/** or
+  // app/api/agent/**. Other surfaces may legitimately read full_name.
+  {
+    id: 'CANON-AI-PII-001',
+    pattern: /\b(full_name|first_name|last_name)\b/,
+    message: 'PII reference (full_name / first_name / last_name) on AI/agent path — use `pseudo` + `age_bucket` via `safeAiContext`.',
+    onlyFiles: [/^lib[\\/]ai[\\/]/, /^app[\\/]api[\\/]agent[\\/]/],
+    // The scrubber itself enumerates these keys to drop them.
+    allowFiles: [/lib[\\/]ai[\\/]safe-context\.ts$/],
+  },
+  // [CANON-CIN-PUBLIC] Wave 1B — CIN must never use getPublicUrl.
+  {
+    id: 'CANON-CIN-001',
+    pattern: /\.from\(['"]cin-scans['"]\)[\s\S]*?\.getPublicUrl\(/,
+    message: 'CIN must use createSignedUrl (private bucket). See lib/storage/cin-signed-url.ts.',
+  },
 ]
 
 const ALLOW_INLINE = /canon-allow:/
@@ -144,6 +161,11 @@ function shouldAllowFile(rule, file) {
   return rule.allowFiles.some((re) => re.test(file))
 }
 
+function isInRuleScope(rule, file) {
+  if (!rule.onlyFiles) return true
+  return rule.onlyFiles.some((re) => re.test(file))
+}
+
 function scanFiles(files, opts = {}) {
   const { stagedOnly = false } = opts
   const violations = []
@@ -153,6 +175,7 @@ function scanFiles(files, opts = {}) {
     for (const { lineNum, text } of lines) {
       if (ALLOW_INLINE.test(text)) continue
       for (const rule of CANON_RULES) {
+        if (!isInRuleScope(rule, file)) continue
         if (shouldAllowFile(rule, file)) continue
         if (rule.pattern.test(text)) {
           violations.push({ file, line: lineNum, ruleId: rule.id, message: rule.message, text: text.trim().slice(0, 120) })

@@ -5,8 +5,16 @@ import { logger } from "@/lib/monitoring/logger"
 
 /**
  * CMI Server-to-Server Webhook
- * This endpoint receives asynchronous notifications from CMI
- * about payment status changes
+ *
+ * Wave 1B — Money Truth fix:
+ *   1. HASH is REQUIRED. Missing or invalid HASH → 401, no DB write.
+ *   2. Bad/replay attempts are logged via console.warn (not user-facing) and
+ *      never raise to 500.
+ *   3. Idempotent insert: a webhook replay for an already-processed
+ *      transaction returns 200 without writing a duplicate row.
+ *
+ * Per docs/canon/economy-payments.locked.md §6 FORBIDDEN #3 and the CMI
+ * spec, an unsigned webhook MUST never mark a payment as successful.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -19,13 +27,38 @@ export async function POST(request: NextRequest) {
       params[key] = value.toString()
     })
 
-    logger.info("CMI webhook received", { params })
+    logger.info("CMI webhook received", {
+      orderId: params.oid ?? null,
+      hasHash: Boolean(params.HASH),
+    })
 
-    // Parse and verify the callback
+    // ─── HASH gate (canon §6 FORBIDDEN #3) ─────────────────────────────
+    // 1. HASH must be present.
+    if (!params.HASH || params.HASH.length === 0) {
+      console.warn("[CMI Webhook] rejected: missing HASH", {
+        orderId: params.oid ?? null,
+      })
+      return NextResponse.json(
+        { error: "Missing HASH — webhook unsigned" },
+        { status: 401 }
+      )
+    }
+    // 2. HASH must be valid against the configured store key.
+    if (!cmiGateway.verifyCallbackHash(params)) {
+      console.warn("[CMI Webhook] rejected: invalid HASH", {
+        orderId: params.oid ?? null,
+      })
+      return NextResponse.json(
+        { error: "Invalid HASH — signature mismatch" },
+        { status: 401 }
+      )
+    }
+
+    // Parse the callback now that we trust the signature.
     const result = cmiGateway.parseCallback(params)
 
     if (!result.orderId) {
-      console.error("[CMI Webhook] Missing order ID")
+      console.warn("[CMI Webhook] rejected: missing order ID after HASH check")
       return NextResponse.json({ error: "Missing order ID" }, { status: 400 })
     }
 

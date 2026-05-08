@@ -75,11 +75,12 @@ export async function GET(request: NextRequest) {
 
     // If user not in top, add them
     if (userRank === -1 && teenId) {
+      // Canon: user_xp PK is teen_id, level column is current_level.
       const { data: userXpData } = await supabase
         .from('user_xp')
-        .select('total_xp, level')
-        .eq('user_id', teenId)
-        .single()
+        .select('total_xp, current_level')
+        .eq('teen_id', teenId)
+        .maybeSingle()
 
       if (userXpData) {
         userXp = userXpData.total_xp
@@ -99,7 +100,7 @@ export async function GET(request: NextRequest) {
           name: userInfo.fullName || 'You',
           avatar_url: userInfo.teenData?.avatar_url || undefined,
           xp: userXp,
-          level: userXpData.level || 1,
+          level: userXpData.current_level || 1,
           badge: undefined,
           isYou: true,
         })

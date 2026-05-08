@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { ageBucket, scrubPii } from "@/lib/ai/safe-context"
 
 export interface AgentContext {
   role: string
@@ -66,6 +67,10 @@ export class ContextEngine {
   }
 
   private static async gatherTeenContext(supabase: any, userId: string) {
+    // Wave 1B PII scrub — we read NO PII names. canon-allow: documents the rule
+    // for AI context. The teen is identified to the LLM by `pseudo` and
+    // `age_bucket` only. See lib/ai/safe-context.ts and
+    // docs/canon/personalization-ai.locked.md.
     // Parallel fetch for better performance
     const [
       profileResult,
@@ -76,19 +81,19 @@ export class ContextEngine {
       eventsResult,
       presenceResult
     ] = await Promise.all([
-      // 1. Basic profile
+      // 1. Basic profile (no PII).
       supabase
         .from('profiles')
-        .select('full_name, city, avatar_url')
+        .select('pseudo, city, avatar_url, date_of_birth, archetype')
         .eq('id', userId)
         .limit(1)
         .maybeSingle()
         .catch(() => ({ data: null })),
-      
-      // 2. Teen profile with coins
+
+      // 2. Teen profile with coins — pseudo only. canon-allow: doc
       supabase
         .from('teen_full_profile')
-        .select('coins_balance, level, title, first_name')
+        .select('coins_balance, level, title')
         .eq('id', userId)
         .limit(1)
         .maybeSingle()
@@ -149,11 +154,16 @@ export class ContextEngine {
     const levelProgress = calculateLevelProgress(totalXp)
     const onlineFriends = friendsPresence.filter((f: any) => f.status !== 'offline').length
 
-    return {
+    // PII-safe projection. Final scrubPii pass guarantees forbidden keys
+    // never reach the LLM even if a downstream caller mutates this struct.
+    return scrubPii({
       profile: {
-        name: profile?.full_name || teenProfile?.first_name || 'Teen',
-        city: profile?.city,
-        avatar: profile?.avatar_url,
+        // pseudo only. canon-allow: doc
+        pseudo: profile?.pseudo ?? null,
+        age_bucket: ageBucket(profile?.date_of_birth ?? null),
+        city: profile?.city ?? null,
+        archetype: profile?.archetype ?? null,
+        avatar: profile?.avatar_url ?? null,
       },
       gamification: {
         coins: teenProfile?.coins_balance || 0,
@@ -180,7 +190,7 @@ export class ContextEngine {
         onlineFriendsCount: onlineFriends,
         totalFriendsPresent: friendsPresence.length,
       }
-    }
+    })
   }
 
   private static async gatherParentContext(supabase: any, userId: string) {
@@ -227,11 +237,12 @@ export class ContextEngine {
             .catch(() => ({ data: [] }))
         : Promise.resolve({ data: [] }),
 
-      // 4. Teen names
+      // 4. Teen pseudos + DOB only — children full names are FORBIDDEN
+      // in any AI prompt. See docs/canon/personalization-ai.locked.md.
       teenIds.length
         ? supabase
             .from('profiles')
-            .select('id, full_name')
+            .select('id, pseudo, date_of_birth')
             .in('id', teenIds)
             .catch(() => ({ data: [] }))
         : Promise.resolve({ data: [] })
@@ -242,8 +253,11 @@ export class ContextEngine {
     const budgets = budgetsResult?.data || []
     const profiles = profilesResult?.data || []
 
-    const nameById = new Map(
-      profiles.map((profile: any) => [profile.id, profile.full_name])
+    const pseudoById = new Map(
+      profiles.map((profile: any) => [profile.id, profile.pseudo])
+    )
+    const dobById = new Map(
+      profiles.map((profile: any) => [profile.id, profile.date_of_birth])
     )
     const budgetByTeen = new Map(
       budgets.map((budget: any) => [budget.teen_id, budget.monthly_limit])
@@ -252,18 +266,20 @@ export class ContextEngine {
     // Calculate monthly spending
     const monthlySpent = transactions.reduce((sum: number, t: any) => sum + (t.amount || 0), 0)
 
-    return {
+    return scrubPii({
       childrenCount: teenIds.length,
       children: teenIds.map((teenId: string) => ({
         id: teenId,
-        name: nameById.get(teenId) || 'Teen',
+        // pseudo only. canon-allow: age_bucket replaces raw DOB
+        pseudo: pseudoById.get(teenId) ?? null,
+        age_bucket: ageBucket(dobById.get(teenId) as string | undefined),
         spendingLimit: budgetByTeen.get(teenId) ?? null,
         controlLevel: null,
       })),
       pendingApprovals: pendingApprovals.length,
       monthlyBudgetSpent: monthlySpent,
-      alerts: [] // Could fetch from notifications table
-    }
+      alerts: []
+    })
   }
 
   private static async gatherPartnerContext(supabase: any, userId: string) {

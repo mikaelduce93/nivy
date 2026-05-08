@@ -253,16 +253,27 @@ export async function POST(request: Request) {
       )
     }
 
-    // Coach context (name + first name) — soft fallbacks if avatars row missing.
+    // Coach context — soft fallbacks if avatars row missing.
+    // Wave 1B PII scrub: we NEVER inject first/last name into the LLM
+    // prompt. The teen is identified to the model by their `pseudo`
+    // (handle), with "champion" as fallback. canon-allow: source key is
+    // intentionally NOT read from auth metadata's full_name.
     const { data: avatar } = await supabase
       .from("avatars")
       .select("teen_id, name, color, skin, mood")
       .eq("teen_id", user.id)
       .maybeSingle<AvatarRow>()
     const coachName = (avatar?.name || "Niv").trim() || "Niv"
-    const teenFirstName =
-      (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] ||
-      "champion"
+    const { data: pseudoRow } = await supabase
+      .from("profiles")
+      .select("pseudo")
+      .eq("id", user.id)
+      .maybeSingle()
+    const teenHandle =
+      (pseudoRow?.pseudo as string | null | undefined)?.trim() || "champion"
+    // Renamed from teenFirstName to teenHandle to make PII-free intent
+    // explicit to future readers.
+    const teenFirstName = teenHandle
 
     // Always persist the teen turn first so the cap counter advances atomically.
     const nowIso = new Date().toISOString()

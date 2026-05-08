@@ -88,18 +88,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Award XP
+    // Award XP — canonical RPC per docs/canon/economy-payments.locked.md §7.
+    // No silent catch-and-fake-success: a money/XP RPC failure must surface
+    // to the client so the optimistic UI is rolled back.
     if (xpReward > 0) {
-      try {
-        await supabase.rpc('add_user_xp', {
-          p_user_id: teenId,
-          p_xp_amount: xpReward,
-          p_source_type: questType,
-          p_source_id: questId,
-        })
-      } catch (xpError) {
-        console.error('Failed to award XP:', xpError)
-        // Don't fail the request if XP award fails
+      const { error: xpError } = await supabase.rpc('add_xp_to_user', {
+        p_teen_id: teenId,
+        p_xp_amount: xpReward,
+        p_source_type: questType,
+        p_source_category: 'quest',
+        p_source_id: questId,
+        p_description: `Completed ${questType} ${questId}`,
+      })
+
+      if (xpError) {
+        console.error('add_xp_to_user RPC failed:', xpError)
+        return NextResponse.json(
+          { ok: false, error: 'Failed to award XP', details: xpError.message },
+          { status: 500 }
+        )
       }
     }
 

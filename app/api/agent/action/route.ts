@@ -4,6 +4,7 @@ import { getDefaultModel } from '@/lib/ai/provider';
 import { performCheckIn, updateBudgetLimit, createFlashOffer, shareReferralCode } from '@/lib/ai/agent-actions';
 import { TEEN_AGENT_PROMPT, PARENT_AGENT_PROMPT, PARTNER_AGENT_PROMPT, AMBASSADOR_AGENT_PROMPT, ADMIN_AGENT_PROMPT } from '@/lib/ai/prompts/roles';
 import { ContextEngine } from '@/lib/ai/context-engine';
+import { scrubPii } from '@/lib/ai/safe-context';
 import { createClient } from '@/lib/supabase/server';
 
 // Allow streaming responses up to 30 seconds
@@ -144,12 +145,17 @@ export async function POST(req: Request) {
       default: baseSystemPrompt = "You are a helpful assistant for the Teens Party Morocco app."; break;
     }
 
+    // Defense-in-depth: scrub PII from any merged client/server context
+    // before serializing into the prompt, in case a downstream caller
+    // injects forbidden fields. See lib/ai/safe-context.ts.
+    const safeContext = scrubPii(context);
+
     // Build enhanced system prompt with context
     const systemPrompt = `
 ${baseSystemPrompt}
 
 [CONTEXT DATA - Use this to personalize responses]:
-${JSON.stringify(context, null, 2)}
+${JSON.stringify(safeContext, null, 2)}
 
 [INSTRUCTIONS]:
 - Personalize your responses based on the user's context data above.

@@ -127,23 +127,27 @@ export function useTeenData(userId: string | undefined): UseTeenDataResult {
         .single()
 
       // Fetch XP
+      // Canon: read user_xp directly (PK teen_id), not phantom RPC `get_user_xp`.
+      // See docs/canon/economy-payments.locked.md §8.
       const { data: xpData } = await supabase
-        .rpc('get_user_xp', { user_id: userId })
-        .single()
+        .from('user_xp')
+        .select('total_xp, current_level')
+        .eq('teen_id', userId)
+        .maybeSingle()
 
-      // Fetch streak
+      // Fetch streak — PK teen_id per canon.
       const { data: streakData } = await supabase
         .from('user_streaks')
         .select('current_streak')
-        .eq('user_id', userId)
-        .single()
+        .eq('teen_id', userId)
+        .maybeSingle()
 
-      // Fetch coins
+      // Fetch coins — PK teen_id per canon §1 + §6 FORBIDDEN #11.
       const { data: coinsData } = await supabase
         .from('user_coins')
         .select('balance')
-        .eq('user_id', userId)
-        .single()
+        .eq('teen_id', userId)
+        .maybeSingle()
 
       setProfile({
         id: userId,

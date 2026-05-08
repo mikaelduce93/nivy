@@ -184,15 +184,24 @@ export async function POST(request: Request) {
     if (memberProfile?.role === "teen") {
       const xpEarned = Math.floor(finalAmount / 10)
       if (xpEarned > 0) {
-        try {
-          await supabase.rpc("add_user_xp", {
-            p_user_id: memberId,
-            p_xp_amount: xpEarned,
-            p_source: "partner_purchase",
-            p_source_id: usageId,
-          })
-        } catch {
-          // ignore — XP path is non-critical
+        // Canonical RPC per docs/canon/economy-payments.locked.md §7.
+        // XP cashback on partner purchases is auxiliary to the discount,
+        // but we no longer silently swallow RPC errors — surface them as a
+        // 500 so the partner UI sees the failure (no fake success).
+        const { error: xpError } = await supabase.rpc("add_xp_to_user", {
+          p_teen_id: memberId,
+          p_xp_amount: xpEarned,
+          p_source_type: "partner_purchase",
+          p_source_category: "partner",
+          p_source_id: usageId,
+          p_description: `Cashback achat chez ${partner.company_name}`,
+        })
+        if (xpError) {
+          console.error("add_xp_to_user RPC failed (partner-discount):", xpError)
+          return NextResponse.json(
+            { success: false, error: "XP attribution échouée", details: xpError.message },
+            { status: 500 }
+          )
         }
       }
     }

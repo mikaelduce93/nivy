@@ -5,17 +5,16 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 /**
  * POST /api/parent/e-signature/create
  *
- * Creates an e-signature record for the authenticated parent.
- * Accepts multipart/form-data with CIN images, signature canvas data,
- * and consent flags.
+ * Wave 1B — CIN privacy fix.
+ *   - CIN images upload to the PRIVATE `cin-scans` bucket (NOT `documents`).
+ *   - DB stores STORAGE PATH only — never a public URL.
+ *   - `getPublicUrl()` is never called for CIN. Use `createSignedUrl` with a
+ *     short TTL when retrieving.
  *
- * The endpoint is parent-role-gated via the session (no CSRF token
- * required — the Supabase auth cookie is the proof of identity for
- * multipart uploads that cannot carry a custom header cross-domain).
+ * Per docs/canon/parent-control.locked.md and
+ * docs/compliance/08-parent-control-compliance.md.
  *
- * On duplicate signature (same parent, terms_accepted = true already
- * present) the existing row id is returned with ok: true so the
- * client-side flow continues without error.
+ * The endpoint is parent-role-gated via the session cookie.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -33,10 +32,10 @@ export async function POST(request: NextRequest) {
     // --- Duplicate guard: return existing signature if already signed ---
     const { data: existing } = await supabase
       .from("e_signatures")
-      .select("id, created_at")
+      .select("id, signed_at")
       .eq("parent_id", userInfo.profileId)
       .eq("terms_accepted", true)
-      .order("created_at", { ascending: false })
+      .order("signed_at", { ascending: false })
       .limit(1)
       .maybeSingle()
 
@@ -46,16 +45,13 @@ export async function POST(request: NextRequest) {
     const childId = (formData.get("childId") as string) || null
     const eventId = (formData.get("eventId") as string) || null
     const bookingId = (formData.get("bookingId") as string) || null
-    const signatureData = formData.get("signatureData") as string
     const signatureHash = formData.get("signatureHash") as string
     const parentFullName = formData.get("parentFullName") as string
     const parentCin = formData.get("parentCin") as string
-    const photoConsent = formData.get("photoConsent") === "true"
-    const medicalConsent = formData.get("medicalConsent") === "true"
     const cinFront = formData.get("cinFront") as File | null
     const cinBack = formData.get("cinBack") as File | null
 
-    if (!signatureData || !parentFullName || !parentCin) {
+    if (!signatureHash || !parentFullName || !parentCin) {
       return NextResponse.json(
         { ok: false, error: "Données de signature incomplètes" },
         { status: 400 }
@@ -69,25 +65,38 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // --- Upload CIN images ---
+    // --- Upload CIN images to PRIVATE bucket `cin-scans` ----------------
+    // We deliberately store only the storage PATH, never a URL. Signed URLs
+    // are generated on-demand by the read endpoints with short TTLs (<= 30
+    // min hard cap). NEVER call getPublicUrl() on this bucket.
     const uploadCinFile = async (file: File, side: "front" | "back") => {
-      const ext = file.name.split(".").pop() || "jpg"
-      const fileName = `${userInfo.profileId}/cin-${side}-${Date.now()}.${ext}`
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase()
+      // Path lives in the parent's own folder so storage RLS
+      // ({auth.uid()}/...) gates writes to self only.
+      const path = `${userInfo.profileId}/cin-${side}-${Date.now()}.${ext}`
       const { error } = await supabase.storage
-        .from("documents")
-        .upload(fileName, file, { cacheControl: "3600", upsert: false })
+        .from("cin-scans")
+        .upload(path, file, { cacheControl: "3600", upsert: false })
 
       if (error) throw error
-
-      const { data: publicData } = supabase.storage
-        .from("documents")
-        .getPublicUrl(fileName)
-
-      return publicData.publicUrl
+      return path
     }
 
-    const cinFrontUrl = await uploadCinFile(cinFront, "front")
-    const cinBackUrl = await uploadCinFile(cinBack, "back")
+    let cinFrontPath: string
+    let cinBackPath: string
+    try {
+      cinFrontPath = await uploadCinFile(cinFront, "front")
+      cinBackPath = await uploadCinFile(cinBack, "back")
+    } catch (uploadErr) {
+      console.error(
+        "[parent/e-signature/create] CIN upload to private bucket failed:",
+        uploadErr
+      )
+      return NextResponse.json(
+        { ok: false, error: "Erreur lors du téléversement de la CIN" },
+        { status: 500 }
+      )
+    }
 
     const ip =
       request.headers.get("x-forwarded-for") ||
@@ -95,8 +104,9 @@ export async function POST(request: NextRequest) {
       "unknown"
     const userAgent = request.headers.get("user-agent") || "unknown"
 
-    // If duplicate, insert a renewal row (allows re-signing with fresh CIN).
-    // The status endpoint always picks the most recent row, so no upsert needed.
+    // We persist the FRONT path in the canonical `cin_url` column (the column
+    // is misnamed historically — it stores a storage path, not a URL). The
+    // back path is recorded in the `documents` table below for audit.
     const { data: signature, error: insertError } = await supabase
       .from("e_signatures")
       .insert({
@@ -104,27 +114,25 @@ export async function POST(request: NextRequest) {
         child_id: childId || null,
         event_id: eventId || null,
         booking_id: bookingId || null,
-        signature_data: signatureData,
         signature_hash: signatureHash,
         parent_full_name: parentFullName,
         parent_cin: parentCin,
-        cin_front_url: cinFrontUrl,
-        cin_back_url: cinBackUrl,
-        photo_consent: photoConsent,
-        medical_consent: medicalConsent,
-        terms_accepted: true,
+        cin_url: cinFrontPath,
         ip_address: ip,
         user_agent: userAgent,
+        terms_accepted: true,
       })
-      .select("id, created_at")
+      .select("id, signed_at")
       .single()
 
     if (insertError) {
       console.error("[parent/e-signature/create] DB insert error:", insertError)
-      // If there is already a valid signature (insert failed due to constraint),
-      // return the existing record so the flow continues.
       if (existing) {
-        return NextResponse.json({ ok: true, id: existing.id, alreadySigned: true })
+        return NextResponse.json({
+          ok: true,
+          id: existing.id,
+          alreadySigned: true,
+        })
       }
       return NextResponse.json(
         { ok: false, error: "Erreur lors de l'enregistrement de la signature" },
@@ -132,32 +140,33 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Log CIN documents in the documents table for parent dashboard visibility.
+    // Documents audit log — also stores PATHS, not URLs. The dashboard
+    // generates short-lived signed URLs at view time.
     await supabase.from("documents").insert([
       {
         parent_id: userInfo.profileId,
         child_id: childId || null,
         document_type: "identity",
         file_name: `CIN_recto_${parentFullName}`,
-        file_url: cinFrontUrl,
+        file_url: cinFrontPath, // legacy column name; value is a private path
         mime_type: cinFront.type || "image/jpeg",
-        description: "Carte d'identité nationale - Recto",
+        description: "Carte d'identité nationale - Recto (private bucket)",
       },
       {
         parent_id: userInfo.profileId,
         child_id: childId || null,
         document_type: "identity",
         file_name: `CIN_verso_${parentFullName}`,
-        file_url: cinBackUrl,
+        file_url: cinBackPath,
         mime_type: cinBack.type || "image/jpeg",
-        description: "Carte d'identité nationale - Verso",
+        description: "Carte d'identité nationale - Verso (private bucket)",
       },
     ])
 
     return NextResponse.json({
       ok: true,
       id: signature.id,
-      signedAt: signature.created_at,
+      signedAt: signature.signed_at,
     })
   } catch (err) {
     console.error("[parent/e-signature/create] Unexpected error:", err)

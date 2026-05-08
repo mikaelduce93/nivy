@@ -17,32 +17,33 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Get coins balance
+    // Get coins balance — canon: user_coins PK is teen_id (NOT user_id).
+    // See docs/canon/economy-payments.locked.md §1 + §6 FORBIDDEN #11.
     const { data: coinsData } = await supabase
       .from('user_coins')
       .select('balance')
-      .eq('user_id', teenId)
-      .single()
+      .eq('teen_id', teenId)
+      .maybeSingle()
 
-    // Get XP data
+    // Get XP data — canon: user_xp PK is teen_id; column is current_level.
     const { data: xpData } = await supabase
       .from('user_xp')
-      .select('total_xp, level')
-      .eq('user_id', teenId)
-      .single()
+      .select('total_xp, current_level')
+      .eq('teen_id', teenId)
+      .maybeSingle()
 
-    // Get streak
+    // Get streak — user_streaks PK is teen_id per canon.
     const { data: streakData } = await supabase
       .from('user_streaks')
       .select('current_streak')
-      .eq('user_id', teenId)
-      .single()
+      .eq('teen_id', teenId)
+      .maybeSingle()
 
-    // Get recent transactions
+    // Get recent transactions — coin_transactions FK is teen_id per canon §29.
     const { data: transactions } = await supabase
       .from('coin_transactions')
       .select('*')
-      .eq('user_id', teenId)
+      .eq('teen_id', teenId)
       .order('created_at', { ascending: false })
       .limit(10)
 
@@ -65,7 +66,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate level progress
     const totalXp = xpData?.total_xp || 0
-    const level = xpData?.level || 1
+    const level = xpData?.current_level || 1
     const xpForCurrentLevel = (level - 1) * 1000
     const xpForNextLevel = level * 1000
     const xpInLevel = totalXp - xpForCurrentLevel
