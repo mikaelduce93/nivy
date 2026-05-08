@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import {
   Swords,
@@ -344,12 +345,14 @@ function ParticipantStandings({
             </div>
 
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-700">
+            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-zinc-700">
               {participant.avatar_url ? (
-                <img
+                <Image
                   src={participant.avatar_url}
                   alt={participant.pseudo}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="32px"
+                  className="object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white font-bold">
@@ -418,10 +421,17 @@ function TeamStandings({
             .map((p) => (
               <div
                 key={p.user_id}
-                className="w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 overflow-hidden"
+                className="relative w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 overflow-hidden"
               >
                 {p.avatar_url ? (
-                  <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
+                  <Image
+                    src={p.avatar_url}
+                    alt=""
+                    aria-hidden
+                    fill
+                    sizes="24px"
+                    className="object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-xs text-white">
                     {p.pseudo.charAt(0)}
@@ -455,10 +465,17 @@ function TeamStandings({
             .map((p) => (
               <div
                 key={p.user_id}
-                className="w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 overflow-hidden"
+                className="relative w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 overflow-hidden"
               >
                 {p.avatar_url ? (
-                  <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
+                  <Image
+                    src={p.avatar_url}
+                    alt=""
+                    aria-hidden
+                    fill
+                    sizes="24px"
+                    className="object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-xs text-white">
                     {p.pseudo.charAt(0)}

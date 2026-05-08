@@ -3,6 +3,7 @@
  */
 
 import { notFound } from "next/navigation"
+import Image from "next/image"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { BuyButton } from "./buy-button"
 
@@ -43,10 +44,16 @@ export default async function ListingDetailPage({
       <div className="text-sm text-gray-600 mb-4">
         {listing.category} · {listing.condition ?? "—"} · {listing.city ?? "—"}
       </div>
-      <div className="aspect-video bg-gray-100 mb-4 flex items-center justify-center text-gray-400">
+      <div className="relative aspect-video bg-gray-100 mb-4 flex items-center justify-center text-gray-400 overflow-hidden">
         {Array.isArray(listing.images) && listing.images[0] ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover" />
+          <Image
+            src={listing.images[0]}
+            alt={listing.title}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 672px"
+            className="object-cover"
+          />
         ) : (
           <span>no image</span>
         )}

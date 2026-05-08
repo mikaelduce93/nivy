@@ -5,6 +5,7 @@ import { ParentHeader } from "@/components/dashboard/parent/header"
 import { AgentFloatingButton } from "@/components/ai/AgentFloatingButton"
 import { ParentMobileDock } from "@/components/layouts/parent-mobile-dock"
 import { createClient } from "@/lib/supabase/server"
+import { SkipToContent } from "@/components/ui/skip-to-content"
 
 export default async function ParentLayout({
   children,
@@ -31,10 +32,16 @@ export default async function ParentLayout({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
+      <SkipToContent />
       <ParentHeader userInfo={userInfo} />
       <div className="flex">
         <ParentSidebar userInfo={userInfo} />
-        <main className="flex-1 p-4 md:p-8 lg:p-10 md:ml-64 pt-24 pb-32 md:pb-10">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 p-4 md:p-8 lg:p-10 md:ml-64 pt-24 pb-32 md:pb-10 outline-none"
+        >
           {children}
         </main>
       </div>

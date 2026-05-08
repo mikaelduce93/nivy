@@ -6,6 +6,7 @@
  */
 
 import Link from "next/link"
+import Image from "next/image"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
 export const dynamic = "force-dynamic"
@@ -107,13 +108,21 @@ export default async function MarketplacePage({
         <p className="text-gray-500">Aucune annonce active pour le moment.</p>
       ) : (
         <ul className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-          {listings.map((l) => (
+          {listings.map((l, idx) => (
             <li key={l.id} className="border rounded-lg overflow-hidden bg-white">
               <Link href={`/marketplace/listings/${l.id}`} className="block">
-                <div className="aspect-square bg-gray-100 flex items-center justify-center text-gray-400">
+                <div className="relative aspect-square bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden">
                   {l.images && l.images[0] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover" />
+                    <Image
+                      src={l.images[0]}
+                      alt={l.title}
+                      fill
+                      // First 3 cards are above-the-fold on most viewports → mark
+                      // as LCP candidates. Lower-priority for the rest.
+                      priority={idx < 3}
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                      className="object-cover"
+                    />
                   ) : (
                     <span className="text-xs">no image</span>
                   )}

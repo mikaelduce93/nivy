@@ -8,8 +8,8 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
       type={type}
       data-slot="input"
       className={cn(
-        // Base styles
-        'flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs md:text-sm',
+        // Base styles — h-11 (44px) for mobile touch target compliance (TICKET-004)
+        'flex h-11 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs md:text-sm',
         // Border and background
         'border-input dark:bg-input/30',
         // Text and placeholder

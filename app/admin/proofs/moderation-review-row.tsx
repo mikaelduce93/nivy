@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 interface FeedPostLite {
@@ -142,13 +143,19 @@ export function ModerationReviewRow({ row }: { row: ReviewRow }) {
                 className="aspect-video w-full rounded bg-black object-contain"
               />
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <div
                 key={i}
-                src={url}
-                alt=""
-                className="aspect-video w-full rounded bg-zinc-950 object-cover"
-              />
+                className="relative aspect-video w-full overflow-hidden rounded bg-zinc-950"
+              >
+                <Image
+                  src={url}
+                  alt=""
+                  aria-hidden
+                  fill
+                  sizes="(max-width: 640px) 50vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
             )
           })}
         </div>

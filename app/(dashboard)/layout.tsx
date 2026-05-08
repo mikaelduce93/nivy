@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/header"
+import { SkipToContent } from "@/components/ui/skip-to-content"
 
 export const metadata: Metadata = {
   title: {
@@ -33,10 +34,16 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
+      <SkipToContent />
       <DashboardHeader user={user} profile={profile} />
       <div className="flex">
         <DashboardSidebar />
-        <main className="flex-1 p-6 lg:p-8">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 p-6 lg:p-8 outline-none"
+        >
           {children}
         </main>
       </div>

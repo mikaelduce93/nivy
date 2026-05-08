@@ -24,6 +24,7 @@ import { GamificationProvider } from "@/components/gamification/gamification-pro
 import { EliteAICompanion } from "@/components/ai/elite-ai-companion"
 import { ClientErrorBoundary } from "@/components/common/client-error-boundary"
 import { PushPermissionPrompt } from "@/components/teen/push-permission-prompt"
+import { SkipToContent } from "@/components/ui/skip-to-content"
 
 export default async function TeenLayout({
   children,
@@ -43,6 +44,10 @@ export default async function TeenLayout({
   return (
     <GamificationProvider initialTeenId={userInfo.teenData?.id}>
       <div className="min-h-screen bg-background text-foreground">
+        {/* TICKET-049: keyboard skip-link must be the FIRST focusable element
+            in the role layout so Tab from the URL bar reveals it before any
+            header / sidebar item. */}
+        <SkipToContent />
         <div className="pointer-events-none fixed inset-0 bg-dots opacity-20" />
         <TeenHeader userInfo={userInfo} />
         <div className="flex relative">
@@ -54,7 +59,11 @@ export default async function TeenLayout({
             slightly extra trailing space — no layout breakage. This is the
             "lift dock-clearance to layout" recommendation from V3 §1 systemic fix.
           */}
-          <main className="relative flex-1 p-4 pb-24 md:p-6 md:pb-6 md:ml-64">
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="relative flex-1 p-4 pb-24 md:p-6 md:pb-6 md:ml-64 outline-none"
+          >
             {children}
           </main>
         </div>

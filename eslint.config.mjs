@@ -159,6 +159,68 @@ export default [js.configs.recommended, {
     'react-hooks/exhaustive-deps': 'warn',
   },
 }, {
+  // ============================================================
+  // DESIGN-SYSTEM GUARDRAIL (TICKET-001)
+  // ------------------------------------------------------------
+  // Lint-ban raw Tailwind palette literals in JSX className attrs
+  // across all role surfaces (`app/**`). Forces consumers to reach
+  // for the semantic tokens defined in `app/globals.css`
+  // (brand-soft, accent-soft, success-soft, info-soft, primary,
+  // accent, success, warning, info, foreground, muted-foreground,
+  // border, ring, sidebar-*, neon-*, on-bright, gen-z-*).
+  //
+  // Rule level: WARN (with --max-warnings baseline so net-new
+  // violations FAIL CI, while existing offenders ride along until
+  // the Wave 2 token sweep — TICKET-002).
+  //
+  // Banned families:
+  //   cyan, emerald, sky, rose, amber, fuchsia, blue, gray,
+  //   indigo, teal — at any numeric shade (`-50` … `-950`).
+  //   plus `zinc-50/100/200/300` (low end of zinc only — `zinc-400+`
+  //   stays allowed because those shades are used for proper
+  //   foreground contrast on dark surfaces and have no semantic
+  //   replacement yet).
+  //
+  // Any Tailwind utility that takes a colour scale is matched —
+  // bg, text, border, ring, divide, fill, stroke, shadow, outline,
+  // from, to, via, placeholder, caret, accent, decoration. Modifier
+  // prefixes (`hover:`, `dark:`, `md:`, `group-*:`, etc.) are
+  // tolerated by anchoring the regex on a word boundary, not start.
+  // ============================================================
+  files: ['app/**/*.{ts,tsx,js,jsx}'],
+  rules: {
+    'no-restricted-syntax': ['warn',
+      {
+        // Static className="..."  /  className={'...'}
+        selector: "JSXAttribute[name.name='className'] Literal[value=/(?:^|[\\s:])(?:bg|text|border|ring|divide|fill|stroke|shadow|outline|from|to|via|placeholder|caret|accent|decoration)-(?:cyan|emerald|sky|rose|amber|fuchsia|blue|gray|indigo|teal)-(?:50|100|200|300|400|500|600|700|800|900|950)\\b/]",
+        message: 'Raw Tailwind colour literal in className. Use a semantic token instead (brand-soft, accent-soft, success-soft, info-soft, primary, accent, success, warning, info, foreground, muted-foreground, border, ring, gen-z-* …). See `app/globals.css` and TICKET-001.',
+      },
+      {
+        // Low-end zinc only: zinc-50/100/200/300 banned, zinc-400+ allowed.
+        selector: "JSXAttribute[name.name='className'] Literal[value=/(?:^|[\\s:])(?:bg|text|border|ring|divide|fill|stroke|shadow|outline|from|to|via|placeholder|caret|accent|decoration)-zinc-(?:50|100|200|300)\\b/]",
+        message: 'Raw zinc-50/100/200/300 in className. Prefer semantic tokens (muted, muted-foreground, border, foreground). zinc-400+ is allowed for contrast. See TICKET-001.',
+      },
+      {
+        // Template-literal className (cn(`bg-blue-500 ${...}`))
+        selector: "JSXAttribute[name.name='className'] TemplateElement[value.raw=/(?:^|[\\s:])(?:bg|text|border|ring|divide|fill|stroke|shadow|outline|from|to|via|placeholder|caret|accent|decoration)-(?:cyan|emerald|sky|rose|amber|fuchsia|blue|gray|indigo|teal)-(?:50|100|200|300|400|500|600|700|800|900|950)\\b/]",
+        message: 'Raw Tailwind colour literal in className template. Use a semantic token. See TICKET-001.',
+      },
+      {
+        selector: "JSXAttribute[name.name='className'] TemplateElement[value.raw=/(?:^|[\\s:])(?:bg|text|border|ring|divide|fill|stroke|shadow|outline|from|to|via|placeholder|caret|accent|decoration)-zinc-(?:50|100|200|300)\\b/]",
+        message: 'Raw low-shade zinc in className template. Use semantic tokens. zinc-400+ is allowed. See TICKET-001.',
+      },
+      {
+        // cn(...) / clsx(...) / cva(...) string literal arguments
+        selector: "CallExpression[callee.name=/^(cn|clsx|cva|twMerge|classNames)$/] Literal[value=/(?:^|[\\s:])(?:bg|text|border|ring|divide|fill|stroke|shadow|outline|from|to|via|placeholder|caret|accent|decoration)-(?:cyan|emerald|sky|rose|amber|fuchsia|blue|gray|indigo|teal)-(?:50|100|200|300|400|500|600|700|800|900|950)\\b/]",
+        message: 'Raw Tailwind colour literal inside cn/clsx/cva. Use a semantic token. See TICKET-001.',
+      },
+      {
+        selector: "CallExpression[callee.name=/^(cn|clsx|cva|twMerge|classNames)$/] Literal[value=/(?:^|[\\s:])(?:bg|text|border|ring|divide|fill|stroke|shadow|outline|from|to|via|placeholder|caret|accent|decoration)-zinc-(?:50|100|200|300)\\b/]",
+        message: 'Raw low-shade zinc inside cn/clsx/cva. Use semantic tokens. zinc-400+ is allowed. See TICKET-001.',
+      },
+    ],
+  },
+}, {
   // TypeScript parsing + TS-friendly rules
   files: ['**/*.{ts,tsx}'],
   languageOptions: {

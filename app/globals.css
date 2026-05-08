@@ -1049,6 +1049,17 @@
     }
   }
 
+  /* TICKET-004 — Field error shake (reduced-motion neutralised by global rule) */
+  @keyframes field-shake {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-4px); }
+    30% { transform: translateX(4px); }
+    45% { transform: translateX(-3px); }
+    60% { transform: translateX(3px); }
+    75% { transform: translateX(-2px); }
+    90% { transform: translateX(2px); }
+  }
+
   /* --------------------------------------------------------------------------
      Animation Classes
      -------------------------------------------------------------------------- */
@@ -1110,6 +1121,11 @@
 
   .animate-bounce-subtle {
     animation: bounce-subtle 2s ease-in-out infinite;
+  }
+
+  /* TICKET-004 — Field error shake utility */
+  .animate-field-shake {
+    animation: field-shake 0.45s var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
   }
 
   /* --------------------------------------------------------------------------

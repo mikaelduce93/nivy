@@ -1,10 +1,42 @@
 /**
- * TEENS PARTY MOROCCO - Skeletons Index
- * =====================================
+ * NIVY — Skeletons barrel
+ * =======================
  *
- * Export centralisé des composants skeletons réutilisables
+ * Two preferred entry points (TICKET-005):
+ *   1. `atoms`    → primitive bricks (Bar, Circle, Image, Text)
+ *   2. `presets`  → composed shapes (Card, List, Form, Stats, Hero,
+ *                   DefiCard, AvatarCoach, TwinCurrencyGauge, …)
+ *
+ * Legacy exports (PageSkeleton, dashboard-skeletons) are re-exported here
+ * for back-compat and will be progressively replaced by `presets`.
  */
 
+/* --- new entry points (TICKET-005) ---------------------------------------- */
+export {
+  SkeletonBar,
+  SkeletonCircle,
+  SkeletonImage,
+  SkeletonText,
+  SkeletonAtoms,
+  SKELETON_BASE,
+} from './atoms'
+
+export {
+  // generic presets
+  SkeletonCard as SkeletonPresetCard,
+  SkeletonList as SkeletonPresetList,
+  SkeletonForm as SkeletonPresetForm,
+  SkeletonStats as SkeletonPresetStats,
+  SkeletonHero as SkeletonPresetHero,
+  // component-matching presets
+  SkeletonDefiCard,
+  SkeletonAvatarCoach,
+  SkeletonTwinCurrencyGauge,
+  // namespace alias
+  SkeletonPresets,
+} from './presets'
+
+/* --- legacy: page-skeleton (back-compat) ---------------------------------- */
 export {
   PageSkeleton,
   GridSkeleton,
@@ -15,7 +47,7 @@ export {
   FiltersSkeleton,
 } from './page-skeleton'
 
-// Dashboard-specific skeletons
+/* --- legacy: dashboard-skeletons (back-compat) ---------------------------- */
 export {
   Skeleton,
   HeroSkeleton,
@@ -29,10 +61,3 @@ export {
   ProfileQuestSkeleton,
   DashboardSkeleton,
 } from './dashboard-skeletons'
-
-
-
-
-
-
-

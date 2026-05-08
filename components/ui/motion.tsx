@@ -632,3 +632,195 @@ export function AnimatedCounter({
    ========================================================================== */
 
 export { motion, AnimatePresence } from 'framer-motion'
+
+/* ==========================================================================
+   <Motion.*> — REDUCED-MOTION-AWARE DROP-IN REPLACEMENT
+   ==========================================================================
+   TICKET-023 (Wave 1): solves the audit's #1 finding — only 14 % of
+   framer-motion call sites respect `prefers-reduced-motion`. Wave 2 will
+   codemod ~227 files from:
+       import { motion } from 'framer-motion'
+   to:
+       import { Motion as motion } from '@/components/ui/motion'
+   Once swapped, animations automatically:
+     1. Skip `initial` / `animate` / `exit` / `transition` when the user's OS
+        reports `prefers-reduced-motion: reduce` — render the final state.
+     2. Default `transition` to the canonical EASE_STANDARD curve.
+   The wrapper is API-compatible with `framer-motion/motion`, so call sites
+   need no other changes.
+   ========================================================================== */
+
+import {
+  motion as framerMotion,
+  useReducedMotion as useFramerReducedMotion,
+  MotionConfig as FramerMotionConfig,
+  type MotionProps,
+  type MotionConfigProps,
+  type ForwardRefComponent,
+} from 'framer-motion'
+import { DEFAULT_TRANSITION } from '@/lib/motion/easing'
+
+/**
+ * Re-export every easing/spring/duration token through this barrel so
+ * downstream code can do `import { EASE } from '@/components/ui/motion'`.
+ */
+export {
+  EASE,
+  SPRING,
+  DURATION,
+  EASE_STANDARD,
+  EASE_DECELERATE,
+  EASE_ACCELERATE,
+  EASE_SMOOTH,
+  EASE_SNAPPY,
+  EASE_DRAMATIC,
+  SPRING_SNAPPY,
+  SPRING_BOUNCY,
+  SPRING_GENTLE,
+  SPRING_STIFF,
+  DURATION_FAST,
+  DURATION_NORMAL,
+  DURATION_SLOW,
+  DURATION_DRAMATIC,
+  DURATION_INSTANT,
+  DEFAULT_TRANSITION,
+  REDUCED_MOTION_TRANSITION,
+} from '@/lib/motion/easing'
+
+/**
+ * Strips animation-driving props when reduced-motion is requested so the
+ * element renders directly in its final state. We keep `style`, `className`
+ * and event handlers untouched.
+ */
+function applyReducedMotion<P extends MotionProps>(
+  props: P,
+  prefersReducedMotion: boolean | null
+): P {
+  if (!prefersReducedMotion) {
+    // Inject default transition only if caller didn't specify one.
+    if (props.transition === undefined) {
+      return { ...props, transition: DEFAULT_TRANSITION }
+    }
+    return props
+  }
+
+  // Reduced motion: render final state immediately. We collapse `initial` to
+  // match `animate` (so no entrance frame is shown) and force a 0-duration
+  // transition. `exit` is left as-is — AnimatePresence respects the same
+  // 0-duration override via the transition prop.
+  const next: MotionProps = { ...props }
+
+  if (next.animate !== undefined) {
+    // Use the animate target as the initial state so nothing animates in.
+    next.initial = next.animate as MotionProps['initial']
+  } else {
+    next.initial = false
+  }
+
+  next.transition = { duration: 0, delay: 0 }
+
+  // Disable layout animations to prevent FLIP transitions under reduced motion.
+  if (next.layout !== undefined) next.layout = false
+  if (next.layoutId !== undefined) {
+    // layoutId is informational; framer still snaps without animation when
+    // transition.duration === 0, so leave it.
+  }
+
+  // Strip whileHover / whileTap visual scaling (still allow color changes via
+  // CSS). We only nuke them when they are objects; string variant names are
+  // fine because they resolve through `variants`.
+  if (typeof next.whileHover === 'object') next.whileHover = undefined
+  if (typeof next.whileTap === 'object') next.whileTap = undefined
+  if (typeof next.whileFocus === 'object') next.whileFocus = undefined
+  if (typeof next.whileDrag === 'object') next.whileDrag = undefined
+  if (typeof next.whileInView === 'object') next.whileInView = undefined
+
+  return next as P
+}
+
+/** Internal: build a reduced-motion-aware wrapper around a framer-motion tag. */
+function createMotionComponent<Tag extends keyof typeof framerMotion>(
+  tag: Tag
+): (typeof framerMotion)[Tag] {
+  const Base = framerMotion[tag] as ForwardRefComponent<HTMLElement, MotionProps>
+
+  const Wrapped = React.forwardRef<HTMLElement, MotionProps>((props, ref) => {
+    const prefersReducedMotion = useFramerReducedMotion()
+    const safeProps = applyReducedMotion(props, prefersReducedMotion)
+    return <Base ref={ref} {...safeProps} />
+  })
+
+  Wrapped.displayName = `Motion.${String(tag)}`
+  return Wrapped as unknown as (typeof framerMotion)[Tag]
+}
+
+/**
+ * Reduced-motion-aware drop-in for `framer-motion`'s `motion` namespace.
+ *
+ * Use exactly like `motion.*` — every prop and type is forwarded.
+ *
+ * @example
+ * ```tsx
+ * import { Motion } from '@/components/ui/motion'
+ *
+ * <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+ *   Fades in — but renders immediately under prefers-reduced-motion.
+ * </Motion.div>
+ * ```
+ *
+ * Implementation note: we use a Proxy so we don't enumerate every framer
+ * tag (there are ~150). Components are memoised on first access.
+ */
+const motionCache = new Map<string, unknown>()
+
+export const Motion: typeof framerMotion = new Proxy(framerMotion, {
+  get(target, prop, receiver) {
+    if (typeof prop !== 'string') {
+      return Reflect.get(target, prop, receiver)
+    }
+    if (!(prop in target)) {
+      return Reflect.get(target, prop, receiver)
+    }
+    if (motionCache.has(prop)) {
+      return motionCache.get(prop)
+    }
+    const wrapped = createMotionComponent(prop as keyof typeof framerMotion)
+    motionCache.set(prop, wrapped)
+    return wrapped
+  },
+}) as typeof framerMotion
+
+/* ==========================================================================
+   <MotionProvider> — global reduced-motion + default-transition gate
+   ==========================================================================
+   Wave 2 will mount this in `app/layout.tsx`:
+       <MotionProvider>{children}</MotionProvider>
+   It applies framer-motion's `MotionConfig` with:
+     - `reducedMotion="user"`  → trust the OS preference globally
+     - `transition={DEFAULT_TRANSITION}` → ambient EASE_STANDARD / 250 ms
+   Existing `motion.*` call sites benefit even before the codemod lands.
+   ========================================================================== */
+
+interface MotionProviderProps extends Omit<MotionConfigProps, 'children'> {
+  children: React.ReactNode
+}
+
+export function MotionProvider({
+  children,
+  reducedMotion = 'user',
+  transition = DEFAULT_TRANSITION,
+  ...rest
+}: MotionProviderProps) {
+  return (
+    <FramerMotionConfig
+      reducedMotion={reducedMotion}
+      transition={transition}
+      {...rest}
+    >
+      {children}
+    </FramerMotionConfig>
+  )
+}
+
+/** Re-export framer's `useReducedMotion` so consumers have one import. */
+export { useReducedMotion } from 'framer-motion'

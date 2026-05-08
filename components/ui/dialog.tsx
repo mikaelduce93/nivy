@@ -1,5 +1,18 @@
 'use client'
 
+/**
+ * NOTE (TICKET-046 / TICKET-028, UX-Sprint Wave 1):
+ * For NEW modal surfaces, prefer `<ResponsiveModal>` from
+ * `components/ui/responsive-modal.tsx`. It exposes the same Dialog-shaped
+ * compound API but renders as a Vaul bottom-sheet on `< md` viewports
+ * (with drag-to-dismiss, safe-area padding, and consistent
+ * `bg-black/40 backdrop-blur-md` overlay).
+ *
+ * This `<Dialog>` primitive is preserved unchanged so that existing
+ * call-sites keep working (additive migration policy). Migrating consumers
+ * is intentionally out of scope for this ticket.
+ */
+
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from 'lucide-react'
@@ -69,7 +82,13 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            // TICKET-047 (a11y): replaced `focus:outline-hidden` (which removed
+            // the visible focus ring entirely for keyboard users) with an
+            // explicit `focus-visible:ring-2 focus-visible:ring-primary
+            // focus-visible:ring-offset-2` so keyboard navigation always shows
+            // a clearly visible focus indicator on the close button. Mouse
+            // clicks still don't render an outline thanks to `focus-visible:`.
+            className="ring-offset-background data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
           >
             <XIcon />
             <span className="sr-only">Close</span>

@@ -2,6 +2,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { MentorSidebar } from "@/components/dashboard/mentor/sidebar"
 import { MentorHeader } from "@/components/dashboard/mentor/header"
+import { SkipToContent } from "@/components/ui/skip-to-content"
 
 export default async function MentorLayout({
   children,
@@ -36,10 +37,16 @@ export default async function MentorLayout({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
+      <SkipToContent />
       <MentorHeader userInfo={userInfo} />
       <div className="flex">
         <MentorSidebar />
-        <main className="flex-1 p-4 md:p-8 lg:p-10 md:ml-64 pt-24">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 p-4 md:p-8 lg:p-10 md:ml-64 pt-24 outline-none"
+        >
           {children}
         </main>
       </div>

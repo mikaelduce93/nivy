@@ -2,6 +2,7 @@
  * Wave 2.3 — Submission detail with engagement actions.
  */
 import { redirect, notFound } from "next/navigation"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { recordSignalAsync } from "@/lib/analytics/signals"
 import EngageButtons from "./engage-buttons"
@@ -86,7 +87,16 @@ export default async function SubmissionDetailPage({
         {title && <h1 className="mb-2 text-2xl font-semibold">{title}</h1>}
         {post.content && <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>}
         {media && (
-          <img src={media} alt={title ?? ""} className="mt-4 w-full rounded object-cover" />
+          <div className="relative mt-4 aspect-video w-full overflow-hidden rounded">
+            <Image
+              src={media}
+              alt={title ?? "Image de la publication"}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 672px"
+              className="object-cover"
+            />
+          </div>
         )}
         <div className="mt-4 flex gap-4 text-sm text-gray-600">
           <span>♥ {post.likes_count ?? 0}</span>

@@ -26,6 +26,7 @@
  */
 
 import { useRef, useState } from "react"
+import Image from "next/image"
 import { Camera, Loader2, CheckCircle2, X, Upload } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
@@ -201,10 +202,12 @@ export function EvidenceUpload({
       {phase === "done" && storedPath ? (
         <div className="flex items-center gap-3 p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
           {thumbUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={thumbUrl}
               alt="Preuve envoyée"
+              width={56}
+              height={56}
+              sizes="56px"
               className="w-14 h-14 rounded-xl object-cover border border-white/10"
             />
           ) : (
