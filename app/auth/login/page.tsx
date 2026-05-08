@@ -12,6 +12,7 @@ import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from "react"
 import { useT } from "@/lib/i18n"
+import { DemoAccountSwitcher } from "@/components/auth/demo-account-switcher"
 
 export default function LoginPage() {
   const t = useT()
@@ -108,6 +109,7 @@ export default function LoginPage() {
               <CardDescription className="text-zinc-400 text-balance">{t("auth.login.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
+              <DemoAccountSwitcher />
               <div className="flex flex-col gap-3 mb-6">
                 <Button
                   type="button"
