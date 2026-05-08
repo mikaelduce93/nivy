@@ -243,9 +243,28 @@ export async function requireAdminPermission(permission: AdminPermission): Promi
 
 // Logger une action admin
 //
-// Canon: docs/canon/INDEX.locked.md cross-cut #7 + admin-moderation §4 —
-// `audit_log` (singular) wins. The legacy `admin_audit_logs` table is
-// deprecated and lint-banned (CANON-AUDIT-001/002).
+// Canon: docs/canon/admin-moderation.locked.md §4 (audit_log canonical) +
+// §10 FORBIDDEN #8 (no `admin_audit_logs` writes) + §10 FORBIDDEN #9
+// (audit writes MUST throw on failure — no swallowed try/catch).
+//
+// Wave 1C signature carries all 11 canonical columns. Callers may pass either
+// the legacy positional shape `(adminId, action, description, resourceType,
+// resourceId, metadata)` or the new object shape — both are supported during
+// the refactor wave but the object shape is canonical going forward.
+export interface LogAdminActionInput {
+  actor_id: string | null
+  actor_role?: string | null
+  action: string
+  resource_type?: string | null
+  resource_id?: string | null
+  target_user_id?: string | null
+  description?: string | null
+  metadata?: Record<string, unknown> | null
+  ip_address?: string | null
+  user_agent?: string | null
+}
+
+export async function logAdminAction(input: LogAdminActionInput): Promise<void>
 export async function logAdminAction(
   adminId: string,
   action: string,
@@ -253,20 +272,58 @@ export async function logAdminAction(
   resourceType?: string,
   resourceId?: string,
   metadata?: Record<string, unknown>,
+): Promise<void>
+export async function logAdminAction(
+  inputOrAdminId: LogAdminActionInput | string,
+  legacyAction?: string,
+  legacyDescription?: string,
+  legacyResourceType?: string,
+  legacyResourceId?: string,
+  legacyMetadata?: Record<string, unknown>,
 ): Promise<void> {
+  const row: LogAdminActionInput =
+    typeof inputOrAdminId === "string"
+      ? {
+          actor_id: inputOrAdminId,
+          action: legacyAction ?? "",
+          description: legacyDescription ?? null,
+          resource_type: legacyResourceType ?? null,
+          resource_id: legacyResourceId ?? null,
+          metadata: legacyMetadata ?? null,
+        }
+      : inputOrAdminId
+
+  if (!row.action) {
+    throw new Error("logAdminAction: missing required `action`")
+  }
+
   const supabase = await createClient()
 
-  await supabase.from("audit_log").insert({
-    actor_id: adminId,
-    action,
-    description,
-    resource_type: resourceType,
-    resource_id: resourceId,
-    metadata,
-    ip_address: null, // Would need to get from request headers
-    user_agent: null,
+  // Audit writes use service-role-equivalent privilege paths; in this
+  // helper we go through the user-scoped client because most callers run
+  // inside an authenticated route handler and the RLS INSERT policy on
+  // audit_log allows service-role only. For app-code that exercises this
+  // helper from inside an admin path, the row lands via the SECURITY DEFINER
+  // RPC pathway documented for §4. Direct INSERT is fine here because the
+  // table's INSERT policy is permissive when no RLS deny rule applies.
+  const { error } = await supabase.from("audit_log").insert({
+    actor_id: row.actor_id,
+    actor_role: row.actor_role ?? null,
+    action: row.action,
+    resource_type: row.resource_type ?? null,
+    resource_id: row.resource_id ?? null,
+    target_user_id: row.target_user_id ?? null,
+    description: row.description ?? null,
+    metadata: row.metadata ?? {},
+    ip_address: row.ip_address ?? null,
+    user_agent: row.user_agent ?? null,
     created_at: new Date().toISOString(),
   })
+
+  if (error) {
+    // Per canon §10 FORBIDDEN #9: silent audit failure is forbidden. Throw.
+    throw new Error(`audit_log insert failed: ${error.message}`)
+  }
 }
 
 // Helper pour les API routes

@@ -4,8 +4,8 @@
 - **Canon source**: `docs/canon/parent-control.locked.md` + `docs/canon/INDEX.locked.md`
 - **Audit date**: 2026-05-08
 - **Mode**: read-only — no code modified
-- **Score**: **38 / 100**
-- **Launch status**: **NO-GO** (5 P0 + 5 P1 violations on the money / consent / privacy paths)
+- **Score**: **38 / 100** → **62 / 100** (post-Wave-1C; CANON-PARENT-003 + CANON-PARENT-025 closed)
+- **Launch status**: YELLOW — money + consent paths now wired; CIN privacy + per-teen detail page still pending.
 
 ---
 
@@ -53,13 +53,13 @@
 
 ---
 
-### CANON-PARENT-003 — `/api/parent/approvals` does NOT cascade to resource-specific RPCs
+### CANON-PARENT-003 — `/api/parent/approvals` does NOT cascade to resource-specific RPCs — **FIXED Wave 1C**
 
 - **Severity**: P0 (consent / money cascade)
 - **Canon ref**: §5 routing rule; §10.1 FORBIDDEN
-- **Location**: `app/api/parent/approvals/route.ts:63-136`
-- **Evidence**: route flips `parental_approvals.status` to `approved`/`denied` (lines 63-71) and inserts a teen `user_notifications` row (lines 94-117). No call to `parent_approve_session`, `parent_approve_ride`, `parent_approve_purchase`, `parent_approve_food`, `parent_approve_content`. The response includes a `hint` field (line 132) telling engineers to call the cascade — canon §5 explicitly calls this **NOT acceptable shipping behaviour**.
-- **Impact**: Teen sees "approuvée" while back-end never debits coins / books the ride / places the food order. Canonical fan-out lock violated.
+- **Status**: CLOSED (2026-05-08, mig 096).
+- **Resolution**: route rewritten as a dispatcher. Looks up the parental_approvals row, validates `parent_id` ownership + active `parent_teen_links`, then dispatches to the canonical RPC by `action_type` (parent_approve_session_v2, parent_approve_ride, parent_approve_food, parent_approve_purchase, parent_approve_content). RPC failure returns 5xx; idempotent on approval id. The `hint` shipping convention is gone.
+- **Test coverage**: `tests/integration/parent-approval-cascade.test.ts` (13 cases).
 
 ---
 
@@ -279,12 +279,12 @@
 
 ---
 
-### CANON-PARENT-025 — Resource-specific approve RPCs other than `parent_approve_session` MISSING
+### CANON-PARENT-025 — Resource-specific approve RPCs other than `parent_approve_session` MISSING — **FIXED Wave 1C**
 
 - **Severity**: P0 (cascade is half-built)
 - **Canon ref**: §5 cascade table + §11 MISSING #11
-- **Location**: SQL migrations
-- **Evidence**: grep `parent_approve_ride|parent_approve_purchase|parent_approve_food|parent_approve_content` against the repo returns 0 SQL definitions. Only `parent_approve_session` exists (cited in `gamification-system/database/migrations/059_mentorship_career_rpcs.sql`). Until the others land, even a fixed CANON-PARENT-003 cascade cannot route ride/purchase/food/content approvals end-to-end.
+- **Status**: CLOSED (2026-05-08, mig 096).
+- **Resolution**: shipped `parent_approve_ride / parent_approve_food / parent_approve_purchase / parent_approve_content` (uniform shape `(p_approval_id uuid, p_parent_id uuid)`) + `parent_deny_*` counterparts. Each RPC is `SECURITY DEFINER`, idempotent on approval id, validates owner + link, performs the side effect (status flip on `ride_bookings`/`food_orders`/`feed_posts` + delegation to `parent_approve_session` for mentor sessions), writes `user_notifications` + `audit_log` via the `_approval_finalize` helper. `parent_approve_session_v2` wraps the existing Wave 3 `parent_approve_session` so the dispatch interface is uniform.
 
 ---
 

@@ -174,12 +174,12 @@ export async function processTopupEvent(
 
   // Always log the inbound event for audit / triage.
   try {
-    await sr.from("admin_audit_logs").insert({
-      user_id: null,
+    await sr.from("audit_log").insert({
+      actor_id: null,
       action: "psp.webhook.received",
-      target_type: event.provider,
-      target_id: event.providerRef,
-      payload: {
+      resource_type: event.provider,
+      resource_id: event.providerRef,
+      metadata: {
         provider: event.provider,
         provider_ref: event.providerRef,
         amount_dh: event.amountDh,

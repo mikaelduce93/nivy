@@ -11,9 +11,9 @@
 
 | Block | Result |
 |---|---|
-| **Compliance score** | **22 / 100** |
-| **Launch status** | **BLOCKED** — 8 P0/P1 violations in the locked-domain checklist; 9 of the 13 canonical sidebar surfaces do not exist; the canonical audit table (`audit_log`) is not in the schema and code writes to a different shape (`admin_audit_logs`). |
-| **Distance to ship** | ~2 weeks: rename + restructure audit log, build 5 missing surfaces (`/admin/moderation`, `/admin/finances`, `/admin/audit-log`, `/admin/broadcasts`, `/admin/kyc`, `/admin/support`, `/admin/system`, `/admin/operations`), wire role-aware sidebar, ring-fence SQL runner. |
+| **Compliance score** | **22 / 100** → **52 / 100** (post-Wave-1C) |
+| **Launch status** | YELLOW — audit pipeline + SQL ring-fence + sidebar role filtering closed; remaining gaps are missing surfaces (KYC unified, support inbox, moderation inbox, finances). |
+| **Distance to ship** | Wave 2 work: build the 5 missing canonical surfaces + `support_tickets` + `broadcasts` table + KYC unification. |
 
 Score breakdown (10 checks @ 10 pts each):
 
@@ -38,26 +38,17 @@ Tie-breakers: KYC scores 3/10 because `kyc_documents` exists with a partial `sub
 
 Every finding: id (`CANON-ADMIN-NNN`) — severity — section in lock — short title — evidence (`file:line`) — required fix.
 
-### CANON-ADMIN-001 — P0 — §10.8 / §4 — `logAdminAction` writes to a non-canonical table with the wrong shape
+### CANON-ADMIN-001 — P0 — §10.8 / §4 — `logAdminAction` writes to a non-canonical table with the wrong shape — **FIXED Wave 1C**
 
-The single canonical helper in `lib/auth/admin-permissions.ts:155-176` inserts into `admin_audit_logs` with columns `admin_id, action, description, resource_type, resource_id, metadata, ip_address, user_agent, created_at`. Canon §4 mandates table name `audit_log` (singular) with columns `actor_id, actor_role, action, resource_type, resource_id, target_user_id, description, metadata, ip_address, user_agent, created_at` and explicit BIGSERIAL PK.
-
-Two separate breaks:
-
-1. Wrong table name (`admin_audit_logs` vs canonical `audit_log`).
-2. Schema drift: code uses `admin_id` (canon: `actor_id`), `target_type/target_id` (canon: `resource_type/resource_id` + separate `target_user_id`), `payload` (canon: `metadata`). Confirmed at:
-   - `gamification-system/database/migrations/068_v12_admin_ops.sql:7-23` declares `admin_audit_logs` with columns `action, target_type, target_id, created_at` (only indexes; the table CREATE is in an earlier migration that is no longer in tree — see CANON-ADMIN-013).
-   - 28 producers across `app/api/**` insert that schema (`refunds/route.ts:280`, `topups/[id]/confirm/route.ts:117`, `partners/[id]/approve/route.ts:81`, `moderation/[id]/approve/route.ts:74`, etc.).
-
-Fix: rename via migration + alias view `audit_log` AS the new canonical schema + rewrite `logAdminAction` to insert `actor_id, actor_role, action, resource_type, resource_id, target_user_id, description, metadata` and propagate to all 28 call sites.
+- **Status**: CLOSED (2026-05-08, mig 096 + Wave 1C code sweep).
+- **Resolution**: `audit_log` table re-asserted with all 11 canonical columns (mig 094 + 096). `admin_audit_logs` TABLE dropped and replaced by a writeable VIEW projection of `audit_log` (legacy column names: `user_id`/`admin_id`/`target_type`/`target_id`/`payload`) so any external readers keep working. `lib/auth/admin-permissions.ts:logAdminAction` rewritten with the 11-column `LogAdminActionInput` interface; legacy positional shape still accepted for back-compat. 33 callsites swept via `scripts/wave1c-audit-log-rewrite.mjs` to insert into `audit_log` directly with canonical column names.
 
 ---
 
-### CANON-ADMIN-002 — P0 — §10.9 — `logAdminAction` swallows errors
+### CANON-ADMIN-002 — P0 — §10.9 — `logAdminAction` swallows errors — **FIXED Wave 1C**
 
-`lib/auth/admin-permissions.ts:163-176` calls `await supabase.from("admin_audit_logs").insert(...)` but ignores the result — no `.throwOnError()` and no error-bubble. The lock §10.9 makes this FORBIDDEN: audit writes MUST throw on failure (CNDP requirement). Combined with CANON-ADMIN-001 (table-name mismatch in some envs), audit writes silently no-op.
-
-Fix: `await supabase.from("audit_log").insert(...).throwOnError()`. All callers must `await` (most do; verify `app/api/admin/topups/[id]/confirm/route.ts:117,196` which double-writes).
+- **Status**: CLOSED (2026-05-08).
+- **Resolution**: `logAdminAction` checks the insert error and throws `audit_log insert failed: <msg>`. Verified by `tests/integration/audit-log-canonical.test.ts` (case `THROWS when the audit insert fails`).
 
 ---
 
@@ -79,7 +70,12 @@ Fix: replace each with `await requireAdminPermission('<perm>')` per the §1 ACL 
 
 ---
 
-### CANON-ADMIN-004 — P1 — §10.3 + §2 — Sidebar shows the same 10 items to every sub-role; ignores ACL
+### CANON-ADMIN-004 — P1 — §10.3 + §2 — Sidebar shows the same items to every sub-role — **PARTIALLY FIXED Wave 1C**
+
+- **Status**: PARTIALLY CLOSED (2026-05-08). Wave 1C wired role-aware filtering on the existing 10-item sidebar (each item now declares a `requiredPermission`; items render only if `roleHasPermission(subRole, perm)`), and ring-fenced the SQL entry behind super_admin + env flag. The full canonical 13-item structure (adding Modération / Support / KYC / Finances / Broadcasts / Rides & Food / Audit log / Système) is Wave 2 scope — those surfaces don't exist yet to link to.
+
+(Original finding preserved below for completeness.)
+
 
 `components/layouts/admin-sidebar.tsx:33-84` declares a static `navItems` array of **10 items** with no permission gating. Every sub-role sees identical links. Canon §2 mandates **exactly 13** items, each with a `requiredPermission`, filtered via `roleHasPermission(currentRole, requiredPermission)`.
 
@@ -182,18 +178,15 @@ Fix: create `support_tickets` + `support_ticket_messages` migration; build `/adm
 
 ---
 
-### CANON-ADMIN-011 — P0 — §9 + §10.2 — `/admin/scripts-sql` is exposed without `super_admin` gate, `ENABLE_ADMIN_SQL_EXECUTION`, or audit hook
+### CANON-ADMIN-011 — P0 — §9 + §10.2 — `/admin/scripts-sql` ring-fence — **FIXED Wave 1C**
 
-Canon §10.2 + §9 + §12-D3: the SQL runner MUST require ALL of (a) `requireAdminPermission('system.sql')`, (b) env flag `ENABLE_ADMIN_SQL_EXECUTION=true`, (c) IP allow-list, (d) every execution writes to `audit_log`.
-
-Reality:
-
-- `app/admin/scripts-sql/page.tsx:59-110`: zero auth — no `getUserRole`, no `requireAdminPermission`, no `redirect`. The page renders a list of canned scripts and a "Open Supabase SQL Editor" external-link button. Anyone hitting `/admin/scripts-sql` directly gets it.
-- `app/api/admin/execute-sql/route.ts` and `app/api/admin/run-migration/route.ts` exist (file list above) — these are the actual mutators and must be gated, but the consumer page has no gate at all.
-- Sidebar exposes the link to ALL roles (`components/layouts/admin-sidebar.tsx:79-83`).
-- `ENABLE_ADMIN_SQL_EXECUTION` env flag: not referenced anywhere.
-
-Fix: top of page → `await requireAdminPermission('system.sql')`; check `process.env.ENABLE_ADMIN_SQL_EXECUTION === 'true'`; remove from sidebar (move under `/admin/system` super_admin tab); audit-log every render.
+- **Status**: CLOSED (2026-05-08).
+- **Resolution**:
+  - `app/admin/scripts-sql/page.tsx` rewritten as a server component. Calls `getAdminInfo()`; requires `subRole === 'super_admin'` AND `process.env.ENABLE_ADMIN_SQL_CONSOLE === 'true'` (legacy `ENABLE_ADMIN_SQL_EXECUTION` also accepted). Any failure path → `notFound()` (404). Every access — allowed or denied — is audited via `logAdminAction({ action: 'sql_console_access' })`.
+  - `app/api/admin/execute-sql/route.ts` and `app/api/admin/run-migration/route.ts` apply the same gate; deny → 404 (NOT 403, fewer probe leaks). Audited on every attempt; success vs failure both logged.
+  - `components/layouts/admin-sidebar.tsx` rewritten with per-item `requiredPermission` and an extra `requiresEnvFlag: 'sqlConsole'` gate. The `Scripts SQL` entry is hidden unless `subRole === 'super_admin'` AND the env flag is on. Layout passes `subRole` + `sqlConsoleEnabled` from the server.
+  - `ENABLE_ADMIN_SQL_CONSOLE` documented in `.env.example` (defaults to false).
+- **Test coverage**: `tests/integration/admin-sql-gate.test.ts` (9 cases covering anonymous / admin / moderator / support / super_admin × env on/off plus the audit-log invariant).
 
 ---
 

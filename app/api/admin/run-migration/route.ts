@@ -1,7 +1,18 @@
+/**
+ * /api/admin/run-migration — RING-FENCED.
+ *
+ * Canon: docs/canon/admin-moderation.locked.md §12.D3 SQL runner ring-fence.
+ *
+ * Same gate as /api/admin/execute-sql: super_admin + env flag, 404 otherwise.
+ * Today this route only returns instructions (it cannot execute migrations
+ * client-side — Supabase Studio + service role is the supported path), but
+ * keep the access ring-fenced so it cannot leak migration filenames or
+ * directory structure to non-super_admin probes.
+ */
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
 import * as fs from "fs"
 import * as path from "path"
+import { getAdminInfo, logAdminAction } from "@/lib/auth/admin-permissions"
 
 const MIGRATIONS_MAP: Record<string, string> = {
   "001": "001_achievements_system.sql",
@@ -25,49 +36,58 @@ const MIGRATIONS_MAP: Record<string, string> = {
   "019": "019_social_sharing.sql",
 }
 
+function isSqlConsoleEnabled(): boolean {
+  return (
+    process.env.ENABLE_ADMIN_SQL_CONSOLE === "true" ||
+    process.env.ENABLE_ADMIN_SQL_EXECUTION === "true"
+  )
+}
+
 export async function POST(request: NextRequest) {
+  const admin = await getAdminInfo()
+  const envEnabled = isSqlConsoleEnabled()
+  const isSuperAdmin = admin?.subRole === "super_admin"
+
+  if (admin) {
+    await logAdminAction({
+      actor_id: admin.profileId,
+      actor_role: admin.subRole,
+      action: "sql_run_migration",
+      resource_type: "system",
+      resource_id: "run-migration",
+      description: `Migration runner attempt (super_admin=${isSuperAdmin}, env_enabled=${envEnabled})`,
+      metadata: {
+        subRole: admin.subRole,
+        env_enabled: envEnabled,
+        allowed: isSuperAdmin && envEnabled,
+      },
+    })
+  }
+
+  if (!admin || !isSuperAdmin || !envEnabled) {
+    return NextResponse.json({ error: "Not Found" }, { status: 404 })
+  }
+
   try {
     const { migrationId } = await request.json()
 
     if (!migrationId || !MIGRATIONS_MAP[migrationId]) {
-      return NextResponse.json(
-        { success: false, error: "Migration ID invalide" },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: "Migration ID invalide" }, { status: 400 })
     }
 
     const fileName = MIGRATIONS_MAP[migrationId]
-    const filePath = path.join(
-      process.cwd(),
-      "gamification-system",
-      "database",
-      "migrations",
-      fileName
-    )
+    const filePath = path.join(process.cwd(), "gamification-system", "database", "migrations", fileName)
 
-    // Vérifier si le fichier existe
     if (!fs.existsSync(filePath)) {
-      return NextResponse.json(
-        { success: false, error: `Fichier non trouvé: ${fileName}` },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, error: `Fichier non trouvé: ${fileName}` }, { status: 404 })
     }
 
-    // Lire le fichier SQL
     const sql = fs.readFileSync(filePath, "utf-8")
 
-    // Créer le client Supabase
-    const supabase = await createClient()
-
-    // Note: L'exécution de SQL brut nécessite soit:
-    // 1. Une fonction RPC personnalisée dans Supabase
-    // 2. L'utilisation du service role key (pas l'anon key)
-    // 3. L'exécution manuelle via le dashboard
-
-    // Pour l'instant, on retourne les instructions
     return NextResponse.json({
       success: false,
-      error: "L'exécution automatique nécessite le Service Role Key. Utilise le SQL Editor de Supabase.",
+      error:
+        "L'exécution automatique nécessite le Service Role Key. Utilise le SQL Editor de Supabase.",
       instructions: {
         step1: "Va sur https://supabase.com/dashboard",
         step2: "Ouvre ton projet",
@@ -77,11 +97,8 @@ export async function POST(request: NextRequest) {
       },
       sqlPreview: sql.substring(0, 500) + "...",
     })
-  } catch (error: any) {
-    console.error("Migration error:", error)
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Erreur inconnue"
+    return NextResponse.json({ success: false, error: msg }, { status: 500 })
   }
 }

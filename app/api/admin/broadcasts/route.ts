@@ -86,13 +86,26 @@ export async function GET(req: Request) {
 
   const sr = createServiceRoleClient()
   const { data, error, count } = await sr
-    .from("admin_audit_logs")
-    .select("id, user_id, action, target_type, target_id, payload, created_at", { count: "exact" })
+    .from("audit_log")
+    .select(
+      "id, actor_id, action, resource_type, resource_id, metadata, created_at",
+      { count: "exact" }
+    )
     .eq("action", "broadcast.send")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1)
   if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true, broadcasts: data ?? [], total: count ?? 0, limit, offset })
+  // Project to legacy shape for existing dashboards.
+  const broadcasts = (data ?? []).map((r) => ({
+    id: r.id,
+    user_id: r.actor_id,
+    action: r.action,
+    target_type: r.resource_type,
+    target_id: r.resource_id,
+    payload: r.metadata,
+    created_at: r.created_at,
+  }))
+  return NextResponse.json({ success: true, broadcasts, total: count ?? 0, limit, offset })
 }
 
 /* ------------------------------------------------------------------------ */
@@ -166,12 +179,12 @@ export async function POST(req: Request) {
     const { error } = await sr.from("user_notifications").insert(chunk)
     if (error) {
       // Audit partial failure and abort (no rollback — already-inserted rows stay).
-      await sr.from("admin_audit_logs").insert({
-        user_id: adminId,
+      await sr.from("audit_log").insert({
+        actor_id: adminId,
         action: "broadcast.send.partial_failure",
-        target_type: "broadcast",
-        target_id: broadcastId,
-        payload: {
+        resource_type: "broadcast",
+        resource_id: broadcastId,
+        metadata: {
           reason: error.message,
           inserted_so_far: inserted,
           target_count: recipients.length,
@@ -196,12 +209,12 @@ export async function POST(req: Request) {
   }
 
   // 3. Audit log.
-  await sr.from("admin_audit_logs").insert({
-    user_id: adminId,
+  await sr.from("audit_log").insert({
+    actor_id: adminId,
     action: "broadcast.send",
-    target_type: "broadcast",
-    target_id: broadcastId,
-    payload: {
+    resource_type: "broadcast",
+    resource_id: broadcastId,
+    metadata: {
       audience,
       tier: tier || null,
       title,

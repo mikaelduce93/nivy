@@ -128,12 +128,12 @@ export async function GET(request: Request) {
         error,
       )
       try {
-        await supabase.from("admin_audit_logs").insert({
-          user_id: null,
+        await supabase.from("audit_log").insert({
+          actor_id: null,
           action: "cron.recommendation_metrics_rollup",
-          target_type: "system",
-          target_id: null,
-          payload: {
+          resource_type: "system",
+          resource_id: null,
+          metadata: {
             ok: false,
             phase: "fetch_impressions",
             date: dateStr,
@@ -207,12 +207,12 @@ export async function GET(request: Request) {
         upErr,
       )
       try {
-        await supabase.from("admin_audit_logs").insert({
-          user_id: null,
+        await supabase.from("audit_log").insert({
+          actor_id: null,
           action: "cron.recommendation_metrics_rollup",
-          target_type: "system",
-          target_id: null,
-          payload: {
+          resource_type: "system",
+          resource_id: null,
+          metadata: {
             ok: false,
             phase: "upsert_metrics",
             date: dateStr,
@@ -240,12 +240,12 @@ export async function GET(request: Request) {
 
   // ---- 4. Audit log (best effort) -----------------------------------------
   try {
-    await supabase.from("admin_audit_logs").insert({
-      user_id: null,
+    await supabase.from("audit_log").insert({
+      actor_id: null,
       action: "cron.recommendation_metrics_rollup",
-      target_type: "system",
-      target_id: null,
-      payload: {
+      resource_type: "system",
+      resource_id: null,
+      metadata: {
         ok: true,
         date: dateStr,
         impression_rows: rows.length,

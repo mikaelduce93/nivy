@@ -2846,7 +2846,7 @@
         "No deprecated table writes",
         "Cascade RPCs invoked"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08-wave1c"
     },
     {
       "id": "CANON-PARENT-004",
@@ -3306,9 +3306,9 @@
       "canon_file": "docs/canon/parent-control.locked.md",
       "canon_rule": "§5 cascade + §11 MISSING #11.",
       "code_files": [
-        "SQL migrations"
+        "gamification-system/database/migrations/096_wave1c_parent_cascade.sql"
       ],
-      "current_behavior": "Only parent_approve_session exists. parent_approve_ride/purchase/food/content all missing.",
+      "current_behavior": "All 5 cascade RPCs shipped (parent_approve_ride/food/purchase/content/_session_v2) + matching deny RPCs.",
       "why_it_matters": "Parent control / consent / money invariant violated.",
       "recommended_fix": "See canon-recommended fix in compliance/08.",
       "blast_radius": "High",
@@ -3318,7 +3318,7 @@
         "No deprecated table writes",
         "Cascade RPCs invoked"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08-wave1c"
     },
     {
       "id": "CANON-PARENT-026",
@@ -4743,12 +4743,12 @@
       "canon_file": "docs/canon/admin-moderation.locked.md",
       "canon_rule": "§10.8 / §4 — canonical audit_log singular + schema.",
       "code_files": [
-        "lib/auth/admin-permissions.ts:155-176",
-        "gamification-system/database/migrations/068_v12_admin_ops.sql:7-23"
+        "lib/auth/admin-permissions.ts",
+        "gamification-system/database/migrations/096_wave1c_parent_cascade.sql"
       ],
-      "current_behavior": "Writes admin_audit_logs with wrong column names (admin_id vs actor_id, etc.) — 28 producers across app/api/**.",
+      "current_behavior": "audit_log canonical, admin_audit_logs is now a back-compat VIEW. logAdminAction object signature with all 11 columns. 33 callsites swept.",
       "why_it_matters": "Admin/moderation invariant; audit trail + ACL + finances at risk.",
-      "recommended_fix": "See compliance/12 per finding.",
+      "recommended_fix": "Closed — Wave 1C.",
       "blast_radius": "High",
       "implementation_complexity": "Medium",
       "test_required": [
@@ -4756,7 +4756,7 @@
         "ACL via requireAdminPermission",
         "Sidebar role-filtered"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08-wave1c"
     },
     {
       "id": "CANON-ADMIN-002",
@@ -4765,11 +4765,11 @@
       "canon_file": "docs/canon/admin-moderation.locked.md",
       "canon_rule": "§10.9 throwOnError.",
       "code_files": [
-        "lib/auth/admin-permissions.ts:163-176"
+        "lib/auth/admin-permissions.ts"
       ],
-      "current_behavior": "logAdminAction insert ignores result. CNDP requirement violated.",
+      "current_behavior": "logAdminAction now THROWS on insert failure (`audit_log insert failed: <msg>`). Verified by tests/integration/audit-log-canonical.test.ts.",
       "why_it_matters": "Admin/moderation invariant; audit trail + ACL + finances at risk.",
-      "recommended_fix": "See compliance/12 per finding.",
+      "recommended_fix": "Closed — Wave 1C.",
       "blast_radius": "High",
       "implementation_complexity": "Medium",
       "test_required": [
@@ -4777,7 +4777,7 @@
         "ACL via requireAdminPermission",
         "Sidebar role-filtered"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08-wave1c"
     },
     {
       "id": "CANON-ADMIN-003",
@@ -4973,12 +4973,14 @@
       "canon_file": "docs/canon/admin-moderation.locked.md",
       "canon_rule": "§9 + §10.2 + §12-D3.",
       "code_files": [
-        "app/admin/scripts-sql/page.tsx:59-110",
-        "components/layouts/admin-sidebar.tsx:79-83"
+        "app/admin/scripts-sql/page.tsx",
+        "app/api/admin/execute-sql/route.ts",
+        "app/api/admin/run-migration/route.ts",
+        "components/layouts/admin-sidebar.tsx"
       ],
-      "current_behavior": "Page has zero auth. ENABLE_ADMIN_SQL_EXECUTION env not referenced. Anyone hitting URL gets it.",
+      "current_behavior": "Ring-fenced: super_admin sub-role + ENABLE_ADMIN_SQL_CONSOLE env both required. 404 otherwise. Sidebar entry hidden unless both gates pass. Every access audited.",
       "why_it_matters": "Admin/moderation invariant; audit trail + ACL + finances at risk.",
-      "recommended_fix": "See compliance/12 per finding.",
+      "recommended_fix": "Closed — Wave 1C.",
       "blast_radius": "High",
       "implementation_complexity": "Medium",
       "test_required": [
@@ -4986,7 +4988,7 @@
         "ACL via requireAdminPermission",
         "Sidebar role-filtered"
       ],
-      "status": "open"
+      "status": "fixed-2026-05-08-wave1c"
     },
     {
       "id": "CANON-ADMIN-012",

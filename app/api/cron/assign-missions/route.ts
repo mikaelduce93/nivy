@@ -139,12 +139,12 @@ export async function GET(request: Request) {
 
   // ---- Audit log (best effort) -------------------------------------------
   try {
-    await supabase.from("admin_audit_logs").insert({
-      user_id: null,
+    await supabase.from("audit_log").insert({
+      actor_id: null,
       action: "cron.assign_missions",
-      target_type: "system",
-      target_id: null,
-      payload: {
+      resource_type: "system",
+      resource_id: null,
+      metadata: {
         teens_processed: teensProcessed,
         missions_assigned: missionsAssigned,
         duration_ms: durationMs,

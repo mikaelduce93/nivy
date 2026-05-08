@@ -59,12 +59,12 @@ export async function GET(request: Request) {
   }
 
   try {
-    await sb.from("admin_audit_logs").insert({
-      user_id: null,
+    await sb.from("audit_log").insert({
+      actor_id: null,
       action: "cron.ride_curfew_check",
-      target_type: "system",
-      target_id: null,
-      payload: {
+      resource_type: "system",
+      resource_id: null,
+      metadata: {
         candidates: rides?.length ?? 0,
         cancelled,
         duration_ms: Date.now() - startedAt,

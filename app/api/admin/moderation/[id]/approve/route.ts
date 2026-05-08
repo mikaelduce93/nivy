@@ -71,12 +71,12 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
     await sr.from(mapping.table).update({ status: mapping.status }).eq("id", row.content_id)
   }
 
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: "moderation.approve",
-    target_type: row.content_type,
-    target_id: row.content_id,
-    payload: { queue_id: id },
+    resource_type: row.content_type,
+    resource_id: row.content_id,
+    metadata: { queue_id: id },
   })
 
   return NextResponse.json({ success: true, queue_id: id, status: "approved" })

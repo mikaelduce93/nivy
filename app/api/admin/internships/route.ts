@@ -137,12 +137,12 @@ export async function POST(req: Request) {
   }
 
   // 6. Audit log
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: "internship.create",
-    target_type: "internship",
-    target_id: row.id,
-    payload: {
+    resource_type: "internship",
+    resource_id: row.id,
+    metadata: {
       title: row.title,
       partner_id,
       age_min,

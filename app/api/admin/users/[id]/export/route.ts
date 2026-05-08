@@ -211,12 +211,12 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip") ||
     null
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: "user.data_export.admin",
-    target_type: "user",
-    target_id: targetUserId,
-    payload: { export_id: exportId, target_role: targetRole, exported_at: payload.exported_at },
+    resource_type: "user",
+    resource_id: targetUserId,
+    metadata: { export_id: exportId, target_role: targetRole, exported_at: payload.exported_at },
     ip_address: ip,
   })
 

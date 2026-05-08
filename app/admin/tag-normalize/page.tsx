@@ -109,14 +109,14 @@ export default async function AdminTagNormalizePage() {
 
   // 2. Latest cron run
   const { data: latest } = await sr
-    .from("admin_audit_logs")
-    .select("id, payload, created_at")
+    .from("audit_log")
+    .select("id, metadata, created_at")
     .eq("action", "cron.tag_normalize")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle()
 
-  const payload = (latest?.payload ?? null) as CronPayload | null
+  const payload = (latest?.metadata ?? null) as CronPayload | null
 
   // 3. Aggregate alias→count across all reported tables
   const agg = new Map<string, { count: number; tables: Set<string> }>()

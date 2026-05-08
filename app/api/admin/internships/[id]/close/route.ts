@@ -59,12 +59,12 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
     .eq("id", id)
   if (upErr) return NextResponse.json({ ok: false, error: upErr.message }, { status: 500 })
 
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: "internship.close",
-    target_type: "internship",
-    target_id: id,
-    payload: { previous_status: internship.status, title: internship.title },
+    resource_type: "internship",
+    resource_id: id,
+    metadata: { previous_status: internship.status, title: internship.title },
   })
 
   return NextResponse.json({ ok: true, internship_id: id, status: "closed" })

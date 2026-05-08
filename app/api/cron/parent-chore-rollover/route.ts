@@ -234,12 +234,12 @@ export async function GET(request: Request) {
   const durationMs = Date.now() - startedAt
 
   try {
-    await supabase.from("admin_audit_logs").insert({
-      user_id: null,
+    await supabase.from("audit_log").insert({
+      actor_id: null,
       action: "cron.parent_chore_rollover",
-      target_type: "system",
-      target_id: null,
-      payload: {
+      resource_type: "system",
+      resource_id: null,
+      metadata: {
         candidates,
         instantiated,
         skipped,

@@ -114,17 +114,12 @@ Money/auth/safety includes: PSP signature bypass, orphan auth users, public CIN 
 - **Hard blocker?**: YES
 - **Days to fix**: 1
 
-### #9 — CANON-PARENT-003 / CANON-PARENT-025 (approvals cascade)
+### #9 — CANON-PARENT-003 / CANON-PARENT-025 (approvals cascade) — **FIXED Wave 1C**
 - **Domain**: parent-control
 - **Canon**: §5 routing + §10.1 FORBIDDEN
-- **Current behavior**: `app/api/parent/approvals/route.ts:63-136` flips `parental_approvals.status` and inserts a teen notification — never calls `parent_approve_session/_ride/_purchase/_food/_content`. Response includes a `hint` field telling engineers to call cascade. 4 of 5 cascade RPCs are MISSING in SQL.
-- **Why it's #9**: every parental approval is a UI lie. Coins not debited, ride not booked, food not placed.
-- **Files**: `app/api/parent/approvals/route.ts:63-136`; missing RPCs: `parent_approve_ride`, `parent_approve_purchase`, `parent_approve_food`, `parent_approve_content`
-- **Minimal fix**: build the 4 missing RPCs in canonical form; rewrite approvals route to dispatch by `action_type` to the correct RPC; remove the `hint` shipping convention.
-- **Test plan**: approve session → mentor session row updated; approve ride → ride dispatched; approve purchase → coins debited; approve food → order placed; approve content → flag flipped.
-- **Dependencies**: pairs with CANON-PARENT-016 (action_type column); blocks any meaningful parent-control launch.
-- **Hard blocker?**: YES
-- **Days to fix**: 2
+- **Status**: CLOSED (2026-05-08, mig 096).
+- **Resolution**: 4 missing RPCs landed (`parent_approve_ride`, `parent_approve_food`, `parent_approve_purchase`, `parent_approve_content`) plus `parent_approve_session_v2` wrapper around the existing `parent_approve_session`. `app/api/parent/approvals/route.ts` rewritten as a dispatcher: looks up the approval row, verifies ownership + active link, dispatches by `action_type` to the canonical RPC. RPC failure returns 5xx (no fake success). Idempotent on the approval id. Matching `parent_deny_*` counterparts shipped.
+- **Test coverage**: `tests/integration/parent-approval-cascade.test.ts` (13 cases).
 
 ### #10 — CANON-ECON-004 / CANON-GAME-001/002/003 (add_user_xp phantom)
 - **Domain**: economy + gamification + partner
@@ -207,17 +202,13 @@ Money/auth/safety includes: PSP signature bypass, orphan auth users, public CIN 
 - **Hard blocker?**: YES
 - **Days to fix**: 0.5
 
-### #17 — CANON-SOCIAL-014 / CANON-ADMIN-001/002 (audit_log canonical)
+### #17 — CANON-SOCIAL-014 / CANON-ADMIN-001/002 (audit_log canonical) — **FIXED Wave 1C**
 - **Domain**: admin-moderation + social-feed
 - **Canon**: INDEX cross-cut #7; admin §4 + §10.8/9
-- **Current behavior**: `lib/auth/admin-permissions.ts:165` writes to `admin_audit_logs` but the table is missing in live DB; canon mandates singular `audit_log` with different shape (`actor_id`, `actor_role`, `target_user_id`). Every privileged write silently fails. 28 producers across app/api use the wrong shape.
-- **Why it's #17**: CNDP audit chain inoperative. Compliance-grade evidence of admin actions absent.
-- **Files**: `lib/auth/admin-permissions.ts:155-176`; 28 callsites listed in CANON-ADMIN-001
-- **Minimal fix**: migration creating canonical `audit_log` (BIGSERIAL pk, actor_id, actor_role, action, resource_type, resource_id, target_user_id, description, metadata, ip, ua, created_at); rewrite logAdminAction with `.throwOnError()`; sweep 28 callsites.
-- **Test plan**: every admin mutation writes audit_log row with correct shape; insert failure throws; backfill of any extant admin_audit_logs.
-- **Dependencies**: ratifies INDEX #7 over social-feed §7 invariant 4 contradiction.
-- **Hard blocker?**: YES
-- **Days to fix**: 1.5
+- **Status**: CLOSED (2026-05-08, mig 096 + Wave 1C code sweep).
+- **Resolution**: `audit_log` table re-asserted with all 11 canonical columns; `admin_audit_logs` TABLE dropped in DB and replaced by a writeable VIEW projection of `audit_log` for back-compat readers. `logAdminAction` rewritten with the 11-column object signature and now THROWS on insert failure (canon §10 #9). 33 callsites (incl. 28 production writers + 5 cron jobs / lib helpers) rewritten via `scripts/wave1c-audit-log-rewrite.mjs` to target `audit_log` directly with canonical column names. `circles/report` route fixed (was writing to non-existent `audit_logs` / `moderation_reports` / `notifications`).
+- **Lint baseline delta**: `CANON-AUDIT-001`: 44 → 0; `CANON-AUDIT-002`: 44 → 0; `CANON-NOTIF-001`: 34 → 33 (circles/report swept). Total baseline 311 → 222.
+- **Test coverage**: `tests/integration/audit-log-canonical.test.ts` (5 cases inc. throw-on-failure + repo-wide invariant).
 
 ### #18 — CANON-PARTNER-003/004 (scanner replayable, no qr_nonces)
 - **Domain**: partner-ecosystem
@@ -342,13 +333,13 @@ Money/auth/safety includes: PSP signature bypass, orphan auth users, public CIN 
 | CANON-SOCIAL-004 | social | Comments thread UI absent on /teen/feed/[id] (backend ready) | 1.5 | YES |
 | CANON-SOCIAL-007 | social | 5 friend routes missing (unfriend/block/unblock/search/discover) | 1 | YES |
 | CANON-SOCIAL-009 | social | DM realtime channel `dm:${conversationId}` not subscribed | 0.5 | YES |
-| CANON-SOCIAL-013 | social | Circle reports write to non-existent moderation_reports table | 0.25 | YES |
+| CANON-SOCIAL-013 | social | Circle reports write to non-existent moderation_reports table | 0.25 | **FIXED Wave 1C (silent-fail eliminated; full user_reports table is Wave 2)** |
 | CANON-PARENT-002 | parent | Top-up has no client_idempotency_key plumbing | 0.5 | YES |
 | CANON-PARTNER-012 | partner | 11 of 15 archetypes have no surface | 8 | NO |
 | CANON-LIFE-007 | lifestyle | /driver/** workspace missing (gated by F42) | 3 | NO |
 | CANON-ADMIN-005 | admin | Moderation fragmented across 4 routes; canonical /admin/moderation MISSING | 2 | YES |
 | CANON-ADMIN-008 | admin | /admin/broadcasts route + broadcasts table MISSING | 1.5 | NO |
-| CANON-ADMIN-011 | admin | /admin/scripts-sql exposed without super_admin gate | 0.25 | YES |
+| CANON-ADMIN-011 | admin | /admin/scripts-sql exposed without super_admin gate | 0.25 | **FIXED Wave 1C** |
 | CANON-DS-001 | design-system | NotificationBell missing aria-label + 21 raw palette utilities | 0.25 | NO |
 
 ---

@@ -39,12 +39,12 @@ export async function GET(request: Request) {
   if (error) {
     // Best-effort audit on failure
     try {
-      await sb.from("admin_audit_logs").insert({
-        user_id: null,
+      await sb.from("audit_log").insert({
+        actor_id: null,
         action: "cron.mentor_recording_retention.failed",
-        target_type: "system",
-        target_id: null,
-        payload: { error: error.message, duration_ms: Date.now() - startedAt },
+        resource_type: "system",
+        resource_id: null,
+        metadata: { error: error.message, duration_ms: Date.now() - startedAt },
       })
     } catch {
       // ignore
@@ -55,12 +55,12 @@ export async function GET(request: Request) {
   const pruned = typeof data === "number" ? data : 0
 
   try {
-    await sb.from("admin_audit_logs").insert({
-      user_id: null,
+    await sb.from("audit_log").insert({
+      actor_id: null,
       action: "cron.mentor_recording_retention",
-      target_type: "system",
-      target_id: null,
-      payload: { pruned, duration_ms: Date.now() - startedAt },
+      resource_type: "system",
+      resource_id: null,
+      metadata: { pruned, duration_ms: Date.now() - startedAt },
     })
   } catch {
     // best-effort

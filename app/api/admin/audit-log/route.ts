@@ -1,5 +1,7 @@
 /**
- * Wave V1.2-E — Admin: read admin_audit_logs.
+ * Admin audit-log reader. Wave 1C: reads from `audit_log` (canonical) and
+ * normalises the projection to the legacy column names so existing
+ * dashboards keep working.
  *
  * GET /api/admin/audit-log
  *   Query params (all optional):
@@ -53,18 +55,20 @@ export async function GET(req: Request) {
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10) || 50, 200)
   const offset = Math.max(parseInt(url.searchParams.get("offset") || "0", 10) || 0, 0)
 
+  // Read from canonical audit_log; map legacy filter names to canonical ones.
   let q = sr
-    .from("admin_audit_logs")
-    .select("id, user_id, action, target_type, target_id, payload, ip_address, created_at", {
-      count: "exact",
-    })
+    .from("audit_log")
+    .select(
+      "id, actor_id, action, resource_type, resource_id, metadata, ip_address, created_at",
+      { count: "exact" }
+    )
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1)
 
-  if (filters.user_id) q = q.eq("user_id", filters.user_id)
+  if (filters.user_id) q = q.eq("actor_id", filters.user_id)
   if (filters.action) q = q.eq("action", filters.action)
-  if (filters.target_type) q = q.eq("target_type", filters.target_type)
-  if (filters.target_id) q = q.eq("target_id", filters.target_id)
+  if (filters.target_type) q = q.eq("resource_type", filters.target_type)
+  if (filters.target_id) q = q.eq("resource_id", filters.target_id)
   if (filters.from) q = q.gte("created_at", filters.from)
   if (filters.to) q = q.lte("created_at", filters.to)
 
@@ -73,9 +77,22 @@ export async function GET(req: Request) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 
+  // Project to legacy shape so existing dashboards keep working.
+  const rows = (data ?? []).map((r) => ({
+    id: r.id,
+    user_id: r.actor_id,
+    admin_id: r.actor_id,
+    action: r.action,
+    target_type: r.resource_type,
+    target_id: r.resource_id,
+    payload: r.metadata,
+    ip_address: r.ip_address,
+    created_at: r.created_at,
+  }))
+
   return NextResponse.json({
     success: true,
-    rows: data ?? [],
+    rows,
     total: count ?? 0,
     limit,
     offset,

@@ -82,23 +82,36 @@ export async function GET(req: Request) {
 
   const sr = createServiceRoleClient()
   let q = sr
-    .from("admin_audit_logs")
-    .select("id, user_id, action, target_type, target_id, payload, created_at", { count: "exact" })
+    .from("audit_log")
+    .select(
+      "id, actor_id, action, resource_type, resource_id, metadata, created_at",
+      { count: "exact" }
+    )
     .eq("action", "refund.issue")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1)
 
   if (txType && ["marketplace", "food", "ride"].includes(txType)) {
-    q = q.eq("target_type", txType)
+    q = q.eq("resource_type", txType)
   }
 
   const { data, error, count } = await q
   if (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
+  // Project to legacy shape for existing dashboards.
+  const refunds = (data ?? []).map((r) => ({
+    id: r.id,
+    user_id: r.actor_id,
+    action: r.action,
+    target_type: r.resource_type,
+    target_id: r.resource_id,
+    payload: r.metadata,
+    created_at: r.created_at,
+  }))
   return NextResponse.json({
     success: true,
-    refunds: data ?? [],
+    refunds,
     total: count ?? 0,
     limit,
     offset,
@@ -277,12 +290,12 @@ async function refundMarketplace(
   })
 
   // Audit log.
-  await sr.from("admin_audit_logs").insert({
-    user_id: adminId,
+  await sr.from("audit_log").insert({
+    actor_id: adminId,
     action: "refund.issue",
-    target_type: "marketplace",
-    target_id: txId,
-    payload: {
+    resource_type: "marketplace",
+    resource_id: txId,
+    metadata: {
       reason,
       amount_coins: amountCoins,
       amount_dh: tx.amount_dh ?? null,
@@ -355,12 +368,12 @@ async function refundFood(
     created_by: adminId,
   })
 
-  await sr.from("admin_audit_logs").insert({
-    user_id: adminId,
+  await sr.from("audit_log").insert({
+    actor_id: adminId,
     action: "refund.issue",
-    target_type: "food",
-    target_id: txId,
-    payload: {
+    resource_type: "food",
+    resource_id: txId,
+    metadata: {
       reason,
       amount_coins: coins,
       amount_dh: order.total_dh ?? null,
@@ -436,12 +449,12 @@ async function refundRide(
     created_by: adminId,
   })
 
-  await sr.from("admin_audit_logs").insert({
-    user_id: adminId,
+  await sr.from("audit_log").insert({
+    actor_id: adminId,
     action: "refund.issue",
-    target_type: "ride",
-    target_id: txId,
-    payload: {
+    resource_type: "ride",
+    resource_id: txId,
+    metadata: {
       reason,
       amount_coins: coins,
       amount_dh: dh,

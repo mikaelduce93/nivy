@@ -63,12 +63,12 @@ export async function GET(request: Request) {
     console.error("[cron/evolve-teen-profiles] RPC failed:", error)
     // Best-effort audit even on failure.
     try {
-      await supabase.from("admin_audit_logs").insert({
-        user_id: null,
+      await supabase.from("audit_log").insert({
+        actor_id: null,
         action: "cron.evolve_teen_profiles",
-        target_type: "system",
-        target_id: null,
-        payload: {
+        resource_type: "system",
+        resource_id: null,
+        metadata: {
           ok: false,
           phase: "evolve_all_teens",
           error: error.message,
@@ -154,12 +154,12 @@ export async function GET(request: Request) {
 
   // ---- Audit log (best effort) -------------------------------------------
   try {
-    await supabase.from("admin_audit_logs").insert({
-      user_id: null,
+    await supabase.from("audit_log").insert({
+      actor_id: null,
       action: "cron.evolve_teen_profiles",
-      target_type: "system",
-      target_id: null,
-      payload: {
+      resource_type: "system",
+      resource_id: null,
+      metadata: {
         ok: true,
         teens_processed: teensProcessed,
         total_rows_upserted: totalRowsUpserted,

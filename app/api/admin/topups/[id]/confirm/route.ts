@@ -114,12 +114,12 @@ export async function POST(
     }
 
     try {
-      await sr.from("admin_audit_logs").insert({
-        user_id: auth.userId,
+      await sr.from("audit_log").insert({
+        actor_id: auth.userId,
         action: "manual_topup.reject",
-        target_type: "manual_topup_request",
-        target_id: id,
-        payload: {
+        resource_type: "manual_topup_request",
+        resource_id: id,
+        metadata: {
           reason,
           amount_dh: reqRow.amount_dh,
           provider: reqRow.provider,
@@ -193,12 +193,12 @@ export async function POST(
   }
 
   try {
-    await sr.from("admin_audit_logs").insert({
-      user_id: auth.userId,
+    await sr.from("audit_log").insert({
+      actor_id: auth.userId,
       action: "manual_topup.confirm",
-      target_type: "manual_topup_request",
-      target_id: id,
-      payload: {
+      resource_type: "manual_topup_request",
+      resource_id: id,
+      metadata: {
         amount_dh: reqRow.amount_dh,
         provider: reqRow.provider,
         provider_ref: reqRow.provider_ref,

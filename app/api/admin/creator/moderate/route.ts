@@ -50,12 +50,12 @@ export async function POST(request: NextRequest) {
       .eq("id", queueId)
     if (e2) return NextResponse.json({ error: e2.message }, { status: 500 })
 
-    await sr.from("admin_audit_logs").insert({
-      user_id: user.id,
+    await sr.from("audit_log").insert({
+      actor_id: user.id,
       action: `moderation_${action}`,
-      target_type: "feed_post",
-      target_id: submissionId,
-      payload: { queue_id: queueId },
+      resource_type: "feed_post",
+      resource_id: submissionId,
+      metadata: { queue_id: queueId },
     })
 
     return NextResponse.json({ success: true, status: newPostStatus })

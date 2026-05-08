@@ -29,8 +29,8 @@ interface SignalRow {
 interface AuditRow {
   id: number | string
   action: string
-  target_id: string | null
-  payload: Record<string, unknown> | null
+  resource_id: string | null
+  metadata: Record<string, unknown> | null
   created_at: string
 }
 
@@ -116,8 +116,8 @@ export async function GET(req: Request) {
   // --- Recent anti-cheat audit rows (last 24h) ----------------------------
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
   const { data: audit } = await sr
-    .from("admin_audit_logs")
-    .select("id, action, target_id, payload, created_at")
+    .from("audit_log")
+    .select("id, action, resource_id, metadata, created_at")
     .in("action", ["signals.burst_detected", "signals.tag_cap_exceeded"])
     .gte("created_at", since)
     .order("created_at", { ascending: false })

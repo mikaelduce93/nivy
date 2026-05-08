@@ -63,12 +63,12 @@ export async function POST(
   }
 
   // Audit log (§29.8)
-  await sb.from("admin_audit_logs").insert({
-    user_id: userInfo.profileId,
+  await sb.from("audit_log").insert({
+    actor_id: userInfo.profileId,
     action: `marketplace.${decision}`,
-    target_type: "marketplace_listing",
-    target_id: listing_id,
-    payload: { reason },
+    resource_type: "marketplace_listing",
+    resource_id: listing_id,
+    metadata: { reason },
   })
 
   return NextResponse.json({ success: true, listing_id, status: newStatus })

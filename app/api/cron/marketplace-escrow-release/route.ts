@@ -40,12 +40,12 @@ export async function GET(request: Request) {
   const durationMs = Date.now() - startedAt
 
   try {
-    await sb.from("admin_audit_logs").insert({
-      user_id: null,
+    await sb.from("audit_log").insert({
+      actor_id: null,
       action: "cron.marketplace_escrow_release",
-      target_type: "system",
-      target_id: null,
-      payload: { released, errors, duration_ms: durationMs, rows },
+      resource_type: "system",
+      resource_id: null,
+      metadata: { released, errors, duration_ms: durationMs, rows },
     })
   } catch (e) {
     console.error("[cron/marketplace-escrow-release] audit log insert failed:", e)

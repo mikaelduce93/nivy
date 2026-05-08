@@ -90,12 +90,12 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
       return NextResponse.json({ success: false, error: upErr.message }, { status: 500 })
     }
 
-    await sr.from("admin_audit_logs").insert({
-      user_id: user.id,
+    await sr.from("audit_log").insert({
+      actor_id: user.id,
       action: "content.review.approve",
-      target_type: "educational_quizzes",
-      target_id: id,
-      payload: { code: quiz.code, title: quiz.title },
+      resource_type: "educational_quizzes",
+      resource_id: id,
+      metadata: { code: quiz.code, title: quiz.title },
     })
 
     return NextResponse.json({ success: true, id, status: "approved" })
@@ -108,12 +108,12 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   }
 
   // is_active stays false; we just log the rejection.
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: "content.review.reject",
-    target_type: "educational_quizzes",
-    target_id: id,
-    payload: { code: quiz.code, title: quiz.title, reason },
+    resource_type: "educational_quizzes",
+    resource_id: id,
+    metadata: { code: quiz.code, title: quiz.title, reason },
   })
 
   return NextResponse.json({ success: true, id, status: "rejected" })

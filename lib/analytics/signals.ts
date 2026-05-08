@@ -122,11 +122,11 @@ async function logAudit(
   targetId: string | null
 ): Promise<void> {
   try {
-    await sb.from("admin_audit_logs").insert({
-      user_id: null,
+    await sb.from("audit_log").insert({
+      actor_id: null,
       action,
-      target_type: "behavioral_signal",
-      target_id: targetId,
+      resource_type: "behavioral_signal",
+      resource_id: targetId,
       payload,
     })
   } catch (err) {

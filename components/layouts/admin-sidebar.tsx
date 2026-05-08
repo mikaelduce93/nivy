@@ -3,6 +3,12 @@
 /**
  * TEENS PARTY MOROCCO - Admin Sidebar Navigation
  * ===============================================
+ *
+ * Wave 1C: items are filtered by sub-role + (for system entries) by an env
+ * flag. Pass `subRole` from the server-side admin layout. The Scripts SQL
+ * entry is shown ONLY if `subRole === 'super_admin'` AND
+ * `sqlConsoleEnabled === true` (canon: admin-moderation §10 FORBIDDEN #2 +
+ * §12.D3 ring-fence).
  */
 
 import * as React from 'react'
@@ -15,7 +21,6 @@ import {
   Ticket,
   Trophy,
   BarChart3,
-  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -29,61 +34,43 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import type { AdminSubRole, AdminPermission } from '@/lib/auth/admin-permissions'
+import { ADMIN_PERMISSIONS } from '@/lib/auth/admin-permissions'
 
-const navItems = [
-  {
-    title: 'Dashboard',
-    href: '/admin',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'Événements',
-    href: '/admin/evenements',
-    icon: Calendar,
-  },
-  {
-    title: 'Réservations',
-    href: '/admin/reservations',
-    icon: Ticket,
-  },
-  {
-    title: 'Anniversaires',
-    href: '/admin/anniversaires',
-    icon: Cake,
-  },
-  {
-    title: 'Check-in',
-    href: '/admin/check-in',
-    icon: QrCode,
-  },
-  {
-    title: 'Utilisateurs',
-    href: '/admin/utilisateurs',
-    icon: Users,
-  },
-  {
-    title: 'Clubs',
-    href: '/admin/clubs',
-    icon: Trophy,
-  },
-  {
-    title: 'Ambassadeurs',
-    href: '/admin/ambassadeurs',
-    icon: Award,
-  },
-  {
-    title: 'Analytics',
-    href: '/admin/analytics',
-    icon: BarChart3,
-  },
-  {
-    title: 'Scripts SQL',
-    href: '/admin/scripts-sql',
-    icon: Database,
-  },
+interface NavItem {
+  title: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  /** Required permission to render the item. Undefined = always shown. */
+  requiredPermission?: AdminPermission
+  /** Extra gate: when set, the item is hidden unless the prop is true. */
+  requiresEnvFlag?: 'sqlConsole'
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { title: 'Dashboard',     href: '/admin',                icon: LayoutDashboard, requiredPermission: 'dashboard.view' },
+  { title: 'Événements',    href: '/admin/evenements',     icon: Calendar,        requiredPermission: 'events.view' },
+  { title: 'Réservations',  href: '/admin/reservations',   icon: Ticket,          requiredPermission: 'reservations.view' },
+  { title: 'Anniversaires', href: '/admin/anniversaires',  icon: Cake,            requiredPermission: 'events.view' },
+  { title: 'Check-in',      href: '/admin/check-in',       icon: QrCode,          requiredPermission: 'reservations.checkin' },
+  { title: 'Utilisateurs',  href: '/admin/utilisateurs',   icon: Users,           requiredPermission: 'users.view' },
+  { title: 'Clubs',         href: '/admin/clubs',          icon: Trophy,          requiredPermission: 'events.view' },
+  { title: 'Ambassadeurs',  href: '/admin/ambassadeurs',   icon: Award,           requiredPermission: 'ambassadors.view' },
+  { title: 'Analytics',     href: '/admin/analytics',      icon: BarChart3,       requiredPermission: 'analytics.view' },
+  { title: 'Scripts SQL',   href: '/admin/scripts-sql',    icon: Database,        requiredPermission: 'system.sql', requiresEnvFlag: 'sqlConsole' },
 ]
 
-export function AdminSidebar() {
+function roleHasPermissionInline(role: AdminSubRole, permission: AdminPermission): boolean {
+  const allowed = ADMIN_PERMISSIONS[permission] as readonly AdminSubRole[]
+  return allowed?.includes(role) ?? false
+}
+
+interface AdminSidebarProps {
+  subRole?: AdminSubRole
+  sqlConsoleEnabled?: boolean
+}
+
+export function AdminSidebar({ subRole, sqlConsoleEnabled = false }: AdminSidebarProps = {}) {
   const pathname = usePathname()
   const router = useRouter()
   const [collapsed, setCollapsed] = React.useState(false)
@@ -94,6 +81,16 @@ export function AdminSidebar() {
     await supabase.auth.signOut()
     router.push('/auth/login')
   }
+
+  // Defensive: if a caller forgot to pass subRole, fall back to showing
+  // dashboard-only (everyone can see it). This avoids leaking nav when the
+  // prop is missing — fail closed.
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    if (item.requiresEnvFlag === 'sqlConsole' && !sqlConsoleEnabled) return false
+    if (!item.requiredPermission) return true
+    if (!subRole) return item.requiredPermission === 'dashboard.view'
+    return roleHasPermissionInline(subRole, item.requiredPermission)
+  })
 
   return (
     <aside
@@ -130,7 +127,7 @@ export function AdminSidebar() {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4">
           <ul className="space-y-1">
-            {navItems.map((item) => {
+            {visibleItems.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
               return (
                 <li key={item.href}>

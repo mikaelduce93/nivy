@@ -293,12 +293,12 @@ export async function GET(request: NextRequest) {
     report,
     duration_ms: durationMs,
   }
-  const { error: auditErr } = await supabase.from("admin_audit_logs").insert({
-    user_id: null,
+  const { error: auditErr } = await supabase.from("audit_log").insert({
+    actor_id: null,
     action: "cron.tag_normalize",
-    target_type: "cron",
-    target_id: null,
-    payload: auditPayload,
+    resource_type: "cron",
+    resource_id: null,
+    metadata: auditPayload,
   })
   if (auditErr) {
     console.error(

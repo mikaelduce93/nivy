@@ -141,12 +141,12 @@ export async function POST(request: Request) {
     .eq("id", user.id)
 
   // 10. Audit log (§29.8 invariant).
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: "user.data_delete.request",
-    target_type: "user",
-    target_id: user.id,
-    payload: {
+    resource_type: "user",
+    resource_id: user.id,
+    metadata: {
       request_id: req.id,
       scheduled_for: scheduledFor.toISOString(),
       grace_period_days: GRACE_PERIOD_DAYS,

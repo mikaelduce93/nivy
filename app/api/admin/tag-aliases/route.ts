@@ -238,12 +238,12 @@ export async function POST(req: Request) {
   }
 
   // 5. Audit
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: `tag_aliases.${action}`,
-    target_type: "tag_alias",
-    target_id: upserted?.id ?? null,
-    payload: {
+    resource_type: "tag_alias",
+    resource_id: upserted?.id ?? null,
+    metadata: {
       alias: aliasRaw,
       canonical_tag: canonicalForDb,
       status,

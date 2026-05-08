@@ -90,12 +90,12 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   }
 
   // 7. Audit log (§29.8)
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: "mentor.reject",
-    target_type: "mentor",
-    target_id: id,
-    payload: {
+    resource_type: "mentor",
+    resource_id: id,
+    metadata: {
       previous_status: mentor.status,
       previous_kyc_status: mentor.kyc_status,
       reason,

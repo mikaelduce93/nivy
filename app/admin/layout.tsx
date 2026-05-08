@@ -21,8 +21,14 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-background">
       {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
       <SkipToContent />
-      {/* Admin Sidebar */}
-      <AdminSidebar />
+      {/* Admin Sidebar — filtered by sub-role + (for SQL console) env flag. */}
+      <AdminSidebar
+        subRole={admin.subRole}
+        sqlConsoleEnabled={
+          process.env.ENABLE_ADMIN_SQL_CONSOLE === 'true' ||
+          process.env.ENABLE_ADMIN_SQL_EXECUTION === 'true'
+        }
+      />
 
       {/* Main Content - offset by sidebar width */}
       <main

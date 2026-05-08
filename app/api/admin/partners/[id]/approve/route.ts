@@ -78,12 +78,12 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
     .neq("status", "approved")
 
   // 6. Audit log (§29.8)
-  await sr.from("admin_audit_logs").insert({
-    user_id: user.id,
+  await sr.from("audit_log").insert({
+    actor_id: user.id,
     action: "partner.approve",
-    target_type: "partner",
-    target_id: id,
-    payload: { previous_status: partner.status },
+    resource_type: "partner",
+    resource_id: id,
+    metadata: { previous_status: partner.status },
   })
 
   // 7. Notify partner (best-effort; partner login is by email so we look up profile)
