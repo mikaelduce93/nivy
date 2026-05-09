@@ -227,6 +227,9 @@ export async function POST(request: Request) {
     // populate both the legacy `discount_pct` (for downstream readers
     // like the dashboard's `offer.discount_value` rendering) and the
     // newer `discount_value` so semantics stay consistent.
+    // Wave 3A / canon §4.1 — partner offers are NEVER live on create.
+    // Default to status='pending_approval', is_active=false. The DB CHECK
+    // `NOT is_active OR status='approved'` enforces the invariant.
     const offerData = {
       partner_id: partner.id,
       title: name.trim(),
@@ -242,7 +245,8 @@ export async function POST(request: Request) {
       terms_and_conditions: termsAndConditions?.trim() || null,
       valid_from: validFrom,
       valid_until: validUntil,
-      is_active: true,
+      status: "pending_approval",
+      is_active: false,
       max_uses_per_user: maxUsesPerUser ? parseInt(maxUsesPerUser) : null,
       max_total_uses: maxTotalUses ? parseInt(maxTotalUses) : null,
       current_total_uses: 0,
@@ -266,15 +270,18 @@ export async function POST(request: Request) {
       )
     }
 
-    // Best-effort activity log; don't fail the request on logger errors.
+    // Wave 3A — canonical audit_log (singular). Wave 1C deprecated activity_logs.
     try {
-      await supabase.from("activity_logs").insert({
-        user_id: userInfo.profileId,
-        action: "create",
-        description: `Nouvelle offre créée: ${name}`,
+      await supabase.from("audit_log").insert({
+        actor_id: userInfo.profileId,
+        action: "partner_offer.create",
         resource_type: "partner_offer",
         resource_id: newOffer.id,
-        created_at: new Date().toISOString(),
+        metadata: {
+          partner_id: partner.id,
+          status: "pending_approval",
+          title: name.trim(),
+        },
       })
     } catch {
       // ignore — non-critical
@@ -282,7 +289,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Offre créée avec succès",
+      message: "Offre soumise pour modération",
       data: { ...newOffer, discount_name: newOffer.title },
     })
   } catch (error) {

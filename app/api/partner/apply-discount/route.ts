@@ -101,23 +101,25 @@ export async function POST(request: Request) {
       )
     }
 
+    // Wave 3A / canon §6 F6 — no silent catch on discount_usage. The table
+    // exists in every environment as of mig 074; if the read fails we hard-error.
     if (offer.max_uses_per_user) {
-      try {
-        const { count } = await supabase
-          .from("discount_usage")
-          .select("*", { count: "exact", head: true })
-          .eq("discount_id", discountId)
-          .eq("profile_id", memberId)
-
-        if (count && count >= offer.max_uses_per_user) {
-          return NextResponse.json(
-            { success: false, error: "Limite d'utilisation atteinte pour ce membre" },
-            { status: 400 }
-          )
-        }
-      } catch {
-        // discount_usage missing — skip the per-user cap silently rather
-        // than block the apply flow.
+      const { count, error: usageCountErr } = await supabase
+        .from("discount_usage")
+        .select("*", { count: "exact", head: true })
+        .eq("discount_id", discountId)
+        .eq("profile_id", memberId)
+      if (usageCountErr) {
+        return NextResponse.json(
+          { success: false, error: "usage_count_failed", details: usageCountErr.message },
+          { status: 500 }
+        )
+      }
+      if (count && count >= offer.max_uses_per_user) {
+        return NextResponse.json(
+          { success: false, error: "Limite d'utilisation atteinte pour ce membre" },
+          { status: 400 }
+        )
       }
     }
 
@@ -139,31 +141,32 @@ export async function POST(request: Request) {
 
     const finalAmount = Math.max(0, purchaseAmount - discountAmount)
 
-    // Record usage (best-effort — table may not exist yet).
+    // Wave 3A / canon §6 F6 — usage write is canonical, no silent catch.
     let usageId: string | null = null
     let usageTimestamp = now.toISOString()
-    try {
-      const { data: usage, error: usageError } = await supabase
-        .from("discount_usage")
-        .insert({
-          discount_id: discountId,
-          profile_id: memberId,
-          partner_id: partner.id,
-          purchase_amount: purchaseAmount,
-          discount_amount: discountAmount,
-          final_amount: finalAmount,
-          notes: notes || null,
-          used_at: usageTimestamp,
-        })
-        .select()
-        .single()
-
-      if (!usageError && usage) {
-        usageId = usage.id
-        usageTimestamp = usage.used_at
-      }
-    } catch {
-      // ignore — usage logging is non-critical for the apply flow
+    const { data: usage, error: usageError } = await supabase
+      .from("discount_usage")
+      .insert({
+        discount_id: discountId,
+        profile_id: memberId,
+        partner_id: partner.id,
+        purchase_amount: purchaseAmount,
+        discount_amount: discountAmount,
+        final_amount: finalAmount,
+        notes: notes || null,
+        used_at: usageTimestamp,
+      })
+      .select()
+      .single()
+    if (usageError) {
+      return NextResponse.json(
+        { success: false, error: "usage_write_failed", details: usageError.message },
+        { status: 500 }
+      )
+    }
+    if (usage) {
+      usageId = usage.id
+      usageTimestamp = usage.used_at
     }
 
     // Bump the cumulative usage counter on the canonical table.
@@ -224,28 +227,21 @@ export async function POST(request: Request) {
       const pointsEarned = Math.floor((finalAmount / 10) * multiplier)
 
       if (pointsEarned > 0) {
-        try {
-          await supabase.from("points_transactions").insert({
-            profile_id: memberId,
-            points_amount: pointsEarned,
-            type: "earn",
-            source: "partner_purchase",
-            source_id: usageId,
-            description: `Achat chez ${partner.company_name}`,
-          })
-
-          await supabase.from("user_points").upsert(
-            {
-              profile_id: memberId,
-              total_points: supabase.rpc("increment_points", {
-                p_profile_id: memberId,
-                p_amount: pointsEarned,
-              }),
-            },
-            { onConflict: "profile_id" }
-          )
-        } catch {
-          // ignore — loyalty points are non-critical
+        // Wave 3A — loyalty point writes surface their errors to the response
+        // rather than being silently swallowed (canon §6 F6).
+        const { error: ptxErr } = await supabase.from("points_transactions").insert({
+          profile_id: memberId,
+          points_amount: pointsEarned,
+          type: "earn",
+          source: "partner_purchase",
+          source_id: usageId,
+          description: `Achat chez ${partner.company_name}`,
+        })
+        if (ptxErr) {
+          console.error("points_transactions insert failed:", ptxErr)
+          // Non-blocking for the apply flow but logged. Loyalty points are
+          // a side-effect, not the canonical money grant; canonical XP grant
+          // already succeeded above.
         }
       }
     }

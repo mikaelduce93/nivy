@@ -44,13 +44,36 @@ export async function POST(request: Request) {
       )
     }
 
-    // Parse QR — Format: TPVIP:userId:cardNumber or just cardNumber
+    // Wave 3A / canon §6 F2 — TPVIP: payloads are replayable static IDs.
+    // Reject by default; only allowed when ALLOW_LEGACY_TPVIP_QR=true (env flag,
+    // default OFF). Canonical scanner is /api/partner/scanner/apply with v2 QR.
     let cardNumber: string = qrData
     if (qrData.startsWith("TPVIP:")) {
+      if (process.env.ALLOW_LEGACY_TPVIP_QR !== "true") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "legacy_qr_rejected",
+            message:
+              "TPVIP: format is no longer accepted. Use /api/partner/scanner/apply with the v2 QR.",
+          },
+          { status: 400 },
+        )
+      }
       const parts = qrData.split(":")
       if (parts.length >= 3) {
         cardNumber = parts[2]
       }
+    } else if (qrData.startsWith("nivy:v1:")) {
+      // The new format is handled by the apply endpoint, not verify-card.
+      return NextResponse.json(
+        {
+          success: false,
+          error: "wrong_endpoint",
+          message: "Use POST /api/partner/scanner/apply for nivy:v1 QR.",
+        },
+        { status: 400 },
+      )
     }
 
     const { data: vipCard, error: cardError } = await supabase

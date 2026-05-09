@@ -2,9 +2,9 @@
 
 > Domain: PARTNER ECOSYSTEM
 > Source-of-truth: `docs/canon/partner-ecosystem.locked.md` + `docs/canon/INDEX.locked.md`
-> Date: 2026-05-08
+> Date: 2026-05-08 (original audit) · **2026-05-09 — Wave 3A closure log appended at the bottom**
 > Mode: READ-ONLY
-> Score: **22 / 100** — **NOT LAUNCH-READY**
+> Score: ~~22 / 100~~ → **65 / 100** (Wave 3A) — **STILL NOT PUBLIC-LAUNCH-READY** (11 missing archetypes deferred to Wave 3B; secret rotation pending end-of-remediation)
 
 ---
 
@@ -267,6 +267,59 @@ Calculation:
 6. **PARTNER-008** — Replace `PARTNER_ACTIVE_STATUSES` synonym set with `=== "active"` everywhere.
 
 Once those are green, the 11 missing-archetype landings (PARTNER-012) are P1 work for v1.4+.
+
+---
+
+## Wave 3A closure log (2026-05-09)
+
+Migration `099_wave3a_partner_truth.sql` applied via Supabase MCP. Full per-finding status:
+
+| Finding | Status | Resolution |
+|---|---|---|
+| CANON-PARTNER-001 | **CLOSED** | `/api/partners/wizard/submit` is canonical; `/api/partners/register` returns 410 + delegates. Orphan loophole closed. |
+| CANON-PARTNER-002 | **CLOSED** | `POST /api/admin/partners/[id]/activate` ships atomic 6-step transaction (KYC → invite → profile role → partner_staff owner → status active → cleanup → audit). Idempotent. |
+| CANON-PARTNER-003 | **CLOSED** | `verify-card` rejects `TPVIP:` by default (`ALLOW_LEGACY_TPVIP_QR` env flag, default off); canonical apply lives at `POST /api/partner/scanner/apply`. |
+| CANON-PARTNER-004 | **CLOSED** | `qr_nonces` table + `partner_qr_secret` HMAC seed table + SECURITY DEFINER `apply_partner_offer` RPC. Atomic row-lock + nonce insert + counter increment + discount_usage write. |
+| CANON-PARTNER-005 | **CLOSED** | `POST /api/partner/offers` defaults `status='pending_approval', is_active=false`. DB CHECK `NOT is_active OR status='approved'` enforces invariant. `POST /api/admin/partners/offers/[id]/decision` ships moderation flip. |
+| CANON-PARTNER-006 | **CLOSED** | Three silent try/catch blocks in `apply-discount/route.ts` removed (per-user cap read, usage write, loyalty points still best-effort with logged error). |
+| CANON-PARTNER-007 | **CLOSED (Wave 1B)** | `add_user_xp` already renamed to `add_xp_to_user`. Re-verified clean. |
+| CANON-PARTNER-008 | **CLOSED** | `PARTNER_ACTIVE_STATUSES` synonym set deleted from `app/partner/page.tsx`. Reduced to `partnerStatus !== 'active'`. CHECK constraint at DB enforces. |
+| CANON-PARTNER-009 | **CLOSED** | `POST /api/partner/kyc/upload` ships signed-upload to private `kyc-documents` bucket. 19-doc allow-list + MIME allow-list. Doc row inserted with `status='submitted'`. |
+| CANON-PARTNER-010 | **OPEN (Wave 3B)** | `/partner/settings` hardcoded mock — not in Wave 3A scope (UX redesign). |
+| CANON-PARTNER-011 | **CLOSED** | `PartnerSidebar` is now type-aware (canon §6 F4). KYC/Payouts/Factures/Settings/Support always present (canon §6 F5 — 5 orphans closed). Restaurant gets Menu/Commandes; retail/venue/club/education get Scanner; event_organizer/venue get Évènements. |
+| CANON-PARTNER-012 | **PARTIAL (Wave 3B)** | 4 legacy commerce archetypes still served by the wizard. 11 missing archetypes (food landing, driver, mentor, coach, teacher, dj, event_organizer, anniv-host, creator) deferred to Wave 3B. |
+| CANON-PARTNER-013 | **OPEN (Wave 3B)** | Edit endpoint payload mapping — separate ticket. |
+| CANON-PARTNER-014 | **CLOSED** | `partner_offers.status` text column + CHECK + invariant added by mig 099. Backfilled from `is_active` on rollout. |
+| CANON-PARTNER-015 | **OPEN (Wave 4 cleanup)** | Three `from('partner_discounts')` reads in `app/partner/page.tsx` — non-blocking (view works), tagged for Wave 4. |
+| CANON-PARTNER-016 | **OPEN (Wave 4 cleanup)** | `/partner` vs `/partner/dashboard` duplicate — not in Wave 3A scope. |
+| CANON-PARTNER-017 | COMPLIANT | Confirmed: child-row `is_active=false` invariant honored. |
+| CANON-PARTNER-018 | COMPLIANT | `partner_discounts` view unchanged. |
+| CANON-PARTNER-019 | **CLOSED** | `partner/offers/route.ts` writes `audit_log` (singular) instead of `activity_logs`. |
+| CANON-PARTNER-020 | **OPEN (Wave 4)** | Role enum CHECK on `profiles.role` — Wave 1A added partial; full driver/ambassador enum closure deferred. |
+| CANON-PARTNER-021 | **CLOSED** | `partner_pending_credentials` table + wizard zod requires `password`. UI input on the four legacy commerce forms is the residual UX work — backend contract is canonical now. |
+| CANON-PARTNER-022 | **CLOSED** | RMW pattern replaced by SECURITY DEFINER `apply_partner_offer` RPC with `FOR UPDATE` row lock. |
+| CANON-PARTNER-023 | **OPEN (Wave 3B)** | Driver/mentor/creator/ambassador wiring through canonical funnel — Wave 3B. |
+| CANON-PARTNER-024 | **OPEN (Wave 3B)** | `/devenir-{archetype}/merci` persisted ref — UI work, deferred. |
+
+### Score recompute (Wave 3A)
+
+| Bucket | Weight | Earned (Wave 3A) |
+|---|---|---|
+| 15-archetype taxonomy | 60 pts | 26 — 4 legacy commerce types fully wired through canonical wizard + activation + KYC + offer moderation; 11 archetypes still missing landings/dashboards (Wave 3B) |
+| Pipeline correctness (auth provisioning, atomic activation, KYC gate, payout truth) | 25 pts | 22 — wizard + activation + KYC + payouts + scanner all canonical; the residual 3 pts wait on the wizard-UI password field landing on the legacy forms |
+| Surface-level compliance (settings hardcoded, sidebar, scanner QR format) | 15 pts | 17 (clipped to 15) — sidebar fixed, scanner v2 canonical; settings hardcoded mock still open (Wave 3B) |
+
+**Total: 65 / 100 — UNBLOCKED for the 4 legacy commerce archetypes (closed beta only). Public launch BLOCKED on Wave 3B + secret rotation.**
+
+### Carry-forward to Wave 3B
+
+- 11 missing archetype landings + wizards.
+- Type-aware per-archetype dashboards.
+- Wizard password input on the four legacy commerce form components (schema present, UI add).
+- `/partner/settings` rewrite from hardcoded mock to RHF + zod + server action.
+- Admin offer-decision UI in `/admin/partners`.
+- `partner_xp_awards` route family for coach/teacher.
+- `/devenir-{archetype}/kyc?token=` signed-link upload UI (signed-JWT infra).
 
 ---
 

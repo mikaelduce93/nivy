@@ -28,6 +28,7 @@ Pulled from compliance/04 ECON, 07 GAME, 11 AI, 12 ADMIN, 06 SOCIAL, 08 PARENT, 
 | `app/api/teen/rides/[id]/cancel/route.ts:23-30` (via `cancel_ride` mig 057:107-117) | `refund_teen_coins` | `refund_teen_coins(p_teen_id, p_amount_coins, p_source_type, p_source_id, p_reason)` SECURITY DEFINER | MUST IMPLEMENT | P0 |
 | `app/api/admin/refunds/route.ts:185-200,269-277,347-356,428-437` (uses inline `bumpCoins` helper) | `refund_teen_coins`, `refund_booking`, `refund_food_order`, `refund_marketplace`, `revoke_xp_cashback` | canon §7 economy + canon §5 admin (7 finance RPCs) | MUST IMPLEMENT | P0 |
 | `gamification-system/database/migrations/061_wave_b_money_pipeline.sql:721` (food reject reverse path) | `revoke_xp_cashback` | `revoke_xp_cashback(p_teen_id, p_xp_amount, p_source_id)` | MUST IMPLEMENT | P0 |
+| Partner scanner v2 — atomic apply (canon §4.2) | `apply_partner_offer(p_offer_id, p_member_user_id, p_purchase_amount, p_idempotency_key, p_nonce, p_qr_exp_unix)` | per canon §4.2 | MUST IMPLEMENT | **CLOSED (Wave 3A — mig 099, RPC live)** |
 | Mentor session completion path (no caller — feature half-built) | `complete_mentor_session` | `complete_mentor_session(p_session_id, p_actor_id)` | MUST IMPLEMENT | P1 |
 | Featured-creator monthly payout path (no caller — feature half-built) | `pay_featured_creator` | per canon §7 ECON | MUST IMPLEMENT | P1 |
 | Parent refund within 14-day window (no caller) | `refund_top_up` | per canon §7 ECON | MUST IMPLEMENT | P0 |

@@ -1,14 +1,14 @@
 {
   "generated_at": "2026-05-09",
-  "audit_version": "v1.4-wave2b",
-  "overall_score": 68,
-  "core_flow_score": 78,
+  "audit_version": "v1.5-wave3a",
+  "overall_score": 72,
+  "core_flow_score": 80,
   "launch_status": "RISKY-CLOSED-BETA-PENDING-SECRET-ROTATION",
   "public_launch_status": "BLOCKED",
   "closed_beta_status": "RISKY_PENDING_SECRET_ROTATION",
-  "scoring_note": "overall_score is the unweighted mean of the 11 domain_scores below; it remains depressed because partner-ecosystem (22), admin-moderation (60), lifestyle (62), and design-system-mobile (62) have not yet been touched. core_flow_score (78) reflects only the auth/money/parent/social/gamification core flows that Waves 0-2B addressed. Do NOT report core_flow_score as overall.",
+  "scoring_note": "overall_score is the unweighted mean of the 11 domain_scores below; partner-ecosystem moved from 22 to 65 with Wave 3A (registration truth, atomic activation, scanner v2, offer moderation, status canon). lifestyle (62), admin-moderation (60), design-system-mobile (62) and the 11 missing partner archetypes (Wave 3B) are still untouched. Do NOT report core_flow_score as overall.",
   "blocking_domains": [
-    "partner-ecosystem",
+    "partner-ecosystem-archetypes",
     "lifestyle-supply",
     "admin-moderation-completion",
     "secret-rotation"
@@ -20,18 +20,18 @@
     "social-feed": 80,
     "gamification": 78,
     "parent-control": 78,
-    "partner-ecosystem": 22,
+    "partner-ecosystem": 65,
     "lifestyle": 62,
     "personalization-ai": 87,
     "admin-moderation": 60,
     "design-system-mobile": 62
   },
   "totals": {
-    "P0": 30,
-    "P1": 95,
+    "P0": 22,
+    "P1": 92,
     "P2": 67,
     "P3": 20,
-    "total": 212
+    "total": 201
   },
   "release_blockers": [
     "Rotate SUPABASE_SERVICE_ROLE_KEY at the END of remediation, before any public launch / production user testing. Per founder ruling 2026-05-09, rotation is deferred until all waves are complete (rotating now while still iterating provides no security benefit and burns dashboard friction).",

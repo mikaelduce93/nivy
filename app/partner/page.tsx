@@ -17,10 +17,9 @@ import {
 } from "./lazy-components"
 import { SkeletonCard } from "@/components/ui/skeletons/presets"
 
-// Statuses that mean the partner is fully onboarded and may use the dashboard.
-// Anything else (pending, in_review, rejected, suspended) renders the
-// awaiting-approval state instead of the live dashboard.
-const PARTNER_ACTIVE_STATUSES = new Set(["active", "verified", "approved"])
+// Wave 3A / canon D11 — `verified` and `approved` are forbidden synonyms.
+// The single canonical "live" status is 'active'. Migration 099 added a
+// CHECK constraint that rejects anything else.
 
 async function getPartnerStats(partnerEmail: string) {
   const supabase = await createClient()
@@ -112,7 +111,7 @@ export default async function PartnerDashboardPage() {
   // Gate the live dashboard behind admin approval. New partners land
   // here right after submitting their KYC and need a clear "what
   // happens next" screen instead of empty stats / broken CTAs.
-  if (!PARTNER_ACTIVE_STATUSES.has(partnerStatus)) {
+  if (partnerStatus !== "active") {
     return (
       <PartnerAwaitingApproval
         companyName={companyName}

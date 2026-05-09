@@ -5,6 +5,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "."),
+      // `server-only` throws at import time outside the React Server bundle.
+      // Tests run in node and import server modules directly — alias to a
+      // no-op so the assertion passes without leaking the module to clients.
+      "server-only": resolve(__dirname, "tests/shims/server-only.ts"),
     },
   },
   test: {
