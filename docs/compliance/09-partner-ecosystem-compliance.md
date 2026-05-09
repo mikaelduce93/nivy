@@ -4,7 +4,7 @@
 > Source-of-truth: `docs/canon/partner-ecosystem.locked.md` + `docs/canon/INDEX.locked.md`
 > Date: 2026-05-08 (original audit) · **2026-05-09 — Wave 3A closure log appended at the bottom**
 > Mode: READ-ONLY
-> Score: ~~22 / 100~~ → **65 / 100** (Wave 3A) → **70 / 100** (Wave 3A.5 UI wiring) → **78 / 100** (Wave 3B.1 archetype intake) → **84 / 100** (Wave 3B.2 honest type-aware dashboards) — **STILL NOT PUBLIC-LAUNCH-READY** (`/partner/settings` rewrite Wave 3B.3; prospect-pre-auth KYC signed-link upload Wave 3B.3; secret rotation pending end-of-remediation)
+> Score: ~~22 / 100~~ → **65 / 100** (Wave 3A) → **70 / 100** (Wave 3A.5 UI wiring) → **78 / 100** (Wave 3B.1 archetype intake) → **84 / 100** (Wave 3B.2 honest type-aware dashboards) → **89 / 100** (Wave 3B.3 settings + pre-auth KYC + admin per-doc decision) — **CLOSED-BETA READY for the partner domain.** Public launch still pending Wave 4A (admin-moderation 60→), Wave 4B (design-system 62→), and end-of-remediation secret rotation.
 
 ---
 
