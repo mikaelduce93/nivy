@@ -46,6 +46,11 @@ function makeServerClient() {
           }
           return { data: null, error: null }
         }),
+        // Wave 6J — quest_complete now pre-checks quest_progress for an
+        // existing completion via .maybeSingle() before granting XP
+        // (idempotency). Returning `{ data: null }` simulates "no prior
+        // completion" so the test path still flows through the XP grant.
+        maybeSingle: vi.fn(async () => ({ data: null, error: null })),
       }
       return builder
     },

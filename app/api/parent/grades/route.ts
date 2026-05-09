@@ -254,35 +254,33 @@ export const POST = withSecurity(
           xpAwarded += Math.floor(improvement * 10) // 10 XP per point improved
         }
 
-        // Award XP to teen
+        // Award XP to teen.
+        //
+        // Wave 6J — canonical RPC. The previous direct user_xp.upsert
+        // + xp_transactions.insert was a phantom-XP path that bypassed
+        // add_xp_to_user (no cap, no multiplier, no level-up trigger,
+        // lost-update race on concurrent grade validations). The
+        // canonical RPC is SECURITY DEFINER and writes xp_transactions
+        // atomically.
+        //
+        // The dedicated `school_score` column on user_xp is updated
+        // separately below by the school-score recalc helper — keeping
+        // it out of this XP grant means add_xp_to_user remains the
+        // single writer of `total_xp`.
         if (xpAwarded > 0) {
-          // Get current XP
-          const { data: currentXP } = await supabase
-            .from("user_xp")
-            .select("total_xp, school_score")
-            .eq("teen_id", grade.teen_id)
-            .single()
-
-          // Update XP
-          await supabase
-            .from("user_xp")
-            .upsert({
-              teen_id: grade.teen_id,
-              total_xp: (currentXP?.total_xp || 0) + xpAwarded,
-              school_score: (currentXP?.school_score || 0) + xpAwarded,
-              updated_at: new Date().toISOString(),
-            })
-
-          // Record XP transaction
-          await supabase.from("xp_transactions").insert({
-            teen_id: grade.teen_id,
-            amount: xpAwarded,
-            type: "grade_bonus",
-            description: `Note validée en ${grade.subject?.name}: ${grade.value}/20`,
-            reference_type: "grade",
-            reference_id: gradeId,
-            created_at: new Date().toISOString(),
+          const { error: xpErr } = await supabase.rpc("add_xp_to_user", {
+            p_teen_id: grade.teen_id,
+            p_xp_amount: xpAwarded,
+            p_source_type: "grade",
+            p_source_category: "grade_bonus",
+            p_source_id: gradeId,
+            p_description: `Note validée en ${grade.subject?.name}: ${grade.value}/20`,
           })
+          if (xpErr) {
+            console.error("[parent/grades] add_xp_to_user failed:", xpErr.message)
+            // Non-fatal — the grade row is already validated. The XP
+            // grant retries on subsequent grade actions.
+          }
         }
       }
 

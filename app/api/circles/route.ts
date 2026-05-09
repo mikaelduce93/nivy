@@ -382,29 +382,29 @@ export const POST = withSecurity(
         })
         .eq("id", circleId)
 
-      // Award XP for participation (if teen)
+      // Award XP for participation (if teen).
+      //
+      // Wave 6J — canonical RPC. Direct user_xp.upsert + xp_transactions
+      // insert was a phantom-XP path: it bypassed add_xp_to_user, didn't
+      // honour cap / multiplier / level-up triggers, and the read-then-
+      // upsert had a race window where two concurrent messages both
+      // computed `currentXP + 5` then both wrote the same total
+      // (lost-update). The canonical RPC is SECURITY DEFINER and writes
+      // xp_transactions atomically.
       if (profile?.role === "teen") {
-        const { data: currentXP } = await supabase
-          .from("user_xp")
-          .select("total_xp")
-          .eq("teen_id", user.id)
-          .single()
-
-        await supabase.from("user_xp").upsert({
-          teen_id: user.id,
-          total_xp: (currentXP?.total_xp || 0) + 5,
-          updated_at: new Date().toISOString(),
+        const { error: xpErr } = await supabase.rpc("add_xp_to_user", {
+          p_teen_id: user.id,
+          p_xp_amount: 5,
+          p_source_type: "circle_message",
+          p_source_category: "community_participation",
+          p_source_id: message.id,
+          p_description: `Message dans ${circle.name}`,
         })
-
-        await supabase.from("xp_transactions").insert({
-          teen_id: user.id,
-          amount: 5,
-          type: "community_participation",
-          description: `Message dans ${circle.name}`,
-          reference_type: "circle_message",
-          reference_id: message.id,
-          created_at: new Date().toISOString(),
-        })
+        if (xpErr) {
+          console.error("[circles] add_xp_to_user failed:", xpErr.message)
+          // Non-fatal — message already inserted. The XP grant retries
+          // on the next interaction; we don't reverse the message.
+        }
       }
 
       return jsonResponse({
