@@ -29,6 +29,9 @@ import {
   ShieldCheck,
   Utensils,
   ClipboardList,
+  Music,
+  Sparkles,
+  Mail,
 } from "lucide-react"
 
 export type PartnerType =
@@ -37,6 +40,7 @@ export type PartnerType =
   | "club"
   | "education"
   | "food"
+  | "event_talent"
   | "event_organizer"
   | "creator"
   | null
@@ -87,6 +91,18 @@ function buildActiveNav(partnerType: PartnerType): NavItem[] {
   }
   if (partnerType === "event_organizer" || partnerType === "venue") {
     extensions.push({ name: "Évènements", href: "/partner/events", icon: Calendar })
+  }
+  if (partnerType === "event_talent") {
+    extensions.push(
+      { name: "Talent", href: "/partner/talent", icon: Music },
+      { name: "Bookings", href: "/partner/talent/bookings", icon: Calendar },
+    )
+  }
+  if (partnerType === "creator") {
+    extensions.push(
+      { name: "Créateur", href: "/partner/creator", icon: Sparkles },
+      { name: "Briefs", href: "/partner/creator/briefs", icon: Mail },
+    )
   }
 
   // Order: dashboard (always) → core → extensions → tail (KYC/Payouts/Invoices/Settings/Support)
