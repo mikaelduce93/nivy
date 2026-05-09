@@ -1,13 +1,11 @@
 /**
- * Wave V1.2-F — Partner KYC documents (read-only).
+ * Wave V1.2-F — Partner KYC documents.
+ * Wave 3A.5: in-page uploader wired to POST /api/partner/kyc/upload (canon §4.6).
  *
  * RSC. Reads `kyc_documents` for the authenticated partner via the service-role
- * client (RLS on this table requires a `partner_staff` row with role='owner';
- * we mirror the admin C.7 pattern instead since partners are matched by email
- * via `getUserRole`). Signed URLs (15 min) are generated server-side from the
- * private `kyc-documents` bucket. No client-side upload is wired here — the
- * onboarding upload flow lives elsewhere; this page exposes the dossier state
- * to the partner so they can see what's pending / rejected and contact support.
+ * client. Signed READ URLs (15 min) are generated server-side from the private
+ * `kyc-documents` bucket. New uploads go through the canonical signed-token
+ * pattern — we never get-public-url on KYC media (canon §6 F12).
  */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,6 +24,7 @@ import { redirect } from "next/navigation"
 import { EmptyState } from "@/components/ui/states/empty-state"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { PartnerKycUploader } from "@/components/partners/PartnerKycUploader"
 
 export const dynamic = "force-dynamic"
 
@@ -223,6 +222,9 @@ export default async function PartnerKYCPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Wave 3A.5 — in-page uploader (private bucket, canon §4.6). */}
+      <PartnerKycUploader />
 
       {/* Document list */}
       <Card className="bg-zinc-900 border-zinc-800">

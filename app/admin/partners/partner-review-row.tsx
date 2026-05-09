@@ -33,6 +33,7 @@ export function PartnerReviewRow({
   const [showReject, setShowReject] = useState(false)
   const [reason, setReason] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [activateOutcome, setActivateOutcome] = useState<string | null>(null)
 
   async function approve() {
     setBusy(true)
@@ -46,6 +47,41 @@ export function PartnerReviewRow({
       if (!res.ok) {
         setError(typeof j.error === "string" ? j.error : "Erreur d'approbation")
         return
+      }
+      router.refresh()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Wave 3A.5 — canonical atomic activation. Provisions the auth user via
+  // inviteUserByEmail, upserts partner_staff (role='owner'), flips
+  // partners.status='active', writes audit_log. Idempotent.
+  async function activate() {
+    setBusy(true)
+    setError(null)
+    setActivateOutcome(null)
+    try {
+      const res = await fetch(`/api/admin/partners/${partner.id}/activate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+      const j = await res.json().catch(() => ({}))
+      if (!res.ok || !j?.success) {
+        if (j?.error === "kyc_not_approved") {
+          setError(
+            `Documents KYC requis. ${j?.details?.docs_approved ?? 0}/${j?.details?.docs_total ?? 0} approuvés.`,
+          )
+        } else {
+          setError(typeof j?.error === "string" ? j.error : "Erreur d'activation")
+        }
+        return
+      }
+      if (j.outcome === "noop_already_active") {
+        setActivateOutcome("Déjà actif")
+      } else {
+        setActivateOutcome(j.provisioned === "created" ? "Activé · invitation envoyée" : "Activé")
       }
       router.refresh()
     } finally {
@@ -174,13 +210,26 @@ export function PartnerReviewRow({
       )}
 
       {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+      {activateOutcome && (
+        <p className="mb-2 text-xs text-emerald-300">{activateOutcome}</p>
+      )}
 
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
           disabled={busy}
+          onClick={activate}
+          className="rounded bg-emerald-600 px-3 py-1 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+          title="Provisionne l'auth.user, partner_staff owner, status=active. Idempotent."
+        >
+          Activer
+        </button>
+        <button
+          type="button"
+          disabled={busy}
           onClick={approve}
           className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
+          title="Marque KYC approuvé (legacy). Préférer Activer."
         >
           Approuver
         </button>

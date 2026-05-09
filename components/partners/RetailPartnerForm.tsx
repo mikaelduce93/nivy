@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowLeft, ArrowRight, Store, MapPin, Percent, Building2, Phone, Mail, Globe, Upload, Plus, Trash2, CheckCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { submitPartnerWizard } from '@/lib/partners/wizard-submit'
+import { PartnerPasswordPanel, isPasswordValid } from '@/components/partners/PartnerPasswordPanel'
 
 interface RetailPartnerFormProps {
   onBack: () => void
@@ -68,6 +71,9 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
   const [contactPersonRole, setContactPersonRole] = useState('')
   const [contactPersonPhone, setContactPersonPhone] = useState('')
   const [contactPersonEmail, setContactPersonEmail] = useState('')
+  // Wave 3A.5 — canonical wizard requires a password (canon §2 stage 2).
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   // Step 2: Locations
   const [locations, setLocations] = useState<Location[]>([
@@ -164,7 +170,13 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
   const validateStep = (step: number) => {
     switch (step) {
       case 1:
-        return companyName && email && phone && contactPersonName
+        return (
+          !!companyName &&
+          !!email &&
+          !!phone &&
+          !!contactPersonName &&
+          isPasswordValid(password, confirmPassword)
+        )
       case 2:
         return locations.every(loc => loc.locationName && loc.address && loc.city)
       case 3:
@@ -192,29 +204,30 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
-
     try {
-      const partnerData = {
+      // Wave 3A.5 — canonical wizard endpoint (no orphan partners).
+      const result = await submitPartnerWizard({
         partner_type: 'retail',
         company_name: companyName,
-        company_registration_number: registrationNumber,
-        tax_id: taxId,
         email,
+        password,
         phone,
-        website,
-        description,
+        website: website || null,
+        description: description || null,
         contact_person_name: contactPersonName,
-        contact_person_role: contactPersonRole,
-        contact_person_phone: contactPersonPhone,
-        contact_person_email: contactPersonEmail,
-        locations: locations.map(loc => ({
+        contact_person_role: contactPersonRole || null,
+        contact_person_phone: contactPersonPhone || null,
+        contact_person_email: contactPersonEmail || null,
+        rc_number: registrationNumber || null,
+        ice_number: taxId || null,
+        locations: locations.map((loc) => ({
           location_name: loc.locationName,
           address: loc.address,
           city: loc.city,
           postal_code: loc.postalCode,
-          phone: loc.phone
+          phone: loc.phone,
         })),
-        discounts: discounts.map(disc => ({
+        discounts: discounts.map((disc) => ({
           discount_name: disc.discountName,
           description: disc.description,
           discount_type: disc.discountType,
@@ -224,22 +237,16 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
           max_discount_amount: disc.maxDiscountAmount ? parseFloat(disc.maxDiscountAmount) : null,
           valid_from: disc.validFrom,
           valid_until: disc.validUntil,
-          applicable_categories: disc.applicableCategories
-        }))
-      }
-
-      const response = await fetch('/api/partners/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(partnerData)
+          applicable_categories: disc.applicableCategories,
+        })),
       })
 
-      if (!response.ok) throw new Error('Erreur lors de l\'inscription')
-
-      router.push('/partenaires/merci')
-    } catch (error) {
-      console.error('Erreur:', error)
-      alert('Une erreur est survenue. Veuillez réessayer.')
+      if (!result.ok) {
+        toast.error(result.error ?? 'Erreur lors de la soumission')
+        return
+      }
+      toast.success('Demande envoyée. KYC + activation admin requise avant la connexion.')
+      router.push(`/partenaires/merci?ref=${result.partner_id ?? ''}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -405,6 +412,13 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                   placeholder="Décrivez votre commerce, vos produits, votre spécialité..."
                 />
               </div>
+
+              <PartnerPasswordPanel
+                password={password}
+                setPassword={setPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+              />
 
               {/* Contact Person */}
               <div className="border-t border-zinc-800 pt-6">

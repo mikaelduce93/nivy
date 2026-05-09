@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowLeft, ArrowRight, Dumbbell, Building2, CreditCard, CheckCircle, Phone, Mail, Plus, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { submitPartnerWizard } from '@/lib/partners/wizard-submit'
+import { PartnerPasswordPanel, isPasswordValid } from '@/components/partners/PartnerPasswordPanel'
 
 interface ClubPartnerFormProps {
   onBack: () => void
@@ -76,6 +79,9 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
   const [city, setCity] = useState('')
   const [postalCode, setPostalCode] = useState('')
   const [description, setDescription] = useState('')
+  // Wave 3A.5 — wizard requires a password (canon §2 stage 2).
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   // Contact Person
   const [contactPersonName, setContactPersonName] = useState('')
@@ -134,7 +140,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
   const validateStep = (step: number) => {
     switch (step) {
       case 1:
-        return companyName && email && phone && address && city && contactPersonName
+        return Boolean(companyName && email && phone && address && city && contactPersonName) && isPasswordValid(password, confirmPassword)
       case 2:
         return clubType
       case 3:
@@ -198,18 +204,17 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
         }))
       }
 
-      const response = await fetch('/api/partners/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(clubData)
+      // Wave 3A.5 — canonical wizard endpoint (no orphan partners).
+      const result = await submitPartnerWizard({
+        ...(clubData as any),
+        password,
       })
-
-      if (!response.ok) throw new Error('Erreur lors de l\'inscription')
-
-      router.push('/partenaires/merci')
-    } catch (error) {
-      console.error('Erreur:', error)
-      alert('Une erreur est survenue. Veuillez réessayer.')
+      if (!result.ok) {
+        toast.error(result.error ?? 'Erreur lors de la soumission')
+        return
+      }
+      toast.success('Demande envoyée. KYC + activation admin requise avant la connexion.')
+      router.push(`/partenaires/merci?ref=${result.partner_id ?? ''}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -487,6 +492,13 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                   </div>
                 </div>
               </div>
+
+              <PartnerPasswordPanel
+                password={password}
+                setPassword={setPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+              />
 
             </CardContent>
           </Card>

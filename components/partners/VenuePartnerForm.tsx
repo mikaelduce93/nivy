@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowLeft, ArrowRight, Building2, UtensilsCrossed, Package, Activity, Phone, Mail, CheckCircle, Upload, Plus, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { submitPartnerWizard } from '@/lib/partners/wizard-submit'
+import { PartnerPasswordPanel, isPasswordValid } from '@/components/partners/PartnerPasswordPanel'
 
 interface VenuePartnerFormProps {
   onBack: () => void
@@ -77,6 +80,9 @@ export default function VenuePartnerForm({ onBack }: VenuePartnerFormProps) {
   const [city, setCity] = useState('')
   const [postalCode, setPostalCode] = useState('')
   const [description, setDescription] = useState('')
+  // Wave 3A.5 — wizard requires a password (canon §2 stage 2).
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   // Venue Details
   const [venueType, setVenueType] = useState('')
@@ -180,7 +186,7 @@ export default function VenuePartnerForm({ onBack }: VenuePartnerFormProps) {
   const validateStep = (step: number) => {
     switch (step) {
       case 1:
-        return companyName && email && phone && address && city && venueType && contactPersonName
+        return Boolean(companyName && email && phone && address && city && venueType && contactPersonName) && isPasswordValid(password, confirmPassword)
       case 2:
         return menuItems.every(item => item.itemName && item.basePrice)
       case 3:
@@ -255,18 +261,17 @@ export default function VenuePartnerForm({ onBack }: VenuePartnerFormProps) {
         }))
       }
 
-      const response = await fetch('/api/partners/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(venueData)
+      // Wave 3A.5 — canonical wizard endpoint (no orphan partners).
+      const result = await submitPartnerWizard({
+        ...(venueData as any),
+        password,
       })
-
-      if (!response.ok) throw new Error('Erreur lors de l\'inscription')
-
-      router.push('/partenaires/merci')
-    } catch (error) {
-      console.error('Erreur:', error)
-      alert('Une erreur est survenue. Veuillez réessayer.')
+      if (!result.ok) {
+        toast.error(result.error ?? 'Erreur lors de la soumission')
+        return
+      }
+      toast.success('Demande envoyée. KYC + activation admin requise avant la connexion.')
+      router.push(`/partenaires/merci?ref=${result.partner_id ?? ''}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -631,6 +636,13 @@ export default function VenuePartnerForm({ onBack }: VenuePartnerFormProps) {
                   </div>
                 </div>
               </div>
+
+              <PartnerPasswordPanel
+                password={password}
+                setPassword={setPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+              />
 
             </CardContent>
           </Card>
