@@ -244,7 +244,37 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Actions sur les tokens
+// POST: Actions sur les tokens — Wave 6C deprecation.
+//
+// Every action below previously called a phantom RPC (`claim_daily_bonus`,
+// `add_tokens_to_user`, `spend_tokens`, `transfer_tokens`) that does NOT
+// exist in the DB. Each call silently no-ops, returns `success: true` from
+// the optimistic UI, and gives the user fake-XP / fake-tokens that never
+// land in `user_coins`. Plus the redeem branch wrote to deprecated
+// `token_rewards` / `token_redemptions` tables.
+//
+// Per founder rule "no fake XP / no fake economy", the entire mutation
+// surface is gone. Canonical replacements:
+//   - daily bonus              → /teen/quests daily mission (canonical)
+//   - earn / redeem            → /teen/wallet?tab=shop + `purchase_reward` RPC
+//   - transfer / exchange      → not in scope; was an unannounced parallel rail
+//
+// GET endpoints (read-only wallet/balances/transactions/redemptions) stay
+// live since they read from the canonical `user_coins` table and the
+// `get_user_wallet` RPC; the legacy displays will return whatever the
+// canonical rails contain (i.e. honest balances, not fake tokens).
+function deprecated(action?: string) {
+  return NextResponse.json(
+    {
+      error: "deprecated",
+      message:
+        "Token mutations are deprecated. Use /teen/wallet?tab=shop for purchases (purchase_reward RPC) and /teen/quests for daily activities (add_xp_to_user RPC).",
+      action: action ?? null,
+    },
+    { status: 410 },
+  )
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -254,255 +284,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { action } = body
-
-    switch (action) {
-      // Réclamer le bonus quotidien
-      case "claim_daily": {
-        const { data: result, error } = await supabase.rpc("claim_daily_bonus", {
-          p_teen_id: user.id,
-        })
-
-        if (error) throw error
-
-        return NextResponse.json(result)
-      }
-
-      // Gagner des tokens (depuis une activité)
-      case "earn": {
-        const { source_code, source_id, amount, description } = body
-
-        if (!source_code) {
-          return NextResponse.json({ error: "source_code requis" }, { status: 400 })
-        }
-
-        const { data: result, error } = await supabase.rpc("add_tokens_to_user", {
-          p_teen_id: user.id,
-          p_amount: amount || 0,
-          p_source_code: source_code,
-          p_token_type: "regular",
-          p_source_id: source_id,
-          p_description: description,
-        })
-
-        if (error) throw error
-
-        return NextResponse.json(result)
-      }
-
-      // Échanger une récompense
-      case "redeem": {
-        const { reward_id, shipping_address } = body
-
-        if (!reward_id) {
-          return NextResponse.json({ error: "reward_id requis" }, { status: 400 })
-        }
-
-        // Récupérer la récompense
-        const { data: reward, error: rewardError } = await supabase
-          .from("token_rewards")
-          .select("*")
-          .eq("id", reward_id)
-          .eq("is_active", true)
-          .single()
-
-        if (rewardError || !reward) {
-          return NextResponse.json({ error: "Récompense non trouvée" }, { status: 404 })
-        }
-
-        // Vérifier le stock
-        if (reward.stock_type !== "unlimited" && (reward.stock_remaining || 0) <= 0) {
-          return NextResponse.json({ error: "Rupture de stock" }, { status: 400 })
-        }
-
-        // Vérifier si besoin d'adresse
-        if (reward.requires_shipping && !shipping_address) {
-          return NextResponse.json({ error: "Adresse de livraison requise" }, { status: 400 })
-        }
-
-        // Dépenser les tokens
-        const { data: spendResult, error: spendError } = await supabase.rpc("spend_tokens", {
-          p_teen_id: user.id,
-          p_amount: reward.token_cost,
-          p_token_type: reward.token_type || "regular",
-          p_reason: `Échange: ${reward.name}`,
-          p_reference_id: reward_id,
-        })
-
-        if (spendError) throw spendError
-
-        if (!spendResult?.success) {
-          return NextResponse.json({
-            error: spendResult?.error || "Erreur lors du paiement",
-            current_balance: spendResult?.current_balance,
-          }, { status: 400 })
-        }
-
-        // Créer la rédemption
-        const { data: redemption, error: redemptionError } = await supabase
-          .from("token_redemptions")
-          .insert({
-            teen_id: user.id,
-            reward_id,
-            tokens_spent: reward.token_cost,
-            token_type: reward.token_type,
-            status: reward.requires_shipping ? "pending" : "completed",
-            shipping_address: shipping_address || null,
-            redemption_code: reward.category === "digital"
-              ? `${reward_id.substring(0, 8)}-${Date.now().toString(36)}`
-              : null,
-          })
-          .select()
-          .single()
-
-        if (redemptionError) throw redemptionError
-
-        // Décrémenter le stock
-        if (reward.stock_type !== "unlimited") {
-          await supabase
-            .from("token_rewards")
-            .update({ stock_remaining: (reward.stock_remaining || 1) - 1 })
-            .eq("id", reward_id)
-        }
-
-        return NextResponse.json({
-          success: true,
-          redemption,
-          new_balance: spendResult.new_balance,
-        })
-      }
-
-      // Transférer des tokens
-      case "transfer": {
-        const { receiver_username, amount, token_type = "regular", message } = body
-
-        if (!receiver_username || !amount) {
-          return NextResponse.json(
-            { error: "receiver_username et amount requis" },
-            { status: 400 }
-          )
-        }
-
-        if (amount < 10) {
-          return NextResponse.json(
-            { error: "Minimum 10 tokens pour un transfert" },
-            { status: 400 }
-          )
-        }
-
-        // Trouver le destinataire
-        const { data: receiver, error: receiverError } = await supabase
-          .from("users")
-          .select("id")
-          .eq("username", receiver_username)
-          .single()
-
-        if (receiverError || !receiver) {
-          return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 })
-        }
-
-        if (receiver.id === user.id) {
-          return NextResponse.json(
-            { error: "Tu ne peux pas te transférer des tokens" },
-            { status: 400 }
-          )
-        }
-
-        const { data: result, error } = await supabase.rpc("transfer_tokens", {
-          p_sender_id: user.id,
-          p_receiver_id: receiver.id,
-          p_amount: amount,
-          p_token_type: token_type,
-          p_message: message,
-        })
-
-        if (error) throw error
-
-        if (!result?.success) {
-          return NextResponse.json({
-            error: result?.error || "Erreur lors du transfert",
-          }, { status: 400 })
-        }
-
-        // Notification au destinataire
-        await supabase.from("notifications").insert({
-          user_id: receiver.id,
-          type: "token_received",
-          title: "Tokens reçus!",
-          message: `Tu as reçu ${amount} tokens${message ? `: "${message}"` : ""}`,
-          data: { amount, sender_id: user.id },
-        })
-
-        return NextResponse.json(result)
-      }
-
-      // Convertir des tokens (premium -> regular)
-      case "exchange": {
-        const { from_type, to_type, amount } = body
-
-        if (!from_type || !to_type || !amount) {
-          return NextResponse.json(
-            { error: "from_type, to_type et amount requis" },
-            { status: 400 }
-          )
-        }
-
-        // Récupérer les taux de conversion
-        const { data: types } = await supabase
-          .from("token_types")
-          .select("code, exchange_rate")
-          .in("code", [from_type, to_type])
-
-        const fromType = types?.find((t) => t.code === from_type)
-        const toType = types?.find((t) => t.code === to_type)
-
-        if (!fromType || !toType) {
-          return NextResponse.json({ error: "Type de token invalide" }, { status: 400 })
-        }
-
-        // Calculer le montant converti
-        const convertedAmount = Math.floor(
-          (amount * fromType.exchange_rate) / toType.exchange_rate
-        )
-
-        // Dépenser les tokens source
-        const { data: spendResult } = await supabase.rpc("spend_tokens", {
-          p_teen_id: user.id,
-          p_amount: amount,
-          p_token_type: from_type,
-          p_reason: `Conversion ${from_type} -> ${to_type}`,
-        })
-
-        if (!spendResult?.success) {
-          return NextResponse.json({
-            error: spendResult?.error || "Solde insuffisant",
-          }, { status: 400 })
-        }
-
-        // Ajouter les tokens destination
-        const { data: earnResult } = await supabase.rpc("add_tokens_to_user", {
-          p_teen_id: user.id,
-          p_amount: convertedAmount,
-          p_source_code: "exchange",
-          p_token_type: to_type,
-          p_description: `Conversion de ${amount} ${from_type}`,
-          p_force_no_limit: true,
-        })
-
-        return NextResponse.json({
-          success: true,
-          from_amount: amount,
-          from_type,
-          to_amount: convertedAmount,
-          to_type,
-          new_balance: earnResult?.new_balance,
-        })
-      }
-
-      default:
-        return NextResponse.json({ error: "Action invalide" }, { status: 400 })
-    }
+    const body = await request.json().catch(() => ({}))
+    return deprecated((body as { action?: string }).action)
   } catch (error) {
     console.error("Tokens POST error:", error)
     return NextResponse.json(

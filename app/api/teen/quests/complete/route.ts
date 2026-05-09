@@ -51,11 +51,17 @@ export async function POST(request: NextRequest) {
         })
 
       if (progressError) {
-        // Try updating quest directly
-        await supabase
-          .from('quests')
-          .update({ status: 'completed' })
-          .eq('id', questId)
+        // Wave 6C — CANON-GAME-011: do NOT fall back to writing
+        // `quests.status` directly. The catalogue row is shared across
+        // all teens; per-teen completion lives in `quest_progress`.
+        // Falsifying the catalogue would also short-circuit the
+        // canonical add_xp_to_user grant below, since `xpReward > 0`
+        // would still trigger a write under a corrupted state.
+        console.error('quest_progress upsert failed:', progressError)
+        return NextResponse.json(
+          { error: 'Failed to complete quest', details: progressError.message },
+          { status: 500 },
+        )
       }
     } else {
       // Try daily challenges

@@ -72,16 +72,18 @@ export async function POST(request: NextRequest) {
       })
 
     if (progressError) {
-      console.error('Failed to create quest progress:', progressError)
-      // Try updating the quest directly if no progress table
-      const { error: questUpdateError } = await supabase
-        .from('quests')
-        .update({ status: 'in_progress' })
-        .eq('id', questId)
-
-      if (questUpdateError) {
-        console.error('Failed to update quest:', questUpdateError)
-      }
+      // Wave 6C — CANON-GAME-010: do NOT fall back to writing
+      // `quests.status` directly. `quests` is a global content row
+      // shared by every teen; writing per-teen state to it would corrupt
+      // the catalogue for everyone (e.g. mark a quest "in_progress"
+      // globally because one teen started it). The canonical per-teen
+      // state lives in `quest_progress`; if the upsert fails, surface
+      // the error instead of silently falsifying the catalogue.
+      console.error('quest_progress upsert failed:', progressError)
+      return NextResponse.json(
+        { error: 'Failed to start quest', details: progressError.message },
+        { status: 500 },
+      )
     }
 
     return NextResponse.json({ success: true, type: 'quest' })
