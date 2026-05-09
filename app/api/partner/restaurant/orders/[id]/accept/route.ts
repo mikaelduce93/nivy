@@ -1,6 +1,10 @@
 /**
  * POST /api/partner/restaurant/orders/:id/accept — partner accepts an order.
- * Calls partner_accept_food_order RPC; inserts partner_transactions row.
+ *
+ * Wave 4C — adds defence-in-depth ownership check: the order's partner_id
+ * must match the caller's partner_id before invoking the RPC. Without this
+ * the RPC was the only line of defence; a partner_user_id mismatch would
+ * surface as a generic RPC error instead of a clean 403/404.
  */
 
 import { NextResponse } from "next/server"
@@ -18,7 +22,7 @@ export async function POST(
   }
   const admin = createServiceRoleClient()
 
-  // Resolve partner_user_id (partner_staff row for caller)
+  // Resolve partner row for caller.
   const { data: partner } = await admin
     .from("partners")
     .select("id")
@@ -26,6 +30,25 @@ export async function POST(
     .maybeSingle()
   if (!partner) {
     return NextResponse.json({ success: false, error: "Partenaire introuvable" }, { status: 404 })
+  }
+
+  // Wave 4C — verify this order belongs to the caller's partner.
+  const { data: order } = await admin
+    .from("food_orders")
+    .select("id, partner_id, status")
+    .eq("id", id)
+    .maybeSingle()
+  if (!order) {
+    return NextResponse.json({ success: false, error: "Commande introuvable" }, { status: 404 })
+  }
+  if (order.partner_id !== partner.id) {
+    return NextResponse.json({ success: false, error: "not_order_owner" }, { status: 403 })
+  }
+  if (order.status !== "pending") {
+    return NextResponse.json(
+      { success: false, error: "invalid_status", status: order.status },
+      { status: 409 },
+    )
   }
 
   const { data: staff } = await admin

@@ -337,3 +337,30 @@ Recommended unblock path (smallest-blast-radius first):
 Re-audit after step 1 should bump score to ~74 (P0s cleared); after step 4 to ~88 (launch-ready).
 
 End of audit.
+
+---
+
+## Wave 4C update — 2026-05-09
+
+Lifestyle/supply truth pass. See `docs/compliance/wave-4c-lifestyle-supply.md`
+for the full diff. Closures relevant to this scoreboard:
+
+- **Marketplace listing gate** — `GET /api/marketplace/listings/:id` now
+  hides non-`active` listings from anyone but the seller and admins.
+  `PATCH` and `DELETE` added with owner gate; material edits flip to
+  `pending_review`. Closes a P1 leak path where bookmarked URLs surfaced
+  unmoderated content.
+- **Restaurant order ownership defence-in-depth** — `accept` and
+  `reject` now read `food_orders.partner_id` and 403/404/409 before the
+  RPC instead of relying on it as the sole gate.
+- **No fake supply** — verified no `in_stock` / `inventory_count` /
+  fake availability flags in lifestyle pages (only legitimate `placeholder=`
+  form attributes).
+
+Out of scope for 4C (still open from the original audit):
+LIFE-004 (pathway milestones), LIFE-005/006/007 (internship/pathway/driver
+detail routes), LIFE-008 (supplier signup), LIFE-009 (launch supply seed).
+These remain blockers for full launch but are not closed-beta blockers.
+
+Score: **62 → 78** (claimed; pending re-audit).
+
