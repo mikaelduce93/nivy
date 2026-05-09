@@ -137,7 +137,7 @@ export async function POST(
     return NextResponse.json({ success: false, error: updErr.message }, { status: 500 })
   }
 
-  // Canonical XP grant — never call phantom add_user_xp.
+  // Canonical XP grant — never call the phantom add_user_xp directly. // canon-allow: phantom name in do-not-do comment
   const { error: xpErr } = await sr.rpc("add_xp_to_user", {
     p_teen_id: progress.teen_id,
     p_xp_amount: xpReward,

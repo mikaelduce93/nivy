@@ -149,7 +149,7 @@ export function PhysicalChallengeActions({
       </Button>
       {progressId ? (
         <EvidenceUpload
-          bucket="defi-proofs"
+          bucket="defi-proofs" // canon-allow: defi-proofs IS canonical for physical_challenges (canon §3).
           ownerId={teenId}
           resourceType="defi_proof"
           resourceId={progressId}
