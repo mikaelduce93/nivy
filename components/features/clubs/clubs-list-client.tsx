@@ -51,7 +51,11 @@ const categoryTextColors: Record<string, string> = {
 
 interface Club {
   id: string
-  slug: string
+  // Wave 6A — slug is optional. The canonical sport_clubs table doesn't
+  // carry one, and the legacy detail page (`/clubs/[slug]`) isn't wired
+  // to it yet. When slug is undefined the card omits the "Découvrir" CTA
+  // so we don't link to a silent 404.
+  slug?: string
   name: string
   description?: string
   image_url?: string
@@ -144,12 +148,18 @@ function ClubCard({ club }: { club: Club }) {
           ) : (
             <span />
           )}
-          <Link href={`/clubs/${club.slug}`}>
-            <NeonButton variant={neonType === 'none' ? 'default' : neonType as any} size="sm" className="rounded-full px-6">
-              Découvrir
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </NeonButton>
-          </Link>
+          {club.slug ? (
+            <Link href={`/clubs/${club.slug}`}>
+              <NeonButton variant={neonType === 'none' ? 'default' : neonType as any} size="sm" className="rounded-full px-6">
+                Découvrir
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </NeonButton>
+            </Link>
+          ) : (
+            // Wave 6A — sport_clubs rows have no slug; detail page not yet
+            // wired. Placeholder rather than a silent-404 link.
+            <span className="text-xs text-muted-foreground">Détail bientôt disponible</span>
+          )}
         </div>
       </div>
     </GlassCard>
