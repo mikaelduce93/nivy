@@ -204,10 +204,13 @@ export async function POST(
     void verifyPassword
   }
 
-  // Ensure profiles.role='partner'. handle_new_user trigger should have run.
+  // Ensure profiles.role='partner' AND is_onboarded=true. handle_new_user
+  // trigger should have run. Wave 6B — without is_onboarded=true the
+  // middleware's onboarding gate would keep the freshly-activated partner
+  // looped on /partner/onboarding/awaiting-approval forever.
   await sr
     .from("profiles")
-    .update({ role: "partner" })
+    .update({ role: "partner", is_onboarded: true })
     .eq("id", authUserId)
 
   // 5. Insert partner_staff owner row (idempotent).
@@ -287,9 +290,10 @@ async function reconcile(sr: any, partner: any, callerId: string, outcome: strin
     .maybeSingle()
 
   if (profile?.id) {
+    // Wave 6B — same is_onboarded=true fix as the main activate path.
     await sr
       .from("profiles")
-      .update({ role: "partner" })
+      .update({ role: "partner", is_onboarded: true })
       .eq("id", profile.id)
     await sr
       .from("partner_staff")

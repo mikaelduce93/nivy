@@ -17,15 +17,27 @@ export default async function OnboardingCompletePage() {
     redirect("/auth/login")
   }
 
-  // Non-teen roles bypass the personalization completion entirely.
+  // Wave 6B — non-teen roles still need is_onboarded=true flipped before
+  // we bounce them to their dashboard, otherwise the middleware onboarding
+  // gate sends them straight back to /onboarding/{role}. Previously the
+  // flip happened only for teens.
+  const supabase = await createClient()
   if (userInfo.role !== "teen") {
+    await supabase
+      .from("profiles")
+      .update({
+        is_onboarded: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userInfo.profileId)
+
     if (userInfo.role === "parent") redirect("/parent")
     if (userInfo.role === "partner") redirect("/partner")
     redirect("/")
   }
 
-  // Mark onboarding complete server-side (idempotent).
-  const supabase = await createClient()
+  // Teen path — same is_onboarded flip + render the celebration screen
+  // before redirecting. Idempotent.
   await supabase
     .from("profiles")
     .update({

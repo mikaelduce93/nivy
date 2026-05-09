@@ -24,6 +24,20 @@ export const POST = withSecurity(async (request: NextRequest) => {
 
     const ambassadorId = formData.get("ambassadorId") as string
 
+    // Wave 6B — capture profile_id before flipping status so we can also
+    // mark profiles.is_onboarded=true. Without that the approved
+    // ambassador stays gated by middleware on /ambassador/onboarding/
+    // awaiting-approval forever.
+    const { data: ambassador, error: lookupErr } = await supabase
+      .from("ambassadors")
+      .select("profile_id")
+      .eq("id", ambassadorId)
+      .maybeSingle()
+    if (lookupErr) throw lookupErr
+    if (!ambassador) {
+      return NextResponse.redirect(new URL("/admin/ambassadeurs?error=not_found", request.url))
+    }
+
     const { error } = await supabase
       .from("ambassadors")
       .update({
@@ -34,6 +48,14 @@ export const POST = withSecurity(async (request: NextRequest) => {
       .eq("id", ambassadorId)
 
     if (error) throw error
+
+    // Wave 6B — flip is_onboarded so the role-router lets them in.
+    if (ambassador.profile_id) {
+      await supabase
+        .from("profiles")
+        .update({ is_onboarded: true })
+        .eq("id", ambassador.profile_id)
+    }
 
     return NextResponse.redirect(new URL("/admin/ambassadeurs?approved=true", request.url))
   } catch (error) {

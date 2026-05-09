@@ -36,5 +36,17 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     .select()
     .single()
   if (error) return NextResponse.json({ success: false, error: error.message }, { status: 400 })
+
+  // Wave 6B — when KYC is approved, also flip profiles.is_onboarded=true so
+  // the middleware onboarding gate stops looping the driver on
+  // /driver/onboarding/kyc. The driver row carries `user_id` (canonical
+  // auth.users.id, per Wave 1A invariant).
+  if (decision === "approve" && data && (data as { user_id?: string }).user_id) {
+    await admin
+      .from("profiles")
+      .update({ is_onboarded: true })
+      .eq("id", (data as { user_id: string }).user_id)
+  }
+
   return NextResponse.json({ success: true, driver: data })
 }
