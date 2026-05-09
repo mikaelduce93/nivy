@@ -135,11 +135,19 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         <Button
           variant="ghost"
           size="icon"
+          aria-label={
+            unreadCount > 0
+              ? `Notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
+              : "Notifications"
+          }
           className="relative text-zinc-400 hover:text-white hover:bg-zinc-800"
         >
-          <Bell className="h-5 w-5" />
+          <Bell className="h-5 w-5" aria-hidden="true" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
+            <span
+              aria-hidden="true"
+              className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center"
+            >
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
