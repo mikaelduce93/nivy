@@ -1,30 +1,30 @@
-import { createClient } from "@/lib/supabase/server"
-import { NextRequest, NextResponse } from "next/server"
-import { withSecurity } from "@/lib/security/api-middleware"
+/**
+ * Wave 6D — legacy /api/notifications/mark-all-read is GONE.
+ *
+ * Same reason as the singular `mark-read`: wrote to the deprecated
+ * `notifications` table, redirected to a redirect stub, no callers.
+ * Per-role canonical lives under /api/parent/notifications/mark-all-read
+ * (Wave 6D) for the parent surface.
+ */
+import { NextResponse } from "next/server"
 
-export const POST = withSecurity(async (request: NextRequest) => {
-  try {
-    const supabase = await createClient()
+export const dynamic = "force-static"
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+function gone() {
+  return NextResponse.json(
+    {
+      error: "gone",
+      message:
+        "Legacy notifications endpoint removed. Per-role canonical: /api/parent/notifications/mark-all-read (parent).",
+    },
+    { status: 410 },
+  )
+}
 
-    if (!user) {
-      return NextResponse.redirect(new URL("/auth/login", request.url))
-    }
+export async function GET() {
+  return gone()
+}
 
-    const { error } = await supabase
-      .from("notifications")
-      .update({ read: true })
-      .eq("user_id", user.id)
-      .eq("read", false)
-
-    if (error) throw error
-
-    return NextResponse.redirect(new URL("/notifications", request.url))
-  } catch (error) {
-    console.error("[v0] Mark all read error:", error)
-    return NextResponse.redirect(new URL("/notifications?error=mark_all_failed", request.url))
-  }
-}, { rateLimit: 'api' })
+export async function POST() {
+  return gone()
+}

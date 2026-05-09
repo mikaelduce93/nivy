@@ -1,19 +1,18 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
   Bell,
   BellOff,
-  Clock,
   ArrowLeft,
   Settings as SettingsIcon,
-  CheckCheck,
 } from "lucide-react"
 import Link from "next/link"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { ParentNotificationRow } from "@/components/parent/notification-row"
+import { MarkAllReadButton } from "@/components/parent/mark-all-read-button"
 
 // Server-rendered notifications inbox.
 // Whitepaper §16: reads `user_notifications` (not bespoke mock arrays).
@@ -38,19 +37,10 @@ async function getParentNotifications(parentId: string) {
   return data ?? []
 }
 
-function formatRelative(iso: string | null): string {
-  if (!iso) return ""
-  const d = new Date(iso)
-  const diffMs = Date.now() - d.getTime()
-  const min = Math.floor(diffMs / 60_000)
-  if (min < 1) return "à l'instant"
-  if (min < 60) return `il y a ${min} min`
-  const hr = Math.floor(min / 60)
-  if (hr < 24) return `il y a ${hr} h`
-  const day = Math.floor(hr / 24)
-  if (day < 7) return `il y a ${day} j`
-  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })
-}
+// Wave 6D — formatRelative + per-row UI moved to
+// components/parent/notification-row.tsx so the page can render real
+// click-to-mark-read interactions instead of advertising auto-mark
+// behaviour the page didn't implement.
 
 export default async function ParentNotificationsPage() {
   const userInfo = await getUserRole()
@@ -86,12 +76,15 @@ export default async function ParentNotificationsPage() {
               Activité de vos teens, approbations et alertes Nivy
             </p>
           </div>
-          <Button asChild variant="outline" className="border-zinc-700 text-zinc-200">
-            <Link href="/parent/settings">
-              <SettingsIcon className="w-4 h-4 mr-2" />
-              Préférences
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <MarkAllReadButton unreadCount={unreadCount} />
+            <Button asChild variant="outline" className="border-zinc-700 text-zinc-200">
+              <Link href="/parent/settings">
+                <SettingsIcon className="w-4 h-4 mr-2" />
+                Préférences
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {notifications.length === 0 ? (
@@ -104,61 +97,8 @@ export default async function ParentNotificationsPage() {
           />
         ) : (
           <div className="space-y-3">
-            {unreadCount > 0 && (
-              <div className="flex items-center justify-end mb-2 text-xs text-zinc-500">
-                <CheckCheck className="w-3 h-3 mr-1" />
-                Marquage automatique au clic
-              </div>
-            )}
             {notifications.map((n: any) => (
-              <Card
-                key={n.id}
-                className={`bg-zinc-900 border-zinc-800 transition-all ${
-                  !n.is_read ? "border-l-4 border-l-cyan-500" : ""
-                }`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0 text-lg">
-                      {n.emoji || "🔔"}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3
-                          className={`font-bold ${
-                            n.is_read ? "text-zinc-400" : "text-white"
-                          }`}
-                        >
-                          {n.title}
-                        </h3>
-                        {n.priority === "high" && (
-                          <Badge className="bg-amber-500/20 text-amber-300 text-xs">
-                            Important
-                          </Badge>
-                        )}
-                      </div>
-                      <p className={`text-sm ${n.is_read ? "text-zinc-500" : "text-zinc-300"}`}>
-                        {n.body}
-                      </p>
-                      <div className="flex items-center gap-4 mt-2">
-                        <span className="text-xs text-zinc-500 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatRelative(n.created_at)}
-                        </span>
-                        {n.action_url && (
-                          <Link
-                            href={n.action_url}
-                            className="text-xs text-cyan-400 hover:underline"
-                          >
-                            {n.action_label || "Voir détails"} →
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <ParentNotificationRow key={n.id} notification={n} />
             ))}
           </div>
         )}

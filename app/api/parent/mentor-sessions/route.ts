@@ -1,7 +1,16 @@
 import { createClient } from "@/lib/supabase/server"
+import { getUserRole } from "@/lib/auth/get-user-role"
 import { NextResponse } from "next/server"
 
 export async function GET() {
+  // Wave 6D — defence-in-depth role gate. RLS already restricts the
+  // returned rows to the calling user's linked teens, but the parent
+  // role check matches the rest of /api/parent/* and prevents non-parent
+  // roles (teen, partner, admin) from probing this endpoint at all.
+  const userInfo = await getUserRole()
+  if (!userInfo || userInfo.role !== "parent") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })

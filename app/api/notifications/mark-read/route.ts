@@ -1,33 +1,34 @@
-import { createClient } from "@/lib/supabase/server"
-import { NextRequest, NextResponse } from "next/server"
-import { withSecurity } from "@/lib/security/api-middleware"
+/**
+ * Wave 6D — legacy /api/notifications/mark-read is GONE.
+ *
+ * The previous implementation wrote to the deprecated `notifications`
+ * table (canonical: `user_notifications`) and redirected to /notifications,
+ * which is itself a Wave 5A redirect stub to /auth/redirect. The endpoint
+ * had zero callers in app/ or components/.
+ *
+ * Per-role canonical replacements:
+ *   - parent: handled by /api/parent/notifications/mark-read (Wave 6D).
+ *   - teen:   handled by the teen activity surface (Wave 1.4 personalization).
+ */
+import { NextResponse } from "next/server"
 
-export const POST = withSecurity(async (request: NextRequest) => {
-  try {
-    const supabase = await createClient()
-    const formData = await request.formData()
+export const dynamic = "force-static"
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+function gone() {
+  return NextResponse.json(
+    {
+      error: "gone",
+      message:
+        "Legacy notifications endpoint removed. Per-role canonical: /api/parent/notifications/mark-read (parent), /teen/activity (teen).",
+    },
+    { status: 410 },
+  )
+}
 
-    if (!user) {
-      return NextResponse.redirect(new URL("/auth/login", request.url))
-    }
+export async function GET() {
+  return gone()
+}
 
-    const notificationId = formData.get("notificationId") as string
-
-    const { error } = await supabase
-      .from("notifications")
-      .update({ read: true })
-      .eq("id", notificationId)
-      .eq("user_id", user.id)
-
-    if (error) throw error
-
-    return NextResponse.redirect(new URL("/notifications", request.url))
-  } catch (error) {
-    console.error("[v0] Mark notification read error:", error)
-    return NextResponse.redirect(new URL("/notifications?error=mark_failed", request.url))
-  }
-}, { rateLimit: 'api' })
+export async function POST() {
+  return gone()
+}
