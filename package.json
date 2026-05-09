@@ -17,6 +17,7 @@
     "lint:canon:staged": "node scripts/canon-precommit.mjs",
     "check:env": "node --env-file=.env.local scripts/check-env-presence.mjs",
     "check:env:strict": "node --env-file=.env.local scripts/check-env-presence.mjs --strict",
+    "smoke": "node scripts/smoke-routes.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",

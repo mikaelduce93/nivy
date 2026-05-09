@@ -1,8 +1,8 @@
 {
   "generated_at": "2026-05-09",
-  "audit_version": "v2.3-wave5a",
-  "overall_score": 84,
-  "core_flow_score": 86,
+  "audit_version": "v2.4-wave5b",
+  "overall_score": 85,
+  "core_flow_score": 87,
   "launch_status": "RISKY-CLOSED-BETA-PENDING-SECRET-ROTATION",
   "public_launch_status": "BLOCKED",
   "closed_beta_status": "RISKY_PENDING_SECRET_ROTATION",
