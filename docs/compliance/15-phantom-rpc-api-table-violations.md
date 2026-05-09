@@ -19,11 +19,11 @@ Pulled from compliance/04 ECON, 07 GAME, 11 AI, 12 ADMIN, 06 SOCIAL, 08 PARENT, 
 
 | Caller (file:line) | RPC name | Canon target | Class | Severity |
 |---|---|---|---|---|
-| `app/api/teen/quests/complete/route.ts:94` | `add_user_xp` | `add_xp_to_user(p_teen_id, p_amount, p_source_type, p_source_category, p_source_id, p_description)` | MUST RENAME | P0 |
-| `app/api/auth/validate-teen/route.ts:265-271` | `add_user_xp` | `add_xp_to_user` | MUST RENAME | P0 |
-| `app/api/partner/apply-discount/route.ts:188-193` | `add_user_xp` | `add_xp_to_user` | MUST RENAME | P0 |
-| `lib/hooks/teen-dashboard.ts:130-132` | `get_user_xp` | (none — read directly via `from('user_xp').select(...).eq('teen_id', userId)`) | MUST REMOVE CALLER | P1 |
-| `app/api/teen/shop/route.ts:97-138` | `deduct_user_xp` | (legacy rail — 410 the route entirely) | MUST REMOVE CALLER | P0 |
+| `app/api/teen/quests/complete/route.ts:94` | `add_user_xp` | `add_xp_to_user(p_teen_id, p_amount, p_source_type, p_source_category, p_source_id, p_description)` | MUST RENAME | **CLOSED (Wave 1B)** |
+| `app/api/auth/validate-teen/route.ts:265-271` | `add_user_xp` | `add_xp_to_user` | MUST RENAME | **CLOSED (Wave 1A)** |
+| `app/api/partner/apply-discount/route.ts:188-193` | `add_user_xp` | `add_xp_to_user` | MUST RENAME | **CLOSED (Wave 1B)** |
+| `lib/hooks/teen-dashboard.ts:130-132` | `get_user_xp` | (none — read directly via `from('user_xp').select(...).eq('teen_id', userId)`) | MUST REMOVE CALLER | **CLOSED (Wave 2B — comment scrubbed, code already canonical)** |
+| `app/api/teen/shop/route.ts:97-138` | `deduct_user_xp` | (legacy rail — 410 the route entirely) | MUST REMOVE CALLER | **CLOSED (Wave 2B — endpoint 410-stubbed, no callers)** |
 | `app/api/teen/tokens/route.ts:412-501` | `transfer_tokens`, `spend_tokens`, `add_tokens_to_user`, `claim_daily_bonus` | (kill the entire token rail — 410 route) | MUST REMOVE CALLER | P0 |
 | `app/api/teen/rides/[id]/cancel/route.ts:23-30` (via `cancel_ride` mig 057:107-117) | `refund_teen_coins` | `refund_teen_coins(p_teen_id, p_amount_coins, p_source_type, p_source_id, p_reason)` SECURITY DEFINER | MUST IMPLEMENT | P0 |
 | `app/api/admin/refunds/route.ts:185-200,269-277,347-356,428-437` (uses inline `bumpCoins` helper) | `refund_teen_coins`, `refund_booking`, `refund_food_order`, `refund_marketplace`, `revoke_xp_cashback` | canon §7 economy + canon §5 admin (7 finance RPCs) | MUST IMPLEMENT | P0 |
@@ -31,7 +31,7 @@ Pulled from compliance/04 ECON, 07 GAME, 11 AI, 12 ADMIN, 06 SOCIAL, 08 PARENT, 
 | Mentor session completion path (no caller — feature half-built) | `complete_mentor_session` | `complete_mentor_session(p_session_id, p_actor_id)` | MUST IMPLEMENT | P1 |
 | Featured-creator monthly payout path (no caller — feature half-built) | `pay_featured_creator` | per canon §7 ECON | MUST IMPLEMENT | P1 |
 | Parent refund within 14-day window (no caller) | `refund_top_up` | per canon §7 ECON | MUST IMPLEMENT | P0 |
-| Savings goal "achieved → withdrawn" UI (CANON-GAME-009) | `withdraw_from_goal(p_goal_id, p_destination, p_metadata)` | per canon §7 GAME / §10 MISSING | MUST IMPLEMENT | P1 |
+| Savings goal "achieved → withdrawn" UI (CANON-GAME-009) | `withdraw_from_goal(p_goal_id, p_destination, p_metadata)` | per canon §7 GAME / §10 MISSING | MUST IMPLEMENT | **CLOSED (Wave 2B — mig 098, route + UI shipped)** |
 | Savings goal release path | `release_savings_goal` | per canon §7 ECON | MUST IMPLEMENT | P1 |
 | Cashback config helper | `_cashback_pct` | per canon §7 ECON | MUST IMPLEMENT | P1 |
 | Parent approval cascade routes (`/api/parent/approvals/route.ts:63-136`) | `parent_approve_ride`, `parent_approve_purchase`, `parent_approve_food`, `parent_approve_content` | per canon §5 PARENT cascade table (only `parent_approve_session` exists) | MUST IMPLEMENT | P0 |

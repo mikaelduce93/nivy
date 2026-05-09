@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import Link from "next/link"
 import { Plus, Coins, Lock, PiggyBank } from "lucide-react"
 import { GoalLockButton } from "@/components/teen/goal-lock-button"
+import { GoalWithdrawButton } from "@/components/teen/goal-withdraw-button"
 import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
@@ -107,6 +108,17 @@ export default async function TeenSavingsPage() {
                       currentSavedCoins={g.current_saved_coins}
                       targetCoins={g.target_coins}
                     />
+                  )}
+                  {g.status === "achieved" && (
+                    <GoalWithdrawButton
+                      goalId={g.id}
+                      lockedCoins={g.current_saved_coins}
+                    />
+                  )}
+                  {g.status === "withdrawn" && (
+                    <p className="text-xs italic text-emerald-400">
+                      Récupéré — coins disponibles
+                    </p>
                   )}
                 </CardContent>
               </Card>

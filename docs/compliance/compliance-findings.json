@@ -1,28 +1,43 @@
 {
-  "generated_at": "2026-05-08",
-  "audit_version": "v1.1-wave1b",
-  "overall_score": 60,
-  "launch_status": "BLOCKED",
+  "generated_at": "2026-05-09",
+  "audit_version": "v1.4-wave2b",
+  "overall_score": 68,
+  "core_flow_score": 78,
+  "launch_status": "RISKY-CLOSED-BETA-PENDING-SECRET-ROTATION",
+  "public_launch_status": "BLOCKED",
+  "closed_beta_status": "RISKY_PENDING_SECRET_ROTATION",
+  "scoring_note": "overall_score is the unweighted mean of the 11 domain_scores below; it remains depressed because partner-ecosystem (22), admin-moderation (60), lifestyle (62), and design-system-mobile (62) have not yet been touched. core_flow_score (78) reflects only the auth/money/parent/social/gamification core flows that Waves 0-2B addressed. Do NOT report core_flow_score as overall.",
+  "blocking_domains": [
+    "partner-ecosystem",
+    "lifestyle-supply",
+    "admin-moderation-completion",
+    "secret-rotation"
+  ],
   "domain_scores": {
-    "auth-onboarding": 60,
-    "economy-payments": 50,
-    "routing-navigation": 42,
-    "social-feed": 72,
-    "gamification": 48,
-    "parent-control": 50,
+    "auth-onboarding": 75,
+    "economy-payments": 80,
+    "routing-navigation": 70,
+    "social-feed": 80,
+    "gamification": 78,
+    "parent-control": 78,
     "partner-ecosystem": 22,
     "lifestyle": 62,
-    "personalization-ai": 72,
-    "admin-moderation": 22,
+    "personalization-ai": 87,
+    "admin-moderation": 60,
     "design-system-mobile": 62
   },
   "totals": {
-    "P0": 63,
-    "P1": 101,
+    "P0": 30,
+    "P1": 95,
     "P2": 67,
     "P3": 20,
-    "total": 251
+    "total": 212
   },
+  "release_blockers": [
+    "Rotate SUPABASE_SERVICE_ROLE_KEY at the END of remediation, before any public launch / production user testing. Per founder ruling 2026-05-09, rotation is deferred until all waves are complete (rotating now while still iterating provides no security benefit and burns dashboard friction).",
+    "Rotate OPENAI_API_KEY at the END of remediation.",
+    "Regenerate and push CRON_SECRET to Vercel at the END of remediation."
+  ],
   "findings": [
     {
       "id": "CANON-AUTH-001",

@@ -32,7 +32,7 @@ import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
-export type EvidenceBucket = "defi-proofs" | "kyc-documents"
+export type EvidenceBucket = "defi-proofs" | "kyc-documents" // canon-allow: defi-proofs IS canonical for physical_challenges (canon §3).
 export type EvidenceResourceType = "chore_completion" | "defi_proof"
 
 export interface EvidenceUploadProps {

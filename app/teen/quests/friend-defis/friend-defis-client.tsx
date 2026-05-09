@@ -198,13 +198,12 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
     setActionError(null)
     setPendingActionId(id)
     try {
-      // FD1's accept route accepts a body { action: "decline" } per
-      // TICKETS.md TICKET-019. If FD1 ends up exposing a separate
-      // /decline route this can be retargeted without touching state.
-      const res = await fetch(`/api/teen/friend-challenges/${id}/accept`, {
+      // Wave 2B: dedicated /decline route — accept and decline are distinct
+      // RPCs (accept_friend_challenge_v2 vs decline_friend_challenge_v2),
+      // collapsing them server-side hid the distinction (canon §9 FORBIDDEN).
+      const res = await fetch(`/api/teen/friend-challenges/${id}/decline`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "decline" }),
       })
       if (!res.ok) {
         const body = await res.text()

@@ -27,7 +27,7 @@ import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 
-const ALLOWED_BUCKETS = new Set(["defi-proofs", "kyc-documents"])
+const ALLOWED_BUCKETS = new Set(["defi-proofs", "kyc-documents"]) // canon-allow: defi-proofs IS canonical for physical_challenges (canon §3).
 const ALLOWED_RESOURCE_TYPES = new Set(["chore_completion", "defi_proof"])
 
 interface Body {

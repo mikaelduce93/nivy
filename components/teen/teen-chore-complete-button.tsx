@@ -53,9 +53,13 @@ export function TeenChoreCompleteButton({
     try {
       const supabase = createClient()
       const ext = file.name.split(".").pop() || "jpg"
+      // Wave 2B / canon §3 — chore evidence MUST go to the private
+      // `chore-evidence` bucket. `defi-proofs` is reserved for
+      // physical-challenge proofs only. Path follows the canonical
+      // `<teen_id>/<chore_id>/<uuid>.<ext>` convention via Date.now().
       const path = `chores/${choreId}/${Date.now()}.${ext}`
       const { error: upErr } = await supabase.storage
-        .from("defi-proofs")
+        .from("chore-evidence")
         .upload(path, file, { contentType: file.type, upsert: false })
       if (upErr) {
         toast.error("Upload échoué: " + upErr.message)

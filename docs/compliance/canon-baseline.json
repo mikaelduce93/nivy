@@ -1,20 +1,18 @@
 {
   "generated_at": "2026-05-08",
   "audit_source": "docs/compliance/* (Wave 0 — Safety Freeze)",
-  "total_violations": 217,
-  "files_in_scope": 1244,
+  "total_violations": 208,
+  "files_in_scope": 1251,
   "violations_by_rule": {
     "CANON-NOTIF-002": 9,
-    "CANON-BUCKET-001": 6,
     "CANON-MOTION-001": 160,
-    "CANON-NOTIF-001": 32,
-    "CANON-SHOP-001": 2,
+    "CANON-NOTIF-001": 31,
+    "CANON-BUCKET-001": 1,
     "CANON-XP-002": 1,
     "CANON-SHOP-002": 3,
     "CANON-SHOP-003": 1,
     "CANON-AI-002": 1,
-    "CANON-AI-001": 1,
-    "CANON-XP-003": 1
+    "CANON-AI-001": 1
   },
   "violations_by_file_rule": {
     "app/admin/analytics/page.tsx": {
@@ -22,9 +20,6 @@
     },
     "app/admin/logs/page.tsx": {
       "CANON-NOTIF-002": 1
-    },
-    "app/admin/proofs/page.tsx": {
-      "CANON-BUCKET-001": 1
     },
     "app/anniversaires/organiser/page.tsx": {
       "CANON-MOTION-001": 1
@@ -73,19 +68,14 @@
     "app/api/payments/hybrid/route.ts": {
       "CANON-NOTIF-001": 2
     },
-    "app/api/teen/evidence/record/route.ts": {
-      "CANON-BUCKET-001": 1
-    },
     "app/api/teen/evidence/sign-upload/route.ts": {
-      "CANON-BUCKET-001": 2
+      "CANON-BUCKET-001": 1
     },
     "app/api/teen/profile/route.ts": {
       "CANON-NOTIF-002": 1
     },
     "app/api/teen/shop/route.ts": {
-      "CANON-SHOP-001": 2,
-      "CANON-XP-002": 1,
-      "CANON-NOTIF-001": 1
+      "CANON-XP-002": 1
     },
     "app/api/teen/subscription/handlers.ts": {
       "CANON-NOTIF-001": 1
@@ -467,9 +457,6 @@
     "components/teen/dashboard/unified-quest-feed.tsx": {
       "CANON-MOTION-001": 1
     },
-    "components/teen/evidence-upload.tsx": {
-      "CANON-BUCKET-001": 1
-    },
     "components/teen/friends-social-hub.tsx": {
       "CANON-MOTION-001": 1
     },
@@ -478,9 +465,6 @@
     },
     "components/teen/status-bar.tsx": {
       "CANON-MOTION-001": 1
-    },
-    "components/teen/teen-chore-complete-button.tsx": {
-      "CANON-BUCKET-001": 1
     },
     "components/teen/teen-id-card.tsx": {
       "CANON-MOTION-001": 1
@@ -592,7 +576,6 @@
       "CANON-NOTIF-001": 4
     },
     "lib/hooks/teen-dashboard.ts": {
-      "CANON-XP-003": 1,
       "CANON-NOTIF-001": 1
     },
     "lib/hooks/use-reduced-motion.tsx": {

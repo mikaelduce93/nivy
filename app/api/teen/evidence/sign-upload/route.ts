@@ -34,7 +34,7 @@ import { randomUUID } from "node:crypto"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 
-const ALLOWED_BUCKETS = new Set(["defi-proofs", "kyc-documents"])
+const ALLOWED_BUCKETS = new Set(["defi-proofs", "kyc-documents"]) // canon-allow: defi-proofs IS canonical for physical_challenges (canon §3).
 const ALLOWED_RESOURCE_TYPES = new Set(["chore_completion", "defi_proof"])
 const ALLOWED_MIMES = new Set([
   "image/jpeg",

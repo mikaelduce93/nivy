@@ -21,18 +21,18 @@ Pulled from `routing.locked.md` §2 + §3, compliance/03 (auth funnels), complia
 
 | Path | Class | Replacement / merge target | Internal-link audit | DB dep | SEO | Action |
 |---|---|---|---|---|---|---|
-| `/gamification` | REDIRECT | `/teen` | links from `components/footer.tsx:238` | no | low | 308 (currently full hub renders, see CANON-ROUTE-001) |
-| `/gamification/leaderboard` | REDIRECT | `/teen/leaderboard` | linked from `components/rewards/unified-rewards-display.tsx:236`, `app/teen/leaderboard/page.tsx:79` | no | no | 308 |
-| `/gamification/collections` | REDIRECT | `/teen/profile?tab=achievements` (per F#5 routing §6) | linked from `components/dashboard/teen/header.tsx:87`, `components/dashboard/teen/sidebar.tsx:33` | no | no | 308; build canonical tab first |
-| `/gamification/roue` | 410 GONE | (none — `wheel_streaks` trigger broken) | none | no | no | 410 + delete page |
-| `/gamification/parcours` | 410 GONE | (none — static mock) | none | no | no | 410 + delete page |
+| `/gamification` | REDIRECT | `/teen` | links from `components/footer.tsx:238` | no | low | **308 (Wave 2B: applied — `permanentRedirect('/teen')`)** |
+| `/gamification/leaderboard` | REDIRECT | `/teen/leaderboard` | linked from `components/rewards/unified-rewards-display.tsx:236`, `app/teen/leaderboard/page.tsx:79` | no | no | **308 (Wave 2B: applied)** |
+| `/gamification/collections` | REDIRECT | `/teen/profile?tab=achievements` (per F#5 routing §6) | linked from `components/dashboard/teen/header.tsx:87`, `components/dashboard/teen/sidebar.tsx:33` | no | no | **308 (Wave 2B: applied — canonical tab still pending)** |
+| `/gamification/roue` | 410 GONE | (none — `wheel_streaks` trigger broken) | none | no | no | **308 → /teen (Wave 2B: applied as redirect; 410 deferred)** |
+| `/gamification/parcours` | 410 GONE | (none — static mock) | none | no | no | **308 → /teen/quests (Wave 2B: applied as redirect; 410 deferred)** |
 | `/gamification/missions` | REDIRECT | `/teen/quests` | linked from `components/rewards/unified-rewards-display.tsx:230` | no | no | 308 (already correct) |
 | `/gamification/defis` | REDIRECT | `/teen/quests/friend-defis` | none | no | no | 308 (already correct) |
 | `/gamification/defis-physiques` | REDIRECT | `/teen/defis-physiques` (then to `/teen/quests?tab=body` per F11) | none | no | no | 308 (current) |
 | `/gamification/aide-scolaire` | REDIRECT | `/teen/aide-scolaire` | none | no | no | 308 (already correct) |
 | `/gamification/crews` | KEEP | `/teen/crews` (target missing) | none | no | no | KEEP redirect stub until target ships |
 | `/gamification/boutique` | REDIRECT | `/teen/wallet?tab=shop` | none | no | no | 308 (already correct) |
-| `/teen/challenges` | REDIRECT | `/teen/quests?tab=body` | none | no | no | 308 (currently re-exports `defis-physiques` — replace per CANON-GAME-004) |
+| `/teen/challenges` | REDIRECT | `/teen/quests?tab=body` | none | no | no | **308 (Wave 2B: applied — `permanentRedirect('/teen/quests?tab=body')`)** |
 | `/teen/achievements` | REDIRECT | `/teen/profile?tab=achievements` | none | no | no | 307 → 308 once tab built (CANON-ROUTE-008) |
 | `/teen/map` | 410 GONE | none (deep-links migrated) | none | no | no | 410 |
 | `/teen/passions` | REDIRECT | `/onboarding` | none | no | no | 308 (current target wrong: redirects to `/teen/quests?tab=creative` per CANON-ROUTE-009) |

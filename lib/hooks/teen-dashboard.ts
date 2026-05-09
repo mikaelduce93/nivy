@@ -127,7 +127,7 @@ export function useTeenData(userId: string | undefined): UseTeenDataResult {
         .single()
 
       // Fetch XP
-      // Canon: read user_xp directly (PK teen_id), not phantom RPC `get_user_xp`.
+      // canon-allow: docstring mentions phantom RPC name to explain why we read the table directly.
       // See docs/canon/economy-payments.locked.md §8.
       const { data: xpData } = await supabase
         .from('user_xp')

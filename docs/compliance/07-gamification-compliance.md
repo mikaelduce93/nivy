@@ -2,9 +2,12 @@
 
 > READ-ONLY audit. Source of truth: `docs/canon/gamification.locked.md` + `docs/canon/INDEX.locked.md`.
 > Date: 2026-05-08. Method: file:line citations against canon sections.
+> **Updated 2026-05-09 (Wave 2B):** see closure log at the bottom of this file.
 
-**Score: 38 / 100**
-**Launch status: BLOCK** — three phantom-RPC violations on hot money paths (XP awarding silently no-ops on quest complete, teen verification, partner discount), savings DB enum missing the canonical `withdrawn` terminal state, chore evidence uploaded to the wrong storage bucket, friend-defi decline routed to `/accept`, `/teen/challenges` alias still alive, `/teen/defis-physiques` is a billboard with zero action wiring, and the `/gamification/*` zone retains five live non-redirect surfaces (hub, parcours, leaderboard, roue, collections). All P0 — every one of these is a canon §9 FORBIDDEN or canon §1/§3/§4 LOCKED violation.
+**Score: 38 / 100 → 78 / 100 (Wave 2B, 2026-05-09)**
+**Launch status: ~~BLOCK~~ → UNBLOCKED for closed beta** (gamification only — see release blocker for org-wide launch gate).
+
+**Original (2026-05-08) findings retained below for traceability.** Status of each is updated in the closure log at the bottom.
 
 ---
 
@@ -328,3 +331,53 @@ P1 build (post-unblock):
 10. **CANON-GAME-015** — scaffold `/teen/quests/friend-defis/new`.
 11. **CANON-GAME-009 (continued)** — build `withdraw_from_goal` RPC + `/teen/savings/[id]` withdraw UI.
 12. Monthly/seasonal mission cron routes (canon §10).
+
+---
+
+## Wave 2B closure log (2026-05-09)
+
+Wave 2B applied the GAME-FIX-1 + GAME-FIX-2 ticket families. Migration `098_wave2b_gamification_truth.sql` applied via Supabase MCP (`withdraw_from_goal` RPC + `savings_goals.status` CHECK extension + `teen_physical_challenge_progress.validated_by` audit columns).
+
+| Finding | Status | Resolution |
+|---|---|---|
+| CANON-GAME-001 (phantom add_user_xp on quest complete) | **CLOSED** | Wave 1B already renamed to `add_xp_to_user`. Re-verified clean. |
+| CANON-GAME-002 (phantom add_user_xp on validate-teen) | **CLOSED** | Wave 1A renamed; Wave 1B scrubbed. |
+| CANON-GAME-003 (phantom add_user_xp on partner discount) | **CLOSED** | Wave 1B fix. |
+| CANON-GAME-004 (`/teen/challenges` alias re-export) | **CLOSED** | `app/teen/challenges/page.tsx` now `permanentRedirect('/teen/quests?tab=body')`. |
+| CANON-GAME-005 (`/teen/defis-physiques` separate hub) | **PARTIAL** | Action UI wired (canon §10 missing closed). Route-level merge into `/teen/quests?tab=body` deferred per F11 ratification — strategy documented in this file and `14-deprecated-legacy-surfaces.md`. |
+| CANON-GAME-006 (`/gamification/*` 5 live pages) | **CLOSED** | Hub, parcours, roue, leaderboard, collections all converted to `permanentRedirect` with `robots: noindex`. Zone has zero live non-redirect surfaces. |
+| CANON-GAME-007 (decline routed to `/accept`) | **CLOSED** | `friend-defis-client.tsx` line 197+ now POSTs to `/decline`. |
+| CANON-GAME-008 (chore evidence to `defi-proofs`) | **CLOSED** | `teen-chore-complete-button.tsx:58` switched to `chore-evidence`. |
+| CANON-GAME-009 (savings `withdrawn` missing) | **CLOSED** | mig 098: status CHECK includes `withdrawn`; `withdraw_from_goal` RPC SECURITY DEFINER + `/api/teen/savings/goals/[id]/withdraw` route + `<GoalWithdrawButton>` on achieved goals. |
+| CANON-GAME-010 / -011 (`quests.status` direct write fallbacks) | **OPEN** | Not in Wave 2B scope — flagged for Wave 3. |
+| CANON-GAME-013 (auto-validate sport challenge with `validated=true`) | **CLOSED** | `app/api/teen/sport/challenges/route.ts` complete action: now records `validated=false, xp_earned=0` and requires admin moderation flip via new `POST /api/admin/sport-challenges/[id]/validate` (canonical XP grant via `add_xp_to_user`). |
+| CANON-GAME-014 (defis-physiques action UI absent) | **CLOSED** | New `<PhysicalChallengeActions>` component wired into `defis-physiques-client.tsx`: start / +1 update / proof submission via canonical `<EvidenceUpload>` pipeline. |
+| CANON-GAME-015 (friend-defi `/new` route missing) | **CLOSED** | New `/teen/quests/friend-defis/new` server page + `<NewFriendDefiForm>` client form posting to canonical `create_friend_challenge_v2` RPC. |
+| CANON-GAME-017 (optimistic XP delta lies) | **CLOSED** | Quest complete now reconciles via `router.refresh()` against canonical RPC. Sport-challenge complete returns `pendingValidation` so the UI no longer claims XP. |
+| CANON-GAME-019 (validate-teen wrong param name) | **CLOSED** | Wave 1A. |
+| CANON-GAME-020 (validate-teen creates teen without auth.users) | **CLOSED** | Wave 1A. |
+| CANON-XP-002 (`deduct_user_xp` in legacy `/api/teen/shop`) | **CLOSED** | Endpoint 410-stubbed (no callers). Phantom RPC reference removed; `shop_items` writes removed. |
+
+### Score recompute
+
+| Bucket | Weight | Earned (Wave 2B) |
+|---|---|---|
+| §1 Quest taxonomy / hub canonicality | 15 | 12 — `/teen/challenges` redirected; defis-physiques action UI live (-3 deferred merge) |
+| §2 Friend défis | 15 | 14 — decline route fixed, /new built, RPCs unchanged (-1 opponent picker uses simple list, not `recommend_friends` v2) |
+| §3 Chores | 15 | 14 — evidence bucket fixed (-1 paid_at UI not built) |
+| §4 Savings | 15 | 14 — withdrawn status + RPC + UI (-1 cancellation match-return policy still pending F53) |
+| §5 XP/Coins/Levels | 10 | 9 — phantom calls eliminated (-1 wave-4 cleanup) |
+| §6 Streak | 5 | 5 |
+| §7 RPC contract | 10 | 10 |
+| §8 Deprecations cleared | 10 | 8 — `/gamification/*` zone clean (-2 quest.status fallbacks deferred) |
+| §9 FORBIDDEN patterns | 5 | 4 — sport challenge no longer auto-validates (-1 monthly/seasonal cron writers still pending) |
+| §10 MISSING built | 0 | n/a |
+
+**Total: 78 / 100 — UNBLOCKED for closed beta.**
+
+Remaining gamification gaps (P1, post-Wave-2B):
+- Quest start/complete fallback paths still write `quests.status` (CANON-GAME-010/011) — Wave 3 cleanup.
+- Monthly + seasonal mission assign crons (canon §10) — Wave 3.
+- Route-level merge of `/teen/defis-physiques` into `/teen/quests?tab=body` — needs F11 ratification + body-tab content surface.
+- Admin moderation UI for the new `pendingValidation` queue on physical challenges — Wave 3 (`/admin/proofs` already shows the queue rows; the new validate API needs a UI button).
+- Savings cancellation match-return policy (F53).

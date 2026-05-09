@@ -117,7 +117,7 @@ export default async function AdminProofsPage() {
       let signedUrl: string | null = null
       if (filePath) {
         const { data: signed } = await sr.storage
-          .from("defi-proofs")
+          .from("defi-proofs") // canon-allow: defi-proofs IS canonical for physical_challenges (canon §3 reserves it). chore-evidence is for chores.
           .createSignedUrl(filePath, SIGNED_URL_TTL_SECONDS)
         signedUrl = signed?.signedUrl ?? null
       }

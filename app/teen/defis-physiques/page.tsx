@@ -19,20 +19,25 @@ async function getSportChallenges(teenId: string): Promise<{ challenges: ApiChal
 
   const enriched = (challenges || []).map((challenge: any) => {
     const cp = progress?.find((p: any) => p.challenge_id === challenge.id)
+    // Wave 2B — surface progressId, validated state, and pendingValidation
+    // so the client can wire the start/update/complete action affordances.
     return {
       ...challenge,
       progress: cp
         ? {
+            id: cp.id,
             current_value: cp.current_value,
             progress_percent: Math.min(
               100,
               Math.round((cp.current_value / Math.max(1, challenge.objective_value)) * 100)
             ),
             completed: cp.completed,
+            validated: cp.validated,
           }
         : null,
       is_started: !!cp,
-      is_completed: cp?.completed || false,
+      is_completed: !!(cp?.completed && cp?.validated),
+      pending_validation: !!(cp?.completed && !cp?.validated),
     }
   })
 
@@ -58,5 +63,5 @@ export default async function DefisPhysiquesPage() {
     stats: { total: 0, started: 0, completed: 0, totalXpEarned: 0 },
   }))
 
-  return <DefisPhysiquesClient challenges={data.challenges} stats={data.stats} />
+  return <DefisPhysiquesClient teenId={teenId} challenges={data.challenges} stats={data.stats} />
 }

@@ -286,7 +286,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "complete") {
-      // Get current progress
+      // Wave 2B / canon §9 FORBIDDEN — physical_challenges.complete MUST NOT
+      // auto-validate. Honor-system XP farming is forbidden by canon. The
+      // teen's submission is recorded as `completed=true, validated=false`
+      // with the evidence URL; admin moderation flips `validated=true` and
+      // awards XP via the canonical add_xp_to_user pipeline.
       const { data: currentProgress } = await supabase
         .from("teen_physical_challenge_progress")
         .select("*")
@@ -307,9 +311,22 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
+      if (currentProgress.completed && !currentProgress.validated) {
+        return NextResponse.json(
+          { error: "Submission already pending validation" },
+          { status: 400 }
+        )
+      }
 
-      // Complete and validate the challenge
-      const xpReward = challenge.xp_reward || 50
+      // Require evidence on completion. Without proof there's nothing for
+      // the moderator to validate — block the submission rather than create
+      // an unfalsifiable row.
+      if (!proofUrl) {
+        return NextResponse.json(
+          { error: "proofUrl is required to mark a physical challenge complete" },
+          { status: 400 }
+        )
+      }
 
       const { data: updatedProgress, error } = await supabase
         .from("teen_physical_challenge_progress")
@@ -317,11 +334,11 @@ export async function POST(request: NextRequest) {
           current_value: challenge.objective_value,
           completed: true,
           completed_at: new Date().toISOString(),
-          validated: true,
-          validated_at: new Date().toISOString(),
-          proof_url: proofUrl || null,
+          validated: false,
+          validated_at: null,
+          proof_url: proofUrl,
           proof_type: proofType || "manual",
-          xp_earned: xpReward,
+          xp_earned: 0,
           updated_at: new Date().toISOString(),
         })
         .eq("id", currentProgress.id)
@@ -336,20 +353,11 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // Award XP
-      await supabase.rpc("add_xp_to_user", {
-        p_teen_id: teenId,
-        p_xp_amount: xpReward,
-        p_source_type: "physical_challenge",
-        p_source_id: challengeId,
-        p_description: `Defi physique complete: ${challenge.name}`,
-      })
-
       return NextResponse.json({
         success: true,
-        message: "Challenge completed and validated!",
+        message: "Submission received — pending moderator validation.",
         progress: updatedProgress,
-        xpEarned: xpReward,
+        pendingValidation: true,
       })
     }
 

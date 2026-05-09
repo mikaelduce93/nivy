@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { DefiCard } from "@/components/teen/defi-card"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { PhysicalChallengeActions } from "@/components/teen/physical-challenge-actions"
 
 export type ApiChallenge = {
   id: string
@@ -31,10 +32,13 @@ export type ApiChallenge = {
   tags?: string[] | null
   is_started: boolean
   is_completed: boolean
+  pending_validation: boolean
   progress: {
+    id: string
     progress_percent: number
     current_value: number
     completed: boolean
+    validated: boolean
   } | null
 }
 
@@ -76,6 +80,7 @@ function tagToLabel(tag: string): string {
 }
 
 interface Props {
+  teenId: string
   challenges: ApiChallenge[]
   stats: ApiStats
 }
@@ -111,7 +116,7 @@ function challengeToDefiProps(challenge: ApiChallenge) {
   }
 }
 
-export function DefisPhysiquesClient({ challenges, stats }: Props) {
+export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
   const [category, setCategory] = useState("all")
   const loading = false
 
@@ -285,6 +290,16 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
                   </div>
                 )}
                 <DefiCard type="physical" {...props} />
+                <PhysicalChallengeActions
+                  teenId={teenId}
+                  challengeId={challenge.id}
+                  progressId={challenge.progress?.id ?? null}
+                  isStarted={challenge.is_started}
+                  isCompleted={challenge.is_completed}
+                  pendingValidation={challenge.pending_validation}
+                  currentValue={challenge.progress?.current_value ?? 0}
+                  objectiveValue={challenge.objective_value}
+                />
               </motion.div>
             )
           })}
@@ -332,6 +347,16 @@ export function DefisPhysiquesClient({ challenges, stats }: Props) {
                   </div>
                 )}
                 <DefiCard type="physical" {...props} />
+                <PhysicalChallengeActions
+                  teenId={teenId}
+                  challengeId={program.id}
+                  progressId={program.progress?.id ?? null}
+                  isStarted={program.is_started}
+                  isCompleted={program.is_completed}
+                  pendingValidation={program.pending_validation}
+                  currentValue={program.progress?.current_value ?? 0}
+                  objectiveValue={program.objective_value}
+                />
               </motion.div>
             )
           })}
