@@ -178,6 +178,10 @@ export async function GET(request: NextRequest) {
 
       case "user": {
         const targetUserId = userId || user.id
+        // Wave 6G — match the canonical RPC's visibility gate
+        // (mig 097: status='published' AND is_hidden=false). Without
+        // the status filter, pending/rejected/removed posts would
+        // surface on a user's profile feed.
         const { data: posts, error } = await supabase
           .from("feed_posts")
           .select(
@@ -185,6 +189,7 @@ export async function GET(request: NextRequest) {
           )
           .eq("user_id", targetUserId)
           .eq("is_hidden", false)
+          .eq("status", "published")
           .order("created_at", { ascending: false })
           .range(offset, offset + limit - 1)
 
@@ -426,10 +431,13 @@ export async function POST(request: NextRequest) {
           })
         if (error) throw error
 
-        await supabase
-          .from("feed_posts")
-          .update({ shares_count: supabase.rpc("increment", { x: 1 }) })
-          .eq("id", post_id)
+        // Wave 6G — broken `update({ shares_count: supabase.rpc(...) })`
+        // pattern removed. `supabase.rpc()` returns a Promise, not a
+        // numeric value, so the previous code wrote garbage / NaN to the
+        // counter (or silently failed). The `feed_shares` insert above
+        // is the canonical signal; counters are now derived by the
+        // canonical engagement pipeline (`/api/teen/feed/[id]/engage`)
+        // which does a real read-then-update, or by future SQL triggers.
 
         return NextResponse.json({ success: true })
       }
@@ -470,10 +478,11 @@ export async function POST(request: NextRequest) {
           .from("feed_views")
           .upsert({ post_id, user_id: user.id, view_duration: duration })
         if (error && error.code !== "23505") throw error
-        await supabase
-          .from("feed_posts")
-          .update({ views_count: supabase.rpc("increment", { x: 1 }) })
-          .eq("id", post_id)
+        // Wave 6G — broken `update({ views_count: supabase.rpc(...) })`
+        // pattern removed (same root cause as the share branch above).
+        // Real counter maintenance lives in
+        // `/api/teen/feed/[id]/engage`, which does a proper
+        // read-then-update for views_count.
         return NextResponse.json({ success: true })
       }
 

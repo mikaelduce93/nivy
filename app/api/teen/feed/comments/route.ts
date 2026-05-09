@@ -228,28 +228,18 @@ export async function POST(request: NextRequest) {
             user_id: user.id,
           })
 
+        // 23505 = already liked (idempotent), other errors surface.
         if (error && error.code !== "23505") throw error
 
-        // Mettre à jour le compteur
-        await supabase
-          .from("feed_comments")
-          .update({ likes_count: supabase.rpc("increment", { x: 1 }) })
-          .eq("id", comment_id)
-
-        // XP et notification pour l'auteur
-        const { data: comment } = await supabase
-          .from("feed_comments")
-          .select("user_id, post_id")
-          .eq("id", comment_id)
-          .single()
-
-        if (comment && comment.user_id !== user.id) {
-          await supabase
-            .from("users")
-            .update({ xp: supabase.rpc("increment", { x: 1 }) })
-            .eq("id", comment.user_id)
-        }
-
+        // Wave 6G — broken `update({ likes_count: supabase.rpc(...) })`
+        // pattern removed (rpc returns a Promise, not a number — wrote
+        // garbage). The `comment_likes` insert is the canonical signal;
+        // counter aggregation lives in get_post_comments RPC + SQL
+        // triggers we'll add in a future wave. Likewise the
+        // `users.xp += 1` write was a phantom-XP path (canon §7
+        // FORBIDDEN — XP must go through add_xp_to_user RPC, and
+        // creator XP is already credited by the canonical engagement
+        // pipeline at /api/teen/feed/[id]/engage).
         return NextResponse.json({ success: true })
       }
 
@@ -269,12 +259,8 @@ export async function POST(request: NextRequest) {
 
         if (error) throw error
 
-        // Mettre à jour le compteur
-        await supabase
-          .from("feed_comments")
-          .update({ likes_count: supabase.rpc("decrement", { x: 1 }) })
-          .eq("id", comment_id)
-
+        // Wave 6G — broken `decrement` rpc pattern removed (same reason
+        // as the `like` branch above).
         return NextResponse.json({ success: true })
       }
 
