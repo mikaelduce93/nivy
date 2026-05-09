@@ -29,6 +29,7 @@ import {
   Award,
   Database,
   Cake,
+  ShieldAlert,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -49,6 +50,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { title: 'Dashboard',     href: '/admin',                icon: LayoutDashboard, requiredPermission: 'dashboard.view' },
+  { title: 'Modération',    href: '/admin/moderation',     icon: ShieldAlert,     requiredPermission: 'content.view' },
   { title: 'Événements',    href: '/admin/evenements',     icon: Calendar,        requiredPermission: 'events.view' },
   { title: 'Réservations',  href: '/admin/reservations',   icon: Ticket,          requiredPermission: 'reservations.view' },
   { title: 'Anniversaires', href: '/admin/anniversaires',  icon: Cake,            requiredPermission: 'events.view' },
