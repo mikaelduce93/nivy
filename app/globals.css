@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* ----------------------------------------------------------------------------
+   Tailwind 4 source scoping (Wave 5 / closed-beta smoke fix).
+   Excludes docs/ from class-name scanning. Several markdown files under
+   docs/vision/ embed absolute Windows paths (e.g. session log refs like
+   C:\Users\…\b5c0c413-…) where the leading "\b5c0c4" reads as a 6-digit
+   CSS hex escape. Tailwind's markUsedVariable() then calls
+   String.fromCodePoint(0xB5C0C4) which throws RangeError because the
+   value is > U+10FFFF, causing every page that imports this file to
+   500. Docs never contain real Tailwind classes, so excluding the tree
+   is safe and idiomatic. ------------------------------------------- */
+@source not "../docs";
+@source not "../scripts";
+
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================================

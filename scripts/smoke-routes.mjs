@@ -84,6 +84,12 @@ const ROUTES = [
   { path: "/teen/activity",         kind: "auth-gated" },
 ]
 
+// Next.js `force-static` + `permanentRedirect()` produces a 200 HTML
+// response containing `<meta http-equiv="refresh" content="0;url=...">`
+// instead of a 308. That's a real redirect from the user's POV — the
+// browser follows it instantly — so smoke must treat it as such.
+const META_REFRESH_RX = /<meta[^>]*http-equiv=["']refresh["'][^>]*content=["']\s*\d+\s*;\s*url=([^"']+)["']/i
+
 async function probe(route) {
   const url = `${BASE}${route.path}`
   let res
@@ -96,6 +102,14 @@ async function probe(route) {
 
   const status = res.status
   const location = res.headers.get("location") || ""
+
+  // Read body once so we can sniff for meta-refresh on redirect-style routes.
+  let metaTarget = ""
+  if (status === 200 && route.kind === "redirect") {
+    const body = await res.text()
+    const m = body.match(META_REFRESH_RX)
+    if (m) metaTarget = m[1] || ""
+  }
 
   switch (route.kind) {
     case "render": {
@@ -111,6 +125,13 @@ async function probe(route) {
           return { route, status, ok: false, reason: `expected → ${route.expectLocationPrefix}, got → ${location}` }
         }
         return { route, status, ok: true, note: `→ ${location}` }
+      }
+      // Static permanentRedirect — body carries a meta-refresh.
+      if (status === 200 && metaTarget) {
+        if (route.expectLocationPrefix && !metaTarget.startsWith(route.expectLocationPrefix)) {
+          return { route, status, ok: false, reason: `meta-refresh → ${metaTarget}, expected ${route.expectLocationPrefix}` }
+        }
+        return { route, status, ok: true, note: `meta-refresh → ${metaTarget}` }
       }
       return { route, status, ok: false, reason: `expected 30x, got ${status}` }
     }
