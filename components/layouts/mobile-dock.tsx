@@ -141,9 +141,12 @@ export function MobileDock() {
       glowColor: "rgba(190, 242, 100, 0.5)",
     },
     {
-      label: "Profil",
-      href: "/partner/profile",
-      icon: User,
+      // Wave 5A — /partner/profile didn't exist on disk; canon §4 row 32
+      // says redirect to /partner/settings. Point the dock there directly
+      // to avoid the bounce.
+      label: "Réglages",
+      href: "/partner/settings",
+      icon: Settings,
       color: "rgb(254, 215, 170)",
       glowColor: "rgba(254, 215, 170, 0.5)",
     },
@@ -158,15 +161,19 @@ export function MobileDock() {
       glowColor: "rgba(125, 211, 252, 0.5)",
     },
     {
+      // Wave 5A — /admin/events doesn't exist; canonical is /admin/evenements (FR).
       label: "Events",
-      href: "/admin/events",
+      href: "/admin/evenements",
       icon: Calendar,
       color: "rgb(196, 181, 253)",
       glowColor: "rgba(196, 181, 253, 0.5)",
     },
     {
-      label: "Users",
-      href: "/admin/users",
+      // Wave 5A — /admin/users doesn't exist as a single page; the
+      // canonical user-actionable surface today is the unified moderation
+      // inbox shipped in Wave 4A.
+      label: "Modération",
+      href: "/admin/moderation",
       icon: ShieldCheck,
       color: "rgb(253, 164, 175)",
       glowColor: "rgba(253, 164, 175, 0.5)",
@@ -179,8 +186,11 @@ export function MobileDock() {
       glowColor: "rgba(190, 242, 100, 0.5)",
     },
     {
-      label: "Settings",
-      href: "/admin/settings",
+      // Wave 5A — /admin/settings doesn't exist; the closest canonical
+      // surface is the audit log (operator's primary "what just happened"
+      // view).
+      label: "Logs",
+      href: "/admin/logs",
       icon: Settings,
       color: "rgb(161, 161, 170)",
       glowColor: "rgba(161, 161, 170, 0.5)",
@@ -203,8 +213,9 @@ export function MobileDock() {
       glowColor: "rgba(196, 181, 253, 0.5)",
     },
     {
+      // Wave 5A — /ambassador/shop doesn't exist; canonical is FR /ambassador/boutique.
       label: "Boutique",
-      href: "/ambassador/shop",
+      href: "/ambassador/boutique",
       icon: Store,
       color: "rgb(253, 164, 175)",
       glowColor: "rgba(253, 164, 175, 0.5)",
@@ -217,8 +228,11 @@ export function MobileDock() {
       glowColor: "rgba(253, 224, 71, 0.5)",
     },
     {
-      label: "Profil",
-      href: "/ambassador/profile",
+      // Wave 5A — /ambassador/profile didn't exist; route to the
+      // commissions detail view which is the ambassador's actionable
+      // earnings surface.
+      label: "Commissions",
+      href: "/ambassador/commissions",
       icon: User,
       color: "rgb(190, 242, 100)",
       glowColor: "rgba(190, 242, 100, 0.5)",
@@ -248,15 +262,19 @@ export function MobileDock() {
       glowColor: "rgba(190, 242, 100, 0.5)",
     },
     {
+      // Wave 5A — /gamification is a 308 redirect (canon §2 sunset).
+      // Point public dock straight at /teen so we don't bounce.
       label: "XP",
-      href: "/gamification",
+      href: "/teen",
       icon: Sparkles,
       color: "rgb(125, 211, 252)",
       glowColor: "rgba(125, 211, 252, 0.5)",
     },
     {
+      // Wave 5A — /espace is a 308 redirect to /auth/redirect (role
+      // router). Point dock straight at the router.
       label: "Espace",
-      href: "/espace",
+      href: "/auth/redirect",
       icon: User,
       color: "rgb(254, 215, 170)",
       glowColor: "rgba(254, 215, 170, 0.5)",

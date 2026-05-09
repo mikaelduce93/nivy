@@ -1,19 +1,19 @@
 {
   "generated_at": "2026-05-09",
-  "audit_version": "v2.2-wave4c",
-  "overall_score": 83,
-  "core_flow_score": 85,
+  "audit_version": "v2.3-wave5a",
+  "overall_score": 84,
+  "core_flow_score": 86,
   "launch_status": "RISKY-CLOSED-BETA-PENDING-SECRET-ROTATION",
   "public_launch_status": "BLOCKED",
   "closed_beta_status": "RISKY_PENDING_SECRET_ROTATION",
-  "scoring_note": "overall_score is the unweighted mean of the 11 domain_scores; partner-ecosystem 22→89 (Waves 3A→3B.3). admin-moderation 60→80 (Wave 4A). design-system-mobile 62→74 (Wave 4B). lifestyle 62→78 (Wave 4C: marketplace listing GET status gate + owner PATCH/DELETE + restaurant order ownership defence-in-depth + no-fake-supply assertions). Public launch remains blocked by secret rotation (D.1) and closed-beta smoke test. Do NOT report core_flow_score as overall.",
+  "scoring_note": "overall_score is the unweighted mean of the 11 domain_scores; partner-ecosystem 22→89 (Waves 3A→3B.3). admin-moderation 60→80 (Wave 4A). design-system-mobile 62→74 (Wave 4B). lifestyle 62→78 (Wave 4C). routing-navigation 70→85 (Wave 5A: dead `app/(dashboard)` route group + 3 dead nav components removed; mobile-dock 6 dead links repointed to canonical routes; 4 legacy bare paths converted to permanentRedirect stubs; 6 new CANON-LINK-* canon-precommit rules; 40 static guard tests). Public launch remains blocked by secret rotation (D.1) and closed-beta smoke test. Do NOT report core_flow_score as overall.",
   "blocking_domains": [
     "secret-rotation"
   ],
   "domain_scores": {
     "auth-onboarding": 75,
     "economy-payments": 80,
-    "routing-navigation": 70,
+    "routing-navigation": 85,
     "social-feed": 80,
     "gamification": 78,
     "parent-control": 78,

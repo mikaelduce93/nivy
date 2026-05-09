@@ -19,4 +19,6 @@ export {
 
 // Sidebar components
 export { AdminSidebar } from './admin-sidebar'
-export { AppSidebar } from './app-sidebar'
+// AppSidebar removed in Wave 5A — pointed at 7 forbidden URLs
+// (/dashboard, /mes-reservations, /profile/*, /notifications, ...) and was
+// only consumed by the dead `app/(dashboard)` route group, also removed.

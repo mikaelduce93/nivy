@@ -126,7 +126,7 @@ export default async function ReservationPage({
                       asChild
                       className="bg-yellow-500 hover:bg-yellow-600 text-black border-0"
                     >
-                      <Link href="/profile/enfants/ajouter">Ajouter un enfant</Link>
+                      <Link href="/parent/teens/add">Ajouter un enfant</Link>
                     </Button>
                   </div>
                 )}

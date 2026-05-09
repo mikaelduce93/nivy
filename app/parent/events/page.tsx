@@ -335,7 +335,7 @@ export default async function ParentEventsPage() {
               Événements disponibles
             </CardTitle>
             <Button variant="ghost" size="sm" asChild className="text-emerald-400 hover:text-emerald-300">
-              <Link href="/events">
+              <Link href="/agenda">
                 Voir tout
               </Link>
             </Button>

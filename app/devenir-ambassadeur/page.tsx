@@ -191,7 +191,7 @@ export default async function AmbassadeursPage() {
                     asChild
                     className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0"
                   >
-                    <Link href="/dashboard/ambassadeur">
+                    <Link href="/ambassador">
                       Voir mes statistiques
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Link>

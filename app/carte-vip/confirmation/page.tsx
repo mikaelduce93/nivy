@@ -316,7 +316,7 @@ export default function PassConfirmationPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="flex-1">
-              <Link href="/profile">
+              <Link href="/auth/redirect">
                 Mon profil
               </Link>
             </Button>

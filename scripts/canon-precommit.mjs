@@ -41,6 +41,42 @@ const CANON_RULES = [
   { id: 'CANON-ALERT-001', pattern: /\bwindow\.alert\s*\(/, message: '`window.alert()` forbidden — use sonner toast().' },
   { id: 'CANON-ALERT-002', pattern: /\bwindow\.confirm\s*\(/, message: '`window.confirm()` forbidden — use ResponsiveModal.' },
   { id: 'CANON-ALERT-003', pattern: /\bwindow\.prompt\s*\(/, message: '`window.prompt()` forbidden — use Dialog with form input.' },
+  // [CANON-LINK] Wave 5A — forbidden Link href targets per
+  // routing.locked.md §5. Each rule is scoped to .tsx/.ts files via the
+  // global walker; allowFiles list pins the canonical exception (the
+  // redirect stub itself, which contains the literal in metadata or path).
+  {
+    id: 'CANON-LINK-001',
+    pattern: /href\s*=\s*["']\/dashboard(\/[^"']*)?["']/,
+    message: '`<Link href="/dashboard">` forbidden — use /auth/redirect or the role home (/teen, /parent, /partner, /ambassador, /admin, /mentor/dashboard).',
+  },
+  {
+    id: 'CANON-LINK-002',
+    pattern: /href\s*=\s*["']\/notifications(\/[^"']*)?["']/,
+    message: '`<Link href="/notifications…">` forbidden — must be role-namespaced (/parent/notifications, /teen/activity, /partner/notifications).',
+    allowFiles: [/app[\\/]notifications[\\/]/],
+  },
+  {
+    id: 'CANON-LINK-003',
+    pattern: /href\s*=\s*["']\/profile(\/[^"']*|["'])/,
+    message: '`<Link href="/profile…">` forbidden — use role-prefixed (/parent/teens, /parent/teens/add, /parent/settings, /teen/profile).',
+  },
+  {
+    id: 'CANON-LINK-004',
+    pattern: /href\s*=\s*["']\/(mes-reservations|mon-compte)(\/[^"']*)?["']/,
+    message: 'legacy IA path — use the role-prefixed canonical route.',
+  },
+  {
+    id: 'CANON-LINK-005',
+    pattern: /href\s*=\s*["']\/autorisations(\/[^"']*)?["']/,
+    message: '`/autorisations…` is sunset — use /parent/approvals.',
+    allowFiles: [/app[\\/]autorisations[\\/]/],
+  },
+  {
+    id: 'CANON-LINK-006',
+    pattern: /href\s*=\s*["']\/events(\/[^"']*|["'])/,
+    message: '`/events…` is legacy — canonical is /agenda…',
+  },
   // [CANON-MOTION]
   {
     id: 'CANON-MOTION-001',

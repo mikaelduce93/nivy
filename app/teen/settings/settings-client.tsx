@@ -126,7 +126,7 @@ export function TeenSettingsClient({ privacy, permissions, teenId }: { privacy: 
 
       <div className="flex flex-wrap gap-3">
         <Button asChild variant="secondary" className="bg-purple-50">
-          <Link href="/notifications/preferences">Notifications</Link>
+          <Link href="/teen/profile">Notifications</Link>
         </Button>
         <Button asChild variant="ghost" className="text-purple-600">
           <Link href="/teen/profile">Mon profil</Link>
