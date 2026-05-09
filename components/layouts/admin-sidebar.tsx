@@ -56,7 +56,10 @@ const NAV_ITEMS: NavItem[] = [
   { title: 'Anniversaires', href: '/admin/anniversaires',  icon: Cake,            requiredPermission: 'events.view' },
   { title: 'Check-in',      href: '/admin/check-in',       icon: QrCode,          requiredPermission: 'reservations.checkin' },
   { title: 'Utilisateurs',  href: '/admin/utilisateurs',   icon: Users,           requiredPermission: 'users.view' },
-  { title: 'Clubs',         href: '/admin/clubs',          icon: Trophy,          requiredPermission: 'events.view' },
+  // Wave 6E — admin/clubs link removed. The legacy admin tree queried
+  // the deprecated `public.clubs` table (PGRST205 in prod) and is now a
+  // permanentRedirect to /admin until a real sport_clubs admin spec is
+  // ratified. Re-add this entry then.
   { title: 'Ambassadeurs',  href: '/admin/ambassadeurs',   icon: Award,           requiredPermission: 'ambassadors.view' },
   { title: 'Analytics',     href: '/admin/analytics',      icon: BarChart3,       requiredPermission: 'analytics.view' },
   { title: 'Scripts SQL',   href: '/admin/scripts-sql',    icon: Database,        requiredPermission: 'system.sql', requiresEnvFlag: 'sqlConsole' },

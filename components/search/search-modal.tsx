@@ -46,25 +46,22 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
     const supabase = createClient()
 
     try {
-      const [eventsRes, clubsRes] = await Promise.all([
+      // Wave 6E — clubs arm dropped. The legacy `clubs` table is
+      // deprecated (PGRST205 in prod) and sport_clubs has no slug
+      // column → no detail URL. When a sport_clubs detail surface
+      // ships, re-add a search arm pointing at `from("sport_clubs")`.
+      const [eventsRes] = await Promise.all([
         supabase
           .from("events")
           .select("id, title, city, event_date")
           .ilike("title", `%${searchQuery}%`)
           .gte("event_date", new Date().toISOString())
           .limit(5),
-        supabase
-          .from("clubs")
-          .select("id, name, category")
-          .ilike("name", `%${searchQuery}%`)
-          .eq("is_active", true)
-          .limit(5),
       ])
 
       const searchResults: SearchResult[] = []
 
       type EventRow = { id: string; title: string; city: string; event_date: string }
-      type ClubRow = { id: string; name: string; category: string }
 
       // Add events
       if (eventsRes.data) {
@@ -77,21 +74,6 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
             href: `/agenda/${event.id}`,
             icon: Calendar,
             badge: "Event",
-          })
-        })
-      }
-
-      // Add clubs
-      if (clubsRes.data) {
-        ;(clubsRes.data as ClubRow[]).forEach((club) => {
-          searchResults.push({
-            id: club.id,
-            type: "club",
-            title: club.name,
-            subtitle: club.category,
-            href: `/clubs/${club.id}`,
-            icon: Trophy,
-            badge: "Club",
           })
         })
       }

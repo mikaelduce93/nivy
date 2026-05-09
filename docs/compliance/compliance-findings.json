@@ -1,8 +1,8 @@
 {
   "generated_at": "2026-05-09",
-  "audit_version": "v2.9-wave6d",
-  "overall_score": 89,
-  "core_flow_score": 91,
+  "audit_version": "v3.0-wave6e",
+  "overall_score": 90,
+  "core_flow_score": 92,
   "launch_status": "RISKY-CLOSED-BETA-PENDING-SECRET-ROTATION",
   "public_launch_status": "BLOCKED",
   "closed_beta_status": "RISKY_PENDING_SECRET_ROTATION",
@@ -18,7 +18,7 @@
     "gamification": 83,
     "parent-control": 86,
     "partner-ecosystem": 89,
-    "lifestyle": 78,
+    "lifestyle": 86,
     "personalization-ai": 87,
     "admin-moderation": 80,
     "design-system-mobile": 82

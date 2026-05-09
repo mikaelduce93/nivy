@@ -114,64 +114,12 @@ export const getFeaturedEvents = cache(async (limit = 6) => {
    CLUBS
    ========================================================================== */
 
-/**
- * Fetch all clubs (cached per request)
- */
-export const getClubs = cache(async (params?: PaginationParams & { category?: string }) => {
-  const supabase = await createClient()
-  const page = params?.page ?? 1
-  const limit = params?.limit ?? 10
-  const offset = (page - 1) * limit
-
-  let query = supabase
-    .from('clubs')
-    .select('*', { count: 'exact' })
-    .eq('is_active', true)
-    .order('name', { ascending: true })
-
-  if (params?.category) {
-    query = query.eq('category', params.category)
-  }
-
-  const { data, error, count } = await query.range(offset, offset + limit - 1)
-
-  if (error) {
-    console.error('[Server] Error fetching clubs:', error)
-    return { data: [], total: 0, page, limit, totalPages: 0, hasMore: false }
-  }
-
-  const total = count ?? 0
-  const totalPages = Math.ceil(total / limit)
-
-  return {
-    data: data ?? [],
-    total,
-    page,
-    limit,
-    totalPages,
-    hasMore: page < totalPages,
-  }
-})
-
-/**
- * Fetch a single club by slug
- */
-export const getClubBySlug = cache(async (slug: string) => {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('clubs')
-    .select('*')
-    .eq('slug', slug)
-    .single()
-
-  if (error) {
-    console.error('[Server] Error fetching club:', error)
-    return null
-  }
-
-  return data
-})
+// Wave 6E — `getClubs` and `getClubBySlug` removed. Both queried the
+// deprecated `public.clubs` table (PGRST205 in prod), had zero callers
+// in app/ or components/, and would route to the now-redirect-stubbed
+// /clubs/[slug] anyway. The canonical surface is /clubs (Wave 6A list
+// page), which queries `sport_clubs` directly without going through
+// this helper.
 
 /* ==========================================================================
    USER DATA (Authenticated)
@@ -312,23 +260,23 @@ export const getUserChildren = cache(async () => {
 export const getAdminStats = cache(async () => {
   const supabase = await createClient()
 
+  // Wave 6E — `clubs` count dropped (deprecated `public.clubs` table,
+  // PGRST205 in prod). When the canonical sport_clubs admin surface
+  // ships, add `supabase.from('sport_clubs')` back here.
   const [
     { count: eventsCount },
     { count: usersCount },
     { count: bookingsCount },
-    { count: clubsCount },
   ] = await Promise.all([
     supabase.from('events').select('*', { count: 'exact', head: true }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('bookings').select('*', { count: 'exact', head: true }),
-    supabase.from('clubs').select('*', { count: 'exact', head: true }),
   ])
 
   return {
     events: eventsCount ?? 0,
     users: usersCount ?? 0,
     bookings: bookingsCount ?? 0,
-    clubs: clubsCount ?? 0,
   }
 })
 

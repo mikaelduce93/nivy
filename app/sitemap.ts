@@ -13,8 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .gte("event_date", new Date().toISOString())
     .order("event_date")
 
-  // Get all clubs
-  const { data: clubs } = await supabase.from("clubs").select("slug, created_at").eq("is_active", true)
+  // Wave 6E — clubs detail URLs dropped from the sitemap. The legacy
+  // `clubs` table is deprecated (PGRST205 in prod) and the canonical
+  // `sport_clubs` table has no slug column → no /clubs/[slug] surface
+  // is wired (the route is now a permanentRedirect to /clubs). Emitting
+  // those URLs would point search engines at a 308 chain. The /clubs
+  // index URL stays in the static list below.
 
   const eventUrls =
     events?.map((event) => ({
@@ -22,14 +26,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: event.updated_at ? new Date(event.updated_at) : new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
-    })) || []
-
-  const clubUrls =
-    clubs?.map((club) => ({
-      url: `${baseUrl}/clubs/${club.slug}`,
-      lastModified: club.created_at ? new Date(club.created_at) : new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
     })) || []
 
   return [
@@ -94,6 +90,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     },
     ...eventUrls,
-    ...clubUrls,
   ]
 }
