@@ -30,15 +30,42 @@ async function handleCallback(request: NextRequest) {
       })
     }
 
-    logger.info("CMI callback received", { params })
+    logger.info("CMI callback received", {
+      orderId: params.oid ?? null,
+      hasHash: Boolean(params.HASH),
+    })
 
-    // Parse CMI response
+    // Wave 6F — HASH gate (canon §6 FORBIDDEN #3). The user-redirect
+    // callback was previously trusting whatever query string came back
+    // from the browser; an attacker could craft a request with
+    // `?oid=…&Response=Approved` and mark a booking as paid. We now
+    // require a valid HASH on the callback exactly like the
+    // server-to-server webhook does.
+    if (!params.HASH || params.HASH.length === 0) {
+      console.warn("[CMI Callback] rejected: missing HASH", {
+        orderId: params.oid ?? null,
+      })
+      return NextResponse.redirect(
+        new URL("/auth/redirect?error=cmi_unsigned", request.url),
+      )
+    }
+    if (!cmiGateway.verifyCallbackHash(params)) {
+      console.warn("[CMI Callback] rejected: invalid HASH", {
+        orderId: params.oid ?? null,
+      })
+      return NextResponse.redirect(
+        new URL("/auth/redirect?error=cmi_signature_mismatch", request.url),
+      )
+    }
+
+    // Parse CMI response (HASH already verified above).
     const result = cmiGateway.parseCallback(params)
 
     if (!result.orderId) {
       console.error("[CMI Callback] Missing order ID")
+      // Wave 6F — repoint legacy /mes-reservations to canonical role-router.
       return NextResponse.redirect(
-        new URL("/mes-reservations?error=invalid_callback", request.url)
+        new URL("/auth/redirect?error=invalid_callback", request.url),
       )
     }
 
@@ -52,7 +79,7 @@ async function handleCallback(request: NextRequest) {
     if (bookingError || !booking) {
       console.error("[CMI Callback] Booking not found:", result.orderId)
       return NextResponse.redirect(
-        new URL("/mes-reservations?error=booking_not_found", request.url)
+        new URL("/auth/redirect?error=booking_not_found", request.url),
       )
     }
 
@@ -60,54 +87,69 @@ async function handleCallback(request: NextRequest) {
       // Payment successful
       logger.info("CMI payment successful", { orderId: result.orderId })
 
-      // Update booking
-      await supabase
-        .from("bookings")
-        .update({
-          payment_status: "paid",
-          status: "confirmed",
-          paid_at: new Date().toISOString(),
-          payment_method: "cmi",
-          cmi_transaction_id: result.transactionId,
-          cmi_auth_code: result.authCode,
+      // Wave 6F — idempotency. A user who hits "back" then refreshes the
+      // CMI return URL would otherwise insert a second payment_transactions
+      // row with the same provider_transaction_id. Skip the writes if the
+      // booking is already paid AND we already have the matching tx row.
+      if (booking.payment_status !== "paid") {
+        await supabase
+          .from("bookings")
+          .update({
+            payment_status: "paid",
+            status: "confirmed",
+            paid_at: new Date().toISOString(),
+            payment_method: "cmi",
+            cmi_transaction_id: result.transactionId,
+            cmi_auth_code: result.authCode,
+          })
+          .eq("id", booking.id)
+      }
+
+      const { data: existingTx } = await supabase
+        .from("payment_transactions")
+        .select("id")
+        .eq("booking_id", booking.id)
+        .eq("provider_transaction_id", result.transactionId ?? "")
+        .maybeSingle()
+
+      if (!existingTx) {
+        await supabase.from("payment_transactions").insert({
+          booking_id: booking.id,
+          amount: result.amount || booking.total_amount,
+          currency: "MAD",
+          status: "completed",
+          provider: "cmi",
+          provider_transaction_id: result.transactionId,
+          metadata: {
+            authCode: result.authCode,
+            responseCode: result.responseCode,
+            source: "callback",
+          },
         })
-        .eq("id", booking.id)
+      }
 
-      // Record payment in payment_transactions
-      await supabase.from("payment_transactions").insert({
-        booking_id: booking.id,
-        amount: result.amount || booking.total_amount,
-        currency: "MAD",
-        status: "completed",
-        provider: "cmi",
-        provider_transaction_id: result.transactionId,
-        metadata: {
-          authCode: result.authCode,
-          responseCode: result.responseCode,
-          params,
-        },
-      })
-
-      // Send confirmation email
+      // Send confirmation email — fire-and-forget.
       sendPaymentConfirmation(booking, result).catch(console.error)
 
       return NextResponse.redirect(
-        new URL(`/reservation/confirmation?booking=${booking.id}`, request.url)
+        new URL(`/reservation/confirmation?booking=${booking.id}`, request.url),
       )
     } else {
       // Payment failed
       logger.warn("CMI payment failed", { orderId: result.orderId, responseCode: result.responseCode })
 
-      // Update booking status
-      await supabase
-        .from("bookings")
-        .update({
-          payment_status: "failed",
-          payment_error: result.message,
-        })
-        .eq("id", booking.id)
+      // Wave 6F — idempotency on failure path: only mark booking failed
+      // if it isn't already paid (some other rail might have succeeded).
+      if (booking.payment_status !== "paid") {
+        await supabase
+          .from("bookings")
+          .update({
+            payment_status: "failed",
+            payment_error: result.message,
+          })
+          .eq("id", booking.id)
+      }
 
-      // Record failed payment
       await supabase.from("payment_transactions").insert({
         booking_id: booking.id,
         amount: booking.total_amount,
@@ -117,21 +159,22 @@ async function handleCallback(request: NextRequest) {
         error_message: result.message,
         metadata: {
           responseCode: result.responseCode,
-          params,
+          source: "callback",
         },
       })
 
       return NextResponse.redirect(
         new URL(
           `/reservation/paiement?booking=${booking.id}&error=${encodeURIComponent(result.message)}`,
-          request.url
-        )
+          request.url,
+        ),
       )
     }
   } catch (error) {
     console.error("[CMI Callback] Error:", error)
+    // Wave 6F — repoint legacy /mes-reservations to canonical role-router.
     return NextResponse.redirect(
-      new URL("/mes-reservations?error=callback_error", request.url)
+      new URL("/auth/redirect?error=callback_error", request.url),
     )
   }
 }

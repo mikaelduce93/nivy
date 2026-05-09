@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const cmiEnabled = await getFeatureFlag('cmi_payment')
     if (!cmiEnabled) {
       return NextResponse.redirect(
-        new URL("/mes-reservations?error=cmi_not_available", request.url)
+        new URL("/auth/redirect?error=cmi_not_available", request.url)
       )
     }
 
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     if (!bookingId || !amount) {
       return NextResponse.redirect(
-        new URL("/mes-reservations?error=missing_params", request.url)
+        new URL("/auth/redirect?error=missing_params", request.url)
       )
     }
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     if (bookingError || !booking) {
       return NextResponse.redirect(
-        new URL("/mes-reservations?error=booking_not_found", request.url)
+        new URL("/auth/redirect?error=booking_not_found", request.url)
       )
     }
 
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("CMI initiate error:", error)
     return NextResponse.redirect(
-      new URL("/mes-reservations?error=payment_error", request.url)
+      new URL("/auth/redirect?error=payment_error", request.url)
     )
   }
 }

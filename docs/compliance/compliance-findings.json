@@ -1,8 +1,8 @@
 {
   "generated_at": "2026-05-09",
-  "audit_version": "v3.0-wave6e",
-  "overall_score": 90,
-  "core_flow_score": 92,
+  "audit_version": "v3.1-wave6f",
+  "overall_score": 91,
+  "core_flow_score": 93,
   "launch_status": "RISKY-CLOSED-BETA-PENDING-SECRET-ROTATION",
   "public_launch_status": "BLOCKED",
   "closed_beta_status": "RISKY_PENDING_SECRET_ROTATION",
@@ -12,7 +12,7 @@
   ],
   "domain_scores": {
     "auth-onboarding": 85,
-    "economy-payments": 80,
+    "economy-payments": 87,
     "routing-navigation": 85,
     "social-feed": 80,
     "gamification": 83,
