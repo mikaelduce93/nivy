@@ -29,8 +29,8 @@
  * Auth: admin / super_admin / moderator only.
  */
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { requireAdminPermission } from "@/lib/auth/admin-permissions"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -46,24 +46,19 @@ interface UnifiedItem {
 }
 
 export async function GET(req: Request) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authErr,
-  } = await supabase.auth.getUser()
-  if (authErr || !user) {
-    return NextResponse.json({ success: false, error: "unauthenticated" }, { status: 401 })
+  // Wave 6H — canonical permission helper. The previous inline
+  // `admin_roles.role IN (admin, super_admin, moderator)` check
+  // duplicated the canon §10 permission matrix and would drift if the
+  // matrix changed. requireAdminPermission('content.view') is the
+  // single source of truth (admin/super_admin/moderator allowed,
+  // support denied).
+  try {
+    await requireAdminPermission("content.view")
+  } catch {
+    return NextResponse.json({ success: false, error: "forbidden" }, { status: 403 })
   }
 
   const sr = createServiceRoleClient()
-  const { data: role } = await sr
-    .from("admin_roles")
-    .select("role")
-    .eq("profile_id", user.id)
-    .maybeSingle()
-  if (!role || !["admin", "super_admin", "moderator"].includes(role.role)) {
-    return NextResponse.json({ success: false, error: "forbidden" }, { status: 403 })
-  }
 
   const url = new URL(req.url)
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500)

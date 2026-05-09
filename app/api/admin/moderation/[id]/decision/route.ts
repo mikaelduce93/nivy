@@ -202,10 +202,18 @@ export async function POST(
     )
   }
 
-  // Sync user_reports for the same content. user_reports schema is
-  // (target_type, target_id, status, resolved_by, resolved_at) — no
-  // resolution_note column.
-  await sr
+  // Sync user_reports for the same content.
+  //
+  // Wave 6H — fix: filter on `status='open'`, NOT `'pending'`. The
+  // canonical user_reports.status enum (mig 097) is
+  // {open, actioned, dismissed}; new reports are stored as `'open'` by
+  // /api/teen/report. The previous `'pending'` filter never matched
+  // any rows, so reports stayed open forever even after a decision —
+  // the inbox showed "actioned" while the report rows didn't sync.
+  //
+  // Also fail-loud: a silent user_reports sync error would let the
+  // moderation inbox claim a decision that didn't propagate.
+  const { error: reportsErr } = await sr
     .from("user_reports")
     .update({
       status: decision === "dismiss" || decision === "restore" ? "dismissed" : "actioned",
@@ -214,7 +222,17 @@ export async function POST(
     })
     .eq("target_type", queueRow.content_type)
     .eq("target_id", queueRow.content_id)
-    .eq("status", "pending")
+    .eq("status", "open")
+  if (reportsErr) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "user_reports_sync_failed",
+        detail: reportsErr.message,
+      },
+      { status: 500 },
+    )
+  }
 
   // Audit log — throws on failure (canon §10 FORBIDDEN #9).
   await logAdminAction({

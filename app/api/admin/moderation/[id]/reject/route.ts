@@ -1,46 +1,34 @@
 /**
- * Wave C.8 — Admin: reject a moderation_queue row.
+ * POST /api/admin/moderation/:id/reject — binary reject shortcut.
  *
- * POST /api/admin/moderation/:id/reject
- *   body: { reason: string }   (required, non-empty, ≤ 1000 chars)
+ * Wave C.8 shipped this as the proofs surface's binary action. Wave 6H
+ * hardens it to match the 7-decision dispatcher canon:
+ *   - permission via canonical `requireAdminPermission('content.view')`
+ *   - audit via canonical `logAdminAction()` (throws on failure)
+ *   - already_reviewed → 409 (was 400)
+ *   - content adapter sourced from lib/admin/moderation-adapters.ts
  *
- * Side-effects:
- *   - moderation_queue.status     → 'rejected' + reason + reviewed_by/at
- *   - underlying content row      → status='rejected' (when mapping known)
- *   - admin_audit_logs            → INSERT (§29.8)
- *   - user_notifications          → submitter notified with reason
+ * Reject semantics = `delete` decision in the canonical adapter (flips
+ * content row → removed/rejected). Reason required, ≤ 1000 chars.
  */
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import {
+  logAdminAction,
+  requireAdminPermission,
+} from "@/lib/auth/admin-permissions"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { adapterFor } from "@/lib/admin/moderation-adapters"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
-const CONTENT_TABLES: Record<string, { table: string; ownerCol: string }> = {
-  feed_post: { table: "feed_posts", ownerCol: "user_id" },
-  marketplace_listing: { table: "marketplace_listings", ownerCol: "seller_user_id" },
-}
-
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authErr,
-  } = await supabase.auth.getUser()
-  if (authErr || !user) {
-    return NextResponse.json({ success: false, error: "unauthenticated" }, { status: 401 })
-  }
-
-  const sr = createServiceRoleClient()
-  const { data: role } = await sr
-    .from("admin_roles")
-    .select("role")
-    .eq("profile_id", user.id)
-    .maybeSingle()
-  if (!role || !["admin", "super_admin", "moderator"].includes(role.role)) {
+  let admin
+  try {
+    admin = await requireAdminPermission("content.view")
+  } catch {
     return NextResponse.json({ success: false, error: "forbidden" }, { status: 403 })
   }
 
@@ -50,6 +38,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     return NextResponse.json({ success: false, error: "reason_required" }, { status: 400 })
   }
 
+  const sr = createServiceRoleClient()
   const { data: row, error: fetchErr } = await sr
     .from("moderation_queue")
     .select("id, content_type, content_id, status")
@@ -58,39 +47,95 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   if (fetchErr) return NextResponse.json({ success: false, error: fetchErr.message }, { status: 500 })
   if (!row) return NextResponse.json({ success: false, error: "not_found" }, { status: 404 })
   if (row.status !== "pending") {
-    return NextResponse.json({ success: false, error: "already_reviewed", status: row.status }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: "already_reviewed", status: row.status },
+      { status: 409 },
+    )
+  }
+
+  const adapter = adapterFor(row.content_type)
+  if (!adapter) {
+    return NextResponse.json(
+      { success: false, error: "unsupported_content_type", content_type: row.content_type },
+      { status: 409 },
+    )
+  }
+  const update = adapter.effectFor("delete")
+  if (!update) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "unsupported_action",
+        content_type: row.content_type,
+        decision: "delete",
+      },
+      { status: 409 },
+    )
   }
 
   const nowIso = new Date().toISOString()
 
-  const { error: qErr } = await sr
-    .from("moderation_queue")
-    .update({ status: "rejected", reviewed_by: user.id, reviewed_at: nowIso, reason })
-    .eq("id", id)
-  if (qErr) return NextResponse.json({ success: false, error: qErr.message }, { status: 500 })
-
-  const mapping = CONTENT_TABLES[row.content_type]
+  // Resolve owner BEFORE the update so we can notify even if the row
+  // reshapes.
   let ownerId: string | null = null
-  if (mapping && row.content_id) {
+  if (row.content_id) {
     const { data: contentRow } = await sr
-      .from(mapping.table)
-      .select(`id, ${mapping.ownerCol}`)
+      .from(adapter.table)
+      .select(`id, ${adapter.ownerCol}`)
       .eq("id", row.content_id)
       .maybeSingle()
     if (contentRow) {
       const asRecord = contentRow as unknown as Record<string, unknown>
-      const v = asRecord[mapping.ownerCol]
+      const v = asRecord[adapter.ownerCol]
       ownerId = typeof v === "string" ? v : null
     }
-    await sr.from(mapping.table).update({ status: "rejected" }).eq("id", row.content_id)
   }
 
-  await sr.from("audit_log").insert({
-    actor_id: user.id,
+  const { error: qErr } = await sr
+    .from("moderation_queue")
+    .update({ status: "rejected", reviewed_by: admin.profileId, reviewed_at: nowIso, reason })
+    .eq("id", id)
+  if (qErr) return NextResponse.json({ success: false, error: qErr.message }, { status: 500 })
+
+  if (row.content_id) {
+    const { error: contentErr } = await sr
+      .from(adapter.table)
+      .update(update)
+      .eq("id", row.content_id)
+    if (contentErr) {
+      return NextResponse.json(
+        { success: false, error: "content_update_failed", detail: contentErr.message },
+        { status: 500 },
+      )
+    }
+  }
+
+  // Sync user_reports — Wave 6H: filter on `'open'`, surface error.
+  const { error: reportsErr } = await sr
+    .from("user_reports")
+    .update({
+      status: "actioned",
+      resolved_by: admin.profileId,
+      resolved_at: nowIso,
+    })
+    .eq("target_type", row.content_type)
+    .eq("target_id", row.content_id)
+    .eq("status", "open")
+  if (reportsErr) {
+    return NextResponse.json(
+      { success: false, error: "user_reports_sync_failed", detail: reportsErr.message },
+      { status: 500 },
+    )
+  }
+
+  await logAdminAction({
+    actor_id: admin.profileId,
+    actor_role: admin.subRole,
     action: "moderation.reject",
     resource_type: row.content_type,
     resource_id: row.content_id,
-    metadata: { queue_id: id, reason },
+    target_user_id: ownerId,
+    metadata: { queue_id: id, reason, decision: "delete" },
   })
 
   if (ownerId) {
@@ -99,7 +144,12 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
       title: "Contenu refusé",
       body: reason,
       priority: "normal",
-      data: { kind: "moderation.rejected", content_type: row.content_type, content_id: row.content_id, reason },
+      data: {
+        kind: "moderation.rejected",
+        content_type: row.content_type,
+        content_id: row.content_id,
+        reason,
+      },
     })
   }
 

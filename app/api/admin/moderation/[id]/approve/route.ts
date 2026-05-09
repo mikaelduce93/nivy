@@ -1,51 +1,44 @@
 /**
- * Wave C.8 — Admin: approve a moderation_queue row.
+ * POST /api/admin/moderation/:id/approve — binary approve shortcut.
  *
- * POST /api/admin/moderation/:id/approve
+ * Wave C.8 shipped this as the proofs surface's binary action. Wave 6H
+ * hardens it to the same canon as the 7-decision dispatcher
+ * (`/api/admin/moderation/[id]/decision`):
+ *   - permission via canonical `requireAdminPermission('content.view')`
+ *     (was: inline admin_roles read)
+ *   - audit via canonical `logAdminAction()` which throws on failure
+ *     (was: raw audit_log insert that swallowed errors)
+ *   - already_reviewed → 409 (was: 400 — inconsistent with /decision)
+ *   - content adapter sourced from lib/admin/moderation-adapters.ts so
+ *     `partner_offer` and any future content_type stay covered without
+ *     a parallel map drift
  *
- * Generic handler — works for any content_type currently in the queue
- * (feed_post, marketplace_listing, etc.). Approval semantics depend on
- * content_type; we update both moderation_queue and the underlying row.
- *
- * Side-effects:
- *   - moderation_queue.status     → 'approved' + reviewed_by/at
- *   - underlying content row      → status flipped to its 'live' state
- *   - admin_audit_logs            → INSERT (§29.8)
+ * Approval semantics = `restore` decision in the canonical adapter
+ * (flips queue → approved + content row → published/active).
  */
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import {
+  logAdminAction,
+  requireAdminPermission,
+} from "@/lib/auth/admin-permissions"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { adapterFor } from "@/lib/admin/moderation-adapters"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
-const APPROVED_STATUS_BY_CONTENT_TYPE: Record<string, { table: string; status: string }> = {
-  feed_post: { table: "feed_posts", status: "published" },
-  marketplace_listing: { table: "marketplace_listings", status: "active" },
-}
-
 export async function POST(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authErr,
-  } = await supabase.auth.getUser()
-  if (authErr || !user) {
-    return NextResponse.json({ success: false, error: "unauthenticated" }, { status: 401 })
-  }
-
-  const sr = createServiceRoleClient()
-  const { data: role } = await sr
-    .from("admin_roles")
-    .select("role")
-    .eq("profile_id", user.id)
-    .maybeSingle()
-  if (!role || !["admin", "super_admin", "moderator"].includes(role.role)) {
+  // Canonical permission gate (Wave 4A pattern).
+  let admin
+  try {
+    admin = await requireAdminPermission("content.view")
+  } catch {
     return NextResponse.json({ success: false, error: "forbidden" }, { status: 403 })
   }
 
+  const sr = createServiceRoleClient()
   const { data: row, error: fetchErr } = await sr
     .from("moderation_queue")
     .select("id, content_type, content_id, status")
@@ -54,29 +47,87 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
   if (fetchErr) return NextResponse.json({ success: false, error: fetchErr.message }, { status: 500 })
   if (!row) return NextResponse.json({ success: false, error: "not_found" }, { status: 404 })
   if (row.status !== "pending") {
-    return NextResponse.json({ success: false, error: "already_reviewed", status: row.status }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: "already_reviewed", status: row.status },
+      { status: 409 },
+    )
+  }
+
+  const adapter = adapterFor(row.content_type)
+  if (!adapter) {
+    return NextResponse.json(
+      { success: false, error: "unsupported_content_type", content_type: row.content_type },
+      { status: 409 },
+    )
+  }
+  // "Approve" maps to the canonical `restore` decision (flip content
+  // back to its live state). If the adapter doesn't support restore for
+  // a given content_type, surface 409 rather than fake success.
+  const update = adapter.effectFor("restore")
+  if (!update) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "unsupported_action",
+        content_type: row.content_type,
+        decision: "restore",
+      },
+      { status: 409 },
+    )
   }
 
   const nowIso = new Date().toISOString()
 
   const { error: qErr } = await sr
     .from("moderation_queue")
-    .update({ status: "approved", reviewed_by: user.id, reviewed_at: nowIso })
+    .update({ status: "approved", reviewed_by: admin.profileId, reviewed_at: nowIso })
     .eq("id", id)
   if (qErr) return NextResponse.json({ success: false, error: qErr.message }, { status: 500 })
 
-  // Flip underlying content row when we know the mapping
-  const mapping = APPROVED_STATUS_BY_CONTENT_TYPE[row.content_type]
-  if (mapping && row.content_id) {
-    await sr.from(mapping.table).update({ status: mapping.status }).eq("id", row.content_id)
+  if (row.content_id) {
+    const { error: contentErr } = await sr
+      .from(adapter.table)
+      .update(update)
+      .eq("id", row.content_id)
+    if (contentErr) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "content_update_failed",
+          detail: contentErr.message,
+        },
+        { status: 500 },
+      )
+    }
   }
 
-  await sr.from("audit_log").insert({
-    actor_id: user.id,
+  // Sync user_reports — Wave 6H: filter on `'open'`, not `'pending'`,
+  // and surface error on failure.
+  const { error: reportsErr } = await sr
+    .from("user_reports")
+    .update({
+      status: "dismissed",
+      resolved_by: admin.profileId,
+      resolved_at: nowIso,
+    })
+    .eq("target_type", row.content_type)
+    .eq("target_id", row.content_id)
+    .eq("status", "open")
+  if (reportsErr) {
+    return NextResponse.json(
+      { success: false, error: "user_reports_sync_failed", detail: reportsErr.message },
+      { status: 500 },
+    )
+  }
+
+  // Audit log — throws on failure (canon §10 FORBIDDEN #9).
+  await logAdminAction({
+    actor_id: admin.profileId,
+    actor_role: admin.subRole,
     action: "moderation.approve",
     resource_type: row.content_type,
     resource_id: row.content_id,
-    metadata: { queue_id: id },
+    metadata: { queue_id: id, decision: "restore" },
   })
 
   return NextResponse.json({ success: true, queue_id: id, status: "approved" })
