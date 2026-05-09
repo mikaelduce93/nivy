@@ -20,7 +20,21 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { withSecurity } from "@/lib/security/api-middleware"
 import { hashPassword } from "@/lib/auth/password"
 
-const PARTNER_TYPES = ["retail", "venue", "club", "education", "food"] as const
+// Wave 3B.1 — full canon §3.1 enumeration. driver and mentor are first-class
+// roles per founder ruling F2 + canon §1.1 row 6/row 7; their intake funnel
+// goes through /devenir-driver / /devenir-mentor → role-aware sign-up, NOT
+// through the wizard. They're omitted from this CHECK so a misrouted form
+// fails fast.
+const PARTNER_TYPES = [
+  "retail",
+  "venue",
+  "club",
+  "education",
+  "food",
+  "event_talent",
+  "event_organizer",
+  "creator",
+] as const
 
 const wizardSchema = z.object({
   partner_type: z.enum(PARTNER_TYPES),

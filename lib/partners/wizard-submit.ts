@@ -7,7 +7,15 @@
  * required by the canonical schema (canon §2 stage 2).
  */
 
-export type WizardPartnerType = "retail" | "venue" | "club" | "education" | "food"
+export type WizardPartnerType =
+  | "retail"
+  | "venue"
+  | "club"
+  | "education"
+  | "food"
+  | "event_talent"
+  | "event_organizer"
+  | "creator"
 
 export interface WizardSubmitPayload {
   partner_type: WizardPartnerType

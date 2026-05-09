@@ -1,32 +1,22 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, Clock, Mail, Phone, Home, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
-export default function PartnerThankYouPage() {
-  // Reference must be cryptographically random and stable across re-renders.
-  // Generated client-side post-mount to avoid SSR/CSR hydration drift.
-  const [reference, setReference] = useState<string>('')
-  useEffect(() => {
-    let raw = ''
-    if (typeof window !== 'undefined' && window.crypto) {
-      const c = window.crypto
-      if (typeof c.randomUUID === 'function') {
-        raw = c.randomUUID()
-      } else {
-        const bytes = new Uint8Array(8)
-        c.getRandomValues(bytes)
-        raw = Array.from(bytes)
-          .map((b: number) => b.toString(16).padStart(2, '0'))
-          .join('')
-      }
-    }
-    setReference(raw.replace(/-/g, '').slice(0, 8).toUpperCase())
-  }, [])
+// Wave 3B.1 / canon §2.1, D3 — the reference is the persisted partners.id
+// passed by the wizard via ?ref=<uuid>. The previous implementation
+// generated a client-side random ID that was a placebo (canon §2.1 explicit
+// FORBIDDEN: "/devenir-{archetype}/merci is a real persisted reference, not
+// a crypto.randomUUID() UI affordance").
+function PartnerThankYouInner() {
+  const searchParams = useSearchParams()
+  const ref = searchParams.get('ref') ?? ''
+  const reference = ref ? ref.slice(0, 8).toUpperCase() : ''
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
@@ -202,17 +192,33 @@ export default function PartnerThankYouPage() {
             transition={{ delay: 0.6 }}
             className="mt-12 text-center"
           >
-            <p className="text-sm text-zinc-500">
-              Numéro de référence : <span className="text-zinc-400 font-mono">{reference ? `#${reference}` : '#…'}</span>
-            </p>
-            <p className="text-xs text-zinc-600 mt-2">
-              Conservez ce numéro pour toute correspondance future
-            </p>
+            {reference ? (
+              <>
+                <p className="text-sm text-zinc-500">
+                  Référence dossier : <span className="text-zinc-400 font-mono">#{reference}</span>
+                </p>
+                <p className="text-xs text-zinc-600 mt-2">
+                  Conservez cette référence pour toute correspondance avec l&apos;équipe Nivy.
+                </p>
+              </>
+            ) : (
+              <p className="text-xs text-zinc-600">
+                Vérifie ton email pour le lien de suivi de ton dossier.
+              </p>
+            )}
           </motion.div>
 
         </motion.div>
 
       </div>
     </div>
+  )
+}
+
+export default function PartnerThankYouPage() {
+  return (
+    <Suspense fallback={null}>
+      <PartnerThankYouInner />
+    </Suspense>
   )
 }
