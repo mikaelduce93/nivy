@@ -37,8 +37,21 @@ The four legacy commerce forms (Retail / Venue / Club / Education) remain unchan
 ## Migrations
 
 `100_wave3b1_partner_type_taxonomy.sql` (applied via Supabase MCP):
-- `partners.partner_type` CHECK extended to the full 10-value canon §3.1 enumeration.
+- `partners.partner_type` CHECK extended to the canon §3.1 enumeration.
 - Backfill noop (only legacy 4 values exist).
+
+**`101_wave3b1_1_taxonomy_sanity.sql` (Wave 3B.1.1, founder override 2026-05-09)**:
+- Drops `driver` and `mentor` from the `partners.partner_type` CHECK.
+- Rationale: canon §3.1 originally allowed both for "KYC/payout reuse", but
+  the founder closed the ambiguity — driver and mentor live ONLY as
+  first-class roles (`profiles.role` / `auth.users.role`). The `partners`
+  table is reserved for commerce / food / event_* / creator entities.
+- Final accepted set: `retail | venue | club | education | food | event_talent | event_organizer | creator`.
+- Backfill: zero partners rows currently use either value (verified via
+  execute_sql before the migration ran).
+- Companion test: `tests/unit/wave3b1_1-taxonomy.test.ts` keeps the
+  application layer in sync (wizard PARTNER_TYPES + WizardPartnerType union
+  + landing pages do not promote the values).
 
 ## APIs
 
