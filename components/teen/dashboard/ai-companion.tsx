@@ -186,13 +186,14 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                       <p className="text-zinc-500 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em]">AI Companion</p>
                     </div>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setIsOpen(false)}
                     className="rounded-full text-zinc-500 hover:text-white h-8 w-8 sm:h-10 sm:w-10"
+                    aria-label="Fermer KAI"
                   >
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                   </Button>
                 </div>
               </div>

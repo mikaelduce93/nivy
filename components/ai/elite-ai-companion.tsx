@@ -347,23 +347,26 @@ export function EliteAICompanion({
                     
                     <div className="flex items-center gap-1">
                       {/* TTS Toggle */}
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setIsTTSActive(!isTTSActive)}
                         className="rounded-full text-zinc-500 hover:text-white w-9 h-9"
+                        aria-label={isTTSActive ? "Désactiver la voix" : "Activer la voix"}
+                        aria-pressed={isTTSActive}
                       >
-                        {isTTSActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                        {isTTSActive ? <Volume2 className="w-4 h-4" aria-hidden="true" /> : <VolumeX className="w-4 h-4" aria-hidden="true" />}
                       </Button>
-                      
+
                       {/* Close */}
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setIsOpen(false)}
                         className="rounded-full text-zinc-500 hover:text-white w-9 h-9"
+                        aria-label="Fermer le compagnon AI"
                       >
-                        <X className="w-5 h-5" />
+                        <X className="w-5 h-5" aria-hidden="true" />
                       </Button>
                     </div>
                   </div>
@@ -524,12 +527,14 @@ export function EliteAICompanion({
                         onClick={toggleListening}
                         className={cn(
                           "rounded-xl h-11 w-11 flex-shrink-0",
-                          listening 
-                            ? "bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse" 
+                          listening
+                            ? "bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse"
                             : "text-zinc-500 hover:text-white"
                         )}
+                        aria-label={listening ? "Arrêter la dictée vocale" : "Démarrer la dictée vocale"}
+                        aria-pressed={listening}
                       >
-                        {listening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                        {listening ? <MicOff className="w-5 h-5" aria-hidden="true" /> : <Mic className="w-5 h-5" aria-hidden="true" />}
                       </Button>
                     )}
                     

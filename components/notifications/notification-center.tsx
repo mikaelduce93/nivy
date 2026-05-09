@@ -460,8 +460,9 @@ function PushPermissionPrompt({ onEnable, onDismiss }: PushPermissionPromptProps
             size="icon"
             className="flex-shrink-0 h-8 w-8"
             onClick={onDismiss}
+            aria-label="Fermer la demande de notifications"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </Card>

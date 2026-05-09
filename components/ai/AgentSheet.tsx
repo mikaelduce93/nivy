@@ -157,8 +157,14 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
             </SheetTitle>
           </div>
           
-          <Button variant="ghost" size="icon" onClick={() => setIsTTSActive(!isTTSActive)}>
-            {isTTSActive ? <Volume2 className="w-4 h-4 opacity-50" /> : <VolumeX className="w-4 h-4 opacity-50" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsTTSActive(!isTTSActive)}
+            aria-label={isTTSActive ? "Désactiver la voix" : "Activer la voix"}
+            aria-pressed={isTTSActive}
+          >
+            {isTTSActive ? <Volume2 className="w-4 h-4 opacity-50" aria-hidden="true" /> : <VolumeX className="w-4 h-4 opacity-50" aria-hidden="true" />}
           </Button>
         </SheetHeader>
 
@@ -266,16 +272,23 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
                 className={cn(listening && "bg-red-50 text-red-500 border-red-200 animate-pulse")}
                 onClick={toggleListening}
                 disabled={!isMounted || !browserSupportsSpeechRecognition}
+                aria-label={listening ? "Arrêter la dictée vocale" : "Démarrer la dictée vocale"}
+                aria-pressed={listening}
               >
-                {listening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                {listening ? <MicOff className="w-4 h-4" aria-hidden="true" /> : <Mic className="w-4 h-4" aria-hidden="true" />}
               </Button>
               <Input
                 placeholder={listening ? "Je vous écoute..." : "Écrivez votre message..."}
                 value={input}
                 onChange={e => setInput?.(e.target.value)}
               />
-              <Button type="submit" size="icon" disabled={!input.trim() || isLoading}>
-                <Send className="w-4 h-4" />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!input.trim() || isLoading}
+                aria-label="Envoyer le message"
+              >
+                <Send className="w-4 h-4" aria-hidden="true" />
               </Button>
             </form>
           </div>

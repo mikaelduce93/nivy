@@ -120,11 +120,13 @@ export function AdminSidebar({ subRole, sqlConsoleEnabled = false }: AdminSideba
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
             className="text-muted-foreground hover:text-foreground"
+            aria-label={collapsed ? "Déplier la barre latérale admin" : "Replier la barre latérale admin"}
+            aria-expanded={!collapsed}
           >
             {collapsed ? (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
             ) : (
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
             )}
           </Button>
         </div>

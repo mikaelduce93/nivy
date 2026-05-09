@@ -44,11 +44,12 @@ export function InvoiceButton({ transactionId, transactionType }: InvoiceButtonP
             onClick={handleClick}
             disabled={isLoading}
             className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            aria-label={isLoading ? "Chargement de la facture…" : "Télécharger la facture"}
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : (
-              <FileText className="h-4 w-4" />
+              <FileText className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
         </TooltipTrigger>

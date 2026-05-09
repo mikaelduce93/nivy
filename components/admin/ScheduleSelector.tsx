@@ -141,8 +141,9 @@ export default function ScheduleSelector({ schedules, onChange }: ScheduleSelect
                   variant="ghost"
                   size="icon"
                   className="text-red-400 hover:text-red-300 hover:bg-red-500/10 mt-8"
+                  aria-label="Supprimer ce créneau"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                 </Button>
               </div>
 

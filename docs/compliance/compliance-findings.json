@@ -1,8 +1,8 @@
 {
   "generated_at": "2026-05-09",
-  "audit_version": "v3.3-wave6h",
-  "overall_score": 93,
-  "core_flow_score": 95,
+  "audit_version": "v3.4-wave6i",
+  "overall_score": 94,
+  "core_flow_score": 96,
   "launch_status": "RISKY-CLOSED-BETA-PENDING-SECRET-ROTATION",
   "public_launch_status": "BLOCKED",
   "closed_beta_status": "RISKY_PENDING_SECRET_ROTATION",
@@ -21,7 +21,7 @@
     "lifestyle": 86,
     "personalization-ai": 87,
     "admin-moderation": 87,
-    "design-system-mobile": 82
+    "design-system-mobile": 88
   },
   "totals": {
     "P0": 22,

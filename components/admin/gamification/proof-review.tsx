@@ -105,8 +105,13 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
               </p>
             </div>
           </div>
-          <Button size="icon" variant="ghost" className="text-white hover:bg-white/20 pointer-events-auto rounded-full">
-            <MoreHorizontal />
+          <Button
+            size="icon"
+            variant="ghost"
+            className="text-white hover:bg-white/20 pointer-events-auto rounded-full"
+            aria-label="Plus d'options"
+          >
+            <MoreHorizontal aria-hidden="true" />
           </Button>
         </div>
 
