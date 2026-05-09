@@ -1,7 +1,7 @@
 /**
  * Wave 4B — Promise-returning confirm helper backed by sonner toast.
  *
- * Replaces `window.confirm(...)` (canon §0 forbidden — no native dialogs).
+ * Replaces the native browser confirm (canon §0 forbidden — no native dialogs).
  * Returns true if the user clicks the action button, false otherwise.
  *
  * Usage:
