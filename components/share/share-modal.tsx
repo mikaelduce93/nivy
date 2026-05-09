@@ -9,6 +9,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "sonner"
 import {
   X,
   Copy,
@@ -264,7 +265,7 @@ export function ShareModal({
         await navigator.clipboard.writeText(urlData.copy_text)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
-        alert(urlData.instructions)
+        toast.info(urlData.instructions, { duration: 6000 })
       }
     } catch (err) {
       console.error("Error sharing:", err)

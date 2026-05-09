@@ -13,6 +13,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { confirmToast } from "@/lib/ui/confirm-toast"
 
 interface Item {
   id: string
@@ -68,7 +69,7 @@ export default function MenuManagerClient({ initialItems }: { initialItems: Item
   }
 
   const remove = async (id: string) => {
-    if (!confirm("Supprimer cet item ?")) return
+    if (!(await confirmToast({ message: "Supprimer cet item ?", destructive: true }))) return
     await fetch(`/api/partner/restaurant/menu/items/${id}`, { method: "DELETE" })
     setItems((s) => s.filter((i) => i.id !== id))
   }

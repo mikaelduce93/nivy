@@ -9,6 +9,7 @@
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "sonner"
 import {
   Download,
   Share2,
@@ -106,9 +107,10 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
     setIsGenerating(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      alert("Carte téléchargée!")
+      toast.success("Carte téléchargée")
     } catch (err) {
       console.error("Error generating card:", err)
+      toast.error("Génération échouée")
     } finally {
       setIsGenerating(false)
     }

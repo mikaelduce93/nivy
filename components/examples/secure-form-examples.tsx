@@ -9,6 +9,7 @@
  */
 
 import { z } from 'zod'
+import { toast } from 'sonner'
 import {
   SecureForm,
   FormField,
@@ -118,7 +119,7 @@ export function ContactFormExample() {
           schema: contactSchema,
           resetOnSuccess: true,
           onSuccess: () => {
-            alert('Message envoyé avec succès !')
+            toast.success('Message envoyé avec succès !')
           },
         }}
         action={handleContact}
@@ -226,7 +227,7 @@ export function RegistrationFormExample() {
             acceptTerms: false as unknown as true,
           },
           onSuccess: () => {
-            alert('Compte créé avec succès !')
+            toast.success('Compte créé avec succès !')
           },
         }}
         action={handleRegister}

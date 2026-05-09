@@ -8,6 +8,7 @@ import { Lock, X, Check, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { Celebrate } from "@/components/ui/celebrate"
 import { useAnnounce } from "@/components/a11y/announce-region"
+import { confirmToast } from "@/lib/ui/confirm-toast"
 
 // TICKET-031 — savings goal lock/contribute uses useOptimistic so the panel
 // closes and shows a "verrouillé" confirmation instantly. On server failure
@@ -99,7 +100,13 @@ export function GoalLockButton({
   }
 
   async function cancel() {
-    if (!confirm("Annuler cet objectif et libérer les coins ?")) return
+    if (!(await confirmToast({
+      message: "Annuler cet objectif ?",
+      description: "Les coins verrouillés seront libérés et redeviennent dépensables.",
+      destructive: true,
+    }))) {
+      return
+    }
     setBusy(true)
     const res = await fetch(`/api/teen/savings/goals/${goalId}/cancel`, {
       method: "POST",

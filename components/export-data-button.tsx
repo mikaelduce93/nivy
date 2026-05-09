@@ -2,6 +2,7 @@
 
 import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 interface ExportDataButtonProps {
   data: any[]
@@ -12,7 +13,7 @@ interface ExportDataButtonProps {
 export function ExportDataButton({ data, filename, label = "Exporter" }: ExportDataButtonProps) {
   const handleExport = () => {
     if (!data || data.length === 0) {
-      alert("Aucune donnée à exporter")
+      toast.info("Aucune donnée à exporter")
       return
     }
 

@@ -40,6 +40,7 @@ const CANON_RULES = [
   // [CANON-ALERT]
   { id: 'CANON-ALERT-001', pattern: /\bwindow\.alert\s*\(/, message: '`window.alert()` forbidden — use sonner toast().' },
   { id: 'CANON-ALERT-002', pattern: /\bwindow\.confirm\s*\(/, message: '`window.confirm()` forbidden — use ResponsiveModal.' },
+  { id: 'CANON-ALERT-003', pattern: /\bwindow\.prompt\s*\(/, message: '`window.prompt()` forbidden — use Dialog with form input.' },
   // [CANON-MOTION]
   {
     id: 'CANON-MOTION-001',

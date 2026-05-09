@@ -2,7 +2,7 @@
   "generated_at": "2026-05-09",
   "audit_source": "docs/compliance/* (Wave 0 — Safety Freeze)",
   "total_violations": 207,
-  "files_in_scope": 1257,
+  "files_in_scope": 1298,
   "violations_by_rule": {
     "CANON-NOTIF-002": 8,
     "CANON-MOTION-001": 160,

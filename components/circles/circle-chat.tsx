@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import NextImage from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { confirmToast } from "@/lib/ui/confirm-toast"
 import {
   Send,
   Image as ImageIcon,
@@ -577,7 +578,7 @@ export function CircleChat({
 
   // Handle delete
   const handleDelete = async (messageId: string) => {
-    if (!confirm("Supprimer ce message ?")) return
+    if (!(await confirmToast({ message: "Supprimer ce message ?", destructive: true }))) return
 
     try {
       await fetch("/api/teen/circles/messages", {

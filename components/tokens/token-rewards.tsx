@@ -9,6 +9,7 @@
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "sonner"
 import {
   Gift,
   Star,
@@ -707,11 +708,11 @@ export function TokenRewardsShop() {
         // Refresh rewards for stock updates
         fetchData()
       } else {
-        alert(data.error || "Erreur lors de l'échange")
+        toast.error(data.error || "Erreur lors de l'échange")
       }
     } catch (error) {
       console.error("Redeem error:", error)
-      alert("Erreur lors de l'échange")
+      toast.error("Erreur lors de l'échange")
     } finally {
       setRedeeming(false)
     }

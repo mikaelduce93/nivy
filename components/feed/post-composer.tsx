@@ -24,6 +24,7 @@ import {
   AtSign,
   Loader2,
 } from "lucide-react"
+import { toast } from "sonner"
 
 interface PostComposerProps {
   onPost?: (post: unknown) => void
@@ -58,7 +59,7 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
   const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     if (files.length + mediaFiles.length > 4) {
-      alert("Maximum 4 médias par post")
+      toast.error("Maximum 4 médias par post")
       return
     }
 

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { confirmToast } from "@/lib/ui/confirm-toast"
 
 interface PartnerOption {
   id: string
@@ -229,7 +230,12 @@ export function CloseInternshipButton({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null)
 
   async function close() {
-    if (!confirm("Fermer ce stage aux candidatures ?")) return
+    if (!(await confirmToast({
+      message: "Fermer ce stage aux candidatures ?",
+      description: "Les candidats existants restent enregistrés.",
+    }))) {
+      return
+    }
     setBusy(true)
     setError(null)
     try {

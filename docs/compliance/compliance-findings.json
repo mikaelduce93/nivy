@@ -1,14 +1,13 @@
 {
   "generated_at": "2026-05-09",
-  "audit_version": "v2.0-wave4a",
-  "overall_score": 80,
-  "core_flow_score": 82,
+  "audit_version": "v2.1-wave4b",
+  "overall_score": 81,
+  "core_flow_score": 84,
   "launch_status": "RISKY-CLOSED-BETA-PENDING-SECRET-ROTATION",
   "public_launch_status": "BLOCKED",
   "closed_beta_status": "RISKY_PENDING_SECRET_ROTATION",
-  "scoring_note": "overall_score is the unweighted mean of the 11 domain_scores; partner-ecosystem 22→89 (Waves 3A→3B.3, closed-beta ready). admin-moderation 60→80 (Wave 4A: unified inbox + decision dispatcher with 409 unsupported_action discipline + audit_log mandatory + sidebar gating). Wave 4B targets design-system-mobile (62). Do NOT report core_flow_score as overall.",
+  "scoring_note": "overall_score is the unweighted mean of the 11 domain_scores; partner-ecosystem 22→89 (Waves 3A→3B.3). admin-moderation 60→80 (Wave 4A). design-system-mobile 62→74 (Wave 4B: removed every native alert/confirm/prompt + canonical confirmToast primitive + new CANON-ALERT-003 rule + 11 specs). Wave 4C targets lifestyle-supply (62). Do NOT report core_flow_score as overall.",
   "blocking_domains": [
-    "design-system-mobile",
     "lifestyle-supply",
     "secret-rotation"
   ],
@@ -23,7 +22,7 @@
     "lifestyle": 62,
     "personalization-ai": 87,
     "admin-moderation": 80,
-    "design-system-mobile": 62
+    "design-system-mobile": 74
   },
   "totals": {
     "P0": 22,

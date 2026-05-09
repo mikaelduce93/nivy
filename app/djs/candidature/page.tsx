@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Mic2, Music, Send, ExternalLink } from "lucide-react"
 import { Card } from "@/components/ui/card"
+import { toast } from "sonner"
 
 export default function DJCandidaturePage() {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -79,11 +80,17 @@ export default function DJCandidaturePage() {
     setIsProcessing(true)
 
     try {
-      console.log("Formulaire DJ soumis:", formData)
-      alert("Candidature envoyée ! Nous te contacterons sous 48h.")
+      // Wave 4B — replace alert() with sonner toast (canon §0).
+      // Backend wiring is the canonical /devenir-dj wizard (Wave 3B.1) —
+      // this legacy page should redirect there in a follow-up. For now
+      // we honest-toast and stop pretending we sent something.
+      toast.info(
+        "Cette page legacy ne soumet pas de candidature. Utilise /devenir-dj pour postuler officiellement.",
+        { duration: 6000 },
+      )
     } catch (error) {
       console.error("Erreur:", error)
-      alert("Erreur lors de l'envoi")
+      toast.error("Erreur lors de l'envoi")
     } finally {
       setIsProcessing(false)
     }

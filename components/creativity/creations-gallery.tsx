@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import NextImage from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { confirmToast } from "@/lib/ui/confirm-toast"
 import {
   Image,
   Video,
@@ -893,7 +894,7 @@ export function CreationsGallery({ teenId, pathId, showFeed = false }: Creations
   }
 
   const handleDelete = async (creationId: string) => {
-    if (!confirm("Supprimer cette creation ?")) return
+    if (!(await confirmToast({ message: "Supprimer cette création ?", destructive: true }))) return
 
     try {
       const response = await fetch("/api/teen/creativity/creations", {

@@ -13,6 +13,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { toast } from "sonner"
 import { Inbox } from "lucide-react"
 
 interface Order {
@@ -73,7 +74,7 @@ export default function OrdersFeedClient({ initialOrders }: { initialOrders: Ord
         ),
       )
     } else {
-      alert(json?.error || "Échec")
+      toast.error(json?.error || "Échec")
     }
   }
 
