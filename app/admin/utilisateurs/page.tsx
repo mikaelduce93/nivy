@@ -33,7 +33,8 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
 
   const { data: totalBookings } = await supabase.from("bookings").select("parent_id, total_amount")
 
-  const { data: totalChildren } = await supabase.from("children").select("parent_id")
+  // #28 — no `children` table; count linked teens via parent_teen_links.
+  const { data: totalChildren } = await supabase.from("parent_teen_links").select("parent_id")
 
   const profilesWithStats = allProfiles?.map((profile) => {
     const userBookings = totalBookings?.filter((b) => b.parent_id === profile.id) || []

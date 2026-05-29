@@ -225,7 +225,11 @@ export const getUserNotifications = cache(async (unreadOnly = false) => {
 })
 
 /**
- * Get user's children profiles
+ * Get user's children profiles.
+ *
+ * @deprecated #28 — no callers in app/components/lib. Repointed to the
+ * canonical `teens` table (no `children` table exists) for consistency; prefer
+ * /api/parent/teens (parent_teens_overview) for new code.
  */
 export const getUserChildren = cache(async () => {
   const supabase = await createClient()
@@ -237,13 +241,13 @@ export const getUserChildren = cache(async () => {
   }
 
   const { data, error } = await supabase
-    .from('children')
+    .from('teens')
     .select('*')
     .eq('parent_id', user.id)
     .order('first_name', { ascending: true })
 
   if (error) {
-    console.error('[Server] Error fetching children:', error)
+    console.error('[Server] Error fetching teens:', error)
     return []
   }
 

@@ -44,7 +44,19 @@ export default function ClubEnrollmentForm({
     } = await supabase.auth.getUser()
     if (!user) return
 
-    const { data } = await supabase.from("children").select("*").eq("parent_id", user.id)
+    // #28 — no `children` table; linked teens live in teens via parent_teen_links.
+    const { data: links } = await supabase
+      .from("parent_teen_links")
+      .select("teen_id")
+      .eq("parent_id", user.id)
+      .eq("status", "active")
+    const teenIds = (links ?? []).map((l: any) => l.teen_id)
+    const { data } = teenIds.length
+      ? await supabase
+          .from("teens")
+          .select("id, first_name, last_name, date_of_birth")
+          .in("id", teenIds)
+      : { data: [] }
 
     setChildren(data || [])
   }
@@ -131,11 +143,11 @@ export default function ClubEnrollmentForm({
               ) : (
                 children.map((child) => {
                   const age = Math.floor(
-                    (new Date().getTime() - new Date(child.date_naissance).getTime()) / (1000 * 60 * 60 * 24 * 365),
+                    (new Date().getTime() - new Date(child.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365),
                   )
                   return (
                     <SelectItem key={child.id} value={child.id}>
-                      {child.prenom} {child.nom} ({age} ans)
+                      {child.first_name} {child.last_name} ({age} ans)
                     </SelectItem>
                   )
                 })

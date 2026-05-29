@@ -28,7 +28,19 @@ export default async function ReservationPage({
 
   const { data: event } = await supabase.from("events").select("*").eq("id", eventId).single()
 
-  const { data: children } = await supabase.from("children").select("*").eq("parent_id", user.id)
+  // #28 — no `children` table; linked teens live in teens via parent_teen_links.
+  const { data: teenLinks } = await supabase
+    .from("parent_teen_links")
+    .select("teen_id")
+    .eq("parent_id", user.id)
+    .eq("status", "active")
+  const linkedTeenIds = (teenLinks ?? []).map((l: any) => l.teen_id)
+  const { data: children } = linkedTeenIds.length
+    ? await supabase
+        .from("teens")
+        .select("id, first_name, last_name, date_of_birth")
+        .in("id", linkedTeenIds)
+    : { data: [] as any[] }
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
@@ -158,13 +170,13 @@ export default async function ReservationPage({
                           <SelectContent>
                             {children.map((child: any) => {
                               const age = Math.floor(
-                                (new Date().getTime() - new Date(child.date_naissance).getTime()) /
+                                (new Date().getTime() - new Date(child.date_of_birth).getTime()) /
                                   (1000 * 60 * 60 * 24 * 365),
                               )
                               const isEligible = age >= 11 && age <= 17
                               return (
                                 <SelectItem key={child.id} value={child.id} disabled={!isEligible}>
-                                  {child.prenom} {child.nom} ({age} ans)
+                                  {child.first_name} {child.last_name} ({age} ans)
                                   {!isEligible && " - Âge non éligible"}
                                 </SelectItem>
                               )
