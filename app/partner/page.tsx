@@ -47,29 +47,44 @@ async function getPartnerStats(partnerEmail: string) {
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
-  const { data: transactions, count: transactionsCount } = await supabase
-    .from("discount_usage")
-    .select(`
-      id,
-      purchase_amount,
-      discount_amount,
-      final_amount,
-      used_at,
-      profile:profile_id (
-        full_name
-      )
-    `, { count: "exact" })
-    .in("discount_id", (
-      await supabase
-        .from("partner_discounts")
-        .select("id")
-        .eq("partner_id", partner.id)
-    ).data?.map(d => d.id) || [])
-    .gte("used_at", startOfMonth.toISOString())
-    .order("used_at", { ascending: false })
+  // #59 — partner revenue comes from partner_transactions (the single source
+  // also read by /partner/stats, /partner/transactions and the payout cron),
+  // not the legacy discount_usage. Gross CA = sum(amount_dh), status='succeeded'.
+  const { data: txns, count: transactionsCount } = await supabase
+    .from("partner_transactions")
+    .select("id, amount_dh, scanned_at, created_at, teen_id", { count: "exact" })
+    .eq("partner_id", partner.id)
+    .eq("status", "succeeded")
+    .gte("created_at", startOfMonth.toISOString())
+    .order("created_at", { ascending: false })
 
-  const totalRevenue = transactions?.reduce((sum, t) => sum + (t.final_amount || 0), 0) || 0
-  const uniqueCustomers = new Set(transactions?.map(t => (t.profile as unknown as { full_name?: string } | null)?.full_name)).size
+  const txnRows = txns || []
+  const totalRevenue = txnRows.reduce((sum, t) => sum + (Number(t.amount_dh) || 0), 0)
+  const uniqueCustomers = new Set(txnRows.map((t) => t.teen_id).filter(Boolean)).size
+
+  // Resolve teen display names for the live feed (no FK to embed).
+  const feedTeenIds = [...new Set(txnRows.slice(0, 3).map((t) => t.teen_id).filter(Boolean))]
+  const teenNameById = new Map<string, string>()
+  if (feedTeenIds.length > 0) {
+    const { data: feedTeens } = await supabase
+      .from("teens")
+      .select("id, first_name, last_name, pseudo")
+      .in("id", feedTeenIds)
+    for (const tt of feedTeens || []) {
+      teenNameById.set(
+        tt.id,
+        `${tt.first_name ?? ""} ${tt.last_name ?? ""}`.trim() || tt.pseudo || "Member",
+      )
+    }
+  }
+
+  const recentTransactions = txnRows.slice(0, 3).map((t) => ({
+    id: t.id,
+    used_at: t.scanned_at ?? t.created_at,
+    final_amount: Number(t.amount_dh) || 0,
+    discount_amount: 0,
+    profile: { full_name: teenNameById.get(t.teen_id) ?? "Member" },
+  }))
 
   const { data: offers } = await supabase
     .from("partner_discounts")
@@ -91,7 +106,7 @@ async function getPartnerStats(partnerEmail: string) {
     totalRevenue,
     activeOffersCount: activeOffersCount || 0,
     activeOffers: offers || [],
-    recentTransactions: transactions?.slice(0, 3) || []
+    recentTransactions
   }
 }
 
@@ -212,9 +227,9 @@ export default async function PartnerDashboardPage() {
               <p className="text-6xl font-black text-white tracking-tighter tabular-nums">{totalRevenue.toLocaleString()}</p>
               <span className="text-2xl font-bold text-zinc-600 uppercase tracking-tighter">DH</span>
             </div>
-            <div className="mt-4 flex items-center gap-2 text-emerald-400">
+            <div className="mt-4 flex items-center gap-2 text-zinc-500">
               <div className="w-2 h-2 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
-              <span className="text-xs font-black uppercase tracking-widest">+12.5% vs mois dernier</span>
+              <span className="text-xs font-black uppercase tracking-widest">Ce mois-ci</span>
             </div>
           </BentoCard>
 
