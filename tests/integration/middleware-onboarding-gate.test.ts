@@ -107,10 +107,10 @@ process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key-for-tests"
 
 async function callMiddleware(path: string) {
   // Lazy-import after vi.mock has been registered.
-  const mod = await import("@/middleware")
+  const mod = await import("@/proxy")
   const url = `http://localhost${path}`
   const req = new NextRequest(url, { method: "GET" })
-  const res = await mod.middleware(req)
+  const res = await mod.proxy(req)
   return res
 }
 

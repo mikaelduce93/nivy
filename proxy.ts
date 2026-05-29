@@ -6,7 +6,11 @@ import { RATE_LIMITS } from "@/lib/security/rate-limiter"
 import { validateCSRFToken } from "@/lib/security/csrf"
 import { setEnvironmentTag } from "@/lib/monitoring/sentry-server"
 
-export async function middleware(request: NextRequest) {
+// Next 16 renamed the `middleware` file convention to `proxy` (named `proxy`
+// export). Same network-boundary layer: CSP/security headers, distributed
+// rate-limit, CSRF, /admin + protected-route guards, role/onboarding gate.
+// https://nextjs.org/docs/messages/middleware-to-proxy
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   // Set Sentry environment tag
