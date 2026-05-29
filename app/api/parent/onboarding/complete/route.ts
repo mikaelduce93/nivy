@@ -15,6 +15,11 @@ import { getUserRole } from "@/lib/auth/get-user-role"
  * parent with is_onboarded=false back to /onboarding/parent. Without
  * this endpoint, the parent stub had no path to mark itself complete
  * — admin had to flip the bit manually.
+ *
+ * #51 — hard gate (canon §4.1): is_onboarded cannot flip to true until a
+ * signed e_signatures row (terms_accepted=true) exists for this parent.
+ * Returns 409 requiresSignature otherwise so the loi 09-08 / CNDP consent
+ * is collected up front, not deferred to the first top-up.
  */
 export async function POST() {
   try {
@@ -25,6 +30,27 @@ export async function POST() {
       return NextResponse.json(
         { success: false, error: "Non autorisé" },
         { status: 401 },
+      )
+    }
+
+    // #51 — require the e-signature before completing onboarding.
+    const { data: signature } = await supabase
+      .from("e_signatures")
+      .select("id")
+      .eq("parent_id", userInfo.profileId)
+      .eq("terms_accepted", true)
+      .not("signed_at", "is", null)
+      .limit(1)
+      .maybeSingle()
+
+    if (!signature) {
+      return NextResponse.json(
+        {
+          success: false,
+          requiresSignature: true,
+          error: "Signature de l'autorisation parentale requise",
+        },
+        { status: 409 },
       )
     }
 

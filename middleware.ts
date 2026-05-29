@@ -287,7 +287,9 @@ export async function middleware(request: NextRequest) {
       // `null` means the role bypasses the onboarding gate entirely (admin).
       // Source: canon §3 LOCKED redirect table + §4 LOCKED wizards.
       const ONBOARDING_TARGETS: Record<string, string | null> = {
-        parent: "/onboarding/parent",
+        // #51 — parent onboarding starts at the e-signature step (canon §4.1).
+        // The /onboarding/ prefix below exempts the whole flow from re-redirect.
+        parent: "/onboarding/parent/e-signature",
         teen: "/onboarding/interests",
         partner: "/partner/onboarding/awaiting-approval",
         mentor: "/mentor/onboarding/kyc",

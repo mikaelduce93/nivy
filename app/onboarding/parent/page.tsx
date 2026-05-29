@@ -1,12 +1,18 @@
-import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { ParentOnboardingCompleteButton } from "./complete-button"
 
 /**
- * Wave 1A bare-minimum stub — parent onboarding entry point.
- * Full wizard chain (e-signature → add-teen → topup → spend-mode) is M7,
- * tracked separately. This stub exists so /auth/redirect has a deterministic
- * target for `parent` + `is_onboarded=false`.
+ * Parent onboarding router.
+ *
+ * #51 — this page is now the post-signature step of the parent wizard. The
+ * middleware sends a not-onboarded parent to /onboarding/parent/e-signature
+ * first; once the loi 09-08 / CNDP consent is signed they land here to
+ * finalise onboarding. If they reach here WITHOUT a signed e_signatures row,
+ * we send them back to the e-signature step (the /api/parent/onboarding/
+ * complete endpoint also hard-gates on the signature).
+ *
+ * (Future wizard steps — add-teen → topup → spend-mode — chain in here.)
  */
 export default async function ParentOnboardingStubPage() {
   const supabase = await createClient()
@@ -15,16 +21,34 @@ export default async function ParentOnboardingStubPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_onboarded")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  if (profile?.is_onboarded) redirect("/parent")
+
+  // #51 — no signed autorisation parentale yet → back to the e-signature step.
+  const { data: signature } = await supabase
+    .from("e_signatures")
+    .select("id")
+    .eq("parent_id", user.id)
+    .eq("terms_accepted", true)
+    .not("signed_at", "is", null)
+    .limit(1)
+    .maybeSingle()
+
+  if (!signature) redirect("/onboarding/parent/e-signature")
+
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-8 text-center space-y-4">
-      <h1 className="text-2xl font-bold">Bienvenue parent</h1>
+    <main className="min-h-screen flex flex-col items-center justify-center p-8 text-center space-y-6">
+      <h1 className="text-2xl font-bold">Autorisation signée ✓</h1>
       <p className="text-gray-600 max-w-md">
-        L&apos;assistant d&apos;onboarding parent est en cours de construction
-        (Wave 1B). Cette page est un placeholder identitaire.
+        Merci, votre consentement parental (loi 09-08 / CNDP) est enregistré.
+        Vous pouvez maintenant accéder à votre espace parent.
       </p>
-      <Link href="/auth/login" className="text-purple-600 underline">
-        Retour à la connexion
-      </Link>
+      <ParentOnboardingCompleteButton />
     </main>
   )
 }
