@@ -10,56 +10,72 @@ import { ShareButtons } from "@/components/ambassador/share-buttons"
 async function getAmbassadorStats(profileId: string) {
   const supabase = await createClient()
 
-  // Get ambassador data
+  // #33 — real ambassadors schema: keyed on user_id; code + commission_pct
+  // live on the row. The old profile_id/total_referrals/total_earnings/
+  // commission_rate columns and the referral_codes/referral_usage tables don't
+  // match this flow. Referrals come from referral_attribution and earnings
+  // from ambassador_commissions (both keyed on ambassadors.id).
   const { data: ambassador } = await supabase
     .from("ambassadors")
-    .select("id, total_referrals, total_earnings, commission_rate")
-    .eq("profile_id", profileId)
-    .single()
+    .select("id, code, commission_pct")
+    .eq("user_id", profileId)
+    .maybeSingle()
 
   if (!ambassador) return null
 
-  // Get referral code
-  const { data: referralCode } = await supabase
-    .from("referral_codes")
-    .select("code")
-    .eq("ambassador_id", ambassador.id)
-    .eq("is_active", true)
-    .single()
-
-  // Get recent referrals (users who used this ambassador's code)
-  const { data: recentReferrals } = await supabase
-    .from("referral_usage")
-    .select(`
-      id,
-      commission_amount,
-      created_at,
-      user:user_id (
-        full_name
-      )
-    `)
-    .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
-    .limit(5)
-
-  // Get this month's referrals count
   const startOfMonth = new Date()
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
-  const { count: monthlyReferrals } = await supabase
-    .from("referral_usage")
-    .select("*", { count: "exact", head: true })
-    .eq("ambassador_id", ambassador.id)
-    .gte("created_at", startOfMonth.toISOString())
+  const [{ count: totalReferrals }, { count: monthlyReferrals }, { data: commissions }] =
+    await Promise.all([
+      supabase
+        .from("referral_attribution")
+        .select("*", { count: "exact", head: true })
+        .eq("ambassador_id", ambassador.id),
+      supabase
+        .from("referral_attribution")
+        .select("*", { count: "exact", head: true })
+        .eq("ambassador_id", ambassador.id)
+        .gte("attributed_at", startOfMonth.toISOString()),
+      supabase
+        .from("ambassador_commissions")
+        .select("id, amount_dh, created_at, referred_user_id")
+        .eq("ambassador_id", ambassador.id)
+        .order("created_at", { ascending: false }),
+    ])
+
+  const commissionRows = commissions || []
+  const totalEarnings = commissionRows.reduce(
+    (sum, c) => sum + (Number(c.amount_dh) || 0),
+    0,
+  )
+
+  // Resolve referred-user names separately (no FK ambassador_commissions→profiles).
+  const referredIds = [...new Set(commissionRows.map((c) => c.referred_user_id).filter(Boolean))]
+  const nameById = new Map<string, string>()
+  if (referredIds.length > 0) {
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", referredIds)
+    for (const p of profs || []) nameById.set(p.id, p.full_name || "Utilisateur")
+  }
+
+  const recentReferrals = commissionRows.slice(0, 5).map((c) => ({
+    id: c.id,
+    created_at: c.created_at,
+    commission_amount: Number(c.amount_dh) || 0,
+    user: { full_name: nameById.get(c.referred_user_id) || "Utilisateur" },
+  }))
 
   return {
-    totalReferrals: ambassador.total_referrals || 0,
-    totalEarnings: ambassador.total_earnings || 0,
-    commissionRate: ambassador.commission_rate || 15,
-    referralCode: referralCode?.code || profileId.slice(0, 8).toUpperCase(),
+    totalReferrals: totalReferrals || 0,
+    totalEarnings,
+    commissionRate: Number(ambassador.commission_pct) || 10,
+    referralCode: ambassador.code || profileId.slice(0, 8).toUpperCase(),
     monthlyReferrals: monthlyReferrals || 0,
-    recentReferrals: recentReferrals || []
+    recentReferrals,
   }
 }
 

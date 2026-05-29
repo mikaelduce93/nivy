@@ -346,48 +346,41 @@ export class ContextEngine {
   }
 
   private static async gatherAmbassadorContext(supabase: any, userId: string) {
-    // Parallel fetch
-    const [
-      ambassadorResult,
-      referralsResult,
-      commissionsResult
-    ] = await Promise.all([
-      // Ambassador profile
-      supabase
-        .from('ambassadors')
-        .select('id, referral_code, total_earnings, current_rank')
-        .eq('user_id', userId)
-        .limit(1)
-        .maybeSingle()
-        .catch(() => ({ data: null })),
-      
-      // Referral count
-      supabase
-        .from('referrals')
-        .select('id')
-        .eq('referred_by', userId)
-        .catch(() => ({ data: [] })),
-      
-      // This month's commissions
-      supabase
-        .from('ambassador_commissions')
-        .select('amount')
-        .eq('ambassador_id', userId)
-        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
-        .catch(() => ({ data: [] }))
+    // #33 — resolve the ambassador row first; both ambassador_commissions and
+    // referral_attribution key on ambassadors.id, not the user id. Use the
+    // real columns (code/tier; the old referral_code/total_earnings/
+    // current_rank/`referrals` table don't exist).
+    const { data: ambassador } = await supabase
+      .from('ambassadors')
+      .select('id, code, tier')
+      .eq('user_id', userId)
+      .limit(1)
+      .maybeSingle()
+      .catch(() => ({ data: null }))
+
+    const ambassadorId = ambassador?.id ?? null
+    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+
+    const [referralsResult, monthCommissionsResult, allCommissionsResult] = await Promise.all([
+      ambassadorId
+        ? supabase.from('referral_attribution').select('id').eq('ambassador_id', ambassadorId).catch(() => ({ data: [] }))
+        : Promise.resolve({ data: [] }),
+      ambassadorId
+        ? supabase.from('ambassador_commissions').select('amount_dh').eq('ambassador_id', ambassadorId).gte('created_at', monthStart).catch(() => ({ data: [] }))
+        : Promise.resolve({ data: [] }),
+      ambassadorId
+        ? supabase.from('ambassador_commissions').select('amount_dh').eq('ambassador_id', ambassadorId).catch(() => ({ data: [] }))
+        : Promise.resolve({ data: [] }),
     ])
 
-    const ambassador = ambassadorResult?.data
     const referrals = referralsResult?.data || []
-    const commissions = commissionsResult?.data || []
-
-    const currentMonthCommission = commissions.reduce((sum: number, c: any) => sum + (c.amount || 0), 0)
+    const sumDh = (rows: any[]) => rows.reduce((s: number, c: any) => s + (Number(c.amount_dh) || 0), 0)
 
     return {
-      referralCode: ambassador?.referral_code,
-      currentRank: ambassador?.current_rank || 'Bronze',
-      totalEarnings: ambassador?.total_earnings || 0,
-      currentMonthCommission,
+      referralCode: ambassador?.code,
+      currentRank: ambassador?.tier || 'Bronze',
+      totalEarnings: sumDh(allCommissionsResult?.data || []),
+      currentMonthCommission: sumDh(monthCommissionsResult?.data || []),
       referralCount: referrals.length,
       activeCampaigns: [] // Could fetch from campaigns table
     }
