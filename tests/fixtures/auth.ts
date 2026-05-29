@@ -110,6 +110,7 @@ type AuthFixtures = {
 
 export const test = base.extend<AuthFixtures>({
   signInAs: async ({ page }, use) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright fixture provide callback, not the React `use` hook
     await use((role) => signInWithRole(page, role))
   },
 })

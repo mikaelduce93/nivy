@@ -141,7 +141,9 @@ export function ModerationReviewRow({ row }: { row: ReviewRow }) {
                 src={url}
                 controls
                 className="aspect-video w-full rounded bg-black object-contain"
-              />
+              >
+                <track kind="captions" />
+              </video>
             ) : (
               <div
                 key={i}

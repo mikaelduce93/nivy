@@ -10,6 +10,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y'
 import tsParser from "@typescript-eslint/parser"
 import tsPlugin from "@typescript-eslint/eslint-plugin"
 import reactHooks from "eslint-plugin-react-hooks"
+import nextPlugin from "@next/eslint-plugin-next"
 
 export default [js.configs.recommended, {
   files: ['**/*.{js,jsx,ts,tsx}'],
@@ -17,6 +18,10 @@ export default [js.configs.recommended, {
     'jsx-a11y': jsxA11y,
     '@typescript-eslint': tsPlugin,
     'react-hooks': reactHooks,
+    // #23 — register the Next plugin so `eslint-disable @next/next/*`
+    // directives resolve (else flat config errors "rule not found"). Rules are
+    // left off by default to avoid baselining ~30 raw <img> warnings here.
+    '@next/next': nextPlugin,
   },
   languageOptions: {
     ecmaVersion: 'latest',

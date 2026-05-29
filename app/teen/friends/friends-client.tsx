@@ -353,7 +353,6 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                 key={t.id}
                 role="tab"
                 aria-selected={active}
-                aria-pressed={active}
                 onClick={() => setTab(t.id)}
                 className={cn(
                   "px-4 py-2 rounded-xl font-bold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft",

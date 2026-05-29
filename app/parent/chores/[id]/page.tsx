@@ -232,7 +232,9 @@ function CompletionSection({
                                 controls
                                 preload="metadata"
                                 className="max-w-xs max-h-64 rounded-lg border border-zinc-700"
-                              />
+                              >
+                                <track kind="captions" />
+                              </video>
                             ) : (
                               // eslint-disable-next-line @next/next/no-img-element
                               <a
@@ -243,7 +245,7 @@ function CompletionSection({
                               >
                                 <img
                                   src={signedUrl}
-                                  alt="Preuve photo de la corvée"
+                                  alt="Preuve de la corvée"
                                   className="max-w-xs max-h-64 rounded-lg border border-zinc-700 object-cover"
                                 />
                               </a>
