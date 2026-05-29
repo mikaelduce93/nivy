@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { resolvePartnerByEmail } from "@/lib/auth/resolve-partner"
 import { NextRequest, NextResponse } from "next/server"
 
 /**
@@ -30,11 +31,8 @@ export async function POST(request: NextRequest) {
       .select("role")
       .eq("profile_id", user.id)
       .maybeSingle()
-    const { data: partnerRole } = await supabase
-      .from("partners")
-      .select("id, company_name")
-      .eq("email", user.email ?? "")
-      .maybeSingle()
+    // #37 — partner identity = partners.email == profiles.email (no user_id).
+    const partnerRole = await resolvePartnerByEmail(supabase, user.email)
 
     if (!adminRole && !partnerRole) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 403 })
