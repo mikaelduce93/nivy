@@ -35,8 +35,8 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import type { AdminSubRole, AdminPermission } from '@/lib/auth/admin-permissions'
-import { ADMIN_PERMISSIONS } from '@/lib/auth/admin-permissions'
+import type { AdminSubRole, AdminPermission } from '@/lib/auth/admin-permissions.matrix'
+import { ADMIN_PERMISSIONS } from '@/lib/auth/admin-permissions.matrix'
 
 interface NavItem {
   title: string
