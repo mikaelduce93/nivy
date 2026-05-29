@@ -45,8 +45,8 @@ interface Grade {
   max_grade: number
   exam_type: string
   exam_date: string
-  status: "pending" | "validated" | "rejected"
-  parent_comment?: string
+  status: "pending" | "approved" | "rejected"
+  rejection_reason?: string
   validated_at?: string
   created_at: string
 }
@@ -63,7 +63,7 @@ export default function ParentGradesPage() {
   const [filteredGrades, setFilteredGrades] = useState<Grade[]>([])
   const [stats, setStats] = useState<GradeStats>({ totalPending: 0, totalValidated: 0, totalRejected: 0, averageGrade: 0 })
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<"all" | "pending" | "validated" | "rejected">("pending")
+  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending")
   const [search, setSearch] = useState("")
   const [selectedGrade, setSelectedGrade] = useState<Grade | null>(null)
   const [validationComment, setValidationComment] = useState("")
@@ -86,10 +86,10 @@ export default function ParentGradesPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Get linked teens
+      // Get linked teens (#31 — no `children` table; teen name from `teens`).
       const { data: teens } = await supabase
         .from("parent_teen_links")
-        .select("teen_id, children(prenom, nom)")
+        .select("teen_id, teens:teen_id(first_name, last_name, pseudo)")
         .eq("parent_id", user.id)
         .eq("status", "active")
 
@@ -101,13 +101,14 @@ export default function ParentGradesPage() {
       const teenIds = teens.map((t: any) => t.teen_id)
       const teenNameMap = new Map<string, string>(teens.map((t: any) => [
         t.teen_id,
-        `${t.children?.prenom || ""} ${t.children?.nom || ""}`.trim() || "Teen"
+        `${t.teens?.first_name || ""} ${t.teens?.last_name || ""}`.trim() || t.teens?.pseudo || "Teen"
       ]))
 
-      // Fetch real grades from Supabase
+      // Fetch real grades (#31 — teen_grades has no rejection_reason; rejection
+      // reason lives in rejection_reason).
       const { data: rows, error: gradesError } = await supabase
         .from("teen_grades")
-        .select("id, teen_id, subject, grade, max_grade, grade_type, grade_date, status, parent_comment, validated_at, created_at")
+        .select("id, teen_id, subject, grade, max_grade, grade_type, grade_date, status, rejection_reason, validated_at, created_at")
         .in("teen_id", teenIds)
         .order("created_at", { ascending: false })
 
@@ -136,7 +137,7 @@ export default function ParentGradesPage() {
         exam_type: r.grade_type ?? "",
         exam_date: r.grade_date ?? r.created_at,
         status: (r.status as Grade["status"]) ?? "pending",
-        parent_comment: r.parent_comment ?? undefined,
+        rejection_reason: r.rejection_reason ?? undefined,
         validated_at: r.validated_at ?? undefined,
         created_at: r.created_at,
       }))
@@ -144,9 +145,9 @@ export default function ParentGradesPage() {
       setGrades(real)
 
       const pending = real.filter(g => g.status === "pending").length
-      const validated = real.filter(g => g.status === "validated").length
+      const validated = real.filter(g => g.status === "approved").length
       const rejected = real.filter(g => g.status === "rejected").length
-      const validatedGrades = real.filter(g => g.status === "validated")
+      const validatedGrades = real.filter(g => g.status === "approved")
       const avgGrade = validatedGrades.length > 0
         ? validatedGrades.reduce((sum, g) => sum + (g.grade / g.max_grade) * 20, 0) / validatedGrades.length
         : 0
@@ -189,11 +190,12 @@ export default function ParentGradesPage() {
     setIsValidating(true)
     try {
       const validatedAt = new Date().toISOString()
+      // #31 — canonical status is 'approved' (CHECK rejects 'validated'); no
+      // rejection_reason column on teen_grades.
       const { error } = await supabase
         .from("teen_grades")
         .update({
-          status: "validated",
-          parent_comment: validationComment || null,
+          status: "approved",
           validated_at: validatedAt,
         })
         .eq("id", grade.id)
@@ -202,7 +204,7 @@ export default function ParentGradesPage() {
 
       setGrades(prev => prev.map(g =>
         g.id === grade.id
-          ? { ...g, status: "validated" as const, parent_comment: validationComment, validated_at: validatedAt }
+          ? { ...g, status: "approved" as const, validated_at: validatedAt }
           : g
       ))
 
@@ -230,11 +232,12 @@ export default function ParentGradesPage() {
 
     try {
       const validatedAt = new Date().toISOString()
+      // #31 — the rejection comment lives in the real rejection_reason column.
       const { error } = await supabase
         .from("teen_grades")
         .update({
           status: "rejected",
-          parent_comment: validationComment || null,
+          rejection_reason: validationComment || null,
           validated_at: validatedAt,
         })
         .eq("id", selectedGrade.id)
@@ -243,7 +246,7 @@ export default function ParentGradesPage() {
 
       setGrades(prev => prev.map(g =>
         g.id === selectedGrade.id
-          ? { ...g, status: "rejected" as const, parent_comment: validationComment, validated_at: validatedAt }
+          ? { ...g, status: "rejected" as const, rejection_reason: validationComment, validated_at: validatedAt }
           : g
       ))
 
@@ -291,7 +294,7 @@ export default function ParentGradesPage() {
             En attente
           </span>
         )
-      case "validated":
+      case "approved":
         return (
           <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs">
             <CheckCircle2 className="h-3 w-3" />
@@ -422,7 +425,7 @@ export default function ParentGradesPage() {
             />
           </div>
           <div className="flex gap-2">
-            {(["pending", "validated", "rejected", "all"] as const).map((f) => (
+            {(["pending", "approved", "rejected", "all"] as const).map((f) => (
               <Button
                 key={f}
                 variant={filter === f ? "default" : "outline"}
@@ -434,7 +437,7 @@ export default function ParentGradesPage() {
                 }
               >
                 {f === "pending" && "En attente"}
-                {f === "validated" && "Validées"}
+                {f === "approved" && "Validées"}
                 {f === "rejected" && "Rejetées"}
                 {f === "all" && "Toutes"}
               </Button>
@@ -481,9 +484,9 @@ export default function ParentGradesPage() {
                               {formatDate(grade.exam_date)}
                             </span>
                           </div>
-                          {grade.parent_comment && (
+                          {grade.rejection_reason && (
                             <p className="text-xs text-zinc-500 mt-2 italic">
-                              "{grade.parent_comment}"
+                              "{grade.rejection_reason}"
                             </p>
                           )}
                         </div>
