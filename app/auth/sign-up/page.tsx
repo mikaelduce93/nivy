@@ -10,11 +10,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState, useEffect, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { useT } from "@/lib/i18n"
 
-export default function SignUpPage() {
+function SignUpForm() {
   const t = useT()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -28,6 +28,13 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const errorRef = useRef<HTMLDivElement>(null)
+  // #52 — hand-off context from the pre-account wizard (parent-setup-step links
+  // to /auth/sign-up?source=wizard&tempUserId=...). Forwarded into the auth user
+  // metadata so handle_new_user / a post-profil sync can attach the pre-account
+  // XP to the new profiles.id.
+  const searchParams = useSearchParams()
+  const onboardingSource = searchParams.get("source")
+  const tempUserId = searchParams.get("tempUserId")
 
   // Auto-redirect already-authenticated users to the role-aware redirect.
   useEffect(() => {
@@ -79,6 +86,9 @@ export default function SignUpPage() {
             telephone,
             ville,
             accept_newsletter: acceptNewsletter,
+            // #52 — pre-account wizard continuity (source + tempUserId).
+            ...(onboardingSource ? { onboarding_source: onboardingSource } : {}),
+            ...(tempUserId ? { temp_user_id: tempUserId } : {}),
           },
         },
       })
@@ -295,5 +305,14 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignUpPage() {
+  // #52 — useSearchParams requires a Suspense boundary at build time.
+  return (
+    <Suspense fallback={null}>
+      <SignUpForm />
+    </Suspense>
   )
 }

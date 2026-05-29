@@ -23,11 +23,19 @@ export default async function ParentOnboardingStubPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_onboarded")
+    .select("is_onboarded, full_name")
     .eq("id", user.id)
     .maybeSingle()
 
   if (profile?.is_onboarded) redirect("/parent")
+
+  // #52 — continuity from the pre-account wizard / signup: greet by first name
+  // (profiles.full_name, set from the signup prenom; falls back to user
+  // metadata) instead of a generic title.
+  const firstName =
+    (profile?.full_name?.trim().split(/\s+/)[0] ||
+      (user.user_metadata?.prenom as string | undefined) ||
+      "").trim()
 
   // #51 — no signed autorisation parentale yet → back to the e-signature step.
   const { data: signature } = await supabase
@@ -43,7 +51,9 @@ export default async function ParentOnboardingStubPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-8 text-center space-y-6">
-      <h1 className="text-2xl font-bold">Autorisation signée ✓</h1>
+      <h1 className="text-2xl font-bold">
+        {firstName ? `Bienvenue, ${firstName} ! Autorisation signée ✓` : "Autorisation signée ✓"}
+      </h1>
       <p className="text-gray-600 max-w-md">
         Merci, votre consentement parental (loi 09-08 / CNDP) est enregistré.
         Vous pouvez maintenant accéder à votre espace parent.
