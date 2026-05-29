@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Loader2,
   CheckCircle,
@@ -23,6 +25,7 @@ interface RegistrationData {
   teenName: string
   teenAge: number
   parentEmail: string
+  teenEmail: string | null
   status: string
 }
 
@@ -37,6 +40,9 @@ export default function ValidateTeenPage() {
   const [registration, setRegistration] = useState<RegistrationData | null>(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [success, setSuccess] = useState(false)
+  // #26 — the approve POST requires teen_email (or teen_phone). Pre-fill from
+  // the email the teen gave at registration; let the parent supply/fix it.
+  const [teenEmail, setTeenEmail] = useState("")
 
   useEffect(() => {
     async function checkAuthAndToken() {
@@ -60,6 +66,7 @@ export default function ValidateTeenPage() {
           setError(data.error)
         } else {
           setRegistration(data.data)
+          if (data.data?.teenEmail) setTeenEmail(data.data.teenEmail)
         }
       } catch (err) {
         setError("Erreur lors de la vérification")
@@ -78,12 +85,22 @@ export default function ValidateTeenPage() {
       return
     }
 
+    const email = teenEmail.trim()
+    if (!email) {
+      toast.error("Renseigne l'email du teen pour créer son compte")
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Format d'email du teen invalide")
+      return
+    }
+
     setProcessing(true)
     try {
       const response = await fetch("/api/auth/validate-teen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, action: "approve" }),
+        body: JSON.stringify({ token, action: "approve", teen_email: email }),
       })
 
       const data = await response.json()
@@ -242,6 +259,24 @@ export default function ValidateTeenPage() {
               <p className="text-sm text-yellow-600">
                 <strong>Connexion requise:</strong> Vous devez être connecté pour valider cette demande.
                 Si vous n'avez pas encore de compte, vous pourrez en créer un.
+              </p>
+            </div>
+          )}
+
+          {/* #26 — teen email for account creation (required to approve). */}
+          {isLoggedIn && (
+            <div className="space-y-2">
+              <Label htmlFor="teen-email">Email du teen</Label>
+              <Input
+                id="teen-email"
+                type="email"
+                inputMode="email"
+                value={teenEmail}
+                onChange={(e) => setTeenEmail(e.target.value)}
+                placeholder="email@exemple.com"
+              />
+              <p className="text-xs text-muted-foreground">
+                Son compte sera créé avec cet email. Pré-rempli s'il l'a indiqué à l'inscription.
               </p>
             </div>
           )}

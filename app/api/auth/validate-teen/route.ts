@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
@@ -24,7 +23,8 @@ import { z } from "zod"
 // ─── GET — token validity check (unchanged) ───────────────────────────────
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
+    // #26 — pending_teen_registrations is RLS service-role-only.
+    const admin = createServiceRoleClient()
     const { searchParams } = new URL(request.url)
     const token = searchParams.get("token")
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
 
     const { data: registration, error } = await withSupabaseTimeout(
-      supabase
+      admin
         .from("pending_teen_registrations")
         .select("*")
         .eq("validation_token", token)
@@ -72,6 +72,10 @@ export async function GET(request: Request) {
         teenName: `${registration.teen_first_name} ${registration.teen_last_name}`,
         teenAge: calculateAge(registration.date_of_birth),
         parentEmail: registration.parent_email,
+        // #26 — surface the teen email captured at registration (if any) so the
+        // approve form can pre-fill it; the approve POST requires teen_email or
+        // teen_phone (superRefine).
+        teenEmail: registration.teen_email ?? null,
         status: registration.status,
       },
     })
@@ -116,7 +120,9 @@ const bodySchema = z
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
+    // #26 — pending_teen_registrations is RLS service-role-only; all reads/
+    // writes to it (find, reject, approve) go through the service-role client.
+    const admin = createServiceRoleClient()
     const userInfo = await getUserRole()
 
     if (!userInfo) {
@@ -144,7 +150,7 @@ export async function POST(request: Request) {
 
     // Find pending registration
     const { data: registration, error: regError } = await withSupabaseTimeout(
-      supabase
+      admin
         .from("pending_teen_registrations")
         .select("*")
         .eq("validation_token", token)
@@ -177,7 +183,7 @@ export async function POST(request: Request) {
     // ─── REJECT branch ──────────────────────────────────────────────────
     if (action === "reject") {
       await withSupabaseTimeout(
-        supabase
+        admin
           .from("pending_teen_registrations")
           .update({
             status: "rejected",
@@ -205,8 +211,8 @@ export async function POST(request: Request) {
 
     const fullName = `${registration.teen_first_name} ${registration.teen_last_name}`.trim()
 
-    // Service-role client is required for auth.admin.* operations.
-    const admin = createServiceRoleClient()
+    // (admin service-role client already created at the top of POST — reused
+    // here for the auth.admin.* operations.)
 
     // 1. Create the auth.users row. The handle_new_user trigger will create
     //    the matching profiles row (role='teen') AND a teens row from

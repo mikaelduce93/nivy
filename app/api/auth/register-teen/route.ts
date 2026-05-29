@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
 import crypto from "crypto"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
@@ -18,7 +18,11 @@ import { resend, EMAIL_FROM, isResendConfigured } from "@/lib/resend"
  */
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
+    // #26 — pending_teen_registrations is RLS service-role-only (the token is
+    // the secret). This is a public/unauthenticated route, so we use the
+    // service-role client for the controlled lookup + insert after validating
+    // the inputs (required fields + age 11-17) below.
+    const admin = createServiceRoleClient()
     const body = await request.json()
 
     const {
@@ -61,7 +65,7 @@ export async function POST(request: Request) {
 
     // Check if parent email exists
     const { data: existingParent } = await withSupabaseTimeout(
-      supabase
+      admin
         .from("profiles")
         .select("id, role, full_name")
         .eq("email", parentEmail.toLowerCase())
@@ -76,7 +80,7 @@ export async function POST(request: Request) {
 
     // Create pending teen registration
     const { data: pendingRegistration, error: regError } = await withSupabaseTimeout(
-      supabase
+      admin
         .from("pending_teen_registrations")
         .insert({
           teen_first_name: teenFirstName,
