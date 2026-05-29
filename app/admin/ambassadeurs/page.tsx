@@ -25,11 +25,22 @@ export default async function AdminAmbassadorsPage() {
 
   const { data: ambassadors } = await supabase
     .from("ambassadors")
-    .select(`
-      *,
-      profiles!ambassadors_profile_id_fkey (prenom, nom, email, telephone, ville)
-    `)
+    .select("*")
     .order("created_at", { ascending: false })
+
+  // #34 — there is no FK ambassadors→profiles (the FK on user_id points at
+  // auth.users), so the old `profiles!ambassadors_profile_id_fkey` embed
+  // was impossible. Resolve names/emails with a separate query keyed on
+  // user_id (profiles.id == auth.users.id == ambassadors.user_id).
+  const ambassadorUserIds = (ambassadors ?? [])
+    .map((a) => a.user_id as string | null)
+    .filter((id): id is string => Boolean(id))
+  const { data: profileRows } = ambassadorUserIds.length
+    ? await supabase.from("profiles").select("id, full_name, email").in("id", ambassadorUserIds)
+    : { data: [] as { id: string; full_name: string | null; email: string | null }[] }
+  const profileByUserId = new Map(
+    (profileRows ?? []).map((p) => [p.id, p as { id: string; full_name: string | null; email: string | null }])
+  )
 
   const stats = {
     total: ambassadors?.length || 0,
@@ -68,13 +79,15 @@ export default async function AdminAmbassadorsPage() {
 
         {ambassadors && ambassadors.length > 0 ? (
           <div className="space-y-4">
-            {ambassadors.map((ambassador) => (
+            {ambassadors.map((ambassador) => {
+              const profile = profileByUserId.get(ambassador.user_id)
+              return (
               <Card key={ambassador.id} className="p-6 bg-zinc-900 border-zinc-800">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
                       <h3 className="text-lg font-bold text-white">
-                        {ambassador.profiles?.prenom} {ambassador.profiles?.nom}
+                        {profile?.full_name || "Sans nom"}
                       </h3>
                       <div
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -96,29 +109,19 @@ export default async function AdminAmbassadorsPage() {
                     <div className="grid md:grid-cols-3 gap-4 text-sm mb-4">
                       <div>
                         <p className="text-zinc-500 mb-1">Contact</p>
-                        <p className="text-zinc-300">{ambassador.profiles?.email}</p>
-                        {ambassador.profiles?.telephone && (
-                          <p className="text-zinc-300">{ambassador.profiles.telephone}</p>
-                        )}
+                        <p className="text-zinc-300">{profile?.email || "—"}</p>
                       </div>
 
                       <div>
-                        <p className="text-zinc-500 mb-1">Ville</p>
-                        <p className="text-zinc-300">{ambassador.profiles?.ville || "Non renseignée"}</p>
+                        <p className="text-zinc-500 mb-1">Track · Tier</p>
+                        <p className="text-zinc-300">{ambassador.track} · {ambassador.tier}</p>
                       </div>
 
                       <div>
                         <p className="text-zinc-500 mb-1">Code ambassadeur</p>
-                        <p className="text-cyan-400 font-mono font-bold">{ambassador.referral_code}</p>
+                        <p className="text-cyan-400 font-mono font-bold">{ambassador.code}</p>
                       </div>
                     </div>
-
-                    {ambassador.motivation && (
-                      <div className="bg-zinc-950 rounded-lg p-4">
-                        <p className="text-zinc-500 text-xs mb-2">Motivation</p>
-                        <p className="text-zinc-300 text-sm">{ambassador.motivation}</p>
-                      </div>
-                    )}
                   </div>
 
                   <div className="flex flex-col gap-2 ml-4">
@@ -161,7 +164,8 @@ export default async function AdminAmbassadorsPage() {
                   </div>
                 </div>
               </Card>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <Card className="p-12 text-center bg-zinc-900 border-zinc-800">

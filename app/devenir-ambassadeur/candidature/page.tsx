@@ -14,11 +14,12 @@ export default async function AmbassadorApplicationPage() {
     redirect("/auth/login?redirect=/devenir-ambassadeur/candidature")
   }
 
+  // #34 — `ambassadors` keys on `user_id` (FK auth.users); no `profile_id`.
   const { data: existingApplication } = await supabase
     .from("ambassadors")
-    .select("*")
-    .eq("profile_id", user.id)
-    .single()
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle()
 
   if (existingApplication) {
     redirect("/devenir-ambassadeur")
