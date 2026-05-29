@@ -23,7 +23,10 @@ export const INITIAL_ANALYTICS: OnboardingData['analytics'] = {
 }
 
 export const INITIAL_STATE: OnboardingState = {
-  currentStep: 'profile-type',
+  // #49 — start at the first step so welcome/showcase are reachable and the
+  // "Étape X / N" counter is correct from load. RESET reuses INITIAL_STATE,
+  // so "Recommencer" also returns to welcome.
+  currentStep: 'welcome',
   completedSteps: [],
   validations: {
     welcome: { isValid: true, errors: [] },
