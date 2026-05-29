@@ -210,9 +210,10 @@ export class ContextEngine {
       budgetsResult,
       profilesResult
     ] = await Promise.all([
-      // 1. Pending approvals
+      // 1. Pending approvals — #25: booking_approval_requests never existed;
+      // canonical table is parental_approvals.
       supabase
-        .from('booking_approval_requests')
+        .from('parental_approvals')
         .select('id')
         .eq('parent_id', userId)
         .eq('status', 'pending')
