@@ -106,28 +106,10 @@ export async function GET(request: NextRequest) {
       totalXp = xpData?.reduce((sum, x) => sum + (x.total_xp || 0), 0) || 0
     }
 
-    // Get crew rank (placeholder - would need a proper ranking system)
-    const crewRank = 3 // Placeholder
-
-    // Get active battles (placeholder)
-    const activeBattles = [
-      {
-        id: '1',
-        opponent: 'NIGHT OWLS',
-        status: 'in_progress',
-        ourScore: 2450,
-        theirScore: 2120,
-        endsIn: '2h 30m',
-      },
-      {
-        id: '2',
-        opponent: 'PHOENIX SQUAD',
-        status: 'pending',
-        ourScore: 0,
-        theirScore: 0,
-        endsIn: 'Starts tomorrow',
-      },
-    ]
+    // #61 — there is no crew_battles backend and no ranking system wired on
+    // circles, so we return honest empty/null values rather than fabricated
+    // opponents, scores and ranks. The battles feature is a separate ticket.
+    const activeBattles: never[] = []
 
     return NextResponse.json({
       crew: {
@@ -142,8 +124,8 @@ export async function GET(request: NextRequest) {
         stats: {
           totalXp,
           memberCount: memberCount || 0,
-          battlesWon: 8, // Placeholder
-          cityRank: crewRank,
+          battlesWon: 0, // #61 — no battles backend; honest zero, not a fake 8.
+          cityRank: null as number | null, // #61 — no ranking wired on circles.
         },
         members: members?.map(m => {
           const teen = m.teen as unknown as TeenJoin | null
