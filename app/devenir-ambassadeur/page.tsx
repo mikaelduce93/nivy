@@ -1,32 +1,61 @@
 import { createClient } from "@/lib/supabase/server"
-import { Star, Users, TrendingUp, Instagram, Award, ArrowRight } from 'lucide-react'
+import { Star, Users, TrendingUp, Award, ArrowRight } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default async function AmbassadeursPage() {
   const supabase = await createClient()
 
-  const { data: ambassadors } = await supabase
+  // #67 — real ambassadors schema: keyed on user_id; commission_pct (not
+  // commission_rate); no total_referrals/total_earnings/profile_id/stage_name/
+  // specialties/bio/social_media columns. Names are resolved separately (no FK
+  // ambassadors→profiles to embed).
+  const { data: ambassadorRows } = await supabase
     .from("ambassadors")
-    .select(`
-      *,
-      profiles (
-        full_name,
-        email
-      )
-    `)
+    .select("id, user_id, code, status, tier, track, commission_pct, created_at")
     .eq("status", "active")
-    .order("total_referrals", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(12)
+
+  const ambUserIds = [...new Set((ambassadorRows || []).map((a) => a.user_id).filter(Boolean))]
+  const nameById = new Map<string, string>()
+  if (ambUserIds.length > 0) {
+    const { data: profs } = await supabase.from("profiles").select("id, full_name").in("id", ambUserIds)
+    for (const p of profs || []) nameById.set(p.id, p.full_name || "Ambassadeur")
+  }
+  const ambassadors = (ambassadorRows || []).map((a) => ({
+    ...a,
+    displayName: nameById.get(a.user_id) || "Ambassadeur",
+  }))
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  let userAmbassador = null
+  let userAmbassador: { id: string; code: string; status: string; commission_pct: number | null } | null = null
+  let userStats = { totalReferrals: 0, totalEarnings: 0 }
   if (user) {
-    const { data } = await supabase.from("ambassadors").select("*").eq("profile_id", user.id).single()
-
+    const { data } = await supabase
+      .from("ambassadors")
+      .select("id, code, status, commission_pct")
+      .eq("user_id", user.id)
+      .maybeSingle()
     userAmbassador = data
+
+    // Counts aggregated from the canonical attribution / commission tables (#29/#33).
+    if (data?.id) {
+      const [{ count }, { data: comms }] = await Promise.all([
+        supabase
+          .from("referral_attribution")
+          .select("*", { count: "exact", head: true })
+          .eq("ambassador_id", data.id),
+        supabase.from("ambassador_commissions").select("amount_dh").eq("ambassador_id", data.id),
+      ])
+      userStats = {
+        totalReferrals: count || 0,
+        totalEarnings: (comms || []).reduce((s, c) => s + (Number(c.amount_dh) || 0), 0),
+      }
+    }
   }
 
   return (
@@ -173,17 +202,17 @@ export default async function AmbassadeursPage() {
                   <div className="grid md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
                       <p className="text-zinc-400 text-sm mb-2">Total référés</p>
-                      <p className="text-4xl font-black text-cyan-400">{userAmbassador.total_referrals}</p>
+                      <p className="text-4xl font-black text-cyan-400">{userStats.totalReferrals}</p>
                     </div>
 
                     <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
                       <p className="text-zinc-400 text-sm mb-2">Gains totaux</p>
-                      <p className="text-4xl font-black text-green-400">{userAmbassador.total_earnings} DH</p>
+                      <p className="text-4xl font-black text-green-400">{userStats.totalEarnings} DH</p>
                     </div>
 
                     <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
                       <p className="text-zinc-400 text-sm mb-2">Commission</p>
-                      <p className="text-4xl font-black text-purple-400">{userAmbassador.commission_rate}%</p>
+                      <p className="text-4xl font-black text-purple-400">{userAmbassador.commission_pct ?? 10}%</p>
                     </div>
                   </div>
 
@@ -264,43 +293,23 @@ export default async function AmbassadeursPage() {
                     </div>
 
                     <h3 className="text-xl font-bold text-white mb-2">
-                      {ambassador.stage_name || ambassador.profiles?.full_name}
+                      {ambassador.displayName}
                     </h3>
 
-                    {ambassador.specialties && ambassador.specialties.length > 0 && (
+                    {/* #67 — ambassadors has no stage_name/specialties/bio/
+                        social_media columns; show the real tier instead. */}
+                    {ambassador.tier && (
                       <div className="flex flex-wrap gap-2 justify-center mb-4">
-                        {ambassador.specialties.map((specialty: string, idx: number) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-semibold"
-                          >
-                            {specialty}
-                          </span>
-                        ))}
+                        <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-semibold capitalize">
+                          {ambassador.tier}
+                        </span>
                       </div>
                     )}
-
-                    {ambassador.bio && <p className="text-zinc-400 text-sm mb-4 line-clamp-3">{ambassador.bio}</p>}
 
                     <div className="flex items-center justify-center gap-2 text-zinc-500 text-sm">
-                      <Users className="w-4 h-4" />
-                      <span>{ambassador.total_referrals} référés</span>
+                      <Award className="w-4 h-4" />
+                      <span>Ambassadeur Nivy</span>
                     </div>
-
-                    {ambassador.social_media && (
-                      <div className="flex gap-3 justify-center mt-4">
-                        {ambassador.social_media.instagram && (
-                          <a
-                            href={`https://instagram.com/${ambassador.social_media.instagram.replace("@", "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-zinc-400 hover:text-cyan-400 transition-colors"
-                          >
-                            <Instagram className="w-5 h-5" />
-                          </a>
-                        )}
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}

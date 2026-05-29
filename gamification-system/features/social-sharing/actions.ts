@@ -347,6 +347,11 @@ export async function getSharingAchievements(): Promise<{
 
 /**
  * Récupère ou crée le code referral de l'utilisateur
+ *
+ * @deprecated #67 — System A (gamification referral_codes/referral_uses) is not
+ * wired to any app/ route. The canonical referral/attribution system is the
+ * ambassador track (ambassadors.code → referral_attribution → ambassador_
+ * commissions; see /join and the /ambassador dashboards). Do not wire this.
  */
 export async function getReferralCode(): Promise<{
   success: boolean
@@ -387,6 +392,9 @@ export async function getReferralCode(): Promise<{
 
 /**
  * Utilise un code referral
+ *
+ * @deprecated #67 — System A (unwired). Canonical = ambassador track (/join →
+ * referral_attribution). Do not wire this.
  */
 export async function useReferralCode(code: string): Promise<{
   success: boolean
@@ -432,6 +440,9 @@ export async function useReferralCode(code: string): Promise<{
 
 /**
  * Récupère les utilisateurs parrainés
+ *
+ * @deprecated #67 — System A (unwired). Canonical = ambassador track
+ * (referral_attribution / ambassador_commissions). Do not wire this.
  */
 export async function getReferredUsers(): Promise<{
   success: boolean
