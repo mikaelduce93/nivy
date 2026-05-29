@@ -21,60 +21,67 @@ interface OfferEditFormProps {
   offerId: string
   partnerId: string
   initialData: {
-    name: string
+    title: string
     description: string
     offerType: string
-    value: number
-    minPurchase: number
-    maxUsage: number | null
+    discountValue: number
+    minPurchaseAmount: number
+    maxTotalUses: number | null
+    maxUsesPerUser: number | null
+    requiresVip: boolean
+    minVipLevel: string
     validFrom: string
     validUntil: string
     status: string
-    eligibleLevels: string[]
   }
 }
 
 const offerTypes = [
   { id: "reduction", name: "Réduction", icon: Percent },
-  { id: "gift", name: "Cadeau", icon: Gift },
-  { id: "service", name: "Service", icon: Truck },
+  { id: "discount", name: "Remise", icon: Gift },
+  { id: "challenge", name: "Défi", icon: Truck },
 ]
 
-const levels = ["Bronze", "Silver", "Gold", "Platinum"]
+const vipLevels = ["silver", "gold", "platinum"]
+
+// #50 — partner-settable subset of partner_offers.status. Approval
+// (status='approved' / going live) is reserved for admin moderation (#58).
+const STATUS_OPTIONS = [
+  { id: "pending_approval", name: "Soumettre à modération" },
+  { id: "paused", name: "Mettre en pause" },
+  { id: "draft", name: "Brouillon" },
+] as const
+
+const PARTNER_STATUSES = new Set<string>(STATUS_OPTIONS.map((s) => s.id))
 
 export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    name: initialData.name,
+    title: initialData.title,
     description: initialData.description,
     offerType: initialData.offerType,
-    value: initialData.value,
-    minPurchase: initialData.minPurchase,
-    maxUsage: initialData.maxUsage || "",
+    discountValue: initialData.discountValue,
+    minPurchaseAmount: initialData.minPurchaseAmount,
+    maxTotalUses: initialData.maxTotalUses ?? "",
+    maxUsesPerUser: initialData.maxUsesPerUser ?? "",
+    requiresVip: initialData.requiresVip,
+    minVipLevel: initialData.minVipLevel || "silver",
     validFrom: initialData.validFrom?.split("T")[0] || "",
     validUntil: initialData.validUntil?.split("T")[0] || "",
-    status: initialData.status,
-    eligibleLevels: initialData.eligibleLevels || []
+    // Seed with a partner-settable status; an approved/rejected offer being
+    // edited re-enters moderation.
+    status: PARTNER_STATUSES.has(initialData.status) ? initialData.status : "pending_approval",
   })
 
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const toggleLevel = (level: string) => {
-    setFormData(prev => ({
-      ...prev,
-      eligibleLevels: prev.eligibleLevels.includes(level)
-        ? prev.eligibleLevels.filter(l => l !== level)
-        : [...prev.eligibleLevels, level]
-    }))
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.name.trim()) {
+    if (!formData.title.trim()) {
       toast.error("Le nom de l'offre est requis")
       return
     }
@@ -86,23 +93,25 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           partnerId,
-          name: formData.name,
+          title: formData.title,
           description: formData.description,
           offerType: formData.offerType,
-          discountValue: formData.value,
-          minPurchase: formData.minPurchase,
-          maxUsage: formData.maxUsage || null,
+          discountValue: formData.discountValue,
+          minPurchaseAmount: formData.minPurchaseAmount || null,
+          maxTotalUses: formData.maxTotalUses ? Number(formData.maxTotalUses) : null,
+          maxUsesPerUser: formData.maxUsesPerUser ? Number(formData.maxUsesPerUser) : null,
+          requiresVip: formData.requiresVip,
+          minVipLevel: formData.requiresVip ? formData.minVipLevel : null,
           validFrom: formData.validFrom || null,
           validUntil: formData.validUntil || null,
           status: formData.status,
-          eligibleLevels: formData.eligibleLevels
         }),
       })
 
       const result = await response.json()
 
       if (result.success) {
-        toast.success("Offre mise à jour avec succès")
+        toast.success("Offre mise à jour — en attente de modération")
         router.push("/partner/offers")
         router.refresh()
       } else {
@@ -141,12 +150,12 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
         </div>
       </div>
 
-      {/* Name */}
+      {/* Title */}
       <div className="space-y-2">
         <Label className="text-zinc-300">Nom de l'offre</Label>
         <Input
-          value={formData.name}
-          onChange={(e) => handleChange("name", e.target.value)}
+          value={formData.title}
+          onChange={(e) => handleChange("title", e.target.value)}
           placeholder="Ex: -15% sur tout le magasin"
           className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
           maxLength={100}
@@ -173,8 +182,8 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
           </Label>
           <Input
             type="number"
-            value={formData.value}
-            onChange={(e) => handleChange("value", parseFloat(e.target.value) || 0)}
+            value={formData.discountValue}
+            onChange={(e) => handleChange("discountValue", parseFloat(e.target.value) || 0)}
             placeholder="15"
             className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
             min={0}
@@ -184,8 +193,8 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
           <Label className="text-zinc-300">Achat minimum (DH)</Label>
           <Input
             type="number"
-            value={formData.minPurchase}
-            onChange={(e) => handleChange("minPurchase", parseFloat(e.target.value) || 0)}
+            value={formData.minPurchaseAmount}
+            onChange={(e) => handleChange("minPurchaseAmount", parseFloat(e.target.value) || 0)}
             placeholder="0"
             className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
             min={0}
@@ -193,17 +202,30 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
         </div>
       </div>
 
-      {/* Max Usage */}
-      <div className="space-y-2">
-        <Label className="text-zinc-300">Nombre d'utilisations max (optionnel)</Label>
-        <Input
-          type="number"
-          value={formData.maxUsage}
-          onChange={(e) => handleChange("maxUsage", e.target.value ? parseInt(e.target.value) : "")}
-          placeholder="Illimité"
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
-          min={1}
-        />
+      {/* Usage Limits */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-zinc-300">Max par utilisateur (optionnel)</Label>
+          <Input
+            type="number"
+            value={formData.maxUsesPerUser}
+            onChange={(e) => handleChange("maxUsesPerUser", e.target.value)}
+            placeholder="Illimité"
+            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            min={1}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-zinc-300">Max total (optionnel)</Label>
+          <Input
+            type="number"
+            value={formData.maxTotalUses}
+            onChange={(e) => handleChange("maxTotalUses", e.target.value)}
+            placeholder="Illimité"
+            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            min={1}
+          />
+        </div>
       </div>
 
       {/* Validity Period */}
@@ -236,39 +258,56 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-zinc-800 border-zinc-700">
-            <SelectItem value="active" className="text-white hover:bg-zinc-700">Active</SelectItem>
-            <SelectItem value="inactive" className="text-white hover:bg-zinc-700">Inactive</SelectItem>
-            <SelectItem value="pending" className="text-white hover:bg-zinc-700">En attente</SelectItem>
+            {STATUS_OPTIONS.map((s) => (
+              <SelectItem key={s.id} value={s.id} className="text-white hover:bg-zinc-700">
+                {s.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
+        <p className="text-xs text-zinc-500">
+          La mise en ligne d'une offre est validée par l'équipe de modération.
+        </p>
       </div>
 
-      {/* Eligible Levels */}
-      <div className="space-y-2">
-        <Label className="text-zinc-300">Niveaux éligibles</Label>
-        <div className="flex gap-2">
-          {levels.map((level) => (
-            <Button
-              key={level}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => toggleLevel(level)}
-              className={`${
-                formData.eligibleLevels.includes(level)
-                  ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                  : "border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-              }`}
-            >
-              {level}
-            </Button>
-          ))}
+      {/* VIP Settings */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between p-4 bg-zinc-800 rounded-xl">
+          <div>
+            <p className="font-medium text-white">Réservé aux membres VIP</p>
+            <p className="text-xs text-zinc-400">
+              Seuls les détenteurs de carte VIP pourront utiliser cette offre
+            </p>
+          </div>
+          <Switch
+            checked={formData.requiresVip}
+            onCheckedChange={(v) => handleChange("requiresVip", v)}
+          />
         </div>
-        <p className="text-xs text-zinc-500">
-          {formData.eligibleLevels.length === 0
-            ? "Tous les niveaux sont éligibles"
-            : `${formData.eligibleLevels.length} niveau(x) sélectionné(s)`}
-        </p>
+
+        {formData.requiresVip && (
+          <div className="space-y-2">
+            <Label className="text-zinc-300">Niveau VIP minimum</Label>
+            <div className="flex gap-2">
+              {vipLevels.map((level) => (
+                <Button
+                  key={level}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleChange("minVipLevel", level)}
+                  className={`capitalize ${
+                    formData.minVipLevel === level
+                      ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                      : "border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                  }`}
+                >
+                  {level}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Submit */}

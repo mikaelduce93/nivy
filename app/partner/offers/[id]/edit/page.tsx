@@ -27,8 +27,10 @@ async function getOffer(offerId: string, partnerId: string) {
 export default async function EditOfferPage({
   params
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  // #50 — Next 16: params is a Promise and must be awaited.
+  const { id } = await params
   const userInfo = await getUserRole()
 
   if (!userInfo || userInfo.role !== "partner") {
@@ -40,11 +42,24 @@ export default async function EditOfferPage({
     redirect("/partner")
   }
 
-  const offer = await getOffer(params.id, partnerId)
+  const offer = await getOffer(id, partnerId)
 
   if (!offer) {
     notFound()
   }
+
+  // #50 — canonical partner_offers.status ∈ {draft, pending_approval, approved,
+  // rejected, paused, expired, archived}.
+  const STATUS_LABELS: Record<string, string> = {
+    draft: "Brouillon",
+    pending_approval: "En attente de modération",
+    approved: "Approuvée",
+    rejected: "Rejetée",
+    paused: "En pause",
+    expired: "Expirée",
+    archived: "Archivée",
+  }
+  const statusLabel = STATUS_LABELS[offer.status] || offer.status
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -63,27 +78,25 @@ export default async function EditOfferPage({
 
       {/* Status Banner */}
       <div className={`p-4 rounded-xl flex items-center justify-between ${
-        offer.status === "active"
+        offer.status === "approved"
           ? "bg-emerald-500/10 border border-emerald-500/30"
-          : offer.status === "pending"
+          : offer.status === "pending_approval"
           ? "bg-amber-500/10 border border-amber-500/30"
           : "bg-zinc-800 border border-zinc-700"
       }`}>
         <div>
           <p className={`font-medium ${
-            offer.status === "active" ? "text-emerald-400" :
-            offer.status === "pending" ? "text-amber-400" : "text-zinc-400"
+            offer.status === "approved" ? "text-emerald-400" :
+            offer.status === "pending_approval" ? "text-amber-400" : "text-zinc-400"
           }`}>
-            Statut: {offer.status === "active" ? "Active" :
-                     offer.status === "pending" ? "En attente" :
-                     offer.status === "inactive" ? "Inactive" : offer.status}
+            Statut: {statusLabel}
           </p>
           <p className="text-xs text-zinc-500 mt-1">
             Créée le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-zinc-400">{offer.usage_count || 0} utilisations</span>
+          <span className="text-sm text-zinc-400">{offer.current_total_uses || 0} utilisations</span>
         </div>
       </div>
 
@@ -97,19 +110,21 @@ export default async function EditOfferPage({
         </CardHeader>
         <CardContent>
           <OfferEditForm
-            offerId={params.id}
+            offerId={id}
             partnerId={partnerId}
             initialData={{
-              name: offer.name || "",
+              title: offer.title || "",
               description: offer.description || "",
               offerType: offer.offer_type || "reduction",
-              value: offer.discount_value || 0,
-              minPurchase: offer.min_purchase || 0,
-              maxUsage: offer.max_usage || null,
+              discountValue: offer.discount_value || 0,
+              minPurchaseAmount: offer.min_purchase_amount || 0,
+              maxTotalUses: offer.max_total_uses ?? null,
+              maxUsesPerUser: offer.max_uses_per_user ?? null,
+              requiresVip: offer.requires_vip ?? false,
+              minVipLevel: offer.min_vip_level || "silver",
               validFrom: offer.valid_from || "",
               validUntil: offer.valid_until || "",
-              status: offer.status || "active",
-              eligibleLevels: offer.eligible_levels || []
+              status: offer.status || "pending_approval",
             }}
           />
         </CardContent>
