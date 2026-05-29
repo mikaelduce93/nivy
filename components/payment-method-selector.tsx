@@ -35,12 +35,10 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
   useEffect(() => {
     async function fetchBooking() {
       const supabase = createClient()
+      // #42 — booking_tickets relation doesn't exist in the live schema.
       const { data } = await supabase
         .from('bookings')
-        .select(`
-          *,
-          booking_tickets (child_id)
-        `)
+        .select('*')
         .eq('id', bookingId)
         .single()
 
@@ -70,7 +68,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
           body: JSON.stringify({
             bookingId,
             xpAmount: xpToUse,
-            teenId: bookingData?.booking_tickets?.[0]?.child_id || teenId,
+            teenId,
           }),
         })
 
@@ -121,15 +119,11 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
           return
 
         case 'cash': {
-          // Register cash payment intent
-          const cashResponse = await fetch('/api/payments/cash/register', {
+          // #42 — real route is /api/payments/cash/create (cash/register never existed).
+          const cashResponse = await fetch('/api/payments/cash/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              bookingId,
-              amount: dhToPay,
-              xpUsed: xpToUse,
-            }),
+            body: JSON.stringify({ bookingId }),
           })
 
           if (cashResponse.ok) {
@@ -183,7 +177,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
   ].filter((method) => method.enabled) // Filtrer les méthodes non activées
 
   const actualTotalAmount = bookingData?.total_amount || totalAmount
-  const childTeenId = bookingData?.booking_tickets?.[0]?.child_id || teenId
+  const childTeenId = teenId
 
   // Show Mobile Money flow
   if (showMobileMoney) {

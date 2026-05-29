@@ -64,12 +64,13 @@ export const POST = withSecurity(
         .single()
 
       // Get booking details
+      // #42 — bookings has no booking_tickets relation in the live schema
+      // (table absent); only the events embed is valid.
       const { data: booking, error: bookingError } = await supabase
         .from("bookings")
         .select(`
           *,
-          events (id, title, date, image_url),
-          booking_tickets (child_id)
+          events (id, title, date, image_url)
         `)
         .eq("id", bookingId)
         .single()
@@ -79,7 +80,8 @@ export const POST = withSecurity(
       }
 
       // Verify user owns this booking or is admin
-      if (booking.parent_id !== user.id && profile?.role !== "admin") {
+      // #42 — bookings owner column is user_id (no parent_id in the schema).
+      if (booking.user_id !== user.id && profile?.role !== "admin") {
         return errorResponse("Vous n'êtes pas autorisé à payer cette réservation", 403)
       }
 
@@ -95,7 +97,7 @@ export const POST = withSecurity(
       // Get teen's XP balance
       const { data: userXP, error: xpError } = await supabase
         .from("user_xp")
-        .select("total_xp, available_xp")
+        .select("total_xp")
         .eq("teen_id", teenId)
         .single()
 
@@ -122,7 +124,7 @@ export const POST = withSecurity(
           .from("parental_approvals")
           .insert({
             teen_id: teenId,
-            parent_id: booking.parent_id,
+            parent_id: booking.user_id,
             type: "xp_payment",
             amount: xpAmount,
             amount_dh: paymentResult.xpValueDH,
@@ -138,17 +140,11 @@ export const POST = withSecurity(
           return errorResponse("Impossible de créer la demande d'approbation", 500)
         }
 
-        // Send notification to parent
-        await supabase.from("notifications").insert({
-          user_id: booking.parent_id,
-          type: "xp_approval_request",
-          title: "Approbation requise",
-          message: `Votre enfant souhaite utiliser ${xpAmount} XP (${paymentResult.xpValueDH} DH) pour payer une réservation.`,
-          read: false,
-          resource_type: "parental_approval",
-          resource_id: approvalRequest.id,
-          created_at: new Date().toISOString(),
-        })
+        // #42 — parent notification removed: the `notifications` table does not
+        // exist (canon uses `user_notifications`). Notification wiring for this
+        // approval is tracked under #70. The approval row above is the
+        // source of truth surfaced in the parent approvals queue.
+        // (parental_approvals column alignment is tracked under #30.)
 
         return jsonResponse({
           success: true,
@@ -211,30 +207,11 @@ export const POST = withSecurity(
           })
           .eq("id", bookingId)
 
-        // Log payment
-        await supabase.from("payment_logs").insert({
-          booking_id: bookingId,
-          user_id: user.id,
-          amount: 0,
-          xp_used: paymentResult.xpAmount,
-          xp_value: paymentResult.xpValueDH,
-          currency: "MAD",
-          status: "succeeded",
-          type: "xp_only",
-          created_at: new Date().toISOString(),
-        })
-
-        // Create notification for parent
-        await supabase.from("notifications").insert({
-          user_id: booking.parent_id,
-          type: "payment_success",
-          title: "Paiement XP confirmé",
-          message: `Réservation ${booking.booking_reference} payée avec ${paymentResult.xpAmount} XP`,
-          read: false,
-          resource_type: "booking",
-          resource_id: bookingId,
-          created_at: new Date().toISOString(),
-        })
+        // #42 — removed payment_logs + notifications inserts: neither table
+        // exists in the live schema. The booking row above (payment_status,
+        // payment_method, paid_at) is the source of truth; the xp_transactions
+        // ledger row written earlier records the XP spend. Notification wiring
+        // is tracked under #70.
 
         return jsonResponse({
           success: true,
@@ -281,13 +258,15 @@ export const POST = withSecurity(
           cancelUrl: `${appUrl}/mes-reservations/${bookingId}?payment=cancelled`,
         })
 
-        // Update booking with payment method
+        // Update booking with payment method.
+        // #42 — stripe_session_id column doesn't exist on bookings; the
+        // session id is returned to the client below and the Stripe webhook
+        // reconciles via session metadata.bookingId.
         await supabase
           .from("bookings")
           .update({
             payment_status: "pending",
             payment_method: "hybrid_stripe",
-            stripe_session_id: session.id,
             updated_at: new Date().toISOString(),
           })
           .eq("id", bookingId)

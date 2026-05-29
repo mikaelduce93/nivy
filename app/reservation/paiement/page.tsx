@@ -26,6 +26,7 @@ export default async function PaymentPage({
     redirect("/auth/login")
   }
 
+  // #42 — bookings owner column is user_id (no parent_id).
   const { data: booking } = await supabase
     .from("bookings")
     .select(`
@@ -33,7 +34,7 @@ export default async function PaymentPage({
       events (*)
     `)
     .eq("id", bookingId)
-    .eq("parent_id", user.id)
+    .eq("user_id", user.id)
     .single()
 
   if (!booking) {
