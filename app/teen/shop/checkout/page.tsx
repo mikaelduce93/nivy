@@ -48,7 +48,7 @@ export default async function CheckoutPage({
   }
 
   if (booking.payment_status === "paid") {
-    redirect(`/mes-reservations/${bookingId}?payment=already_paid`)
+    redirect(`/reservation/confirmation?booking=${bookingId}&payment=already_paid`)
   }
 
   // Teen XP balance — used to render the slider correctly.

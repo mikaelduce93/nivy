@@ -254,8 +254,8 @@ export const POST = withSecurity(
             xpValue: paymentResult.xpValueDH.toString(),
             type: "hybrid_payment",
           },
-          successUrl: `${appUrl}/mes-reservations/${bookingId}?payment=success`,
-          cancelUrl: `${appUrl}/mes-reservations/${bookingId}?payment=cancelled`,
+          successUrl: `${appUrl}/reservation/confirmation?booking=${bookingId}&payment=success`,
+          cancelUrl: `${appUrl}/reservation/paiement?booking=${bookingId}&payment=cancelled`,
         })
 
         // Update booking with payment method.

@@ -154,6 +154,14 @@ const nextConfig = {
       // USER SPACE - Redirections temporaires
       // (seront mises à jour en Phase 3)
       // ----------------------------------------
+      // #44 — the dead /mes-reservations/{id} (no route on disk) was the Stripe/
+      // XP success target → 404 after payment. Map the sub-path to the canonical
+      // confirmation route. MUST precede the bare /mes-reservations rule below.
+      {
+        source: '/mes-reservations/:bookingId',
+        destination: '/reservation/confirmation?booking=:bookingId',
+        permanent: false,
+      },
       {
         source: '/mes-reservations',
         destination: '/teen', // TODO: créer /teen/reservations en Phase 3

@@ -96,7 +96,7 @@ export function TeenCheckoutClient({
         setView({ kind: "completed", xpUsed: Math.floor(xpUsed) })
         // Brief pause so the success state is visible before redirect.
         setTimeout(() => {
-          router.push(`/mes-reservations/${bookingId}?payment=success`)
+          router.push(`/reservation/confirmation?booking=${bookingId}&payment=success`)
         }, 1200)
         return
       }
@@ -177,7 +177,7 @@ export function TeenCheckoutClient({
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <Button
             className="flex-1"
-            onClick={() => router.push(`/mes-reservations/${bookingId}`)}
+            onClick={() => router.push(`/reservation/confirmation?booking=${bookingId}`)}
           >
             Voir ma réservation
           </Button>
