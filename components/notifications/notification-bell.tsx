@@ -52,7 +52,20 @@ export function NotificationBell({ userId }: NotificationBellProps) {
       const response = await fetch(`/api/notifications?userId=${userId}`)
       const result = await response.json()
       if (result.success) {
-        setNotifications(result.data || [])
+        // #70 — map the canonical user_notifications shape (is_read/body/data)
+        // onto the bell's view model.
+        const rows = (result.data || []) as Array<Record<string, unknown>>
+        setNotifications(
+          rows.map((row) => ({
+            id: String(row.id),
+            type: ((row.data as { type?: string } | null)?.type as Notification["type"]) || "system",
+            title: String(row.title ?? ""),
+            message: String(row.body ?? ""),
+            read: !!row.is_read,
+            created_at: String(row.created_at ?? ""),
+            link: (row.action_url as string | null) ?? undefined,
+          }))
+        )
       }
     } catch (error) {
       console.error("Failed to fetch notifications:", error)

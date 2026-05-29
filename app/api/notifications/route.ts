@@ -20,8 +20,10 @@ export async function GET() {
       return NextResponse.json({ success: false, error: "Non authentifié" }, { status: 401 })
     }
 
+    // #70 — canonical table is user_notifications (the `notifications` table
+    // does not exist). Columns: is_read/body/data (not read/message/type).
     const { data: notifications, error } = await supabase
-      .from("notifications")
+      .from("user_notifications")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -49,8 +51,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Non authentifié" }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { type, title, message, link } = body
+    const reqBody = await request.json()
+    const { type, title, message, link } = reqBody
 
     if (!title || !message) {
       return NextResponse.json(
@@ -59,16 +61,17 @@ export async function POST(request: Request) {
       )
     }
 
+    // #70 — user_notifications schema: body (not message), is_read (not read),
+    // action_url (not link); type/category live in the data jsonb.
     const { data, error } = await supabase
-      .from("notifications")
+      .from("user_notifications")
       .insert({
         user_id: user.id,
-        type: type || "system",
         title,
-        message,
-        link,
-        read: false,
-        created_at: new Date().toISOString(),
+        body: message,
+        action_url: link ?? null,
+        is_read: false,
+        data: { type: type || "system" },
       })
       .select()
       .single()
@@ -95,15 +98,15 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ success: false, error: "Non authentifié" }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { notificationId, markAllRead, read } = body
+    const reqBody = await request.json()
+    const { notificationId, markAllRead, read } = reqBody
 
     if (markAllRead) {
       const { error } = await supabase
-        .from("notifications")
-        .update({ read: true })
+        .from("user_notifications")
+        .update({ is_read: true })
         .eq("user_id", user.id)
-        .eq("read", false)
+        .eq("is_read", false)
 
       if (error) {
         console.error("Mark all read error:", error)
@@ -118,8 +121,8 @@ export async function PATCH(request: Request) {
 
     if (notificationId) {
       const { error } = await supabase
-        .from("notifications")
-        .update({ read: read ?? true })
+        .from("user_notifications")
+        .update({ is_read: read ?? true })
         .eq("id", notificationId)
         .eq("user_id", user.id)
 
@@ -162,7 +165,7 @@ export async function DELETE(request: Request) {
     }
 
     const { error } = await supabase
-      .from("notifications")
+      .from("user_notifications")
       .delete()
       .eq("id", notificationId)
       .eq("user_id", user.id)

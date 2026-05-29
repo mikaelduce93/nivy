@@ -3,6 +3,12 @@
  * =====================================================
  *
  * Composants pour le centre de notifications.
+ *
+ * @deprecated #70 — orphan notification cluster (not mounted anywhere). The
+ * canonical app-wide bell is `components/notifications/notification-bell.tsx`
+ * (mounted in the role headers), backed by the canonical `user_notifications`
+ * table. Kept for git history / the "categories + rewards" domain view; do not
+ * wire into new surfaces.
  */
 
 "use client"

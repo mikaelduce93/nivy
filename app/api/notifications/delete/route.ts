@@ -17,7 +17,8 @@ export const POST = withSecurity(async (request: NextRequest) => {
 
     const notificationId = formData.get("notificationId") as string
 
-    const { error } = await supabase.from("notifications").delete().eq("id", notificationId).eq("user_id", user.id)
+    // #70 — canonical table is user_notifications (the `notifications` table doesn't exist).
+    const { error } = await supabase.from("user_notifications").delete().eq("id", notificationId).eq("user_id", user.id)
 
     if (error) throw error
 

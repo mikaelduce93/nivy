@@ -11,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Bell, Menu, LogOut, User, Settings, Copy } from "lucide-react"
+import { Menu, LogOut, User, Settings, Copy } from "lucide-react"
+import { NotificationBell } from "@/components/notifications/notification-bell"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -93,9 +94,8 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
-            <Bell className="h-5 w-5" aria-hidden="true" />
-          </Button>
+          {/* #70 — real user_notifications-backed bell (was an inert bell, no badge). */}
+          <NotificationBell userId={userInfo.profileId} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

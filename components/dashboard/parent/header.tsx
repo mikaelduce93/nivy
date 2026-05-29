@@ -11,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Bell, Menu, LogOut, User, Settings, Crown } from "lucide-react"
+import { Menu, LogOut, User, Settings, Crown } from "lucide-react"
+import { NotificationBell } from "@/components/notifications/notification-bell"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -99,10 +100,8 @@ export function ParentHeader({ userInfo }: ParentHeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
-            <Bell className="h-5 w-5" aria-hidden="true" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" aria-hidden="true" />
-          </Button>
+          {/* #70 — real user_notifications-backed bell (was a static red dot). */}
+          <NotificationBell userId={userInfo.profileId} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
