@@ -82,9 +82,14 @@ interface SkeletonProps {
   glowColor?: string
 }
 
-export function Skeleton({ 
-  className, 
-  variant = 'default', 
+/**
+ * @deprecated #72 — this premium `Skeleton` is a homonym of the primitive in
+ * `components/ui/skeleton.tsx`. Import it as `SkeletonPremium` from the unified
+ * barrel `@/components/ui/skeletons` to disambiguate.
+ */
+export function Skeleton({
+  className,
+  variant = 'default',
   animate = true,
   shimmerSpeed = 'medium',
   premium = false,

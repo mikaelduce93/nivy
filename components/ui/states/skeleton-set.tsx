@@ -6,6 +6,11 @@
  *
  * Ensembles de skeletons pré-configurés pour différents
  * types de contenu (cards, lists, profiles, etc.)
+ *
+ * @deprecated #72 — import these from the single barrel
+ * `@/components/ui/skeletons` instead (re-exported there; SkeletonText/Image are
+ * aliased to SkeletonSetText/SkeletonSetImage to avoid colliding with the atoms).
+ * These composites currently have no consumers. Kept for git history.
  */
 
 import * as React from 'react'
