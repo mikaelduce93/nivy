@@ -44,7 +44,11 @@ interface NavItem {
   badge?: number
 }
 
-// Custom hook for notifications (could be connected to real-time data)
+/**
+ * @deprecated #62 — replaced by real role-scoped counts fetched from
+ * GET /api/teen/notifications/badge-counts (see MobileDock below). Kept for
+ * git history; no longer called.
+ */
 function useNotifications() {
   // In a real app, this would fetch from an API or realtime subscription
   const [notifications] = useState({
@@ -57,11 +61,36 @@ function useNotifications() {
 
 export function MobileDock() {
   const pathname = usePathname()
-  const notifications = useNotifications()
   const [mounted, setMounted] = useState(false)
   const prefersReducedMotion = useReducedMotion()
 
   const isTeenArea = pathname?.startsWith("/teen")
+
+  // #62 — real, RLS-scoped teen badge counts (Quests=challenge, Social=social
+  // unread user_notifications). Only fetched inside the teen area; other zones
+  // (public/admin/partner/ambassador) keep no badges.
+  const [notifications, setNotifications] = useState<{ quests: number; social: number }>({
+    quests: 0,
+    social: 0,
+  })
+  useEffect(() => {
+    if (!isTeenArea) {
+      setNotifications({ quests: 0, social: 0 })
+      return
+    }
+    let cancelled = false
+    fetch("/api/teen/notifications/badge-counts")
+      .then((r) => (r.ok ? r.json() : { quests: 0, social: 0 }))
+      .then((d) => {
+        if (!cancelled) {
+          setNotifications({ quests: Number(d?.quests) || 0, social: Number(d?.social) || 0 })
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [isTeenArea, pathname])
   const isParentArea = pathname?.startsWith("/parent")
   const isAdminArea = pathname?.startsWith("/admin")
   const isPartnerArea = pathname?.startsWith("/partner")
