@@ -10,28 +10,39 @@ import { WithdrawalForm } from "@/components/ambassador/withdrawal-form"
 async function getWithdrawalData(profileId: string) {
   const supabase = await createClient()
 
-  // Get ambassador data
+  // #29 — ambassadors keyed on user_id; the row no longer stores totals.
   const { data: ambassador } = await supabase
     .from("ambassadors")
-    .select("id, total_earnings, pending_withdrawals, withdrawn_amount")
-    .eq("profile_id", profileId)
-    .single()
+    .select("id")
+    .eq("user_id", profileId)
+    .maybeSingle()
 
   if (!ambassador) return null
 
-  // Calculate available balance
-  const totalEarnings = ambassador.total_earnings || 0
-  const pendingWithdrawals = ambassador.pending_withdrawals || 0
-  const withdrawnAmount = ambassador.withdrawn_amount || 0
-  const availableBalance = totalEarnings - pendingWithdrawals - withdrawnAmount
+  // #29 — balances recomputed from ambassador_commissions (credits) and
+  // ambassador_payouts (debits). ambassador_withdrawals never existed.
+  const [{ data: commissionRows }, { data: payoutRows }] = await Promise.all([
+    supabase
+      .from("ambassador_commissions")
+      .select("amount_dh")
+      .eq("ambassador_id", ambassador.id),
+    supabase
+      .from("ambassador_payouts")
+      .select("id, amount_dh, status, method, created_at")
+      .eq("ambassador_id", ambassador.id)
+      .order("created_at", { ascending: false }),
+  ])
 
-  // Get withdrawal history
-  const { data: withdrawals } = await supabase
-    .from("ambassador_withdrawals")
-    .select("*")
-    .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
-    .limit(10)
+  const payouts = payoutRows || []
+  const totalEarnings = (commissionRows || []).reduce((s, c) => s + (Number(c.amount_dh) || 0), 0)
+  // ambassador_payouts.status ∈ {pending, paid, failed}.
+  const pendingWithdrawals = payouts
+    .filter((p) => p.status === "pending")
+    .reduce((s, p) => s + (Number(p.amount_dh) || 0), 0)
+  const withdrawnAmount = payouts
+    .filter((p) => p.status === "paid")
+    .reduce((s, p) => s + (Number(p.amount_dh) || 0), 0)
+  const availableBalance = totalEarnings - pendingWithdrawals - withdrawnAmount
 
   return {
     ambassadorId: ambassador.id,
@@ -39,7 +50,7 @@ async function getWithdrawalData(profileId: string) {
     pendingWithdrawals,
     withdrawnAmount,
     availableBalance,
-    withdrawals: withdrawals || []
+    withdrawals: payouts.slice(0, 10),
   }
 }
 
@@ -74,13 +85,14 @@ export default async function AmbassadorWithdrawalsPage() {
   const { ambassadorId, totalEarnings, pendingWithdrawals, withdrawnAmount, availableBalance, withdrawals } = data
   const minimumWithdrawal = 100 // 100 DH minimum
 
+  // ambassador_payouts.status ∈ {pending, paid, failed}.
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "completed":
+      case "paid":
         return <CheckCircle className="h-5 w-5 text-emerald-400" />
       case "pending":
         return <Clock className="h-5 w-5 text-amber-400" />
-      case "rejected":
+      case "failed":
         return <XCircle className="h-5 w-5 text-red-400" />
       default:
         return <Clock className="h-5 w-5 text-zinc-400" />
@@ -89,11 +101,11 @@ export default async function AmbassadorWithdrawalsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "completed":
+      case "paid":
         return "bg-emerald-500/20 text-emerald-400"
       case "pending":
         return "bg-amber-500/20 text-amber-400"
-      case "rejected":
+      case "failed":
         return "bg-red-500/20 text-red-400"
       default:
         return "bg-zinc-500/20 text-zinc-400"
@@ -102,11 +114,11 @@ export default async function AmbassadorWithdrawalsPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "completed":
+      case "paid":
         return "Effectué"
       case "pending":
         return "En attente"
-      case "rejected":
+      case "failed":
         return "Refusé"
       default:
         return status
@@ -252,7 +264,7 @@ export default async function AmbassadorWithdrawalsPage() {
                       <div className="flex items-center gap-3">
                         {getStatusIcon(withdrawal.status)}
                         <div>
-                          <p className="font-bold text-white">{withdrawal.amount.toLocaleString()} DH</p>
+                          <p className="font-bold text-white">{Number(withdrawal.amount_dh).toLocaleString()} DH</p>
                           <p className="text-xs text-zinc-400">{dateText}</p>
                         </div>
                       </div>
@@ -260,8 +272,8 @@ export default async function AmbassadorWithdrawalsPage() {
                         <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusBadge(withdrawal.status)}`}>
                           {getStatusText(withdrawal.status)}
                         </span>
-                        {withdrawal.payment_method && (
-                          <p className="text-xs text-zinc-500 mt-1 capitalize">{withdrawal.payment_method}</p>
+                        {withdrawal.method && (
+                          <p className="text-xs text-zinc-500 mt-1 capitalize">{withdrawal.method}</p>
                         )}
                       </div>
                     </div>

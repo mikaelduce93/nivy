@@ -20,38 +20,74 @@ import Link from "next/link"
 async function getAmbassadorReferrals(profileId: string) {
   const supabase = await createClient()
 
-  // Get ambassador data
+  // #29 — ambassadors is keyed on user_id; totals are no longer stored on the
+  // row (commission_pct lives there, counts are recomputed from source tables).
   const { data: ambassador } = await supabase
     .from("ambassadors")
-    .select("id, total_referrals, total_earnings")
-    .eq("profile_id", profileId)
-    .single()
+    .select("id, commission_pct")
+    .eq("user_id", profileId)
+    .maybeSingle()
 
   if (!ambassador) return { referrals: [], stats: null }
 
-  // Get all referrals with user details
-  const { data: referrals, error } = await supabase
-    .from("referral_usage")
-    .select(`
-      id,
-      commission_amount,
-      status,
-      created_at,
-      user:user_id (
-        id,
-        full_name,
-        email,
-        role,
-        created_at
-      )
-    `)
+  // #29/#33 — referral_attribution is the canonical ambassador→filleul link
+  // (keyed on ambassador_id). referral_uses/referral_usage carry no
+  // ambassador_id; #67 will consolidate the two referral systems.
+  const { data: attributions, error } = await supabase
+    .from("referral_attribution")
+    .select("id, referred_user_id, attributed_at")
     .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
+    .order("attributed_at", { ascending: false })
 
   if (error) {
     console.error("Error fetching referrals:", error)
     return { referrals: [], stats: { totalReferrals: 0, totalEarnings: 0 } }
   }
+
+  const rows = attributions || []
+
+  // Resolve filleul profiles + per-filleul commission totals.
+  const referredIds = [...new Set(rows.map((r) => r.referred_user_id).filter(Boolean))]
+  const profileById = new Map<string, { full_name: string; email: string; role: string }>()
+  const earningsByUser = new Map<string, number>()
+  let totalEarnings = 0
+
+  if (referredIds.length > 0) {
+    const [{ data: profs }, { data: commissions }] = await Promise.all([
+      supabase.from("profiles").select("id, full_name, email, role").in("id", referredIds),
+      supabase
+        .from("ambassador_commissions")
+        .select("referred_user_id, amount_dh")
+        .eq("ambassador_id", ambassador.id),
+    ])
+    for (const p of profs || []) {
+      profileById.set(p.id, {
+        full_name: p.full_name || "Utilisateur",
+        email: p.email || "",
+        role: p.role || "user",
+      })
+    }
+    for (const c of commissions || []) {
+      const amt = Number(c.amount_dh) || 0
+      totalEarnings += amt
+      if (c.referred_user_id) {
+        earningsByUser.set(
+          c.referred_user_id,
+          (earningsByUser.get(c.referred_user_id) || 0) + amt,
+        )
+      }
+    }
+  }
+
+  const referrals = rows.map((r) => ({
+    id: r.id,
+    created_at: r.attributed_at,
+    // referral_attribution has no status column → an attributed filleul is active.
+    status: "active" as const,
+    commission_amount: earningsByUser.get(r.referred_user_id) || 0,
+    user:
+      profileById.get(r.referred_user_id) || { full_name: "Utilisateur", email: "", role: "user" },
+  }))
 
   // Calculate stats
   const now = new Date()
@@ -59,19 +95,18 @@ async function getAmbassadorReferrals(profileId: string) {
   const startOfWeek = new Date(now)
   startOfWeek.setDate(now.getDate() - now.getDay())
 
-  const monthlyReferrals = referrals?.filter(r => new Date(r.created_at) >= startOfMonth).length || 0
-  const weeklyReferrals = referrals?.filter(r => new Date(r.created_at) >= startOfWeek).length || 0
-  const activeReferrals = referrals?.filter(r => r.status === "active" || !r.status).length || 0
+  const monthlyReferrals = referrals.filter((r) => new Date(r.created_at) >= startOfMonth).length
+  const weeklyReferrals = referrals.filter((r) => new Date(r.created_at) >= startOfWeek).length
 
   return {
-    referrals: referrals || [],
+    referrals,
     stats: {
-      totalReferrals: ambassador.total_referrals || referrals?.length || 0,
-      totalEarnings: ambassador.total_earnings || 0,
+      totalReferrals: referrals.length,
+      totalEarnings,
       monthlyReferrals,
       weeklyReferrals,
-      activeReferrals
-    }
+      activeReferrals: referrals.length,
+    },
   }
 }
 

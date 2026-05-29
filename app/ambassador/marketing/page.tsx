@@ -24,25 +24,22 @@ import { ShareButtons } from "@/components/ambassador/share-buttons"
 async function getAmbassadorData(profileId: string) {
   const supabase = await createClient()
 
+  // #29 — ambassadors keyed on user_id; the referral code lives on the row
+  // (ambassadors.code), consistent with the dashboard. referral_codes is keyed
+  // on user_id (not ambassador_id) and belongs to a separate referral system
+  // (#67); the canonical ambassador code is ambassadors.code.
   const { data: ambassador } = await supabase
     .from("ambassadors")
-    .select("id, commission_rate")
-    .eq("profile_id", profileId)
-    .single()
+    .select("id, code, commission_pct")
+    .eq("user_id", profileId)
+    .maybeSingle()
 
   if (!ambassador) return null
 
-  const { data: referralCode } = await supabase
-    .from("referral_codes")
-    .select("code")
-    .eq("ambassador_id", ambassador.id)
-    .eq("is_active", true)
-    .single()
-
   return {
     ambassadorId: ambassador.id,
-    commissionRate: ambassador.commission_rate || 15,
-    referralCode: referralCode?.code || profileId.slice(0, 8).toUpperCase()
+    commissionRate: Number(ambassador.commission_pct) || 15,
+    referralCode: ambassador.code || profileId.slice(0, 8).toUpperCase(),
   }
 }
 

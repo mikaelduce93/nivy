@@ -16,10 +16,12 @@ export async function POST(request: Request) {
       )
     }
 
-    // Verify ambassador exists and get balance
+    // Verify ambassador exists.
+    // NOTE (#57): this endpoint is not yet session-gated — issue #57 owns
+    // adding auth.getUser() + verifying ambassadors.user_id === user.id.
     const { data: ambassador, error: ambassadorError } = await supabase
       .from("ambassadors")
-      .select("id, total_earnings, pending_withdrawals, withdrawn_amount")
+      .select("id")
       .eq("id", ambassadorId)
       .single()
 
@@ -30,11 +32,30 @@ export async function POST(request: Request) {
       )
     }
 
-    // Calculate available balance
-    const availableBalance =
-      (ambassador.total_earnings || 0) -
-      (ambassador.pending_withdrawals || 0) -
-      (ambassador.withdrawn_amount || 0)
+    // #29 — available balance is derived from the real ledger:
+    // SUM(ambassador_commissions.amount_dh) - SUM(non-failed ambassador_payouts.amount_dh).
+    // The ambassadors row no longer stores total_earnings/pending/withdrawn.
+    const [{ data: commissionRows }, { data: payoutRows }] = await Promise.all([
+      supabase
+        .from("ambassador_commissions")
+        .select("amount_dh")
+        .eq("ambassador_id", ambassadorId),
+      supabase
+        .from("ambassador_payouts")
+        .select("amount_dh, status")
+        .eq("ambassador_id", ambassadorId),
+    ])
+
+    const totalEarnings = (commissionRows || []).reduce(
+      (s, c) => s + (Number(c.amount_dh) || 0),
+      0,
+    )
+    // ambassador_payouts.status ∈ {pending, paid, failed}; pending + paid both
+    // consume the balance, failed does not.
+    const committedPayouts = (payoutRows || [])
+      .filter((p) => p.status === "pending" || p.status === "paid")
+      .reduce((s, p) => s + (Number(p.amount_dh) || 0), 0)
+    const availableBalance = totalEarnings - committedPayouts
 
     // Check minimum amount
     const minimumWithdrawal = 100
@@ -53,16 +74,16 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create withdrawal request
+    // Create the payout request. ambassador_payouts has no payment_details
+    // column; the destination (RIB / phone) is stored in `iban`.
     const { data: withdrawal, error: withdrawalError } = await supabase
-      .from("ambassador_withdrawals")
+      .from("ambassador_payouts")
       .insert({
         ambassador_id: ambassadorId,
-        amount: amount,
-        payment_method: paymentMethod,
-        payment_details: paymentDetails,
+        amount_dh: amount,
+        method: paymentMethod,
+        iban: paymentDetails,
         status: "pending",
-        created_at: new Date().toISOString(),
       })
       .select()
       .single()
@@ -75,27 +96,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Update ambassador pending withdrawals
-    const { error: updateError } = await supabase
-      .from("ambassadors")
-      .update({
-        pending_withdrawals: (ambassador.pending_withdrawals || 0) + amount,
-      })
-      .eq("id", ambassadorId)
-
-    if (updateError) {
-      console.error("Ambassador update error:", updateError)
-      // Rollback withdrawal
-      await supabase
-        .from("ambassador_withdrawals")
-        .delete()
-        .eq("id", withdrawal.id)
-
-      return NextResponse.json(
-        { success: false, error: "Erreur lors de la mise à jour du solde" },
-        { status: 500 }
-      )
-    }
+    // No ambassadors-row counters to update: the new pending payout is itself
+    // part of the balance computation above on the next read.
 
     return NextResponse.json({
       success: true,
@@ -127,7 +129,7 @@ export async function GET(request: Request) {
     }
 
     const { data: withdrawals, error } = await supabase
-      .from("ambassador_withdrawals")
+      .from("ambassador_payouts")
       .select("*")
       .eq("ambassador_id", ambassadorId)
       .order("created_at", { ascending: false })

@@ -21,64 +21,72 @@ import Link from "next/link"
 async function getCommissionHistory(profileId: string) {
   const supabase = await createClient()
 
-  // Get ambassador data
+  // #29 — ambassadors keyed on user_id; commission_pct lives on the row.
   const { data: ambassador } = await supabase
     .from("ambassadors")
-    .select("id, total_earnings, commission_rate")
-    .eq("profile_id", profileId)
-    .single()
+    .select("id, commission_pct")
+    .eq("user_id", profileId)
+    .maybeSingle()
 
   if (!ambassador) return { commissions: [], stats: null }
 
-  // Get commission history (from referral_usage)
-  const { data: referralCommissions, error: refError } = await supabase
-    .from("referral_usage")
-    .select(`
-      id,
-      commission_amount,
-      status,
-      created_at,
-      user:user_id (
-        full_name
-      )
-    `)
-    .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
+  // #29 — unified ledger: ambassador_commissions (credits) + ambassador_payouts
+  // (debits). The old referral_usage / ambassador_withdrawals tables and their
+  // commission_amount / amount / payment_method columns don't exist in the DB.
+  const [{ data: commissionRows }, { data: payoutRows }] = await Promise.all([
+    supabase
+      .from("ambassador_commissions")
+      .select("id, amount_dh, status, created_at, referred_user_id")
+      .eq("ambassador_id", ambassador.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("ambassador_payouts")
+      .select("id, amount_dh, status, method, created_at")
+      .eq("ambassador_id", ambassador.id)
+      .order("created_at", { ascending: false }),
+  ])
 
-  // Get withdrawal history
-  const { data: withdrawals, error: wdError } = await supabase
-    .from("ambassador_withdrawals")
-    .select("*")
-    .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
+  const commissions = commissionRows || []
+  const payouts = payoutRows || []
+
+  // Resolve filleul names for commission descriptions (no FK to embed).
+  const referredIds = [...new Set(commissions.map((c) => c.referred_user_id).filter(Boolean))]
+  const nameById = new Map<string, string>()
+  if (referredIds.length > 0) {
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", referredIds)
+    for (const p of profs || []) nameById.set(p.id, p.full_name || "Utilisateur")
+  }
 
   // Combine and sort all transactions
   const allTransactions: any[] = []
 
-  referralCommissions?.forEach(rc => {
-    const userName = (rc.user as unknown as { full_name?: string } | null)?.full_name || "Utilisateur"
+  for (const c of commissions) {
+    const userName = nameById.get(c.referred_user_id) || "Utilisateur"
     allTransactions.push({
-      id: rc.id,
+      id: c.id,
       type: "commission",
-      amount: rc.commission_amount || 0,
-      status: rc.status || "completed",
-      date: rc.created_at,
+      amount: Number(c.amount_dh) || 0,
+      status: c.status || "pending",
+      date: c.created_at,
       description: `Commission - ${userName}`,
-      source: userName
+      source: userName,
     })
-  })
+  }
 
-  withdrawals?.forEach(wd => {
+  for (const p of payouts) {
     allTransactions.push({
-      id: wd.id,
+      id: p.id,
       type: "withdrawal",
-      amount: -(wd.amount || 0),
-      status: wd.status,
-      date: wd.created_at,
-      description: `Retrait - ${wd.payment_method || "Virement"}`,
-      source: wd.payment_method || "Virement"
+      amount: -(Number(p.amount_dh) || 0),
+      status: p.status,
+      date: p.created_at,
+      description: `Retrait - ${p.method || "Virement"}`,
+      source: p.method || "Virement",
     })
-  })
+  }
 
   // Sort by date descending
   allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -89,36 +97,40 @@ async function getCommissionHistory(profileId: string) {
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
 
-  const monthlyEarnings = referralCommissions
-    ?.filter(r => new Date(r.created_at) >= startOfMonth)
-    .reduce((sum, r) => sum + (r.commission_amount || 0), 0) || 0
+  const totalEarnings = commissions.reduce((sum, c) => sum + (Number(c.amount_dh) || 0), 0)
 
-  const lastMonthEarnings = referralCommissions
-    ?.filter(r => {
-      const date = new Date(r.created_at)
+  const monthlyEarnings = commissions
+    .filter((c) => new Date(c.created_at) >= startOfMonth)
+    .reduce((sum, c) => sum + (Number(c.amount_dh) || 0), 0)
+
+  const lastMonthEarnings = commissions
+    .filter((c) => {
+      const date = new Date(c.created_at)
       return date >= startOfLastMonth && date <= endOfLastMonth
     })
-    .reduce((sum, r) => sum + (r.commission_amount || 0), 0) || 0
+    .reduce((sum, c) => sum + (Number(c.amount_dh) || 0), 0)
 
-  const pendingWithdrawals = withdrawals
-    ?.filter(w => w.status === "pending")
-    .reduce((sum, w) => sum + (w.amount || 0), 0) || 0
+  // ambassador_payouts.status ∈ {pending, paid, failed}.
+  const pendingWithdrawals = payouts
+    .filter((p) => p.status === "pending")
+    .reduce((sum, p) => sum + (Number(p.amount_dh) || 0), 0)
 
-  const totalWithdrawn = withdrawals
-    ?.filter(w => w.status === "completed")
-    .reduce((sum, w) => sum + (w.amount || 0), 0) || 0
+  const totalWithdrawn = payouts
+    .filter((p) => p.status === "paid")
+    .reduce((sum, p) => sum + (Number(p.amount_dh) || 0), 0)
 
   return {
     commissions: allTransactions,
     stats: {
-      totalEarnings: ambassador.total_earnings || 0,
+      totalEarnings,
       monthlyEarnings,
       lastMonthEarnings,
       pendingWithdrawals,
       totalWithdrawn,
-      commissionRate: ambassador.commission_rate || 15,
-      availableBalance: (ambassador.total_earnings || 0) - totalWithdrawn - pendingWithdrawals
-    }
+      commissionRate: Number(ambassador.commission_pct) || 15,
+      // Pending payouts are committed funds → excluded from available balance.
+      availableBalance: totalEarnings - totalWithdrawn - pendingWithdrawals,
+    },
   }
 }
 
