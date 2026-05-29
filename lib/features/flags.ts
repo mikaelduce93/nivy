@@ -41,6 +41,7 @@ export type FeatureFlag =
   | 'staging_validation' // Validation staging automatique
   | 'enhanced_monitoring' // Monitoring avancé
   | 'pwa_offline_mode' // Mode offline PWA
+  | 'legacy_agent_sheet' // Legacy AgentSheet/FriendMap IA panel — off by default (#63)
 
 /**
  * Configuration par défaut des flags (fallback si Edge Config indisponible)
@@ -59,6 +60,7 @@ const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
   staging_validation: false,
   enhanced_monitoring: true, // Activé par défaut
   pwa_offline_mode: false,
+  legacy_agent_sheet: false, // #63 — legacy IA panel off by default (DELETE in V1.5)
 }
 
 /**

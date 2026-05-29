@@ -6,6 +6,7 @@ import { AgentFloatingButton } from "@/components/ai/AgentFloatingButton"
 import { ParentMobileDock } from "@/components/layouts/parent-mobile-dock"
 import { createClient } from "@/lib/supabase/server"
 import { SkipToContent } from "@/components/ui/skip-to-content"
+import { getFeatureFlag } from "@/lib/features/flags"
 
 export default async function ParentLayout({
   children,
@@ -30,6 +31,9 @@ export default async function ParentLayout({
     .eq("parent_id", userInfo.profileId)
     .eq("status", "pending")
 
+  // #63 — legacy AgentSheet/FriendMap IA panel behind an off-by-default flag.
+  const legacyAgentEnabled = await getFeatureFlag("legacy_agent_sheet")
+
   return (
     <div className="min-h-screen bg-background">
       {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
@@ -45,7 +49,7 @@ export default async function ParentLayout({
           {children}
         </main>
       </div>
-      <AgentFloatingButton role="parent" context={userInfo.parentData} />
+      {legacyAgentEnabled && <AgentFloatingButton role="parent" context={userInfo.parentData} />}
       <ParentMobileDock pendingCount={pendingCount || 0} />
     </div>
   )
