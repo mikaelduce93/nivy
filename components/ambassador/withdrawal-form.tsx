@@ -15,7 +15,9 @@ interface WithdrawalFormProps {
   minimumWithdrawal: number
 }
 
-export function WithdrawalForm({ ambassadorId, availableBalance, minimumWithdrawal }: WithdrawalFormProps) {
+// #57 — ambassadorId prop is no longer sent to the API (the server resolves the
+// ambassador from the session); kept in the interface for call-site compat.
+export function WithdrawalForm({ availableBalance, minimumWithdrawal }: WithdrawalFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [amount, setAmount] = useState("")
@@ -52,7 +54,7 @@ export function WithdrawalForm({ ambassadorId, availableBalance, minimumWithdraw
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ambassadorId,
+          // #57 — no ambassadorId: the server derives it from the session.
           amount: amountNum,
           paymentMethod,
           paymentDetails,

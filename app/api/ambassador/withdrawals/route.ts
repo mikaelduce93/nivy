@@ -1,46 +1,63 @@
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
+
+/**
+ * #57 — session-gated ambassador withdrawals. The ambassador is resolved from
+ * the authenticated session (ambassadors.user_id === auth user, status
+ * 'approved'); any client-supplied ambassadorId is ignored. Money reads/writes
+ * use the service-role client with the SESSION-derived ambassador.id (no IDOR).
+ */
+async function resolveSessionAmbassador() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "Non authentifié", status: 401 as const, id: null }
+
+  // #57 — the ambassadors.status enum is {pending, active, suspended, rejected}
+  // (verified live); 'active' is the approved/usable state. The issue's
+  // 'approved' value does not exist on this table.
+  const { data: ambassador } = await supabase
+    .from("ambassadors")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .maybeSingle()
+
+  if (!ambassador) return { error: "Ambassadeur non autorisé", status: 403 as const, id: null }
+  return { error: null, status: 200 as const, id: ambassador.id as string }
+}
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const body = await request.json()
+    const session = await resolveSessionAmbassador()
+    if (!session.id) {
+      return NextResponse.json({ success: false, error: session.error }, { status: session.status })
+    }
+    const ambassadorId = session.id
 
-    const { ambassadorId, amount, paymentMethod, paymentDetails } = body
+    const body = await request.json()
+    // #57 — ambassadorId is NEVER read from the client; it comes from the session.
+    const { amount, paymentMethod, paymentDetails } = body
 
     // Validate input
-    if (!ambassadorId || !amount || !paymentMethod || !paymentDetails) {
+    if (!amount || !paymentMethod || !paymentDetails) {
       return NextResponse.json(
         { success: false, error: "Données manquantes" },
         { status: 400 }
       )
     }
 
-    // Verify ambassador exists.
-    // NOTE (#57): this endpoint is not yet session-gated — issue #57 owns
-    // adding auth.getUser() + verifying ambassadors.user_id === user.id.
-    const { data: ambassador, error: ambassadorError } = await supabase
-      .from("ambassadors")
-      .select("id")
-      .eq("id", ambassadorId)
-      .single()
-
-    if (ambassadorError || !ambassador) {
-      return NextResponse.json(
-        { success: false, error: "Ambassadeur non trouvé" },
-        { status: 404 }
-      )
-    }
-
-    // #29 — available balance is derived from the real ledger:
-    // SUM(ambassador_commissions.amount_dh) - SUM(non-failed ambassador_payouts.amount_dh).
-    // The ambassadors row no longer stores total_earnings/pending/withdrawn.
+    // #29 — balance from the real ledger; #57 — money ops via service-role with
+    // the session-derived ambassador id.
+    const sr = createServiceRoleClient()
     const [{ data: commissionRows }, { data: payoutRows }] = await Promise.all([
-      supabase
+      sr
         .from("ambassador_commissions")
         .select("amount_dh")
         .eq("ambassador_id", ambassadorId),
-      supabase
+      sr
         .from("ambassador_payouts")
         .select("amount_dh, status")
         .eq("ambassador_id", ambassadorId),
@@ -76,7 +93,7 @@ export async function POST(request: Request) {
 
     // Create the payout request. ambassador_payouts has no payment_details
     // column; the destination (RIB / phone) is stored in `iban`.
-    const { data: withdrawal, error: withdrawalError } = await supabase
+    const { data: withdrawal, error: withdrawalError } = await sr
       .from("ambassador_payouts")
       .insert({
         ambassador_id: ambassadorId,
@@ -115,23 +132,20 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const supabase = await createClient()
-    const { searchParams } = new URL(request.url)
-    const ambassadorId = searchParams.get("ambassadorId")
-
-    if (!ambassadorId) {
-      return NextResponse.json(
-        { success: false, error: "ID ambassadeur requis" },
-        { status: 400 }
-      )
+    // #57 — only the session ambassador's history; any client ambassadorId is
+    // ignored (was an IDOR leaking others' payout details).
+    const session = await resolveSessionAmbassador()
+    if (!session.id) {
+      return NextResponse.json({ success: false, error: session.error }, { status: session.status })
     }
 
-    const { data: withdrawals, error } = await supabase
+    const sr = createServiceRoleClient()
+    const { data: withdrawals, error } = await sr
       .from("ambassador_payouts")
       .select("*")
-      .eq("ambassador_id", ambassadorId)
+      .eq("ambassador_id", session.id)
       .order("created_at", { ascending: false })
 
     if (error) {
