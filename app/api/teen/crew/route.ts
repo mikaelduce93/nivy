@@ -94,10 +94,14 @@ export async function GET(request: NextRequest) {
     let totalXp = 0
     
     if (memberIds.length > 0) {
-      const { data: xpData } = await supabase
+      // #32 — user_xp keys on teen_id (memberIds are teens.id), not user_id.
+      // RLS is self/parent-read only, so summing members' XP needs service-role.
+      const { createServiceRoleClient } = await import('@/lib/supabase/service-role')
+      const sr = createServiceRoleClient()
+      const { data: xpData } = await sr
         .from('user_xp')
         .select('total_xp')
-        .in('user_id', memberIds)
+        .in('teen_id', memberIds)
 
       totalXp = xpData?.reduce((sum, x) => sum + (x.total_xp || 0), 0) || 0
     }
