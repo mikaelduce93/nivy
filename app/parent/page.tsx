@@ -68,7 +68,8 @@ export default async function ParentDashboardPage() {
     .select("*")
     .eq("parent_id", userInfo.profileId)
     .eq("status", "pending")
-    .order("created_at", { ascending: false })
+    // #30 — real sort column is requested_at (no created_at on parental_approvals).
+    .order("requested_at", { ascending: false })
 
   // --- TRAITEMENT DES DONNÉES ---
   const currentMonthBookings = bookings.filter((b: any) => new Date(b.created_at) >= startOfCurrentMonth)

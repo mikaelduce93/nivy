@@ -73,7 +73,7 @@ function ApprovalItem({ request, onAction }: { request: any, onAction: (id: stri
     onAction(request.id)
   }
 
-  const isBirthday = request.approval_type === 'purchase' && request.request_data?.type === 'birthday'
+  const isBirthday = request.action_type === 'purchase' && request.details?.type === 'birthday'
 
   return (
     <motion.div
@@ -111,15 +111,15 @@ function ApprovalItem({ request, onAction }: { request: any, onAction: (id: stri
               </div>
               <p className="text-zinc-400 text-sm font-medium">
                 {isBirthday 
-                  ? `${request.request_data?.price} DH • ${request.request_data?.guests} invités` 
-                  : `${request.request_data?.event_name || 'Événement'}`
+                  ? `${request.details?.price} DH • ${request.details?.guests} invités` 
+                  : `${request.details?.event_name || 'Événement'}`
                 }
               </p>
             </div>
           </div>
           
           <div className="flex flex-col items-end gap-1">
-            <p className="text-lg font-black text-white">{request.request_data?.price || 0} DH</p>
+            <p className="text-lg font-black text-white">{request.amount || 0} DH</p>
             <div className="flex items-center gap-1 text-[10px] font-black text-zinc-500">
               <span>SLIDE TO APPROVE</span>
               <ChevronRight className="w-3 h-3 animate-bounce-x" />

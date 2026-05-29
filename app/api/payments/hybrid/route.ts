@@ -120,17 +120,23 @@ export const POST = withSecurity(
       // Check if parental approval is required
       if (paymentResult.requiresParentalApproval && profile?.role === "teen") {
         // Create parental approval request
+        // #30 — real parental_approvals schema: action_type (NOT NULL, valid
+        // value), resource_type/resource_id, amount, details jsonb, status,
+        // requested_at/expires_at (NOT NULL). No type/amount_dh/booking_id/
+        // created_at columns.
         const { data: approvalRequest, error: approvalError } = await supabase
           .from("parental_approvals")
           .insert({
             teen_id: teenId,
             parent_id: booking.user_id,
-            type: "xp_payment",
+            action_type: "booking",
+            resource_type: "booking",
+            resource_id: bookingId,
             amount: xpAmount,
-            amount_dh: paymentResult.xpValueDH,
-            booking_id: bookingId,
+            details: { xp_value_dh: paymentResult.xpValueDH, payment_method: paymentMethod },
             status: "pending",
-            created_at: new Date().toISOString(),
+            requested_at: new Date().toISOString(),
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           })
           .select()
           .single()

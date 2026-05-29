@@ -46,7 +46,8 @@ async function getApprovals(parentId: string) {
       )
     `)
     .eq("parent_id", parentId)
-    .order("created_at", { ascending: false })
+    // #30 — real sort column is requested_at (no created_at).
+    .order("requested_at", { ascending: false })
 
   if (error) {
     console.error("Error fetching approvals:", error)
@@ -71,7 +72,8 @@ export default async function ParentApprovalsPage() {
 
   const pendingApprovals = approvals.filter((a: any) => a.status === "pending")
   const approvedApprovals = approvals.filter((a: any) => a.status === "approved")
-  const rejectedApprovals = approvals.filter((a: any) => a.status === "rejected")
+  // #30 — canonical refusal status is 'denied' (not 'rejected').
+  const rejectedApprovals = approvals.filter((a: any) => a.status === "denied")
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -83,15 +85,17 @@ export default async function ParentApprovalsPage() {
     })
   }
 
+  // #30 — canonical action_type values (parental_approvals_action_type_check).
   const getApprovalIcon = (type: string) => {
     switch (type) {
       case "booking":
         return <Ticket className="h-5 w-5 text-purple-400" />
-      case "purchase":
+      case "purchase_above_ceiling":
         return <ShoppingBag className="h-5 w-5 text-blue-400" />
-      case "payment":
-        return <CreditCard className="h-5 w-5 text-emerald-400" />
-      case "event":
+      case "food_order":
+        return <ShoppingBag className="h-5 w-5 text-emerald-400" />
+      case "coach_meeting":
+      case "venue_visit":
         return <Calendar className="h-5 w-5 text-orange-400" />
       default:
         return <FileCheck className="h-5 w-5 text-zinc-400" />
@@ -102,12 +106,18 @@ export default async function ParentApprovalsPage() {
     switch (type) {
       case "booking":
         return "Réservation"
-      case "purchase":
-        return "Achat"
-      case "payment":
-        return "Paiement"
-      case "event":
-        return "Événement"
+      case "purchase_above_ceiling":
+        return "Achat au-dessus du plafond"
+      case "food_order":
+        return "Commande food"
+      case "coach_meeting":
+        return "Séance mentor"
+      case "venue_visit":
+        return "Visite de lieu"
+      case "crew_join":
+        return "Rejoindre un crew"
+      case "xp_award_above_cap":
+        return "Bonus XP exceptionnel"
       default:
         return type
     }
@@ -127,7 +137,7 @@ export default async function ParentApprovalsPage() {
           text: "Approuvé",
           class: "bg-emerald-500/20 text-emerald-400"
         }
-      case "rejected":
+      case "denied":
         return {
           icon: XCircle,
           text: "Refusé",
@@ -278,23 +288,23 @@ export default async function ParentApprovalsPage() {
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-start gap-4">
                           <div className="h-12 w-12 rounded-xl bg-zinc-800 flex items-center justify-center">
-                            {getApprovalIcon(approval.approval_type)}
+                            {getApprovalIcon(approval.action_type)}
                           </div>
                           <div>
                             <h3 className="text-lg font-bold text-white">
-                              {approval.title || "Demande d'approbation"}
+                              {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
                             </h3>
                             <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-zinc-400">
                               <span className="bg-zinc-800 px-2 py-0.5 rounded text-xs">
-                                {getApprovalTypeName(approval.approval_type)}
+                                {getApprovalTypeName(approval.action_type)}
                               </span>
                               <span>•</span>
                               <span>De: {approval.teen?.full_name || "Teen"}</span>
                               <span>•</span>
-                              <span>{formatDate(approval.created_at)}</span>
+                              <span>{formatDate(approval.requested_at)}</span>
                             </div>
-                            {approval.description && (
-                              <p className="text-sm text-zinc-500 mt-2">{approval.description}</p>
+                            {approval.details?.reason && (
+                              <p className="text-sm text-zinc-500 mt-2">{approval.details?.reason}</p>
                             )}
                             {approval.amount && (
                               <p className="text-emerald-400 font-bold mt-2">{approval.amount} DH</p>
@@ -305,7 +315,7 @@ export default async function ParentApprovalsPage() {
                         <div className="flex items-center gap-3">
                           <ApprovalButtons
                             approvalId={approval.id}
-                            title={approval.title || "Demande"}
+                            title={getApprovalTypeName(approval.action_type) || "Demande"}
                             amount={approval.amount}
                             teenName={approval.teen?.full_name}
                           />
@@ -340,18 +350,18 @@ export default async function ParentApprovalsPage() {
                     >
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center">
-                          {getApprovalIcon(approval.approval_type)}
+                          {getApprovalIcon(approval.action_type)}
                         </div>
                         <div>
                           <p className="font-medium text-white">
-                            {approval.title || "Demande d'approbation"}
+                            {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
                           </p>
                           <div className="flex items-center gap-2 text-xs text-zinc-500">
                             <span>{approval.teen?.full_name}</span>
                             <span>•</span>
-                            <span>{getApprovalTypeName(approval.approval_type)}</span>
+                            <span>{getApprovalTypeName(approval.action_type)}</span>
                             <span>•</span>
-                            <span>{formatDate(approval.created_at)}</span>
+                            <span>{formatDate(approval.requested_at)}</span>
                           </div>
                         </div>
                       </div>
