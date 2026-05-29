@@ -198,9 +198,12 @@ export default function NewOfferPage() {
             <div className="h-16 w-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="h-8 w-8 text-emerald-400" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Offre créée !</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">Offre soumise !</h2>
             <p className="text-zinc-400">
-              Votre offre est maintenant active pour les membres Nivy.
+              {/* #53 — offers are NEVER live on create (status='pending_approval',
+                  is_active=false). Tell the truth: it awaits moderation. */}
+              Votre offre est en attente de validation par l&apos;équipe Nivy.
+              Elle sera visible une fois approuvée.
             </p>
           </CardContent>
         </Card>
@@ -617,7 +620,7 @@ export default function NewOfferPage() {
             {success ? (
               <>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Créée !
+                Soumise !
               </>
             ) : isSubmitting ? (
               <>Création en cours...</>
