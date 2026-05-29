@@ -1,11 +1,13 @@
 /**
  * Idempotent E2E data seeder.
  *
- * Provisions everything the 6 currently-skipped Playwright specs need:
+ * Provisions everything the currently-skipped Playwright specs need:
  *   1. 6 educational_quizzes (covers quiz hub click-through + daily quiz card)
  *   2. 1 reward_category + 2 shop_rewards with low xp_cost (covers shop click)
  *   3. 1 pending booking for teen.amine (covers checkout summary + submit)
  *   4. 1 partner account with status='pending' (covers partner banner)
+ *   5. 1 active approved offer for retail.partner (covers partner-scan #75 —
+ *      apply_partner_offer authorizes via partner_staff → offer.partner_id)
  *
  * After running, prints the env vars to add to .env.local.
  *
@@ -178,7 +180,7 @@ const QUIZZES = [
 ]
 
 async function seedQuizzes() {
-  console.log("\n[1/4] Quizzes")
+  console.log("\n[1/5] Quizzes")
   // Upsert by code (relies on UNIQUE constraint educational_quizzes_code_key
   // from migration 038's first block — supabase-js will surface a clear error
   // if it does not exist and you'll need to add it manually).
@@ -193,7 +195,7 @@ async function seedQuizzes() {
 // 2. SHOP REWARDS (1 category + 2 cheap rewards)
 // ----------------------------------------------------------------------------
 async function seedShopRewards() {
-  console.log("\n[2/4] Shop rewards")
+  console.log("\n[2/5] Shop rewards")
 
   const { data: catData, error: catErr } = await admin
     .from("reward_categories")
@@ -228,7 +230,7 @@ async function seedShopRewards() {
 // 3. PENDING BOOKING for teen.amine
 // ----------------------------------------------------------------------------
 async function seedPendingBooking(): Promise<string> {
-  console.log("\n[3/4] Pending booking")
+  console.log("\n[3/5] Pending booking")
 
   // Find teen.amine user id
   const { data: list } = await admin.auth.admin.listUsers({ perPage: 200 })
@@ -276,7 +278,7 @@ const PARTNER_PENDING_EMAIL = "partner.pending@teenclub.ma"
 const PARTNER_PENDING_PASSWORD = "Test123!"
 
 async function seedPartnerPending(): Promise<void> {
-  console.log("\n[4/4] Partner pending")
+  console.log("\n[4/5] Partner pending")
 
   // Auth user
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
@@ -314,7 +316,64 @@ async function seedPartnerPending(): Promise<void> {
 }
 
 // ----------------------------------------------------------------------------
-// 5. WRITE env vars back to .env.local
+// 5. PARTNER SCANNER OFFER for retail.partner (covers partner-scan #75)
+//
+// apply_partner_offer authorizes the caller via partner_staff → only redeems
+// offers owned by the partner the signed-in staff belongs to. retail.partner
+// is seeded as active staff of "TechStore Morocco"; give that partner one
+// active, approved, uncapped offer so the scanner spec can sign a fresh QR and
+// redeem it (and assert the qr_replay lock on a second hit).
+// ----------------------------------------------------------------------------
+const E2E_OFFER_TITLE = "E2E Scanner Offer"
+
+async function seedPartnerScannerOffer(): Promise<void> {
+  console.log("\n[5/5] Partner scanner offer (retail.partner)")
+
+  const { data: partner } = await admin
+    .from("partners")
+    .select("id")
+    .eq("email", "retail.partner@teenclub.ma")
+    .maybeSingle()
+  if (!partner) {
+    console.log("  retail.partner@teenclub.ma not found — run seed:test-accounts first; skipping")
+    return
+  }
+
+  const { data: existing } = await admin
+    .from("partner_offers")
+    .select("id")
+    .eq("partner_id", partner.id)
+    .eq("title", E2E_OFFER_TITLE)
+    .maybeSingle()
+  if (existing) {
+    console.log(`  partner_offers: reusing ${existing.id}`)
+    return
+  }
+
+  // Leave offer_type / discount_type / min_vip_level NULL to stay inside any
+  // CHECK domains; apply_partner_offer treats a NULL discount_type as
+  // percentage and uses discount_value. No usage caps → re-runnable.
+  const { data: created, error } = await admin
+    .from("partner_offers")
+    .insert({
+      partner_id: partner.id,
+      title: E2E_OFFER_TITLE,
+      description: "Offre seedée pour le test scanner Playwright (#75).",
+      discount_value: 10,
+      is_active: true,
+      status: "approved",
+      requires_vip: false,
+      current_total_uses: 0,
+      valid_until: "2030-12-31T23:59:59Z",
+    })
+    .select("id")
+    .single()
+  if (error) throw error
+  console.log(`  partner_offers: created ${created!.id}`)
+}
+
+// ----------------------------------------------------------------------------
+// 6. WRITE env vars back to .env.local
 // ----------------------------------------------------------------------------
 function upsertEnvLocal(updates: Record<string, string>): void {
   const path = ".env.local"
@@ -334,6 +393,7 @@ async function main() {
   await seedShopRewards()
   const bookingId = await seedPendingBooking()
   await seedPartnerPending()
+  await seedPartnerScannerOffer()
 
   upsertEnvLocal({
     E2E_PENDING_BOOKING_ID: bookingId,

@@ -1,4 +1,5 @@
 import { expect, hasCredentials, test } from "../fixtures/auth"
+import { getProfileIdByEmail, getServiceClient } from "../fixtures/db"
 
 /**
  * Smoke tests for the reservation checkout flow.
@@ -14,6 +15,8 @@ import { expect, hasCredentials, test } from "../fixtures/auth"
 
 const HAS_TEEN_FIXTURE = hasCredentials("teen")
 const PENDING_BOOKING_ID = process.env.E2E_PENDING_BOOKING_ID
+const db = getServiceClient()
+const TEEN_EMAIL = "teen.amine@teenclub.ma"
 
 test.describe("teen / shop checkout", () => {
   test("missing booking param redirects back to /teen/shop", async ({ page }) => {
@@ -74,5 +77,60 @@ test.describe("teen / shop checkout", () => {
       expect(successCue).toBeVisible({ timeout: 15_000 }),
       reservationsUrl,
     ])
+  })
+
+  test("submitting the checkout advances the booking → parental approval chain", async ({
+    page,
+    signInAs,
+  }) => {
+    test.skip(
+      !HAS_TEEN_FIXTURE || !PENDING_BOOKING_ID || !db,
+      "Requires teen fixture + a fresh pending booking + service-role DB env (this test mutates booking state).",
+    )
+    const sb = db!
+    const teenId = await getProfileIdByEmail(sb, TEEN_EMAIL)
+    test.skip(!teenId, "Seed accounts missing — run npm run seed:beta.")
+
+    const startedAt = new Date().toISOString()
+
+    await signInAs("teen")
+    await page.goto(`/teen/shop/checkout?booking=${PENDING_BOOKING_ID}`)
+    const payButton = page
+      .getByRole("button", { name: /payer|confirmer|réserver|valider/i })
+      .first()
+    await expect(payButton).toBeVisible({ timeout: 10_000 })
+    await payButton.click()
+    // Let the server-side mutation land.
+    await page.waitForTimeout(4_000)
+
+    // The chain must leave a persisted trace: either the booking advanced past
+    // its seeded ('pending','pending') state, OR a parental_approvals row was
+    // queued for the teen (booking → parental_approvals). Poll briefly.
+    let advanced = false
+    for (let attempt = 0; attempt < 5 && !advanced; attempt++) {
+      const { data: booking } = await sb
+        .from("bookings")
+        .select("status, payment_status")
+        .eq("id", PENDING_BOOKING_ID!)
+        .maybeSingle()
+      const bookingAdvanced =
+        !!booking &&
+        !(booking.status === "pending" && booking.payment_status === "pending")
+
+      const { data: approvals } = await sb
+        .from("parental_approvals")
+        .select("id")
+        .eq("teen_id", teenId!)
+        .gte("requested_at", startedAt)
+        .limit(1)
+      const approvalQueued = (approvals?.length ?? 0) >= 1
+
+      advanced = bookingAdvanced || approvalQueued
+      if (!advanced) await page.waitForTimeout(1_500)
+    }
+    expect(
+      advanced,
+      "expected the booking to advance or a parental_approvals row to be queued",
+    ).toBe(true)
   })
 })

@@ -18,13 +18,16 @@ import { test as base, expect, type Page } from "@playwright/test"
  *      with the universal password Test123!.
  */
 
-export type Role = "teen" | "parent" | "partner-pending"
+export type Role = "teen" | "parent" | "partner" | "partner-pending"
 
 type Credentials = { email: string; password: string }
 
 const SEEDED_DEFAULTS: Record<Role, Credentials> = {
   teen: { email: "teen.amine@teenclub.ma", password: "Test123!" },
   parent: { email: "parent.test@teenclub.ma", password: "Test123!" },
+  // Approved partner — staff of "TechStore Morocco" in the standard seed
+  // (docs/TEST_ACCOUNTS.md). Used by the scanner-redemption spec (#75).
+  partner: { email: "retail.partner@teenclub.ma", password: "Test123!" },
   // No seeded "pending" partner in TEST_ACCOUNTS.md — the four seeded partners
   // are all approved. Always requires explicit env vars.
   "partner-pending": { email: "", password: "" },
