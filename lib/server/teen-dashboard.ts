@@ -3,7 +3,7 @@ import "server-only"
 import { createClient } from "@/lib/supabase/server"
 import { getActivityFeed } from "@/gamification-system/features/activity-feed/actions"
 import { getDailyMissions } from "@/gamification-system/features/missions/actions"
-import { getActivityHistory, getLifetimeStats, updateLoginStreak } from "@/gamification-system/features/stats-dashboard/actions"
+import { getActivityHistory, getLifetimeStats } from "@/gamification-system/features/stats-dashboard/actions"
 import { getRewards, getUsablePurchases } from "@/gamification-system/features/shop/actions"
 
 type PermissionsSummaryItem = {
@@ -189,11 +189,13 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
   const parentId = teenProfile?.primary_parent_id || null
   const interests = Array.isArray(teenProfile?.interests) ? teenProfile.interests : []
 
-  const [missionsResult, lifetimeStats, streakResult, weeklyHistory, monthlyHistory, feedResult, rewardsResult, usablePurchases] =
+  // #40 — render is read-only. The login-streak WRITE (updateLoginStreak) moved
+  // out of this Promise.all to the StreakPinger client trigger; currentStreak
+  // is READ below from teen_full_profile.streak / user_lifetime_stats.
+  const [missionsResult, lifetimeStats, weeklyHistory, monthlyHistory, feedResult, rewardsResult, usablePurchases] =
     await Promise.all([
       getDailyMissions().catch(() => ({ success: false, data: [] })),
       getLifetimeStats().catch(() => null),
-      updateLoginStreak().catch(() => ({ success: false, currentStreak: 0 })),
       getActivityHistory(7).catch(() => []),
       getActivityHistory(30).catch(() => []),
       getActivityFeed({ feedType: "friends", limit: 6 }).catch(() => ({ success: false, activities: [] })),
@@ -233,9 +235,7 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
   } catch {
     cashbackThisWeek = 0
   }
-  const currentStreak = streakResult.success
-    ? streakResult.currentStreak
-    : teenProfile?.streak ?? lifetimeStats?.current_login_streak ?? 0
+  const currentStreak = teenProfile?.streak ?? lifetimeStats?.current_login_streak ?? 0
 
   const rewards = rewardsResult.data || []
   const nextRewardCandidate = rewards

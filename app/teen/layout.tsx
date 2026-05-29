@@ -25,6 +25,7 @@ import { EliteAICompanion } from "@/components/ai/elite-ai-companion"
 import { ClientErrorBoundary } from "@/components/common/client-error-boundary"
 import { PushPermissionPrompt } from "@/components/teen/push-permission-prompt"
 import { SkipToContent } from "@/components/ui/skip-to-content"
+import { StreakPinger } from "@/components/teen/streak-pinger"
 
 export default async function TeenLayout({
   children,
@@ -48,6 +49,8 @@ export default async function TeenLayout({
             in the role layout so Tab from the URL bar reveals it before any
             header / sidebar item. */}
         <SkipToContent />
+        {/* #40 — login-streak WRITE runs here post-hydration, not during RSC render. */}
+        <StreakPinger />
         <div className="pointer-events-none fixed inset-0 bg-dots opacity-20" />
         <TeenHeader userInfo={userInfo} />
         <div className="flex relative">

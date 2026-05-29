@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { Suspense } from "react"
 import { StreakClient } from "./streak-client"
-import { updateLoginStreak, getLifetimeStats, getActivityHistory } from "@/gamification-system/features/stats-dashboard/actions"
+import { getLifetimeStats, getActivityHistory } from "@/gamification-system/features/stats-dashboard/actions"
 import { getDailyMissions } from "@/gamification-system/features/missions/actions"
 
 export default async function StreakPage() {
@@ -12,17 +12,15 @@ export default async function StreakPage() {
     redirect("/auth/redirect")
   }
 
-  // Fetch all streak-related data in parallel
-  const [streakResult, lifetimeStats, history, missionsResult] = await Promise.all([
-    updateLoginStreak().catch(() => ({ success: false, currentStreak: 0 })),
+  // #40 — read-only render. The streak WRITE runs post-hydration via the teen
+  // layout's StreakPinger, not here (no DB mutation / revalidatePath in render).
+  const [lifetimeStats, history, missionsResult] = await Promise.all([
     getLifetimeStats().catch(() => null),
     getActivityHistory(10).catch(() => []),
     getDailyMissions().catch(() => ({ data: [], error: null })),
   ])
 
-  const currentStreak = streakResult.success
-    ? streakResult.currentStreak
-    : lifetimeStats?.current_login_streak ?? 0
+  const currentStreak = lifetimeStats?.current_login_streak ?? 0
 
   const bestStreak = lifetimeStats?.longest_login_streak ?? currentStreak
 
