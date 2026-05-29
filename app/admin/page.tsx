@@ -230,7 +230,7 @@ export default async function AdminDashboardPage() {
             {[
               { href: "/admin/partners", label: "Partenaires KYC", icon: Building2 },
               { href: "/admin/proofs", label: "Preuves défis", icon: CheckSquare },
-              { href: "/admin/content", label: "Modération contenu", icon: ImageIcon },
+              { href: "/admin/moderation", label: "Modération contenu", icon: ImageIcon },
               { href: "/admin/marketplace", label: "Marketplace", icon: ShoppingBag },
               { href: "/admin/creator-moderation", label: "Créateurs", icon: ImageIcon },
               { href: "/admin/check-in", label: "Check-in events", icon: QrCode },
