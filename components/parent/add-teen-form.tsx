@@ -58,6 +58,17 @@ const relationOptions = [
   "Autre"
 ]
 
+// #48 — Normalize a teen phone to E.164 (server requires E164_RE on auth.users).
+// Accepts an already-E.164 value (+CC…) or a Moroccan local number (0[5-7]XXXXXXXX
+// → +212XXXXXXXXX). Returns null when the input can't be normalized.
+function normalizeTeenPhoneE164(raw: string): string | null {
+  const t = raw.replace(/[\s.\-()]/g, "")
+  if (!t) return null
+  if (/^\+[1-9]\d{7,14}$/.test(t)) return t
+  if (/^0[5-7]\d{8}$/.test(t)) return "+212" + t.slice(1)
+  return null
+}
+
 interface School {
   id: string
   name: string
@@ -94,6 +105,8 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     firstName: "",
     lastName: "",
     pseudo: "",
+    teenEmail: "",
+    teenPhone: "",
     dateOfBirth: "",
     avatar: "🦁",
     avatarUrl: null as string | null,
@@ -408,6 +421,25 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
       return
     }
 
+    // #48 — the teen account is created on auth.users, which needs an email
+    // and/or phone. The server requires at least one (Zod .refine) and the
+    // phone in E.164. Validate + normalize here so we never send a 400-bound
+    // payload.
+    const teenEmail = newTeen.teenEmail.trim()
+    const teenPhoneE164 = normalizeTeenPhoneE164(newTeen.teenPhone)
+    if (!teenEmail && !newTeen.teenPhone.trim()) {
+      toast.error("Renseigne l'email ou le téléphone du teen (au moins l'un des deux)")
+      return
+    }
+    if (teenEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(teenEmail)) {
+      toast.error("Format d'email du teen invalide")
+      return
+    }
+    if (newTeen.teenPhone.trim() && !teenPhoneE164) {
+      toast.error("Téléphone du teen invalide (format attendu : +212XXXXXXXXX ou 06XXXXXXXX)")
+      return
+    }
+
     setCreateLoading(true)
 
     try {
@@ -439,16 +471,25 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           dateOfBirth: newTeen.dateOfBirth,
           avatar: newTeen.avatar || "🦁",
           avatarUrl,
-          school: newTeen.school,
-          gradeLevel: newTeen.gradeLevel,
+          // #48 — send null (not "") for unselected optionals: school maps to
+          // teens.school_type which has a CHECK constraint that "" violates.
+          school: newTeen.school || null,
+          gradeLevel: newTeen.gradeLevel || null,
           profiles: newTeen.profiles,
           interests: newTeen.interests,
           allergies: newTeen.allergies,
           photoConsent: newTeen.photoConsent,
           exitRules: newTeen.exitRules,
           emergencyContactName: newTeen.emergencyContactName,
-          emergencyContactPhone: newTeen.emergencyContactPhone,
-          emergencyContactRelation: newTeen.emergencyContactRelation
+          // #48 — emergencyContactPhone is .regex(PHONE_MA_RE).optional().nullable()
+          // server-side: an empty string fails the regex (400). Send null when
+          // blank so the optional emergency contact doesn't block teen creation.
+          emergencyContactPhone: newTeen.emergencyContactPhone || null,
+          emergencyContactRelation: newTeen.emergencyContactRelation,
+          // #48 — only include keys when present (both .optional() server-side);
+          // phone normalized to E.164 to satisfy the server's E164_RE.
+          ...(teenEmail ? { teen_email: teenEmail } : {}),
+          ...(teenPhoneE164 ? { teen_phone: teenPhoneE164 } : {}),
         }),
       })
 
@@ -478,7 +519,9 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     newTeen.lastName.trim() &&
     newTeen.pseudo.length >= 3 &&
     pseudoAvailable === true &&
-    isAgeValid
+    isAgeValid &&
+    // #48 — at least one of email/phone is required (mirrors server .refine)
+    Boolean(newTeen.teenEmail.trim() || newTeen.teenPhone.trim())
 
   return (
     <div className="space-y-6">
@@ -742,6 +785,37 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             )}
             <p className="text-xs text-zinc-500">
               3-20 caractères, lettres, chiffres et underscore uniquement
+            </p>
+          </div>
+
+          {/* #48 — Teen login identity: email and/or phone (at least one). */}
+          <div className="space-y-2">
+            <Label className="text-zinc-300">Email du teen</Label>
+            <Input
+              type="email"
+              inputMode="email"
+              autoComplete="off"
+              value={newTeen.teenEmail}
+              onChange={(e) => updateNewTeen("teenEmail", e.target.value)}
+              placeholder="ex: amine@email.com"
+              className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-zinc-300">Téléphone du teen</Label>
+            <Input
+              type="tel"
+              inputMode="tel"
+              autoComplete="off"
+              value={newTeen.teenPhone}
+              onChange={(e) => updateNewTeen("teenPhone", e.target.value)}
+              placeholder="ex: 0612345678 ou +212612345678"
+              className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            />
+            <p className="text-xs text-zinc-500">
+              Email ou téléphone requis (au moins l'un des deux). Le numéro est converti au format
+              international (+212…) automatiquement.
             </p>
           </div>
 
