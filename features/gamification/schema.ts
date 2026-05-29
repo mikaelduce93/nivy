@@ -224,7 +224,8 @@ export type UserXP = {
   id: string
   teen_id: string
   total_xp: number
-  level: number
+  // #39 — real column is current_level (no `level` column on user_xp).
+  current_level: number
   xp_to_next_level: number
   created_at: string
   updated_at: string
@@ -309,7 +310,8 @@ export type LeaderboardEntry = {
   id: string
   teen_id: string
   total_xp: number
-  level: number
+  // #39 — real column is current_level.
+  current_level: number
   teen: {
     pseudo: string
     avatar_url: string | null
