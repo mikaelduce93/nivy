@@ -29,8 +29,24 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
   const { xp, loading: xpLoading } = useXP(teenId)
 
   // Feature flags pour les méthodes de paiement
+  // #46 — Stripe is gated too (the gateway may be unconfigured); off at launch.
+  const stripeEnabled = useFeatureFlag('stripe_payment', false)
   const cmiEnabled = useFeatureFlag('cmi_payment', false)
   const mobileMoneyEnabled = useFeatureFlag('mobile_money_payment', false)
+
+  // #46 — never leave a disabled method selected (Stripe was the hardcoded
+  // default). Fall back to the first actually-available method.
+  useEffect(() => {
+    const available = [
+      stripeEnabled && 'stripe',
+      cmiEnabled && 'cmi',
+      mobileMoneyEnabled && 'mobile',
+      'cash',
+    ].filter(Boolean) as Array<'stripe' | 'cmi' | 'mobile' | 'cash'>
+    if (!available.includes(selectedMethod)) {
+      setSelectedMethod(available[0])
+    }
+  }, [stripeEnabled, cmiEnabled, mobileMoneyEnabled, selectedMethod])
 
   useEffect(() => {
     async function fetchBooking() {
@@ -148,7 +164,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       description: 'Visa, Mastercard',
       icon: CreditCard,
       color: 'text-blue-500',
-      enabled: true, // Stripe toujours disponible
+      enabled: stripeEnabled, // #46 — gated; not unconditional
     },
     {
       id: 'cmi' as const,
@@ -225,6 +241,14 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       {/* Payment Methods */}
       {dhToPay > 0 && (
         <>
+          {/* #46 — fallback notice when no card rail is active (Stripe/CMI off). */}
+          {!stripeEnabled && !cmiEnabled && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-300">
+              Le paiement par carte (Stripe / CMI) sera activé prochainement. En
+              attendant, règle ta réservation via <strong>Cash ambassadeur</strong>
+              {mobileMoneyEnabled ? " ou Mobile Money" : ""}.
+            </div>
+          )}
           <h3 className="text-sm font-semibold text-zinc-400">
             Mode de paiement {xpToUse > 0 && `(${dhToPay} DH restants)`}
           </h3>
