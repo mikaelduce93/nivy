@@ -1,5 +1,10 @@
 # Ambassador / Referral System — Vision vs Reality Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Read-only audit by `ambassador-referral-auditor`. Live Supabase project: `imchornjvmgmaovhypco`.
 > Compares the founder's intended ambassador / parrainage model with what is actually wired in the Next.js codebase and the live Postgres schema.
 

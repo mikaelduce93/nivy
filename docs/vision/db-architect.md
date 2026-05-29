@@ -1,5 +1,10 @@
 # Nivy DB Architecture — Canonical Target
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > **Date**: 2026-05-07. **Author**: db-architect-auditor.
 > **Source of truth**: `docs/vision/PRODUCT_WHITEPAPER.md` (v3) + 22 domain audits.
 > **Scope**: target ERD that implementation agents converge to. Live project: `imchornjvmgmaovhypco`.

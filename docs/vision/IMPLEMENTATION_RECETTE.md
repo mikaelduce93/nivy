@@ -1,5 +1,10 @@
 # Implementation Recette — Wave 1+2+3 P0 Backlog
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > **Date**: 2026-05-07
 > **Source spec**: `docs/vision/PRODUCT_WHITEPAPER.md` v3 §26 P0 backlog
 > **Live project**: imchornjvmgmaovhypco

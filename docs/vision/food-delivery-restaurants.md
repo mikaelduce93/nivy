@@ -1,5 +1,10 @@
 # Food Delivery & Restaurants
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 Status: VISION (no implementation in repo as of audit). Owner: food-delivery-restaurants-auditor. Audited against Supabase project `imchornjvmgmaovhypco` and working tree `C:\Users\Shadow\Desktop\NIVY` on 2026-05-07.
 
 ## 1. Vision & Why

@@ -1,5 +1,10 @@
 # Allowance & Savings Goals — Vision vs Reality Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Read-only audit. Sources: Grep across the repo for `allowance|recurring|recurrence|argent.{0,5}poche|savings|saving_goal|target_coins`, plus live DB introspection against Supabase project `imchornjvmgmaovhypco` (`SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename ILIKE …`). Cross-referenced with `docs/vision/economy.md`, `docs/vision/avatar-coach.md`, and `docs/vision/parent-control.md`.
 
 ---

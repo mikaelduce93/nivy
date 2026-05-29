@@ -1,5 +1,10 @@
 # Quiz + AI Personalization - Vision vs Reality Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 Date: 2026-05-07
 Auditor: quiz-ai-vision-auditor
 Scope: read-only audit of the quiz feature, with focus on AI generation, pedagogical validation, and per-teen personalization.

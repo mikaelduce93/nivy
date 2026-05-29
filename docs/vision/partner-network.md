@@ -1,5 +1,11 @@
 # Partner Network — Vision Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+> Canon de référence pour ce domaine : `docs/canon/partner-ecosystem.locked.md`.
+
+
 Read-only audit of the Nivy partner ecosystem. Generated 2026-05-07. Project: `imchornjvmgmaovhypco` (nivy, ACTIVE_HEALTHY).
 
 ## 1. Vision (intended)

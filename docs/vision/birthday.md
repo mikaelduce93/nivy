@@ -1,5 +1,10 @@
 # Birthday / Anniversaires — Vision vs Reality Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Read-only audit. Sources: code under `app/anniversaires/`, `app/admin/anniversaires/`, `features/anniversaires/`, `app/api/admin/anniversaires/`, `lib/emails.ts`, `components/parent/parental-approval-list.tsx`, plus live DB queries against Supabase project `imchornjvmgmaovhypco`.
 
 ---

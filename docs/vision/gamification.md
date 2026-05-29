@@ -1,5 +1,11 @@
 # Vision Audit — Gamification Engine
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+> Canon de référence pour ce domaine : `docs/canon/gamification.locked.md`.
+
+
 > Auditor: `gamification-vision-auditor` (read-only)
 > Date: 2026-05-07
 > Scope: défis (daily/weekly/seasonal), missions, streaks, achievements, crews/friend-challenges, fortune wheel, group XP, route doublons.

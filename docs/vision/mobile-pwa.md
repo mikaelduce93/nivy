@@ -1,5 +1,10 @@
 # Mobile / PWA Strategy — Vision vs. Reality
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Audit date: 2026-05-07 · Sources: `next.config.mjs`, `app/manifest.ts`, `app/layout.tsx`, `components/pwa/*`, `components/install-pwa-prompt.tsx`, `components/layouts/mobile-dock.tsx`, `lib/hooks/notifications/use-push.ts`, `app/api/notifications/push/*`, `public/icons/`. Cross-references the notifications audit (`docs/vision/notifications.md`).
 
 ## 1. Intent (Product Vision)

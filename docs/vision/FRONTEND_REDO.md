@@ -1,5 +1,10 @@
 # Nivy Frontend Redesign Map
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > **Date**: 2026-05-07
 > **Source of truth**: `docs/vision/PRODUCT_WHITEPAPER.md` (v3, 51 KB) and the 22 underlying audits.
 > **Scope**: every route under `app/` (≈155 page.tsx files) compared against the canonical product spec.

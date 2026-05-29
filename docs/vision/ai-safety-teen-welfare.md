@@ -1,5 +1,10 @@
 # AI Safety & Teen Welfare — Vision vs. Reality
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Auditor: ai-safety-teen-welfare-auditor (read-only). Scope: every surface
 > where AI-generated content, peer interaction, or gamification mechanics
 > can reach a 13–17-year-old user. Date: 2026-05-07. Branch: `main`.

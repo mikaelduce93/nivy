@@ -1,5 +1,10 @@
 # Academic Integration — Vision Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 Read-only audit of the Aide Scolaire / academic pillar — grades, quizzes, tutorials, curriculum adaptation, and the (unbuilt) tutoring booking layer. Generated 2026-05-07. Project: `imchornjvmgmaovhypco` (nivy, ACTIVE_HEALTHY).
 
 ## 1. Vision (founder, intended)

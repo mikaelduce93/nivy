@@ -75,6 +75,11 @@ These contradict between docs. Pick ONE per row. Order by impact.
 
 ## Read order for new contributors
 
+> ⚠️ **`docs/vision/*` is HISTORICAL (snapshot 2026-05-07) and non-decisional.**
+> This canon (`docs/canon/*.locked.md`, generated 2026-05-08) superseded it and
+> resolved its contradictions. Do not cite `docs/vision/*` for a product
+> decision; each vision file now carries a HISTORIQUE banner pointing back here.
+
 1. `INDEX.locked.md` (this file)
 2. `routing.locked.md` — what URLs exist and what they mean
 3. `auth-onboarding.locked.md` — how a user reaches your code
