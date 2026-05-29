@@ -131,12 +131,13 @@ afterEach(() => {
 // ─── Tests ────────────────────────────────────────────────────────────────
 
 describe("middleware — AUTH-006 is_onboarded gate", () => {
-  it("redirects parent with is_onboarded=false hitting /parent → /onboarding/parent", async () => {
+  it("redirects parent with is_onboarded=false hitting /parent → /onboarding/parent/e-signature", async () => {
+    // #51 — the parent onboarding entry point is now the e-signature step.
     fakeState.user = { id: "p-1" }
     fakeState.profile = { role: "parent", is_onboarded: false }
     const res = await callMiddleware("/parent")
     expect(res.status).toBe(307)
-    expect(locationOf(res)).toMatch(/\/onboarding\/parent$/)
+    expect(locationOf(res)).toMatch(/\/onboarding\/parent\/e-signature$/)
   })
 
   it("lets parent with is_onboarded=true reach /parent (no redirect)", async () => {

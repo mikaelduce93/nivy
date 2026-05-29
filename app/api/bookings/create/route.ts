@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { toDataURL } from "qrcode"
 import { randomBytes } from "node:crypto"
 import { validateCSRFToken } from "@/lib/security/csrf"
-import { rateLimit, RATE_LIMITS } from "@/lib/security/rate-limiter"
+import { rateLimitDistributed, RATE_LIMITS } from "@/lib/security/rate-limiter-redis"
 import { checkTeenBudget } from "@/lib/budget/check-budget"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
 import { recordSignalAsync } from "@/lib/analytics/signals"
@@ -13,7 +13,7 @@ export const runtime = "nodejs"
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting
-    const rateLimitResult = await rateLimit(request, RATE_LIMITS.booking)
+    const rateLimitResult = await rateLimitDistributed(request, RATE_LIMITS.booking)
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         { 

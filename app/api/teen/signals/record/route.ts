@@ -10,7 +10,7 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
-import { rateLimit } from "@/lib/security/rate-limiter"
+import { rateLimitDistributed } from "@/lib/security/rate-limiter-redis"
 import {
   recordSignal,
   type SignalType,
@@ -60,9 +60,9 @@ export async function POST(request: NextRequest) {
     }
     const teenId = userInfo.teenData.id
 
-    // 100 signals/min/teen (per Wave 1.2 spec). Keyed via the rate-limiter's
-    // IP+UA key — adequate for in-memory protection against runaway clients.
-    const rl = await rateLimit(request, { max: 100, window: 60_000 })
+    // 100 signals/min/teen (per Wave 1.2 spec). #71 — distributed limiter
+    // (Redis-shared across instances when configured; IP+UA key).
+    const rl = await rateLimitDistributed(request, { max: 100, window: 60_000 })
     if (!rl.allowed) {
       return NextResponse.json(
         { error: "rate_limited" },

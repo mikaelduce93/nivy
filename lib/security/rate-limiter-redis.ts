@@ -7,10 +7,11 @@
 
 import { NextRequest } from 'next/server'
 
-export interface RateLimitConfig {
-  max: number // Nombre max de requêtes
-  window: number // Fenêtre en millisecondes
-}
+// #71 — single source of truth for the config type + presets lives in
+// ./rate-limiter; re-export here so this is the canonical entry point.
+import type { RateLimitConfig } from './rate-limiter'
+export type { RateLimitConfig } from './rate-limiter'
+export { RATE_LIMITS } from './rate-limiter'
 
 export interface RateLimitResult {
   allowed: boolean

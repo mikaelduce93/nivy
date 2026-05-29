@@ -11,7 +11,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCSRFToken } from './csrf'
-import { rateLimit, RATE_LIMITS, RateLimitConfig } from './rate-limiter'
+// #71 — route through the distributed limiter (Redis when configured, in-memory
+// fallback otherwise). RATE_LIMITS/RateLimitConfig are re-exported from there.
+import { rateLimitDistributed, RATE_LIMITS, type RateLimitConfig } from './rate-limiter-redis'
 import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
 
@@ -48,7 +50,7 @@ export function withSecurity(
         ? RATE_LIMITS[options.rateLimit]
         : options.rateLimit || RATE_LIMITS.api
 
-      const rateLimitResult = await rateLimit(request, rateLimitConfig)
+      const rateLimitResult = await rateLimitDistributed(request, rateLimitConfig)
 
       if (!rateLimitResult.allowed) {
         return NextResponse.json(

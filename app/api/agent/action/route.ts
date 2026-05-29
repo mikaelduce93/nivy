@@ -6,31 +6,13 @@ import { TEEN_AGENT_PROMPT, PARENT_AGENT_PROMPT, PARTNER_AGENT_PROMPT, AMBASSADO
 import { ContextEngine } from '@/lib/ai/context-engine';
 import { scrubPii } from '@/lib/ai/safe-context';
 import { createClient } from '@/lib/supabase/server';
+import type { NextRequest } from 'next/server';
+// #71 — shared/distributed rate limiter (Redis when configured, in-memory
+// fallback). Replaces the per-lambda in-memory Map this route used to keep.
+import { rateLimitDistributed } from '@/lib/security/rate-limiter-redis';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
-
-// Simple in-memory rate limiting
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_MAX = 20; // Max requests per window
-const RATE_LIMIT_WINDOW = 60000; // 1 minute window
-
-function checkRateLimit(userId: string): { allowed: boolean; remaining: number } {
-  const now = Date.now();
-  const userLimit = rateLimitMap.get(userId);
-  
-  if (!userLimit || now > userLimit.resetAt) {
-    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return { allowed: true, remaining: RATE_LIMIT_MAX - 1 };
-  }
-  
-  if (userLimit.count >= RATE_LIMIT_MAX) {
-    return { allowed: false, remaining: 0 };
-  }
-  
-  userLimit.count++;
-  return { allowed: true, remaining: RATE_LIMIT_MAX - userLimit.count };
-}
 
 // Define schemas for tools
 const checkInSchema = z.object({
@@ -60,7 +42,7 @@ function createTool(config: { description: string; parameters: any; execute: any
   return tool(config as unknown as Parameters<typeof tool>[0]);
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   // Check for API Key
   if (!process.env.OPENAI_API_KEY) {
     return new Response(JSON.stringify({ 
@@ -81,8 +63,8 @@ export async function POST(req: Request) {
       }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // Rate limit check
-    const rateCheck = checkRateLimit(user.id);
+    // Rate limit check (#71 — distributed, 20/min)
+    const rateCheck = await rateLimitDistributed(req, { max: 20, window: 60000 });
     if (!rateCheck.allowed) {
       return new Response(JSON.stringify({ 
         error: "Too many requests. Please wait a moment.",
