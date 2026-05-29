@@ -231,15 +231,19 @@ export type UserXP = {
 }
 
 /**
- * Type XP Ledger Entry
+ * Type XP Ledger Entry — rows of public.xp_transactions (the real XP
+ * audit-trail table; the previously-referenced ledger table name never
+ * existed in the DB). See #38.
  */
 export type XPLedgerEntry = {
   id: string
   teen_id: string
-  xp_amount: number
-  action_type: string
+  amount: number
+  source_type: string | null
+  source_id: string | null
   reference_type: string | null
   reference_id: string | null
+  description: string | null
   created_at: string
 }
 

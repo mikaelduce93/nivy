@@ -81,7 +81,8 @@ export async function getTeenXP(teenId: string): Promise<ActionResult<UserXP>> {
         .insert({
           teen_id: teenId,
           total_xp: 0,
-          level: 1,
+          // #38 — real column is current_level (no `level` column on user_xp).
+          current_level: 1,
           xp_to_next_level: 100,
         })
         .select()
@@ -114,8 +115,11 @@ export async function getTeenXPHistory(
 
     const supabase = await getSupabaseClient()
 
+    // #38 — the previously-referenced ledger table never existed; the real XP
+    // audit-trail table is xp_transactions (amount/source_type/source_id/
+    // reference_*/description).
     const { data, error } = await supabase
-      .from('xp_ledger')
+      .from('xp_transactions')
       .select('*')
       .eq('teen_id', teenId)
       .order('created_at', { ascending: false })
@@ -144,12 +148,16 @@ export async function addXP(input: AddXPInput): Promise<ActionResult<any>> {
     const { teenId, xpAmount, reason, data } = validation.data
     const supabase = await getSupabaseClient()
 
-    // Call PostgreSQL function register_user_action
-    const { data: result, error } = await supabase.rpc('register_user_action', {
+    // #38 — the previous phantom RPC never existed in the DB. The canonical XP
+    // RPC is add_xp_to_user (SECURITY DEFINER): it bumps user_xp.total_xp and
+    // inserts an xp_transactions row, returning a JSONB result.
+    const { data: result, error } = await supabase.rpc('add_xp_to_user', {
       p_teen_id: teenId,
-      p_action_type: reason,
       p_xp_amount: xpAmount,
-      p_data: data || {},
+      p_source_type: reason,
+      p_source_category: data?.reference_type ?? null,
+      p_source_id: data?.reference_id ?? null,
+      p_description: reason,
     })
 
     if (error) throw error
@@ -535,7 +543,7 @@ export async function completeChallenge(
 
     if (updateError) throw updateError
 
-    // Add XP via register_user_action
+    // Add XP via addXP (→ add_xp_to_user RPC)
     const xpResult = await addXP({
       teenId,
       xpAmount: challenge.xp_reward,
