@@ -187,8 +187,10 @@ const nextConfig = {
       // GAMIFICATION - Daily redirect
       // ----------------------------------------
       {
+        // #68 — point straight at the canonical route (was → /gamification/missions,
+        // which itself 308'd to /teen/quests — two hops).
         source: '/daily',
-        destination: '/gamification/missions',
+        destination: '/teen/quests',
         permanent: false,
       },
 

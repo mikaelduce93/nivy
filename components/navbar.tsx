@@ -213,9 +213,9 @@ export function Navbar() {
           title: "Level Up",
           items: [
             { label: "Mon niveau", href: "/gamification", icon: Zap },
-            { label: "Missions du jour", href: "/gamification/missions", icon: Target },
-            { label: "Mes badges", href: "/gamification/badges", icon: Award },
-            { label: "Ma collection", href: "/gamification/collections", icon: Gift },
+            { label: "Missions du jour", href: "/teen/quests", icon: Target },
+            { label: "Mes badges", href: "/teen/profile?tab=achievements", icon: Award },
+            { label: "Ma collection", href: "/teen/profile?tab=achievements", icon: Gift },
           ],
         },
         {

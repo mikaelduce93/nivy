@@ -227,13 +227,13 @@ export function UnifiedRewardsDisplay({
               {/* Actions */}
               <div className="flex gap-2">
                 <Button asChild size="sm" className="flex-1 bg-purple-500 hover:bg-purple-600">
-                  <Link href="/gamification/missions">
+                  <Link href="/teen/quests">
                     <Target className="h-4 w-4 mr-1" />
                     Missions
                   </Link>
                 </Button>
                 <Button asChild size="sm" variant="outline" className="flex-1 border-purple-500/50 text-purple-300">
-                  <Link href="/gamification/leaderboard">
+                  <Link href="/teen/leaderboard">
                     <Trophy className="h-4 w-4 mr-1" />
                     Classement
                   </Link>

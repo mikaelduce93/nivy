@@ -76,7 +76,7 @@ export default async function CreatorLeaderboardPage({
           <Link href="/teen/feed" className="text-blue-600 hover:underline">
             Feed
           </Link>
-          <Link href="/gamification/leaderboard" className="text-blue-600 hover:underline">
+          <Link href="/teen/leaderboard" className="text-blue-600 hover:underline">
             XP global
           </Link>
         </div>

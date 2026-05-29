@@ -84,7 +84,7 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
                 <Link href="/teen/events" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
                   Events
                 </Link>
-                <Link href="/gamification/collections" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
+                <Link href="/teen/profile?tab=achievements" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
                   Achievements
                 </Link>
                 <Link href="/teen/coins" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
