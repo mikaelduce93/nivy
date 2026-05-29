@@ -216,31 +216,25 @@ export async function POST(request: NextRequest) {
     const xpValue = xpToDH(xpAmount)
     const remainingAmount = booking.total_amount - xpValue
 
-    // Start transaction: deduct XP and update booking
-    // Deduct XP from user
-    const { error: deductError } = await supabase
-      .from("user_xp")
-      .update({
-        total_xp: userXP.total_xp - xpAmount,
-      })
-      .eq("teen_id", teenId)
+    // #47 — atomic debit via the SECURITY DEFINER RPC (SELECT ... FOR UPDATE +
+    // guarded balance check + ledger insert in one transaction), executed with
+    // the service-role client. Replaces the old non-atomic read-then-write that
+    // could double-spend under concurrency. Ownership was validated above.
+    const { createServiceRoleClient } = await import("@/lib/supabase/service-role")
+    const sr = createServiceRoleClient()
+    const { data: debitResult, error: debitRpcError } = await sr.rpc("deduct_xp_for_payment", {
+      p_teen_id: teenId,
+      p_amount: xpAmount,
+      p_booking_id: bookingId,
+      p_reference: `Paiement réservation ${booking.booking_reference}`,
+    })
 
-    if (deductError) {
+    if (debitRpcError || !debitResult?.success) {
       return NextResponse.json(
-        { error: "Erreur lors de la déduction des XP" },
-        { status: 500 }
+        { error: debitResult?.error || "Solde XP insuffisant" },
+        { status: 400 }
       )
     }
-
-    // Record XP transaction
-    await supabase.from("xp_transactions").insert({
-      teen_id: teenId,
-      amount: -xpAmount,
-      type: "payment",
-      description: `Paiement réservation ${booking.booking_reference}`,
-      reference_type: "booking",
-      reference_id: bookingId,
-    })
 
     // Update booking with XP payment info
     const newPaymentStatus = remainingAmount === 0 ? "paid" : "partial_xp"
@@ -261,13 +255,11 @@ export async function POST(request: NextRequest) {
       .eq("id", bookingId)
 
     if (bookingUpdateError) {
-      // Rollback XP deduction
-      await supabase
-        .from("user_xp")
-        .update({
-          total_xp: userXP.total_xp,
-        })
-        .eq("teen_id", teenId)
+      // #47 — no manual "restore to read value" rollback (it clobbered
+      // concurrent writes). The debit is atomic and recorded in xp_transactions;
+      // a booking-update failure after a committed debit is logged for
+      // reconciliation rather than corrupting the balance.
+      console.error("[XP Payment] booking update failed after atomic XP debit:", bookingUpdateError)
 
       return NextResponse.json(
         { error: "Erreur lors de la mise à jour de la réservation" },

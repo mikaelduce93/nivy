@@ -162,30 +162,22 @@ export const POST = withSecurity(
 
       // Process XP deduction if any XP is being used
       if (xpAmount > 0) {
-        // Deduct XP from user
-        const { error: deductError } = await supabase
-          .from("user_xp")
-          .update({
-            total_xp: availableXP - paymentResult.xpAmount,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("teen_id", teenId)
-
-        if (deductError) {
-          console.error("[Hybrid Payment] Failed to deduct XP:", deductError)
-          return errorResponse("Erreur lors de la déduction des XP", 500)
-        }
-
-        // Record XP transaction in ledger
-        await supabase.from("xp_transactions").insert({
-          teen_id: teenId,
-          amount: -paymentResult.xpAmount,
-          type: "purchase",
-          description: `Paiement réservation ${booking.booking_reference}`,
-          reference_type: "booking",
-          reference_id: bookingId,
-          created_at: new Date().toISOString(),
+        // #47 — atomic debit via the SECURITY DEFINER RPC (SELECT ... FOR
+        // UPDATE + guarded balance + ledger insert in one transaction),
+        // executed with service-role. Replaces the non-atomic read-then-write
+        // (which also wrote an invalid xp_transactions.type='purchase').
+        const { createServiceRoleClient } = await import("@/lib/supabase/service-role")
+        const sr = createServiceRoleClient()
+        const { data: debitResult, error: debitRpcError } = await sr.rpc("deduct_xp_for_payment", {
+          p_teen_id: teenId,
+          p_amount: paymentResult.xpAmount,
+          p_booking_id: bookingId,
+          p_reference: `Paiement réservation ${booking.booking_reference}`,
         })
+
+        if (debitRpcError || !debitResult?.success) {
+          return errorResponse(debitResult?.error || "Solde XP insuffisant", 400)
+        }
 
         // Update booking with XP info
         await supabase
@@ -313,12 +305,18 @@ export const POST = withSecurity(
         })
 
         if (!cmiPayment.success) {
-          // Rollback XP deduction if CMI fails
+          // #47 — additive refund via add_xp_to_user (not the old "restore to
+          // read value" which clobbered concurrent writes).
           if (xpAmount > 0) {
-            await supabase
-              .from("user_xp")
-              .update({ total_xp: availableXP })
-              .eq("teen_id", teenId)
+            const { createServiceRoleClient } = await import("@/lib/supabase/service-role")
+            await createServiceRoleClient().rpc("add_xp_to_user", {
+              p_teen_id: teenId,
+              p_xp_amount: paymentResult.xpAmount,
+              p_source_type: "refund",
+              p_source_category: "payment_refund",
+              p_source_id: bookingId,
+              p_description: `Remboursement XP — échec CMI réservation ${booking.booking_reference}`,
+            })
           }
           return errorResponse(cmiPayment.error || "Erreur CMI", 500)
         }
@@ -354,12 +352,18 @@ export const POST = withSecurity(
         })
 
         if (!mmPayment.success) {
-          // Rollback XP deduction if MM fails
+          // #47 — additive refund via add_xp_to_user (not the old "restore to
+          // read value" which clobbered concurrent writes).
           if (xpAmount > 0) {
-            await supabase
-              .from("user_xp")
-              .update({ total_xp: availableXP })
-              .eq("teen_id", teenId)
+            const { createServiceRoleClient } = await import("@/lib/supabase/service-role")
+            await createServiceRoleClient().rpc("add_xp_to_user", {
+              p_teen_id: teenId,
+              p_xp_amount: paymentResult.xpAmount,
+              p_source_type: "refund",
+              p_source_category: "payment_refund",
+              p_source_id: bookingId,
+              p_description: `Remboursement XP — échec Mobile Money réservation ${booking.booking_reference}`,
+            })
           }
           return errorResponse(mmPayment.error || "Erreur Mobile Money", 500)
         }
