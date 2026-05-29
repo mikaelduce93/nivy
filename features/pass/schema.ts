@@ -3,6 +3,12 @@
  * =============================================
  *
  * Schémas Zod pour la validation du système Pass VIP.
+ *
+ * ⚠️ #66 — DISTINCT du XP-track `vip_tiers`. Ceci est le « Pass / Carte VIP »
+ * marketing PAYANT (gold/platinum, prix en DH). Le statut VIP gagné par l'XP
+ * vit dans la table `vip_tiers` (7 tiers standard..legendary) et sa config
+ * canonique `gamification-system/features/vip-system/schema.ts`. Ne PAS
+ * fusionner les deux nomenclatures.
  */
 
 import { z } from 'zod'

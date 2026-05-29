@@ -1,5 +1,12 @@
 'use client'
 
+/**
+ * ⚠️ #66 — This is the PAID marketing "Carte VIP / Pass" (silver/gold/platinum
+ * with DH prices), DISTINCT from the XP-earned VIP status in the `vip_tiers`
+ * table (7 tiers standard..legendary, surfaced at /teen/vip-card). Do not
+ * confuse the two nomenclatures.
+ */
+
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'

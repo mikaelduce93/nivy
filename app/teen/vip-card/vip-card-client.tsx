@@ -4,70 +4,74 @@ import { motion } from "framer-motion"
 import { Crown, Zap, Star, Lock, Check, Gift, Sparkles, Shield, TrendingUp, Users, Calendar, Percent } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import {
+  VIP_TIER_CONFIG,
+  TIER_XP_REQUIREMENTS,
+  VipTierSlugEnum,
+  type VipTierSlug,
+} from "@/gamification-system/features/vip-system/schema"
 
-// VIP tier visual catalogue + benefit copy. The XP thresholds and active tier
-// are resolved against the live VIP backend below.
-// TODO(data): expose vip_tier benefits + perks usage stats via the API so this
-// catalogue can be replaced by real data per tier.
-const VIP_TIERS = [
-  {
-    id: "bronze",
-    name: "Bronze",
-    xpRequired: 0,
-    color: "from-amber-700 to-amber-800",
-    borderColor: "border-amber-700/30",
-    bgColor: "bg-amber-700/10",
-    benefits: [
-      { icon: Percent, text: "5% bonus XP" },
-      { icon: Gift, text: "Accès aux récompenses basiques" },
-      { icon: Star, text: "Badge Bronze" },
-    ],
-  },
-  {
-    id: "silver",
-    name: "Silver",
-    xpRequired: 5000,
-    color: "from-zinc-400 to-zinc-500",
-    borderColor: "border-zinc-400/30",
-    bgColor: "bg-zinc-400/10",
-    benefits: [
-      { icon: Percent, text: "10% bonus XP" },
-      { icon: Calendar, text: "Accès prioritaire aux events" },
-      { icon: Gift, text: "Récompenses exclusives" },
-      { icon: Star, text: "Badge Silver" },
-    ],
-  },
-  {
-    id: "gold",
-    name: "Gold",
-    xpRequired: 15000,
-    color: "from-yellow-500 to-amber-500",
-    borderColor: "border-yellow-500/30",
-    bgColor: "bg-yellow-500/10",
-    benefits: [
-      { icon: Percent, text: "20% bonus XP" },
-      { icon: Calendar, text: "Events VIP exclusifs" },
-      { icon: Gift, text: "Récompenses premium" },
-      { icon: Sparkles, text: "Spins bonus quotidiens" },
-      { icon: Star, text: "Badge Gold" },
-    ],
-  },
-  {
-    id: "platinum",
-    name: "Platinum",
-    xpRequired: 50000,
-    color: "from-purple-500 to-pink-500",
-    borderColor: "border-purple-500/30",
-    bgColor: "bg-purple-500/10",
-    benefits: [
-      { icon: Percent, text: "30% bonus XP" },
-      { icon: Shield, text: "Tous les avantages" },
-      { icon: Gift, text: "Prix réels exclusifs" },
-      { icon: Users, text: "Coach personnel" },
-      { icon: Crown, text: "Badge Platinum" },
-    ],
-  },
-]
+// #66 — per-slug benefit copy (UI only). Tier order, FR names and XP thresholds
+// are DERIVED from the canonical VIP config (single source of truth, aligned
+// with the vip_tiers DB table) — no local divergent silver/gold/platinum array.
+const TIER_BENEFITS: Record<VipTierSlug, { icon: typeof Star; text: string }[]> = {
+  standard: [
+    { icon: Star, text: "Accès de base" },
+    { icon: Gift, text: "Récompenses standard" },
+  ],
+  bronze: [
+    { icon: Percent, text: "5% bonus XP" },
+    { icon: Gift, text: "Accès aux récompenses basiques" },
+    { icon: Star, text: "Badge Bronze" },
+  ],
+  silver: [
+    { icon: Percent, text: "10% bonus XP" },
+    { icon: Calendar, text: "Accès prioritaire aux events" },
+    { icon: Gift, text: "Récompenses exclusives" },
+    { icon: Star, text: "Badge Argent" },
+  ],
+  gold: [
+    { icon: Percent, text: "20% bonus XP" },
+    { icon: Calendar, text: "Events VIP exclusifs" },
+    { icon: Gift, text: "Récompenses premium" },
+    { icon: Sparkles, text: "Spins bonus quotidiens" },
+    { icon: Star, text: "Badge Or" },
+  ],
+  platinum: [
+    { icon: Percent, text: "30% bonus XP" },
+    { icon: Shield, text: "Tous les avantages Or" },
+    { icon: Gift, text: "Prix réels exclusifs" },
+    { icon: Users, text: "Coach personnel" },
+    { icon: Crown, text: "Badge Platine" },
+  ],
+  diamond: [
+    { icon: Percent, text: "40% bonus XP" },
+    { icon: Shield, text: "Tous les avantages Platine" },
+    { icon: Sparkles, text: "Événements ultra-exclusifs" },
+    { icon: Crown, text: "Badge Diamant" },
+  ],
+  legendary: [
+    { icon: Percent, text: "50% bonus XP" },
+    { icon: Crown, text: "Statut légendaire" },
+    { icon: Gift, text: "Récompenses uniques" },
+    { icon: Star, text: "Badge Légendaire" },
+  ],
+}
+
+// Derived catalogue: 7 tiers (standard..legendary), FR names + thresholds from
+// VIP_TIER_CONFIG / TIER_XP_REQUIREMENTS; visuals from the config gradient.
+const VIP_TIERS = VipTierSlugEnum.options.map((slug) => {
+  const cfg = VIP_TIER_CONFIG[slug]
+  return {
+    id: slug,
+    name: cfg.name,
+    xpRequired: TIER_XP_REQUIREMENTS[slug],
+    color: cfg.gradient,
+    borderColor: cfg.borderColor,
+    bgColor: cfg.bgColor,
+    benefits: TIER_BENEFITS[slug],
+  }
+})
 
 // TODO(data): vip_perks_used stats endpoint not implemented; keep empty.
 const VIP_PERKS_USED: Array<{ id: number; perk: string; usedCount: number; icon: any }> = []
