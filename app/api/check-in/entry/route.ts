@@ -34,11 +34,27 @@ export const POST = withSecurity(async (request: NextRequest) => {
     // use the service-role client for the (authz-gated) data operations.
     const sr = createServiceRoleClient()
 
-    const { data: ticket } = await sr
-      .from("booking_tickets")
-      .select("id, booking_id, child_id, ticket_type, checked_in")
-      .eq("id", bookingTicketId)
-      .maybeSingle()
+    // #43 — the scanned value may be a booking_tickets.id (uuid) OR the
+    // booking_reference (TP… text) that the confirmation page / PDF QR encode.
+    // Resolve both, robustly (an already-printed QR can't be re-issued).
+    const TICKET_COLS = "id, booking_id, child_id, ticket_type, checked_in"
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      String(bookingTicketId)
+    )
+    let ticket: any = null
+    if (isUuid) {
+      ;({ data: ticket } = await sr.from("booking_tickets").select(TICKET_COLS).eq("id", bookingTicketId).maybeSingle())
+    }
+    if (!ticket) {
+      const { data: refBooking } = await sr
+        .from("bookings")
+        .select("id")
+        .eq("booking_reference", bookingTicketId)
+        .maybeSingle()
+      if (refBooking) {
+        ;({ data: ticket } = await sr.from("booking_tickets").select(TICKET_COLS).eq("booking_id", refBooking.id).limit(1).maybeSingle())
+      }
+    }
 
     if (!ticket) {
       return NextResponse.json({ error: "Billet non trouvé" }, { status: 404 })

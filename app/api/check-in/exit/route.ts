@@ -31,11 +31,26 @@ export const POST = withSecurity(async (request: NextRequest) => {
     // #36 — real schema; admin/staff isn't the owner → service-role for data ops.
     const sr = createServiceRoleClient()
 
-    const { data: ticket } = await sr
-      .from("booking_tickets")
-      .select("id, booking_id, child_id, ticket_type, checked_in")
-      .eq("id", bookingTicketId)
-      .maybeSingle()
+    // #43 — accept a booking_tickets.id (uuid) OR the booking_reference the QR
+    // encodes; resolve identically to /entry.
+    const TICKET_COLS = "id, booking_id, child_id, ticket_type, checked_in"
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      String(bookingTicketId)
+    )
+    let ticket: any = null
+    if (isUuid) {
+      ;({ data: ticket } = await sr.from("booking_tickets").select(TICKET_COLS).eq("id", bookingTicketId).maybeSingle())
+    }
+    if (!ticket) {
+      const { data: refBooking } = await sr
+        .from("bookings")
+        .select("id")
+        .eq("booking_reference", bookingTicketId)
+        .maybeSingle()
+      if (refBooking) {
+        ;({ data: ticket } = await sr.from("booking_tickets").select(TICKET_COLS).eq("booking_id", refBooking.id).limit(1).maybeSingle())
+      }
+    }
 
     if (!ticket) {
       return NextResponse.json({ error: "Billet non trouvé" }, { status: 404 })
