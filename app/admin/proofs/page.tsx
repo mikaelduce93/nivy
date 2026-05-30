@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { ModerationReviewRow } from "./moderation-review-row"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { StatCard } from "@/components/admin/stat-card"
 import { ShieldCheck } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -157,9 +158,9 @@ export default async function AdminProofsPage() {
       </header>
 
       <section className="mb-8 grid grid-cols-3 gap-3">
-        <StatCard label="En attente" value={stats.pending} tone="yellow" />
-        <StatCard label="Approuvés" value={stats.approved} tone="green" />
-        <StatCard label="Rejetés" value={stats.rejected} tone="red" />
+        <StatCard label="En attente" value={stats.pending} tone="gold" />
+        <StatCard label="Approuvés" value={stats.approved} tone="lime" />
+        <StatCard label="Rejetés" value={stats.rejected} tone="coral" />
       </section>
 
       <section>
@@ -183,27 +184,5 @@ export default async function AdminProofsPage() {
         </ul>
       </section>
     </main>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: number
-  tone: "yellow" | "green" | "red"
-}) {
-  const palette: Record<typeof tone, string> = {
-    yellow: "border-gold/30 bg-gold/10 text-gold",
-    green: "border-lime/30 bg-lime/10 text-lime",
-    red: "border-destructive/30 bg-destructive/10 text-destructive",
-  }
-  return (
-    <div className={`rounded border p-3 ${palette[tone]}`}>
-      <div className="text-xs uppercase tracking-wide opacity-80">{label}</div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
-    </div>
   )
 }

@@ -21,8 +21,58 @@ import {
   Cake,
   QrCode,
 } from 'lucide-react'
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { Niv, DarkSurface, NivEmpty } from "@/components/brand"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatCard } from "@/components/admin/stat-card"
+
+const NAV_GROUPS = [
+  {
+    title: "Opérations",
+    items: [
+      { href: "/admin/evenements", label: "Événements", icon: Calendar },
+      { href: "/admin/reservations", label: "Réservations", icon: Ticket },
+      { href: "/admin/anniversaires", label: "Anniversaires", icon: Cake },
+      { href: "/admin/check-in", label: "Check-in events", icon: QrCode },
+      { href: "/admin/marketplace", label: "Marketplace", icon: ShoppingBag },
+      { href: "/admin/drivers", label: "Chauffeurs", icon: Car },
+    ],
+  },
+  {
+    title: "Modération",
+    items: [
+      { href: "/admin/partners", label: "Partenaires KYC", icon: Building2 },
+      { href: "/admin/proofs", label: "Preuves défis", icon: CheckSquare },
+      { href: "/admin/moderation", label: "Modération contenu", icon: ImageIcon },
+      { href: "/admin/creator-moderation", label: "Créateurs", icon: ImageIcon },
+      { href: "/admin/utilisateurs", label: "Utilisateurs", icon: Shield },
+      { href: "/admin/permissions", label: "Permissions", icon: Shield },
+    ],
+  },
+  {
+    title: "Croissance",
+    items: [
+      { href: "/admin/ambassadeurs", label: "Ambassadeurs", icon: Award },
+      { href: "/admin/clubs", label: "Clubs", icon: Award },
+      { href: "/admin/mentors", label: "Mentors", icon: GraduationCap },
+      { href: "/admin/internships", label: "Stages", icon: Briefcase },
+      { href: "/admin/analytics", label: "Analytics", icon: TrendingUp },
+      { href: "/admin/gamification/scorecard", label: "Live pulse", icon: Activity },
+      { href: "/admin/gamification-setup", label: "Gamif setup", icon: Award },
+      { href: "/admin/logs", label: "Audit log", icon: ScrollText },
+    ],
+  },
+] as const
+
+const BOOKING_STATUS: Record<string, { label: string; className: string }> = {
+  confirmed: { label: "Confirmé", className: "text-lime" },
+  pending: { label: "En attente", className: "text-gold" },
+}
+
+function bookingStatus(status: string | null) {
+  if (status && BOOKING_STATUS[status]) return BOOKING_STATUS[status]
+  return { label: "Annulé", className: "text-coral" }
+}
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient()
@@ -100,246 +150,194 @@ export default async function AdminDashboardPage() {
     }),
   )
 
+  const todoCount = pendingCount || 0
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32">
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-ink mb-4">Panneau d'Administration</h1>
-          <p className="text-mute">
-            Role: <span className="text-lime font-semibold capitalize">{adminRole.role}</span>
+        {/* Header éditorial */}
+        <header className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="eyebrow tracking-[0.16em]">Admin · ton crew</p>
+            <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
+              Ton <em className="font-semibold italic text-pink">QG</em> Nivy
+            </h1>
+            <p className="mt-2 text-sm text-mute">
+              Rôle : <span className="font-mono font-semibold capitalize text-ink">{adminRole.role}</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Niv mood="proud" size={72} />
+            <span className="max-w-[12rem] font-mono text-sm text-mute">
+              {todoCount > 0
+                ? `${todoCount} truc${todoCount > 1 ? "s" : ""} t'attend${todoCount > 1 ? "ent" : ""}.`
+                : "Tout est à jour. Beau boulot."}
+            </span>
+          </div>
+        </header>
+
+        {/* À traiter aujourd'hui — surface sombre prioritaire */}
+        <DarkSurface tone="pink" shadow className="mb-12 p-6 sm:p-8">
+          <p className="eyebrow tracking-[0.16em] text-paper/60">À traiter aujourd'hui</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <Link
+              href="/admin/ambassadeurs"
+              className="flex items-center gap-2 rounded-full border-2 border-paper/30 px-4 py-2 font-mono text-sm text-paper transition-colors hover:border-pink hover:text-pink"
+            >
+              <Award className="size-4" aria-hidden="true" />
+              Candidatures ambassadeurs
+              <span className="font-bold text-pink tabular-nums">{pendingCount || 0}</span>
+            </Link>
+          </div>
+          <p className="mt-4 text-sm text-paper/60">
+            La file ambassadeurs en attente. Traite-la avant de regarder les revenus.
           </p>
+        </DarkSurface>
+
+        {/* KPI — StatCard unifié, hiérarchie secondaire */}
+        <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Utilisateurs"
+            value={usersCount || 0}
+            tone="teal"
+            icon={<Users className="size-6" aria-hidden="true" />}
+            hint="Total inscrits"
+          />
+          <StatCard
+            label="Événements"
+            value={eventsCount || 0}
+            tone="lime"
+            icon={<Calendar className="size-6" aria-hidden="true" />}
+            hint="Total créés"
+          />
+          <StatCard
+            label="Revenus"
+            value={`${revenue.toFixed(0)} DH`}
+            tone="gold"
+            mono
+            icon={<DollarSign className="size-6" aria-hidden="true" />}
+            hint="Réservations confirmées"
+          />
+          <StatCard
+            label="Candidatures"
+            value={pendingCount || 0}
+            tone="coral"
+            icon={<Award className="size-6" aria-hidden="true" />}
+            hint="Ambassadeurs en attente"
+          />
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <div className="bg-gradient-to-br from-lime/20 to-teal/20 rounded-2xl p-6 border border-lime/30">
-            <div className="flex items-center justify-between mb-4">
-              <Users className="w-8 h-8 text-lime" />
-              <span className="text-3xl font-black text-ink">{usersCount || 0}</span>
-            </div>
-            <p className="text-ink font-semibold">Utilisateurs</p>
-            <p className="text-lime text-sm">Total inscrits</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-teal/20 to-pink/20 rounded-2xl p-6 border border-teal/30">
-            <div className="flex items-center justify-between mb-4">
-              <Calendar className="w-8 h-8 text-teal" />
-              <span className="text-3xl font-black text-ink">{eventsCount || 0}</span>
-            </div>
-            <p className="text-ink font-semibold">Événements</p>
-            <p className="text-teal text-sm">Total créés</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-pink/20 to-pink/20 rounded-2xl p-6 border border-pink/30">
-            <div className="flex items-center justify-between mb-4">
-              <DollarSign className="w-8 h-8 text-pink" />
-              <span className="text-3xl font-black text-ink">{revenue.toFixed(0)}</span>
-            </div>
-            <p className="text-ink font-semibold">Revenus</p>
-            <p className="text-pink text-sm">Total DH</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-pink/20 to-destructive/20 rounded-2xl p-6 border border-pink/30">
-            <div className="flex items-center justify-between mb-4">
-              <Award className="w-8 h-8 text-pink" />
-              <span className="text-3xl font-black text-ink">{pendingCount || 0}</span>
-            </div>
-            <p className="text-ink font-semibold">Candidatures</p>
-            <p className="text-pink text-sm">En attente</p>
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-5 gap-6 mb-8">
-          <Button
-            asChild
-            className="bg-gradient-to-r from-lime to-teal hover:from-lime hover:to-teal text-ink border-0 h-auto py-6"
-          >
-            <Link href="/admin/evenements">
-              <div className="text-center w-full">
-                <Calendar className="w-8 h-8 mx-auto mb-2" />
-                <p className="font-bold">Événements</p>
+        {/* Raccourcis — une seule grille de tuiles charte, catégorisées */}
+        <div className="mb-12 space-y-8">
+          {NAV_GROUPS.map((group) => (
+            <section key={group.title}>
+              <p className="eyebrow mb-4 tracking-[0.16em]">{group.title}</p>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+                {group.items.map((item) => {
+                  const badge = item.href === "/admin/ambassadeurs" ? pendingCount || 0 : 0
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="group relative flex flex-col items-center gap-2 rounded-2xl border-2 border-ink bg-white p-5 text-center text-ink shadow-stkr-md transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+                    >
+                      {badge > 0 && (
+                        <span className="absolute right-2 top-2 grid min-w-6 place-items-center rounded-full border-2 border-ink bg-pink px-1.5 font-mono text-xs font-bold text-white tabular-nums">
+                          {badge}
+                        </span>
+                      )}
+                      <item.icon className="size-6 text-ink" aria-hidden="true" />
+                      <span className="text-xs font-semibold">{item.label}</span>
+                    </Link>
+                  )
+                })}
               </div>
-            </Link>
-          </Button>
+            </section>
+          ))}
 
-          <Button
-            asChild
-            className="bg-gradient-to-r from-teal to-pink hover:from-teal hover:to-pink text-ink border-0 h-auto py-6"
-          >
-            <Link href="/admin/reservations">
-              <div className="text-center w-full">
-                <Ticket className="w-8 h-8 mx-auto mb-2" />
-                <p className="font-bold">Réservations</p>
-              </div>
-            </Link>
-          </Button>
-
-          <Button
-            asChild
-            className="bg-gradient-to-r from-pink to-pink hover:from-pink hover:to-pink text-ink border-0 h-auto py-6"
-          >
-            <Link href="/admin/clubs">
-              <div className="text-center w-full">
-                <Award className="w-8 h-8 mx-auto mb-2" />
-                <p className="font-bold">Clubs</p>
-              </div>
-            </Link>
-          </Button>
-
-          <Button
-            asChild
-            className="bg-gradient-to-r from-pink to-destructive hover:from-pink hover:to-destructive text-ink border-0 h-auto py-6"
-          >
-            <Link href="/admin/ambassadeurs">
-              <div className="text-center w-full">
-                <Award className="w-8 h-8 mx-auto mb-2" />
-                <p className="font-bold">Ambassadeurs</p>
-              </div>
-            </Link>
-          </Button>
-
-          <Button
-            asChild
-            className="bg-gradient-to-r from-destructive to-coral hover:from-destructive hover:to-coral text-ink border-0 h-auto py-6"
-          >
-            <Link href="/admin/utilisateurs">
-              <div className="text-center w-full">
-                <Shield className="w-8 h-8 mx-auto mb-2" />
-                <p className="font-bold">Utilisateurs</p>
-              </div>
-            </Link>
-          </Button>
-        </div>
-
-        <div className="mb-8">
-          <Button
-            asChild
-            size="lg"
-            className="w-full bg-gradient-to-r from-pink to-pink hover:from-pink hover:to-pink text-ink border-0 h-16"
-          >
-            <Link href="/admin/analytics">
-              <TrendingUp className="w-6 h-6 mr-3" />
-              <span className="text-lg font-bold">Voir les Analytics Détaillées</span>
-            </Link>
-          </Button>
-        </div>
-
-        {/* Modération & Opérations — secondary admin grid (FRONTEND_REDO §6) */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-ink mb-4">Modération & opérations</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              { href: "/admin/partners", label: "Partenaires KYC", icon: Building2 },
-              { href: "/admin/proofs", label: "Preuves défis", icon: CheckSquare },
-              { href: "/admin/moderation", label: "Modération contenu", icon: ImageIcon },
-              { href: "/admin/marketplace", label: "Marketplace", icon: ShoppingBag },
-              { href: "/admin/creator-moderation", label: "Créateurs", icon: ImageIcon },
-              { href: "/admin/check-in", label: "Check-in events", icon: QrCode },
-              { href: "/admin/anniversaires", label: "Anniversaires", icon: Cake },
-              { href: "/admin/clubs", label: "Clubs", icon: Award },
-              { href: "/admin/mentors", label: "Mentors", icon: GraduationCap },
-              { href: "/admin/internships", label: "Stages", icon: Briefcase },
-              { href: "/admin/drivers", label: "Chauffeurs", icon: Car },
-              { href: "/admin/permissions", label: "Permissions", icon: Shield },
-              { href: "/admin/logs", label: "Audit log", icon: ScrollText },
-              { href: "/admin/gamification/scorecard", label: "Live pulse", icon: Activity },
-              { href: "/admin/gamification-setup", label: "Gamif setup", icon: Award },
-            ].map((item) => (
-              <Button
-                key={item.href}
-                asChild
-                variant="outline"
-                className="h-auto py-4 bg-card border-ink hover:border-lime/40 hover:bg-card text-ink"
+          {/* Scripts SQL — ring-fence super_admin (iso-gate, inchangé) */}
+          {adminRole.role === "super_admin" && (
+            <section>
+              <p className="eyebrow mb-4 tracking-[0.16em]">Système</p>
+              <Link
+                href="/admin/scripts-sql"
+                className="group flex items-center gap-3 rounded-2xl border-2 border-ink bg-ink p-5 text-paper shadow-stkr-md transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
               >
-                <Link href={item.href}>
-                  <div className="flex flex-col items-center gap-2 w-full">
-                    <item.icon className="w-5 h-5 text-lime" />
-                    <span className="text-xs font-semibold">{item.label}</span>
-                  </div>
-                </Link>
-              </Button>
-            ))}
-          </div>
+                <Database className="size-6 text-pink" aria-hidden="true" />
+                <span className="font-display text-lg font-extrabold">
+                  Exécuter les Scripts SQL
+                </span>
+                <span className="ml-auto font-mono text-xs text-paper/60">super_admin uniquement</span>
+              </Link>
+            </section>
+          )}
         </div>
 
-        <div className="mb-8">
-          <Button
-            asChild
-            size="lg"
-            className="w-full bg-gradient-to-r from-lime to-teal hover:from-lime hover:to-teal text-ink border-0 h-16"
-          >
-            <Link href="/admin/scripts-sql">
-              <Database className="w-6 h-6 mr-3" />
-              <span className="text-lg font-bold">Exécuter les Scripts SQL (super_admin uniquement)</span>
-            </Link>
-          </Button>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8">
-          <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-8 border border-ink">
-            <h2 className="text-2xl font-bold text-ink mb-6">Prochains événements</h2>
+        {/* Listes — prochains événements / réservations récentes */}
+        <div className="grid gap-8 lg:grid-cols-2">
+          <StickerCard className="gap-6 p-8">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">Prochains événements</h2>
 
             {eventsWithStats && eventsWithStats.length > 0 ? (
               <div className="space-y-4">
                 {eventsWithStats.map((event) => (
-                  <div key={event.id} className="p-4 bg-card rounded-xl border border-ink">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="text-ink font-semibold mb-1">{event.title}</h3>
-                        <p className="text-mute text-sm">
-                          {new Date(event.event_date).toLocaleDateString("fr-FR")} - {event.city}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lime font-bold text-lg">{event.bookings_count}</p>
-                        <p className="text-mute text-xs">réservations</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-mute py-8">Aucun événement à venir</p>
-            )}
-          </div>
-
-          <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-8 border border-ink">
-            <h2 className="text-2xl font-bold text-ink mb-6">Réservations récentes</h2>
-
-            {recentBookings && recentBookings.length > 0 ? (
-              <div className="space-y-4">
-                {recentBookings.map((booking) => (
                   <div
-                    key={booking.id}
-                    className="flex items-center justify-between p-4 bg-card rounded-xl border border-ink"
+                    key={event.id}
+                    className="flex items-start justify-between gap-4 rounded-xl border-2 border-line bg-white p-4"
                   >
                     <div>
-                      <p className="text-ink font-semibold">{booking.profiles?.full_name}</p>
-                      <p className="text-mute text-sm">{booking.events?.title}</p>
-                      <p className="text-mute text-xs">
-                        {new Date(booking.created_at).toLocaleDateString("fr-FR")}
+                      <h3 className="font-bold text-ink">{event.title}</h3>
+                      <p className="text-sm text-mute">
+                        {new Date(event.event_date).toLocaleDateString("fr-FR")} — {event.city}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lime font-bold">{booking.total_price} DH</p>
-                      <div
-                        className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
-                          booking.status === "confirmed"
-                            ? "bg-lime/20 text-lime"
-                            : booking.status === "pending"
-                              ? "bg-gold/20 text-gold"
-                              : "bg-destructive/20 text-destructive"
-                        }`}
-                      >
-                        {booking.status}
-                      </div>
+                      <p className="font-mono text-lg font-bold text-lime tabular-nums">{event.bookings_count}</p>
+                      <p className="text-xs text-mute">réservations</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-mute py-8">Aucune réservation récente</p>
+              <NivEmpty title="Aucun événement à venir" description="Les prochains événements apparaîtront ici dès qu'ils seront programmés." />
             )}
-          </div>
+          </StickerCard>
+
+          <StickerCard className="gap-6 p-8">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">Réservations récentes</h2>
+
+            {recentBookings && recentBookings.length > 0 ? (
+              <div className="space-y-4">
+                {recentBookings.map((booking) => {
+                  const status = bookingStatus(booking.status)
+                  return (
+                    <div
+                      key={booking.id}
+                      className="flex items-center justify-between gap-4 rounded-xl border-2 border-line bg-white p-4"
+                    >
+                      <div>
+                        <p className="font-bold text-ink">{booking.profiles?.full_name}</p>
+                        <p className="text-sm text-mute">{booking.events?.title}</p>
+                        <p className="text-xs text-mute">
+                          {new Date(booking.created_at).toLocaleDateString("fr-FR")}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-mono font-bold text-ink tabular-nums">{booking.total_price} DH</p>
+                        <span
+                          className={`mt-1 inline-block rounded-full border-2 border-ink px-2 py-0.5 font-mono text-xs font-bold ${status.className}`}
+                        >
+                          {status.label}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <NivEmpty title="Aucune réservation récente" description="Les dernières réservations s'afficheront ici." />
+            )}
+          </StickerCard>
         </div>
       </div>
     </div>
