@@ -2,21 +2,13 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Loader2,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  User,
-  Calendar,
-  Shield,
-  Heart,
-  PartyPopper,
-} from "lucide-react"
+import { FieldInput } from "@/components/ui/field-input"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach, NivEmpty, NivCelebration } from "@/components/brand"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
+import { Loader2, CheckCircle, XCircle, Shield } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
@@ -154,167 +146,150 @@ export default function ValidateTeenPage() {
     }
   }
 
+  const firstName = registration?.teenName?.split(" ")[0] ?? ""
+
+  function Shell({ children }: { children: React.ReactNode }) {
+    return (
+      <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-paper p-4 md:p-10">
+        <MeshBackground />
+        <div className="relative z-10 w-full max-w-lg">{children}</div>
+      </div>
+    )
+  }
+
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink/5 via-background to-pink/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-pink mx-auto mb-4" />
-            <p className="text-muted-foreground">Vérification en cours...</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Shell>
+        <StickerCard className="p-8 text-center">
+          <Loader2 className="mx-auto mb-4 size-12 animate-spin text-pink" aria-hidden="true" />
+          <p className="text-mute">Vérification en cours…</p>
+        </StickerCard>
+      </Shell>
     )
   }
 
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-destructive/5 via-background to-coral/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="h-8 w-8 text-destructive" />
-            </div>
-            <h2 className="text-xl font-bold mb-2">Lien invalide</h2>
-            <p className="text-muted-foreground mb-6">{error}</p>
-            <Button asChild>
+      <Shell>
+        <NivEmpty
+          title="Lien invalide"
+          description={error}
+          action={
+            <Button asChild variant="pink">
               <Link href="/">Retour à l'accueil</Link>
             </Button>
-          </CardContent>
-        </Card>
-      </div>
+          }
+        />
+      </Shell>
     )
   }
 
-  // Success state
+  // Success state — moment de pic (Niv proud + confettis reduced-motion-safe)
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-lime/5 via-background to-lime/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-lime to-lime flex items-center justify-center mx-auto mb-6">
-              <PartyPopper className="h-10 w-10 text-ink" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Compte validé!</h2>
-            <p className="text-muted-foreground mb-4">
-              {registration?.teenName} peut maintenant utiliser Teens Party.
-            </p>
-            <p className="text-sm text-lime mb-6">
-              Redirection vers votre espace parent...
-            </p>
-            <Loader2 className="h-6 w-6 animate-spin text-lime mx-auto" />
-          </CardContent>
-        </Card>
-      </div>
+      <Shell>
+        <NivCelebration
+          tone="lime"
+          title="Compte validé"
+          caption={`${registration?.teenName} peut maintenant utiliser Nivy. Redirection vers ton espace parent…`}
+        />
+      </Shell>
     )
   }
 
   // Main validation view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink/5 via-background to-pink/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink to-pink flex items-center justify-center mx-auto mb-4">
-            <Heart className="h-8 w-8 text-ink" />
-          </div>
-          <CardTitle className="text-2xl">Validation de compte Teen</CardTitle>
-          <CardDescription>
-            {registration?.teenName} souhaite rejoindre Teens Party
-          </CardDescription>
-        </CardHeader>
+    <Shell>
+      <StickerCard className="p-6 sm:p-7">
+        <p className="eyebrow tracking-[0.16em]">Validation teen</p>
+        <h1 className="mt-2 font-display text-3xl font-extrabold leading-[1.05] tracking-tight text-ink text-balance">
+          {firstName} veut te <em className="font-semibold italic text-pink">rejoindre</em>
+        </h1>
 
-        <CardContent className="space-y-6">
+        <div className="mt-4">
+          <NivCoach
+            mood="calm"
+            message={`${firstName} veut rejoindre ton crew sur Nivy. À toi de valider — tu gardes le contrôle.`}
+          />
+        </div>
+
+        <div className="mt-5 space-y-5">
           {/* Teen Info */}
-          <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-pink/20 flex items-center justify-center">
-                <User className="h-5 w-5 text-pink" />
-              </div>
-              <div>
-                <p className="font-semibold">{registration?.teenName}</p>
-                <p className="text-sm text-muted-foreground">
-                  {registration?.teenAge} ans
-                </p>
-              </div>
+          <div className="flex items-center gap-3 rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-ink bg-pink font-display text-base font-extrabold text-ink">
+              {firstName.charAt(0).toUpperCase() || "?"}
+            </span>
+            <div>
+              <p className="font-display font-bold text-ink">{registration?.teenName}</p>
+              <p className="text-sm text-mute">{registration?.teenAge} ans</p>
             </div>
           </div>
 
           {/* Security Note */}
-          <div className="flex items-start gap-3 p-4 bg-teal/10 border border-teal/20 rounded-lg">
-            <Shield className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="font-medium text-teal mb-1">Votre rôle de parent</p>
-              <p className="text-teal/80">
-                En validant, vous pourrez superviser les activités de {registration?.teenName?.split(" ")[0]},
-                approuver ses réservations et définir des limites de dépenses.
-              </p>
-            </div>
-          </div>
+          <Card variant="info" className="p-4">
+            <CardContent className="flex items-start gap-3 px-0">
+              <Shield className="mt-0.5 size-5 shrink-0 text-teal" aria-hidden="true" />
+              <div className="text-sm">
+                <p className="mb-1 font-semibold text-ink">Ton rôle de parent</p>
+                <p className="text-ink-2">
+                  En validant, tu pourras superviser les activités de {firstName}, approuver ses
+                  réservations et définir des limites de dépenses.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Login prompt if not logged in */}
           {!isLoggedIn && (
-            <div className="p-4 bg-gold/10 border border-gold/20 rounded-lg">
-              <p className="text-sm text-gold">
-                <strong>Connexion requise:</strong> Vous devez être connecté pour valider cette demande.
-                Si vous n'avez pas encore de compte, vous pourrez en créer un.
-              </p>
-            </div>
+            <Card variant="warning" className="p-4">
+              <CardContent className="px-0 text-sm text-ink-2">
+                <strong className="font-semibold text-ink">Connexion requise :</strong> tu dois être
+                connecté pour valider cette demande. Pas encore de compte ? Tu pourras en créer un.
+              </CardContent>
+            </Card>
           )}
 
           {/* #26 — teen email for account creation (required to approve). */}
           {isLoggedIn && (
-            <div className="space-y-2">
-              <Label htmlFor="teen-email">Email du teen</Label>
-              <Input
-                id="teen-email"
-                type="email"
-                inputMode="email"
-                value={teenEmail}
-                onChange={(e) => setTeenEmail(e.target.value)}
-                placeholder="email@exemple.com"
-              />
-              <p className="text-xs text-muted-foreground">
-                Son compte sera créé avec cet email. Pré-rempli s'il l'a indiqué à l'inscription.
-              </p>
-            </div>
+            <FieldInput
+              id="teen-email"
+              type="email"
+              inputMode="email"
+              label="Email du teen"
+              placeholder="email@exemple.com"
+              value={teenEmail}
+              onChange={(e) => setTeenEmail(e.target.value)}
+              hint="Son compte sera créé avec cet email. Pré-rempli s'il l'a indiqué à l'inscription."
+            />
           )}
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={handleReject}
-              disabled={processing}
-            >
-              <XCircle className="h-4 w-4 mr-2" />
+            <Button variant="outline" className="flex-1" onClick={handleReject} disabled={processing}>
+              <XCircle className="mr-2 size-4" aria-hidden="true" />
               Refuser
             </Button>
-            <Button
-              className="flex-1 bg-gradient-to-r from-pink to-pink hover:opacity-90 text-ink"
-              onClick={handleApprove}
-              disabled={processing}
-            >
+            <Button variant="pink" className="flex-1" onClick={handleApprove} disabled={processing}>
               {processing ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
               ) : (
-                <CheckCircle className="h-4 w-4 mr-2" />
+                <CheckCircle className="mr-2 size-4" aria-hidden="true" />
               )}
               {isLoggedIn ? "Valider" : "Se connecter pour valider"}
             </Button>
           </div>
 
           {/* Help Link */}
-          <p className="text-xs text-center text-muted-foreground">
-            Vous ne connaissez pas cette personne?{" "}
-            <Link href="/aide" className="text-primary hover:underline">
+          <p className="text-center text-xs text-mute">
+            Tu ne connais pas cette personne ?{" "}
+            <Link href="/aide" className="font-semibold text-pink hover:underline">
               Signaler un abus
             </Link>
           </p>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </StickerCard>
+    </Shell>
   )
 }
