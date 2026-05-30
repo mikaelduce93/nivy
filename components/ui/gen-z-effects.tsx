@@ -51,6 +51,9 @@ interface GlowBlobProps {
 
 /**
  * Ambient glow blob for backgrounds
+ * @deprecated Charte §3 — le flou/glow est banni. Remplacer par
+ * `<MeshBackground>` (`components/ui/effects/mesh-background.tsx`, F11). Conservé
+ * pour compat ; ne pas réintroduire dans le nouveau code.
  */
 export function GlowBlob({
   color = "var(--brand-soft)",
@@ -92,6 +95,10 @@ interface MeshGradientProps {
 
 /**
  * Gen-Z mesh gradient background
+ */
+/**
+ * @deprecated Charte §3 — empilement de blobs floutés (interdit). Remplacer par
+ * `<MeshBackground>` (mesh radial conforme, sans blur — F11).
  */
 export function MeshGradient({ className }: MeshGradientProps) {
   return (

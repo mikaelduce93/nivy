@@ -117,17 +117,31 @@ export function Niv({
   )
 }
 
+/** Tons économiques pilotant le halo/chiffre des surfaces sombres. */
+export type DarkTone = "pink" | "gold" | "coral" | "teal" | "lime"
+
 /**
  * DarkSurface — îlot sombre ponctuel de la charte (coach Niv, carte solde,
  * level-up, scanner QR). Dégradé night + texte crème, dans un thème clair.
  * Factorise le « dark en dur » dispersé (charte §1/§3).
  */
 export interface DarkSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** Halo radial rose décoratif en coin (par défaut activé). */
+  /** Halo radial décoratif en coin (par défaut activé). */
   glow?: boolean
+  /** Couleur du halo (token économique). Défaut `pink`. */
+  tone?: DarkTone
+  /** Ajoute l'ombre sticker `--shadow-stkr-md`. */
+  shadow?: boolean
 }
 
-export function DarkSurface({ glow = true, className, children, ...props }: DarkSurfaceProps) {
+export function DarkSurface({
+  glow = true,
+  tone = "pink",
+  shadow = false,
+  className,
+  children,
+  ...props
+}: DarkSurfaceProps) {
   return (
     <div
       data-slot="dark-surface"
@@ -135,6 +149,7 @@ export function DarkSurface({ glow = true, className, children, ...props }: Dark
       className={cn(
         "relative overflow-hidden rounded-2xl border-2 border-ink text-paper",
         "bg-[linear-gradient(135deg,var(--night-2),var(--night))]",
+        shadow && "shadow-stkr-md",
         className,
       )}
       {...props}
@@ -142,11 +157,88 @@ export function DarkSurface({ glow = true, className, children, ...props }: Dark
       {glow && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-[radial-gradient(circle,color-mix(in_oklch,var(--pink)_45%,transparent),transparent_70%)]"
+          className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full"
+          style={{
+            background: `radial-gradient(circle, color-mix(in oklch, var(--${tone}) 45%, transparent), transparent 70%)`,
+          }}
         />
       )}
       <div className="relative">{children}</div>
     </div>
+  )
+}
+
+const TONE_TEXT: Record<DarkTone, string> = {
+  pink: "text-pink",
+  gold: "text-gold",
+  coral: "text-coral",
+  teal: "text-teal",
+  lime: "text-lime",
+}
+
+const VALUE_SIZE = {
+  sm: "text-[34px]",
+  md: "text-[clamp(2.5rem,8vw,3.25rem)]",
+  lg: "text-[clamp(3.5rem,11vw,5.5rem)]",
+} as const
+
+/**
+ * StatHero — la carte « un chiffre qui compte », bâtie au-dessus de
+ * `<DarkSurface>` : eyebrow mono UPPERCASE + chiffre clé Bricolage géant
+ * (34–88px) coloré par token économique (XP gold / coins coral / niveau teal).
+ * Généralise le hero réussi emprisonné dans `TwinCurrencyGauge`.
+ */
+export interface StatHeroProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Label mono UPPERCASE au-dessus du chiffre. */
+  eyebrow: string
+  /** Le chiffre clé. */
+  value: React.ReactNode
+  /** Unité accolée (DH, XP…). */
+  unit?: string
+  /** Token économique : pilote la couleur du chiffre ET du halo. */
+  tone?: DarkTone
+  size?: "sm" | "md" | "lg"
+  icon?: React.ReactNode
+  /** Sous-ligne méta (équivalent DH, « vers niveau N+1 »…). */
+  meta?: React.ReactNode
+}
+
+export function StatHero({
+  eyebrow,
+  value,
+  unit,
+  tone = "coral",
+  size = "md",
+  icon,
+  meta,
+  className,
+  children,
+  ...props
+}: StatHeroProps) {
+  return (
+    <DarkSurface tone={tone} shadow className={cn("p-5 sm:p-6", className)} {...props}>
+      <div className="flex items-start justify-between gap-3">
+        <span className="eyebrow tracking-[0.16em] text-paper/60">{eyebrow}</span>
+        {icon ? <span className="text-paper/70">{icon}</span> : null}
+      </div>
+      <p
+        className={cn(
+          "mt-2 font-display font-black leading-none tabular-nums",
+          VALUE_SIZE[size],
+          TONE_TEXT[tone],
+        )}
+      >
+        {value}
+        {unit ? (
+          <span className="ml-1.5 align-baseline font-mono text-base font-medium text-paper/60">
+            {unit}
+          </span>
+        ) : null}
+      </p>
+      {meta ?? children ? (
+        <div className="mt-2 text-sm text-paper/60">{meta ?? children}</div>
+      ) : null}
+    </DarkSurface>
   )
 }
 

@@ -55,7 +55,7 @@ export {
   RepelZone,
 } from './magnetic-element'
 
-// Confetti - Celebration effects
+// Confetti - Celebration effects (palettes recalées charte, reduced-motion safe)
 export {
   Confetti,
   ConfettiBurst,
@@ -66,6 +66,11 @@ export {
   QuestConfetti,
   CONFETTI_PALETTES,
 } from './confetti'
+
+// MeshBackground (F11) — fond mesh radial conforme charte (rose/teal SANS
+// blur). Remplaçant de MeshGradient/GlowBlob (gen-z-effects) et
+// AnimatedMeshGradient/Aurora/FlowingOrbs (elite-background), tous @deprecated.
+export { MeshBackground, type MeshBackgroundProps } from './mesh-background'
 
 // Elite Cursor System - Silicon Valley grade cursor effects
 export {

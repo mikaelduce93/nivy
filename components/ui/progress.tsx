@@ -127,33 +127,76 @@ function Progress({
   )
 }
 
-// Segmented progress for multi-step flows
+// Segmented progress for multi-step flows (onboarding / quêtes / quiz)
 interface SegmentedProgressProps {
+  /** Nombre total de segments. */
   steps: number
-  currentStep: number
+  /** Index 0-based du segment **actif** (en cours). */
+  current?: number
+  /** @deprecated Alias 0-based de `current` (compat). */
+  currentStep?: number
+  /** Méta mono optionnelle façon handoff `01 / 12`. */
+  label?: string
+  showLabel?: boolean
+  size?: 'sm' | 'md'
   className?: string
-  color?: VariantProps<typeof indicatorVariants>['color']
 }
 
-function SegmentedProgress({ 
-  steps, 
-  currentStep, 
+/**
+ * SegmentedProgress — barre de progression segmentée charte (§3, handoff
+ * `onboarding-ado.html`) : segments **ink** pour les étapes franchies, segment
+ * **actif rose**, segments futurs vides. Remplace les barres pleines/dégradées
+ * génériques. Aucune classe glass/néon/gradient/shimmer.
+ */
+function SegmentedProgress({
+  steps,
+  current,
+  currentStep,
+  label,
+  showLabel = false,
+  size = 'sm',
   className,
-  color = 'default'
 }: SegmentedProgressProps) {
+  const active = current ?? currentStep ?? 0
+
   return (
-    <div className={cn('flex gap-1.5 w-full', className)}>
-      {Array.from({ length: steps }).map((_, index) => (
-        <div
-          key={index}
-          className={cn(
-            'h-1.5 flex-1 rounded-full transition-all duration-300',
-            index < currentStep 
-              ? indicatorVariants({ color }) 
-              : 'bg-muted'
-          )}
-        />
-      ))}
+    <div className={cn('flex flex-col gap-1.5', className)}>
+      {showLabel && (
+        <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-mute">
+          {label ?? `${String(active + 1).padStart(2, '0')} / ${steps}`}
+        </span>
+      )}
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={steps}
+        aria-valuenow={Math.min(active + 1, steps)}
+        aria-label={label ?? 'Progression'}
+        className="flex w-full gap-1"
+      >
+        {Array.from({ length: steps }).map((_, index) => {
+          const done = index < active
+          const isActive = index === active
+          return (
+            <span
+              key={index}
+              className={cn(
+                'flex-1 overflow-hidden rounded-full bg-ink/12',
+                size === 'sm' ? 'h-[3px]' : 'h-1.5',
+              )}
+            >
+              <span
+                className={cn(
+                  'block h-full rounded-full transition-[width] duration-500 ease-out motion-reduce:transition-none',
+                  done && 'w-full bg-ink',
+                  isActive && 'w-full bg-pink',
+                  !done && !isActive && 'w-0',
+                )}
+              />
+            </span>
+          )
+        })}
+      </div>
     </div>
   )
 }
