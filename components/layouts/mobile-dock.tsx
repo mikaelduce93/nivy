@@ -344,7 +344,7 @@ export function MobileDock() {
         role="navigation"
         aria-label="Navigation mobile"
       >
-        <div className="flex w-full items-center justify-around rounded-3xl border border-white/10 bg-zinc-900/95 p-2 backdrop-blur-xl">
+        <div className="flex w-full items-center justify-around rounded-2xl border-2 border-ink bg-night p-2 text-paper">
           {navItems.map((item) => {
             const Icon = item.icon
             return (
@@ -353,8 +353,8 @@ export function MobileDock() {
                 href={item.href}
                 className="flex flex-1 flex-col items-center gap-0.5 py-2.5 min-h-touch"
               >
-                <Icon className="h-6 w-6 text-zinc-500" />
-                <span className="text-[10px] font-semibold text-zinc-500">
+                <Icon className="h-6 w-6 text-paper/50" />
+                <span className="text-[10px] font-semibold text-paper/50">
                   {item.label}
                 </span>
               </Link>
@@ -371,16 +371,16 @@ export function MobileDock() {
       role="navigation"
       aria-label="Navigation mobile"
     >
-      {/* Gradient backdrop fade */}
-      <div 
-        className="pointer-events-none absolute inset-0"
+      {/* Fondu paper sous le dock (le contenu défile vers le fond crème) */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 -z-10"
         style={{
-          background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent)',
+          background: 'linear-gradient(to top, var(--paper), transparent)',
         }}
       />
-      
-      {/* Main dock container */}
-      <div className="relative flex w-full items-center justify-around rounded-3xl border border-white/10 bg-zinc-900/95 p-2 shadow-2xl backdrop-blur-xl">
+
+      {/* Dock — surface night charte, bordure encre, sans néon ni blur */}
+      <div className="relative flex w-full items-center justify-around rounded-2xl border-2 border-ink bg-night p-2 text-paper shadow-stkr-md">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href || (item.href !== zoneHome && pathname?.startsWith(item.href))
@@ -414,7 +414,7 @@ export function MobileDock() {
                     aria-hidden="true"
                     className="absolute inset-0 rounded-xl"
                     style={{
-                      background: `linear-gradient(to top, ${item.glowColor.replace('0.5', '0.18')}, transparent)`,
+                      background: 'linear-gradient(to top, color-mix(in oklch, var(--pink) 24%, transparent), transparent)',
                     }}
                     transition={
                       prefersReducedMotion
@@ -448,8 +448,7 @@ export function MobileDock() {
                         isActive ? "drop-shadow-lg" : ""
                       )}
                       style={{
-                        color: isActive ? item.color : "#71717a",
-                        filter: isActive ? `drop-shadow(0 0 8px ${item.glowColor})` : 'none',
+                        color: isActive ? "var(--pink)" : "color-mix(in oklch, var(--paper) 55%, transparent)",
                       }}
                       aria-hidden="true"
                     />
@@ -462,7 +461,7 @@ export function MobileDock() {
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="absolute -right-2 -top-1.5 flex min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-md"
+                        className="absolute -right-2 -top-1.5 flex min-w-[18px] items-center justify-center rounded-full border border-ink bg-pink px-1 text-[10px] font-bold text-ink"
                       >
                         {item.badge > 9 ? '9+' : item.badge}
                       </motion.div>
@@ -474,7 +473,7 @@ export function MobileDock() {
                 <motion.span
                   className={cn(
                     "relative z-10 text-[10px] font-semibold",
-                    isActive ? "text-white" : "text-zinc-500"
+                    isActive ? "text-paper" : "text-paper/55"
                   )}
                   initial={false}
                   animate={{ opacity: isActive ? 1 : 0.6 }}
@@ -496,8 +495,7 @@ export function MobileDock() {
                       exit={{ scale: 0, opacity: 0 }}
                       className="relative z-10 mt-0.5 h-1 w-1 rounded-full"
                       style={{
-                        backgroundColor: item.color,
-                        boxShadow: `0 0 8px ${item.glowColor}`,
+                        backgroundColor: "var(--pink)",
                       }}
                     />
                   )}
