@@ -1,9 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { motion } from 'framer-motion'
-import { Plus, ChevronRight, Zap, Target } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Plus, Zap } from 'lucide-react'
 
 interface TeenSponsorHeaderProps {
   teens: any[]
@@ -11,33 +9,21 @@ interface TeenSponsorHeaderProps {
 
 export function TeenSponsorHeader({ teens }: TeenSponsorHeaderProps) {
   return (
-    <div className="flex items-center gap-6 overflow-x-auto pb-4 no-scrollbar">
-      {/* Add New Teen Bubble */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="flex-shrink-0 flex flex-col items-center gap-3"
-      >
-        <div className="w-20 h-20 rounded-full border-2 border-dashed border-ink flex items-center justify-center hover:border-teal/50 transition-colors">
-          <Plus className="w-8 h-8 text-mute" />
-        </div>
-        <span className="text-[10px] font-black text-mute uppercase tracking-widest">Connect</span>
-      </motion.button>
+    <div className="flex items-center gap-5 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* Add new teen */}
+      <button type="button" className="flex shrink-0 flex-col items-center gap-2">
+        <span className="grid size-20 place-items-center rounded-full border-2 border-dashed border-ink transition-colors hover:border-pink">
+          <Plus className="size-8 text-mute" aria-hidden="true" />
+        </span>
+        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-mute">Ajouter</span>
+      </button>
 
-      {/* Teen Avatars */}
-      {teens.map((teen, i) => (
-        <motion.button
-          key={teen.teen_id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.1 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex-shrink-0 flex flex-col items-center gap-3 group"
-        >
+      {/* Teen avatars */}
+      {teens.map((teen) => (
+        <button key={teen.teen_id} type="button" className="group flex shrink-0 flex-col items-center gap-2">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full border-4 border-teal/20 p-1 group-hover:border-teal transition-all duration-500">
-              <div className="relative w-full h-full rounded-full overflow-hidden bg-card">
+            <span className="block size-20 rounded-full border-2 border-ink p-1 transition-transform group-hover:-translate-y-0.5 motion-reduce:translate-y-0">
+              <span className="relative block size-full overflow-hidden rounded-full bg-paper-2">
                 <Image
                   src={teen.avatar_url || '/placeholder-user.jpg'}
                   alt={teen.full_name}
@@ -46,18 +32,17 @@ export function TeenSponsorHeader({ teens }: TeenSponsorHeaderProps) {
                   className="object-cover"
                   unoptimized
                 />
-              </div>
-            </div>
-            {/* Status Badge */}
-            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-teal flex items-center justify-center border-4 border-[#020408] shadow-lg">
-              <Zap className="w-3 h-3 text-ink fill-current" />
-            </div>
+              </span>
+            </span>
+            <span className="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full border-2 border-paper bg-teal">
+              <Zap className="size-3 fill-current text-ink" aria-hidden="true" />
+            </span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-xs font-black text-ink tracking-tight uppercase leading-none">{teen.full_name?.split(" ")[0]}</span>
-            <span className="text-[8px] font-bold text-teal uppercase tracking-widest mt-1">Lvl {teen.level || 1}</span>
+            <span className="font-display text-xs font-bold text-ink">{teen.full_name?.split(" ")[0]}</span>
+            <span className="mt-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-teal">Niv {teen.level || 1}</span>
           </div>
-        </motion.button>
+        </button>
       ))}
     </div>
   )

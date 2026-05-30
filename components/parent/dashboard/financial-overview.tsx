@@ -1,9 +1,8 @@
 "use client"
 
 import { TrendingUp, TrendingDown, AlertTriangle, CreditCard, PieChart } from "lucide-react"
-import { EnergyOrb } from "@/components/ui/energy-orb"
+import { SegmentedProgress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
 
 interface FinancialOverviewProps {
   monthlySpending: number
@@ -20,140 +19,104 @@ export function FinancialOverview({
   previousMonthSpending,
   forecast,
   spendingByCategory,
-  currency = "DH"
+  currency = "DH",
 }: FinancialOverviewProps) {
   const spendingProgress = budgetLimit > 0 ? (monthlySpending / budgetLimit) * 100 : 0
   const isOverBudget = monthlySpending > budgetLimit && budgetLimit > 0
-  
-  // Calculate trend percentage
-  const trend = previousMonthSpending > 0 
-    ? ((monthlySpending - previousMonthSpending) / previousMonthSpending) * 100 
+
+  const trend = previousMonthSpending > 0
+    ? ((monthlySpending - previousMonthSpending) / previousMonthSpending) * 100
     : 0
 
   const sortedCategories = Object.entries(spendingByCategory)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 4) // Top 4 categories
+    .slice(0, 4)
+
+  const capacitySteps = 10
+  const capacityCurrent = Math.min(capacitySteps, Math.round((spendingProgress / 100) * capacitySteps))
 
   return (
-    <div className="p-8 md:p-12 space-y-10 h-full flex flex-col">
-      <div className="flex flex-col md:flex-row justify-between items-start gap-8 flex-1">
-        <div className="space-y-8 flex-1">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-lime/10 flex items-center justify-center border border-lime/20 shadow-2xl">
-              <CreditCard className="h-7 w-7 text-lime animate-pulse" />
-            </div>
-            <div>
-              <h3 className="text-3xl font-black text-ink tracking-tighter">Pilotage Financier</h3>
-              <p className="text-mute text-xs font-bold uppercase tracking-widest">Vue d'ensemble en temps réel</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-10">
-            <div className="space-y-2">
-              <p className="text-xs font-black text-mute uppercase tracking-widest">Dépenses du mois</p>
-              <p className="text-5xl font-black text-ink tracking-tighter">
-                {monthlySpending.toLocaleString()} <span className="text-xl text-mute font-bold">{currency}</span>
-              </p>
-              <motion.div 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border shadow-lg",
-                  trend > 0 ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-lime/10 text-lime border-lime/20"
-                )}
-              >
-                {trend > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                {Math.abs(trend).toFixed(1)}% vs mois dernier
-              </motion.div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xs font-black text-mute uppercase tracking-widest">Prévision</p>
-              <p className="text-5xl font-black text-ink/40 tracking-tighter italic">
-                {forecast.toLocaleString()} <span className="text-xl font-bold">{currency}</span>
-              </p>
-              <p className="text-xs font-black text-ink uppercase tracking-widest">Estimation fin de mois</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Circular Liquid Gauge */}
-        <div className="flex flex-col items-center gap-6">
-          <EnergyOrb 
-            value={spendingProgress} 
-            max={100} 
-            size={220} 
-            color={isOverBudget ? "var(--accent-soft)" : "var(--gen-z-teal)"}
-          >
-            <div className="flex flex-col items-center">
-              <span className="text-4xl font-black text-ink leading-none tracking-tighter">
-                {Math.round(spendingProgress)}%
-              </span>
-              <span className="text-xs font-black text-mute uppercase tracking-widest mt-2">CAPACITÉ</span>
-            </div>
-          </EnergyOrb>
-          
-          <AnimatePresence>
-            {isOverBudget && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="flex items-center gap-2 px-5 py-2 rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 shadow-2xl"
-              >
-                <AlertTriangle className="h-4 w-4 motion-safe:animate-pulse" />
-                <span className="text-xs font-black uppercase tracking-widest">Dépassement Budget</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+    <div className="flex h-full flex-col gap-7 p-6 sm:p-8">
+      <div>
+        <p className="flex items-center gap-2 eyebrow tracking-[0.16em]">
+          <CreditCard className="size-4 text-lime" aria-hidden="true" />
+          Pilotage
+        </p>
+        <h3 className="mt-1 font-display text-2xl font-extrabold tracking-tight">
+          Pilotage <em className="font-semibold italic text-pink">financier</em>
+        </h3>
       </div>
 
-      {/* Category Breakdown - Elite Style */}
-      <div className="space-y-8 pt-12 border-t border-ink relative">
+      {/* LE chiffre hero : dépenses du mois (domine) */}
+      <div>
+        <p className="eyebrow">Dépenses du mois</p>
+        <p className="font-display text-5xl font-extrabold leading-none tabular-nums">
+          {monthlySpending.toLocaleString("fr-FR")} <span className="font-mono text-xl font-medium text-mute">{currency}</span>
+        </p>
+        {previousMonthSpending > 0 && (
+          <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-0.5 font-mono text-xs font-bold uppercase tracking-[0.1em]">
+            {trend > 0 ? <TrendingUp className="size-3 text-coral" aria-hidden="true" /> : <TrendingDown className="size-3 text-lime" aria-hidden="true" />}
+            <span className={trend > 0 ? "text-coral" : "text-lime"}>{Math.abs(trend).toFixed(1)}% vs mois dernier</span>
+          </span>
+        )}
+      </div>
+
+      {/* Capacité budget — secondaire */}
+      <div className="rounded-2xl border-2 border-ink bg-paper-2 p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-pink/10 flex items-center justify-center border border-pink/20">
-              <PieChart className="h-5 w-5 text-pink" />
-            </div>
-            <h4 className="text-sm font-black text-ink uppercase tracking-widest">Analyse par Catégorie</h4>
-          </div>
-          <span className="text-xs font-black text-mute uppercase tracking-widest">Top 4</span>
+          <p className="eyebrow">Capacité budget</p>
+          <p className={cn("font-display text-2xl font-extrabold tabular-nums", isOverBudget ? "text-coral" : "text-teal")}>
+            {Math.round(spendingProgress)}%
+          </p>
         </div>
-        
-        <div className="grid md:grid-cols-2 gap-x-16 gap-y-8">
-          {sortedCategories.length > 0 ? (
-            sortedCategories.map(([category, amount], idx) => (
-              <motion.div 
-                key={category} 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * idx }}
-                className="space-y-3 group cursor-default"
-              >
+        <SegmentedProgress steps={capacitySteps} current={capacityCurrent} size="md" className="mt-2" />
+        {isOverBudget && (
+          <span className="mt-3 inline-flex items-center gap-2 rounded-xl border-2 border-destructive bg-danger-soft px-3 py-1 font-mono text-xs font-bold uppercase tracking-[0.1em] text-destructive">
+            <AlertTriangle className="size-3.5" aria-hidden="true" />
+            Dépassement budget
+          </span>
+        )}
+        {forecast > 0 && (
+          <p className="mt-3 font-mono text-xs text-mute">
+            Prévision fin de mois : <span className="font-bold text-ink">{forecast.toLocaleString("fr-FR")} {currency}</span>
+          </p>
+        )}
+      </div>
+
+      {/* Catégories */}
+      <div className="space-y-4 border-t-2 border-dashed border-line pt-6">
+        <div className="flex items-center justify-between">
+          <p className="flex items-center gap-2 font-display font-bold">
+            <PieChart className="size-4 text-pink" aria-hidden="true" />
+            Analyse par catégorie
+          </p>
+          <span className="eyebrow">Top 4</span>
+        </div>
+
+        {sortedCategories.length > 0 ? (
+          <div className="space-y-3">
+            {sortedCategories.map(([category, amount]) => (
+              <div key={category} className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-mute uppercase tracking-widest group-hover:text-ink transition-colors duration-300">
-                    {category.replace('_', ' ')}
-                  </span>
-                  <span className="text-sm font-black text-ink tabular-nums">
-                    {amount.toLocaleString()} <span className="text-mute text-xs">{currency}</span>
+                  <span className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-mute">{category.replace("_", " ")}</span>
+                  <span className="font-display text-sm font-bold tabular-nums">
+                    {amount.toLocaleString("fr-FR")} <span className="text-mute">{currency}</span>
                   </span>
                 </div>
-                <div className="h-2 w-full bg-white/[0.03] rounded-full overflow-hidden border border-ink p-[1px]">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(amount / monthlySpending) * 100}%` }}
-                    transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.2 + idx * 0.1 }}
-                    className="h-full bg-gradient-to-r from-pink/40 via-pink/60 to-pink/40 rounded-full group-hover:opacity-100 opacity-70 transition-opacity" 
+                <div className="h-2 w-full overflow-hidden rounded-full border-2 border-ink bg-paper-2">
+                  <div
+                    className="h-full rounded-full bg-pink"
+                    style={{ width: `${monthlySpending > 0 ? (amount / monthlySpending) * 100 : 0}%` }}
                   />
                 </div>
-              </motion.div>
-            ))
-          ) : (
-            <div className="col-span-2 py-10 flex flex-col items-center justify-center bg-white/[0.01] rounded-[2rem] border border-dashed border-ink">
-              <p className="text-xs text-ink font-black uppercase tracking-widest">En attente de données</p>
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border-2 border-dashed border-line py-8 text-center">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-mute">En attente de données</p>
+          </div>
+        )}
       </div>
     </div>
   )
