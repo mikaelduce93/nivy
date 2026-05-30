@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { FieldInput } from "@/components/ui/field-input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Settings, Loader2, Save } from "lucide-react"
@@ -74,15 +74,12 @@ export function BudgetLimitForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full border-ink text-ink-2 hover:border-lime/50 hover:text-lime"
-        >
+        <Button variant="outline" className="w-full">
           <Settings className="h-4 w-4 mr-2" />
           Modifier les limites
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-card border-ink">
+      <DialogContent className="bg-card border-2 border-ink">
         <DialogHeader>
           <DialogTitle className="text-ink">Limites de budget pour {teenName}</DialogTitle>
           <DialogDescription className="text-mute">
@@ -92,25 +89,15 @@ export function BudgetLimitForm({
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           {/* Monthly Limit */}
-          <div className="space-y-2">
-            <Label className="text-ink-2">Limite mensuelle (DH)</Label>
-            <div className="relative">
-              <Input
-                type="number"
-                value={monthlyLimit}
-                onChange={(e) => setMonthlyLimit(e.target.value)}
-                placeholder="Ex: 500"
-                min={0}
-                className="bg-card border-ink text-ink pr-16 focus:border-lime"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-mute font-medium">
-                DH/mois
-              </span>
-            </div>
-            <p className="text-xs text-mute">
-              0 = pas de limite
-            </p>
-          </div>
+          <FieldInput
+            label="Limite mensuelle (DH/mois)"
+            type="number"
+            value={monthlyLimit}
+            onChange={(e) => setMonthlyLimit(e.target.value)}
+            placeholder="Ex: 500"
+            min={0}
+            hint="0 = pas de limite"
+          />
 
           {/* Quick Limits */}
           <div className="flex gap-2">
@@ -118,14 +105,9 @@ export function BudgetLimitForm({
               <Button
                 key={value}
                 type="button"
-                variant="outline"
+                variant={monthlyLimit === value.toString() ? "lime" : "outline"}
                 size="sm"
                 onClick={() => setMonthlyLimit(value.toString())}
-                className={`border-ink ${
-                  monthlyLimit === value.toString()
-                    ? "bg-lime/20 border-lime text-lime"
-                    : "text-mute hover:text-ink"
-                }`}
               >
                 {value} DH
               </Button>
@@ -133,31 +115,21 @@ export function BudgetLimitForm({
           </div>
 
           {/* Per Event Limit */}
-          <div className="space-y-2">
-            <Label className="text-ink-2">Limite par event (DH)</Label>
-            <div className="relative">
-              <Input
-                type="number"
-                value={perEventLimit}
-                onChange={(e) => setPerEventLimit(e.target.value)}
-                placeholder="Ex: 200"
-                min={0}
-                className="bg-card border-ink text-ink pr-16 focus:border-lime"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-mute font-medium">
-                DH/event
-              </span>
-            </div>
-            <p className="text-xs text-mute">
-              Les events au-dessus de cette limite nécessiteront votre approbation
-            </p>
-          </div>
+          <FieldInput
+            label="Limite par event (DH/event)"
+            type="number"
+            value={perEventLimit}
+            onChange={(e) => setPerEventLimit(e.target.value)}
+            placeholder="Ex: 200"
+            min={0}
+            hint="Les events au-dessus de cette limite nécessiteront ton approbation"
+          />
 
           {/* Requires Approval */}
-          <div className="flex items-center justify-between p-4 bg-card rounded-xl">
+          <div className="flex items-center justify-between rounded-xl border-2 border-ink bg-paper p-4">
             <div>
-              <Label className="text-ink font-medium">Approbation requise</Label>
-              <p className="text-xs text-mute mt-1">
+              <Label className="font-medium text-ink">Approbation requise</Label>
+              <p className="mt-1 text-xs text-mute">
                 Approuver manuellement chaque réservation
               </p>
             </div>
@@ -169,11 +141,7 @@ export function BudgetLimitForm({
           </div>
 
           {/* Submit */}
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-lime hover:bg-lime text-ink"
-          >
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : (

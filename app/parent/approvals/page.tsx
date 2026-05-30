@@ -1,7 +1,6 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   FileCheck,
@@ -9,17 +8,17 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Filter,
   Calendar,
-  CreditCard,
   ShoppingBag,
   Ticket,
-  AlertTriangle,
   ShieldCheck
 } from "lucide-react"
 import Link from "next/link"
 import { ApprovalButtons } from "@/components/parent/approval-buttons"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, Niv } from "@/components/brand"
+import { NivEmpty } from "@/components/brand"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
 
 async function getParentSignature(parentId: string) {
   const supabase = await createClient()
@@ -123,37 +122,17 @@ export default async function ParentApprovalsPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return {
-          icon: Clock,
-          text: "En attente",
-          class: "bg-gold/20 text-gold"
-        }
-      case "approved":
-        return {
-          icon: CheckCircle,
-          text: "Approuvé",
-          class: "bg-lime/20 text-lime"
-        }
-      case "denied":
-        return {
-          icon: XCircle,
-          text: "Refusé",
-          class: "bg-destructive/20 text-destructive"
-        }
-      default:
-        return {
-          icon: FileCheck,
-          text: status,
-          class: "bg-muted text-mute"
-        }
-    }
+  // #30 — statut canonique → variant StatusBadge + libellé FR.
+  const statusMeta: Record<string, { variant: StatusVariant; label: string }> = {
+    pending: { variant: "pending", label: "En attente" },
+    approved: { variant: "success", label: "Approuvé" },
+    denied: { variant: "danger", label: "Refusé" },
   }
+  const getStatusMeta = (status: string) =>
+    statusMeta[status] ?? { variant: "neutral" as StatusVariant, label: status }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
         <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
@@ -163,203 +142,150 @@ export default async function ParentApprovalsPage() {
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-ink">Approbations</h1>
-            <p className="text-mute">Gérez les demandes de vos teens</p>
-          </div>
-          <Button variant="outline" className="border-ink text-ink-2">
-            <Filter className="h-4 w-4 mr-2" />
-            Filtrer
-          </Button>
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <p className="eyebrow text-pink">À valider</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">
+            Les demandes de ton <em className="font-semibold italic text-pink">crew</em>
+          </h1>
+          <p className="mt-2 text-mute">Gère les demandes de tes teens en un coup d&apos;œil.</p>
         </div>
 
         {/* Signature gate banner */}
         {!hasSigned && (
-          <Card className="mb-8 bg-gradient-to-br from-gold/10 to-coral/10 border-gold/30">
-            <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="h-5 w-5 text-gold" />
-                </div>
+          <StickerCard className="mb-8 border-gold bg-gold/10 p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-start gap-4">
+                <Niv mood="calm" size={64} className="shrink-0" />
                 <div>
-                  <h3 className="font-bold text-ink">
-                    Autorisation parentale non signée
+                  <p className="eyebrow text-gold">Étape légale</p>
+                  <h3 className="mt-1 font-display text-lg font-extrabold text-ink">
+                    Signe d&apos;abord, c&apos;est la loi 09-08
                   </h3>
-                  <p className="text-sm text-mute mt-1">
+                  <p className="mt-1 text-sm text-mute">
                     Pour valider certaines demandes (sorties, paiements,
-                    consentements photo) vous devez d&apos;abord signer
+                    consentements photo), tu dois d&apos;abord signer
                     l&apos;autorisation parentale.
                   </p>
                 </div>
               </div>
-              <Button
-                asChild
-                className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink shrink-0"
-              >
+              <Button asChild variant="default" className="shrink-0">
                 <Link href="/parent/e-signature?redirect=/parent/approvals">
                   <ShieldCheck className="h-4 w-4 mr-2" />
                   Signer maintenant
                 </Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </StickerCard>
         )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gold font-medium">En attente</p>
-                  <p className="text-3xl font-black text-ink">{pendingApprovals.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-gold" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-lime font-medium">Approuvés</p>
-                  <p className="text-3xl font-black text-ink">{approvedApprovals.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-lime" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-destructive/20 to-pink/20 border-destructive/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-destructive font-medium">Refusés</p>
-                  <p className="text-3xl font-black text-ink">{rejectedApprovals.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center">
-                  <XCircle className="h-6 w-6 text-destructive" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-teal font-medium">Total</p>
-                  <p className="text-3xl font-black text-ink">{approvals.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
-                  <FileCheck className="h-6 w-6 text-teal" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Hiérarchie 1-2-3 : chiffre dominant + KPI secondaires */}
+        <div className="mb-8 grid gap-4 md:grid-cols-3">
+          <StatHero
+            eyebrow="En attente"
+            value={pendingApprovals.length}
+            tone="gold"
+            icon={<Clock className="h-5 w-5" />}
+            meta="à traiter"
+          />
+          <StickerCard className="justify-between p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow text-lime">Approuvés</p>
+              <CheckCircle className="h-5 w-5 text-lime" />
+            </div>
+            <p className="mt-2 font-display text-4xl font-extrabold tabular-nums text-ink">
+              {approvedApprovals.length}
+            </p>
+          </StickerCard>
+          <StickerCard className="justify-between p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow text-coral">Refusés</p>
+              <XCircle className="h-5 w-5 text-coral" />
+            </div>
+            <p className="mt-2 font-display text-4xl font-extrabold tabular-nums text-ink">
+              {rejectedApprovals.length}
+            </p>
+          </StickerCard>
         </div>
 
         {/* Pending Approvals - Priority */}
         {pendingApprovals.length > 0 && (
-          <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold/30 mb-8">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-gold" />
-                Demandes en attente ({pendingApprovals.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {pendingApprovals.map((approval: any) => {
-                  const status = getStatusBadge(approval.status)
-                  const StatusIcon = status.icon
-                  return (
-                    <div
-                      key={approval.id}
-                      className="p-5 rounded-2xl bg-card border border-gold/20"
-                    >
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-xl bg-card flex items-center justify-center">
-                            {getApprovalIcon(approval.action_type)}
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-bold text-ink">
-                              {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
-                            </h3>
-                            <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-mute">
-                              <span className="bg-card px-2 py-0.5 rounded text-xs">
-                                {getApprovalTypeName(approval.action_type)}
-                              </span>
-                              <span>•</span>
-                              <span>De: {approval.teen?.full_name || "Teen"}</span>
-                              <span>•</span>
-                              <span>{formatDate(approval.requested_at)}</span>
-                            </div>
-                            {approval.details?.reason && (
-                              <p className="text-sm text-mute mt-2">{approval.details?.reason}</p>
-                            )}
-                            {approval.amount && (
-                              <p className="text-lime font-bold mt-2">{approval.amount} DH</p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <ApprovalButtons
-                            approvalId={approval.id}
-                            title={getApprovalTypeName(approval.action_type) || "Demande"}
-                            amount={approval.amount}
-                            teenName={approval.teen?.full_name}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* All Approvals History */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <FileCheck className="h-5 w-5 text-lime" />
-              Historique des approbations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {approvals.length > 0 ? (
-              <div className="space-y-3">
-                {approvals.map((approval: any) => {
-                  const status = getStatusBadge(approval.status)
-                  const StatusIcon = status.icon
-                  return (
-                    <div
-                      key={approval.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-ink transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center">
+          <section className="mb-8">
+            <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-extrabold text-ink">
+              <Clock className="h-5 w-5 text-gold" />
+              Demandes en attente ({pendingApprovals.length})
+            </h2>
+            <div className="space-y-4">
+              {pendingApprovals.map((approval: any) => {
+                const status = getStatusMeta(approval.status)
+                return (
+                  <StickerCard key={approval.id} variant="hover" className="p-5">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink bg-paper">
                           {getApprovalIcon(approval.action_type)}
                         </div>
                         <div>
-                          <p className="font-medium text-ink">
+                          <p className="eyebrow text-mute">
+                            {getApprovalTypeName(approval.action_type)}
+                          </p>
+                          <h3 className="mt-1 font-display text-lg font-extrabold text-ink">
+                            {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
+                          </h3>
+                          <div className="mt-1 flex flex-wrap items-center gap-2 font-mono text-xs text-mute">
+                            <span>De : {approval.teen?.full_name || "Teen"}</span>
+                            <span>•</span>
+                            <span>{formatDate(approval.requested_at)}</span>
+                          </div>
+                          {approval.details?.reason && (
+                            <p className="mt-2 text-sm text-mute">{approval.details?.reason}</p>
+                          )}
+                          {approval.amount && (
+                            <p className="mt-2 font-mono text-lg font-bold text-ink">{approval.amount} DH</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <StatusBadge variant={status.variant} label={status.label} pulse />
+                        <ApprovalButtons
+                          approvalId={approval.id}
+                          title={getApprovalTypeName(approval.action_type) || "Demande"}
+                          amount={approval.amount}
+                          teenName={approval.teen?.full_name}
+                        />
+                      </div>
+                    </div>
+                  </StickerCard>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* All Approvals History */}
+        <section>
+          <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-extrabold text-ink">
+            <FileCheck className="h-5 w-5 text-lime" />
+            Historique des approbations
+          </h2>
+          {approvals.length > 0 ? (
+            <div className="space-y-3">
+              {approvals.map((approval: any) => {
+                const status = getStatusMeta(approval.status)
+                return (
+                  <StickerCard key={approval.id} variant="panel" className="p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-ink bg-paper">
+                          {getApprovalIcon(approval.action_type)}
+                        </div>
+                        <div>
+                          <p className="font-display font-bold text-ink">
                             {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
                           </p>
-                          <div className="flex items-center gap-2 text-xs text-mute">
+                          <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-mute">
                             <span>{approval.teen?.full_name}</span>
-                            <span>•</span>
-                            <span>{getApprovalTypeName(approval.action_type)}</span>
                             <span>•</span>
                             <span>{formatDate(approval.requested_at)}</span>
                           </div>
@@ -367,26 +293,22 @@ export default async function ParentApprovalsPage() {
                       </div>
                       <div className="flex items-center gap-3">
                         {approval.amount && (
-                          <span className="text-mute font-medium">{approval.amount} DH</span>
+                          <span className="font-mono text-sm font-bold text-ink">{approval.amount} DH</span>
                         )}
-                        <span className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${status.class}`}>
-                          <StatusIcon className="h-3 w-3" />
-                          {status.text}
-                        </span>
+                        <StatusBadge variant={status.variant} label={status.label} />
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <EmptyState
-                icon={FileCheck}
-                title="Aucune approbation"
-                description="Les demandes de vos teens apparaîtront ici"
-              />
-            )}
-          </CardContent>
-        </Card>
+                  </StickerCard>
+                )
+              })}
+            </div>
+          ) : (
+            <NivEmpty
+              title="Aucune approbation"
+              description="Les demandes de tes teens apparaîtront ici."
+            />
+          )}
+        </section>
       </div>
     </div>
   )

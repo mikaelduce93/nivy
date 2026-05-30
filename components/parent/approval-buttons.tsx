@@ -86,7 +86,7 @@ export function ApprovalButtons({
         <Button
           size={compact ? "icon" : "sm"}
           variant="outline"
-          className={`${compact ? "h-8 w-8" : "h-8"} border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive/50`}
+          className={compact ? "h-8 w-8" : "h-8"}
           onClick={() => openConfirmModal("reject")}
           disabled={loading !== null}
           title="Refuser"
@@ -104,7 +104,8 @@ export function ApprovalButtons({
         </Button>
         <Button
           size={compact ? "icon" : "sm"}
-          className={`${compact ? "h-8 w-8" : "h-8"} bg-lime hover:bg-lime text-ink`}
+          variant="lime"
+          className={`${compact ? "h-8 w-8" : "h-8"} hover:shadow-stkr-pink`}
           onClick={() => openConfirmModal("approve")}
           disabled={loading !== null}
           title="Approuver"
@@ -124,7 +125,7 @@ export function ApprovalButtons({
 
       {/* Confirmation Modal */}
       <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-        <DialogContent className="bg-card border-ink text-ink">
+        <DialogContent className="bg-card border-2 border-ink text-ink">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {pendingAction === "approve" ? (
@@ -155,10 +156,10 @@ export function ApprovalButtons({
           </DialogHeader>
 
           {/* Request Summary */}
-          <div className="p-4 bg-card rounded-lg border border-ink">
+          <div className="rounded-xl border-2 border-ink bg-paper p-4">
             <p className="font-medium text-ink">{title || "Demande d'approbation"}</p>
             {amount && (
-              <p className="text-lime font-bold mt-1">{amount} DH</p>
+              <p className="mt-1 font-mono font-bold text-ink">{amount} DH</p>
             )}
           </div>
 
@@ -184,18 +185,13 @@ export function ApprovalButtons({
               variant="outline"
               onClick={() => setShowConfirmModal(false)}
               disabled={loading !== null}
-              className="border-ink text-ink-2"
             >
               Annuler
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={loading !== null}
-              className={
-                pendingAction === "approve"
-                  ? "bg-lime hover:bg-lime text-ink"
-                  : "bg-destructive hover:bg-destructive text-ink"
-              }
+              variant={pendingAction === "approve" ? "lime" : "destructive"}
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
