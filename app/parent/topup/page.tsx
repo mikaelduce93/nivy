@@ -1,20 +1,14 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Niv, DarkSurface } from "@/components/brand"
 import {
-  CreditCard,
   ArrowLeft,
   Coins,
-  Zap,
-  Gift,
   History,
-  CheckCircle,
-  Sparkles,
-  Star,
   ShieldCheck,
-  ShieldAlert
 } from "lucide-react"
 import Link from "next/link"
 import { TopupForm } from "@/components/parent/topup-form"
@@ -119,46 +113,10 @@ export default async function ParentTopupPage({
   const hasSigned = !!parentSignature
 
   const topupPackages = [
-    {
-      id: "pack1",
-      coins: 100,
-      price: 50,
-      popular: false,
-      bonus: 0,
-      icon: Coins,
-      color: "from-gold/20 to-coral/20",
-      borderColor: "border-gold/30"
-    },
-    {
-      id: "pack2",
-      coins: 250,
-      price: 100,
-      popular: true,
-      bonus: 25,
-      icon: Star,
-      color: "from-lime/20 to-teal/20",
-      borderColor: "border-lime/30"
-    },
-    {
-      id: "pack3",
-      coins: 500,
-      price: 180,
-      popular: false,
-      bonus: 75,
-      icon: Zap,
-      color: "from-pink/20 to-pink/20",
-      borderColor: "border-pink/30"
-    },
-    {
-      id: "pack4",
-      coins: 1000,
-      price: 300,
-      popular: false,
-      bonus: 200,
-      icon: Sparkles,
-      color: "from-teal/20 to-teal/20",
-      borderColor: "border-teal/30"
-    }
+    { id: "pack1", coins: 100, price: 50, popular: false, bonus: 0 },
+    { id: "pack2", coins: 250, price: 100, popular: true, bonus: 25 },
+    { id: "pack3", coins: 500, price: 180, popular: false, bonus: 75 },
+    { id: "pack4", coins: 1000, price: 300, popular: false, bonus: 200 },
   ]
 
   const formatDate = (dateString: string) => {
@@ -172,7 +130,7 @@ export default async function ParentTopupPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
+      <div className="container mx-auto px-6 py-12">
         {/* Back button */}
         <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
@@ -182,194 +140,163 @@ export default async function ParentTopupPage({
         </Button>
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-ink">Recharger les Coins</h1>
-          <p className="text-mute">Ajoutez des coins au compte de votre teen</p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <p className="eyebrow">Recharge</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+              Recharge les{" "}
+              <em className="font-semibold italic text-pink">coins</em>
+            </h1>
+            <p className="mt-2 font-mono text-sm font-semibold text-mute">
+              1 DH = 100 coins <span className="text-coral">⊙</span>
+            </p>
+          </div>
+          <Niv mood="hype" size={88} className="hidden shrink-0 sm:block" />
         </div>
 
         {teens.length === 0 ? (
-          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-            <CardContent className="py-16 text-center">
-              <CreditCard className="h-16 w-16 mx-auto mb-4 text-ink" />
-              <h3 className="text-xl font-bold text-ink mb-2">Aucun teen lié</h3>
-              <p className="text-mute mb-6">
-                Vous devez d'abord lier un teen à votre compte
-              </p>
-              <Button asChild className="bg-lime hover:bg-lime text-ink">
-                <Link href="/parent/teens/add">Ajouter un Teen</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <StickerCard className="items-center gap-3 p-10 text-center" role="status">
+            <Niv mood="calm" size={80} />
+            <h3 className="font-display text-xl font-extrabold text-ink">
+              Aucun teen lié
+            </h3>
+            <p className="max-w-sm text-sm text-mute">
+              Lie d'abord un teen à ton compte pour pouvoir le recharger.
+            </p>
+            <Button asChild variant="pink" className="mt-1">
+              <Link href="/parent/teens/add">Ajouter un teen</Link>
+            </Button>
+          </StickerCard>
         ) : !hasSigned ? (
-          <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold/30">
-            <CardContent className="py-16 px-6 text-center">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center">
-                <ShieldAlert className="h-8 w-8 text-gold" />
-              </div>
-              <h3 className="text-xl font-bold text-ink mb-2">
-                Autorisation parentale requise
-              </h3>
-              <p className="text-mute mb-2 max-w-xl mx-auto">
-                Avant de pouvoir recharger des coins pour vos teens,
-                nous devons recueillir votre signature électronique
-                et vérifier votre identité.
-              </p>
-              <p className="text-mute text-sm mb-6 max-w-xl mx-auto">
-                Cette étape est obligatoire conformément à la loi 09-08 et
-                la CNDP. Elle ne sera demandée qu'une seule fois.
-              </p>
-              <Button
-                asChild
-                className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink"
+          <StickerCard className="items-center gap-3 p-8 text-center">
+            <Niv mood="calm" size={80} />
+            <h3 className="font-display text-xl font-extrabold text-ink">
+              Autorisation parentale requise
+            </h3>
+            <p className="max-w-xl text-sm text-ink-2">
+              Avant de recharger des coins pour tes teens, on recueille ta
+              signature électronique et on vérifie ton identité.
+            </p>
+            <p className="max-w-xl text-xs text-mute">
+              Étape obligatoire (loi 09-08 et CNDP). Elle n'est demandée qu'une
+              seule fois.
+            </p>
+            <Button asChild variant="pink" className="mt-1">
+              <Link
+                href={`/parent/e-signature?redirect=${encodeURIComponent(
+                  selectedTeenId
+                    ? `/parent/topup?teen=${selectedTeenId}`
+                    : "/parent/topup"
+                )}${selectedTeenId ? `&teen=${selectedTeenId}` : ""}`}
               >
-                <Link
-                  href={`/parent/e-signature?redirect=${encodeURIComponent(
-                    selectedTeenId
-                      ? `/parent/topup?teen=${selectedTeenId}`
-                      : "/parent/topup"
-                  )}${selectedTeenId ? `&teen=${selectedTeenId}` : ""}`}
-                >
-                  <ShieldCheck className="h-4 w-4 mr-2" />
-                  Signer l'autorisation
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+                <ShieldCheck className="h-4 w-4 mr-2" />
+                Signer l'autorisation
+              </Link>
+            </Button>
+          </StickerCard>
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
               {/* Teen Selection & Packages */}
-              <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-                <CardHeader>
-                  <CardTitle className="text-ink flex items-center gap-2">
-                    <Coins className="h-5 w-5 text-gold" />
-                    Choisir un pack
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <TopupForm
-                    teens={teens}
-                    packages={topupPackages}
-                    selectedTeenId={selectedTeenId}
-                    parentId={userInfo.profileId}
-                  />
-                </CardContent>
-              </Card>
+              <StickerCard className="gap-4 p-6">
+                <h2 className="flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+                  <Coins className="h-5 w-5 text-gold" />
+                  Choisir un pack
+                </h2>
+                <TopupForm
+                  teens={teens}
+                  packages={topupPackages}
+                  selectedTeenId={selectedTeenId}
+                  parentId={userInfo.profileId}
+                />
+              </StickerCard>
 
               {/* Packages Display */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {topupPackages.map((pack) => {
-                  const Icon = pack.icon
-                  return (
-                    <Card
-                      key={pack.id}
-                      className={`bg-gradient-to-br ${pack.color} ${pack.borderColor} bg-card relative overflow-hidden`}
-                    >
-                      {pack.popular && (
-                        <div className="absolute top-0 right-0 bg-lime text-ink text-xs px-2 py-1 rounded-bl-lg font-bold">
-                          POPULAIRE
-                        </div>
-                      )}
-                      <CardContent className="p-5 text-center">
-                        <div className="h-12 w-12 mx-auto rounded-full bg-card flex items-center justify-center mb-3">
-                          <Icon className="h-6 w-6 text-gold" />
-                        </div>
-                        <p className="text-3xl font-black text-ink mb-1">{pack.coins}</p>
-                        <p className="text-xs text-mute mb-2">coins</p>
-                        {pack.bonus > 0 && (
-                          <p className="text-xs text-lime mb-2">+{pack.bonus} bonus</p>
-                        )}
-                        <p className="text-lg font-bold text-lime">{pack.price} DH</p>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
+                {topupPackages.map((pack) => (
+                  <StickerCard
+                    key={pack.id}
+                    variant="hover"
+                    className="relative items-center gap-1 p-5 text-center"
+                  >
+                    {pack.popular && (
+                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full border-2 border-ink bg-pink px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+                        Populaire
+                      </span>
+                    )}
+                    <p className="font-display text-3xl font-extrabold text-ink">
+                      {pack.coins}
+                      <span className="ml-1 align-baseline text-xl text-coral">⊙</span>
+                    </p>
+                    <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">
+                      coins
+                    </p>
+                    {pack.bonus > 0 && (
+                      <span className="rounded-full border-2 border-ink bg-lime/20 px-2 py-0.5 font-mono text-[11px] font-bold text-ink">
+                        +{pack.bonus}
+                      </span>
+                    )}
+                    <p className="mt-1 font-mono text-lg font-bold text-ink">
+                      {pack.price} DH
+                    </p>
+                  </StickerCard>
+                ))}
               </div>
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Teen Balances */}
-              <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-                <CardHeader>
-                  <CardTitle className="text-ink text-base flex items-center gap-2">
-                    <Coins className="h-4 w-4 text-gold" />
-                    Soldes actuels
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {teens.map((teen: any) => (
-                    <div
-                      key={teen.teen_id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-card"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-bold">
-                          {teen.teen_name?.charAt(0) || "?"}
-                        </div>
-                        <span className="text-ink font-medium">{teen.teen_name}</span>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-gold font-black">{teen.total_coins || 0}</p>
-                        <p className="text-xs text-mute">coins</p>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+              {/* Teen Balances — surface sombre ponctuelle (pattern « solde ») */}
+              <div className="space-y-3">
+                <p className="eyebrow">Soldes actuels</p>
+                {teens.map((teen: any) => (
+                  <DarkSurface key={teen.teen_id} tone="coral" shadow className="p-5">
+                    <p className="eyebrow tracking-[0.16em] text-paper/60">
+                      {teen.teen_name}
+                    </p>
+                    <p className="mt-1 font-display text-4xl font-extrabold leading-none tabular-nums text-coral">
+                      {teen.total_coins || 0}
+                      <span className="ml-1.5 align-baseline text-2xl">⊙</span>
+                    </p>
+                    <p className="mt-1 font-mono text-xs text-paper/60">coins</p>
+                  </DarkSurface>
+                ))}
+              </div>
 
               {/* Recent Topups */}
-              <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-                <CardHeader>
-                  <CardTitle className="text-ink text-base flex items-center gap-2">
-                    <History className="h-4 w-4 text-teal" />
-                    Dernières recharges
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {history.length > 0 ? (
-                    <div className="space-y-3">
-                      {history.slice(0, 5).map((item: any) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between p-3 rounded-lg bg-card"
-                        >
-                          <div>
-                            <p className="text-ink text-sm font-medium">
-                              {item.teen?.full_name || "Teen"}
-                            </p>
-                            <p className="text-xs text-mute">
-                              {formatDate(item.created_at)}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1 text-lime">
-                            <span className="font-bold">+{item.amount}</span>
-                            <Coins className="h-4 w-4" />
-                          </div>
+              <StickerCard className="gap-3 p-5">
+                <h2 className="flex items-center gap-2 font-display text-base font-extrabold text-ink">
+                  <History className="h-4 w-4 text-teal" />
+                  Dernières recharges
+                </h2>
+                {history.length > 0 ? (
+                  <div className="space-y-2">
+                    {history.slice(0, 5).map((item: any) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between rounded-xl border-2 border-line bg-paper-2 p-3"
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-ink">
+                            {item.teen?.full_name || "Teen"}
+                          </p>
+                          <p className="font-mono text-xs text-mute">
+                            {formatDate(item.created_at)}
+                          </p>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-mute py-4 text-sm">
-                      Aucune recharge récente
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Info */}
-              <div className="p-4 bg-lime/10 border border-lime/20 rounded-xl">
-                <div className="flex items-start gap-3">
-                  <Gift className="h-5 w-5 text-lime shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-lime">Bonus fidélité</p>
-                    <p className="text-xs text-mute mt-1">
-                      Plus vous rechargez, plus vous gagnez de coins bonus !
-                    </p>
+                        <span className="font-mono font-bold text-lime">
+                          +{item.amount} <span className="text-coral">⊙</span>
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </div>
+                ) : (
+                  <p className="py-2 text-center text-sm text-mute">
+                    Aucune recharge récente
+                  </p>
+                )}
+              </StickerCard>
             </div>
           </div>
         )}

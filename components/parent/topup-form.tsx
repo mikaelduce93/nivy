@@ -2,14 +2,10 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  SelectSticker,
+  SelectStickerItem,
+} from "@/components/ui/select-sticker"
 import { Loader2, CreditCard, Coins, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -131,10 +127,12 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
   if (success) {
     return (
       <div className="py-12 text-center">
-        <div className="h-20 w-20 mx-auto rounded-full bg-lime/20 flex items-center justify-center mb-4">
+        <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full border-2 border-ink bg-lime/20">
           <CheckCircle className="h-10 w-10 text-lime" />
         </div>
-        <h3 className="text-xl font-bold text-ink mb-2">Recharge réussie !</h3>
+        <h3 className="font-display text-xl font-extrabold text-ink">
+          Recharge réussie !
+        </h3>
         <p className="text-mute">
           Coins ajoutés au compte de {selectedTeen?.teen_name}
         </p>
@@ -145,88 +143,69 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
   return (
     <div className="space-y-6">
       {!PSP_AUTO_TOPUP_ENABLED && (
-        <div className="rounded-xl border border-gold/40 bg-gold/10 p-4 text-sm text-gold">
-          <strong>Mode manuel uniquement —</strong> la recharge automatique
-          (CMI / Stripe) sera activée prochainement. Pour recharger maintenant,
-          utilisez le formulaire de virement bancaire.
+        <div className="rounded-2xl border-2 border-ink bg-gold/10 p-4 text-sm text-ink-2 shadow-stkr-sm">
+          <strong className="text-ink">Mode manuel uniquement —</strong> la
+          recharge automatique (CMI / Stripe) arrive bientôt. Pour recharger
+          maintenant, passe par le virement opérateur.
         </div>
       )}
 
       {/* Teen Selection */}
-      <div className="space-y-2">
-        <Label className="text-ink-2">Sélectionner un Teen</Label>
-        <Select value={teenId} onValueChange={setTeenId}>
-          <SelectTrigger className="bg-card border-ink text-ink">
-            <SelectValue placeholder="Choisir un teen" />
-          </SelectTrigger>
-          <SelectContent className="bg-card border-ink">
-            {teens.map((teen) => (
-              <SelectItem
-                key={teen.teen_id}
-                value={teen.teen_id}
-                className="text-ink hover:bg-muted focus:bg-muted"
-              >
-                <div className="flex items-center gap-2">
-                  <span>{teen.teen_name}</span>
-                  <span className="text-xs text-gold">
-                    ({teen.total_coins || 0} coins)
-                  </span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectSticker
+        label="Sélectionner un teen"
+        placeholder="Choisir un teen"
+        value={teenId}
+        onValueChange={setTeenId}
+      >
+        {teens.map((teen) => (
+          <SelectStickerItem key={teen.teen_id} value={teen.teen_id}>
+            <span className="flex items-center gap-2">
+              <span>{teen.teen_name}</span>
+              <span className="font-mono text-xs text-mute">
+                {teen.total_coins || 0} ⊙
+              </span>
+            </span>
+          </SelectStickerItem>
+        ))}
+      </SelectSticker>
 
       {/* Package Selection — disabled when auto top-up is off (F5). */}
-      <div className="space-y-2">
-        <Label className="text-ink-2">Choisir un pack</Label>
-        <Select
-          value={packageId}
-          onValueChange={setPackageId}
-          disabled={!PSP_AUTO_TOPUP_ENABLED}
-        >
-          <SelectTrigger className="bg-card border-ink text-ink">
-            <SelectValue
-              placeholder={
-                PSP_AUTO_TOPUP_ENABLED
-                  ? "Sélectionner un pack"
-                  : "Désactivé — mode manuel"
-              }
-            />
-          </SelectTrigger>
-          <SelectContent className="bg-card border-ink">
-            {packages.map((pack) => (
-              <SelectItem
-                key={pack.id}
-                value={pack.id}
-                className="text-ink hover:bg-muted focus:bg-muted"
-              >
-                <div className="flex items-center gap-3">
-                  <Coins className="h-4 w-4 text-gold" />
-                  <span>{pack.coins} coins</span>
-                  {pack.bonus > 0 && (
-                    <span className="text-xs text-lime">
-                      +{pack.bonus} bonus
-                    </span>
-                  )}
-                  <span className="text-mute">- {pack.price} DH</span>
-                  {pack.popular && (
-                    <span className="text-xs bg-lime/20 text-lime px-2 py-0.5 rounded">
-                      Populaire
-                    </span>
-                  )}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectSticker
+        label="Choisir un pack"
+        placeholder={
+          PSP_AUTO_TOPUP_ENABLED
+            ? "Sélectionner un pack"
+            : "Désactivé — mode manuel"
+        }
+        value={packageId}
+        onValueChange={setPackageId}
+        disabled={!PSP_AUTO_TOPUP_ENABLED}
+      >
+        {packages.map((pack) => (
+          <SelectStickerItem key={pack.id} value={pack.id}>
+            <span className="flex items-center gap-2">
+              <Coins className="h-4 w-4 text-gold" />
+              <span>{pack.coins} coins</span>
+              {pack.bonus > 0 && (
+                <span className="font-mono text-xs text-lime">
+                  +{pack.bonus}
+                </span>
+              )}
+              <span className="font-mono text-mute">— {pack.price} DH</span>
+              {pack.popular && (
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-pink">
+                  Populaire
+                </span>
+              )}
+            </span>
+          </SelectStickerItem>
+        ))}
+      </SelectSticker>
 
       {/* Summary */}
       {selectedPackage && selectedTeen && (
-        <div className="p-4 bg-card rounded-xl border border-ink">
-          <h4 className="font-semibold text-ink mb-3">Résumé</h4>
+        <div className="rounded-2xl border-2 border-ink bg-paper-2 p-4 shadow-stkr-sm">
+          <h4 className="mb-3 font-display font-extrabold text-ink">Résumé</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-mute">Bénéficiaire</span>
@@ -234,24 +213,27 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-mute">Coins de base</span>
-              <span className="text-ink">{selectedPackage.coins}</span>
+              <span className="font-mono text-ink">{selectedPackage.coins}</span>
             </div>
             {selectedPackage.bonus > 0 && (
               <div className="flex justify-between">
                 <span className="text-mute">Bonus</span>
-                <span className="text-lime">+{selectedPackage.bonus}</span>
-              </div>
-            )}
-            <div className="border-t border-ink pt-2 mt-2">
-              <div className="flex justify-between">
-                <span className="text-mute">Total coins</span>
-                <span className="text-gold font-bold">
-                  {selectedPackage.coins + selectedPackage.bonus}
+                <span className="font-mono text-lime">
+                  +{selectedPackage.bonus}
                 </span>
               </div>
-              <div className="flex justify-between mt-1">
+            )}
+            <div className="mt-2 border-t-2 border-line pt-2">
+              <div className="flex justify-between">
+                <span className="text-mute">Total coins</span>
+                <span className="font-mono font-bold text-ink">
+                  {selectedPackage.coins + selectedPackage.bonus}{" "}
+                  <span className="text-coral">⊙</span>
+                </span>
+              </div>
+              <div className="mt-1 flex justify-between">
                 <span className="text-mute">Prix</span>
-                <span className="text-lime font-bold">
+                <span className="font-mono font-bold text-ink">
                   {selectedPackage.price} DH
                 </span>
               </div>
@@ -264,7 +246,8 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
       <Button
         onClick={handleSubmit}
         disabled={loading || !teenId || !packageId || !PSP_AUTO_TOPUP_ENABLED}
-        className="w-full bg-lime hover:bg-lime text-ink h-12"
+        variant="pink"
+        className="h-12 w-full"
       >
         {loading ? (
           <>
@@ -279,8 +262,8 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
         )}
       </Button>
 
-      <p className="text-xs text-mute text-center">
-        Le paiement sera traité de manière sécurisée. Les coins seront crédités
+      <p className="text-center text-xs text-mute">
+        Le paiement est traité de manière sécurisée. Les coins sont crédités
         instantanément.
       </p>
     </div>
