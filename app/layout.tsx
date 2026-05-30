@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { headers } from "next/headers"
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Bricolage_Grotesque, Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/components/navbar"
@@ -30,21 +30,26 @@ import "leaflet/dist/leaflet.css"
 
 const APP_CONFIG = getPublicAppConfig()
 
-// Premium Typography - Silicon Valley Grade
-// Geist: Modern, Clean, Highly Legible (by Vercel)
-const geistSans = Geist({
+// Typographie — charte refonte V1.5 (polices variables, cf. docs/refonte/00-CHARTE-GRAPHIQUE-NIVY.md §2)
+// Bricolage Grotesque — display/titres (éditorial, emphase italique)
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-geist",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-bricolage",
 })
 
-// Geist Mono: Perfect for numbers, code, technical content
-const geistMono = Geist_Mono({
+// Inter — corps de texte / UI
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-geist-mono",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
+})
+
+// JetBrains Mono — eyebrows, labels uppercase, montants/stats
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jetbrains",
 })
 
 export const metadata: Metadata = {
@@ -144,8 +149,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#06b6d4" },
+    { media: "(prefers-color-scheme: light)", color: "#f4ede0" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e0c1a" },
   ],
 }
 
@@ -167,7 +172,7 @@ export default async function RootLayout({
   const htmlDir = isRtlLocale(locale) ? 'rtl' : 'ltr'
 
   return (
-    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* Preconnect to external resources for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -229,7 +234,7 @@ export default async function RootLayout({
         <AppProviders>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
