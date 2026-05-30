@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { fetchWithCSRF } from "@/lib/security/fetch-with-csrf"
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
 
 interface ProfileLite {
   full_name: string | null
@@ -62,13 +64,13 @@ export function TopupRequestRow({ request }: { request: TopupRequest }) {
   const isPending = request.status === "pending"
 
   return (
-    <div className="rounded-xl border border-ink bg-card p-5">
+    <StickerCard className="p-5">
       <div className="grid gap-4 md:grid-cols-[2fr_1fr_auto]">
         <div>
           <p className="text-sm text-mute">{created}</p>
           <p className="mt-1 text-lg font-semibold text-ink">
-            {Number(request.amount_dh).toFixed(2)} DH
-            <span className="ml-2 text-xs uppercase tracking-wider text-mute">
+            <span className="font-mono tabular-nums">{Number(request.amount_dh).toFixed(2)} DH</span>
+            <span className="ml-2 font-mono text-xs uppercase tracking-[0.16em] text-mute">
               {request.provider}
             </span>
           </p>
@@ -80,11 +82,11 @@ export function TopupRequestRow({ request }: { request: TopupRequest }) {
             Teen : {request.teen?.full_name ?? request.teen_id}
           </p>
           <p className="mt-1 text-xs text-mute">
-            Réf. PSP : <code className="rounded bg-card px-1">{request.provider_ref}</code>
+            Réf. PSP : <code className="rounded-md border-2 border-ink bg-paper px-1 font-mono">{request.provider_ref}</code>
           </p>
           {request.screenshot_path && (
             <p className="mt-1 text-xs text-mute">
-              Justificatif : <code>{request.screenshot_path}</code>
+              Justificatif : <code className="font-mono">{request.screenshot_path}</code>
             </p>
           )}
           {request.rejection_reason && (
@@ -94,21 +96,21 @@ export function TopupRequestRow({ request }: { request: TopupRequest }) {
           )}
           {request.payment_transaction_id && (
             <p className="mt-2 text-xs text-lime">
-              Payment id : <code>{request.payment_transaction_id}</code>
+              Payment id : <code className="font-mono">{request.payment_transaction_id}</code>
             </p>
           )}
         </div>
 
         {isPending && (
           <div>
-            <label className="block text-xs uppercase text-mute">
+            <label className="block font-mono text-xs uppercase tracking-[0.16em] text-mute">
               Motif (si rejet)
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-md border border-ink bg-background p-2 text-sm text-ink"
+              className="mt-1 w-full rounded-lg border-2 border-ink bg-paper p-2 text-sm text-ink"
               placeholder="ex. justificatif illisible"
             />
           </div>
@@ -116,26 +118,29 @@ export function TopupRequestRow({ request }: { request: TopupRequest }) {
 
         {isPending && (
           <div className="flex flex-col gap-2">
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="lime"
               disabled={busy !== null}
               onClick={() => decide("confirm")}
-              className="rounded-md bg-lime px-4 py-2 text-sm font-semibold text-ink hover:bg-lime disabled:opacity-50"
             >
               {busy === "confirm" ? "..." : "Confirmer & créditer"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              size="sm"
+              variant="outline"
+              className="text-destructive"
               disabled={busy !== null}
               onClick={() => decide("reject")}
-              className="rounded-md border border-pink/40 px-4 py-2 text-sm font-semibold text-pink hover:bg-pink/10 disabled:opacity-50"
             >
               {busy === "reject" ? "..." : "Rejeter"}
-            </button>
+            </Button>
             {error && <p className="text-xs text-pink">{error}</p>}
           </div>
         )}
       </div>
-    </div>
+    </StickerCard>
   )
 }

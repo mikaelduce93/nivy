@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
 
 interface Props {
   driverId: string
@@ -39,23 +39,23 @@ export function DriverActions({ driverId, kycStatus }: Props) {
 
   if (kycStatus !== "pending") {
     return (
-      <p className="text-sm text-muted-foreground">
-        Statut actuel : <strong>{kycStatus}</strong>
+      <p className="text-sm text-mute">
+        Statut actuel : <strong className="text-ink">{kycStatus}</strong>
       </p>
     )
   }
 
   return (
-    <Card>
-      <CardContent className="p-4 flex items-center gap-3">
-        <Button onClick={() => decide("approve")} disabled={busy}>
+    <StickerCard className="p-4">
+      <div className="flex items-center gap-3">
+        <Button variant="lime" onClick={() => decide("approve")} disabled={busy}>
           Approuver KYC
         </Button>
-        <Button variant="destructive" onClick={() => decide("reject")} disabled={busy}>
+        <Button variant="outline" className="text-destructive" onClick={() => decide("reject")} disabled={busy}>
           Rejeter
         </Button>
         {error && <span className="text-sm text-destructive">{error}</span>}
-      </CardContent>
-    </Card>
+      </div>
+    </StickerCard>
   )
 }

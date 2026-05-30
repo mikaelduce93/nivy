@@ -86,17 +86,17 @@ export default async function CreatorModerationPage() {
       ) : (
         <ul className="space-y-3">
           {rows.map((r) => (
-            <li key={r.id} className="rounded border bg-white p-4 shadow-sm">
+            <li key={r.id} className="flex flex-col rounded-2xl border-2 border-ink bg-white p-4 text-ink shadow-stkr-md">
               <div className="mb-2 flex items-center gap-2 text-xs text-mute">
-                <span className="rounded bg-paper-2 px-2 py-0.5 capitalize">
+                <span className="rounded-md border-2 border-ink bg-paper px-2 py-0.5 font-mono uppercase tracking-[0.16em]">
                   {r.post?.type ?? "?"}
                 </span>
                 {r.post?.category && (
-                  <span className="rounded bg-teal px-2 py-0.5 text-teal">
+                  <span className="rounded-md border-2 border-ink bg-teal px-2 py-0.5 font-mono text-paper">
                     {r.post.category}
                   </span>
                 )}
-                <span className="ml-auto">{new Date(r.created_at).toLocaleString()}</span>
+                <span className="ml-auto">{new Date(r.created_at).toLocaleString("fr-FR")}</span>
               </div>
               {r.post?.metadata?.title && (
                 <h2 className="mb-1 font-medium">{r.post.metadata.title}</h2>

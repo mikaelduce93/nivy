@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 interface ListingRow {
   id: string
@@ -28,22 +29,22 @@ export function ModerateRow({ listing }: { listing: ListingRow }) {
   }
 
   return (
-    <li className="border rounded p-3 flex items-center justify-between">
-      <div>
-        <div className="font-semibold">{listing.title}</div>
-        <div className="text-xs text-mute">
-          {listing.category} · {listing.price_coins} coins · {new Date(listing.created_at).toLocaleString()}
+    <li className="flex flex-col rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="font-semibold">{listing.title}</div>
+          <div className="text-xs text-mute">
+            {listing.category} · <span className="font-mono">{listing.price_coins} coins</span> · {new Date(listing.created_at).toLocaleString("fr-FR")}
+          </div>
         </div>
-      </div>
-      <div className="flex gap-2">
-        <button onClick={() => decide("approve")} disabled={busy}
-          className="rounded bg-lime text-ink px-3 py-1 text-sm disabled:opacity-50">
-          Approuver
-        </button>
-        <button onClick={() => decide("reject")} disabled={busy}
-          className="rounded bg-destructive text-ink px-3 py-1 text-sm disabled:opacity-50">
-          Rejeter
-        </button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="lime" onClick={() => decide("approve")} disabled={busy}>
+            Approuver
+          </Button>
+          <Button size="sm" variant="outline" className="text-destructive" onClick={() => decide("reject")} disabled={busy}>
+            Rejeter
+          </Button>
+        </div>
       </div>
     </li>
   )

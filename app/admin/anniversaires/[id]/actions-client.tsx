@@ -120,7 +120,7 @@ export function AnnivOrderActions({
           onValueChange={handleUpdateStatus}
           disabled={isUpdating}
         >
-          <SelectTrigger className="bg-card border-ink">
+          <SelectTrigger className="rounded-xl border-2 border-ink bg-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -140,7 +140,7 @@ export function AnnivOrderActions({
           onValueChange={handleUpdatePaymentStatus}
           disabled={isUpdating}
         >
-          <SelectTrigger className="bg-card border-ink">
+          <SelectTrigger className="rounded-xl border-2 border-ink bg-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -156,7 +156,8 @@ export function AnnivOrderActions({
         {/* Quick Actions */}
         {status === "pending" && (
           <Button
-            className="w-full bg-lime hover:bg-lime"
+            variant="lime"
+            className="w-full"
             onClick={() => handleUpdateStatus("confirmed")}
             disabled={isUpdating}
           >
@@ -171,7 +172,8 @@ export function AnnivOrderActions({
 
         {status === "confirmed" && (
           <Button
-            className="w-full bg-teal hover:bg-teal"
+            variant="mint"
+            className="w-full"
             onClick={() => handleUpdateStatus("completed")}
             disabled={isUpdating}
           >
@@ -187,7 +189,7 @@ export function AnnivOrderActions({
         {paymentStatus === "pending" && (
           <Button
             variant="outline"
-            className="w-full border-gold text-gold hover:bg-gold/10"
+            className="w-full text-gold"
             onClick={() => handleUpdatePaymentStatus("deposit")}
             disabled={isUpdating}
           >
@@ -199,7 +201,7 @@ export function AnnivOrderActions({
         {(paymentStatus === "pending" || paymentStatus === "deposit") && (
           <Button
             variant="outline"
-            className="w-full border-lime text-lime hover:bg-lime/10"
+            className="w-full text-lime"
             onClick={() => handleUpdatePaymentStatus("paid")}
             disabled={isUpdating}
           >
@@ -213,14 +215,14 @@ export function AnnivOrderActions({
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full border-destructive text-destructive hover:bg-destructive/10"
+                className="w-full text-destructive"
                 disabled={isUpdating}
               >
                 <XCircle className="w-4 h-4 mr-2" />
                 Annuler la commande
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="bg-card border-ink">
+            <AlertDialogContent className="rounded-2xl border-2 border-ink bg-white">
               <AlertDialogHeader>
                 <AlertDialogTitle>Annuler cette commande ?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -229,11 +231,11 @@ export function AnnivOrderActions({
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="bg-card border-ink">
+                <AlertDialogCancel className="rounded-xl border-2 border-ink bg-white">
                   Retour
                 </AlertDialogCancel>
                 <AlertDialogAction
-                  className="bg-destructive hover:bg-destructive"
+                  className="border-2 border-ink bg-destructive text-destructive-foreground hover:bg-destructive"
                   onClick={() => handleUpdateStatus("cancelled")}
                 >
                   Confirmer l'annulation

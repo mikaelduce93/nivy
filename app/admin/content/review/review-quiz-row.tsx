@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 interface PendingQuiz {
   id: string
@@ -75,10 +77,10 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
   const questionCount = Array.isArray(quiz.questions) ? quiz.questions.length : 0
 
   return (
-    <li className="rounded border border-ink bg-card p-4">
+    <li className="flex flex-col rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <div className="text-xs uppercase tracking-wide text-mute">
+          <div className="font-mono text-xs uppercase tracking-[0.16em] text-mute">
             {quiz.code}
           </div>
           <div className="font-semibold text-ink">{quiz.title}</div>
@@ -92,19 +94,22 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
               : "?"}
           </div>
         </div>
-        <span className="rounded bg-gold/20 px-2 py-0.5 text-xs text-gold">
-          En attente
-        </span>
+        <StatusBadge
+          variant="pending"
+          label="En attente"
+          size="sm"
+          className="font-mono uppercase tracking-[0.16em]"
+        />
       </header>
 
       <div className="mb-3 flex flex-wrap gap-2 text-xs">
-        <Tag label="Subject" value={quiz.subject} />
-        {quiz.difficulty && <Tag label="Difficulty" value={quiz.difficulty} />}
-        {quiz.grade_level && <Tag label="Grade" value={quiz.grade_level} />}
-        {quiz.language && <Tag label="Lang" value={quiz.language} />}
-        {quiz.cohort_key && <Tag label="Cohort" value={quiz.cohort_key} />}
+        <Tag label="Matière" value={quiz.subject} />
+        {quiz.difficulty && <Tag label="Difficulté" value={quiz.difficulty} />}
+        {quiz.grade_level && <Tag label="Niveau" value={quiz.grade_level} />}
+        {quiz.language && <Tag label="Langue" value={quiz.language} />}
+        {quiz.cohort_key && <Tag label="Cohorte" value={quiz.cohort_key} />}
         {quiz.quality_score != null && (
-          <Tag label="Quality" value={String(quiz.quality_score)} />
+          <Tag label="Qualité" value={String(quiz.quality_score)} />
         )}
         <Tag label="Questions" value={String(questionCount)} />
       </div>
@@ -118,7 +123,7 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
       </button>
 
       {showQuestions && (
-        <pre className="mb-3 max-h-96 overflow-auto rounded bg-background p-3 text-xs text-ink-2">
+        <pre className="mb-3 max-h-96 overflow-auto rounded-lg border-2 border-ink bg-paper p-3 text-xs text-ink-2 font-mono">
           {JSON.stringify(quiz.questions, null, 2)}
         </pre>
       )}
@@ -131,7 +136,7 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
             placeholder="Motif de rejet pédagogique (obligatoire)"
             rows={2}
             maxLength={1000}
-            className="w-full rounded border border-ink bg-background p-2 text-sm text-ink"
+            className="w-full rounded-lg border-2 border-ink bg-paper p-2 text-sm text-ink"
           />
         </div>
       )}
@@ -139,45 +144,50 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
       {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
 
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           type="button"
+          size="sm"
+          variant="lime"
           disabled={busy}
           onClick={approve}
-          className="rounded bg-lime px-3 py-1 text-sm text-ink hover:bg-lime disabled:opacity-50"
         >
           Approuver
-        </button>
+        </Button>
         {!showReject ? (
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="outline"
+            className="text-destructive"
             disabled={busy}
             onClick={() => setShowReject(true)}
-            className="rounded bg-destructive px-3 py-1 text-sm text-ink hover:bg-destructive disabled:opacity-50"
           >
             Rejeter
-          </button>
+          </Button>
         ) : (
           <>
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="destructive"
               disabled={busy}
               onClick={reject}
-              className="rounded bg-destructive px-3 py-1 text-sm text-ink hover:bg-destructive disabled:opacity-50"
             >
               Confirmer le rejet
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              size="sm"
+              variant="outline"
               disabled={busy}
               onClick={() => {
                 setShowReject(false)
                 setReason("")
                 setError(null)
               }}
-              className="rounded bg-muted px-3 py-1 text-sm text-ink hover:bg-muted disabled:opacity-50"
             >
               Annuler
-            </button>
+            </Button>
           </>
         )}
       </div>
@@ -187,8 +197,8 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
 
 function Tag({ label, value }: { label: string; value: string }) {
   return (
-    <span className="rounded border border-ink bg-background px-2 py-0.5 text-ink-2">
-      <span className="text-mute">{label}:</span> {value}
+    <span className="rounded-md border-2 border-ink bg-paper px-2 py-0.5 font-mono text-ink-2">
+      <span className="uppercase tracking-[0.16em] text-mute">{label}</span> {value}
     </span>
   )
 }

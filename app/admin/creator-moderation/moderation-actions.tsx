@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 export default function ModerationActions({
   queueId,
@@ -59,28 +60,24 @@ export default function ModerationActions({
   }
 
   return (
-    <div className="mt-3 flex flex-wrap gap-2">
-      <button
-        disabled={busy}
-        onClick={approve}
-        className="rounded bg-lime px-3 py-1 text-xs text-ink hover:bg-lime disabled:opacity-50"
-      >
+    <div className="mt-3 flex flex-wrap items-center gap-2">
+      <Button size="sm" variant="lime" disabled={busy} onClick={approve}>
         Approuver
-      </button>
-      <button
-        disabled={busy}
-        onClick={reject}
-        className="rounded bg-destructive px-3 py-1 text-xs text-ink hover:bg-destructive disabled:opacity-50"
-      >
+      </Button>
+      <Button size="sm" variant="outline" className="text-destructive" disabled={busy} onClick={reject}>
         Rejeter
-      </button>
-      <button
+      </Button>
+      <Button
+        size="sm"
         disabled={busy}
         onClick={feature}
-        className="rounded bg-gold px-3 py-1 text-xs text-ink hover:bg-gold disabled:opacity-50"
+        className="bg-gold text-ink border-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
       >
-        ★ Featurer
-      </button>
+        <span>★ Mettre en avant</span>
+        <span className="ml-1 font-mono text-[11px] text-ink">
+          +500&nbsp;XP&nbsp;·&nbsp;+200&nbsp;⊙
+        </span>
+      </Button>
       {msg && <span className="ml-2 text-xs text-mute">{msg}</span>}
     </div>
   )

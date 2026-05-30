@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
 import { Check, X, AlertTriangle, RotateCcw } from "lucide-react"
 
 interface QueueRow {
@@ -19,6 +19,19 @@ interface QueueRow {
 }
 
 const DESTRUCTIVE: ReadonlySet<string> = new Set(["delete", "warn", "suspend"])
+
+const STATUS_VARIANT: Record<string, StatusVariant> = {
+  pending: "pending",
+  approved: "success",
+  escalated: "info",
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  pending: "En attente",
+  approved: "Approuvé",
+  escalated: "Escaladé",
+  rejected: "Rejeté",
+}
 
 export function ModerationDecisionRow({
   row,
@@ -75,7 +88,7 @@ export function ModerationDecisionRow({
   const isPending = row.status === "pending"
 
   return (
-    <li className="rounded border border-ink bg-card p-4">
+    <li className="flex flex-col rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-bold text-ink text-sm">
@@ -89,29 +102,27 @@ export function ModerationDecisionRow({
           </p>
           <p className="text-xs text-mute mt-1">
             Soumis le {new Date(row.created_at).toLocaleString("fr-FR")}
-            {reportCount > 0 ? ` · ${reportCount} report${reportCount > 1 ? "s" : ""}` : ""}
+            {reportCount > 0 ? ` · ${reportCount} signalement${reportCount > 1 ? "s" : ""}` : ""}
             {row.reason ? ` · raison initiale: ${row.reason}` : ""}
           </p>
         </div>
-        <Badge
-          className={
-            row.status === "pending"
-              ? "bg-gold/20 text-gold"
-              : row.status === "approved"
-              ? "bg-lime/20 text-lime"
-              : row.status === "escalated"
-              ? "bg-teal/20 text-teal"
-              : "bg-destructive/20 text-destructive"
-          }
-        >
-          {row.status}
-        </Badge>
+        <StatusBadge
+          variant={STATUS_VARIANT[row.status] ?? "danger"}
+          label={STATUS_LABEL[row.status] ?? row.status}
+          size="sm"
+          className="font-mono uppercase tracking-[0.16em]"
+        />
       </header>
 
       {row.payload && (
-        <pre className="text-xs text-mute bg-background rounded p-2 max-h-32 overflow-auto mb-3">
-          {JSON.stringify(row.payload, null, 2)}
-        </pre>
+        <details className="mb-3">
+          <summary className="cursor-pointer font-mono text-xs uppercase tracking-[0.16em] text-mute">
+            Payload
+          </summary>
+          <pre className="mt-2 text-xs text-mute bg-paper rounded-lg border-2 border-ink p-2 max-h-32 overflow-auto font-mono">
+            {JSON.stringify(row.payload, null, 2)}
+          </pre>
+        </details>
       )}
 
       {isPending && supported && (
@@ -124,7 +135,7 @@ export function ModerationDecisionRow({
                 placeholder={`Motif obligatoire pour: ${pendingDecision}`}
                 rows={2}
                 maxLength={1000}
-                className="w-full rounded border border-ink bg-background p-2 text-sm text-ink"
+                className="w-full rounded-lg border-2 border-ink bg-paper p-2 text-sm text-ink"
               />
             </div>
           )}
@@ -134,13 +145,13 @@ export function ModerationDecisionRow({
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
+              variant="lime"
               disabled={busy}
               onClick={() => decide("dismiss")}
-              className="bg-lime hover:bg-lime text-ink"
               title="Pas de violation — restaure / approuve."
             >
               <Check className="w-3 h-3 mr-1" />
-              Dismiss
+              Rejeter le signalement
             </Button>
             <Button
               size="sm"
@@ -148,37 +159,36 @@ export function ModerationDecisionRow({
               disabled={busy}
               onClick={() => decide("hide")}
             >
-              Hide
+              Masquer
             </Button>
             <Button
               size="sm"
               variant="outline"
               disabled={busy}
               onClick={() => decide("delete")}
-              className="text-destructive border-destructive/40 hover:bg-destructive/10"
+              className="text-destructive"
             >
               <X className="w-3 h-3 mr-1" />
-              Delete
+              Supprimer
             </Button>
             <Button
               size="sm"
               variant="outline"
               disabled={busy}
               onClick={() => decide("escalate")}
-              className="text-teal border-teal/40 hover:bg-teal/10"
             >
               <AlertTriangle className="w-3 h-3 mr-1" />
-              Escalate
+              Escalader
             </Button>
             <Button
               size="sm"
               variant="outline"
               disabled={busy}
               onClick={() => decide("warn")}
-              className="text-gold border-gold/40 hover:bg-gold/10"
+              className="text-gold"
               title="Avertit l'auteur. Wave 4A.2 — branche le notify."
             >
-              Warn
+              Avertir
             </Button>
           </div>
         </>
