@@ -79,10 +79,10 @@ export function TagAliasRow({
     <span
       className={`rounded px-2 py-0.5 text-xs ${
         existingStatus === "approved"
-          ? "bg-green-500/20 text-green-300"
+          ? "bg-lime/20 text-lime"
           : existingStatus === "rejected"
-            ? "bg-red-500/20 text-red-300"
-            : "bg-yellow-500/20 text-yellow-300"
+            ? "bg-destructive/20 text-destructive"
+            : "bg-gold/20 text-gold"
       }`}
     >
       {existingStatus}
@@ -91,33 +91,33 @@ export function TagAliasRow({
   ) : null
 
   return (
-    <li className="rounded border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-200">
+    <li className="rounded border border-ink bg-card p-3 text-sm text-ink-2">
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <code className="rounded bg-zinc-950 px-2 py-0.5 font-mono text-xs text-zinc-100">
+          <code className="rounded bg-background px-2 py-0.5 font-mono text-xs text-ink-2">
             {alias}
           </code>
-          <span className="text-xs text-zinc-400">×{count}</span>
-          <span className="text-xs text-zinc-500">
+          <span className="text-xs text-mute">×{count}</span>
+          <span className="text-xs text-mute">
             ({tables.join(", ") || "—"})
           </span>
           {statusBadge}
         </div>
         {suggestedCanonical && !existingStatus && (
-          <span className="text-xs text-zinc-500">
-            suggéré: <code className="text-zinc-300">{suggestedCanonical}</code>
+          <span className="text-xs text-mute">
+            suggéré: <code className="text-ink-2">{suggestedCanonical}</code>
           </span>
         )}
       </header>
 
       {mode === "alias_existing" && (
         <div className="mt-3 flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1 text-xs text-zinc-400">
+          <label className="flex flex-col gap-1 text-xs text-mute">
             Canonique existant
             <select
               value={canonical}
               onChange={(e) => setCanonical(e.target.value)}
-              className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-white"
+              className="rounded border border-ink bg-background px-2 py-1 text-sm text-ink"
             >
               {taxonomy.map((t) => (
                 <option key={t} value={t}>
@@ -136,7 +136,7 @@ export function TagAliasRow({
                 canonical_tag: canonical,
               })
             }
-            className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
+            className="rounded bg-lime px-3 py-1 text-sm text-ink hover:bg-lime disabled:opacity-50"
           >
             Confirmer
           </button>
@@ -144,7 +144,7 @@ export function TagAliasRow({
             type="button"
             disabled={busy}
             onClick={() => setMode(null)}
-            className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
+            className="rounded bg-muted px-3 py-1 text-sm text-ink hover:bg-muted disabled:opacity-50"
           >
             Annuler
           </button>
@@ -153,7 +153,7 @@ export function TagAliasRow({
 
       {mode === "add_new" && (
         <div className="mt-3 flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1 text-xs text-zinc-400">
+          <label className="flex flex-col gap-1 text-xs text-mute">
             Nouveau tag canonique (snake_case)
             <input
               type="text"
@@ -167,7 +167,7 @@ export function TagAliasRow({
                 )
               }
               placeholder="ex: lifestyle_skating"
-              className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1 font-mono text-sm text-white"
+              className="rounded border border-ink bg-background px-2 py-1 font-mono text-sm text-ink"
             />
           </label>
           <button
@@ -180,7 +180,7 @@ export function TagAliasRow({
                 canonical_tag: newTag,
               })
             }
-            className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded bg-teal px-3 py-1 text-sm text-ink hover:bg-teal disabled:opacity-50"
           >
             Ajouter et mapper
           </button>
@@ -188,7 +188,7 @@ export function TagAliasRow({
             type="button"
             disabled={busy}
             onClick={() => setMode(null)}
-            className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
+            className="rounded bg-muted px-3 py-1 text-sm text-ink hover:bg-muted disabled:opacity-50"
           >
             Annuler
           </button>
@@ -201,7 +201,7 @@ export function TagAliasRow({
             type="button"
             disabled={busy}
             onClick={() => setMode("alias_existing")}
-            className="rounded bg-green-600 px-3 py-1 text-xs text-white hover:bg-green-700 disabled:opacity-50"
+            className="rounded bg-lime px-3 py-1 text-xs text-ink hover:bg-lime disabled:opacity-50"
           >
             Aliaser à existant
           </button>
@@ -209,7 +209,7 @@ export function TagAliasRow({
             type="button"
             disabled={busy}
             onClick={() => setMode("add_new")}
-            className="rounded bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded bg-teal px-3 py-1 text-xs text-ink hover:bg-teal disabled:opacity-50"
           >
             Ajouter à la taxonomie
           </button>
@@ -217,16 +217,16 @@ export function TagAliasRow({
             type="button"
             disabled={busy}
             onClick={() => submit({ alias, action: "reject" })}
-            className="rounded bg-red-600 px-3 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-50"
+            className="rounded bg-destructive px-3 py-1 text-xs text-ink hover:bg-destructive disabled:opacity-50"
           >
             Rejeter
           </button>
         </div>
       )}
 
-      {error && <p className="mt-2 text-xs text-red-400">Erreur: {error}</p>}
+      {error && <p className="mt-2 text-xs text-destructive">Erreur: {error}</p>}
       {done && !error && (
-        <p className="mt-2 text-xs text-green-400">{done}</p>
+        <p className="mt-2 text-xs text-lime">{done}</p>
       )}
     </li>
   )

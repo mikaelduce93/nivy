@@ -97,8 +97,8 @@ export function MentorSessionsClient({
               className={cn(
                 "px-4 py-2 rounded-2xl border text-xs font-black uppercase tracking-wider inline-flex items-center gap-2 transition-colors",
                 active
-                  ? "bg-purple-500/20 border-purple-500/40 text-purple-200"
-                  : "bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-white",
+                  ? "bg-pink/20 border-pink/40 text-pink"
+                  : "bg-paper-2 border-ink text-mute hover:bg-paper-2 hover:text-ink",
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -109,15 +109,15 @@ export function MentorSessionsClient({
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {sessions.length === 0 ? (
-        <div className="rounded-3xl border border-white/5 bg-zinc-900/40 p-10 text-center">
-          <p className="text-zinc-300 font-bold">Aucune session dans cette catégorie.</p>
-          <p className="text-zinc-500 text-sm mt-2">
+        <div className="rounded-2xl border border-ink bg-card p-10 text-center">
+          <p className="text-ink-2 font-bold">Aucune session dans cette catégorie.</p>
+          <p className="text-mute text-sm mt-2">
             Les nouvelles demandes apparaîtront ici dès qu'un teen vous réserve.
           </p>
         </div>
@@ -126,23 +126,23 @@ export function MentorSessionsClient({
           {sessions.map((s) => (
             <li
               key={s.id}
-              className="rounded-3xl border border-white/5 bg-zinc-900/40 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              className="rounded-2xl border border-ink bg-card p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-base font-black text-white">
+                  <span className="text-base font-black text-ink">
                     {new Date(s.scheduled_for).toLocaleString("fr-FR", {
                       dateStyle: "medium",
                       timeStyle: "short",
                     })}
                   </span>
                   {s.is_intro && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-500/15 border border-blue-500/30 text-blue-200 uppercase tracking-wider">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-teal/15 border border-teal/30 text-teal uppercase tracking-wider">
                       Intro
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-zinc-500 font-bold uppercase tracking-tight space-x-2">
+                <div className="text-xs text-mute font-bold uppercase tracking-tight space-x-2">
                   <span>{s.duration_minutes} min</span>
                   <span>•</span>
                   <span>
@@ -154,7 +154,7 @@ export function MentorSessionsClient({
                   <span>Mentee: {s.mentee_user_id.slice(0, 8)}…</span>
                 </div>
                 {s.notes && (
-                  <p className="mt-2 text-xs text-zinc-400 line-clamp-2">{s.notes}</p>
+                  <p className="mt-2 text-xs text-mute line-clamp-2">{s.notes}</p>
                 )}
               </div>
 
@@ -164,7 +164,7 @@ export function MentorSessionsClient({
                     href={s.meeting_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs font-bold text-purple-300 hover:text-purple-200 underline underline-offset-2"
+                    className="text-xs font-bold text-pink hover:text-pink underline underline-offset-2"
                   >
                     Lien meeting
                   </a>
@@ -175,7 +175,7 @@ export function MentorSessionsClient({
                     type="button"
                     onClick={() => handleComplete(s.id)}
                     disabled={busyId === s.id}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-200 text-xs font-black uppercase tracking-wider disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-lime/15 hover:bg-lime/25 border border-lime/30 text-lime text-xs font-black uppercase tracking-wider disabled:opacity-50"
                   >
                     {busyId === s.id ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -189,11 +189,11 @@ export function MentorSessionsClient({
                 <span
                   className={cn(
                     "text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full border",
-                    s.status === "approved" && "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
-                    s.status === "pending_approval" && "bg-amber-500/10 border-amber-500/30 text-amber-300",
-                    s.status === "completed" && "bg-blue-500/10 border-blue-500/30 text-blue-300",
-                    s.status === "denied" && "bg-red-500/10 border-red-500/30 text-red-300",
-                    s.status === "cancelled" && "bg-zinc-500/10 border-zinc-500/30 text-zinc-300",
+                    s.status === "approved" && "bg-lime/10 border-lime/30 text-lime",
+                    s.status === "pending_approval" && "bg-gold/10 border-gold/30 text-gold",
+                    s.status === "completed" && "bg-teal/10 border-teal/30 text-teal",
+                    s.status === "denied" && "bg-destructive/10 border-destructive/30 text-destructive",
+                    s.status === "cancelled" && "bg-muted border-line text-ink-2",
                   )}
                 >
                   {s.status}

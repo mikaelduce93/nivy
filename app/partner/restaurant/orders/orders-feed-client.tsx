@@ -93,7 +93,7 @@ export default function OrdersFeedClient({ initialOrders }: { initialOrders: Ord
       {orders.map((o) => (
         <li
           key={o.id}
-          className="rounded-2xl border border-border bg-card/30 p-3 text-sm backdrop-blur-md"
+          className="rounded-2xl border border-border bg-card/30 p-3 text-sm "
         >
           <div className="flex justify-between gap-3">
             <div>

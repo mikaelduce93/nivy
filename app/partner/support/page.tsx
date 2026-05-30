@@ -46,7 +46,7 @@ function statusBadge(status: string) {
     case "resolved":
     case "closed":
       return (
-        <Badge className="bg-green-500/20 text-green-400">
+        <Badge className="bg-lime/20 text-lime">
           <CheckCircle2 className="w-3 h-3 mr-1" />
           Résolu
         </Badge>
@@ -54,14 +54,14 @@ function statusBadge(status: string) {
     case "in_progress":
     case "pending":
       return (
-        <Badge className="bg-blue-500/20 text-blue-400">
+        <Badge className="bg-teal/20 text-teal">
           <Clock className="w-3 h-3 mr-1" />
           En cours
         </Badge>
       )
     case "rejected":
       return (
-        <Badge className="bg-red-500/20 text-red-400">
+        <Badge className="bg-destructive/20 text-destructive">
           <XCircle className="w-3 h-3 mr-1" />
           Refusé
         </Badge>
@@ -69,7 +69,7 @@ function statusBadge(status: string) {
     case "open":
     default:
       return (
-        <Badge className="bg-yellow-500/20 text-yellow-400">
+        <Badge className="bg-gold/20 text-gold">
           <Clock className="w-3 h-3 mr-1" />
           Ouvert
         </Badge>
@@ -84,9 +84,9 @@ export default async function PartnerSupportPage() {
   if (userInfo.role !== "partner") {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Support</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-red-400">
+        <h1 className="text-3xl font-black text-ink">Support</h1>
+        <Card className="bg-card border-ink">
+          <CardContent className="p-10 text-center text-destructive">
             Accès refusé — espace réservé aux partenaires.
           </CardContent>
         </Card>
@@ -140,56 +140,56 @@ export default async function PartnerSupportPage() {
     <div className="space-y-6 max-w-4xl">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <MessageSquare className="w-7 h-7 text-emerald-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <MessageSquare className="w-7 h-7 text-lime" />
           Support
         </h1>
-        <p className="text-zinc-400 mt-1">Vos demandes de support et contacts directs</p>
+        <p className="text-mute mt-1">Vos demandes de support et contacts directs</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-zinc-400">Total</p>
-            <p className="text-2xl font-black text-white">{tickets.length}</p>
+            <p className="text-xs text-mute">Total</p>
+            <p className="text-2xl font-black text-ink">{tickets.length}</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-yellow-400 font-medium">Ouverts</p>
-            <p className="text-2xl font-black text-white">{open}</p>
+            <p className="text-xs text-gold font-medium">Ouverts</p>
+            <p className="text-2xl font-black text-ink">{open}</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-blue-400 font-medium">En cours</p>
-            <p className="text-2xl font-black text-white">{inProgress}</p>
+            <p className="text-xs text-teal font-medium">En cours</p>
+            <p className="text-2xl font-black text-ink">{inProgress}</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-green-400 font-medium">Résolus</p>
-            <p className="text-2xl font-black text-white">{resolved}</p>
+            <p className="text-xs text-lime font-medium">Résolus</p>
+            <p className="text-2xl font-black text-ink">{resolved}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Direct contact email */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-              <Mail className="h-5 w-5 text-purple-400" />
+            <div className="h-10 w-10 rounded-xl bg-pink/20 flex items-center justify-center">
+              <Mail className="h-5 w-5 text-pink" />
             </div>
             <div>
-              <p className="font-bold text-white">Contact direct</p>
-              <p className="text-sm text-zinc-400">Réponse sous 24h ouvrables</p>
+              <p className="font-bold text-ink">Contact direct</p>
+              <p className="text-sm text-mute">Réponse sous 24h ouvrables</p>
             </div>
           </div>
           <a
             href={`mailto:${PARTNERS_EMAIL}`}
-            className="text-sm font-mono text-purple-400 hover:underline"
+            className="text-sm font-mono text-pink hover:underline"
           >
             {PARTNERS_EMAIL}
           </a>
@@ -198,10 +198,10 @@ export default async function PartnerSupportPage() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* New ticket */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white">Nouvelle demande</CardTitle>
-            <CardDescription className="text-zinc-400">
+            <CardTitle className="text-ink">Nouvelle demande</CardTitle>
+            <CardDescription className="text-mute">
               Décrivez votre problème — nous traçons chaque ticket.
             </CardDescription>
           </CardHeader>
@@ -211,9 +211,9 @@ export default async function PartnerSupportPage() {
         </Card>
 
         {/* My tickets */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white">Mes demandes</CardTitle>
+            <CardTitle className="text-ink">Mes demandes</CardTitle>
           </CardHeader>
           <CardContent>
             {tickets.length === 0 ? (
@@ -227,19 +227,19 @@ export default async function PartnerSupportPage() {
                 {tickets.map((t) => (
                   <div
                     key={t.id}
-                    className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-800"
+                    className="p-4 rounded-lg bg-card border border-ink"
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <p className="font-semibold text-white truncate">{t.subject}</p>
+                      <p className="font-semibold text-ink truncate">{t.subject}</p>
                       {statusBadge(t.status)}
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-mute">
                       Ouvert le {formatDate(t.created_at)}
                       {t.updated_at && t.updated_at !== t.created_at
                         ? ` · MAJ ${formatDate(t.updated_at)}`
                         : ""}
                     </p>
-                    <p className="text-sm text-zinc-400 mt-2 line-clamp-2">{t.body}</p>
+                    <p className="text-sm text-mute mt-2 line-clamp-2">{t.body}</p>
                   </div>
                 ))}
               </div>
@@ -249,21 +249,21 @@ export default async function PartnerSupportPage() {
       </div>
 
       {/* FAQ */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <HelpCircle className="h-5 w-5 text-amber-400" />
+          <CardTitle className="text-ink flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-gold" />
             Questions fréquentes
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {faqs.map((faq, i) => (
             <details key={i} className="group">
-              <summary className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700 cursor-pointer list-none hover:border-zinc-600 transition-all">
-                <span className="font-semibold text-white">{faq.q}</span>
-                <ChevronRight className="h-5 w-5 text-zinc-400 group-open:rotate-90 transition-transform" />
+              <summary className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink cursor-pointer list-none hover:border-ink transition-all">
+                <span className="font-semibold text-ink">{faq.q}</span>
+                <ChevronRight className="h-5 w-5 text-mute group-open:rotate-90 transition-transform" />
               </summary>
-              <div className="p-4 text-zinc-400 text-sm">{faq.a}</div>
+              <div className="p-4 text-mute text-sm">{faq.a}</div>
             </details>
           ))}
         </CardContent>

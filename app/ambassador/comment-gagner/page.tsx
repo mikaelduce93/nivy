@@ -33,7 +33,7 @@ const EARNING_METHODS = [
     points: 100,
     per: "famille inscrite",
     bonus: "+ commission cash sur chaque top-up parental",
-    color: "from-blue-500 to-cyan-500",
+    color: "from-teal to-teal",
   },
   {
     icon: Video,
@@ -42,7 +42,7 @@ const EARNING_METHODS = [
     points: 50,
     per: "vidéo validée",
     bonus: "+50 si la vidéo dépasse 10k vues",
-    color: "from-pink-500 to-rose-500",
+    color: "from-pink to-pink",
   },
   {
     icon: Camera,
@@ -51,7 +51,7 @@ const EARNING_METHODS = [
     points: 30,
     per: "contenu validé",
     bonus: "+20 si Reels avec plus de 5k vues",
-    color: "from-purple-500 to-pink-500",
+    color: "from-pink to-pink",
   },
   {
     icon: Calendar,
@@ -60,7 +60,7 @@ const EARNING_METHODS = [
     points: 75,
     per: "événement",
     bonus: "x2 si tu ramènes 3+ familles",
-    color: "from-orange-500 to-amber-500",
+    color: "from-coral to-gold",
   },
   {
     icon: Star,
@@ -69,7 +69,7 @@ const EARNING_METHODS = [
     points: "Variable",
     per: "mission",
     bonus: "Certaines missions donnent jusqu'à 500 pts",
-    color: "from-yellow-500 to-orange-500",
+    color: "from-gold to-coral",
   },
   {
     icon: Heart,
@@ -78,7 +78,7 @@ const EARNING_METHODS = [
     points: 10,
     per: "aide validée",
     bonus: "Badge 'Helper' après 50 aides",
-    color: "from-red-500 to-pink-500",
+    color: "from-destructive to-pink",
   },
 ]
 
@@ -101,8 +101,8 @@ export default function CommentGagnerPage() {
     <div className="space-y-8 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-white">Comment gagner avec Nivy</h1>
-        <p className="text-zinc-400">
+        <h1 className="text-3xl font-black text-ink">Comment gagner avec Nivy</h1>
+        <p className="text-mute">
           Cash sur chaque famille parrainée, plus des points bonus pour les
           actions marketing — choisis ton mix.
         </p>
@@ -110,32 +110,32 @@ export default function CommentGagnerPage() {
 
       {/* Quick Stats */}
       <div className="grid sm:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30">
+        <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30">
           <CardContent className="p-4 text-center">
-            <Zap className="h-8 w-8 mx-auto text-purple-400 mb-2" />
-            <p className="text-2xl font-bold text-white">100+</p>
-            <p className="text-sm text-purple-300">Points par parrainage</p>
+            <Zap className="h-8 w-8 mx-auto text-pink mb-2" />
+            <p className="text-2xl font-bold text-ink">100+</p>
+            <p className="text-sm text-pink">Points par parrainage</p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border-cyan-500/30">
+        <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30">
           <CardContent className="p-4 text-center">
-            <Gift className="h-8 w-8 mx-auto text-cyan-400 mb-2" />
-            <p className="text-2xl font-bold text-white">30+</p>
-            <p className="text-sm text-cyan-300">Cadeaux disponibles</p>
+            <Gift className="h-8 w-8 mx-auto text-teal mb-2" />
+            <p className="text-2xl font-bold text-ink">30+</p>
+            <p className="text-sm text-teal">Cadeaux disponibles</p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-500/30">
+        <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30">
           <CardContent className="p-4 text-center">
-            <Trophy className="h-8 w-8 mx-auto text-yellow-400 mb-2" />
-            <p className="text-2xl font-bold text-white">50 pts</p>
-            <p className="text-sm text-yellow-300">Minimum pour un cadeau</p>
+            <Trophy className="h-8 w-8 mx-auto text-gold mb-2" />
+            <p className="text-2xl font-bold text-ink">50 pts</p>
+            <p className="text-sm text-gold">Minimum pour un cadeau</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Earning Methods */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-white">Actions qui rapportent</h2>
+        <h2 className="text-xl font-bold text-ink">Actions qui rapportent</h2>
 
         <div className="grid md:grid-cols-2 gap-4">
           {EARNING_METHODS.map((method, i) => (
@@ -146,18 +146,18 @@ export default function CommentGagnerPage() {
                   <div
                     className={`w-12 h-12 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center flex-shrink-0`}
                   >
-                    <method.icon className="h-6 w-6 text-white" />
+                    <method.icon className="h-6 w-6 text-ink" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-white mb-1">{method.title}</h3>
-                    <p className="text-sm text-zinc-400 mb-3">{method.description}</p>
+                    <h3 className="font-bold text-ink mb-1">{method.title}</h3>
+                    <p className="text-sm text-mute mb-3">{method.description}</p>
 
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                      <Badge className="bg-pink/20 text-pink border-pink/30">
                         +{method.points} pts / {method.per}
                       </Badge>
                       {method.bonus && (
-                        <Badge variant="outline" className="text-yellow-400 border-yellow-500/30">
+                        <Badge variant="outline" className="text-gold border-gold/30">
                           {method.bonus}
                         </Badge>
                       )}
@@ -174,7 +174,7 @@ export default function CommentGagnerPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-orange-400" />
+            <Zap className="h-5 w-5 text-coral" />
             Bonus de série
           </CardTitle>
           <CardDescription>
@@ -186,12 +186,12 @@ export default function CommentGagnerPage() {
             {BONUS_STREAKS.map((streak, i) => (
               <div
                 key={i}
-                className="text-center p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20"
+                className="text-center p-4 rounded-xl bg-gradient-to-br from-coral/10 to-gold/10 border border-coral/20"
               >
-                <p className="text-3xl font-black text-orange-400">{streak.days}</p>
-                <p className="text-xs text-zinc-400 mb-2">jours</p>
-                <Badge className="bg-orange-500/20 text-orange-300">{streak.bonus}</Badge>
-                <p className="text-xs text-zinc-500 mt-2">{streak.label}</p>
+                <p className="text-3xl font-black text-coral">{streak.days}</p>
+                <p className="text-xs text-mute mb-2">jours</p>
+                <Badge className="bg-coral/20 text-coral">{streak.bonus}</Badge>
+                <p className="text-xs text-mute mt-2">{streak.label}</p>
               </div>
             ))}
           </div>
@@ -202,7 +202,7 @@ export default function CommentGagnerPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-yellow-400" />
+            <Trophy className="h-5 w-5 text-gold" />
             Niveaux ambassadeur
           </CardTitle>
           <CardDescription>
@@ -214,22 +214,22 @@ export default function CommentGagnerPage() {
             {LEVEL_REWARDS.map((level, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-zinc-800"
+                className="flex items-center justify-between p-4 rounded-lg bg-card border border-ink"
               >
                 <div className="flex items-center gap-3">
                   <Badge
                     className={`
-                    ${level.level === "Bronze" && "bg-orange-600/30 text-orange-300"}
-                    ${level.level === "Silver" && "bg-zinc-400/30 text-zinc-200"}
-                    ${level.level === "Gold" && "bg-yellow-500/30 text-yellow-300"}
-                    ${level.level === "Platinum" && "bg-purple-500/30 text-purple-300"}
+                    ${level.level === "Bronze" && "bg-coral/30 text-coral"}
+                    ${level.level === "Silver" && "bg-muted text-ink-2"}
+                    ${level.level === "Gold" && "bg-gold/30 text-gold"}
+                    ${level.level === "Platinum" && "bg-pink/30 text-pink"}
                   `}
                   >
                     {level.level}
                   </Badge>
-                  <span className="text-zinc-400">{level.points} pts</span>
+                  <span className="text-mute">{level.points} pts</span>
                 </div>
-                <span className="text-sm text-white">{level.perks}</span>
+                <span className="text-sm text-ink">{level.perks}</span>
               </div>
             ))}
           </div>
@@ -237,37 +237,37 @@ export default function CommentGagnerPage() {
       </Card>
 
       {/* Pro Tips */}
-      <Card className="bg-gradient-to-br from-cyan-500/10 to-purple-500/10 border-cyan-500/30">
+      <Card className="bg-gradient-to-br from-teal/10 to-pink/10 border-teal/30">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-cyan-400" />
+            <MessageCircle className="h-5 w-5 text-teal" />
             Conseils de pro
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-start gap-3">
-            <Share2 className="h-5 w-5 text-cyan-400 mt-0.5" />
-            <p className="text-sm text-zinc-300">
+            <Share2 className="h-5 w-5 text-teal mt-0.5" />
+            <p className="text-sm text-ink-2">
               <strong>Partage ton code parrainage</strong> dans ta bio Instagram et TikTok pour des
               parrainages passifs
             </p>
           </div>
           <div className="flex items-start gap-3">
-            <Video className="h-5 w-5 text-pink-400 mt-0.5" />
-            <p className="text-sm text-zinc-300">
+            <Video className="h-5 w-5 text-pink mt-0.5" />
+            <p className="text-sm text-ink-2">
               <strong>Les TikToks rapportent plus</strong> car ils ont plus de potentiel viral.
               N'hésite pas à montrer l'ambiance des events !
             </p>
           </div>
           <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-orange-400 mt-0.5" />
-            <p className="text-sm text-zinc-300">
+            <Calendar className="h-5 w-5 text-coral mt-0.5" />
+            <p className="text-sm text-ink-2">
               <strong>Viens aux events avec des amis</strong> pour multiplier tes points par 2
             </p>
           </div>
           <div className="flex items-start gap-3">
-            <Zap className="h-5 w-5 text-yellow-400 mt-0.5" />
-            <p className="text-sm text-zinc-300">
+            <Zap className="h-5 w-5 text-gold mt-0.5" />
+            <p className="text-sm text-ink-2">
               <strong>Reste actif chaque jour</strong> pour les bonus de série - ça s'accumule vite
               !
             </p>
@@ -277,7 +277,7 @@ export default function CommentGagnerPage() {
 
       {/* CTA */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Button asChild size="lg" className="bg-purple-500 hover:bg-purple-600">
+        <Button asChild size="lg" className="bg-pink hover:bg-pink">
           <Link href="/ambassador/boutique">
             <Gift className="h-5 w-5 mr-2" />
             Voir les cadeaux

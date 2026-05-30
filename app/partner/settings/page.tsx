@@ -32,12 +32,12 @@ export default async function PartnerSettingsPage() {
   if (!partner) {
     return (
       <div className="space-y-6 max-w-3xl">
-        <h1 className="text-3xl font-black text-white">Paramètres</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <h1 className="text-3xl font-black text-ink">Paramètres</h1>
+        <Card className="bg-card border-ink">
           <CardContent className="p-10 text-center">
-            <ShieldAlert className="w-8 h-8 text-amber-400 mx-auto mb-2" />
-            <p className="text-zinc-300 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-zinc-500 mt-2">
+            <ShieldAlert className="w-8 h-8 text-gold mx-auto mb-2" />
+            <p className="text-ink-2 font-semibold">Profil partenaire introuvable</p>
+            <p className="text-sm text-mute mt-2">
               Termine ton inscription puis attends l&apos;activation admin.
             </p>
           </CardContent>
@@ -49,25 +49,25 @@ export default async function PartnerSettingsPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <header>
-        <h1 className="text-3xl font-black text-white">Paramètres</h1>
-        <p className="text-zinc-400">Mets à jour les infos publiques de ton compte partenaire.</p>
+        <h1 className="text-3xl font-black text-ink">Paramètres</h1>
+        <p className="text-mute">Mets à jour les infos publiques de ton compte partenaire.</p>
       </header>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white text-base">Champs verrouillés</CardTitle>
+          <CardTitle className="text-ink text-base">Champs verrouillés</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-zinc-300 space-y-1">
+        <CardContent className="text-sm text-ink-2 space-y-1">
           <p>
-            <span className="text-zinc-500">Email :</span> {partner.email}
+            <span className="text-mute">Email :</span> {partner.email}
           </p>
           <p>
-            <span className="text-zinc-500">Type :</span> {partner.partner_type}
+            <span className="text-mute">Type :</span> {partner.partner_type}
           </p>
           <p>
-            <span className="text-zinc-500">Statut :</span> {partner.status}
+            <span className="text-mute">Statut :</span> {partner.status}
           </p>
-          <p className="text-xs text-zinc-500 mt-2">
+          <p className="text-xs text-mute mt-2">
             Pour modifier ces champs, contacte l&apos;équipe Nivy. Ils ne sont pas modifiables
             depuis cet écran (canon §6 partner-side mass-assignment guard).
           </p>

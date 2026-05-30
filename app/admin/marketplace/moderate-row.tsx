@@ -31,17 +31,17 @@ export function ModerateRow({ listing }: { listing: ListingRow }) {
     <li className="border rounded p-3 flex items-center justify-between">
       <div>
         <div className="font-semibold">{listing.title}</div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-mute">
           {listing.category} · {listing.price_coins} coins · {new Date(listing.created_at).toLocaleString()}
         </div>
       </div>
       <div className="flex gap-2">
         <button onClick={() => decide("approve")} disabled={busy}
-          className="rounded bg-green-600 text-white px-3 py-1 text-sm disabled:opacity-50">
+          className="rounded bg-lime text-ink px-3 py-1 text-sm disabled:opacity-50">
           Approuver
         </button>
         <button onClick={() => decide("reject")} disabled={busy}
-          className="rounded bg-red-600 text-white px-3 py-1 text-sm disabled:opacity-50">
+          className="rounded bg-destructive text-ink px-3 py-1 text-sm disabled:opacity-50">
           Rejeter
         </button>
       </div>

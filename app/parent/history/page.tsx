@@ -207,13 +207,13 @@ export default async function ParentHistoryPage() {
     switch (status) {
       case "confirmed":
       case "completed":
-        return <CheckCircle className="h-4 w-4 text-emerald-400" />
+        return <CheckCircle className="h-4 w-4 text-lime" />
       case "pending":
-        return <Clock className="h-4 w-4 text-amber-400" />
+        return <Clock className="h-4 w-4 text-gold" />
       case "cancelled":
-        return <XCircle className="h-4 w-4 text-red-400" />
+        return <XCircle className="h-4 w-4 text-destructive" />
       default:
-        return <Clock className="h-4 w-4 text-zinc-400" />
+        return <Clock className="h-4 w-4 text-mute" />
     }
   }
 
@@ -235,32 +235,32 @@ export default async function ParentHistoryPage() {
   const getTypeIcon = (type: string, coinType?: string) => {
     switch (type) {
       case "booking":
-        return <Ticket className="h-5 w-5 text-purple-400" />
+        return <Ticket className="h-5 w-5 text-pink" />
       case "discount":
-        return <Gift className="h-5 w-5 text-emerald-400" />
+        return <Gift className="h-5 w-5 text-lime" />
       case "coins":
         return coinType === "topup"
-          ? <ArrowUpRight className="h-5 w-5 text-green-400" />
-          : <ArrowDownRight className="h-5 w-5 text-orange-400" />
+          ? <ArrowUpRight className="h-5 w-5 text-lime" />
+          : <ArrowDownRight className="h-5 w-5 text-coral" />
       case "shop":
-        return <ShoppingBag className="h-5 w-5 text-blue-400" />
+        return <ShoppingBag className="h-5 w-5 text-teal" />
       default:
-        return <ShoppingBag className="h-5 w-5 text-zinc-400" />
+        return <ShoppingBag className="h-5 w-5 text-mute" />
     }
   }
 
   const getTypeBadge = (type: string) => {
     switch (type) {
       case "booking":
-        return { text: "Réservation", class: "bg-purple-500/20 text-purple-400" }
+        return { text: "Réservation", class: "bg-pink/20 text-pink" }
       case "discount":
-        return { text: "Réduction", class: "bg-emerald-500/20 text-emerald-400" }
+        return { text: "Réduction", class: "bg-lime/20 text-lime" }
       case "coins":
-        return { text: "Coins", class: "bg-amber-500/20 text-amber-400" }
+        return { text: "Coins", class: "bg-gold/20 text-gold" }
       case "shop":
-        return { text: "Boutique", class: "bg-blue-500/20 text-blue-400" }
+        return { text: "Boutique", class: "bg-teal/20 text-teal" }
       default:
-        return { text: type, class: "bg-zinc-500/20 text-zinc-400" }
+        return { text: type, class: "bg-muted text-mute" }
     }
   }
 
@@ -276,10 +276,10 @@ export default async function ParentHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -289,65 +289,65 @@ export default async function ParentHistoryPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Historique</h1>
-            <p className="text-zinc-400">Toutes les transactions de vos teens</p>
+            <h1 className="text-3xl font-black text-ink">Historique</h1>
+            <p className="text-mute">Toutes les transactions de vos teens</p>
           </div>
           <ExportButton transactions={transactions} />
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-400 font-medium">Total dépensé</p>
-                  <p className="text-3xl font-black text-white">{totalSpent.toLocaleString()} DH</p>
+                  <p className="text-xs text-lime font-medium">Total dépensé</p>
+                  <p className="text-3xl font-black text-ink">{totalSpent.toLocaleString()} DH</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <CreditCard className="h-6 w-6 text-emerald-400" />
+                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
+                  <CreditCard className="h-6 w-6 text-lime" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-400 font-medium">Ce mois</p>
-                  <p className="text-3xl font-black text-white">{monthlySpent.toLocaleString()} DH</p>
+                  <p className="text-xs text-teal font-medium">Ce mois</p>
+                  <p className="text-3xl font-black text-ink">{monthlySpent.toLocaleString()} DH</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-teal" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-400 font-medium">Coins rechargés</p>
-                  <p className="text-3xl font-black text-white">{totalTopup.toLocaleString()}</p>
+                  <p className="text-xs text-gold font-medium">Coins rechargés</p>
+                  <p className="text-3xl font-black text-ink">{totalTopup.toLocaleString()}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <Coins className="h-6 w-6 text-amber-400" />
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Coins className="h-6 w-6 text-gold" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-purple-400 font-medium">Transactions</p>
-                  <p className="text-3xl font-black text-white">{transactions.length}</p>
+                  <p className="text-xs text-pink font-medium">Transactions</p>
+                  <p className="text-3xl font-black text-ink">{transactions.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <History className="h-6 w-6 text-purple-400" />
+                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
+                  <History className="h-6 w-6 text-pink" />
                 </div>
               </div>
             </CardContent>
@@ -358,10 +358,10 @@ export default async function ParentHistoryPage() {
         <TransactionFilters teens={teens} />
 
         {/* Transaction List */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <History className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <History className="h-5 w-5 text-lime" />
               Toutes les transactions
             </CardTitle>
           </CardHeader>
@@ -373,15 +373,15 @@ export default async function ParentHistoryPage() {
                   return (
                     <div
                       key={`${tx.type}-${tx.id}`}
-                      className="flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-emerald-500/30 transition-all"
+                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-lime/30 transition-all"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-zinc-800 flex items-center justify-center">
+                        <div className="h-12 w-12 rounded-xl bg-card flex items-center justify-center">
                           {getTypeIcon(tx.type, tx.coinType)}
                         </div>
                         <div>
-                          <p className="font-semibold text-white">{tx.description}</p>
-                          <div className="flex items-center gap-2 text-xs text-zinc-400 mt-1">
+                          <p className="font-semibold text-ink">{tx.description}</p>
+                          <div className="flex items-center gap-2 text-xs text-mute mt-1">
                             <span className={`px-2 py-0.5 rounded-full ${typeBadge.class}`}>
                               {typeBadge.text}
                             </span>
@@ -395,21 +395,21 @@ export default async function ParentHistoryPage() {
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           {tx.type === "coins" ? (
-                            <p className={`font-black ${tx.coinType === "topup" ? "text-green-400" : "text-orange-400"}`}>
+                            <p className={`font-black ${tx.coinType === "topup" ? "text-lime" : "text-coral"}`}>
                               {tx.coinType === "topup" ? "+" : "-"}{tx.amount?.toLocaleString()} coins
                             </p>
                           ) : (
-                            <p className="font-black text-white">{tx.amount?.toLocaleString()} DH</p>
+                            <p className="font-black text-ink">{tx.amount?.toLocaleString()} DH</p>
                           )}
                           {tx.discount && (
-                            <p className="text-xs text-emerald-400">-{tx.discount} DH économisé</p>
+                            <p className="text-xs text-lime">-{tx.discount} DH économisé</p>
                           )}
                           {tx.coinsUsed && (
-                            <p className="text-xs text-amber-400">{tx.coinsUsed} coins utilisés</p>
+                            <p className="text-xs text-gold">{tx.coinsUsed} coins utilisés</p>
                           )}
                           <div className="flex items-center justify-end gap-1 mt-1">
                             {getStatusIcon(tx.status)}
-                            <span className="text-xs text-zinc-500">{getStatusText(tx.status)}</span>
+                            <span className="text-xs text-mute">{getStatusText(tx.status)}</span>
                           </div>
                         </div>
                         {/* Invoice button for paid bookings and topups */}

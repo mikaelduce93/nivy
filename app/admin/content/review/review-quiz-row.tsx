@@ -75,24 +75,24 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
   const questionCount = Array.isArray(quiz.questions) ? quiz.questions.length : 0
 
   return (
-    <li className="rounded border border-zinc-800 bg-zinc-900 p-4">
+    <li className="rounded border border-ink bg-card p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <div className="text-xs uppercase tracking-wide text-zinc-500">
+          <div className="text-xs uppercase tracking-wide text-mute">
             {quiz.code}
           </div>
-          <div className="font-semibold text-white">{quiz.title}</div>
+          <div className="font-semibold text-ink">{quiz.title}</div>
           {quiz.description && (
-            <div className="mt-1 text-sm text-zinc-400">{quiz.description}</div>
+            <div className="mt-1 text-sm text-mute">{quiz.description}</div>
           )}
-          <div className="mt-1 text-xs text-zinc-600">
+          <div className="mt-1 text-xs text-mute">
             Soumis le{" "}
             {quiz.created_at
               ? new Date(quiz.created_at).toLocaleString("fr-FR")
               : "?"}
           </div>
         </div>
-        <span className="rounded bg-yellow-500/20 px-2 py-0.5 text-xs text-yellow-300">
+        <span className="rounded bg-gold/20 px-2 py-0.5 text-xs text-gold">
           En attente
         </span>
       </header>
@@ -112,13 +112,13 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
       <button
         type="button"
         onClick={() => setShowQuestions((v) => !v)}
-        className="mb-3 text-xs text-blue-300 underline-offset-4 hover:text-blue-200 hover:underline"
+        className="mb-3 text-xs text-teal underline-offset-4 hover:text-teal hover:underline"
       >
         {showQuestions ? "Masquer" : "Afficher"} le JSON des questions
       </button>
 
       {showQuestions && (
-        <pre className="mb-3 max-h-96 overflow-auto rounded bg-zinc-950 p-3 text-xs text-zinc-300">
+        <pre className="mb-3 max-h-96 overflow-auto rounded bg-background p-3 text-xs text-ink-2">
           {JSON.stringify(quiz.questions, null, 2)}
         </pre>
       )}
@@ -131,19 +131,19 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
             placeholder="Motif de rejet pédagogique (obligatoire)"
             rows={2}
             maxLength={1000}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className="w-full rounded border border-ink bg-background p-2 text-sm text-ink"
           />
         </div>
       )}
 
-      {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
 
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
           disabled={busy}
           onClick={approve}
-          className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
+          className="rounded bg-lime px-3 py-1 text-sm text-ink hover:bg-lime disabled:opacity-50"
         >
           Approuver
         </button>
@@ -152,7 +152,7 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
             type="button"
             disabled={busy}
             onClick={() => setShowReject(true)}
-            className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+            className="rounded bg-destructive px-3 py-1 text-sm text-ink hover:bg-destructive disabled:opacity-50"
           >
             Rejeter
           </button>
@@ -162,7 +162,7 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
               type="button"
               disabled={busy}
               onClick={reject}
-              className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+              className="rounded bg-destructive px-3 py-1 text-sm text-ink hover:bg-destructive disabled:opacity-50"
             >
               Confirmer le rejet
             </button>
@@ -174,7 +174,7 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
                 setReason("")
                 setError(null)
               }}
-              className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
+              className="rounded bg-muted px-3 py-1 text-sm text-ink hover:bg-muted disabled:opacity-50"
             >
               Annuler
             </button>
@@ -187,8 +187,8 @@ export function ReviewQuizRow({ quiz }: { quiz: PendingQuiz }) {
 
 function Tag({ label, value }: { label: string; value: string }) {
   return (
-    <span className="rounded border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-zinc-300">
-      <span className="text-zinc-500">{label}:</span> {value}
+    <span className="rounded border border-ink bg-background px-2 py-0.5 text-ink-2">
+      <span className="text-mute">{label}:</span> {value}
     </span>
   )
 }

@@ -81,11 +81,11 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: "En attente", color: "bg-yellow-500/20 text-yellow-400" },
-  processing: { label: "En cours", color: "bg-blue-500/20 text-blue-400" },
-  shipped: { label: "Expédié", color: "bg-purple-500/20 text-purple-400" },
-  delivered: { label: "Livré", color: "bg-green-500/20 text-green-400" },
-  cancelled: { label: "Annulé", color: "bg-red-500/20 text-red-400" },
+  pending: { label: "En attente", color: "bg-gold/20 text-gold" },
+  processing: { label: "En cours", color: "bg-teal/20 text-teal" },
+  shipped: { label: "Expédié", color: "bg-pink/20 text-pink" },
+  delivered: { label: "Livré", color: "bg-lime/20 text-lime" },
+  cancelled: { label: "Annulé", color: "bg-destructive/20 text-destructive" },
 }
 
 export default function AmbassadorBoutiquePage() {
@@ -222,12 +222,12 @@ export default function AmbassadorBoutiquePage() {
   if (!ambassadorId) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-        <Gift className="h-16 w-16 text-amber-400 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès réservé aux ambassadeurs</h2>
-        <p className="text-gray-600 text-center max-w-md">
+        <Gift className="h-16 w-16 text-gold mb-4" />
+        <h2 className="text-2xl font-bold text-ink mb-2">Accès réservé aux ambassadeurs</h2>
+        <p className="text-mute text-center max-w-md">
           Tu dois être un ambassadeur approuvé pour accéder à la boutique de cadeaux.
         </p>
-        <Button className="mt-6 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600" asChild>
+        <Button className="mt-6 bg-gradient-to-r from-gold to-coral hover:from-gold hover:to-coral" asChild>
           <a href="/devenir-ambassadeur">Devenir ambassadeur</a>
         </Button>
       </div>
@@ -237,34 +237,34 @@ export default function AmbassadorBoutiquePage() {
   return (
     <div className="space-y-6">
       {/* Points Summary */}
-      <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-200 shadow-lg">
+      <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold shadow-lg">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                <Star className="h-8 w-8 text-white" />
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center shadow-lg">
+                <Star className="h-8 w-8 text-ink" />
               </div>
               <div>
-                <p className="text-4xl font-black text-gray-900">{points.total.toLocaleString()}</p>
-                <p className="text-amber-700 font-medium">Points disponibles</p>
+                <p className="text-4xl font-black text-ink">{points.total.toLocaleString()}</p>
+                <p className="text-gold font-medium">Points disponibles</p>
               </div>
             </div>
 
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <div className="flex items-center gap-1 text-gray-600">
+                <div className="flex items-center gap-1 text-mute">
                   <TrendingUp className="h-4 w-4" />
                   <span className="text-sm">Total gagné</span>
                 </div>
-                <p className="text-xl font-bold text-gray-900">{points.lifetime.toLocaleString()}</p>
+                <p className="text-xl font-bold text-ink">{points.lifetime.toLocaleString()}</p>
               </div>
 
               <div className="text-center">
-                <div className="flex items-center gap-1 text-gray-600">
+                <div className="flex items-center gap-1 text-mute">
                   <Package className="h-4 w-4" />
                   <span className="text-sm">Échangés</span>
                 </div>
-                <p className="text-xl font-bold text-gray-900">{redemptions.length}</p>
+                <p className="text-xl font-bold text-ink">{redemptions.length}</p>
               </div>
             </div>
           </div>
@@ -297,8 +297,8 @@ export default function AmbassadorBoutiquePage() {
                   onClick={() => setActiveCategory(cat)}
                   className={
                     activeCategory === cat
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0"
-                      : "bg-white hover:bg-amber-50 border-amber-200 text-gray-700"
+                      ? "bg-gradient-to-r from-gold to-coral hover:from-gold hover:to-coral text-ink border-0"
+                      : "bg-white hover:bg-gold border-gold text-ink"
                   }
                 >
                   <Icon className="h-4 w-4 mr-1" />
@@ -319,14 +319,14 @@ export default function AmbassadorBoutiquePage() {
                   key={reward.id}
                   className={`relative overflow-hidden transition-all bg-white border-2 ${
                     canAfford && !outOfStock
-                      ? "hover:border-amber-400 cursor-pointer hover:shadow-lg"
-                      : "opacity-60 border-gray-200"
+                      ? "hover:border-gold cursor-pointer hover:shadow-lg"
+                      : "opacity-60 border-line"
                   }`}
                   onClick={() => canAfford && !outOfStock && setSelectedReward(reward)}
                 >
                   {outOfStock && (
-                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-lg">
-                      <Badge variant="destructive" className="bg-red-500 text-white">Rupture de stock</Badge>
+                    <div className="absolute inset-0 bg-paper-2 flex items-center justify-center z-10 rounded-lg">
+                      <Badge variant="destructive" className="bg-destructive text-ink">Rupture de stock</Badge>
                     </div>
                   )}
 
@@ -337,20 +337,20 @@ export default function AmbassadorBoutiquePage() {
                         variant="outline"
                         className={`${
                           canAfford
-                            ? "border-green-500 text-green-600 bg-green-50"
-                            : "border-gray-300 text-gray-500"
+                            ? "border-lime text-lime bg-lime"
+                            : "border-line text-mute"
                         }`}
                       >
                         {reward.points_cost.toLocaleString()} pts
                       </Badge>
                     </div>
-                    <CardTitle className="text-lg text-gray-900">{reward.name}</CardTitle>
-                    <CardDescription className="text-sm text-gray-600">{reward.description}</CardDescription>
+                    <CardTitle className="text-lg text-ink">{reward.name}</CardTitle>
+                    <CardDescription className="text-sm text-mute">{reward.description}</CardDescription>
                   </CardHeader>
 
                   <CardContent>
                     <div className="space-y-2">
-                      <div className="flex justify-between text-xs text-gray-600">
+                      <div className="flex justify-between text-xs text-mute">
                         <span>Progression</span>
                         <span>
                           {Math.min(points.total, reward.points_cost)} / {reward.points_cost}
@@ -358,19 +358,19 @@ export default function AmbassadorBoutiquePage() {
                       </div>
                       <Progress
                         value={Math.min((points.total / reward.points_cost) * 100, 100)}
-                        className="h-2 bg-gray-200"
+                        className="h-2 bg-paper-2"
                       />
                     </div>
 
                     {canAfford && !outOfStock && (
-                      <Button className="w-full mt-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" size="sm">
+                      <Button className="w-full mt-4 bg-gradient-to-r from-gold to-coral hover:from-gold hover:to-coral text-ink" size="sm">
                         <Gift className="h-4 w-4 mr-2" />
                         Échanger
                       </Button>
                     )}
 
                     {!canAfford && (
-                      <p className="text-xs text-center text-gray-500 mt-4">
+                      <p className="text-xs text-center text-mute mt-4">
                         Il te manque {(reward.points_cost - points.total).toLocaleString()} points
                       </p>
                     )}
@@ -382,30 +382,30 @@ export default function AmbassadorBoutiquePage() {
         </TabsContent>
 
         <TabsContent value="history">
-          <Card className="bg-white border-amber-200">
+          <Card className="bg-white border-gold">
             <CardHeader>
-              <CardTitle className="text-gray-900">Historique des commandes</CardTitle>
-              <CardDescription className="text-gray-600">Tous tes cadeaux échangés</CardDescription>
+              <CardTitle className="text-ink">Historique des commandes</CardTitle>
+              <CardDescription className="text-mute">Tous tes cadeaux échangés</CardDescription>
             </CardHeader>
             <CardContent>
               {redemptions.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Package className="h-12 w-12 mx-auto mb-4 opacity-50 text-amber-400" />
-                  <p className="text-gray-700">Aucune commande pour le moment</p>
-                  <p className="text-sm text-gray-600">Échange tes points contre des cadeaux !</p>
+                <div className="text-center py-12 text-mute">
+                  <Package className="h-12 w-12 mx-auto mb-4 opacity-50 text-gold" />
+                  <p className="text-ink">Aucune commande pour le moment</p>
+                  <p className="text-sm text-mute">Échange tes points contre des cadeaux !</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {redemptions.map((redemption) => (
                     <div
                       key={redemption.id}
-                      className="flex items-center justify-between p-4 rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors"
+                      className="flex items-center justify-between p-4 rounded-lg bg-gold border border-gold hover:bg-gold transition-colors"
                     >
                       <div className="flex items-center gap-4">
                         <span className="text-3xl">{redemption.reward?.emoji}</span>
                         <div>
-                          <p className="font-medium text-gray-900">{redemption.reward?.name}</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="font-medium text-ink">{redemption.reward?.name}</p>
+                          <p className="text-sm text-mute">
                             {new Date(redemption.created_at).toLocaleDateString("fr-FR", {
                               day: "numeric",
                               month: "long",
@@ -415,10 +415,10 @@ export default function AmbassadorBoutiquePage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge className={STATUS_LABELS[redemption.status]?.color || "bg-gray-200 text-gray-700"}>
+                        <Badge className={STATUS_LABELS[redemption.status]?.color || "bg-paper-2 text-ink"}>
                           {STATUS_LABELS[redemption.status]?.label || redemption.status}
                         </Badge>
-                        <p className="text-sm text-amber-600 font-medium mt-1">
+                        <p className="text-sm text-gold font-medium mt-1">
                           -{redemption.points_spent} pts
                         </p>
                       </div>
@@ -443,16 +443,16 @@ export default function AmbassadorBoutiquePage() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between p-4 rounded-lg bg-amber-50 border border-amber-200">
-              <span className="text-gray-700 font-medium">Coût</span>
-              <span className="text-xl font-bold text-amber-600">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-gold border border-gold">
+              <span className="text-ink font-medium">Coût</span>
+              <span className="text-xl font-bold text-gold">
                 {selectedReward?.points_cost.toLocaleString()} points
               </span>
             </div>
 
-            <div className="flex items-center justify-between p-4 rounded-lg bg-orange-50 border border-orange-200">
-              <span className="text-gray-700 font-medium">Après échange</span>
-              <span className="text-xl font-bold text-gray-900">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-coral border border-coral">
+              <span className="text-ink font-medium">Après échange</span>
+              <span className="text-xl font-bold text-ink">
                 {(points.total - (selectedReward?.points_cost || 0)).toLocaleString()} points
               </span>
             </div>
@@ -461,19 +461,19 @@ export default function AmbassadorBoutiquePage() {
             selectedReward?.category === "merch" ||
             selectedReward?.category === "other" ? (
               <div className="space-y-2">
-                <Label htmlFor="address" className="text-gray-700">Adresse de livraison</Label>
+                <Label htmlFor="address" className="text-ink">Adresse de livraison</Label>
                 <Textarea
                   id="address"
                   placeholder="Ton adresse complète pour la livraison..."
                   value={deliveryAddress}
                   onChange={(e) => setDeliveryAddress(e.target.value)}
                   rows={3}
-                  className="bg-white border-gray-300"
+                  className="bg-white border-line"
                 />
               </div>
             ) : (
-              <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
-                <p className="text-sm text-amber-700">
+              <div className="p-4 rounded-lg bg-gold border border-gold">
+                <p className="text-sm text-gold">
                   Ce cadeau est une expérience. On te contactera pour organiser les détails !
                 </p>
               </div>
@@ -481,13 +481,13 @@ export default function AmbassadorBoutiquePage() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedReward(null)} className="border-gray-300">
+            <Button variant="outline" onClick={() => setSelectedReward(null)} className="border-line">
               Annuler
             </Button>
             <Button
               onClick={handleRedeem}
               disabled={isRedeeming}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+              className="bg-gradient-to-r from-gold to-coral hover:from-gold hover:to-coral text-ink"
             >
               {isRedeeming ? (
                 <>

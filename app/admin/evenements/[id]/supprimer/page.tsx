@@ -90,10 +90,10 @@ export default function DeleteEventPage() {
 
   if (isFetching) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
-          <p className="text-zinc-400">Chargement de l'événement...</p>
+          <Loader2 className="w-12 h-12 text-teal animate-spin mx-auto mb-4" />
+          <p className="text-mute">Chargement de l'événement...</p>
         </div>
       </div>
     )
@@ -101,11 +101,11 @@ export default function DeleteEventPage() {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <Card className="max-w-md bg-zinc-900 border-zinc-800">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md bg-card border-ink">
           <CardContent className="pt-6">
-            <p className="text-zinc-400 text-center mb-4">Événement non trouvé</p>
-            <Button asChild className="w-full bg-gradient-to-r from-cyan-500 to-blue-500">
+            <p className="text-mute text-center mb-4">Événement non trouvé</p>
+            <Button asChild className="w-full bg-gradient-to-r from-teal to-teal">
               <Link href="/admin/evenements">Retour aux événements</Link>
             </Button>
           </CardContent>
@@ -115,51 +115,51 @@ export default function DeleteEventPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <div className="mb-8">
-          <Button asChild variant="outline" className="mb-4 bg-transparent border-zinc-700 text-zinc-300">
+          <Button asChild variant="outline" className="mb-4 bg-transparent border-ink text-ink-2">
             <Link href="/admin/evenements">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour aux événements
             </Link>
           </Button>
-          <h1 className="text-4xl font-black text-white mb-2">Supprimer l'événement</h1>
-          <p className="text-zinc-400">Cette action est irréversible</p>
+          <h1 className="text-4xl font-black text-ink mb-2">Supprimer l'événement</h1>
+          <p className="text-mute">Cette action est irréversible</p>
         </div>
 
         <div className="max-w-2xl">
           {error && (
-            <Card className="mb-6 bg-red-500/10 border-red-500/50">
+            <Card className="mb-6 bg-destructive/10 border-destructive/50">
               <CardContent className="pt-6">
-                <p className="text-red-400">{error}</p>
+                <p className="text-destructive">{error}</p>
               </CardContent>
             </Card>
           )}
 
           {/* Avertissement */}
-          <Card className="mb-6 bg-red-500/10 border-red-500/50">
+          <Card className="mb-6 bg-destructive/10 border-destructive/50">
             <CardHeader>
-              <CardTitle className="text-red-400 flex items-center gap-2">
+              <CardTitle className="text-destructive flex items-center gap-2">
                 <AlertCircle className="w-5 h-5" />
                 Attention !
               </CardTitle>
-              <CardDescription className="text-red-300/70">
+              <CardDescription className="text-destructive/70">
                 Vous êtes sur le point de supprimer cet événement de manière permanente.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-red-300/90">
+              <ul className="space-y-2 text-destructive/90">
                 <li className="flex items-start gap-2">
-                  <span className="text-red-400 mt-1">•</span>
+                  <span className="text-destructive mt-1">•</span>
                   <span>Cette action est <strong>irréversible</strong></span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-red-400 mt-1">•</span>
+                  <span className="text-destructive mt-1">•</span>
                   <span>Toutes les réservations associées seront également supprimées</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-red-400 mt-1">•</span>
+                  <span className="text-destructive mt-1">•</span>
                   <span>Les billets déjà vendus ne seront plus valides</span>
                 </li>
               </ul>
@@ -167,9 +167,9 @@ export default function DeleteEventPage() {
           </Card>
 
           {/* Informations sur l'événement */}
-          <Card className="mb-6 bg-zinc-900 border-zinc-800">
+          <Card className="mb-6 bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white">Événement à supprimer</CardTitle>
+              <CardTitle className="text-ink">Événement à supprimer</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-4">
@@ -185,20 +185,20 @@ export default function DeleteEventPage() {
                   </div>
                 )}
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
-                  <div className="space-y-1 text-sm text-zinc-400">
+                  <h3 className="text-xl font-bold text-ink mb-2">{event.title}</h3>
+                  <div className="space-y-1 text-sm text-mute">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-cyan-400" />
+                      <Calendar className="w-4 h-4 text-teal" />
                       <span>
                         {new Date(event.event_date).toLocaleDateString('fr-FR')} à {event.event_time}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-cyan-400" />
+                      <MapPin className="w-4 h-4 text-teal" />
                       <span>{event.venue_name}, {event.city}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-cyan-400" />
+                      <Users className="w-4 h-4 text-teal" />
                       <span>Capacité: {event.capacity} personnes</span>
                     </div>
                   </div>
@@ -206,11 +206,11 @@ export default function DeleteEventPage() {
               </div>
 
               {bookingsCount > 0 && (
-                <div className="p-4 bg-orange-500/10 border border-orange-500/50 rounded-lg">
-                  <p className="text-orange-400 font-semibold">
+                <div className="p-4 bg-coral/10 border border-coral/50 rounded-lg">
+                  <p className="text-coral font-semibold">
                     ⚠️ Cet événement a {bookingsCount} réservation{bookingsCount > 1 ? 's' : ''}
                   </p>
-                  <p className="text-orange-300/70 text-sm mt-1">
+                  <p className="text-coral/70 text-sm mt-1">
                     Les clients ayant réservé ne pourront plus accéder à leurs billets
                   </p>
                 </div>
@@ -219,10 +219,10 @@ export default function DeleteEventPage() {
           </Card>
 
           {/* Confirmation */}
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white">Confirmer la suppression</CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardTitle className="text-ink">Confirmer la suppression</CardTitle>
+              <CardDescription className="text-mute">
                 Êtes-vous absolument sûr de vouloir supprimer cet événement ?
               </CardDescription>
             </CardHeader>
@@ -232,7 +232,7 @@ export default function DeleteEventPage() {
                   onClick={handleDelete}
                   disabled={isLoading}
                   variant="destructive"
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-destructive hover:bg-destructive"
                 >
                   {isLoading ? (
                     <>
@@ -249,7 +249,7 @@ export default function DeleteEventPage() {
                 <Button
                   asChild
                   variant="outline"
-                  className="bg-transparent border-zinc-700 text-zinc-300"
+                  className="bg-transparent border-ink text-ink-2"
                 >
                   <Link href="/admin/evenements">
                     Non, annuler

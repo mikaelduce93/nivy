@@ -52,7 +52,7 @@ export default async function CreatorModerationPage() {
     return (
       <div className="container mx-auto max-w-xl px-4 py-6">
         <h1 className="mb-2 text-2xl font-semibold">Modération — Créateurs</h1>
-        <p className="text-red-600">Accès refusé. Rôle admin requis.</p>
+        <p className="text-destructive">Accès refusé. Rôle admin requis.</p>
       </div>
     )
   }
@@ -82,17 +82,17 @@ export default async function CreatorModerationPage() {
     <div className="container mx-auto max-w-3xl px-4 py-6">
       <h1 className="mb-4 text-2xl font-semibold">Modération — Créateurs</h1>
       {rows.length === 0 ? (
-        <p className="text-gray-500">Rien dans la file.</p>
+        <p className="text-mute">Rien dans la file.</p>
       ) : (
         <ul className="space-y-3">
           {rows.map((r) => (
             <li key={r.id} className="rounded border bg-white p-4 shadow-sm">
-              <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
-                <span className="rounded bg-gray-100 px-2 py-0.5 capitalize">
+              <div className="mb-2 flex items-center gap-2 text-xs text-mute">
+                <span className="rounded bg-paper-2 px-2 py-0.5 capitalize">
                   {r.post?.type ?? "?"}
                 </span>
                 {r.post?.category && (
-                  <span className="rounded bg-blue-50 px-2 py-0.5 text-blue-700">
+                  <span className="rounded bg-teal px-2 py-0.5 text-teal">
                     {r.post.category}
                   </span>
                 )}
@@ -102,7 +102,7 @@ export default async function CreatorModerationPage() {
                 <h2 className="mb-1 font-medium">{r.post.metadata.title}</h2>
               )}
               {r.post?.content && (
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.post.content}</p>
+                <p className="text-sm text-ink whitespace-pre-wrap">{r.post.content}</p>
               )}
               {r.post?.media_urls && r.post.media_urls[0] && (
                 <img
@@ -111,8 +111,8 @@ export default async function CreatorModerationPage() {
                   className="mt-2 max-h-48 w-full rounded object-cover"
                 />
               )}
-              <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
-                <Link href={`/teen/feed/${r.content_id}`} className="text-blue-600 hover:underline">
+              <div className="mt-3 flex items-center gap-2 text-xs text-mute">
+                <Link href={`/teen/feed/${r.content_id}`} className="text-teal hover:underline">
                   Voir le post →
                 </Link>
                 <span className="ml-auto">creator: {r.post?.user_id.slice(0, 8)}…</span>

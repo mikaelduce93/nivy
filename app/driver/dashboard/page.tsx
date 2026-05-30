@@ -17,10 +17,10 @@ export default async function DriverDashboardStubPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-8 text-center space-y-4">
       <h1 className="text-2xl font-bold">Espace chauffeur</h1>
-      <p className="text-gray-600 max-w-md">
+      <p className="text-mute max-w-md">
         Le tableau de bord chauffeur est en cours de construction.
       </p>
-      <Link href="/auth/login" className="text-sm text-gray-500 underline">
+      <Link href="/auth/login" className="text-sm text-mute underline">
         Retour à la connexion
       </Link>
     </main>

@@ -310,36 +310,36 @@ export default function ParentLiveDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" className="text-zinc-400 hover:text-white">
+            <Button asChild variant="ghost" className="text-mute hover:text-ink">
               <Link href="/parent">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-black text-white flex items-center gap-3">
-                <Activity className="w-8 h-8 text-emerald-400" />
+              <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+                <Activity className="w-8 h-8 text-lime" />
                 Suivi en Direct
               </h1>
-              <p className="text-zinc-400">Suivez vos teens en temps réel</p>
+              <p className="text-mute">Suivez vos teens en temps réel</p>
             </div>
           </div>
           <Button
             onClick={handleRefresh}
             variant="outline"
-            className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+            className="border-lime/30 text-lime hover:bg-lime/10"
             disabled={refreshing}
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
@@ -349,8 +349,8 @@ export default function ParentLiveDashboardPage() {
 
         {/* Live Status Indicator */}
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-sm text-emerald-400">
+          <div className="w-3 h-3 rounded-full bg-lime animate-pulse" />
+          <span className="text-sm text-lime">
             Mise à jour automatique toutes les 30 secondes
           </span>
         </div>
@@ -366,17 +366,17 @@ export default function ParentLiveDashboardPage() {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Teen Status Cards */}
             <div className="lg:col-span-2 space-y-4">
-              <h2 className="text-xl font-bold text-white mb-4">Statut de vos teens</h2>
+              <h2 className="text-xl font-bold text-ink mb-4">Statut de vos teens</h2>
 
               {teenStatuses.map((teen) => (
                 <Card
                   key={teen.teenId}
                   className={`bg-gradient-to-br border transition-all ${
                     teen.status === "checked_in"
-                      ? "from-emerald-500/20 to-teal-500/20 border-emerald-500/30"
+                      ? "from-lime/20 to-teal/20 border-lime/30"
                       : teen.status === "checked_out"
-                      ? "from-blue-500/20 to-cyan-500/20 border-blue-500/30"
-                      : "from-zinc-900 to-zinc-950 border-zinc-800"
+                      ? "from-teal/20 to-teal/20 border-teal/30"
+                      : "from-paper-2 to-card border-ink"
                   }`}
                 >
                   <CardContent className="p-6">
@@ -384,33 +384,33 @@ export default function ParentLiveDashboardPage() {
                       <div className="flex items-center gap-4">
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold ${
                           teen.status === "checked_in"
-                            ? "bg-emerald-500"
+                            ? "bg-lime"
                             : teen.status === "checked_out"
-                            ? "bg-blue-500"
-                            : "bg-zinc-700"
-                        } text-white`}>
+                            ? "bg-teal"
+                            : "bg-muted"
+                        } text-ink`}>
                           {teen.teenName.charAt(0)}
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-white">{teen.teenName}</h3>
+                          <h3 className="text-xl font-bold text-ink">{teen.teenName}</h3>
                           {teen.pseudo && (
-                            <p className="text-zinc-400">@{teen.pseudo}</p>
+                            <p className="text-mute">@{teen.pseudo}</p>
                           )}
 
                           {/* Status Badge */}
                           <div className="mt-2">
                             {teen.status === "checked_in" ? (
-                              <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                              <Badge className="bg-lime/20 text-lime border-lime/30">
                                 <CheckCircle2 className="w-3 h-3 mr-1" />
                                 En activité
                               </Badge>
                             ) : teen.status === "checked_out" ? (
-                              <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                              <Badge className="bg-teal/20 text-teal border-teal/30">
                                 <LogOut className="w-3 h-3 mr-1" />
                                 Sorti(e)
                               </Badge>
                             ) : (
-                              <Badge className="bg-zinc-700 text-zinc-400">
+                              <Badge className="bg-muted text-mute">
                                 <Clock className="w-3 h-3 mr-1" />
                                 Pas d'événement
                               </Badge>
@@ -422,8 +422,8 @@ export default function ParentLiveDashboardPage() {
                       {/* Duration */}
                       {teen.status === "checked_in" && teen.checkedInAt && (
                         <div className="text-right">
-                          <p className="text-sm text-zinc-400">Présent depuis</p>
-                          <p className="text-2xl font-black text-emerald-400">
+                          <p className="text-sm text-mute">Présent depuis</p>
+                          <p className="text-2xl font-black text-lime">
                             {formatDuration(teen.checkedInAt)}
                           </p>
                         </div>
@@ -432,13 +432,13 @@ export default function ParentLiveDashboardPage() {
 
                     {/* Event Info */}
                     {teen.eventTitle && (
-                      <div className="mt-4 p-4 rounded-xl bg-black/20">
+                      <div className="mt-4 p-4 rounded-xl bg-ink/20">
                         <div className="flex items-center gap-3 mb-2">
-                          <Calendar className="w-4 h-4 text-zinc-400" />
-                          <span className="text-white font-medium">{teen.eventTitle}</span>
+                          <Calendar className="w-4 h-4 text-mute" />
+                          <span className="text-ink font-medium">{teen.eventTitle}</span>
                         </div>
                         {teen.eventVenue && (
-                          <div className="flex items-center gap-3 text-sm text-zinc-400">
+                          <div className="flex items-center gap-3 text-sm text-mute">
                             <MapPin className="w-4 h-4" />
                             <span>{teen.eventVenue}</span>
                           </div>
@@ -448,18 +448,18 @@ export default function ParentLiveDashboardPage() {
                         <div className="mt-3 flex items-center gap-6 text-sm">
                           {teen.checkedInAt && (
                             <div className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                              <span className="text-zinc-400">Entrée:</span>
-                              <span className="text-white font-medium">
+                              <CheckCircle2 className="w-4 h-4 text-lime" />
+                              <span className="text-mute">Entrée:</span>
+                              <span className="text-ink font-medium">
                                 {formatTime(teen.checkedInAt)}
                               </span>
                             </div>
                           )}
                           {teen.checkedOutAt && (
                             <div className="flex items-center gap-2">
-                              <LogOut className="w-4 h-4 text-blue-400" />
-                              <span className="text-zinc-400">Sortie:</span>
-                              <span className="text-white font-medium">
+                              <LogOut className="w-4 h-4 text-teal" />
+                              <span className="text-mute">Sortie:</span>
+                              <span className="text-ink font-medium">
                                 {formatTime(teen.checkedOutAt)}
                               </span>
                             </div>
@@ -475,27 +475,27 @@ export default function ParentLiveDashboardPage() {
                           <DialogTrigger asChild>
                             <Button
                               variant="outline"
-                              className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                              className="w-full border-coral/30 text-coral hover:bg-coral/10"
                               onClick={() => setSelectedTeen(teen)}
                             >
                               <AlertCircle className="w-4 h-4 mr-2" />
                               Demander sortie anticipée
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="bg-zinc-900 border-zinc-800">
+                          <DialogContent className="bg-card border-ink">
                             <DialogHeader>
-                              <DialogTitle className="text-white">Demande de sortie anticipée</DialogTitle>
-                              <DialogDescription className="text-zinc-400">
+                              <DialogTitle className="text-ink">Demande de sortie anticipée</DialogTitle>
+                              <DialogDescription className="text-mute">
                                 Cette demande sera envoyée au staff de l'événement.
                                 Ils prépareront la sortie de {teen.teenName}.
                               </DialogDescription>
                             </DialogHeader>
                             <div className="py-4">
-                              <div className="flex items-center gap-3 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
-                                <Shield className="w-8 h-8 text-orange-400" />
+                              <div className="flex items-center gap-3 p-4 rounded-xl bg-coral/10 border border-coral/20">
+                                <Shield className="w-8 h-8 text-coral" />
                                 <div>
-                                  <p className="text-white font-medium">Procédure de sécurité</p>
-                                  <p className="text-sm text-zinc-400">
+                                  <p className="text-ink font-medium">Procédure de sécurité</p>
+                                  <p className="text-sm text-mute">
                                     Vous devrez présenter une pièce d'identité à la sortie
                                   </p>
                                 </div>
@@ -505,14 +505,14 @@ export default function ParentLiveDashboardPage() {
                               <Button
                                 variant="ghost"
                                 onClick={() => setEarlyCheckoutDialogOpen(false)}
-                                className="text-zinc-400"
+                                className="text-mute"
                               >
                                 Annuler
                               </Button>
                               <Button
                                 onClick={handleEarlyCheckoutRequest}
                                 disabled={requestingCheckout}
-                                className="bg-orange-500 hover:bg-orange-600"
+                                className="bg-coral hover:bg-coral"
                               >
                                 {requestingCheckout ? "Envoi..." : "Envoyer la demande"}
                               </Button>
@@ -529,10 +529,10 @@ export default function ParentLiveDashboardPage() {
             {/* Timeline & Photos */}
             <div className="space-y-6">
               {/* Timeline */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="bg-card border-ink">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-emerald-400" />
+                  <CardTitle className="text-ink flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-lime" />
                     Timeline du jour
                   </CardTitle>
                 </CardHeader>
@@ -543,23 +543,23 @@ export default function ParentLiveDashboardPage() {
                         <div key={event.id} className="flex items-start gap-3">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                             event.type === "check_in"
-                              ? "bg-emerald-500/20"
-                              : "bg-blue-500/20"
+                              ? "bg-lime/20"
+                              : "bg-teal/20"
                           }`}>
                             {event.type === "check_in" ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                              <CheckCircle2 className="w-4 h-4 text-lime" />
                             ) : (
-                              <LogOut className="w-4 h-4 text-blue-400" />
+                              <LogOut className="w-4 h-4 text-teal" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <p className="text-white text-sm font-medium">
+                            <p className="text-ink text-sm font-medium">
                               {event.teenName}
                             </p>
-                            <p className="text-zinc-400 text-xs">
+                            <p className="text-mute text-xs">
                               {event.description}
                             </p>
-                            <p className="text-zinc-500 text-xs mt-1">
+                            <p className="text-mute text-xs mt-1">
                               {formatTime(event.time)}
                             </p>
                           </div>
@@ -567,7 +567,7 @@ export default function ParentLiveDashboardPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-zinc-500">
+                    <div className="text-center py-8 text-mute">
                       <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
                       <p>Aucune activité aujourd'hui</p>
                     </div>
@@ -576,10 +576,10 @@ export default function ParentLiveDashboardPage() {
               </Card>
 
               {/* Photo Gallery */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="bg-card border-ink">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Camera className="w-5 h-5 text-purple-400" />
+                  <CardTitle className="text-ink flex items-center gap-2">
+                    <Camera className="w-5 h-5 text-pink" />
                     Photos de l'événement
                   </CardTitle>
                 </CardHeader>
@@ -598,7 +598,7 @@ export default function ParentLiveDashboardPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-zinc-500">
+                    <div className="text-center py-8 text-mute">
                       <Camera className="w-12 h-12 mx-auto mb-3 opacity-50" />
                       <p className="text-sm">
                         Photos disponibles si consentement accordé
@@ -609,16 +609,16 @@ export default function ParentLiveDashboardPage() {
               </Card>
 
               {/* Emergency Contact */}
-              <Card className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/20">
+              <Card className="bg-gradient-to-br from-destructive/10 to-coral/10 border-destructive/20">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-red-400" />
+                    <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                      <Phone className="w-5 h-5 text-destructive" />
                     </div>
                     <div>
-                      <p className="text-white font-medium">Urgence</p>
-                      <p className="text-sm text-zinc-400">
-                        Contactez le staff: <span className="text-red-400">+212 6 00 00 00 00</span>
+                      <p className="text-ink font-medium">Urgence</p>
+                      <p className="text-sm text-mute">
+                        Contactez le staff: <span className="text-destructive">+212 6 00 00 00 00</span>
                       </p>
                     </div>
                   </div>

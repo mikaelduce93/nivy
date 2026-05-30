@@ -51,8 +51,8 @@ export default async function AdminModerationPage({ searchParams }: PageProps) {
   if (!admin.permissions["content.view"]) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-white">Modération</h1>
-        <p className="text-red-400">Accès refusé — permission `content.view` requise.</p>
+        <h1 className="text-2xl font-bold text-ink">Modération</h1>
+        <p className="text-destructive">Accès refusé — permission `content.view` requise.</p>
       </main>
     )
   }
@@ -107,12 +107,12 @@ export default async function AdminModerationPage({ searchParams }: PageProps) {
   return (
     <main className="container mx-auto max-w-6xl px-4 py-8 space-y-6">
       <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <ShieldAlert className="w-7 h-7 text-amber-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <ShieldAlert className="w-7 h-7 text-gold" />
           Modération
-          <Badge className="bg-amber-500/20 text-amber-300">{totalPending} en attente</Badge>
+          <Badge className="bg-gold/20 text-gold">{totalPending} en attente</Badge>
         </h1>
-        <p className="text-zinc-400 text-sm mt-1">
+        <p className="text-mute text-sm mt-1">
           Inbox unifié — moderation_queue source de vérité. Décisions auditées.
         </p>
       </header>
@@ -131,21 +131,21 @@ export default async function AdminModerationPage({ searchParams }: PageProps) {
               className={
                 "rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider " +
                 (isActive
-                  ? "bg-amber-500/20 text-amber-200 ring-1 ring-amber-400/40"
-                  : "bg-zinc-900 text-zinc-400 hover:text-white ring-1 ring-zinc-800")
+                  ? "bg-gold/20 text-gold ring-1 ring-gold/40"
+                  : "bg-card text-mute hover:text-ink ring-1 ring-line")
               }
             >
               {f.label}
             </Link>
           )
         })}
-        <span className="mx-2 text-zinc-700">·</span>
+        <span className="mx-2 text-ink">·</span>
         <ContentTypeFilters activeType={type ?? null} counters={counters} activeFilter={activeFilter} />
       </div>
 
       {/* Decision rows */}
       {rows.length === 0 ? (
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-10">
             <EmptyState
               icon={ShieldCheck}
@@ -159,9 +159,9 @@ export default async function AdminModerationPage({ searchParams }: PageProps) {
           </CardContent>
         </Card>
       ) : (
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white text-base">
+            <CardTitle className="text-ink text-base">
               {rows.length} {rows.length === 1 ? "item" : "items"}
             </CardTitle>
           </CardHeader>
@@ -189,7 +189,7 @@ export default async function AdminModerationPage({ searchParams }: PageProps) {
         </Card>
       )}
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-mute">
         Décisions canoniques: dismiss · hide · delete · restore · escalate · warn · suspend.
         warn et suspend agissent sur l&apos;utilisateur (à brancher Wave 4A.2). Les types non
         supportés renvoient 409 unsupported_action — pas de fake success.
@@ -218,8 +218,8 @@ function ContentTypeFilters({
         className={
           "rounded-full px-3 py-1 text-xs font-medium " +
           (!activeType
-            ? "bg-blue-500/20 text-blue-200 ring-1 ring-blue-400/40"
-            : "bg-zinc-900 text-zinc-400 hover:text-white ring-1 ring-zinc-800")
+            ? "bg-teal/20 text-teal ring-1 ring-teal/40"
+            : "bg-card text-mute hover:text-ink ring-1 ring-line")
         }
       >
         Tous types
@@ -236,13 +236,13 @@ function ContentTypeFilters({
             className={
               "rounded-full px-3 py-1 text-xs font-medium " +
               (isActive
-                ? "bg-blue-500/20 text-blue-200 ring-1 ring-blue-400/40"
-                : "bg-zinc-900 text-zinc-400 hover:text-white ring-1 ring-zinc-800")
+                ? "bg-teal/20 text-teal ring-1 ring-teal/40"
+                : "bg-card text-mute hover:text-ink ring-1 ring-line")
             }
           >
             {t}
             {(counters.get(t) ?? 0) > 0 && (
-              <span className="ml-1 text-amber-300">{counters.get(t)}</span>
+              <span className="ml-1 text-gold">{counters.get(t)}</span>
             )}
           </Link>
         )

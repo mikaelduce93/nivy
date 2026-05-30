@@ -38,9 +38,9 @@ export default async function ParentESignaturePage({
   const teenId = params.teen
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32 max-w-3xl">
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -49,12 +49,12 @@ export default async function ParentESignaturePage({
 
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <ShieldCheck className="h-8 w-8 text-cyan-400" />
-            <h1 className="text-3xl font-black text-white">
+            <ShieldCheck className="h-8 w-8 text-teal" />
+            <h1 className="text-3xl font-black text-ink">
               Autorisation parentale
             </h1>
           </div>
-          <p className="text-zinc-400">
+          <p className="text-mute">
             Avant de pouvoir recharger des coins ou approuver des demandes,
             nous devons vérifier votre identité et recueillir votre
             consentement signé électroniquement (loi 09-08 / CNDP).
@@ -62,15 +62,15 @@ export default async function ParentESignaturePage({
         </div>
 
         {existing ? (
-          <Card className="bg-emerald-500/10 border-emerald-500/30 mb-6">
+          <Card className="bg-lime/10 border-lime/30 mb-6">
             <CardHeader>
-              <CardTitle className="text-emerald-400 flex items-center gap-2">
+              <CardTitle className="text-lime flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5" />
                 Signature déjà enregistrée
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-ink-2">
                 Une autorisation parentale a été signée
                 {existing.parent_full_name ? ` par ${existing.parent_full_name}` : ""}
                 {" "}le {new Date(existing.created_at).toLocaleDateString("fr-FR", {
@@ -80,17 +80,17 @@ export default async function ParentESignaturePage({
                 })}
                 .
               </p>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-mute">
                 Vous pouvez signer une nouvelle autorisation si vos
                 informations ont changé. Sinon, retournez à la recharge.
               </p>
               <div className="flex gap-3">
-                <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                <Button asChild className="bg-lime hover:bg-lime text-ink">
                   <Link href={redirectTo}>
                     Continuer
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="border-zinc-700 text-zinc-300">
+                <Button asChild variant="outline" className="border-ink text-ink-2">
                   <Link href="/parent/documents">
                     Voir mes documents
                   </Link>
@@ -99,15 +99,15 @@ export default async function ParentESignaturePage({
             </CardContent>
           </Card>
         ) : (
-          <Card className="bg-amber-500/10 border-amber-500/30 mb-6">
+          <Card className="bg-gold/10 border-gold/30 mb-6">
             <CardHeader>
-              <CardTitle className="text-amber-400 flex items-center gap-2">
+              <CardTitle className="text-gold flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
                 Signature requise
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-ink-2">
                 Cette signature électronique a la même valeur juridique
                 qu&apos;une signature manuscrite. Vos documents seront
                 conservés conformément au RGPD/CNDP.
@@ -116,10 +116,10 @@ export default async function ParentESignaturePage({
           </Card>
         )}
 
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <FileText className="h-5 w-5 text-cyan-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <FileText className="h-5 w-5 text-teal" />
               {existing ? "Renouveler la signature" : "Signer l'autorisation"}
             </CardTitle>
           </CardHeader>

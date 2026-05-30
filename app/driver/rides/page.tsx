@@ -25,9 +25,9 @@ export default async function DriverRidesPage() {
   if (userInfo.role !== "driver") {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes courses</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-red-400">
+        <h1 className="text-3xl font-black text-ink">Mes courses</h1>
+        <Card className="bg-card border-ink">
+          <CardContent className="p-10 text-center text-destructive">
             Accès réservé aux chauffeurs.
           </CardContent>
         </Card>
@@ -45,8 +45,8 @@ export default async function DriverRidesPage() {
   if (!driver) {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes courses</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <h1 className="text-3xl font-black text-ink">Mes courses</h1>
+        <Card className="bg-card border-ink">
           <CardContent className="p-10">
             <EmptyState
               icon={Car}
@@ -85,20 +85,20 @@ export default async function DriverRidesPage() {
   return (
     <main className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Car className="w-7 h-7 text-emerald-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <Car className="w-7 h-7 text-lime" />
           Mes courses
         </h1>
         <Badge className={driver.is_active && driver.kyc_status === "approved"
-          ? "bg-emerald-500/20 text-emerald-300"
-          : "bg-amber-500/20 text-amber-300"}>
+          ? "bg-lime/20 text-lime"
+          : "bg-gold/20 text-gold"}>
           {driver.is_active && driver.kyc_status === "approved" ? "Actif" : `KYC ${driver.kyc_status}`}
         </Badge>
       </header>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Historique</CardTitle>
+          <CardTitle className="text-ink">Historique</CardTitle>
         </CardHeader>
         <CardContent>
           {rides.length === 0 ? (
@@ -112,14 +112,14 @@ export default async function DriverRidesPage() {
               {rides.map((r) => (
                 <li
                   key={r.id}
-                  className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-lg bg-zinc-800/40 border border-zinc-800"
+                  className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-lg bg-card border border-ink"
                 >
                   <div className="min-w-0">
-                    <p className="font-bold text-white text-sm truncate">
-                      <MapPin className="inline w-3 h-3 mr-1 text-zinc-400" />
+                    <p className="font-bold text-ink text-sm truncate">
+                      <MapPin className="inline w-3 h-3 mr-1 text-mute" />
                       {r.pickup_address ?? "—"} → {r.dropoff_address ?? "—"}
                     </p>
-                    <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
+                    <p className="text-xs text-mute mt-1 flex items-center gap-2">
                       <Clock className="w-3 h-3" />
                       {r.scheduled_for ? FMT.format(new Date(r.scheduled_for)) : "—"}
                     </p>
@@ -128,7 +128,7 @@ export default async function DriverRidesPage() {
                     <Badge variant="outline" className="capitalize">
                       {r.status}
                     </Badge>
-                    <p className="text-xs text-zinc-400 mt-1 tabular-nums">
+                    <p className="text-xs text-mute mt-1 tabular-nums">
                       {r.actual_dh != null
                         ? `${Number(r.actual_dh).toFixed(0)} DH`
                         : r.estimated_dh != null

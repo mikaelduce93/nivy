@@ -211,12 +211,12 @@ export default async function AdminAnalyticsPage() {
   )
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <BackButton href="/admin" label="Retour au dashboard" />
         <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4">Analytics & Statistiques</h1>
-          <p className="text-zinc-400">Vue d'ensemble des performances de la plateforme</p>
+          <h1 className="text-4xl md:text-5xl font-black text-ink mb-4">Analytics & Statistiques</h1>
+          <p className="text-mute">Vue d'ensemble des performances de la plateforme</p>
         </div>
 
         {/* Realtime KPIs */}
@@ -224,46 +224,46 @@ export default async function AdminAnalyticsPage() {
 
         {/* Key Metrics */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <Card className="p-6 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/30">
+          <Card className="p-6 bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30">
             <div className="flex items-center justify-between mb-4">
-              <DollarSign className="w-8 h-8 text-green-400" />
-              <TrendingUp className="w-5 h-5 text-green-400" />
+              <DollarSign className="w-8 h-8 text-lime" />
+              <TrendingUp className="w-5 h-5 text-lime" />
             </div>
-            <p className="text-3xl font-black text-white mb-1">{totalRevenue.toFixed(0)} DH</p>
-            <p className="text-green-400 font-semibold">Revenus totaux</p>
-            <p className="text-zinc-400 text-xs mt-2">Moyenne: {averageBookingValue.toFixed(0)} DH/résa</p>
+            <p className="text-3xl font-black text-ink mb-1">{totalRevenue.toFixed(0)} DH</p>
+            <p className="text-lime font-semibold">Revenus totaux</p>
+            <p className="text-mute text-xs mt-2">Moyenne: {averageBookingValue.toFixed(0)} DH/résa</p>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30">
+          <Card className="p-6 bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30">
             <div className="flex items-center justify-between mb-4">
-              <Ticket className="w-8 h-8 text-blue-400" />
-              <TrendingUp className="w-5 h-5 text-blue-400" />
+              <Ticket className="w-8 h-8 text-teal" />
+              <TrendingUp className="w-5 h-5 text-teal" />
             </div>
-            <p className="text-3xl font-black text-white mb-1">{totalBookings}</p>
-            <p className="text-blue-400 font-semibold">Réservations totales</p>
-            <p className="text-zinc-400 text-xs mt-2">{confirmedBookings} confirmées</p>
+            <p className="text-3xl font-black text-ink mb-1">{totalBookings}</p>
+            <p className="text-teal font-semibold">Réservations totales</p>
+            <p className="text-mute text-xs mt-2">{confirmedBookings} confirmées</p>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30">
+          <Card className="p-6 bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30">
             <div className="flex items-center justify-between mb-4">
-              <Calendar className="w-8 h-8 text-purple-400" />
-              <TrendingUp className="w-5 h-5 text-purple-400" />
+              <Calendar className="w-8 h-8 text-pink" />
+              <TrendingUp className="w-5 h-5 text-pink" />
             </div>
-            <p className="text-3xl font-black text-white mb-1">{allEvents?.length || 0}</p>
-            <p className="text-purple-400 font-semibold">Événements créés</p>
-            <p className="text-zinc-400 text-xs mt-2">
+            <p className="text-3xl font-black text-ink mb-1">{allEvents?.length || 0}</p>
+            <p className="text-pink font-semibold">Événements créés</p>
+            <p className="text-mute text-xs mt-2">
               {upcomingEvents} à venir • {pastEvents} passés
             </p>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-orange-500/20 to-red-500/20 border-orange-500/30">
+          <Card className="p-6 bg-gradient-to-br from-coral/20 to-destructive/20 border-coral/30">
             <div className="flex items-center justify-between mb-4">
-              <Users className="w-8 h-8 text-orange-400" />
-              <TrendingUp className="w-5 h-5 text-orange-400" />
+              <Users className="w-8 h-8 text-coral" />
+              <TrendingUp className="w-5 h-5 text-coral" />
             </div>
-            <p className="text-3xl font-black text-white mb-1">{allUsers?.length || 0}</p>
-            <p className="text-orange-400 font-semibold">Utilisateurs inscrits</p>
-            <p className="text-zinc-400 text-xs mt-2">Base utilisateurs totale</p>
+            <p className="text-3xl font-black text-ink mb-1">{allUsers?.length || 0}</p>
+            <p className="text-coral font-semibold">Utilisateurs inscrits</p>
+            <p className="text-mute text-xs mt-2">Base utilisateurs totale</p>
           </Card>
         </div>
 
@@ -333,13 +333,13 @@ export default async function AdminAnalyticsPage() {
         )}
 
         {/* Top Events */}
-        <Card className="p-6 bg-zinc-900 border-zinc-800">
-          <h3 className="text-xl font-bold text-white mb-4">Top événements par réservations</h3>
+        <Card className="p-6 bg-card border-ink">
+          <h3 className="text-xl font-bold text-ink mb-4">Top événements par réservations</h3>
           <div className="space-y-3">
             {topEvents.map((event) => (
               <div key={event.id} className="flex justify-between items-center">
-                <p className="text-white">{event.name}</p>
-                <p className="text-zinc-400 text-xs">{event.bookings} réservations</p>
+                <p className="text-ink">{event.name}</p>
+                <p className="text-mute text-xs">{event.bookings} réservations</p>
               </div>
             ))}
           </div>

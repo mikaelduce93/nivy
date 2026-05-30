@@ -30,8 +30,8 @@ export default async function PartnerCreatorDashboardPage() {
 
   if (!partner || partner.partner_type !== "creator") {
     return (
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardContent className="p-10 text-center text-zinc-400">
+      <Card className="bg-card border-ink">
+        <CardContent className="p-10 text-center text-mute">
           Cet espace est réservé aux partenaires de type créateur.
         </CardContent>
       </Card>
@@ -49,43 +49,43 @@ export default async function PartnerCreatorDashboardPage() {
   return (
     <main className="space-y-6">
       <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Sparkles className="w-7 h-7 text-pink-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <Sparkles className="w-7 h-7 text-pink" />
           {partner.company_name}
         </h1>
-        <p className="text-zinc-400 mt-1">Espace créateur · Statut : {partner.status}</p>
+        <p className="text-mute mt-1">Espace créateur · Statut : {partner.status}</p>
       </header>
 
       <div className="grid sm:grid-cols-3 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Signaux d&apos;engagement</p>
-            <p className="text-2xl font-black text-white mt-1 tabular-nums">
+            <p className="text-xs text-mute uppercase tracking-wider">Signaux d&apos;engagement</p>
+            <p className="text-2xl font-black text-ink mt-1 tabular-nums">
               {engagementCount ?? 0}
             </p>
-            <p className="text-xs text-zinc-600 mt-2">Total enregistré sur ton profil.</p>
+            <p className="text-xs text-mute mt-2">Total enregistré sur ton profil.</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Briefs reçus</p>
-            <p className="text-2xl font-black text-white mt-1">—</p>
-            <p className="text-xs text-zinc-600 mt-2">Module brief en cours de mise en place.</p>
+            <p className="text-xs text-mute uppercase tracking-wider">Briefs reçus</p>
+            <p className="text-2xl font-black text-ink mt-1">—</p>
+            <p className="text-xs text-mute mt-2">Module brief en cours de mise en place.</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Paiements</p>
-            <p className="text-2xl font-black text-white mt-1">—</p>
-            <p className="text-xs text-zinc-600 mt-2">Aucun paiement à ce stade.</p>
+            <p className="text-xs text-mute uppercase tracking-wider">Paiements</p>
+            <p className="text-2xl font-black text-ink mt-1">—</p>
+            <p className="text-xs text-mute mt-2">Aucun paiement à ce stade.</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Mail className="w-5 h-5 text-zinc-400" />
+          <CardTitle className="text-ink flex items-center gap-2">
+            <Mail className="w-5 h-5 text-mute" />
             Briefs sponsorisés
           </CardTitle>
         </CardHeader>
@@ -100,20 +100,20 @@ export default async function PartnerCreatorDashboardPage() {
       </Card>
 
       <div className="grid sm:grid-cols-3 gap-4 text-xs">
-        <Link href="/partner/kyc" className="block p-4 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700">
-          <ShieldCheck className="w-5 h-5 text-blue-400 mb-2" />
-          <p className="font-bold text-white">KYC</p>
-          <p className="text-zinc-500">Pièces du dossier</p>
+        <Link href="/partner/kyc" className="block p-4 rounded-lg bg-card border border-ink hover:border-ink">
+          <ShieldCheck className="w-5 h-5 text-teal mb-2" />
+          <p className="font-bold text-ink">KYC</p>
+          <p className="text-mute">Pièces du dossier</p>
         </Link>
-        <Link href="/partner/payouts" className="block p-4 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700">
-          <Wallet className="w-5 h-5 text-emerald-400 mb-2" />
-          <p className="font-bold text-white">Paiements</p>
-          <p className="text-zinc-500">Virements mensuels</p>
+        <Link href="/partner/payouts" className="block p-4 rounded-lg bg-card border border-ink hover:border-ink">
+          <Wallet className="w-5 h-5 text-lime mb-2" />
+          <p className="font-bold text-ink">Paiements</p>
+          <p className="text-mute">Virements mensuels</p>
         </Link>
-        <Link href="/partner/settings" className="block p-4 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700">
-          <Sparkles className="w-5 h-5 text-pink-400 mb-2" />
-          <p className="font-bold text-white">Profil</p>
-          <p className="text-zinc-500">Plateformes, audience</p>
+        <Link href="/partner/settings" className="block p-4 rounded-lg bg-card border border-ink hover:border-ink">
+          <Sparkles className="w-5 h-5 text-pink mb-2" />
+          <p className="font-bold text-ink">Profil</p>
+          <p className="text-mute">Plateformes, audience</p>
         </Link>
       </div>
     </main>

@@ -126,8 +126,8 @@ export default async function ParentTopupPage({
       popular: false,
       bonus: 0,
       icon: Coins,
-      color: "from-yellow-500/20 to-orange-500/20",
-      borderColor: "border-yellow-500/30"
+      color: "from-gold/20 to-coral/20",
+      borderColor: "border-gold/30"
     },
     {
       id: "pack2",
@@ -136,8 +136,8 @@ export default async function ParentTopupPage({
       popular: true,
       bonus: 25,
       icon: Star,
-      color: "from-emerald-500/20 to-teal-500/20",
-      borderColor: "border-emerald-500/30"
+      color: "from-lime/20 to-teal/20",
+      borderColor: "border-lime/30"
     },
     {
       id: "pack3",
@@ -146,8 +146,8 @@ export default async function ParentTopupPage({
       popular: false,
       bonus: 75,
       icon: Zap,
-      color: "from-purple-500/20 to-pink-500/20",
-      borderColor: "border-purple-500/30"
+      color: "from-pink/20 to-pink/20",
+      borderColor: "border-pink/30"
     },
     {
       id: "pack4",
@@ -156,8 +156,8 @@ export default async function ParentTopupPage({
       popular: false,
       bonus: 200,
       icon: Sparkles,
-      color: "from-blue-500/20 to-cyan-500/20",
-      borderColor: "border-blue-500/30"
+      color: "from-teal/20 to-teal/20",
+      borderColor: "border-teal/30"
     }
   ]
 
@@ -171,10 +171,10 @@ export default async function ParentTopupPage({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -183,44 +183,44 @@ export default async function ParentTopupPage({
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-white">Recharger les Coins</h1>
-          <p className="text-zinc-400">Ajoutez des coins au compte de votre teen</p>
+          <h1 className="text-3xl font-black text-ink">Recharger les Coins</h1>
+          <p className="text-mute">Ajoutez des coins au compte de votre teen</p>
         </div>
 
         {teens.length === 0 ? (
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
             <CardContent className="py-16 text-center">
-              <CreditCard className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-              <h3 className="text-xl font-bold text-white mb-2">Aucun teen lié</h3>
-              <p className="text-zinc-400 mb-6">
+              <CreditCard className="h-16 w-16 mx-auto mb-4 text-ink" />
+              <h3 className="text-xl font-bold text-ink mb-2">Aucun teen lié</h3>
+              <p className="text-mute mb-6">
                 Vous devez d'abord lier un teen à votre compte
               </p>
-              <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
+              <Button asChild className="bg-lime hover:bg-lime text-ink">
                 <Link href="/parent/teens/add">Ajouter un Teen</Link>
               </Button>
             </CardContent>
           </Card>
         ) : !hasSigned ? (
-          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
+          <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold/30">
             <CardContent className="py-16 px-6 text-center">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <ShieldAlert className="h-8 w-8 text-amber-400" />
+              <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center">
+                <ShieldAlert className="h-8 w-8 text-gold" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
+              <h3 className="text-xl font-bold text-ink mb-2">
                 Autorisation parentale requise
               </h3>
-              <p className="text-zinc-400 mb-2 max-w-xl mx-auto">
+              <p className="text-mute mb-2 max-w-xl mx-auto">
                 Avant de pouvoir recharger des coins pour vos teens,
                 nous devons recueillir votre signature électronique
                 et vérifier votre identité.
               </p>
-              <p className="text-zinc-500 text-sm mb-6 max-w-xl mx-auto">
+              <p className="text-mute text-sm mb-6 max-w-xl mx-auto">
                 Cette étape est obligatoire conformément à la loi 09-08 et
                 la CNDP. Elle ne sera demandée qu'une seule fois.
               </p>
               <Button
                 asChild
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+                className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink"
               >
                 <Link
                   href={`/parent/e-signature?redirect=${encodeURIComponent(
@@ -240,10 +240,10 @@ export default async function ParentTopupPage({
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
               {/* Teen Selection & Packages */}
-              <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+              <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Coins className="h-5 w-5 text-yellow-400" />
+                  <CardTitle className="text-ink flex items-center gap-2">
+                    <Coins className="h-5 w-5 text-gold" />
                     Choisir un pack
                   </CardTitle>
                 </CardHeader>
@@ -264,23 +264,23 @@ export default async function ParentTopupPage({
                   return (
                     <Card
                       key={pack.id}
-                      className={`bg-gradient-to-br ${pack.color} ${pack.borderColor} bg-zinc-900 relative overflow-hidden`}
+                      className={`bg-gradient-to-br ${pack.color} ${pack.borderColor} bg-card relative overflow-hidden`}
                     >
                       {pack.popular && (
-                        <div className="absolute top-0 right-0 bg-emerald-500 text-white text-xs px-2 py-1 rounded-bl-lg font-bold">
+                        <div className="absolute top-0 right-0 bg-lime text-ink text-xs px-2 py-1 rounded-bl-lg font-bold">
                           POPULAIRE
                         </div>
                       )}
                       <CardContent className="p-5 text-center">
-                        <div className="h-12 w-12 mx-auto rounded-full bg-zinc-900/50 flex items-center justify-center mb-3">
-                          <Icon className="h-6 w-6 text-yellow-400" />
+                        <div className="h-12 w-12 mx-auto rounded-full bg-card flex items-center justify-center mb-3">
+                          <Icon className="h-6 w-6 text-gold" />
                         </div>
-                        <p className="text-3xl font-black text-white mb-1">{pack.coins}</p>
-                        <p className="text-xs text-zinc-400 mb-2">coins</p>
+                        <p className="text-3xl font-black text-ink mb-1">{pack.coins}</p>
+                        <p className="text-xs text-mute mb-2">coins</p>
                         {pack.bonus > 0 && (
-                          <p className="text-xs text-emerald-400 mb-2">+{pack.bonus} bonus</p>
+                          <p className="text-xs text-lime mb-2">+{pack.bonus} bonus</p>
                         )}
-                        <p className="text-lg font-bold text-emerald-400">{pack.price} DH</p>
+                        <p className="text-lg font-bold text-lime">{pack.price} DH</p>
                       </CardContent>
                     </Card>
                   )
@@ -291,10 +291,10 @@ export default async function ParentTopupPage({
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Teen Balances */}
-              <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+              <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
                 <CardHeader>
-                  <CardTitle className="text-white text-base flex items-center gap-2">
-                    <Coins className="h-4 w-4 text-yellow-400" />
+                  <CardTitle className="text-ink text-base flex items-center gap-2">
+                    <Coins className="h-4 w-4 text-gold" />
                     Soldes actuels
                   </CardTitle>
                 </CardHeader>
@@ -302,17 +302,17 @@ export default async function ParentTopupPage({
                   {teens.map((teen: any) => (
                     <div
                       key={teen.teen_id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-zinc-800"
+                      className="flex items-center justify-between p-3 rounded-lg bg-card"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-bold">
                           {teen.teen_name?.charAt(0) || "?"}
                         </div>
-                        <span className="text-white font-medium">{teen.teen_name}</span>
+                        <span className="text-ink font-medium">{teen.teen_name}</span>
                       </div>
                       <div className="text-right">
-                        <p className="text-yellow-400 font-black">{teen.total_coins || 0}</p>
-                        <p className="text-xs text-zinc-500">coins</p>
+                        <p className="text-gold font-black">{teen.total_coins || 0}</p>
+                        <p className="text-xs text-mute">coins</p>
                       </div>
                     </div>
                   ))}
@@ -320,10 +320,10 @@ export default async function ParentTopupPage({
               </Card>
 
               {/* Recent Topups */}
-              <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+              <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
                 <CardHeader>
-                  <CardTitle className="text-white text-base flex items-center gap-2">
-                    <History className="h-4 w-4 text-blue-400" />
+                  <CardTitle className="text-ink text-base flex items-center gap-2">
+                    <History className="h-4 w-4 text-teal" />
                     Dernières recharges
                   </CardTitle>
                 </CardHeader>
@@ -333,17 +333,17 @@ export default async function ParentTopupPage({
                       {history.slice(0, 5).map((item: any) => (
                         <div
                           key={item.id}
-                          className="flex items-center justify-between p-3 rounded-lg bg-zinc-800"
+                          className="flex items-center justify-between p-3 rounded-lg bg-card"
                         >
                           <div>
-                            <p className="text-white text-sm font-medium">
+                            <p className="text-ink text-sm font-medium">
                               {item.teen?.full_name || "Teen"}
                             </p>
-                            <p className="text-xs text-zinc-500">
+                            <p className="text-xs text-mute">
                               {formatDate(item.created_at)}
                             </p>
                           </div>
-                          <div className="flex items-center gap-1 text-emerald-400">
+                          <div className="flex items-center gap-1 text-lime">
                             <span className="font-bold">+{item.amount}</span>
                             <Coins className="h-4 w-4" />
                           </div>
@@ -351,7 +351,7 @@ export default async function ParentTopupPage({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-center text-zinc-500 py-4 text-sm">
+                    <p className="text-center text-mute py-4 text-sm">
                       Aucune recharge récente
                     </p>
                   )}
@@ -359,12 +359,12 @@ export default async function ParentTopupPage({
               </Card>
 
               {/* Info */}
-              <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+              <div className="p-4 bg-lime/10 border border-lime/20 rounded-xl">
                 <div className="flex items-start gap-3">
-                  <Gift className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <Gift className="h-5 w-5 text-lime shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-emerald-400">Bonus fidélité</p>
-                    <p className="text-xs text-zinc-400 mt-1">
+                    <p className="text-sm font-medium text-lime">Bonus fidélité</p>
+                    <p className="text-xs text-mute mt-1">
                       Plus vous rechargez, plus vous gagnez de coins bonus !
                     </p>
                   </div>

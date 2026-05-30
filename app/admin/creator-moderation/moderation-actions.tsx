@@ -63,25 +63,25 @@ export default function ModerationActions({
       <button
         disabled={busy}
         onClick={approve}
-        className="rounded bg-green-600 px-3 py-1 text-xs text-white hover:bg-green-700 disabled:opacity-50"
+        className="rounded bg-lime px-3 py-1 text-xs text-ink hover:bg-lime disabled:opacity-50"
       >
         Approuver
       </button>
       <button
         disabled={busy}
         onClick={reject}
-        className="rounded bg-red-600 px-3 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-50"
+        className="rounded bg-destructive px-3 py-1 text-xs text-ink hover:bg-destructive disabled:opacity-50"
       >
         Rejeter
       </button>
       <button
         disabled={busy}
         onClick={feature}
-        className="rounded bg-yellow-500 px-3 py-1 text-xs text-white hover:bg-yellow-600 disabled:opacity-50"
+        className="rounded bg-gold px-3 py-1 text-xs text-ink hover:bg-gold disabled:opacity-50"
       >
         ★ Featurer
       </button>
-      {msg && <span className="ml-2 text-xs text-gray-500">{msg}</span>}
+      {msg && <span className="ml-2 text-xs text-mute">{msg}</span>}
     </div>
   )
 }

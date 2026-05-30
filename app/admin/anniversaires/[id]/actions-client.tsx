@@ -114,13 +114,13 @@ export function AnnivOrderActions({
     <div className="space-y-4">
       {/* Status Update */}
       <div className="space-y-2">
-        <label className="text-sm text-zinc-400">Statut de la commande</label>
+        <label className="text-sm text-mute">Statut de la commande</label>
         <Select
           value={status}
           onValueChange={handleUpdateStatus}
           disabled={isUpdating}
         >
-          <SelectTrigger className="bg-zinc-800 border-zinc-700">
+          <SelectTrigger className="bg-card border-ink">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -134,13 +134,13 @@ export function AnnivOrderActions({
 
       {/* Payment Status Update */}
       <div className="space-y-2">
-        <label className="text-sm text-zinc-400">Statut du paiement</label>
+        <label className="text-sm text-mute">Statut du paiement</label>
         <Select
           value={paymentStatus}
           onValueChange={handleUpdatePaymentStatus}
           disabled={isUpdating}
         >
-          <SelectTrigger className="bg-zinc-800 border-zinc-700">
+          <SelectTrigger className="bg-card border-ink">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -152,11 +152,11 @@ export function AnnivOrderActions({
         </Select>
       </div>
 
-      <div className="border-t border-zinc-800 pt-4 space-y-2">
+      <div className="border-t border-ink pt-4 space-y-2">
         {/* Quick Actions */}
         {status === "pending" && (
           <Button
-            className="w-full bg-green-600 hover:bg-green-700"
+            className="w-full bg-lime hover:bg-lime"
             onClick={() => handleUpdateStatus("confirmed")}
             disabled={isUpdating}
           >
@@ -171,7 +171,7 @@ export function AnnivOrderActions({
 
         {status === "confirmed" && (
           <Button
-            className="w-full bg-blue-600 hover:bg-blue-700"
+            className="w-full bg-teal hover:bg-teal"
             onClick={() => handleUpdateStatus("completed")}
             disabled={isUpdating}
           >
@@ -187,7 +187,7 @@ export function AnnivOrderActions({
         {paymentStatus === "pending" && (
           <Button
             variant="outline"
-            className="w-full border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
+            className="w-full border-gold text-gold hover:bg-gold/10"
             onClick={() => handleUpdatePaymentStatus("deposit")}
             disabled={isUpdating}
           >
@@ -199,7 +199,7 @@ export function AnnivOrderActions({
         {(paymentStatus === "pending" || paymentStatus === "deposit") && (
           <Button
             variant="outline"
-            className="w-full border-emerald-500 text-emerald-500 hover:bg-emerald-500/10"
+            className="w-full border-lime text-lime hover:bg-lime/10"
             onClick={() => handleUpdatePaymentStatus("paid")}
             disabled={isUpdating}
           >
@@ -213,14 +213,14 @@ export function AnnivOrderActions({
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full border-red-500 text-red-500 hover:bg-red-500/10"
+                className="w-full border-destructive text-destructive hover:bg-destructive/10"
                 disabled={isUpdating}
               >
                 <XCircle className="w-4 h-4 mr-2" />
                 Annuler la commande
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="bg-zinc-900 border-zinc-800">
+            <AlertDialogContent className="bg-card border-ink">
               <AlertDialogHeader>
                 <AlertDialogTitle>Annuler cette commande ?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -229,11 +229,11 @@ export function AnnivOrderActions({
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="bg-zinc-800 border-zinc-700">
+                <AlertDialogCancel className="bg-card border-ink">
                   Retour
                 </AlertDialogCancel>
                 <AlertDialogAction
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-destructive hover:bg-destructive"
                   onClick={() => handleUpdateStatus("cancelled")}
                 >
                   Confirmer l'annulation

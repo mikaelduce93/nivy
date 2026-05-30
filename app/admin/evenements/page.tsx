@@ -50,15 +50,15 @@ export default async function AdminEventsPage() {
   )
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <BackButton href="/admin" label="Retour au dashboard" />
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-black text-white mb-2">Gestion des événements</h1>
-            <p className="text-zinc-400">Créez et gérez tous vos événements</p>
+            <h1 className="text-4xl font-black text-ink mb-2">Gestion des événements</h1>
+            <p className="text-mute">Créez et gérez tous vos événements</p>
           </div>
-          <Button asChild className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600">
+          <Button asChild className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal">
             <Link href="/admin/evenements/creer">
               <Plus className="w-4 h-4 mr-2" />
               Créer un événement
@@ -73,7 +73,7 @@ export default async function AdminEventsPage() {
               const isSoldOut = event.available_spots === 0
 
               return (
-                <Card key={event.id} className="p-6 bg-zinc-900 border-zinc-800">
+                <Card key={event.id} className="p-6 bg-card border-ink">
                   <div className="flex gap-6">
                     <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0">
                       <Image
@@ -85,8 +85,8 @@ export default async function AdminEventsPage() {
                         loading="lazy"
                       />
                       {isSoldOut && (
-                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                          <span className="text-white font-bold text-sm">COMPLET</span>
+                        <div className="absolute inset-0 bg-ink/60 flex items-center justify-center">
+                          <span className="text-paper font-bold text-sm">COMPLET</span>
                         </div>
                       )}
                     </div>
@@ -94,18 +94,18 @@ export default async function AdminEventsPage() {
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="text-xl font-bold text-white mb-1">{event.title}</h3>
-                          <p className="text-zinc-400 text-sm mb-2">{event.city}</p>
+                          <h3 className="text-xl font-bold text-ink mb-1">{event.title}</h3>
+                          <p className="text-mute text-sm mb-2">{event.city}</p>
                           <div className="flex items-center gap-4 text-sm">
                             <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-cyan-400" />
-                              <span className="text-zinc-300">
+                              <Calendar className="w-4 h-4 text-teal" />
+                              <span className="text-ink-2">
                                 {new Date(event.event_date).toLocaleDateString("fr-FR")}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4 text-cyan-400" />
-                              <span className="text-zinc-300">
+                              <Users className="w-4 h-4 text-teal" />
+                              <span className="text-ink-2">
                                 {event.bookings_count} / {event.capacity}
                               </span>
                             </div>
@@ -114,17 +114,17 @@ export default async function AdminEventsPage() {
 
                         <div className="flex items-center gap-2">
                           {isPast && (
-                            <div className="px-3 py-1 rounded-full bg-zinc-800 text-zinc-400 text-xs font-semibold">
+                            <div className="px-3 py-1 rounded-full bg-card text-mute text-xs font-semibold">
                               PASSÉ
                             </div>
                           )}
                           {event.status === "published" && !isPast && (
-                            <div className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold">
+                            <div className="px-3 py-1 rounded-full bg-lime/20 text-lime text-xs font-semibold">
                               PUBLIÉ
                             </div>
                           )}
                           {event.status === "draft" && (
-                            <div className="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-semibold">
+                            <div className="px-3 py-1 rounded-full bg-gold/20 text-gold text-xs font-semibold">
                               BROUILLON
                             </div>
                           )}
@@ -132,23 +132,23 @@ export default async function AdminEventsPage() {
                       </div>
 
                       <div className="grid grid-cols-4 gap-4 mb-4">
-                        <div className="bg-zinc-950 rounded-lg p-3">
-                          <p className="text-xs text-zinc-500 mb-1">Prix standard</p>
-                          <p className="text-lg font-bold text-cyan-400">{event.base_price} DH</p>
+                        <div className="bg-background rounded-lg p-3">
+                          <p className="text-xs text-mute mb-1">Prix standard</p>
+                          <p className="text-lg font-bold text-teal">{event.base_price} DH</p>
                         </div>
                         {event.vip_price && (
-                          <div className="bg-zinc-950 rounded-lg p-3">
-                            <p className="text-xs text-zinc-500 mb-1">Prix VIP</p>
-                            <p className="text-lg font-bold text-purple-400">{event.vip_price} DH</p>
+                          <div className="bg-background rounded-lg p-3">
+                            <p className="text-xs text-mute mb-1">Prix VIP</p>
+                            <p className="text-lg font-bold text-pink">{event.vip_price} DH</p>
                           </div>
                         )}
-                        <div className="bg-zinc-950 rounded-lg p-3">
-                          <p className="text-xs text-zinc-500 mb-1">Réservations</p>
-                          <p className="text-lg font-bold text-white">{event.bookings_count}</p>
+                        <div className="bg-background rounded-lg p-3">
+                          <p className="text-xs text-mute mb-1">Réservations</p>
+                          <p className="text-lg font-bold text-ink">{event.bookings_count}</p>
                         </div>
-                        <div className="bg-zinc-950 rounded-lg p-3">
-                          <p className="text-xs text-zinc-500 mb-1">Revenus</p>
-                          <p className="text-lg font-bold text-green-400">{event.revenue} DH</p>
+                        <div className="bg-background rounded-lg p-3">
+                          <p className="text-xs text-mute mb-1">Revenus</p>
+                          <p className="text-lg font-bold text-lime">{event.revenue} DH</p>
                         </div>
                       </div>
 
@@ -157,7 +157,7 @@ export default async function AdminEventsPage() {
                           asChild
                           size="sm"
                           variant="outline"
-                          className="bg-transparent border-cyan-500 text-cyan-400"
+                          className="bg-transparent border-teal text-teal"
                         >
                           <Link href={`/agenda/${event.slug}`}>
                             <Eye className="w-4 h-4 mr-2" />
@@ -168,7 +168,7 @@ export default async function AdminEventsPage() {
                           asChild
                           size="sm"
                           variant="outline"
-                          className="bg-transparent border-blue-500 text-blue-400"
+                          className="bg-transparent border-teal text-teal"
                         >
                           <Link href={`/admin/evenements/${event.id}/modifier`}>
                             <Edit className="w-4 h-4 mr-2" />
@@ -179,7 +179,7 @@ export default async function AdminEventsPage() {
                           asChild
                           size="sm"
                           variant="outline"
-                          className="bg-transparent border-red-500 text-red-400"
+                          className="bg-transparent border-destructive text-destructive"
                         >
                           <Link href={`/admin/evenements/${event.id}/supprimer`}>
                             <Trash2 className="w-4 h-4 mr-2" />
@@ -194,11 +194,11 @@ export default async function AdminEventsPage() {
             })}
           </div>
         ) : (
-          <Card className="p-12 text-center bg-zinc-900 border-zinc-800">
-            <Calendar className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Aucun événement</h3>
-            <p className="text-zinc-400 mb-6">Créez votre premier événement pour commencer</p>
-            <Button asChild className="bg-gradient-to-r from-cyan-500 to-blue-500">
+          <Card className="p-12 text-center bg-card border-ink">
+            <Calendar className="w-16 h-16 text-ink mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-ink mb-2">Aucun événement</h3>
+            <p className="text-mute mb-6">Créez votre premier événement pour commencer</p>
+            <Button asChild className="bg-gradient-to-r from-teal to-teal">
               <Link href="/admin/evenements/creer">
                 <Plus className="w-4 h-4 mr-2" />
                 Créer un événement

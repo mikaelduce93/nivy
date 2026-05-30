@@ -88,27 +88,27 @@ export default async function SQLScriptsPage() {
   const sqlEditorUrl = resolveSupabaseSqlEditorUrl()
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <BackButton href="/admin" label="Retour au dashboard" />
         <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4 flex items-center gap-4">
-            <Database className="w-12 h-12 text-cyan-400" />
+          <h1 className="text-4xl md:text-5xl font-black text-ink mb-4 flex items-center gap-4">
+            <Database className="w-12 h-12 text-teal" />
             Scripts SQL — super_admin
           </h1>
-          <p className="text-zinc-400 text-lg">
+          <p className="text-mute text-lg">
             Console réservée aux super-admins ; chaque accès est journalisé dans <code>audit_log</code>.
           </p>
         </div>
 
-        <Card className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 border-blue-500/30 mb-8">
+        <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 mb-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-3">
-              <AlertCircle className="w-6 h-6 text-blue-400" />
+            <CardTitle className="text-ink flex items-center gap-3">
+              <AlertCircle className="w-6 h-6 text-teal" />
               Pourquoi exécuter manuellement ?
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-zinc-300 space-y-3">
+          <CardContent className="text-ink-2 space-y-3">
             <p>
               Pour des raisons de sécurité, l&apos;exécution de SQL arbitraire n&apos;est pas autorisée depuis l&apos;application. Les
               scripts doivent être exécutés via le SQL Editor Supabase.
@@ -116,16 +116,16 @@ export default async function SQLScriptsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader>
-            <CardTitle className="text-white">Accéder au SQL Editor</CardTitle>
+            <CardTitle className="text-ink">Accéder au SQL Editor</CardTitle>
             <CardDescription>Ouvrez le SQL Editor Supabase pour exécuter les scripts</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
               asChild
               size="lg"
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white h-14"
+              className="w-full bg-gradient-to-r from-lime to-lime hover:from-lime hover:to-lime text-ink h-14"
             >
               <a href={sqlEditorUrl} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-5 h-5 mr-3" />
@@ -135,26 +135,26 @@ export default async function SQLScriptsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader>
-            <CardTitle className="text-white">Scripts à exécuter dans l&apos;ordre</CardTitle>
+            <CardTitle className="text-ink">Scripts à exécuter dans l&apos;ordre</CardTitle>
             <CardDescription>Copiez le contenu de chaque script et collez-le dans le SQL Editor</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {SCRIPTS.map((script, index) => (
-                <div key={script.id} className="p-4 bg-zinc-900 rounded-xl border border-zinc-800">
+                <div key={script.id} className="p-4 bg-card rounded-xl border border-ink">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                      <span className="text-cyan-400 font-bold">{index + 1}</span>
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-teal/20 flex items-center justify-center">
+                      <span className="text-teal font-bold">{index + 1}</span>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-white font-semibold flex items-center gap-2">
+                      <h3 className="text-ink font-semibold flex items-center gap-2">
                         <FileText className="w-4 h-4" />
                         {script.name}
                       </h3>
-                      <p className="text-zinc-400 text-sm mt-1">{script.description}</p>
-                      <p className="text-zinc-500 text-xs mt-2 font-mono">Fichier: scripts/{script.name}</p>
+                      <p className="text-mute text-sm mt-1">{script.description}</p>
+                      <p className="text-mute text-xs mt-2 font-mono">Fichier: scripts/{script.name}</p>
                     </div>
                   </div>
                 </div>
@@ -163,15 +163,15 @@ export default async function SQLScriptsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <CheckCircle2 className="w-6 h-6 text-green-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <CheckCircle2 className="w-6 h-6 text-lime" />
               Instructions étape par étape
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <ol className="text-zinc-300 space-y-3 list-decimal list-inside">
+            <ol className="text-ink-2 space-y-3 list-decimal list-inside">
               <li>Cliquez sur &quot;Ouvrir Supabase SQL Editor&quot; ci-dessus</li>
               <li>Copiez le contenu du fichier souhaité</li>
               <li>Collez-le dans l&apos;éditeur SQL et cliquez sur &quot;Run&quot;</li>
@@ -180,7 +180,7 @@ export default async function SQLScriptsPage() {
             </ol>
             <div className="mt-6">
               <Link href="/docs/EXECUTER_SCRIPTS_SQL.md">
-                <Button variant="outline" className="border-zinc-700 text-zinc-300">
+                <Button variant="outline" className="border-ink text-ink-2">
                   <FileText className="w-4 h-4 mr-2" />
                   Voir le guide complet
                 </Button>

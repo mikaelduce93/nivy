@@ -58,28 +58,28 @@ export default async function AmbassadorMarketingPage() {
     {
       platform: "Instagram Story",
       icon: Instagram,
-      color: "from-pink-500 to-purple-500",
+      color: "from-pink to-pink",
       description: "Template vertical 1080x1920",
       format: "9:16"
     },
     {
       platform: "Instagram Post",
       icon: Instagram,
-      color: "from-pink-500 to-orange-500",
+      color: "from-pink to-coral",
       description: "Template carré 1080x1080",
       format: "1:1"
     },
     {
       platform: "Facebook",
       icon: Facebook,
-      color: "from-blue-600 to-blue-400",
+      color: "from-teal to-teal",
       description: "Template paysage 1200x630",
       format: "1.91:1"
     },
     {
       platform: "WhatsApp Status",
       icon: MessageCircle,
-      color: "from-green-500 to-emerald-500",
+      color: "from-lime to-lime",
       description: "Template vertical 1080x1920",
       format: "9:16"
     }
@@ -101,10 +101,10 @@ export default async function AmbassadorMarketingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -114,38 +114,38 @@ export default async function AmbassadorMarketingPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Matériel Marketing</h1>
-            <p className="text-zinc-400">Téléchargez des visuels et templates pour promouvoir Nivy</p>
+            <h1 className="text-3xl font-black text-ink">Matériel Marketing</h1>
+            <p className="text-mute">Téléchargez des visuels et templates pour promouvoir Nivy</p>
           </div>
           <ShareButtons referralCode={referralCode} referralLink={referralLink} />
         </div>
 
         {/* Your Code & QR */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Share2 className="h-5 w-5 text-amber-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <Share2 className="h-5 w-5 text-gold" />
                 Votre code & lien
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-zinc-800 rounded-xl p-5">
-                <p className="text-xs text-zinc-400 mb-2">Votre code parrain</p>
-                <p className="text-3xl font-black font-mono tracking-wider text-amber-400">{referralCode}</p>
+              <div className="bg-card rounded-xl p-5">
+                <p className="text-xs text-mute mb-2">Votre code parrain</p>
+                <p className="text-3xl font-black font-mono tracking-wider text-gold">{referralCode}</p>
               </div>
-              <div className="bg-zinc-800 rounded-xl p-5">
-                <p className="text-xs text-zinc-400 mb-2">Votre lien personnalisé</p>
-                <p className="text-sm text-white font-mono break-all">{referralLink}</p>
+              <div className="bg-card rounded-xl p-5">
+                <p className="text-xs text-mute mb-2">Votre lien personnalisé</p>
+                <p className="text-sm text-ink font-mono break-all">{referralLink}</p>
               </div>
               <ShareButtons referralCode={referralCode} referralLink={referralLink} />
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <QrCode className="h-5 w-5 text-emerald-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <QrCode className="h-5 w-5 text-lime" />
                 Votre QR Code
               </CardTitle>
             </CardHeader>
@@ -156,10 +156,10 @@ export default async function AmbassadorMarketingPage() {
         </div>
 
         {/* Social Media Templates */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-purple-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-pink" />
               Templates Réseaux Sociaux
             </CardTitle>
           </CardHeader>
@@ -168,18 +168,18 @@ export default async function AmbassadorMarketingPage() {
               {socialTemplates.map((template, index) => (
                 <div
                   key={index}
-                  className="bg-zinc-800 rounded-xl p-5 border border-zinc-700 hover:border-purple-500/30 transition-all group cursor-pointer"
+                  className="bg-card rounded-xl p-5 border border-ink hover:border-pink/30 transition-all group cursor-pointer"
                 >
                   <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${template.color} flex items-center justify-center mb-4`}>
-                    <template.icon className="h-6 w-6 text-white" />
+                    <template.icon className="h-6 w-6 text-ink" />
                   </div>
-                  <h3 className="font-bold text-white mb-1">{template.platform}</h3>
-                  <p className="text-xs text-zinc-400 mb-3">{template.description}</p>
-                  <p className="text-xs text-zinc-500 mb-4">Format: {template.format}</p>
+                  <h3 className="font-bold text-ink mb-1">{template.platform}</h3>
+                  <p className="text-xs text-mute mb-3">{template.description}</p>
+                  <p className="text-xs text-mute mb-4">Format: {template.format}</p>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="w-full border-zinc-700 text-zinc-300 hover:border-purple-500/50 hover:text-purple-400 group-hover:border-purple-500/50"
+                    className="w-full border-ink text-ink-2 hover:border-pink/50 hover:text-pink group-hover:border-pink/50"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Télécharger
@@ -191,10 +191,10 @@ export default async function AmbassadorMarketingPage() {
         </Card>
 
         {/* Text Templates */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <FileText className="h-5 w-5 text-blue-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <FileText className="h-5 w-5 text-teal" />
               Templates Texte
             </CardTitle>
           </CardHeader>
@@ -202,14 +202,14 @@ export default async function AmbassadorMarketingPage() {
             {textTemplates.map((template, index) => (
               <div
                 key={index}
-                className="bg-zinc-800 rounded-xl p-5 border border-zinc-700"
+                className="bg-card rounded-xl p-5 border border-ink"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-white">{template.title}</h3>
+                  <h3 className="font-bold text-ink">{template.title}</h3>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                    className="text-teal hover:text-teal hover:bg-teal/10"
                     onClick={() => {
                       // Client-side copy would need a client component
                     }}
@@ -218,62 +218,62 @@ export default async function AmbassadorMarketingPage() {
                     Copier
                   </Button>
                 </div>
-                <p className="text-sm text-zinc-300 leading-relaxed">{template.content}</p>
+                <p className="text-sm text-ink-2 leading-relaxed">{template.content}</p>
               </div>
             ))}
           </CardContent>
         </Card>
 
         {/* Video Resources */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Video className="h-5 w-5 text-red-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Video className="h-5 w-5 text-destructive" />
               Ressources Vidéo
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-zinc-800 rounded-xl p-5 border border-zinc-700">
-                <div className="aspect-video bg-zinc-700 rounded-lg mb-4 flex items-center justify-center">
-                  <Video className="h-12 w-12 text-zinc-600" />
+              <div className="bg-card rounded-xl p-5 border border-ink">
+                <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                  <Video className="h-12 w-12 text-mute" />
                 </div>
-                <h3 className="font-bold text-white mb-1">Présentation Nivy</h3>
-                <p className="text-xs text-zinc-400 mb-3">Vidéo de 30 secondes</p>
+                <h3 className="font-bold text-ink mb-1">Présentation Nivy</h3>
+                <p className="text-xs text-mute mb-3">Vidéo de 30 secondes</p>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="w-full border-zinc-700 text-zinc-300 hover:border-red-500/50 hover:text-red-400"
+                  className="w-full border-ink text-ink-2 hover:border-destructive/50 hover:text-destructive"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Télécharger
                 </Button>
               </div>
-              <div className="bg-zinc-800 rounded-xl p-5 border border-zinc-700">
-                <div className="aspect-video bg-zinc-700 rounded-lg mb-4 flex items-center justify-center">
-                  <Video className="h-12 w-12 text-zinc-600" />
+              <div className="bg-card rounded-xl p-5 border border-ink">
+                <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                  <Video className="h-12 w-12 text-mute" />
                 </div>
-                <h3 className="font-bold text-white mb-1">Témoignages Parents</h3>
-                <p className="text-xs text-zinc-400 mb-3">Vidéo de 45 secondes</p>
+                <h3 className="font-bold text-ink mb-1">Témoignages Parents</h3>
+                <p className="text-xs text-mute mb-3">Vidéo de 45 secondes</p>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="w-full border-zinc-700 text-zinc-300 hover:border-red-500/50 hover:text-red-400"
+                  className="w-full border-ink text-ink-2 hover:border-destructive/50 hover:text-destructive"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Télécharger
                 </Button>
               </div>
-              <div className="bg-zinc-800 rounded-xl p-5 border border-zinc-700">
-                <div className="aspect-video bg-zinc-700 rounded-lg mb-4 flex items-center justify-center">
-                  <Video className="h-12 w-12 text-zinc-600" />
+              <div className="bg-card rounded-xl p-5 border border-ink">
+                <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                  <Video className="h-12 w-12 text-mute" />
                 </div>
-                <h3 className="font-bold text-white mb-1">Highlights Events</h3>
-                <p className="text-xs text-zinc-400 mb-3">Vidéo de 60 secondes</p>
+                <h3 className="font-bold text-ink mb-1">Highlights Events</h3>
+                <p className="text-xs text-mute mb-3">Vidéo de 60 secondes</p>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="w-full border-zinc-700 text-zinc-300 hover:border-red-500/50 hover:text-red-400"
+                  className="w-full border-ink text-ink-2 hover:border-destructive/50 hover:text-destructive"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Télécharger
@@ -284,27 +284,27 @@ export default async function AmbassadorMarketingPage() {
         </Card>
 
         {/* Tips */}
-        <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-amber-500/20">
+        <Card className="bg-gradient-to-r from-gold/10 via-coral/10 to-destructive/10 border-gold/20">
           <CardContent className="p-6">
-            <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="font-bold text-ink mb-4 flex items-center gap-2">
               <span className="text-xl">💡</span> Conseils pour maximiser vos conversions
             </h3>
             <div className="grid md:grid-cols-4 gap-4">
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Postez régulièrement</p>
-                <p className="text-xs text-zinc-400">2-3 posts par semaine sur vos réseaux</p>
+              <div className="p-4 bg-card rounded-xl border border-ink">
+                <p className="font-bold text-ink mb-1">Postez régulièrement</p>
+                <p className="text-xs text-mute">2-3 posts par semaine sur vos réseaux</p>
               </div>
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Utilisez les stories</p>
-                <p className="text-xs text-zinc-400">Partagez des moments authentiques</p>
+              <div className="p-4 bg-card rounded-xl border border-ink">
+                <p className="font-bold text-ink mb-1">Utilisez les stories</p>
+                <p className="text-xs text-mute">Partagez des moments authentiques</p>
               </div>
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Personnalisez</p>
-                <p className="text-xs text-zinc-400">Adaptez les messages à votre audience</p>
+              <div className="p-4 bg-card rounded-xl border border-ink">
+                <p className="font-bold text-ink mb-1">Personnalisez</p>
+                <p className="text-xs text-mute">Adaptez les messages à votre audience</p>
               </div>
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Ciblez les parents</p>
-                <p className="text-xs text-zinc-400">Ce sont eux qui décident et paient</p>
+              <div className="p-4 bg-card rounded-xl border border-ink">
+                <p className="font-bold text-ink mb-1">Ciblez les parents</p>
+                <p className="text-xs text-mute">Ce sont eux qui décident et paient</p>
               </div>
             </div>
           </CardContent>

@@ -78,14 +78,14 @@ export function PartnerSettingsForm({ partner }: { partner: PartnerSettings }) {
   }
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800">
+    <Card className="bg-card border-ink">
       <CardHeader>
-        <CardTitle className="text-white">Informations entreprise</CardTitle>
+        <CardTitle className="text-ink">Informations entreprise</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-5">
           <div>
-            <Label htmlFor="settings-company-name" className="text-zinc-300">
+            <Label htmlFor="settings-company-name" className="text-ink-2">
               Nom de l&apos;entreprise *
             </Label>
             <Input
@@ -95,11 +95,11 @@ export function PartnerSettingsForm({ partner }: { partner: PartnerSettings }) {
               maxLength={120}
               minLength={2}
               required
-              className="bg-zinc-950 border-zinc-800 text-white mt-1"
+              className="bg-background border-ink text-ink mt-1"
             />
           </div>
           <div>
-            <Label htmlFor="settings-sub-category" className="text-zinc-300">
+            <Label htmlFor="settings-sub-category" className="text-ink-2">
               Sous-catégorie (optionnel)
             </Label>
             <Input
@@ -107,13 +107,13 @@ export function PartnerSettingsForm({ partner }: { partner: PartnerSettings }) {
               value={subCategory}
               onChange={(e) => setSubCategory(e.target.value)}
               maxLength={60}
-              className="bg-zinc-950 border-zinc-800 text-white mt-1"
+              className="bg-background border-ink text-ink mt-1"
               placeholder="ex: clothing, cafe, gym, language…"
             />
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="settings-phone" className="text-zinc-300">
+              <Label htmlFor="settings-phone" className="text-ink-2">
                 Téléphone
               </Label>
               <Input
@@ -123,12 +123,12 @@ export function PartnerSettingsForm({ partner }: { partner: PartnerSettings }) {
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={40}
                 autoComplete="tel"
-                className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                className="bg-background border-ink text-ink mt-1"
                 placeholder="+212 6XX-XXXXXX"
               />
             </div>
             <div>
-              <Label htmlFor="settings-website" className="text-zinc-300">
+              <Label htmlFor="settings-website" className="text-ink-2">
                 Site web
               </Label>
               <Input
@@ -138,13 +138,13 @@ export function PartnerSettingsForm({ partner }: { partner: PartnerSettings }) {
                 onChange={(e) => setWebsite(e.target.value)}
                 maxLength={200}
                 autoComplete="url"
-                className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                className="bg-background border-ink text-ink mt-1"
                 placeholder="https://www.example.com"
               />
             </div>
           </div>
           <div>
-            <Label htmlFor="settings-description" className="text-zinc-300">
+            <Label htmlFor="settings-description" className="text-ink-2">
               Description publique
             </Label>
             <Textarea
@@ -153,17 +153,17 @@ export function PartnerSettingsForm({ partner }: { partner: PartnerSettings }) {
               onChange={(e) => setDescription(e.target.value)}
               maxLength={2000}
               rows={4}
-              className="bg-zinc-950 border-zinc-800 text-white mt-1"
+              className="bg-background border-ink text-ink mt-1"
               placeholder="Présente brièvement ton activité…"
             />
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-mute mt-1">
               {description.length} / 2000 caractères
             </p>
           </div>
           <Button
             type="submit"
             disabled={busy}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+            className="bg-lime hover:bg-lime text-ink font-bold"
           >
             {busy ? (
               <>

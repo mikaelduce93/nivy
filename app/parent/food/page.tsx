@@ -28,23 +28,23 @@ function formatStatus(raw: string | null | undefined): string {
 function NutritionTargets({ targets }: { targets: unknown }) {
   if (!targets || typeof targets !== "object") {
     return (
-      <p className="mt-1 text-xs text-zinc-400">Aucun objectif configuré.</p>
+      <p className="mt-1 text-xs text-mute">Aucun objectif configuré.</p>
     )
   }
   const entries = Object.entries(targets as Record<string, unknown>)
   if (entries.length === 0) {
     return (
-      <p className="mt-1 text-xs text-zinc-400">Aucun objectif configuré.</p>
+      <p className="mt-1 text-xs text-mute">Aucun objectif configuré.</p>
     )
   }
   return (
-    <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-zinc-300">
+    <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-ink-2">
       {entries.map(([k, v]) => (
         <div key={k} className="contents">
-          <dt className="font-medium capitalize text-zinc-400">
+          <dt className="font-medium capitalize text-mute">
             {k.replace(/_/g, " ")}
           </dt>
-          <dd className="text-right tabular-nums text-zinc-100">
+          <dd className="text-right tabular-nums text-ink-2">
             {typeof v === "number" || typeof v === "string"
               ? String(v)
               : JSON.stringify(v)}
@@ -128,7 +128,7 @@ export default async function ParentFoodPage() {
       {loadError && (
         <div
           role="alert"
-          className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
@@ -140,10 +140,10 @@ export default async function ParentFoodPage() {
         </h2>
         {orders.length === 0 ? (
           <div role="status" className="space-y-2">
-            <p className="text-sm text-zinc-400">Aucune commande.</p>
+            <p className="text-sm text-mute">Aucune commande.</p>
             <a
               href="/parent/teens"
-              className="inline-block text-xs text-emerald-400 hover:underline"
+              className="inline-block text-xs text-lime hover:underline"
             >
               Configurer les autorisations de mes teens →
             </a>
@@ -157,11 +157,11 @@ export default async function ParentFoodPage() {
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(o.partners as any)?.company_name}
                   </span>
-                  <span className="text-xs uppercase tracking-wide text-zinc-300">
+                  <span className="text-xs uppercase tracking-wide text-ink-2">
                     {formatStatus(o.status)}
                   </span>
                 </div>
-                <div className="text-xs text-zinc-400">
+                <div className="text-xs text-mute">
                   {o.total_coins} coins · {o.total_dh} DH
                   {o.parent_approval_id ? " · approbation requise" : ""}
                 </div>
@@ -176,7 +176,7 @@ export default async function ParentFoodPage() {
           Défis nutrition actifs
         </h2>
         {challenges.length === 0 ? (
-          <p role="status" className="text-sm text-zinc-400">
+          <p role="status" className="text-sm text-mute">
             Aucun défi configuré.
           </p>
         ) : (
@@ -184,7 +184,7 @@ export default async function ParentFoodPage() {
             {challenges.map((c) => (
               <li key={c.id} className="rounded border p-3 text-sm">
                 <h3 className="font-medium text-base">{c.title}</h3>
-                <div className="text-xs text-zinc-400">
+                <div className="text-xs text-mute">
                   {c.is_active ? "actif" : "inactif"} · {c.valid_from} → {c.valid_until ?? "∞"}
                 </div>
                 <NutritionTargets targets={c.nutrition_targets} />

@@ -61,8 +61,8 @@ export default async function AdminProofsPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Modération</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <h1 className="mb-2 text-2xl font-bold text-ink">Modération</h1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -143,15 +143,15 @@ export default async function AdminProofsPage() {
       <div className="mb-6 flex items-center gap-3">
         <Link
           href="/admin"
-          className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+          className="text-sm text-mute underline-offset-4 hover:text-ink hover:underline"
         >
           ← Retour
         </Link>
       </div>
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Modération · Contenu</h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <h1 className="text-3xl font-bold text-ink">Modération · Contenu</h1>
+        <p className="mt-1 text-sm text-mute">
           Validez les preuves et contenus signalés. Les médias privés sont signés 15 min.
         </p>
       </header>
@@ -163,7 +163,7 @@ export default async function AdminProofsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold text-white">
+        <h2 className="mb-3 font-semibold text-ink">
           File en attente ({rows.length})
         </h2>
 
@@ -196,9 +196,9 @@ function StatCard({
   tone: "yellow" | "green" | "red"
 }) {
   const palette: Record<typeof tone, string> = {
-    yellow: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
-    green: "border-green-500/30 bg-green-500/10 text-green-300",
-    red: "border-red-500/30 bg-red-500/10 text-red-300",
+    yellow: "border-gold/30 bg-gold/10 text-gold",
+    green: "border-lime/30 bg-lime/10 text-lime",
+    red: "border-destructive/30 bg-destructive/10 text-destructive",
   }
   return (
     <div className={`rounded border p-3 ${palette[tone]}`}>

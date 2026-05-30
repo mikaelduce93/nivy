@@ -97,20 +97,20 @@ export default async function AdminTopupsPage({
   const autoEnabled = process.env.PSP_AUTO_TOPUP_ENABLED === "true"
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-background text-ink-2">
       <div className="container mx-auto px-6 py-12">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-black">Recharges manuelles</h1>
-            <p className="text-zinc-400">
+            <p className="text-mute">
               Validation des virements PSP (Cash Plus / Wafacash / M2T) hors-app.
             </p>
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-semibold ${
               autoEnabled
-                ? "bg-emerald-500/20 text-emerald-300"
-                : "bg-amber-500/20 text-amber-300"
+                ? "bg-lime/20 text-lime"
+                : "bg-gold/20 text-gold"
             }`}
           >
             Mode webhook auto: {autoEnabled ? "ACTIF" : "INACTIF"}
@@ -118,18 +118,18 @@ export default async function AdminTopupsPage({
         </div>
 
         {threshold?.should_activate_auto && !autoEnabled && (
-          <div className="mb-6 rounded-xl border border-cyan-500/40 bg-cyan-500/10 p-5">
+          <div className="mb-6 rounded-xl border border-teal/40 bg-teal/10 p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-semibold text-cyan-300">
+                <p className="font-semibold text-teal">
                   Seuil atteint — il est temps d'activer le mode automatique.
                 </p>
-                <p className="mt-1 text-sm text-zinc-300">
+                <p className="mt-1 text-sm text-ink-2">
                   {threshold.families_topped_up} familles ont rechargé •
                   {" "}
                   {Number(threshold.weeks_since_first ?? 0).toFixed(1)} semaines depuis la première recharge.
                 </p>
-                <p className="mt-2 text-xs text-zinc-400">
+                <p className="mt-2 text-xs text-mute">
                   Voir le runbook docs/vision/ops-runbooks/05-psp-activation.md.
                 </p>
               </div>
@@ -138,8 +138,8 @@ export default async function AdminTopupsPage({
         )}
 
         {threshold && !threshold.should_activate_auto && (
-          <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-sm">
-            <span className="text-zinc-400">
+          <div className="mb-6 rounded-xl border border-ink bg-card p-4 text-sm">
+            <span className="text-mute">
               {threshold.families_topped_up} / 100 familles •{" "}
               {Number(threshold.weeks_since_first ?? 0).toFixed(1)} / 4 semaines
             </span>
@@ -153,8 +153,8 @@ export default async function AdminTopupsPage({
               href={`/admin/topups?status=${s}`}
               className={`rounded-md px-4 py-2 text-sm font-medium ${
                 status === s
-                  ? "bg-emerald-500 text-black"
-                  : "bg-zinc-900 text-zinc-400 hover:text-white"
+                  ? "bg-lime text-ink"
+                  : "bg-card text-mute hover:text-ink"
               }`}
             >
               {s === "pending" ? "En attente" : s === "confirmed" ? "Confirmées" : "Rejetées"}

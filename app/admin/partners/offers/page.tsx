@@ -34,8 +34,8 @@ export default async function AdminPartnerOffersPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Modération des offres</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <h1 className="mb-2 text-2xl font-bold text-ink">Modération des offres</h1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -82,17 +82,17 @@ export default async function AdminPartnerOffersPage() {
   return (
     <main className="container mx-auto max-w-5xl px-4 py-8">
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/admin/partners" className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline">
+        <Link href="/admin/partners" className="text-sm text-mute underline-offset-4 hover:text-ink hover:underline">
           ← Retour partenaires
         </Link>
       </div>
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-          <Tag className="w-7 h-7 text-amber-400" />
+        <h1 className="text-3xl font-bold text-ink flex items-center gap-3">
+          <Tag className="w-7 h-7 text-gold" />
           Modération des offres ({pending?.length ?? 0})
         </h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-mute">
           Toute nouvelle offre partenaire entre en file d&apos;attente avec status=pending_approval. Approuver bascule status=approved + is_active=true (atomique via CHECK contrainte DB).
         </p>
       </header>

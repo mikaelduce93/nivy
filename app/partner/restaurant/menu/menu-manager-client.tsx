@@ -5,7 +5,7 @@
  *
  * Wave 2 / TICKET-002 — design-system token sweep:
  *  - Buttons routed through <Button> primitive.
- *  - Raw bg-blue-600 / bg-red-* / text-gray-* / text-blue-700 removed in
+ *  - Raw bg-teal / bg-red-* / text-gray-* / text-teal removed in
  *    favour of semantic tokens (primary, destructive, muted-foreground,
  *    info-soft).
  *  - Native inputs get min-h-11 (44px touch target) + token borders.
@@ -76,7 +76,7 @@ export default function MenuManagerClient({ initialItems }: { initialItems: Item
 
   return (
     <div>
-      <div className="rounded-2xl border border-border bg-card/30 p-4 mb-6 grid grid-cols-2 gap-2 text-sm backdrop-blur-md">
+      <div className="rounded-2xl border border-border bg-card/30 p-4 mb-6 grid grid-cols-2 gap-2 text-sm ">
         <input
           className={`${inputClass} col-span-2`}
           placeholder="Nom du plat"
@@ -126,7 +126,7 @@ export default function MenuManagerClient({ initialItems }: { initialItems: Item
         {items.map((it) => (
           <li
             key={it.id}
-            className="rounded-2xl border border-border bg-card/30 p-3 flex justify-between text-sm backdrop-blur-md"
+            className="rounded-2xl border border-border bg-card/30 p-3 flex justify-between text-sm "
           >
             <div>
               <div className="font-medium text-foreground">

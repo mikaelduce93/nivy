@@ -78,7 +78,7 @@ export default async function AdminMarketplacePage() {
       {loadError && (
         <div
           role="alert"
-          className="mb-4 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="mb-4 rounded border border-destructive bg-destructive px-3 py-2 text-sm text-destructive"
         >
           {loadError}
         </div>
@@ -86,7 +86,7 @@ export default async function AdminMarketplacePage() {
 
       <section className="mb-8">
         <h2 className="font-semibold mb-2">Annonces en attente ({pending.length})</h2>
-        {pending.length === 0 && <p className="text-sm text-gray-500">File vide.</p>}
+        {pending.length === 0 && <p className="text-sm text-mute">File vide.</p>}
         <ul className="space-y-2">
           {pending.map((l) => (
             <ModerateRow key={l.id} listing={l} />
@@ -98,13 +98,13 @@ export default async function AdminMarketplacePage() {
         <h2 className="font-semibold mb-2">Litiges ouverts ({disputes.length})</h2>
         <ul className="space-y-2">
           {disputes.length === 0 && (
-            <li className="text-sm text-gray-500">Aucun litige ouvert.</li>
+            <li className="text-sm text-mute">Aucun litige ouvert.</li>
           )}
           {disputes.map((d) => (
             <li key={d.id} className="border rounded p-3">
               <div className="font-mono text-xs">tx {d.transaction_id}</div>
               <div className="text-sm">{d.reason}</div>
-              <div className="text-xs text-gray-500">{d.status} · {d.created_at ? new Date(d.created_at).toLocaleString() : ""}</div>
+              <div className="text-xs text-mute">{d.status} · {d.created_at ? new Date(d.created_at).toLocaleString() : ""}</div>
             </li>
           ))}
         </ul>

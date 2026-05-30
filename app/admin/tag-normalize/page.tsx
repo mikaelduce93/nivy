@@ -99,8 +99,8 @@ export default async function AdminTagNormalizePage() {
   if (!role || !ADMIN_ROLES.has(role.role as string)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Tag normalize</h1>
-        <p className="text-red-400">
+        <h1 className="mb-2 text-2xl font-bold text-ink">Tag normalize</h1>
+        <p className="text-destructive">
           Accès refusé — rôle administrateur requis.
         </p>
       </main>
@@ -192,17 +192,17 @@ export default async function AdminTagNormalizePage() {
       <div className="mb-6 flex items-center gap-3">
         <Link
           href="/admin"
-          className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+          className="text-sm text-mute underline-offset-4 hover:text-ink hover:underline"
         >
           ← Retour
         </Link>
       </div>
 
       <header className="mb-6">
-        <h1 className="text-3xl font-bold text-white">
+        <h1 className="text-3xl font-bold text-ink">
           Tag normalize · file non-mappée
         </h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-mute">
           Tags free-text rejetés par le cron de normalisation. Approuvez (alias
           → canonique existant ou nouveau) ou rejetez.
         </p>
@@ -232,14 +232,14 @@ export default async function AdminTagNormalizePage() {
       </section>
 
       {!latest && (
-        <p className="rounded border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
+        <p className="rounded border border-ink bg-card p-6 text-center text-sm text-mute">
           Aucun run du cron <code>tag-normalize</code> trouvé dans
           admin_audit_logs.
         </p>
       )}
 
       {rows.length === 0 && latest && (
-        <p className="rounded border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
+        <p className="rounded border border-ink bg-card p-6 text-center text-sm text-mute">
           Aucun tag non-mappé dans le dernier run.
         </p>
       )}
@@ -272,10 +272,10 @@ function Stat({
   tone: "zinc" | "green" | "yellow" | "red"
 }) {
   const palette: Record<typeof tone, string> = {
-    zinc: "border-zinc-800 bg-zinc-900 text-zinc-200",
-    green: "border-green-500/30 bg-green-500/10 text-green-300",
-    yellow: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
-    red: "border-red-500/30 bg-red-500/10 text-red-300",
+    zinc: "border-ink bg-card text-ink-2",
+    green: "border-lime/30 bg-lime/10 text-lime",
+    yellow: "border-gold/30 bg-gold/10 text-gold",
+    red: "border-destructive/30 bg-destructive/10 text-destructive",
   }
   return (
     <div className={`rounded border p-3 ${palette[tone]}`}>

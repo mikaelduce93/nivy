@@ -64,13 +64,13 @@ export default async function AdminBookingsPage({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <BackButton href="/admin" label="Retour au dashboard" />
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-black text-white mb-2">Gestion des réservations</h1>
-            <p className="text-zinc-400">Suivez et gérez toutes les réservations</p>
+            <h1 className="text-4xl font-black text-ink mb-2">Gestion des réservations</h1>
+            <p className="text-mute">Suivez et gérez toutes les réservations</p>
           </div>
           <Button
             onClick={() => {
@@ -105,7 +105,7 @@ export default async function AdminBookingsPage({
               document.body.removeChild(a)
               window.URL.revokeObjectURL(url)
             }}
-            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
+            className="bg-gradient-to-r from-lime to-lime hover:from-lime hover:to-lime text-ink"
           >
             <Download className="w-4 h-4 mr-2" />
             Exporter CSV
@@ -113,38 +113,38 @@ export default async function AdminBookingsPage({
         </div>
 
         <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4 bg-zinc-900 border-zinc-800">
-            <p className="text-zinc-400 text-sm mb-1">Total</p>
-            <p className="text-3xl font-black text-white">{stats.total}</p>
+          <Card className="p-4 bg-card border-ink">
+            <p className="text-mute text-sm mb-1">Total</p>
+            <p className="text-3xl font-black text-ink">{stats.total}</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-green-500/30">
-            <p className="text-zinc-400 text-sm mb-1">Confirmées</p>
-            <p className="text-3xl font-black text-green-400">{stats.confirmed}</p>
+          <Card className="p-4 bg-card border-lime/30">
+            <p className="text-mute text-sm mb-1">Confirmées</p>
+            <p className="text-3xl font-black text-lime">{stats.confirmed}</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-yellow-500/30">
-            <p className="text-zinc-400 text-sm mb-1">En attente</p>
-            <p className="text-3xl font-black text-yellow-400">{stats.pending}</p>
+          <Card className="p-4 bg-card border-gold/30">
+            <p className="text-mute text-sm mb-1">En attente</p>
+            <p className="text-3xl font-black text-gold">{stats.pending}</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-red-500/30">
-            <p className="text-zinc-400 text-sm mb-1">Annulées</p>
-            <p className="text-3xl font-black text-red-400">{stats.cancelled}</p>
+          <Card className="p-4 bg-card border-destructive/30">
+            <p className="text-mute text-sm mb-1">Annulées</p>
+            <p className="text-3xl font-black text-destructive">{stats.cancelled}</p>
           </Card>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
             <Input
               placeholder="Rechercher par référence, nom, email..."
-              className="pl-10 bg-zinc-900 border-zinc-800"
+              className="pl-10 bg-card border-ink"
             />
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="bg-transparent border-zinc-800">
+            <Button variant="outline" className="bg-transparent border-ink">
               <Filter className="w-4 h-4 mr-2" />
               Filtres
             </Button>
-            <Button variant="outline" className="bg-transparent border-zinc-800">
+            <Button variant="outline" className="bg-transparent border-ink">
               <Download className="w-4 h-4 mr-2" />
               Exporter
             </Button>
@@ -154,18 +154,18 @@ export default async function AdminBookingsPage({
         {filteredBookings && filteredBookings.length > 0 ? (
           <div className="space-y-4">
             {filteredBookings.map((booking) => (
-              <Card key={booking.id} className="p-6 bg-zinc-900 border-zinc-800">
+              <Card key={booking.id} className="p-6 bg-card border-ink">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
-                      <h3 className="text-lg font-bold text-white">{booking.booking_reference}</h3>
+                      <h3 className="text-lg font-bold text-ink">{booking.booking_reference}</h3>
                       <div
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           booking.payment_status === "paid"
-                            ? "bg-green-500/20 text-green-400"
+                            ? "bg-lime/20 text-lime"
                             : booking.payment_status === "pending"
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-red-500/20 text-red-400"
+                              ? "bg-gold/20 text-gold"
+                              : "bg-destructive/20 text-destructive"
                         }`}
                       >
                         {booking.payment_status === "paid"
@@ -178,28 +178,28 @@ export default async function AdminBookingsPage({
 
                     <div className="grid md:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <p className="text-zinc-500 mb-1">Parent</p>
-                        <p className="text-white font-semibold">
+                        <p className="text-mute mb-1">Parent</p>
+                        <p className="text-ink font-semibold">
                           {booking.profiles?.prenom} {booking.profiles?.nom}
                         </p>
-                        <p className="text-zinc-400">{booking.profiles?.email}</p>
-                        {booking.profiles?.telephone && <p className="text-zinc-400">{booking.profiles.telephone}</p>}
+                        <p className="text-mute">{booking.profiles?.email}</p>
+                        {booking.profiles?.telephone && <p className="text-mute">{booking.profiles.telephone}</p>}
                       </div>
 
                       <div>
-                        <p className="text-zinc-500 mb-1">Événement</p>
-                        <p className="text-white font-semibold">{booking.events?.title}</p>
-                        <p className="text-zinc-400">
+                        <p className="text-mute mb-1">Événement</p>
+                        <p className="text-ink font-semibold">{booking.events?.title}</p>
+                        <p className="text-mute">
                           {new Date(booking.events?.event_date).toLocaleDateString("fr-FR")}
                         </p>
-                        <p className="text-zinc-400">{booking.events?.city}</p>
+                        <p className="text-mute">{booking.events?.city}</p>
                       </div>
 
                       <div>
-                        <p className="text-zinc-500 mb-1">Paiement</p>
-                        <p className="text-cyan-400 font-bold text-lg">{booking.total_amount} DH</p>
-                        {booking.payment_method && <p className="text-zinc-400 capitalize">{booking.payment_method}</p>}
-                        <p className="text-zinc-500 text-xs">
+                        <p className="text-mute mb-1">Paiement</p>
+                        <p className="text-teal font-bold text-lg">{booking.total_amount} DH</p>
+                        {booking.payment_method && <p className="text-mute capitalize">{booking.payment_method}</p>}
+                        <p className="text-mute text-xs">
                           {new Date(booking.created_at).toLocaleDateString("fr-FR")}
                         </p>
                       </div>
@@ -211,7 +211,7 @@ export default async function AdminBookingsPage({
                       asChild
                       size="sm"
                       variant="outline"
-                      className="bg-transparent border-cyan-500 text-cyan-400"
+                      className="bg-transparent border-teal text-teal"
                     >
                       <Link href={`/admin/reservations/${booking.id}`}>Détails</Link>
                     </Button>
@@ -221,10 +221,10 @@ export default async function AdminBookingsPage({
             ))}
           </div>
         ) : (
-          <Card className="p-12 text-center bg-zinc-900 border-zinc-800">
-            <Ticket className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Aucune réservation</h3>
-            <p className="text-zinc-400">Les réservations apparaîtront ici</p>
+          <Card className="p-12 text-center bg-card border-ink">
+            <Ticket className="w-16 h-16 text-ink mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-ink mb-2">Aucune réservation</h3>
+            <p className="text-mute">Les réservations apparaîtront ici</p>
           </Card>
         )}
       </div>

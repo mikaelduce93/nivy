@@ -90,9 +90,9 @@ export default async function AdminPermissionsPage() {
       name: "Super Admin",
       value: "super_admin",
       description: "Accès complet à toutes les fonctionnalités",
-      color: "from-red-500/20 to-orange-500/20",
-      borderColor: "border-red-500/30",
-      textColor: "text-red-400",
+      color: "from-destructive/20 to-coral/20",
+      borderColor: "border-destructive/30",
+      textColor: "text-destructive",
       icon: Crown,
       count: admins.filter((a: any) => a.role === "super_admin").length
     },
@@ -100,9 +100,9 @@ export default async function AdminPermissionsPage() {
       name: "Admin",
       value: "admin",
       description: "Gestion complète sauf permissions",
-      color: "from-purple-500/20 to-pink-500/20",
-      borderColor: "border-purple-500/30",
-      textColor: "text-purple-400",
+      color: "from-pink/20 to-pink/20",
+      borderColor: "border-pink/30",
+      textColor: "text-pink",
       icon: ShieldCheck,
       count: admins.filter((a: any) => a.role === "admin").length
     },
@@ -110,9 +110,9 @@ export default async function AdminPermissionsPage() {
       name: "Modérateur",
       value: "moderator",
       description: "Modération du contenu et utilisateurs",
-      color: "from-blue-500/20 to-cyan-500/20",
-      borderColor: "border-blue-500/30",
-      textColor: "text-blue-400",
+      color: "from-teal/20 to-teal/20",
+      borderColor: "border-teal/30",
+      textColor: "text-teal",
       icon: UserCog,
       count: admins.filter((a: any) => a.role === "moderator").length
     },
@@ -120,9 +120,9 @@ export default async function AdminPermissionsPage() {
       name: "Support",
       value: "support",
       description: "Accès au support client",
-      color: "from-emerald-500/20 to-green-500/20",
-      borderColor: "border-emerald-500/30",
-      textColor: "text-emerald-400",
+      color: "from-lime/20 to-lime/20",
+      borderColor: "border-lime/30",
+      textColor: "text-lime",
       icon: Users,
       count: admins.filter((a: any) => a.role === "support").length
     }
@@ -130,7 +130,7 @@ export default async function AdminPermissionsPage() {
 
   const getRoleBadge = (role: string) => {
     const roleInfo = roles.find(r => r.value === role)
-    if (!roleInfo) return "bg-zinc-500/20 text-zinc-400"
+    if (!roleInfo) return "bg-muted text-mute"
     return `bg-gradient-to-r ${roleInfo.color} ${roleInfo.textColor}`
   }
 
@@ -140,10 +140,10 @@ export default async function AdminPermissionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/admin">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -153,10 +153,10 @@ export default async function AdminPermissionsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Gestion des Permissions</h1>
-            <p className="text-zinc-400">Gérez les rôles et accès des utilisateurs</p>
+            <h1 className="text-3xl font-black text-ink">Gestion des Permissions</h1>
+            <p className="text-mute">Gérez les rôles et accès des utilisateurs</p>
           </div>
-          <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
+          <Button className="bg-lime hover:bg-lime text-ink">
             <Plus className="h-4 w-4 mr-2" />
             Ajouter Admin
           </Button>
@@ -165,14 +165,14 @@ export default async function AdminPermissionsPage() {
         {/* Role Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {roles.map((role) => (
-            <Card key={role.value} className={`bg-gradient-to-br ${role.color} ${role.borderColor} bg-zinc-900`}>
+            <Card key={role.value} className={`bg-gradient-to-br ${role.color} ${role.borderColor} bg-card`}>
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className={`text-xs ${role.textColor} font-medium`}>{role.name}</p>
-                    <p className="text-3xl font-black text-white">{role.count}</p>
+                    <p className="text-3xl font-black text-ink">{role.count}</p>
                   </div>
-                  <div className={`h-12 w-12 rounded-full bg-zinc-900/50 flex items-center justify-center`}>
+                  <div className={`h-12 w-12 rounded-full bg-card flex items-center justify-center`}>
                     <role.icon className={`h-6 w-6 ${role.textColor}`} />
                   </div>
                 </div>
@@ -182,10 +182,10 @@ export default async function AdminPermissionsPage() {
         </div>
 
         {/* Permissions Matrix */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-purple-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-pink" />
               Matrice des Permissions
             </CardTitle>
           </CardHeader>
@@ -193,8 +193,8 @@ export default async function AdminPermissionsPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-zinc-800">
-                    <th className="text-left py-3 px-4 text-zinc-400 font-medium">Permission</th>
+                  <tr className="border-b border-ink">
+                    <th className="text-left py-3 px-4 text-mute font-medium">Permission</th>
                     {roles.map((role) => (
                       <th key={role.value} className="text-center py-3 px-4">
                         <span className={`text-xs font-medium ${role.textColor}`}>{role.name}</span>
@@ -214,14 +214,14 @@ export default async function AdminPermissionsPage() {
                     { name: "Accès API", permissions: [true, true, false, false] },
                     { name: "Support tickets", permissions: [true, true, true, true] },
                   ].map((row, index) => (
-                    <tr key={index} className="border-b border-zinc-800/50">
-                      <td className="py-3 px-4 text-white">{row.name}</td>
+                    <tr key={index} className="border-b border-ink">
+                      <td className="py-3 px-4 text-ink">{row.name}</td>
                       {row.permissions.map((hasPermission, i) => (
                         <td key={i} className="text-center py-3 px-4">
                           {hasPermission ? (
-                            <span className="inline-block h-4 w-4 rounded-full bg-emerald-500" />
+                            <span className="inline-block h-4 w-4 rounded-full bg-lime" />
                           ) : (
-                            <span className="inline-block h-4 w-4 rounded-full bg-zinc-700" />
+                            <span className="inline-block h-4 w-4 rounded-full bg-muted" />
                           )}
                         </td>
                       ))}
@@ -234,17 +234,17 @@ export default async function AdminPermissionsPage() {
         </Card>
 
         {/* Admin Users List */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-white flex items-center gap-2">
-              <UserCog className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <UserCog className="h-5 w-5 text-lime" />
               Équipe Administrative
             </CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300">
+              <Button variant="outline" size="sm" className="border-ink text-ink-2">
                 <Search className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300">
+              <Button variant="outline" size="sm" className="border-ink text-ink-2">
                 <Filter className="h-4 w-4" />
               </Button>
             </div>
@@ -255,15 +255,15 @@ export default async function AdminPermissionsPage() {
                 {admins.map((admin: any) => (
                   <div
                     key={admin.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all"
+                    className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-ink transition-all"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-bold">
                         {admin.full_name?.charAt(0) || "?"}
                       </div>
                       <div>
-                        <p className="font-semibold text-white">{admin.full_name}</p>
-                        <p className="text-xs text-zinc-400">{admin.email}</p>
+                        <p className="font-semibold text-ink">{admin.full_name}</p>
+                        <p className="text-xs text-mute">{admin.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -281,19 +281,19 @@ export default async function AdminPermissionsPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <UserCog className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                <h3 className="text-xl font-bold text-white mb-2">Aucun admin</h3>
-                <p className="text-zinc-400">Ajoutez des administrateurs pour commencer</p>
+                <UserCog className="h-16 w-16 mx-auto mb-4 text-ink" />
+                <h3 className="text-xl font-bold text-ink mb-2">Aucun admin</h3>
+                <p className="text-mute">Ajoutez des administrateurs pour commencer</p>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* All Users with Role Selector */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Users className="h-5 w-5 text-teal" />
               Tous les Utilisateurs
             </CardTitle>
           </CardHeader>
@@ -303,19 +303,19 @@ export default async function AdminPermissionsPage() {
                 {allUsers.slice(0, 10).map((user: any) => (
                   <div
                     key={user.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-zinc-900 border border-zinc-800"
+                    className="flex items-center justify-between p-3 rounded-xl bg-card border border-ink"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 font-medium">
+                      <div className="h-10 w-10 rounded-full bg-card flex items-center justify-center text-mute font-medium">
                         {user.full_name?.charAt(0) || "?"}
                       </div>
                       <div>
-                        <p className="font-medium text-white text-sm">{user.full_name || "Sans nom"}</p>
-                        <p className="text-xs text-zinc-500">{user.email}</p>
+                        <p className="font-medium text-ink text-sm">{user.full_name || "Sans nom"}</p>
+                        <p className="text-xs text-mute">{user.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs px-2 py-1 rounded-full bg-zinc-800 text-zinc-400">
+                      <span className="text-xs px-2 py-1 rounded-full bg-card text-mute">
                         {user.role || "user"}
                       </span>
                       <RoleChangeButton
@@ -329,7 +329,7 @@ export default async function AdminPermissionsPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-zinc-500 py-8">Aucun utilisateur trouvé</p>
+              <p className="text-center text-mute py-8">Aucun utilisateur trouvé</p>
             )}
           </CardContent>
         </Card>

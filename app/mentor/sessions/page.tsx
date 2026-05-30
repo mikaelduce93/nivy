@@ -43,17 +43,17 @@ export default async function MentorSessionsPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
+    <div className="min-h-screen bg-[#030303] text-ink -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
       <div className="max-w-6xl mx-auto space-y-8">
-        <header className="border-b border-white/5 pb-6">
+        <header className="border-b border-ink pb-6">
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter">Sessions</h1>
-          <p className="text-zinc-400 mt-2">
+          <p className="text-mute mt-2">
             Gérez vos demandes en attente, vos rendez-vous à venir et l'historique.
           </p>
         </header>
 
         {!mentorId ? (
-          <div className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6 text-amber-100">
+          <div className="rounded-2xl border border-gold/30 bg-gold/10 p-6 text-gold">
             Profil mentor introuvable. Complétez votre fiche depuis l'écran Profil.
           </div>
         ) : (

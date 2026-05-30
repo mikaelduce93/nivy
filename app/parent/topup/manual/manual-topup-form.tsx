@@ -92,16 +92,16 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
   return (
     <CSRFAwareForm
       onSubmit={submit}
-      className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6"
+      className="rounded-xl border border-ink bg-card p-6"
       autoComplete="off"
     >
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <label className="block text-xs uppercase text-zinc-500">Teen</label>
+          <label className="block text-xs uppercase text-mute">Teen</label>
           <select
             value={teenId}
             onChange={(e) => setTeenId(e.target.value)}
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
+            className="mt-1 w-full rounded-md border border-ink bg-background p-2 text-ink"
           >
             {teens.map((t) => (
               <option key={t.id} value={t.id}>
@@ -112,7 +112,7 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
         </div>
 
         <div>
-          <label className="block text-xs uppercase text-zinc-500">Montant (DH)</label>
+          <label className="block text-xs uppercase text-mute">Montant (DH)</label>
           <input
             type="number"
             min={1}
@@ -121,16 +121,16 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
             onChange={(e) => setAmountDh(e.target.value)}
             inputMode="decimal"
             autoComplete="transaction-amount"
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
+            className="mt-1 w-full rounded-md border border-ink bg-background p-2 text-ink"
           />
         </div>
 
         <div>
-          <label className="block text-xs uppercase text-zinc-500">Opérateur PSP</label>
+          <label className="block text-xs uppercase text-mute">Opérateur PSP</label>
           <select
             value={provider}
             onChange={(e) => setProvider(e.target.value)}
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
+            className="mt-1 w-full rounded-md border border-ink bg-background p-2 text-ink"
           >
             {PROVIDERS.map((p) => (
               <option key={p.value} value={p.value}>
@@ -141,7 +141,7 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
         </div>
 
         <div>
-          <label className="block text-xs uppercase text-zinc-500">
+          <label className="block text-xs uppercase text-mute">
             Référence transaction
           </label>
           <input
@@ -152,12 +152,12 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
             autoComplete="off"
             spellCheck={false}
             autoCapitalize="characters"
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
+            className="mt-1 w-full rounded-md border border-ink bg-background p-2 text-ink"
           />
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-xs uppercase text-zinc-500">
+          <label className="block text-xs uppercase text-mute">
             Justificatif (chemin bucket privé, optionnel)
           </label>
           <input
@@ -167,9 +167,9 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
             placeholder="topup-evidence/<parent_id>/<file>.jpg"
             autoComplete="off"
             spellCheck={false}
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
+            className="mt-1 w-full rounded-md border border-ink bg-background p-2 text-ink"
           />
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-mute">
             Téléversez d'abord la capture d'écran du reçu PSP via le bucket privé,
             puis collez ici le chemin.
           </p>
@@ -177,12 +177,12 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
       </div>
 
       {error && (
-        <p className="mt-4 rounded-md border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-300">
+        <p className="mt-4 rounded-md border border-pink/40 bg-pink/10 p-3 text-sm text-pink">
           {error}
         </p>
       )}
       {ok && (
-        <p className="mt-4 rounded-md border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-300">
+        <p className="mt-4 rounded-md border border-lime/40 bg-lime/10 p-3 text-sm text-lime">
           {ok}
         </p>
       )}
@@ -190,7 +190,7 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
       <button
         type="submit"
         disabled={busy}
-        className="mt-6 rounded-md bg-emerald-500 px-6 py-2 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50"
+        className="mt-6 rounded-md bg-lime px-6 py-2 text-sm font-semibold text-ink hover:bg-lime disabled:opacity-50"
       >
         {busy ? "Envoi..." : "Soumettre la demande"}
       </button>

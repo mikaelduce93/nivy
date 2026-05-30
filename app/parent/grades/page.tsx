@@ -279,31 +279,31 @@ export default function ParentGradesPage() {
 
   const getGradeColor = (grade: number, maxGrade: number) => {
     const percentage = (grade / maxGrade) * 100
-    if (percentage >= 80) return "text-emerald-400"
-    if (percentage >= 60) return "text-blue-400"
-    if (percentage >= 40) return "text-amber-400"
-    return "text-red-400"
+    if (percentage >= 80) return "text-lime"
+    if (percentage >= 60) return "text-teal"
+    if (percentage >= 40) return "text-gold"
+    return "text-destructive"
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
         return (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs">
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gold/20 text-gold text-xs">
             <Clock className="h-3 w-3" />
             En attente
           </span>
         )
       case "approved":
         return (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs">
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-lime/20 text-lime text-xs">
             <CheckCircle2 className="h-3 w-3" />
             Validée
           </span>
         )
       case "rejected":
         return (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs">
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-destructive/20 text-destructive text-xs">
             <XCircle className="h-3 w-3" />
             Rejetée
           </span>
@@ -313,17 +313,17 @@ export default function ParentGradesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-lime" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -333,21 +333,21 @@ export default function ParentGradesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <GraduationCap className="h-8 w-8 text-emerald-400" />
+            <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+              <GraduationCap className="h-8 w-8 text-lime" />
               Validation Notes Scolaires
             </h1>
-            <p className="text-zinc-400">Validez les notes soumises par vos teens</p>
+            <p className="text-mute">Validez les notes soumises par vos teens</p>
           </div>
         </div>
 
         {/* Unavailable banner */}
         {unavailable && (
-          <div className="mb-6 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-400 mt-0.5 shrink-0" />
+          <div className="mb-6 p-4 rounded-xl border border-gold/30 bg-gold/10 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-gold mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-amber-300">Bientôt disponible</p>
-              <p className="text-xs text-amber-200/80 mt-1">
+              <p className="text-sm font-semibold text-gold">Bientôt disponible</p>
+              <p className="text-xs text-gold/80 mt-1">
                 La validation des notes sera affichée ici une fois la fonctionnalité activée. Aucune note réelle n'est disponible pour le moment.
               </p>
             </div>
@@ -356,57 +356,57 @@ export default function ParentGradesPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-400 font-medium">En attente</p>
-                  <p className="text-3xl font-black text-white">{stats.totalPending}</p>
+                  <p className="text-xs text-gold font-medium">En attente</p>
+                  <p className="text-3xl font-black text-ink">{stats.totalPending}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-amber-400" />
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-gold" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-400 font-medium">Validées</p>
-                  <p className="text-3xl font-black text-white">{stats.totalValidated}</p>
+                  <p className="text-xs text-lime font-medium">Validées</p>
+                  <p className="text-3xl font-black text-ink">{stats.totalValidated}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
+                  <CheckCircle2 className="h-6 w-6 text-lime" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-500/20 to-pink-500/20 border-red-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-destructive/20 to-pink/20 border-destructive/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-red-400 font-medium">Rejetées</p>
-                  <p className="text-3xl font-black text-white">{stats.totalRejected}</p>
+                  <p className="text-xs text-destructive font-medium">Rejetées</p>
+                  <p className="text-3xl font-black text-ink">{stats.totalRejected}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                  <XCircle className="h-6 w-6 text-red-400" />
+                <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <XCircle className="h-6 w-6 text-destructive" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-400 font-medium">Moyenne</p>
-                  <p className="text-3xl font-black text-white">{stats.averageGrade}/20</p>
+                  <p className="text-xs text-teal font-medium">Moyenne</p>
+                  <p className="text-3xl font-black text-ink">{stats.averageGrade}/20</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-teal" />
                 </div>
               </div>
             </CardContent>
@@ -416,12 +416,12 @@ export default function ParentGradesPage() {
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-mute" />
             <Input
               placeholder="Rechercher par matière, teen..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-zinc-900 border-zinc-800 text-white"
+              className="pl-10 bg-card border-ink text-ink"
             />
           </div>
           <div className="flex gap-2">
@@ -432,8 +432,8 @@ export default function ParentGradesPage() {
                 size="sm"
                 onClick={() => setFilter(f)}
                 className={filter === f
-                  ? "bg-emerald-500 hover:bg-emerald-600"
-                  : "border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                  ? "bg-lime hover:bg-lime"
+                  : "border-ink text-ink-2 hover:bg-card"
                 }
               >
                 {f === "pending" && "En attente"}
@@ -446,10 +446,10 @@ export default function ParentGradesPage() {
         </div>
 
         {/* Grades List */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-lime" />
               Notes ({filteredGrades.length})
             </CardTitle>
           </CardHeader>
@@ -459,19 +459,19 @@ export default function ParentGradesPage() {
                 {filteredGrades.map((grade) => (
                   <div
                     key={grade.id}
-                    className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-emerald-500/30 transition-all"
+                    className="p-4 rounded-xl bg-card border border-ink hover:border-lime/30 transition-all"
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                          <BookOpen className="h-7 w-7 text-white" />
+                        <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-lime to-teal flex items-center justify-center">
+                          <BookOpen className="h-7 w-7 text-ink" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-bold text-white">{grade.subject}</h3>
+                            <h3 className="text-lg font-bold text-ink">{grade.subject}</h3>
                             {getStatusBadge(grade.status)}
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-zinc-400 mt-1">
+                          <div className="flex items-center gap-3 text-sm text-mute mt-1">
                             <span className="flex items-center gap-1">
                               <User className="h-3 w-3" />
                               {grade.teen_name}
@@ -485,7 +485,7 @@ export default function ParentGradesPage() {
                             </span>
                           </div>
                           {grade.rejection_reason && (
-                            <p className="text-xs text-zinc-500 mt-2 italic">
+                            <p className="text-xs text-mute mt-2 italic">
                               "{grade.rejection_reason}"
                             </p>
                           )}
@@ -497,7 +497,7 @@ export default function ParentGradesPage() {
                           <p className={`text-3xl font-black ${getGradeColor(grade.grade, grade.max_grade)}`}>
                             {grade.grade}/{grade.max_grade}
                           </p>
-                          <p className="text-xs text-zinc-500">Note</p>
+                          <p className="text-xs text-mute">Note</p>
                         </div>
 
                         {grade.status === "pending" && (
@@ -505,7 +505,7 @@ export default function ParentGradesPage() {
                             <Button
                               size="sm"
                               onClick={() => setSelectedGrade(grade)}
-                              className="bg-emerald-500 hover:bg-emerald-600"
+                              className="bg-lime hover:bg-lime"
                             >
                               <CheckCircle2 className="h-4 w-4 mr-1" />
                               Valider
@@ -517,7 +517,7 @@ export default function ParentGradesPage() {
                                 setSelectedGrade(grade)
                                 setShowRejectDialog(true)
                               }}
-                              className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                              className="border-destructive/50 text-destructive hover:bg-destructive/10"
                             >
                               <XCircle className="h-4 w-4 mr-1" />
                               Rejeter
@@ -544,24 +544,24 @@ export default function ParentGradesPage() {
 
         {/* Validate Dialog */}
         <Dialog open={!!selectedGrade && !showRejectDialog} onOpenChange={() => setSelectedGrade(null)}>
-          <DialogContent className="bg-zinc-900 border-zinc-800">
+          <DialogContent className="bg-card border-ink">
             <DialogHeader>
-              <DialogTitle className="text-white flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+              <DialogTitle className="text-ink flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-lime" />
                 Valider la note
               </DialogTitle>
-              <DialogDescription className="text-zinc-400">
+              <DialogDescription className="text-mute">
                 Confirmez la validation de cette note de {selectedGrade?.teen_name}
               </DialogDescription>
             </DialogHeader>
 
             {selectedGrade && (
               <div className="py-4">
-                <div className="p-4 rounded-xl bg-zinc-800 mb-4">
+                <div className="p-4 rounded-xl bg-card mb-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-white font-semibold">{selectedGrade.subject}</p>
-                      <p className="text-sm text-zinc-400">{selectedGrade.exam_type} - {formatDate(selectedGrade.exam_date)}</p>
+                      <p className="text-ink font-semibold">{selectedGrade.subject}</p>
+                      <p className="text-sm text-mute">{selectedGrade.exam_type} - {formatDate(selectedGrade.exam_date)}</p>
                     </div>
                     <p className={`text-2xl font-black ${getGradeColor(selectedGrade.grade, selectedGrade.max_grade)}`}>
                       {selectedGrade.grade}/{selectedGrade.max_grade}
@@ -570,13 +570,13 @@ export default function ParentGradesPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="comment" className="text-zinc-300">Commentaire (optionnel)</Label>
+                  <Label htmlFor="comment" className="text-ink-2">Commentaire (optionnel)</Label>
                   <Textarea
                     id="comment"
                     placeholder="Félicitations, continue comme ça!"
                     value={validationComment}
                     onChange={(e) => setValidationComment(e.target.value)}
-                    className="bg-zinc-800 border-zinc-700 text-white"
+                    className="bg-card border-ink text-ink"
                     rows={3}
                   />
                 </div>
@@ -590,14 +590,14 @@ export default function ParentGradesPage() {
                   setSelectedGrade(null)
                   setValidationComment("")
                 }}
-                className="border-zinc-700 text-zinc-300"
+                className="border-ink text-ink-2"
               >
                 Annuler
               </Button>
               <Button
                 onClick={() => selectedGrade && handleValidate(selectedGrade)}
                 disabled={isValidating}
-                className="bg-emerald-500 hover:bg-emerald-600"
+                className="bg-lime hover:bg-lime"
               >
                 {isValidating ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -612,24 +612,24 @@ export default function ParentGradesPage() {
 
         {/* Reject Dialog */}
         <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-          <DialogContent className="bg-zinc-900 border-zinc-800">
+          <DialogContent className="bg-card border-ink">
             <DialogHeader>
-              <DialogTitle className="text-white flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-red-400" />
+              <DialogTitle className="text-ink flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-destructive" />
                 Rejeter la note
               </DialogTitle>
-              <DialogDescription className="text-zinc-400">
+              <DialogDescription className="text-mute">
                 Indiquez la raison du rejet de cette note
               </DialogDescription>
             </DialogHeader>
 
             {selectedGrade && (
               <div className="py-4">
-                <div className="p-4 rounded-xl bg-zinc-800 mb-4">
+                <div className="p-4 rounded-xl bg-card mb-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-white font-semibold">{selectedGrade.subject}</p>
-                      <p className="text-sm text-zinc-400">{selectedGrade.exam_type}</p>
+                      <p className="text-ink font-semibold">{selectedGrade.subject}</p>
+                      <p className="text-sm text-mute">{selectedGrade.exam_type}</p>
                     </div>
                     <p className={`text-2xl font-black ${getGradeColor(selectedGrade.grade, selectedGrade.max_grade)}`}>
                       {selectedGrade.grade}/{selectedGrade.max_grade}
@@ -638,13 +638,13 @@ export default function ParentGradesPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="reject-reason" className="text-zinc-300">Raison du rejet *</Label>
+                  <Label htmlFor="reject-reason" className="text-ink-2">Raison du rejet *</Label>
                   <Textarea
                     id="reject-reason"
                     placeholder="Ex: Note incorrecte, preuve manquante..."
                     value={validationComment}
                     onChange={(e) => setValidationComment(e.target.value)}
-                    className="bg-zinc-800 border-zinc-700 text-white"
+                    className="bg-card border-ink text-ink"
                     rows={3}
                     required
                   />
@@ -660,14 +660,14 @@ export default function ParentGradesPage() {
                   setSelectedGrade(null)
                   setValidationComment("")
                 }}
-                className="border-zinc-700 text-zinc-300"
+                className="border-ink text-ink-2"
               >
                 Annuler
               </Button>
               <Button
                 onClick={handleReject}
                 disabled={isValidating || !validationComment.trim()}
-                className="bg-red-500 hover:bg-red-600"
+                className="bg-destructive hover:bg-destructive"
               >
                 {isValidating ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

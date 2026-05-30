@@ -119,8 +119,8 @@ export default async function PartnerEventsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-black text-white">Events Teen Club</h1>
-          <p className="text-zinc-400">Profil partenaire introuvable.</p>
+          <h1 className="text-3xl font-black text-ink">Events Teen Club</h1>
+          <p className="text-mute">Profil partenaire introuvable.</p>
         </div>
       </div>
     )
@@ -167,20 +167,20 @@ export default async function PartnerEventsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-white">Events Teen Club</h1>
-        <p className="text-zinc-400">Participez aux événements et rencontrez vos clients</p>
+        <h1 className="text-3xl font-black text-ink">Events Teen Club</h1>
+        <p className="text-mute">Participez aux événements et rencontrez vos clients</p>
       </div>
 
       {/* Info Banner */}
-      <Card className="bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 border-emerald-500/30">
+      <Card className="bg-gradient-to-r from-lime/20 via-teal/20 to-teal/20 border-lime/30">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-              <Calendar className="h-6 w-6 text-emerald-400" />
+            <div className="h-12 w-12 rounded-xl bg-lime/20 flex items-center justify-center flex-shrink-0">
+              <Calendar className="h-6 w-6 text-lime" />
             </div>
             <div>
-              <h3 className="font-bold text-white mb-1">Participez aux events Teen Club !</h3>
-              <p className="text-zinc-300 text-sm">
+              <h3 className="font-bold text-ink mb-1">Participez aux events Teen Club !</h3>
+              <p className="text-ink-2 text-sm">
                 En tant que partenaire, vous pouvez avoir un stand lors de nos événements pour promouvoir vos offres
                 et scanner les cartes des membres présents. C'est l'occasion idéale pour augmenter votre visibilité !
               </p>
@@ -190,9 +190,9 @@ export default async function PartnerEventsPage() {
       </Card>
 
       {columnMissing && (
-        <Card className="bg-zinc-900 border-amber-500/30">
+        <Card className="bg-card border-gold/30">
           <CardContent className="p-4">
-            <p className="text-sm text-amber-300">
+            <p className="text-sm text-gold">
               Module Events partenaire en cours de déploiement — vos événements liés s'afficheront automatiquement dès la mise à jour.
             </p>
           </CardContent>
@@ -200,13 +200,13 @@ export default async function PartnerEventsPage() {
       )}
 
       {/* Upcoming Events */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Événements à venir</CardTitle>
+          <CardTitle className="text-ink">Événements à venir</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {upcomingWithStats.length === 0 ? (
-            <p className="text-sm text-zinc-500 py-6 text-center">
+            <p className="text-sm text-mute py-6 text-center">
               Pas encore d'événement à venir.
             </p>
           ) : (
@@ -222,18 +222,18 @@ export default async function PartnerEventsPage() {
               return (
                 <div
                   key={event.id}
-                  className="flex items-center justify-between p-5 rounded-xl bg-zinc-800 border border-zinc-700 hover:border-emerald-500/30 transition-all"
+                  className="flex items-center justify-between p-5 rounded-xl bg-card border border-ink hover:border-lime/30 transition-all"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="text-center min-w-[60px] p-3 rounded-xl bg-zinc-900">
-                      <p className="text-xs text-zinc-500 uppercase">{monthLabel}</p>
-                      <p className="text-2xl font-black text-white">{dayLabel}</p>
+                    <div className="text-center min-w-[60px] p-3 rounded-xl bg-card">
+                      <p className="text-xs text-mute uppercase">{monthLabel}</p>
+                      <p className="text-2xl font-black text-ink">{dayLabel}</p>
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-lg">
+                      <h3 className="font-bold text-ink text-lg">
                         {event.title || "Événement sans titre"}
                       </h3>
-                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-zinc-400">
+                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-mute">
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
                           {timeRange(event) || fullDate}
@@ -252,15 +252,15 @@ export default async function PartnerEventsPage() {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     {!isFull ? (
-                      <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                      <Button className="bg-lime hover:bg-lime text-ink">
                         Voir l'event
                       </Button>
                     ) : (
-                      <span className="px-3 py-1 rounded-full bg-zinc-700 text-zinc-400 text-sm">
+                      <span className="px-3 py-1 rounded-full bg-muted text-mute text-sm">
                         Complet
                       </span>
                     )}
-                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white" asChild>
+                    <Button variant="ghost" size="sm" className="text-mute hover:text-ink" asChild>
                       <Link href={event.slug ? `/events/${event.slug}` : "#"}>
                         Détails <ExternalLink className="h-3 w-3 ml-1" />
                       </Link>
@@ -274,9 +274,9 @@ export default async function PartnerEventsPage() {
       </Card>
 
       {/* Past Participations */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Vos participations passées</CardTitle>
+          <CardTitle className="text-ink">Vos participations passées</CardTitle>
         </CardHeader>
         <CardContent>
           {pastWithStats.length === 0 ? (
@@ -294,24 +294,24 @@ export default async function PartnerEventsPage() {
                 return (
                   <div
                     key={event.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700"
+                    className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink"
                   >
                     <div>
-                      <p className="font-semibold text-white">
+                      <p className="font-semibold text-ink">
                         {event.title || "Événement sans titre"}
                       </p>
-                      <p className="text-sm text-zinc-400">{fullDate}</p>
+                      <p className="text-sm text-mute">{fullDate}</p>
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="text-center">
-                        <p className="text-xl font-black text-emerald-400">{scans}</p>
-                        <p className="text-xs text-zinc-500">check-ins</p>
+                        <p className="text-xl font-black text-lime">{scans}</p>
+                        <p className="text-xs text-mute">check-ins</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xl font-black text-white">
+                        <p className="text-xl font-black text-ink">
                           {Math.round(revenue).toLocaleString()} DH
                         </p>
-                        <p className="text-xs text-zinc-500">CA généré</p>
+                        <p className="text-xs text-mute">CA généré</p>
                       </div>
                     </div>
                   </div>

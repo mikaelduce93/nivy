@@ -19,9 +19,9 @@ export default async function MentorAvailabilityPage() {
   if (userInfo.role !== "mentor") {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes disponibilités</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-red-400">
+        <h1 className="text-3xl font-black text-ink">Mes disponibilités</h1>
+        <Card className="bg-card border-ink">
+          <CardContent className="p-10 text-center text-destructive">
             Accès réservé aux mentors.
           </CardContent>
         </Card>
@@ -32,14 +32,14 @@ export default async function MentorAvailabilityPage() {
   return (
     <main className="space-y-6">
       <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Calendar className="w-7 h-7 text-blue-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <Calendar className="w-7 h-7 text-teal" />
           Mes disponibilités
         </h1>
       </header>
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Calendrier</CardTitle>
+          <CardTitle className="text-ink">Calendrier</CardTitle>
         </CardHeader>
         <CardContent>
           <EmptyState

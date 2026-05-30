@@ -65,46 +65,46 @@ export default async function EditOfferPage({
     <div className="space-y-6 max-w-2xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild className="text-zinc-400 hover:text-white">
+        <Button variant="ghost" size="icon" asChild className="text-mute hover:text-ink">
           <Link href="/partner/offers">
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-black text-white">Modifier l'offre</h1>
-          <p className="text-zinc-400">Mettez à jour les détails de votre offre</p>
+          <h1 className="text-3xl font-black text-ink">Modifier l'offre</h1>
+          <p className="text-mute">Mettez à jour les détails de votre offre</p>
         </div>
       </div>
 
       {/* Status Banner */}
       <div className={`p-4 rounded-xl flex items-center justify-between ${
         offer.status === "approved"
-          ? "bg-emerald-500/10 border border-emerald-500/30"
+          ? "bg-lime/10 border border-lime/30"
           : offer.status === "pending_approval"
-          ? "bg-amber-500/10 border border-amber-500/30"
-          : "bg-zinc-800 border border-zinc-700"
+          ? "bg-gold/10 border border-gold/30"
+          : "bg-card border border-ink"
       }`}>
         <div>
           <p className={`font-medium ${
-            offer.status === "approved" ? "text-emerald-400" :
-            offer.status === "pending_approval" ? "text-amber-400" : "text-zinc-400"
+            offer.status === "approved" ? "text-lime" :
+            offer.status === "pending_approval" ? "text-gold" : "text-mute"
           }`}>
             Statut: {statusLabel}
           </p>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-mute mt-1">
             Créée le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-zinc-400">{offer.current_total_uses || 0} utilisations</span>
+          <span className="text-sm text-mute">{offer.current_total_uses || 0} utilisations</span>
         </div>
       </div>
 
       {/* Edit Form */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Détails de l'offre</CardTitle>
-          <CardDescription className="text-zinc-400">
+          <CardTitle className="text-ink">Détails de l'offre</CardTitle>
+          <CardDescription className="text-mute">
             Modifiez les informations de votre offre
           </CardDescription>
         </CardHeader>
@@ -131,21 +131,21 @@ export default async function EditOfferPage({
       </Card>
 
       {/* Danger Zone */}
-      <Card className="bg-zinc-900 border-red-500/30">
+      <Card className="bg-card border-destructive/30">
         <CardHeader>
-          <CardTitle className="text-red-400">Zone de danger</CardTitle>
-          <CardDescription className="text-zinc-400">
+          <CardTitle className="text-destructive">Zone de danger</CardTitle>
+          <CardDescription className="text-mute">
             Actions irréversibles
           </CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-between">
           <div>
-            <p className="text-white font-medium">Supprimer cette offre</p>
-            <p className="text-xs text-zinc-500">
+            <p className="text-ink font-medium">Supprimer cette offre</p>
+            <p className="text-xs text-mute">
               Cette action est irréversible. L'offre sera définitivement supprimée.
             </p>
           </div>
-          <Button variant="outline" className="border-red-500/50 text-red-400 hover:bg-red-500/10">
+          <Button variant="outline" className="border-destructive/50 text-destructive hover:bg-destructive/10">
             Supprimer
           </Button>
         </CardContent>

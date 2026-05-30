@@ -65,7 +65,7 @@ export default async function ParentSavingsPage() {
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
@@ -77,7 +77,7 @@ export default async function ParentSavingsPage() {
             <p>Aucun objectif créé par tes ados pour le moment.</p>
             <a
               href="/parent/teens"
-              className="inline-block text-sm text-emerald-400 hover:underline"
+              className="inline-block text-sm text-lime hover:underline"
             >
               Inviter un teen à créer son premier objectif →
             </a>

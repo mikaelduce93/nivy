@@ -41,8 +41,8 @@ export default async function AdminPartnersPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Partenaires · KYC</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <h1 className="mb-2 text-2xl font-bold text-ink">Partenaires · KYC</h1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -111,15 +111,15 @@ export default async function AdminPartnersPage() {
       <div className="mb-6 flex items-center gap-3">
         <Link
           href="/admin"
-          className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+          className="text-sm text-mute underline-offset-4 hover:text-ink hover:underline"
         >
           ← Retour
         </Link>
       </div>
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Partenaires · KYC</h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <h1 className="text-3xl font-bold text-ink">Partenaires · KYC</h1>
+        <p className="mt-1 text-sm text-mute">
           Validez les dossiers KYC. Les pièces justificatives sont signées 15 min.
         </p>
       </header>
@@ -133,7 +133,7 @@ export default async function AdminPartnersPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold text-white">
+        <h2 className="mb-3 font-semibold text-ink">
           File en attente ({pending?.length ?? 0})
         </h2>
 
@@ -178,11 +178,11 @@ function StatCard({
   tone: "zinc" | "yellow" | "blue" | "green" | "red"
 }) {
   const palette: Record<typeof tone, string> = {
-    zinc: "border-zinc-800 bg-zinc-900 text-zinc-300",
-    yellow: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
-    blue: "border-blue-500/30 bg-blue-500/10 text-blue-300",
-    green: "border-green-500/30 bg-green-500/10 text-green-300",
-    red: "border-red-500/30 bg-red-500/10 text-red-300",
+    zinc: "border-ink bg-card text-ink-2",
+    yellow: "border-gold/30 bg-gold/10 text-gold",
+    blue: "border-teal/30 bg-teal/10 text-teal",
+    green: "border-lime/30 bg-lime/10 text-lime",
+    red: "border-destructive/30 bg-destructive/10 text-destructive",
   }
   return (
     <div className={`rounded border p-3 ${palette[tone]}`}>

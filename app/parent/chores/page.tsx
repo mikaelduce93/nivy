@@ -99,9 +99,9 @@ export default async function ParentChoresPage() {
   const archived = chores.filter((c) => !c.is_active)
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -110,15 +110,15 @@ export default async function ParentChoresPage() {
 
         <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-black text-white flex items-center gap-2">
-              <ListChecks className="h-7 w-7 text-emerald-400" />
+            <h1 className="text-3xl font-black text-ink flex items-center gap-2">
+              <ListChecks className="h-7 w-7 text-lime" />
               Corvées
             </h1>
-            <p className="text-zinc-400 mt-1">
+            <p className="text-mute mt-1">
               Créez des missions familiales avec récompense (DH + XP) pour vos teens.
             </p>
           </div>
-          <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
+          <Button asChild className="bg-lime hover:bg-lime text-ink">
             <Link href="/parent/chores/new">
               <Plus className="h-4 w-4 mr-2" />
               Nouvelle corvée
@@ -129,21 +129,21 @@ export default async function ParentChoresPage() {
         {choresError && (
           <div
             role="alert"
-            className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+            className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {choresError}
           </div>
         )}
 
         {chores.length === 0 ? (
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
             <CardContent className="py-16 text-center">
-              <ListChecks className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-              <h3 className="text-xl font-bold text-white mb-2">Aucune corvée pour l'instant</h3>
-              <p className="text-zinc-400 mb-6">
+              <ListChecks className="h-16 w-16 mx-auto mb-4 text-ink" />
+              <h3 className="text-xl font-bold text-ink mb-2">Aucune corvée pour l'instant</h3>
+              <p className="text-mute mb-6">
                 Créez votre première corvée pour récompenser une habitude positive.
               </p>
-              <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
+              <Button asChild className="bg-lime hover:bg-lime text-ink">
                 <Link href="/parent/chores/new">
                   <Plus className="h-4 w-4 mr-2" />
                   Nouvelle corvée
@@ -194,9 +194,9 @@ function ChoreList({
 }) {
   return (
     <section>
-      <h2 className={`text-xl font-bold mb-4 ${muted ? "text-zinc-500" : "text-white"}`}>{title}</h2>
+      <h2 className={`text-xl font-bold mb-4 ${muted ? "text-mute" : "text-ink"}`}>{title}</h2>
       {chores.length === 0 ? (
-        <p className="text-sm text-zinc-500">{emptyMessage}</p>
+        <p className="text-sm text-mute">{emptyMessage}</p>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {chores.map((c) => {
@@ -205,13 +205,13 @@ function ChoreList({
             return (
               <Card
                 key={c.id}
-                className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 hover:border-emerald-500/40 transition"
+                className="bg-gradient-to-br from-paper-2 to-card border-ink hover:border-lime/40 transition"
               >
                 <CardHeader>
-                  <CardTitle className="text-white flex items-start justify-between gap-2">
+                  <CardTitle className="text-ink flex items-start justify-between gap-2">
                     <span>{c.title}</span>
                     {!c.is_active && (
-                      <span className="text-xs font-normal px-2 py-1 rounded bg-zinc-800 text-zinc-400">
+                      <span className="text-xs font-normal px-2 py-1 rounded bg-card text-mute">
                         Archivée
                       </span>
                     )}
@@ -219,34 +219,34 @@ function ChoreList({
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {c.description && (
-                    <p className="text-sm text-zinc-400">{c.description}</p>
+                    <p className="text-sm text-mute">{c.description}</p>
                   )}
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 flex items-center gap-1">
+                    <span className="px-2 py-1 rounded bg-lime/10 text-lime flex items-center gap-1">
                       <Coins className="h-3 w-3" /> {c.reward_dh} DH
                     </span>
-                    <span className="px-2 py-1 rounded bg-purple-500/10 text-purple-400 flex items-center gap-1">
+                    <span className="px-2 py-1 rounded bg-pink/10 text-pink flex items-center gap-1">
                       <Sparkles className="h-3 w-3" /> {c.reward_xp} XP
                     </span>
-                    <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-300">
+                    <span className="px-2 py-1 rounded bg-card text-ink-2">
                       {c.recurrence}
                     </span>
-                    <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-300">
+                    <span className="px-2 py-1 rounded bg-card text-ink-2">
                       {s.verified}/{c.required_completions} validées
                     </span>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
-                    <div className="text-xs text-zinc-500">
-                      Pour <span className="text-zinc-300">{teen?.name ?? "Teen"}</span>
+                  <div className="flex items-center justify-between pt-2 border-t border-ink">
+                    <div className="text-xs text-mute">
+                      Pour <span className="text-ink-2">{teen?.name ?? "Teen"}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs">
                       {s.pending > 0 && (
-                        <span className="text-amber-400 flex items-center gap-1">
+                        <span className="text-gold flex items-center gap-1">
                           <Clock className="h-3 w-3" /> {s.pending} en attente
                         </span>
                       )}
                       {s.verified > 0 && (
-                        <span className="text-emerald-400 flex items-center gap-1">
+                        <span className="text-lime flex items-center gap-1">
                           <CheckCircle className="h-3 w-3" /> {s.verified}
                         </span>
                       )}
@@ -255,7 +255,7 @@ function ChoreList({
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full border-zinc-700 text-zinc-200 hover:bg-zinc-800"
+                    className="w-full border-ink text-ink-2 hover:bg-card"
                   >
                     <Link href={`/parent/chores/${c.id}`}>Détails</Link>
                   </Button>

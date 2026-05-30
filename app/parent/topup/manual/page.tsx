@@ -60,24 +60,24 @@ export default async function ParentManualTopupPage() {
   ])
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-background text-ink-2">
       <div className="container mx-auto max-w-3xl px-6 py-12">
         <Link
           href="/parent/topup"
-          className="mb-6 inline-block text-sm text-zinc-400 hover:text-white"
+          className="mb-6 inline-block text-sm text-mute hover:text-ink"
         >
           ← Retour
         </Link>
 
         <h1 className="mb-2 text-3xl font-black">Recharge manuelle (PSP)</h1>
-        <p className="mb-8 text-zinc-400">
+        <p className="mb-8 text-mute">
           Vous avez transféré des DH via Cash Plus, Wafacash ou M2T ? Renseignez
           la référence de votre virement et un admin créditera les coins sous 24h.
         </p>
 
-        <div className="mb-8 rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5 text-sm">
-          <p className="font-semibold text-cyan-300">Comment procéder</p>
-          <ol className="ml-4 mt-2 list-decimal space-y-1 text-zinc-300">
+        <div className="mb-8 rounded-xl border border-teal/30 bg-teal/5 p-5 text-sm">
+          <p className="font-semibold text-teal">Comment procéder</p>
+          <ol className="ml-4 mt-2 list-decimal space-y-1 text-ink-2">
             <li>Effectuez le virement DH au compte Nivy via votre opérateur.</li>
             <li>
               Conservez la référence de transaction (souvent un numéro de 8 à 12 chiffres
@@ -89,11 +89,11 @@ export default async function ParentManualTopupPage() {
         </div>
 
         {teens.length === 0 ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-8 text-center">
-            <p className="text-zinc-300">Aucun teen lié à votre compte.</p>
+          <div className="rounded-xl border border-ink bg-card p-8 text-center">
+            <p className="text-ink-2">Aucun teen lié à votre compte.</p>
             <Link
               href="/parent/teens/add"
-              className="mt-4 inline-block rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-black"
+              className="mt-4 inline-block rounded-md bg-lime px-4 py-2 text-sm font-semibold text-ink"
             >
               Ajouter un teen
             </Link>
@@ -104,25 +104,25 @@ export default async function ParentManualTopupPage() {
 
         {recent.length > 0 && (
           <div className="mt-12">
-            <h2 className="mb-4 text-xl font-bold text-white">Vos demandes récentes</h2>
+            <h2 className="mb-4 text-xl font-bold text-ink">Vos demandes récentes</h2>
             <div className="space-y-2">
               {recent.map((r: any) => (
                 <div
                   key={r.id}
-                  className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/40 p-4"
+                  className="flex items-center justify-between rounded-lg border border-ink bg-card p-4"
                 >
                   <div>
-                    <p className="text-sm text-zinc-300">
-                      <span className="font-semibold text-white">
+                    <p className="text-sm text-ink-2">
+                      <span className="font-semibold text-ink">
                         {Number(r.amount_dh).toFixed(2)} DH
                       </span>
                       {" "}via {r.provider} • réf. <code>{r.provider_ref}</code>
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-mute">
                       {new Date(r.created_at).toLocaleString("fr-FR")}
                     </p>
                     {r.rejection_reason && (
-                      <p className="mt-1 text-xs text-rose-400">
+                      <p className="mt-1 text-xs text-pink">
                         Rejeté : {r.rejection_reason}
                       </p>
                     )}
@@ -130,10 +130,10 @@ export default async function ParentManualTopupPage() {
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
                       r.status === "confirmed"
-                        ? "bg-emerald-500/20 text-emerald-300"
+                        ? "bg-lime/20 text-lime"
                         : r.status === "rejected"
-                        ? "bg-rose-500/20 text-rose-300"
-                        : "bg-amber-500/20 text-amber-300"
+                        ? "bg-pink/20 text-pink"
+                        : "bg-gold/20 text-gold"
                     }`}
                   >
                     {r.status === "confirmed"

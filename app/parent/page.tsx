@@ -229,7 +229,7 @@ export default async function ParentDashboardPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#020408] text-white selection:bg-gen-z-teal/30 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#020408] text-ink selection:bg-gen-z-teal/30 overflow-x-hidden">
       {/* 1. ULTRA-PREMIUM BACKGROUND */}
       {/* V1.4 a11y: gate parallax background on prefers-reduced-motion (WCAG 2.3.3). */}
       <div
@@ -253,16 +253,16 @@ export default async function ParentDashboardPage() {
                 <Zap className="w-4 h-4 fill-current" /> ESPACE PARENT ACTIF
               </div>
               <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase italic leading-none">Centre de <span className="text-gen-z-gradient-soft">Contrôle</span></h1>
-              <p className="text-zinc-500 text-lg md:text-xl font-medium">Suivi de {teens?.length || 0} profil{(teens?.length || 0) > 1 ? 's' : ''} en temps réel.</p>
+              <p className="text-mute text-lg md:text-xl font-medium">Suivi de {teens?.length || 0} profil{(teens?.length || 0) > 1 ? 's' : ''} en temps réel.</p>
             </div>
             
             {/* Quick Financial Overview */}
-            <div className="flex items-center gap-10 bg-white/[0.03] backdrop-blur-3xl border border-white/10 p-8 rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center gap-10 bg-white/[0.03]  border border-ink p-8 rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)]">
               <div className="text-right">
-                <span className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Budget Famille</span>
-                <p className="text-4xl font-black text-white mt-2 tabular-nums">{(totalBudgetLimit - monthlySpending).toLocaleString()} <span className="text-sm font-bold text-zinc-500">DH</span></p>
+                <span className="text-xs font-black text-mute uppercase tracking-widest leading-none">Budget Famille</span>
+                <p className="text-4xl font-black text-ink mt-2 tabular-nums">{(totalBudgetLimit - monthlySpending).toLocaleString()} <span className="text-sm font-bold text-mute">DH</span></p>
               </div>
-              <div className="w-px h-16 bg-white/10" />
+              <div className="w-px h-16 bg-paper-2" />
               <ControlCenter pendingCount={pendingApprovals?.length || 0} activePermissionsCount={0} teensCount={teenIds.length} />
             </div>
           </div>
@@ -283,7 +283,7 @@ export default async function ParentDashboardPage() {
             <SkeletonCard
               noImage
               lines={3}
-              className="min-h-[180px] border-white/5 bg-zinc-900/40"
+              className="min-h-[180px] border-ink bg-card"
             />
           }
         >
@@ -291,7 +291,7 @@ export default async function ParentDashboardPage() {
             {pendingApprovals && pendingApprovals.length > 0 && (
               <StaggerItem>
                 <section className="relative">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-transparent blur-2xl opacity-50" />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-destructive/20 to-transparent blur-2xl opacity-50" />
                   <ParentalApprovalList requests={pendingApprovals} />
                 </section>
               </StaggerItem>
@@ -312,12 +312,12 @@ export default async function ParentDashboardPage() {
               <SkeletonCard
                 noImage
                 lines={6}
-                className="lg:col-span-8 min-h-[400px] border-white/5 bg-zinc-900/40"
+                className="lg:col-span-8 min-h-[400px] border-ink bg-card"
               />
               <SkeletonCard
                 noImage
                 lines={5}
-                className="lg:col-span-4 min-h-[400px] border-white/5 bg-zinc-900/40"
+                className="lg:col-span-4 min-h-[400px] border-ink bg-card"
               />
             </div>
           }
@@ -326,7 +326,7 @@ export default async function ParentDashboardPage() {
           {/* Left Column: Tactical Evolution */}
           <div className="lg:col-span-8 space-y-10">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-3">
+              <h3 className="text-sm font-black uppercase tracking-widest text-mute flex items-center gap-3">
                 <TrendingUp className="w-5 h-5 text-gen-z-lime" />
                 Analyse de Progression
               </h3>
@@ -362,19 +362,19 @@ export default async function ParentDashboardPage() {
                       const monthly = teenLimit?.monthly_limit
                       const hasLimit = typeof monthly === "number" && monthly > 0
                       return (
-                        <BentoCard cols={12} rows={1} variant="default" className="bg-zinc-900/40 border-white/5 flex flex-col justify-center h-full">
+                        <BentoCard cols={12} rows={1} variant="default" className="bg-card border-ink flex flex-col justify-center h-full">
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-xs font-black text-white uppercase tracking-widest">Limite Active</p>
+                              <p className="text-xs font-black text-ink uppercase tracking-widest">Limite Active</p>
                               {hasLimit ? (
                                 <p className="text-2xl font-black text-gen-z-teal">
-                                  {monthly.toLocaleString()} DH <span className="text-xs text-zinc-500">/mois</span>
+                                  {monthly.toLocaleString()} DH <span className="text-xs text-mute">/mois</span>
                                 </p>
                               ) : (
-                                <p className="text-sm font-bold text-zinc-400">Limites non configurées</p>
+                                <p className="text-sm font-bold text-mute">Limites non configurées</p>
                               )}
                             </div>
-                            <Button variant="outline" className="rounded-xl border-white/10 text-xs font-black uppercase">
+                            <Button variant="outline" className="rounded-xl border-ink text-xs font-black uppercase">
                               {hasLimit ? "Ajuster" : "Configurer"}
                             </Button>
                           </div>
@@ -389,12 +389,12 @@ export default async function ParentDashboardPage() {
 
           {/* Right Column: Financial Pilot & Logs */}
           <div className="lg:col-span-4 space-y-10">
-            <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-3">
+            <h3 className="text-sm font-black uppercase tracking-widest text-mute flex items-center gap-3">
               <CreditCard className="w-5 h-5 text-gen-z-teal" />
               Gestion Budget
             </h3>
             
-            <BentoCard cols={12} rows={2} variant="glass" className="p-0 border-white/5 shadow-2xl overflow-hidden">
+            <BentoCard cols={12} rows={2} variant="glass" className="p-0 border-ink shadow-2xl overflow-hidden">
               <LazyFinancialOverview
                 monthlySpending={monthlySpending}
                 budgetLimit={totalBudgetLimit}
@@ -405,17 +405,17 @@ export default async function ParentDashboardPage() {
             </BentoCard>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button className="h-20 rounded-3xl bg-info-soft/10 border border-info-soft/20 flex flex-col gap-1 items-center justify-center group hover:bg-info-soft/20 transition-all">
+              <Button className="h-20 rounded-2xl bg-info-soft/10 border border-info-soft/20 flex flex-col gap-1 items-center justify-center group hover:bg-info-soft/20 transition-all">
                 <History className="w-6 h-6 text-info-soft group-hover:scale-110 motion-safe:transition-transform" />
-                <span className="text-xs font-black uppercase text-white tracking-widest">Historique</span>
+                <span className="text-xs font-black uppercase text-ink tracking-widest">Historique</span>
               </Button>
-              <Button className="h-20 rounded-3xl bg-accent-soft/10 border border-accent-soft/20 flex flex-col gap-1 items-center justify-center group hover:bg-accent-soft/20 transition-all">
+              <Button className="h-20 rounded-2xl bg-accent-soft/10 border border-accent-soft/20 flex flex-col gap-1 items-center justify-center group hover:bg-accent-soft/20 transition-all">
                 <ShieldCheck className="w-6 h-6 text-accent-soft group-hover:scale-110 motion-safe:transition-transform" />
-                <span className="text-xs font-black uppercase text-white tracking-widest">Sécurité</span>
+                <span className="text-xs font-black uppercase text-ink tracking-widest">Sécurité</span>
               </Button>
             </div>
 
-            <BentoCard cols={12} rows={1} variant="accent" tiltIntensity={5} className="bg-gradient-to-br from-zinc-900 to-black">
+            <BentoCard cols={12} rows={1} variant="accent" tiltIntensity={5} className="bg-gradient-to-br from-paper-2 to-black">
               <UpcomingEvents events={upcomingEvents} />
             </BentoCard>
           </div>

@@ -77,13 +77,13 @@ export default function GamificationSetupPage() {
   const getStatusIcon = (status: MigrationStatus | undefined) => {
     switch (status) {
       case "running":
-        return <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+        return <Loader2 className="w-5 h-5 text-teal animate-spin" />
       case "success":
-        return <CheckCircle className="w-5 h-5 text-green-400" />
+        return <CheckCircle className="w-5 h-5 text-lime" />
       case "error":
-        return <XCircle className="w-5 h-5 text-red-400" />
+        return <XCircle className="w-5 h-5 text-destructive" />
       default:
-        return <div className="w-5 h-5 rounded-full border-2 border-zinc-600" />
+        return <div className="w-5 h-5 rounded-full border-2 border-ink" />
     }
   }
 
@@ -91,25 +91,25 @@ export default function GamificationSetupPage() {
   const errorCount = Object.values(statuses).filter(s => s === "error").length
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-8">
+    <div className="min-h-screen bg-background text-ink p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center">
-            <Database className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal to-pink flex items-center justify-center">
+            <Database className="w-6 h-6 text-ink" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">Gamification Setup</h1>
-            <p className="text-zinc-400">Configure la base de données pour le système de gamification</p>
+            <p className="text-mute">Configure la base de données pour le système de gamification</p>
           </div>
         </div>
 
         {/* Warning */}
-        <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30 mb-6">
+        <div className="p-4 rounded-xl bg-gold/10 border border-gold/30 mb-6">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-yellow-400 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-gold mt-0.5" />
             <div>
-              <h3 className="font-medium text-yellow-400">Important</h3>
-              <p className="text-sm text-zinc-400">
+              <h3 className="font-medium text-gold">Important</h3>
+              <p className="text-sm text-mute">
                 Ces migrations vont créer les tables et données initiales pour le système de gamification.
                 Assure-toi d'avoir les droits admin sur Supabase.
               </p>
@@ -119,17 +119,17 @@ export default function GamificationSetupPage() {
 
         {/* Progress */}
         {(completedCount > 0 || errorCount > 0) && (
-          <div className="p-4 rounded-xl bg-zinc-800/50 border border-zinc-700/50 mb-6">
+          <div className="p-4 rounded-xl bg-card border border-ink mb-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-zinc-400">Progression</span>
+              <span className="text-sm text-mute">Progression</span>
               <span className="text-sm font-medium">
                 {completedCount}/{MIGRATIONS.length} complétées
-                {errorCount > 0 && <span className="text-red-400 ml-2">({errorCount} erreurs)</span>}
+                {errorCount > 0 && <span className="text-destructive ml-2">({errorCount} erreurs)</span>}
               </span>
             </div>
-            <div className="h-2 rounded-full bg-zinc-700 overflow-hidden">
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all ${errorCount > 0 ? "bg-yellow-500" : "bg-green-500"}`}
+                className={`h-full rounded-full transition-all ${errorCount > 0 ? "bg-gold" : "bg-lime"}`}
                 style={{ width: `${(completedCount / MIGRATIONS.length) * 100}%` }}
               />
             </div>
@@ -140,7 +140,7 @@ export default function GamificationSetupPage() {
         <button
           onClick={runAllMigrations}
           disabled={isRunning}
-          className="w-full mb-6 p-4 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full mb-6 p-4 rounded-xl bg-gradient-to-r from-teal to-pink text-ink font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isRunning ? (
             <>
@@ -162,33 +162,33 @@ export default function GamificationSetupPage() {
               key={migration.id}
               className={`p-4 rounded-xl border transition-colors ${
                 statuses[migration.id] === "running"
-                  ? "bg-blue-500/10 border-blue-500/30"
+                  ? "bg-teal/10 border-teal/30"
                   : statuses[migration.id] === "success"
-                  ? "bg-green-500/10 border-green-500/30"
+                  ? "bg-lime/10 border-lime/30"
                   : statuses[migration.id] === "error"
-                  ? "bg-red-500/10 border-red-500/30"
-                  : "bg-zinc-800/50 border-zinc-700/50"
+                  ? "bg-destructive/10 border-destructive/30"
+                  : "bg-card border-ink"
               }`}
             >
               <div className="flex items-center gap-4">
                 {getStatusIcon(statuses[migration.id])}
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-zinc-500">{migration.id}</span>
+                    <span className="text-xs font-mono text-mute">{migration.id}</span>
                     <span className="font-medium">{migration.name}</span>
                   </div>
-                  <p className="text-xs text-zinc-500">{migration.file}</p>
+                  <p className="text-xs text-mute">{migration.file}</p>
                 </div>
                 <button
                   onClick={() => runMigration(migration.id)}
                   disabled={isRunning || statuses[migration.id] === "running"}
-                  className="px-3 py-1 rounded-lg bg-zinc-700 text-sm hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1 rounded-lg bg-muted text-sm hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Exécuter
                 </button>
               </div>
               {errors[migration.id] && (
-                <div className="mt-2 p-2 rounded bg-red-500/20 text-xs text-red-300 font-mono">
+                <div className="mt-2 p-2 rounded bg-destructive/20 text-xs text-destructive font-mono">
                   {errors[migration.id]}
                 </div>
               )}
@@ -197,20 +197,20 @@ export default function GamificationSetupPage() {
         </div>
 
         {/* Instructions */}
-        <div className="mt-8 p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/50">
+        <div className="mt-8 p-6 rounded-xl bg-card border border-ink">
           <h3 className="font-bold mb-4">Instructions alternatives</h3>
-          <p className="text-sm text-zinc-400 mb-4">
+          <p className="text-sm text-mute mb-4">
             Si l'exécution automatique ne fonctionne pas, tu peux exécuter les migrations manuellement:
           </p>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-zinc-400">
-            <li>Va sur <a href="https://supabase.com/dashboard" target="_blank" className="text-cyan-400 hover:underline">Supabase Dashboard</a></li>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-mute">
+            <li>Va sur <a href="https://supabase.com/dashboard" target="_blank" className="text-teal hover:underline">Supabase Dashboard</a></li>
             <li>Sélectionne ton projet</li>
             <li>Va dans <strong>SQL Editor</strong></li>
             <li>Copie-colle le contenu de chaque fichier .sql dans l'ordre</li>
             <li>Clique sur <strong>Run</strong> pour chaque fichier</li>
           </ol>
-          <p className="text-sm text-zinc-500 mt-4">
-            Les fichiers sont dans: <code className="bg-zinc-900 px-2 py-1 rounded">gamification-system/database/migrations/</code>
+          <p className="text-sm text-mute mt-4">
+            Les fichiers sont dans: <code className="bg-card px-2 py-1 rounded">gamification-system/database/migrations/</code>
           </p>
         </div>
       </div>

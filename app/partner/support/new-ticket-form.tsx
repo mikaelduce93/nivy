@@ -39,7 +39,7 @@ export function NewTicketForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label className="text-zinc-300">Sujet</Label>
+        <Label className="text-ink-2">Sujet</Label>
         <Input
           required
           minLength={3}
@@ -47,11 +47,11 @@ export function NewTicketForm() {
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           placeholder="Ex: Problème de scanner"
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+          className="bg-card border-ink text-ink placeholder:text-mute"
         />
       </div>
       <div className="space-y-2">
-        <Label className="text-zinc-300">Message</Label>
+        <Label className="text-ink-2">Message</Label>
         <Textarea
           required
           minLength={10}
@@ -59,13 +59,13 @@ export function NewTicketForm() {
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Décrivez votre problème ou question…"
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[150px]"
+          className="bg-card border-ink text-ink placeholder:text-mute min-h-[150px]"
         />
       </div>
       <Button
         type="submit"
         disabled={isPending}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+        className="w-full bg-lime hover:bg-lime text-ink"
       >
         {isPending ? (
           <>

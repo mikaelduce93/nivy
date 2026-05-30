@@ -123,34 +123,34 @@ export default async function ParentEventsPage() {
         return {
           icon: CheckCircle,
           text: "Confirmé",
-          class: "bg-emerald-500/20 text-emerald-400"
+          class: "bg-lime/20 text-lime"
         }
       case "pending":
         return {
           icon: AlertCircle,
           text: "En attente",
-          class: "bg-amber-500/20 text-amber-400"
+          class: "bg-gold/20 text-gold"
         }
       case "cancelled":
         return {
           icon: AlertCircle,
           text: "Annulé",
-          class: "bg-red-500/20 text-red-400"
+          class: "bg-destructive/20 text-destructive"
         }
       default:
         return {
           icon: Ticket,
           text: status,
-          class: "bg-zinc-500/20 text-zinc-400"
+          class: "bg-muted text-mute"
         }
     }
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -160,10 +160,10 @@ export default async function ParentEventsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Événements</h1>
-            <p className="text-zinc-400">Suivez les événements de vos teens</p>
+            <h1 className="text-3xl font-black text-ink">Événements</h1>
+            <p className="text-mute">Suivez les événements de vos teens</p>
           </div>
-          <Button variant="outline" className="border-zinc-700 text-zinc-300">
+          <Button variant="outline" className="border-ink text-ink-2">
             <Filter className="h-4 w-4 mr-2" />
             Filtrer
           </Button>
@@ -171,61 +171,61 @@ export default async function ParentEventsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-400 font-medium">À venir</p>
-                  <p className="text-3xl font-black text-white">{upcoming.length}</p>
+                  <p className="text-xs text-lime font-medium">À venir</p>
+                  <p className="text-3xl font-black text-ink">{upcoming.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-emerald-400" />
+                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-lime" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-400 font-medium">Confirmés</p>
-                  <p className="text-3xl font-black text-white">
+                  <p className="text-xs text-teal font-medium">Confirmés</p>
+                  <p className="text-3xl font-black text-ink">
                     {upcoming.filter((b: any) => b.status === "confirmed").length}
                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-teal" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-400 font-medium">En attente</p>
-                  <p className="text-3xl font-black text-white">
+                  <p className="text-xs text-gold font-medium">En attente</p>
+                  <p className="text-3xl font-black text-ink">
                     {upcoming.filter((b: any) => b.status === "pending").length}
                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <AlertCircle className="h-6 w-6 text-amber-400" />
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <AlertCircle className="h-6 w-6 text-gold" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-purple-400 font-medium">Total passés</p>
-                  <p className="text-3xl font-black text-white">{past.length}</p>
+                  <p className="text-xs text-pink font-medium">Total passés</p>
+                  <p className="text-3xl font-black text-ink">{past.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Ticket className="h-6 w-6 text-purple-400" />
+                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
+                  <Ticket className="h-6 w-6 text-pink" />
                 </div>
               </div>
             </CardContent>
@@ -233,10 +233,10 @@ export default async function ParentEventsPage() {
         </div>
 
         {/* Upcoming Bookings */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-lime" />
               Réservations à venir
             </CardTitle>
           </CardHeader>
@@ -249,11 +249,11 @@ export default async function ParentEventsPage() {
                   return (
                     <div
                       key={booking.id}
-                      className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-emerald-500/30 transition-all"
+                      className="p-5 rounded-2xl bg-card border border-ink hover:border-lime/30 transition-all"
                     >
                       <div className="flex flex-col md:flex-row md:items-center gap-4">
                         {/* Event Image */}
-                        <div className="relative w-full md:w-32 h-24 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center overflow-hidden">
+                        <div className="relative w-full md:w-32 h-24 rounded-xl bg-gradient-to-br from-lime/20 to-teal/20 flex items-center justify-center overflow-hidden">
                           {booking.event?.image_url ? (
                             <Image
                               src={booking.event.image_url}
@@ -263,7 +263,7 @@ export default async function ParentEventsPage() {
                               className="object-cover"
                             />
                           ) : (
-                            <Calendar className="h-10 w-10 text-emerald-400" />
+                            <Calendar className="h-10 w-10 text-lime" />
                           )}
                         </div>
 
@@ -271,10 +271,10 @@ export default async function ParentEventsPage() {
                         <div className="flex-1">
                           <div className="flex items-start justify-between gap-4">
                             <div>
-                              <h3 className="text-lg font-bold text-white">
+                              <h3 className="text-lg font-bold text-ink">
                                 {booking.event?.title || "Événement"}
                               </h3>
-                              <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-zinc-400">
+                              <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-mute">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="h-4 w-4" />
                                   {formatDate(booking.event?.event_date)}
@@ -300,16 +300,16 @@ export default async function ParentEventsPage() {
                           </div>
 
                           {/* Teen info & Price */}
-                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-zinc-800">
+                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-ink">
                             <div className="flex items-center gap-2">
-                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold text-sm">
+                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-bold text-sm">
                                 {booking.teen?.full_name?.charAt(0) || "?"}
                               </div>
-                              <span className="text-sm text-zinc-300">{booking.teen?.full_name || "Teen"}</span>
+                              <span className="text-sm text-ink-2">{booking.teen?.full_name || "Teen"}</span>
                             </div>
                             <div className="text-right">
-                              <p className="text-lg font-black text-emerald-400">{booking.total_price || 0} DH</p>
-                              <p className="text-xs text-zinc-500">Code: {booking.ticket_code}</p>
+                              <p className="text-lg font-black text-lime">{booking.total_price || 0} DH</p>
+                              <p className="text-xs text-mute">Code: {booking.ticket_code}</p>
                             </div>
                           </div>
                         </div>
@@ -328,13 +328,13 @@ export default async function ParentEventsPage() {
         </Card>
 
         {/* Available Events */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-white flex items-center gap-2">
-              <Star className="h-5 w-5 text-yellow-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Star className="h-5 w-5 text-gold" />
               Événements disponibles
             </CardTitle>
-            <Button variant="ghost" size="sm" asChild className="text-emerald-400 hover:text-emerald-300">
+            <Button variant="ghost" size="sm" asChild className="text-lime hover:text-lime">
               <Link href="/agenda">
                 Voir tout
               </Link>
@@ -346,9 +346,9 @@ export default async function ParentEventsPage() {
                 {upcomingEvents.map((event: any) => (
                   <div
                     key={event.id}
-                    className="p-4 rounded-xl bg-zinc-800 border border-zinc-700 hover:border-emerald-500/30 transition-all"
+                    className="p-4 rounded-xl bg-card border border-ink hover:border-lime/30 transition-all"
                   >
-                    <div className="relative h-32 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center mb-3 overflow-hidden">
+                    <div className="relative h-32 rounded-lg bg-gradient-to-br from-lime/20 to-teal/20 flex items-center justify-center mb-3 overflow-hidden">
                       {event.image_url ? (
                         <Image
                           src={event.image_url}
@@ -359,20 +359,20 @@ export default async function ParentEventsPage() {
                           loading="lazy"
                         />
                       ) : (
-                        <Calendar className="h-12 w-12 text-emerald-400" />
+                        <Calendar className="h-12 w-12 text-lime" />
                       )}
                     </div>
-                    <h4 className="font-bold text-white mb-1">{event.title}</h4>
-                    <div className="flex items-center gap-2 text-xs text-zinc-400 mb-2">
+                    <h4 className="font-bold text-ink mb-1">{event.title}</h4>
+                    <div className="flex items-center gap-2 text-xs text-mute mb-2">
                       <Calendar className="h-3 w-3" />
                       {formatDate(event.event_date)}
-                      <span className="text-zinc-600">•</span>
+                      <span className="text-mute">•</span>
                       <MapPin className="h-3 w-3" />
                       {event.city}
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-emerald-400 font-bold">{event.price} DH</span>
-                      <Button size="sm" variant="outline" className="border-zinc-600 text-zinc-300 hover:border-emerald-500/50" asChild>
+                      <span className="text-lime font-bold">{event.price} DH</span>
+                      <Button size="sm" variant="outline" className="border-ink text-ink-2 hover:border-lime/50" asChild>
                         <Link href={`/events/${event.id}`}>
                           Voir
                         </Link>
@@ -382,17 +382,17 @@ export default async function ParentEventsPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-zinc-500 py-8">Aucun événement disponible</p>
+              <p className="text-center text-mute py-8">Aucun événement disponible</p>
             )}
           </CardContent>
         </Card>
 
         {/* Past Bookings */}
         {past.length > 0 && (
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Clock className="h-5 w-5 text-zinc-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <Clock className="h-5 w-5 text-mute" />
                 Historique
               </CardTitle>
             </CardHeader>
@@ -401,22 +401,22 @@ export default async function ParentEventsPage() {
                 {past.slice(0, 5).map((booking: any) => (
                   <div
                     key={booking.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800"
+                    className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center">
-                        <Ticket className="h-5 w-5 text-zinc-500" />
+                      <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center">
+                        <Ticket className="h-5 w-5 text-mute" />
                       </div>
                       <div>
-                        <p className="font-medium text-zinc-300">
+                        <p className="font-medium text-ink-2">
                           {booking.event?.title || "Événement"}
                         </p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-xs text-mute">
                           {formatDate(booking.event?.event_date)} • {booking.teen?.full_name}
                         </p>
                       </div>
                     </div>
-                    <span className="text-zinc-400">{booking.total_price} DH</span>
+                    <span className="text-mute">{booking.total_price} DH</span>
                   </div>
                 ))}
               </div>

@@ -32,7 +32,7 @@ function ActiveOffersFeedSkeleton() {
     <SkeletonCard
       noImage
       lines={5}
-      className="min-h-[440px] border-white/5 bg-zinc-900/40"
+      className="min-h-[440px] border-ink bg-card"
     />
   )
 }
@@ -57,7 +57,7 @@ function LiveTransactionsFeedSkeleton() {
     <SkeletonCard
       noImage
       lines={5}
-      className="min-h-[440px] border-white/5 bg-zinc-900/40"
+      className="min-h-[440px] border-ink bg-card"
     />
   )
 }

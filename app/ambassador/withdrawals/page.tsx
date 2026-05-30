@@ -65,15 +65,15 @@ export default async function AmbassadorWithdrawalsPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <Card className="bg-zinc-900 border-zinc-800 max-w-md">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="bg-card border-ink max-w-md">
           <CardContent className="p-8 text-center">
-            <AlertCircle className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-            <h2 className="text-xl font-bold text-white mb-2">Compte non trouvé</h2>
-            <p className="text-zinc-400 mb-4">
+            <AlertCircle className="h-16 w-16 mx-auto mb-4 text-ink" />
+            <h2 className="text-xl font-bold text-ink mb-2">Compte non trouvé</h2>
+            <p className="text-mute mb-4">
               Impossible de charger vos informations d'ambassadeur.
             </p>
-            <Button asChild className="bg-amber-500 hover:bg-amber-600 text-white">
+            <Button asChild className="bg-gold hover:bg-gold text-ink">
               <Link href="/ambassador">Retour au dashboard</Link>
             </Button>
           </CardContent>
@@ -89,26 +89,26 @@ export default async function AmbassadorWithdrawalsPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "paid":
-        return <CheckCircle className="h-5 w-5 text-emerald-400" />
+        return <CheckCircle className="h-5 w-5 text-lime" />
       case "pending":
-        return <Clock className="h-5 w-5 text-amber-400" />
+        return <Clock className="h-5 w-5 text-gold" />
       case "failed":
-        return <XCircle className="h-5 w-5 text-red-400" />
+        return <XCircle className="h-5 w-5 text-destructive" />
       default:
-        return <Clock className="h-5 w-5 text-zinc-400" />
+        return <Clock className="h-5 w-5 text-mute" />
     }
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "paid":
-        return "bg-emerald-500/20 text-emerald-400"
+        return "bg-lime/20 text-lime"
       case "pending":
-        return "bg-amber-500/20 text-amber-400"
+        return "bg-gold/20 text-gold"
       case "failed":
-        return "bg-red-500/20 text-red-400"
+        return "bg-destructive/20 text-destructive"
       default:
-        return "bg-zinc-500/20 text-zinc-400"
+        return "bg-muted text-mute"
     }
   }
 
@@ -126,10 +126,10 @@ export default async function AmbassadorWithdrawalsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -139,64 +139,64 @@ export default async function AmbassadorWithdrawalsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Mes Retraits</h1>
-            <p className="text-zinc-400">Gérez vos gains et demandez des retraits</p>
+            <h1 className="text-3xl font-black text-ink">Mes Retraits</h1>
+            <p className="text-mute">Gérez vos gains et demandez des retraits</p>
           </div>
         </div>
 
         {/* Balance Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-400 font-medium">Disponible</p>
-                  <p className="text-3xl font-black text-white">{availableBalance.toLocaleString()} DH</p>
+                  <p className="text-xs text-lime font-medium">Disponible</p>
+                  <p className="text-3xl font-black text-ink">{availableBalance.toLocaleString()} DH</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-emerald-400" />
+                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
+                  <Wallet className="h-6 w-6 text-lime" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-400 font-medium">En attente</p>
-                  <p className="text-3xl font-black text-white">{pendingWithdrawals.toLocaleString()} DH</p>
+                  <p className="text-xs text-gold font-medium">En attente</p>
+                  <p className="text-3xl font-black text-ink">{pendingWithdrawals.toLocaleString()} DH</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-amber-400" />
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-gold" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-400 font-medium">Total retiré</p>
-                  <p className="text-3xl font-black text-white">{withdrawnAmount.toLocaleString()} DH</p>
+                  <p className="text-xs text-teal font-medium">Total retiré</p>
+                  <p className="text-3xl font-black text-ink">{withdrawnAmount.toLocaleString()} DH</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <ArrowDownToLine className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
+                  <ArrowDownToLine className="h-6 w-6 text-teal" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-purple-400 font-medium">Total gagné</p>
-                  <p className="text-3xl font-black text-white">{totalEarnings.toLocaleString()} DH</p>
+                  <p className="text-xs text-pink font-medium">Total gagné</p>
+                  <p className="text-3xl font-black text-ink">{totalEarnings.toLocaleString()} DH</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-purple-400" />
+                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
+                  <Wallet className="h-6 w-6 text-pink" />
                 </div>
               </div>
             </CardContent>
@@ -205,10 +205,10 @@ export default async function AmbassadorWithdrawalsPage() {
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Withdrawal Form */}
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <ArrowDownToLine className="h-5 w-5 text-emerald-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <ArrowDownToLine className="h-5 w-5 text-lime" />
                 Demander un retrait
               </CardTitle>
             </CardHeader>
@@ -221,15 +221,15 @@ export default async function AmbassadorWithdrawalsPage() {
                 />
               ) : (
                 <div className="text-center py-8">
-                  <AlertCircle className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                  <h3 className="text-lg font-bold text-white mb-2">Solde insuffisant</h3>
-                  <p className="text-zinc-400 text-sm mb-4">
+                  <AlertCircle className="h-16 w-16 mx-auto mb-4 text-ink" />
+                  <h3 className="text-lg font-bold text-ink mb-2">Solde insuffisant</h3>
+                  <p className="text-mute text-sm mb-4">
                     Vous devez avoir au moins {minimumWithdrawal} DH de solde disponible pour demander un retrait.
                   </p>
-                  <div className="bg-zinc-800 rounded-xl p-4">
-                    <p className="text-xs text-zinc-500">Votre solde actuel</p>
-                    <p className="text-2xl font-black text-white">{availableBalance.toLocaleString()} DH</p>
-                    <p className="text-xs text-zinc-500 mt-1">
+                  <div className="bg-card rounded-xl p-4">
+                    <p className="text-xs text-mute">Votre solde actuel</p>
+                    <p className="text-2xl font-black text-ink">{availableBalance.toLocaleString()} DH</p>
+                    <p className="text-xs text-mute mt-1">
                       Il vous manque {(minimumWithdrawal - availableBalance).toLocaleString()} DH
                     </p>
                   </div>
@@ -239,10 +239,10 @@ export default async function AmbassadorWithdrawalsPage() {
           </Card>
 
           {/* Withdrawal History */}
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Clock className="h-5 w-5 text-amber-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <Clock className="h-5 w-5 text-gold" />
                 Historique des retraits
               </CardTitle>
             </CardHeader>
@@ -259,13 +259,13 @@ export default async function AmbassadorWithdrawalsPage() {
                   return (
                     <div
                       key={withdrawal.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800"
+                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink"
                     >
                       <div className="flex items-center gap-3">
                         {getStatusIcon(withdrawal.status)}
                         <div>
-                          <p className="font-bold text-white">{Number(withdrawal.amount_dh).toLocaleString()} DH</p>
-                          <p className="text-xs text-zinc-400">{dateText}</p>
+                          <p className="font-bold text-ink">{Number(withdrawal.amount_dh).toLocaleString()} DH</p>
+                          <p className="text-xs text-mute">{dateText}</p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -273,7 +273,7 @@ export default async function AmbassadorWithdrawalsPage() {
                           {getStatusText(withdrawal.status)}
                         </span>
                         {withdrawal.method && (
-                          <p className="text-xs text-zinc-500 mt-1 capitalize">{withdrawal.method}</p>
+                          <p className="text-xs text-mute mt-1 capitalize">{withdrawal.method}</p>
                         )}
                       </div>
                     </div>
@@ -281,9 +281,9 @@ export default async function AmbassadorWithdrawalsPage() {
                 })
               ) : (
                 <div className="text-center py-8">
-                  <ArrowDownToLine className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                  <p className="text-zinc-500">Aucun retrait effectué</p>
-                  <p className="text-xs text-zinc-600 mt-1">Vos retraits apparaîtront ici</p>
+                  <ArrowDownToLine className="h-16 w-16 mx-auto mb-4 text-ink" />
+                  <p className="text-mute">Aucun retrait effectué</p>
+                  <p className="text-xs text-mute mt-1">Vos retraits apparaîtront ici</p>
                 </div>
               )}
             </CardContent>
@@ -291,26 +291,26 @@ export default async function AmbassadorWithdrawalsPage() {
         </div>
 
         {/* Payment Methods Info */}
-        <Card className="mt-8 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-amber-500/20">
+        <Card className="mt-8 bg-gradient-to-r from-gold/10 via-coral/10 to-destructive/10 border-gold/20">
           <CardContent className="p-6">
-            <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="font-bold text-ink mb-4 flex items-center gap-2">
               <span className="text-xl">💳</span> Méthodes de paiement disponibles
             </h3>
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Virement bancaire</p>
-                <p className="text-xs text-zinc-400">RIB marocain uniquement</p>
-                <p className="text-xs text-amber-400 mt-2">2-3 jours ouvrés</p>
+              <div className="p-4 bg-card rounded-xl border border-ink">
+                <p className="font-bold text-ink mb-1">Virement bancaire</p>
+                <p className="text-xs text-mute">RIB marocain uniquement</p>
+                <p className="text-xs text-gold mt-2">2-3 jours ouvrés</p>
               </div>
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Cash Plus</p>
-                <p className="text-xs text-zinc-400">Retrait en agence</p>
-                <p className="text-xs text-amber-400 mt-2">24-48h</p>
+              <div className="p-4 bg-card rounded-xl border border-ink">
+                <p className="font-bold text-ink mb-1">Cash Plus</p>
+                <p className="text-xs text-mute">Retrait en agence</p>
+                <p className="text-xs text-gold mt-2">24-48h</p>
               </div>
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Portefeuille mobile</p>
-                <p className="text-xs text-zinc-400">Orange Money, inwi money</p>
-                <p className="text-xs text-amber-400 mt-2">Instantané</p>
+              <div className="p-4 bg-card rounded-xl border border-ink">
+                <p className="font-bold text-ink mb-1">Portefeuille mobile</p>
+                <p className="text-xs text-mute">Orange Money, inwi money</p>
+                <p className="text-xs text-gold mt-2">Instantané</p>
               </div>
             </div>
           </CardContent>

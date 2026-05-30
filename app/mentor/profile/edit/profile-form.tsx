@@ -85,7 +85,7 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
             onChange={(e) => setBio(e.target.value)}
             rows={5}
             placeholder="Parlez de votre parcours, vos domaines, ce que vous aimez transmettre…"
-            className="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50"
+            className="w-full bg-background border border-ink rounded-2xl px-4 py-3 text-sm text-ink placeholder:text-mute focus:outline-none focus:border-pink/50"
           />
         </Field>
 
@@ -98,7 +98,7 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
             value={expertiseInput}
             onChange={(e) => setExpertiseInput(e.target.value)}
             placeholder="medicine, coding, football"
-            className="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50"
+            className="w-full bg-background border border-ink rounded-2xl px-4 py-3 text-sm text-ink placeholder:text-mute focus:outline-none focus:border-pink/50"
           />
         </Field>
 
@@ -108,7 +108,7 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
             value={introUrl}
             onChange={(e) => setIntroUrl(e.target.value)}
             placeholder="https://…"
-            className="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50"
+            className="w-full bg-background border border-ink rounded-2xl px-4 py-3 text-sm text-ink placeholder:text-mute focus:outline-none focus:border-pink/50"
           />
         </Field>
 
@@ -118,7 +118,7 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
             min={0}
             value={yearsXp}
             onChange={(e) => setYearsXp(e.target.value)}
-            className="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50"
+            className="w-full bg-background border border-ink rounded-2xl px-4 py-3 text-sm text-ink focus:outline-none focus:border-pink/50"
           />
         </Field>
       </Section>
@@ -132,19 +132,19 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
               step="0.01"
               value={hourlyRate}
               onChange={(e) => setHourlyRate(e.target.value)}
-              className="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50"
+              className="w-full bg-background border border-ink rounded-2xl px-4 py-3 text-sm text-ink focus:outline-none focus:border-pink/50"
             />
           </Field>
 
           <Field label="Session d'intro gratuite">
-            <label className="flex items-center gap-3 h-[46px] px-4 rounded-2xl border border-white/10 bg-zinc-950 cursor-pointer">
+            <label className="flex items-center gap-3 h-[46px] px-4 rounded-2xl border border-ink bg-background cursor-pointer">
               <input
                 type="checkbox"
                 checked={freeIntro}
                 onChange={(e) => setFreeIntro(e.target.checked)}
-                className="h-4 w-4 accent-purple-500"
+                className="h-4 w-4 accent-pink"
               />
-              <span className="text-sm text-zinc-300">Offrir la première session</span>
+              <span className="text-sm text-ink-2">Offrir la première session</span>
             </label>
           </Field>
         </div>
@@ -159,7 +159,7 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
               max={17}
               value={ageMin}
               onChange={(e) => setAgeMin(e.target.value)}
-              className="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50"
+              className="w-full bg-background border border-ink rounded-2xl px-4 py-3 text-sm text-ink focus:outline-none focus:border-pink/50"
             />
           </Field>
 
@@ -170,19 +170,19 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
               max={17}
               value={ageMax}
               onChange={(e) => setAgeMax(e.target.value)}
-              className="w-full bg-zinc-950 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50"
+              className="w-full bg-background border border-ink rounded-2xl px-4 py-3 text-sm text-ink focus:outline-none focus:border-pink/50"
             />
           </Field>
         </div>
       </Section>
 
       {error && (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
         </div>
       )}
       {okMsg && (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+        <div className="rounded-2xl border border-lime/30 bg-lime/10 p-4 text-sm text-lime">
           {okMsg}
         </div>
       )}
@@ -191,7 +191,7 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white text-black font-black hover:bg-zinc-200 disabled:opacity-60"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white text-ink font-black hover:bg-paper-2 disabled:opacity-60"
         >
           {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Enregistrer
@@ -203,7 +203,7 @@ export function MentorProfileForm({ profile }: { profile: MentorProfile }) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-3xl border border-white/5 bg-zinc-900/40 p-6 space-y-4">
+    <div className="rounded-2xl border border-ink bg-card p-6 space-y-4">
       <h2 className="text-lg font-black tracking-tight">{title}</h2>
       <div className="space-y-4">{children}</div>
     </div>
@@ -221,9 +221,9 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">{label}</label>
+      <label className="text-xs font-bold text-mute uppercase tracking-wider">{label}</label>
       {children}
-      {hint && <p className="text-[11px] text-zinc-500">{hint}</p>}
+      {hint && <p className="text-[11px] text-mute">{hint}</p>}
     </div>
   )
 }

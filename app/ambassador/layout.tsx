@@ -25,7 +25,7 @@ export default async function AmbassadorLayout({
   const legacyAgentEnabled = await getFeatureFlag("legacy_agent_sheet")
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-gold to-coral">
       {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
       <SkipToContent />
       <AmbassadorHeader userInfo={userInfo} />

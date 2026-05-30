@@ -79,15 +79,15 @@ export default async function PartnerOffersPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-black text-white">Mes Offres</h1>
-          <p className="text-zinc-400">Gérez vos offres exclusives Nivy</p>
+          <h1 className="text-3xl font-black text-ink">Mes Offres</h1>
+          <p className="text-mute">Gérez vos offres exclusives Nivy</p>
         </div>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-10 text-center">
-            <p className="text-zinc-300 font-semibold">
+            <p className="text-ink-2 font-semibold">
               Profil partenaire introuvable
             </p>
-            <p className="text-sm text-zinc-500 mt-2">
+            <p className="text-sm text-mute mt-2">
               Votre compte n'est pas encore lié à une fiche partenaire active.
               Contactez le support pour finaliser votre onboarding.
             </p>
@@ -133,12 +133,12 @@ export default async function PartnerOffersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-white">Mes Offres</h1>
-          <p className="text-zinc-400">Gérez vos offres exclusives Nivy</p>
+          <h1 className="text-3xl font-black text-ink">Mes Offres</h1>
+          <p className="text-mute">Gérez vos offres exclusives Nivy</p>
         </div>
         <Button
           asChild
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="bg-lime hover:bg-lime text-ink"
         >
           <Link href="/partner/offers/new">
             <Plus className="h-4 w-4 mr-2" />
@@ -150,7 +150,7 @@ export default async function PartnerOffersPage() {
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
@@ -158,32 +158,32 @@ export default async function PartnerOffersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-black text-white">
+            <p className="text-3xl font-black text-ink">
               {activeOffers.length}
             </p>
-            <p className="text-sm text-zinc-400">Offres actives</p>
+            <p className="text-sm text-mute">Offres actives</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-black text-emerald-400">{totalUses}</p>
-            <p className="text-sm text-zinc-400">Utilisations totales</p>
+            <p className="text-3xl font-black text-lime">{totalUses}</p>
+            <p className="text-sm text-mute">Utilisations totales</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-black text-white">{offers.length}</p>
-            <p className="text-sm text-zinc-400">Total offres</p>
+            <p className="text-3xl font-black text-ink">{offers.length}</p>
+            <p className="text-sm text-mute">Total offres</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Offers List */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Toutes les offres</CardTitle>
+          <CardTitle className="text-ink">Toutes les offres</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {offers.length === 0 ? (
@@ -201,31 +201,31 @@ export default async function PartnerOffersPage() {
                   key={offer.id}
                   className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
                     active
-                      ? "bg-zinc-900 border-zinc-800 hover:border-emerald-500/30"
-                      : "bg-zinc-950 border-zinc-900 opacity-60"
+                      ? "bg-card border-ink hover:border-lime/30"
+                      : "bg-background border-ink opacity-60"
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <div
                       className={`h-12 w-12 rounded-xl flex items-center justify-center ${
-                        active ? "bg-emerald-500/20" : "bg-zinc-800"
+                        active ? "bg-lime/20" : "bg-card"
                       }`}
                     >
                       <Tag
                         className={`h-6 w-6 ${
-                          active ? "text-emerald-400" : "text-zinc-500"
+                          active ? "text-lime" : "text-mute"
                         }`}
                       />
                     </div>
                     <div>
-                      <p className="font-semibold text-white">
+                      <p className="font-semibold text-ink">
                         {offer.title || "Offre sans titre"}
                       </p>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400">
-                        <span className="px-2 py-0.5 rounded bg-zinc-800">
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-mute">
+                        <span className="px-2 py-0.5 rounded bg-card">
                           {discountTypeLabel(offer.discount_type)}
                         </span>
-                        <span className="font-bold text-emerald-400">
+                        <span className="font-bold text-lime">
                           {formatDiscount(
                             offer.discount_value,
                             offer.discount_type,
@@ -241,8 +241,8 @@ export default async function PartnerOffersPage() {
                         <span
                           className={`px-2 py-0.5 rounded ${
                             active
-                              ? "bg-emerald-500/10 text-emerald-400"
-                              : "bg-zinc-800 text-zinc-500"
+                              ? "bg-lime/10 text-lime"
+                              : "bg-card text-mute"
                           }`}
                         >
                           {active ? "Active" : "Désactivée"}
@@ -264,7 +264,7 @@ export default async function PartnerOffersPage() {
                       asChild
                       variant="ghost"
                       size="icon"
-                      className="text-zinc-400 hover:text-white"
+                      className="text-mute hover:text-ink"
                       title="Modifier"
                     >
                       <Link

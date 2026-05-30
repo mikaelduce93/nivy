@@ -116,28 +116,28 @@ export default async function ParentMentorSessionDetailPage({
   const statusLabel = (s: string) => {
     switch (s) {
       case "pending_approval":
-        return { text: "En attente", cls: "bg-amber-500/20 text-amber-400" }
+        return { text: "En attente", cls: "bg-gold/20 text-gold" }
       case "approved":
-        return { text: "Approuvée", cls: "bg-emerald-500/20 text-emerald-400" }
+        return { text: "Approuvée", cls: "bg-lime/20 text-lime" }
       case "denied":
-        return { text: "Refusée", cls: "bg-red-500/20 text-red-400" }
+        return { text: "Refusée", cls: "bg-destructive/20 text-destructive" }
       case "completed":
-        return { text: "Terminée", cls: "bg-blue-500/20 text-blue-400" }
+        return { text: "Terminée", cls: "bg-teal/20 text-teal" }
       case "cancelled":
-        return { text: "Annulée", cls: "bg-zinc-500/20 text-zinc-400" }
+        return { text: "Annulée", cls: "bg-muted text-mute" }
       case "no_show":
-        return { text: "Absent", cls: "bg-rose-500/20 text-rose-400" }
+        return { text: "Absent", cls: "bg-pink/20 text-pink" }
       case "dispatched":
-        return { text: "Démarrée", cls: "bg-cyan-500/20 text-cyan-400" }
+        return { text: "Démarrée", cls: "bg-teal/20 text-teal" }
       default:
-        return { text: s, cls: "bg-zinc-500/20 text-zinc-400" }
+        return { text: s, cls: "bg-muted text-mute" }
     }
   }
   const status = statusLabel(session.status)
 
   return (
     <div className="container mx-auto p-4 md:p-8 space-y-6 max-w-3xl">
-      <Button variant="ghost" asChild className="text-zinc-400 hover:text-white">
+      <Button variant="ghost" asChild className="text-mute hover:text-ink">
         <Link href="/parent/mentor-sessions">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Toutes les sessions
@@ -153,30 +153,30 @@ export default async function ParentMentorSessionDetailPage({
                 <img
                   src={mentorProfile.avatar_url}
                   alt={mentorName}
-                  className="w-16 h-16 rounded-full object-cover border border-zinc-700"
+                  className="w-16 h-16 rounded-full object-cover border border-ink"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center">
-                  <GraduationCap className="w-8 h-8 text-zinc-400" />
+                <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center">
+                  <GraduationCap className="w-8 h-8 text-mute" />
                 </div>
               )}
               <div>
                 <CardTitle className="text-xl">{mentorName}</CardTitle>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {session.is_intro && (
-                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+                    <Badge className="bg-lime/20 text-lime border-lime/30">
                       <Sparkles className="w-3 h-3 mr-1" />
                       Intro gratuite
                     </Badge>
                   )}
                   {mentor?.rating !== null && mentor?.rating !== undefined && (
-                    <span className="inline-flex items-center gap-1 text-xs text-zinc-300">
-                      <Star className="w-3 h-3 text-amber-400" />
+                    <span className="inline-flex items-center gap-1 text-xs text-ink-2">
+                      <Star className="w-3 h-3 text-gold" />
                       {Number(mentor.rating).toFixed(2)}
                     </span>
                   )}
                   {mentor?.sessions_count !== undefined && (
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-mute">
                       {mentor.sessions_count} sessions
                     </span>
                   )}
@@ -192,7 +192,7 @@ export default async function ParentMentorSessionDetailPage({
         </CardHeader>
         <CardContent className="space-y-6">
           {mentor?.bio && (
-            <p className="text-sm text-zinc-400 leading-relaxed">{mentor.bio}</p>
+            <p className="text-sm text-mute leading-relaxed">{mentor.bio}</p>
           )}
 
           {mentor?.expertise_tags && mentor.expertise_tags.length > 0 && (
@@ -246,22 +246,22 @@ export default async function ParentMentorSessionDetailPage({
           </div>
 
           {session.notes && (
-            <div className="p-4 rounded-md bg-zinc-900/60 border border-zinc-800">
-              <p className="text-xs text-zinc-500 uppercase tracking-wider font-bold mb-1">
+            <div className="p-4 rounded-md bg-card border border-ink">
+              <p className="text-xs text-mute uppercase tracking-wider font-bold mb-1">
                 Notes
               </p>
-              <p className="text-sm text-zinc-300 whitespace-pre-wrap">
+              <p className="text-sm text-ink-2 whitespace-pre-wrap">
                 {session.notes}
               </p>
             </div>
           )}
 
           {isPending ? (
-            <div className="pt-4 border-t border-zinc-800 space-y-4">
+            <div className="pt-4 border-t border-ink space-y-4">
               {/* V1.2-A: recording-consent surface. */}
               {teenConsentedToRecording ? (
-                <div className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-3 flex gap-2 items-start text-sm text-cyan-100">
-                  <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-cyan-300" />
+                <div className="rounded-md border border-teal/30 bg-teal/10 p-3 flex gap-2 items-start text-sm text-teal">
+                  <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-teal" />
                   <span>
                     {teenName} a accepté l&apos;enregistrement de la session
                     pour raisons de sécurité (conservation 90 jours, accès
@@ -269,8 +269,8 @@ export default async function ParentMentorSessionDetailPage({
                   </span>
                 </div>
               ) : (
-                <div className="rounded-md border border-amber-500/30 bg-amber-500/10 p-3 flex gap-2 items-start text-sm text-amber-100">
-                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-300" />
+                <div className="rounded-md border border-gold/30 bg-gold/10 p-3 flex gap-2 items-start text-sm text-gold">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-gold" />
                   <span>
                     {teenName} n&apos;a pas accepté l&apos;enregistrement.
                     L&apos;approbation est bloquée tant que le consentement
@@ -279,7 +279,7 @@ export default async function ParentMentorSessionDetailPage({
                 </div>
               )}
 
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-mute">
                 {session.is_intro
                   ? "Cette session d'intro est gratuite. Approuver autorisera le mentor à rejoindre."
                   : `Approuver débitera ${session.amount_coins ?? 0} coins du teen et autorisera la session.`}
@@ -294,14 +294,14 @@ export default async function ParentMentorSessionDetailPage({
                   isIntro={session.is_intro}
                 />
               ) : (
-                <p className="text-xs text-amber-300/80">
+                <p className="text-xs text-gold/80">
                   Le teen doit reprendre la réservation et cocher la case de
                   consentement avant que tu puisses approuver.
                 </p>
               )}
             </div>
           ) : (
-            <div className="pt-4 border-t border-zinc-800 text-sm text-zinc-500">
+            <div className="pt-4 border-t border-ink text-sm text-mute">
               Cette session n&apos;est plus en attente d&apos;approbation.
             </div>
           )}
@@ -321,13 +321,13 @@ function InfoRow({
   value: string
 }) {
   return (
-    <div className="flex items-start gap-3 p-3 rounded-md bg-zinc-900/40 border border-zinc-800">
-      <Icon className="w-4 h-4 text-zinc-400 mt-0.5 flex-shrink-0" />
+    <div className="flex items-start gap-3 p-3 rounded-md bg-card border border-ink">
+      <Icon className="w-4 h-4 text-mute mt-0.5 flex-shrink-0" />
       <div>
-        <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">
+        <p className="text-[10px] uppercase tracking-wider text-mute font-bold">
           {label}
         </p>
-        <p className="text-sm text-zinc-200">{value}</p>
+        <p className="text-sm text-ink-2">{value}</p>
       </div>
     </div>
   )

@@ -46,8 +46,8 @@ export default async function PartnerStatsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-black text-white">Statistiques</h1>
-          <p className="text-zinc-400">Stats indisponibles — profil partenaire introuvable.</p>
+          <h1 className="text-3xl font-black text-ink">Statistiques</h1>
+          <p className="text-mute">Stats indisponibles — profil partenaire introuvable.</p>
         </div>
       </div>
     )
@@ -118,20 +118,20 @@ export default async function PartnerStatsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-white">Statistiques</h1>
-          <p className="text-zinc-400">Analysez vos performances Teen Club</p>
+          <h1 className="text-3xl font-black text-ink">Statistiques</h1>
+          <p className="text-mute">Analysez vos performances Teen Club</p>
         </div>
-        <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:text-white">
+        <Button variant="outline" className="border-ink text-ink-2 hover:text-ink">
           <Download className="h-4 w-4 mr-2" />
           Rapport PDF
         </Button>
       </div>
 
       {totalTransactions === 0 && (
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-8 text-center">
-            <p className="text-zinc-300 font-semibold">Pas encore de données à analyser</p>
-            <p className="text-sm text-zinc-500 mt-2">
+            <p className="text-ink-2 font-semibold">Pas encore de données à analyser</p>
+            <p className="text-sm text-mute mt-2">
               Vos statistiques s'afficheront ici dès vos premières transactions Teen Club.
             </p>
           </CardContent>
@@ -140,45 +140,45 @@ export default async function PartnerStatsPage() {
 
       {/* Overview Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30 bg-zinc-900">
+        <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <ShoppingBag className="h-6 w-6 text-emerald-400" />
+              <ShoppingBag className="h-6 w-6 text-lime" />
             </div>
-            <p className="text-3xl font-black text-white">{totalTransactions}</p>
-            <p className="text-sm text-zinc-400">Transactions (6 derniers mois)</p>
+            <p className="text-3xl font-black text-ink">{totalTransactions}</p>
+            <p className="text-sm text-mute">Transactions (6 derniers mois)</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
+        <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <Users className="h-6 w-6 text-blue-400" />
+              <Users className="h-6 w-6 text-teal" />
             </div>
-            <p className="text-3xl font-black text-white">{uniqueTeens}</p>
-            <p className="text-sm text-zinc-400">Clients uniques</p>
+            <p className="text-3xl font-black text-ink">{uniqueTeens}</p>
+            <p className="text-sm text-mute">Clients uniques</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
+        <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <TrendingUp className="h-6 w-6 text-purple-400" />
+              <TrendingUp className="h-6 w-6 text-pink" />
             </div>
-            <p className="text-3xl font-black text-white">
+            <p className="text-3xl font-black text-ink">
               {Math.round(totalRevenue).toLocaleString()} DH
             </p>
-            <p className="text-sm text-zinc-400">Chiffre d'affaires</p>
+            <p className="text-sm text-mute">Chiffre d'affaires</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
+        <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-2">
-              <Tag className="h-6 w-6 text-amber-400" />
+              <Tag className="h-6 w-6 text-gold" />
             </div>
-            <p className="text-3xl font-black text-white">{offersUsedCount ?? 0}</p>
-            <p className="text-sm text-zinc-400">Validations totales</p>
+            <p className="text-3xl font-black text-ink">{offersUsedCount ?? 0}</p>
+            <p className="text-sm text-mute">Validations totales</p>
           </CardContent>
         </Card>
       </div>
@@ -186,10 +186,10 @@ export default async function PartnerStatsPage() {
       {/* Charts Section */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Monthly Evolution */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-lime" />
               Évolution mensuelle
             </CardTitle>
           </CardHeader>
@@ -205,24 +205,24 @@ export default async function PartnerStatsPage() {
               <div className="space-y-4">
                 {history.map((stat) => (
                   <div key={stat.key} className="flex items-center gap-4">
-                    <div className="w-20 text-sm text-zinc-400">{stat.label}</div>
+                    <div className="w-20 text-sm text-mute">{stat.label}</div>
                     <div className="flex-1">
-                      <div className="h-8 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-8 bg-card rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-end pr-3"
+                          className="h-full bg-gradient-to-r from-lime to-teal rounded-full flex items-center justify-end pr-3"
                           style={{
                             width: `${Math.max(4, (stat.revenue / maxRevenue) * 100)}%`,
                           }}
                         >
-                          <span className="text-xs font-bold text-white">
+                          <span className="text-xs font-bold text-ink">
                             {Math.round(stat.revenue).toLocaleString()} DH
                           </span>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-white">{stat.transactions}</p>
-                      <p className="text-xs text-zinc-500">transactions</p>
+                      <p className="text-sm font-semibold text-ink">{stat.transactions}</p>
+                      <p className="text-xs text-mute">transactions</p>
                     </div>
                   </div>
                 ))}
@@ -233,41 +233,41 @@ export default async function PartnerStatsPage() {
 
         {/* Cashback summary (replaces "Top offres" — the partner_offers table
             doesn't expose per-offer usage on partner_transactions yet). */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Tag className="h-5 w-5 text-amber-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Tag className="h-5 w-5 text-gold" />
               Cashback & engagement
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink">
               <div>
-                <p className="font-semibold text-white">XP cashback distribué</p>
-                <p className="text-xs text-zinc-400">Récompenses crédités aux teens</p>
+                <p className="font-semibold text-ink">XP cashback distribué</p>
+                <p className="text-xs text-mute">Récompenses crédités aux teens</p>
               </div>
-              <p className="font-black text-emerald-400 text-xl">
+              <p className="font-black text-lime text-xl">
                 {Math.round(totalCashbackXp).toLocaleString()} XP
               </p>
             </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink">
               <div>
-                <p className="font-semibold text-white">Panier moyen</p>
-                <p className="text-xs text-zinc-400">CA / transaction</p>
+                <p className="font-semibold text-ink">Panier moyen</p>
+                <p className="text-xs text-mute">CA / transaction</p>
               </div>
-              <p className="font-black text-white text-xl">
+              <p className="font-black text-ink text-xl">
                 {totalTransactions > 0
                   ? Math.round(totalRevenue / totalTransactions).toLocaleString()
                   : 0}{" "}
                 DH
               </p>
             </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink">
               <div>
-                <p className="font-semibold text-white">Fréquence client</p>
-                <p className="text-xs text-zinc-400">Visites par membre unique</p>
+                <p className="font-semibold text-ink">Fréquence client</p>
+                <p className="text-xs text-mute">Visites par membre unique</p>
               </div>
-              <p className="font-black text-white text-xl">
+              <p className="font-black text-ink text-xl">
                 {uniqueTeens > 0
                   ? (totalTransactions / uniqueTeens).toFixed(1)
                   : "0.0"}
@@ -279,12 +279,12 @@ export default async function PartnerStatsPage() {
 
       {/* Customer breakdown — left as informational placeholder until
           tier-by-partner aggregates land (see audit §D5). */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Répartition par niveau</CardTitle>
+          <CardTitle className="text-ink">Répartition par niveau</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-zinc-500 py-6 text-center">
+          <p className="text-sm text-mute py-6 text-center">
             Répartition par tier indisponible pour le moment — disponible dès la prochaine mise à jour.
           </p>
         </CardContent>

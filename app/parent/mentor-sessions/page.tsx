@@ -126,21 +126,21 @@ export default async function ParentMentorSessionsPage() {
   const statusLabel = (s: string) => {
     switch (s) {
       case "pending_approval":
-        return { text: "En attente", cls: "bg-amber-500/20 text-amber-400" }
+        return { text: "En attente", cls: "bg-gold/20 text-gold" }
       case "approved":
-        return { text: "Approuvée", cls: "bg-emerald-500/20 text-emerald-400" }
+        return { text: "Approuvée", cls: "bg-lime/20 text-lime" }
       case "denied":
-        return { text: "Refusée", cls: "bg-red-500/20 text-red-400" }
+        return { text: "Refusée", cls: "bg-destructive/20 text-destructive" }
       case "completed":
-        return { text: "Terminée", cls: "bg-blue-500/20 text-blue-400" }
+        return { text: "Terminée", cls: "bg-teal/20 text-teal" }
       case "cancelled":
-        return { text: "Annulée", cls: "bg-zinc-500/20 text-zinc-400" }
+        return { text: "Annulée", cls: "bg-muted text-mute" }
       case "no_show":
-        return { text: "Absent", cls: "bg-rose-500/20 text-rose-400" }
+        return { text: "Absent", cls: "bg-pink/20 text-pink" }
       case "dispatched":
-        return { text: "Démarrée", cls: "bg-cyan-500/20 text-cyan-400" }
+        return { text: "Démarrée", cls: "bg-teal/20 text-teal" }
       default:
-        return { text: s, cls: "bg-zinc-500/20 text-zinc-400" }
+        return { text: s, cls: "bg-muted text-mute" }
     }
   }
 
@@ -149,7 +149,7 @@ export default async function ParentMentorSessionsPage() {
       <Button
         variant="ghost"
         asChild
-        className="text-zinc-400 hover:text-white"
+        className="text-mute hover:text-ink"
       >
         <Link href="/parent">
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -160,7 +160,7 @@ export default async function ParentMentorSessionsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-            <GraduationCap className="h-7 w-7 text-emerald-400" />
+            <GraduationCap className="h-7 w-7 text-lime" />
             Sessions de mentorat
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -172,7 +172,7 @@ export default async function ParentMentorSessionsPage() {
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
@@ -181,7 +181,7 @@ export default async function ParentMentorSessionsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-amber-400" />
+            <Clock className="h-5 w-5 text-gold" />
             En attente d&apos;approbation
             {pending.length > 0 && (
               <Badge variant="outline" className="ml-2">
@@ -205,18 +205,18 @@ export default async function ParentMentorSessionsPage() {
                   href={`/parent/mentor-sessions/${s.id}`}
                   className="block"
                 >
-                  <div className="flex items-start justify-between border rounded-md p-4 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-colors">
+                  <div className="flex items-start justify-between border rounded-md p-4 hover:border-lime/40 hover:bg-lime/5 transition-colors">
                     <div className="flex items-start gap-3">
                       {mentor?.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={mentor.avatar_url}
                           alt={mentor.full_name ?? "Mentor"}
-                          className="w-12 h-12 rounded-full object-cover border border-zinc-700"
+                          className="w-12 h-12 rounded-full object-cover border border-ink"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center">
-                          <GraduationCap className="w-6 h-6 text-zinc-400" />
+                        <div className="w-12 h-12 rounded-full bg-card flex items-center justify-center">
+                          <GraduationCap className="w-6 h-6 text-mute" />
                         </div>
                       )}
                       <div className="space-y-1">
@@ -225,7 +225,7 @@ export default async function ParentMentorSessionsPage() {
                             {mentor?.full_name ?? "Mentor"}
                           </p>
                           {s.is_intro && (
-                            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+                            <Badge className="bg-lime/20 text-lime border-lime/30">
                               <Sparkles className="w-3 h-3 mr-1" />
                               Intro gratuite
                             </Badge>
@@ -233,7 +233,7 @@ export default async function ParentMentorSessionsPage() {
                         </div>
                         <p className="text-xs text-muted-foreground">
                           Pour{" "}
-                          <span className="text-zinc-300">
+                          <span className="text-ink-2">
                             {teen?.full_name ?? "Teen"}
                           </span>
                         </p>
@@ -249,11 +249,11 @@ export default async function ParentMentorSessionsPage() {
                           : `${s.amount_dh ?? 0} DH`}
                       </span>
                       {!s.is_intro && s.amount_coins ? (
-                        <span className="text-xs text-zinc-500">
+                        <span className="text-xs text-mute">
                           {s.amount_coins} coins
                         </span>
                       ) : null}
-                      <Eye className="w-4 h-4 text-zinc-400" />
+                      <Eye className="w-4 h-4 text-mute" />
                     </div>
                   </div>
                 </Link>
@@ -283,24 +283,24 @@ export default async function ParentMentorSessionsPage() {
                   href={`/parent/mentor-sessions/${s.id}`}
                   className="block"
                 >
-                  <div className="flex items-center justify-between border rounded-md p-3 hover:bg-zinc-900/40 transition-colors">
+                  <div className="flex items-center justify-between border rounded-md p-3 hover:bg-card transition-colors">
                     <div className="flex items-center gap-3">
                       {mentor?.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={mentor.avatar_url}
                           alt={mentor.full_name ?? "Mentor"}
-                          className="w-10 h-10 rounded-full object-cover border border-zinc-700"
+                          className="w-10 h-10 rounded-full object-cover border border-ink"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
-                          <GraduationCap className="w-5 h-5 text-zinc-400" />
+                        <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                          <GraduationCap className="w-5 h-5 text-mute" />
                         </div>
                       )}
                       <div>
                         <p className="text-sm font-medium">
                           {mentor?.full_name ?? "Mentor"}{" "}
-                          <span className="text-zinc-500 text-xs">
+                          <span className="text-mute text-xs">
                             · {teen?.full_name ?? "Teen"}
                           </span>
                         </p>

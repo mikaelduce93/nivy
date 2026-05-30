@@ -70,24 +70,24 @@ export function OfferDecisionRow({
       : ""
 
   return (
-    <li className="rounded border border-zinc-800 bg-zinc-900 p-4">
+    <li className="rounded border border-ink bg-card p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <div className="font-semibold text-white">{offer.title}</div>
-          <div className="text-xs text-zinc-500">
+          <div className="font-semibold text-ink">{offer.title}</div>
+          <div className="text-xs text-mute">
             {partner?.company_name ?? "Partenaire inconnu"}
             {partner ? ` · ${partner.partner_type}` : ""}
             {valueStr ? ` · ${valueStr}` : ""}
             {offer.offer_type ? ` · ${offer.offer_type}` : ""}
           </div>
           {offer.description && (
-            <div className="mt-1 text-sm text-zinc-300 line-clamp-2">{offer.description}</div>
+            <div className="mt-1 text-sm text-ink-2 line-clamp-2">{offer.description}</div>
           )}
-          <div className="mt-1 text-xs text-zinc-600">
+          <div className="mt-1 text-xs text-mute">
             Soumis le {new Date(offer.created_at).toLocaleString("fr-FR")}
           </div>
         </div>
-        <span className="rounded bg-amber-500/20 px-2 py-0.5 text-xs text-amber-300">
+        <span className="rounded bg-gold/20 px-2 py-0.5 text-xs text-gold">
           {offer.status}
         </span>
       </header>
@@ -100,19 +100,19 @@ export function OfferDecisionRow({
             placeholder="Motif de rejet (optionnel mais recommandé)"
             rows={2}
             maxLength={500}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className="w-full rounded border border-ink bg-background p-2 text-sm text-ink"
           />
         </div>
       )}
 
-      {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
 
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
           disabled={busy}
           onClick={() => decide("approved")}
-          className="rounded bg-emerald-600 px-3 py-1 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded bg-lime px-3 py-1 text-sm font-bold text-ink hover:bg-lime disabled:opacity-50"
         >
           <Check className="mr-1 inline h-3 w-3" />
           Approuver (active)
@@ -122,7 +122,7 @@ export function OfferDecisionRow({
             type="button"
             disabled={busy}
             onClick={() => setShowReject(true)}
-            className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+            className="rounded bg-destructive px-3 py-1 text-sm text-ink hover:bg-destructive disabled:opacity-50"
           >
             <X className="mr-1 inline h-3 w-3" />
             Rejeter
@@ -133,7 +133,7 @@ export function OfferDecisionRow({
               type="button"
               disabled={busy}
               onClick={() => decide("rejected")}
-              className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+              className="rounded bg-destructive px-3 py-1 text-sm text-ink hover:bg-destructive disabled:opacity-50"
             >
               Confirmer le rejet
             </button>
@@ -145,7 +145,7 @@ export function OfferDecisionRow({
                 setReason("")
                 setError(null)
               }}
-              className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
+              className="rounded bg-muted px-3 py-1 text-sm text-ink hover:bg-muted disabled:opacity-50"
             >
               Annuler
             </button>

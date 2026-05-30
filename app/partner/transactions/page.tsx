@@ -70,13 +70,13 @@ export default async function PartnerTransactionsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-black text-white">Transactions</h1>
-          <p className="text-zinc-400">Historique des transactions Teen Club</p>
+          <h1 className="text-3xl font-black text-ink">Transactions</h1>
+          <p className="text-mute">Historique des transactions Teen Club</p>
         </div>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-10 text-center">
-            <p className="text-zinc-300 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-zinc-500 mt-2">
+            <p className="text-ink-2 font-semibold">Profil partenaire introuvable</p>
+            <p className="text-sm text-mute mt-2">
               Votre compte n'est pas encore lié à une fiche partenaire active.
             </p>
           </CardContent>
@@ -148,10 +148,10 @@ export default async function PartnerTransactionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-white">Transactions</h1>
-          <p className="text-zinc-400">Historique des transactions Teen Club</p>
+          <h1 className="text-3xl font-black text-ink">Transactions</h1>
+          <p className="text-mute">Historique des transactions Teen Club</p>
         </div>
-        <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:text-white">
+        <Button variant="outline" className="border-ink text-ink-2 hover:text-ink">
           <Download className="h-4 w-4 mr-2" />
           Exporter CSV
         </Button>
@@ -160,7 +160,7 @@ export default async function PartnerTransactionsPage() {
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
@@ -168,49 +168,49 @@ export default async function PartnerTransactionsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-zinc-400">Ce mois</p>
-                <p className="text-2xl font-black text-white">{monthCount}</p>
+                <p className="text-xs text-mute">Ce mois</p>
+                <p className="text-2xl font-black text-ink">{monthCount}</p>
               </div>
-              <ArrowUpRight className="h-5 w-5 text-emerald-400" />
+              <ArrowUpRight className="h-5 w-5 text-lime" />
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-zinc-400">CA Total</p>
-                <p className="text-2xl font-black text-white">
+                <p className="text-xs text-mute">CA Total</p>
+                <p className="text-2xl font-black text-ink">
                   {Math.round(monthRevenue).toLocaleString()} DH
                 </p>
               </div>
-              <ArrowUpRight className="h-5 w-5 text-emerald-400" />
+              <ArrowUpRight className="h-5 w-5 text-lime" />
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-zinc-400">Commission Nivy</p>
-                <p className="text-2xl font-black text-amber-400">
+                <p className="text-xs text-mute">Commission Nivy</p>
+                <p className="text-2xl font-black text-gold">
                   {Math.round(monthCommission).toLocaleString()} DH
                 </p>
               </div>
-              <ArrowDownRight className="h-5 w-5 text-amber-400" />
+              <ArrowDownRight className="h-5 w-5 text-gold" />
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-zinc-400">Panier moyen</p>
-                <p className="text-2xl font-black text-white">{monthAverage} DH</p>
+                <p className="text-xs text-mute">Panier moyen</p>
+                <p className="text-2xl font-black text-ink">{monthAverage} DH</p>
               </div>
             </div>
           </CardContent>
@@ -220,22 +220,22 @@ export default async function PartnerTransactionsPage() {
       {/* Search & Filters */}
       <div className="flex gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-mute" />
           <Input
             placeholder="Rechercher par membre, statut..."
-            className="pl-10 bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500"
+            className="pl-10 bg-card border-ink text-ink placeholder:text-mute"
           />
         </div>
-        <Button variant="outline" className="border-zinc-700 text-zinc-300">
+        <Button variant="outline" className="border-ink text-ink-2">
           <Filter className="h-4 w-4 mr-2" />
           Filtrer
         </Button>
       </div>
 
       {/* Transactions List */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Historique</CardTitle>
+          <CardTitle className="text-ink">Historique</CardTitle>
         </CardHeader>
         <CardContent>
           {transactions.length === 0 ? (
@@ -252,27 +252,27 @@ export default async function PartnerTransactionsPage() {
                 return (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-all"
+                    className="flex items-center justify-between p-4 rounded-xl bg-background border border-ink hover:border-ink transition-all"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-bold">
                         {initial}
                       </div>
                       <div>
-                        <p className="font-semibold text-white">{display}</p>
-                        <p className="text-xs text-zinc-400">{formatDate(tx.created_at)}</p>
+                        <p className="font-semibold text-ink">{display}</p>
+                        <p className="text-xs text-mute">{formatDate(tx.created_at)}</p>
                       </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500">Statut</p>
-                      <p className="text-sm text-zinc-300">{statusLabel(tx.status)}</p>
+                      <p className="text-xs text-mute">Statut</p>
+                      <p className="text-sm text-ink-2">{statusLabel(tx.status)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-black text-white">
+                      <p className="font-black text-ink">
                         {Math.round(Number(tx.amount_dh || 0))} DH
                       </p>
                       {Number(tx.cashback_xp || 0) > 0 && (
-                        <p className="text-xs text-emerald-400">+{tx.cashback_xp} XP cashback</p>
+                        <p className="text-xs text-lime">+{tx.cashback_xp} XP cashback</p>
                       )}
                     </div>
                   </div>

@@ -22,9 +22,9 @@ export default async function DriverEarningsPage() {
   if (userInfo.role !== "driver") {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes paiements</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-red-400">
+        <h1 className="text-3xl font-black text-ink">Mes paiements</h1>
+        <Card className="bg-card border-ink">
+          <CardContent className="p-10 text-center text-destructive">
             Accès réservé aux chauffeurs.
           </CardContent>
         </Card>
@@ -42,8 +42,8 @@ export default async function DriverEarningsPage() {
   if (!driver) {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes paiements</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <h1 className="text-3xl font-black text-ink">Mes paiements</h1>
+        <Card className="bg-card border-ink">
           <CardContent className="p-10">
             <EmptyState
               icon={Wallet}
@@ -79,38 +79,38 @@ export default async function DriverEarningsPage() {
   return (
     <main className="space-y-6">
       <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Wallet className="w-7 h-7 text-emerald-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <Wallet className="w-7 h-7 text-lime" />
           Mes paiements
         </h1>
-        <p className="text-zinc-400 mt-1">Brut estimé sur les courses complétées. Net après commission Nivy à venir.</p>
+        <p className="text-mute mt-1">Brut estimé sur les courses complétées. Net après commission Nivy à venir.</p>
       </header>
 
       <div className="grid sm:grid-cols-3 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Brut · ce mois</p>
-            <p className="text-2xl font-black text-white mt-1 tabular-nums">{grossThisMonth.toFixed(0)} DH</p>
+            <p className="text-xs text-mute uppercase tracking-wider">Brut · ce mois</p>
+            <p className="text-2xl font-black text-ink mt-1 tabular-nums">{grossThisMonth.toFixed(0)} DH</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Brut · 30 j</p>
-            <p className="text-2xl font-black text-white mt-1 tabular-nums">{grossLast30.toFixed(0)} DH</p>
+            <p className="text-xs text-mute uppercase tracking-wider">Brut · 30 j</p>
+            <p className="text-2xl font-black text-ink mt-1 tabular-nums">{grossLast30.toFixed(0)} DH</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Courses · 30 j</p>
-            <p className="text-2xl font-black text-white mt-1 tabular-nums">{completedCount}</p>
+            <p className="text-xs text-mute uppercase tracking-wider">Courses · 30 j</p>
+            <p className="text-2xl font-black text-ink mt-1 tabular-nums">{completedCount}</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="bg-amber-500/10 border-amber-500/30">
+      <Card className="bg-gold/10 border-gold/30">
         <CardContent className="p-4 flex gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-amber-200 space-y-1">
+          <AlertTriangle className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-gold space-y-1">
             <p className="font-bold">Net & commission Nivy non encore détaillés</p>
             <p className="text-xs">
               Le module de paiement chauffeur (commission %, virements consolidés mensuels)
@@ -121,10 +121,10 @@ export default async function DriverEarningsPage() {
         </CardContent>
       </Card>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-zinc-400" />
+          <CardTitle className="text-ink flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-mute" />
             Versements
           </CardTitle>
         </CardHeader>

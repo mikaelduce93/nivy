@@ -198,13 +198,13 @@ export default function AdminContentPage() {
   const getTypeBadge = (type: string) => {
     switch (type) {
       case "post":
-        return <Badge className="bg-blue-500/20 text-blue-400"><FileText className="w-3 h-3 mr-1" />Post</Badge>
+        return <Badge className="bg-teal/20 text-teal"><FileText className="w-3 h-3 mr-1" />Post</Badge>
       case "comment":
-        return <Badge className="bg-purple-500/20 text-purple-400"><MessageSquare className="w-3 h-3 mr-1" />Commentaire</Badge>
+        return <Badge className="bg-pink/20 text-pink"><MessageSquare className="w-3 h-3 mr-1" />Commentaire</Badge>
       case "image":
-        return <Badge className="bg-pink-500/20 text-pink-400"><ImageIcon className="w-3 h-3 mr-1" />Image</Badge>
+        return <Badge className="bg-pink/20 text-pink"><ImageIcon className="w-3 h-3 mr-1" />Image</Badge>
       case "bio":
-        return <Badge className="bg-cyan-500/20 text-cyan-400"><User className="w-3 h-3 mr-1" />Bio</Badge>
+        return <Badge className="bg-teal/20 text-teal"><User className="w-3 h-3 mr-1" />Bio</Badge>
       default:
         return null
     }
@@ -213,13 +213,13 @@ export default function AdminContentPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <Badge className="bg-yellow-500/20 text-yellow-400"><Clock className="w-3 h-3 mr-1" />En attente</Badge>
+        return <Badge className="bg-gold/20 text-gold"><Clock className="w-3 h-3 mr-1" />En attente</Badge>
       case "approved":
-        return <Badge className="bg-green-500/20 text-green-400"><CheckCircle2 className="w-3 h-3 mr-1" />Approuvé</Badge>
+        return <Badge className="bg-lime/20 text-lime"><CheckCircle2 className="w-3 h-3 mr-1" />Approuvé</Badge>
       case "rejected":
-        return <Badge className="bg-red-500/20 text-red-400"><XCircle className="w-3 h-3 mr-1" />Supprimé</Badge>
+        return <Badge className="bg-destructive/20 text-destructive"><XCircle className="w-3 h-3 mr-1" />Supprimé</Badge>
       case "flagged":
-        return <Badge className="bg-orange-500/20 text-orange-400"><Flag className="w-3 h-3 mr-1" />Signalé</Badge>
+        return <Badge className="bg-coral/20 text-coral"><Flag className="w-3 h-3 mr-1" />Signalé</Badge>
       default:
         return null
     }
@@ -240,9 +240,9 @@ export default function AdminContentPage() {
   }
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-400"
-    if (score >= 50) return "text-yellow-400"
-    return "text-red-400"
+    if (score >= 80) return "text-lime"
+    if (score >= 50) return "text-gold"
+    return "text-destructive"
   }
 
   const handleApprove = (content: ContentItem) => {
@@ -283,7 +283,7 @@ export default function AdminContentPage() {
       <div className="container mx-auto px-6 py-32">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Button asChild variant="ghost" className="text-zinc-400 hover:text-white">
+          <Button asChild variant="ghost" className="text-mute hover:text-ink">
             <Link href="/admin">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour
@@ -293,11 +293,11 @@ export default function AdminContentPage() {
 
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <Shield className="w-8 h-8 text-blue-400" />
+            <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+              <Shield className="w-8 h-8 text-teal" />
               Modération du Contenu
             </h1>
-            <p className="text-zinc-400 mt-1">IA + Modération humaine pour un contenu sûr</p>
+            <p className="text-mute mt-1">IA + Modération humaine pour un contenu sûr</p>
           </div>
           <Button variant="outline">
             <RefreshCw className="w-4 h-4 mr-2" />
@@ -307,50 +307,50 @@ export default function AdminContentPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-500/30">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30">
             <CardContent className="p-5">
-              <p className="text-xs text-yellow-400 font-medium">À vérifier</p>
-              <p className="text-3xl font-black text-white">{stats.pendingReview}</p>
+              <p className="text-xs text-gold font-medium">À vérifier</p>
+              <p className="text-3xl font-black text-ink">{stats.pendingReview}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-500/20 to-red-500/20 border-orange-500/30">
+          <Card className="bg-gradient-to-br from-coral/20 to-destructive/20 border-coral/30">
             <CardContent className="p-5">
-              <p className="text-xs text-orange-400 font-medium">Signalés IA</p>
-              <p className="text-3xl font-black text-white">{stats.flaggedByAi}</p>
+              <p className="text-xs text-coral font-medium">Signalés IA</p>
+              <p className="text-3xl font-black text-ink">{stats.flaggedByAi}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/30">
+          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30">
             <CardContent className="p-5">
-              <p className="text-xs text-green-400 font-medium">Approuvés (24h)</p>
-              <p className="text-3xl font-black text-white">{stats.approvedToday}</p>
+              <p className="text-xs text-lime font-medium">Approuvés (24h)</p>
+              <p className="text-3xl font-black text-ink">{stats.approvedToday}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-500/20 to-pink-500/20 border-red-500/30">
+          <Card className="bg-gradient-to-br from-destructive/20 to-pink/20 border-destructive/30">
             <CardContent className="p-5">
-              <p className="text-xs text-red-400 font-medium">Supprimés (24h)</p>
-              <p className="text-3xl font-black text-white">{stats.removedToday}</p>
+              <p className="text-xs text-destructive font-medium">Supprimés (24h)</p>
+              <p className="text-3xl font-black text-ink">{stats.removedToday}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30">
+          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30">
             <CardContent className="p-5">
-              <p className="text-xs text-blue-400 font-medium">Précision IA</p>
-              <p className="text-3xl font-black text-white">{stats.aiAccuracy}%</p>
+              <p className="text-xs text-teal font-medium">Précision IA</p>
+              <p className="text-3xl font-black text-ink">{stats.aiAccuracy}%</p>
             </CardContent>
           </Card>
         </div>
 
         {/* AI Info */}
-        <Card className="mb-6 bg-blue-500/10 border-blue-500/20">
+        <Card className="mb-6 bg-teal/10 border-teal/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <Bot className="w-6 h-6 text-blue-400" />
+              <Bot className="w-6 h-6 text-teal" />
               <div className="flex-1">
-                <p className="font-medium text-blue-400">Modération IA Active</p>
-                <p className="text-sm text-zinc-400">
+                <p className="font-medium text-teal">Modération IA Active</p>
+                <p className="text-sm text-mute">
                   L'IA analyse automatiquement le contenu et signale les éléments potentiellement problématiques.
                   Score de confiance: plus le score est bas, plus le contenu est suspect.
                 </p>
@@ -360,22 +360,22 @@ export default function AdminContentPage() {
         </Card>
 
         {/* Filters */}
-        <Card className="mb-6 bg-zinc-900 border-zinc-800">
+        <Card className="mb-6 bg-card border-ink">
           <CardContent className="p-4">
             <div className="flex flex-wrap gap-4">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute" />
                   <Input
                     placeholder="Rechercher par auteur ou contenu..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-zinc-800 border-zinc-700"
+                    className="pl-10 bg-card border-ink"
                   />
                 </div>
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 bg-zinc-800 border-zinc-700">
+                <SelectTrigger className="w-40 bg-card border-ink">
                   <SelectValue placeholder="Statut" />
                 </SelectTrigger>
                 <SelectContent>
@@ -387,7 +387,7 @@ export default function AdminContentPage() {
                 </SelectContent>
               </Select>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-40 bg-zinc-800 border-zinc-700">
+                <SelectTrigger className="w-40 bg-card border-ink">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -407,7 +407,7 @@ export default function AdminContentPage() {
           {filteredContent.map((item) => (
             <Card
               key={item.id}
-              className={`bg-zinc-900 border-zinc-800 ${
+              className={`bg-card border-ink ${
                 item.status === "flagged" ? "border-l-4 border-l-orange-500" : ""
               }`}
             >
@@ -422,20 +422,20 @@ export default function AdminContentPage() {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-white">{item.author.name}</span>
-                      <span className="text-xs text-zinc-500">{item.author.age} ans</span>
+                      <span className="font-bold text-ink">{item.author.name}</span>
+                      <span className="text-xs text-mute">{item.author.age} ans</span>
                       {getTypeBadge(item.type)}
                     </div>
 
                     {item.context && (
-                      <p className="text-xs text-zinc-500 mb-2">{item.context}</p>
+                      <p className="text-xs text-mute mb-2">{item.context}</p>
                     )}
 
-                    <p className="text-zinc-300 mb-3">{item.content}</p>
+                    <p className="text-ink-2 mb-3">{item.content}</p>
 
                     {item.imageUrl && (
-                      <div className="w-32 h-32 rounded-lg bg-zinc-800 mb-3 flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-zinc-600" />
+                      <div className="w-32 h-32 rounded-lg bg-card mb-3 flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-mute" />
                       </div>
                     )}
 
@@ -443,7 +443,7 @@ export default function AdminContentPage() {
                     {item.aiFlags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-3">
                         {item.aiFlags.map((flag, idx) => (
-                          <Badge key={idx} variant="outline" className="text-orange-400 border-orange-500/30">
+                          <Badge key={idx} variant="outline" className="text-coral border-coral/30">
                             <AlertTriangle className="w-3 h-3 mr-1" />
                             {getAiFlagLabel(flag)}
                           </Badge>
@@ -454,7 +454,7 @@ export default function AdminContentPage() {
                     {/* Footer */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <span className="text-xs text-zinc-500 flex items-center gap-1">
+                        <span className="text-xs text-mute flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {new Date(item.createdAt).toLocaleString('fr-FR')}
                         </span>
@@ -463,7 +463,7 @@ export default function AdminContentPage() {
 
                       {/* AI Score */}
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-zinc-500">Score IA:</span>
+                        <span className="text-xs text-mute">Score IA:</span>
                         <span className={`text-sm font-bold ${getScoreColor(item.aiScore)}`}>
                           {item.aiScore}%
                         </span>
@@ -477,7 +477,7 @@ export default function AdminContentPage() {
                       <>
                         <Button
                           size="sm"
-                          className="bg-green-500 hover:bg-green-600"
+                          className="bg-lime hover:bg-lime"
                           onClick={() => handleApprove(item)}
                         >
                           <CheckCircle2 className="w-4 h-4" />
@@ -485,7 +485,7 @@ export default function AdminContentPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                          className="border-destructive/30 text-destructive hover:bg-destructive/10"
                           onClick={() => handleReject(item)}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -499,7 +499,7 @@ export default function AdminContentPage() {
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-zinc-900 border-zinc-800">
+                      <DropdownMenuContent align="end" className="bg-card border-ink">
                         <DropdownMenuItem onClick={() => {
                           setSelectedContent(item)
                           setReviewDialogOpen(true)
@@ -507,12 +507,12 @@ export default function AdminContentPage() {
                           <Eye className="w-4 h-4 mr-2" />
                           Examiner
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-zinc-800" />
-                        <DropdownMenuItem onClick={() => handleWarn(item)} className="text-yellow-400">
+                        <DropdownMenuSeparator className="bg-card" />
+                        <DropdownMenuItem onClick={() => handleWarn(item)} className="text-gold">
                           <ThumbsDown className="w-4 h-4 mr-2" />
                           Avertir l'utilisateur
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleBan(item)} className="text-red-400">
+                        <DropdownMenuItem onClick={() => handleBan(item)} className="text-destructive">
                           <Ban className="w-4 h-4 mr-2" />
                           Suspendre l'utilisateur
                         </DropdownMenuItem>
@@ -526,19 +526,19 @@ export default function AdminContentPage() {
         </div>
 
         {filteredContent.length === 0 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardContent className="py-12 text-center">
-              <Shield className="w-12 h-12 mx-auto mb-4 text-zinc-600" />
-              <p className="text-zinc-400">Aucun contenu à modérer</p>
+              <Shield className="w-12 h-12 mx-auto mb-4 text-mute" />
+              <p className="text-mute">Aucun contenu à modérer</p>
             </CardContent>
           </Card>
         )}
 
         {/* Review Dialog */}
         <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
-          <DialogContent className="bg-zinc-900 border-zinc-800 max-w-xl">
+          <DialogContent className="bg-card border-ink max-w-xl">
             <DialogHeader>
-              <DialogTitle className="text-white">Examiner le contenu</DialogTitle>
+              <DialogTitle className="text-ink">Examiner le contenu</DialogTitle>
               <DialogDescription>
                 Analysez le contenu et prenez une décision de modération
               </DialogDescription>
@@ -547,27 +547,27 @@ export default function AdminContentPage() {
             {selectedContent && (
               <div className="space-y-4">
                 {/* Author Info */}
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800/50">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-card">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={selectedContent.author.avatar} />
                     <AvatarFallback>{selectedContent.author.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-white">{selectedContent.author.name}</p>
-                    <p className="text-xs text-zinc-400">{selectedContent.author.age} ans</p>
+                    <p className="font-medium text-ink">{selectedContent.author.name}</p>
+                    <p className="text-xs text-mute">{selectedContent.author.age} ans</p>
                   </div>
                   {getTypeBadge(selectedContent.type)}
                 </div>
 
                 {/* Content */}
-                <div className="p-4 rounded-lg bg-zinc-800">
-                  <p className="text-white">{selectedContent.content}</p>
+                <div className="p-4 rounded-lg bg-card">
+                  <p className="text-ink">{selectedContent.content}</p>
                 </div>
 
                 {/* AI Analysis */}
-                <div className="p-4 rounded-lg bg-zinc-800/50">
+                <div className="p-4 rounded-lg bg-card">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-zinc-400">Score de confiance IA</span>
+                    <span className="text-sm text-mute">Score de confiance IA</span>
                     <span className={`font-bold ${getScoreColor(selectedContent.aiScore)}`}>
                       {selectedContent.aiScore}%
                     </span>
@@ -576,10 +576,10 @@ export default function AdminContentPage() {
 
                   {selectedContent.aiFlags.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-xs text-zinc-400 mb-2">Problèmes détectés:</p>
+                      <p className="text-xs text-mute mb-2">Problèmes détectés:</p>
                       <div className="flex flex-wrap gap-2">
                         {selectedContent.aiFlags.map((flag, idx) => (
-                          <Badge key={idx} variant="outline" className="text-orange-400 border-orange-500/30">
+                          <Badge key={idx} variant="outline" className="text-coral border-coral/30">
                             {getAiFlagLabel(flag)}
                           </Badge>
                         ))}
@@ -590,12 +590,12 @@ export default function AdminContentPage() {
 
                 {/* Moderation Note */}
                 <div>
-                  <p className="text-sm text-zinc-400 mb-2">Note de modération (optionnel)</p>
+                  <p className="text-sm text-mute mb-2">Note de modération (optionnel)</p>
                   <Textarea
                     value={moderationNote}
                     onChange={(e) => setModerationNote(e.target.value)}
                     placeholder="Ajoutez une note pour le dossier..."
-                    className="bg-zinc-800 border-zinc-700"
+                    className="bg-card border-ink"
                   />
                 </div>
               </div>
@@ -607,7 +607,7 @@ export default function AdminContentPage() {
               </Button>
               <Button
                 variant="outline"
-                className="border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10"
+                className="border-gold/30 text-gold hover:bg-gold/10"
                 onClick={() => selectedContent && handleWarn(selectedContent)}
               >
                 <ThumbsDown className="w-4 h-4 mr-1" />
@@ -615,14 +615,14 @@ export default function AdminContentPage() {
               </Button>
               <Button
                 variant="outline"
-                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10"
                 onClick={() => selectedContent && handleReject(selectedContent)}
               >
                 <Trash2 className="w-4 h-4 mr-1" />
                 Supprimer
               </Button>
               <Button
-                className="bg-green-500 hover:bg-green-600"
+                className="bg-lime hover:bg-lime"
                 onClick={() => selectedContent && handleApprove(selectedContent)}
               >
                 <CheckCircle2 className="w-4 h-4 mr-1" />

@@ -75,19 +75,19 @@ export function ModerationDecisionRow({
   const isPending = row.status === "pending"
 
   return (
-    <li className="rounded border border-zinc-800 bg-zinc-900 p-4">
+    <li className="rounded border border-ink bg-card p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="font-bold text-white text-sm">
+          <p className="font-bold text-ink text-sm">
             {contentLabel}
             {!supported && (
-              <span className="ml-2 text-xs text-amber-300">type non supporté</span>
+              <span className="ml-2 text-xs text-gold">type non supporté</span>
             )}
           </p>
-          <p className="text-xs text-zinc-500 font-mono mt-1 truncate">
+          <p className="text-xs text-mute font-mono mt-1 truncate">
             {row.content_id ?? "—"}
           </p>
-          <p className="text-xs text-zinc-600 mt-1">
+          <p className="text-xs text-mute mt-1">
             Soumis le {new Date(row.created_at).toLocaleString("fr-FR")}
             {reportCount > 0 ? ` · ${reportCount} report${reportCount > 1 ? "s" : ""}` : ""}
             {row.reason ? ` · raison initiale: ${row.reason}` : ""}
@@ -96,12 +96,12 @@ export function ModerationDecisionRow({
         <Badge
           className={
             row.status === "pending"
-              ? "bg-amber-500/20 text-amber-300"
+              ? "bg-gold/20 text-gold"
               : row.status === "approved"
-              ? "bg-emerald-500/20 text-emerald-300"
+              ? "bg-lime/20 text-lime"
               : row.status === "escalated"
-              ? "bg-blue-500/20 text-blue-300"
-              : "bg-red-500/20 text-red-300"
+              ? "bg-teal/20 text-teal"
+              : "bg-destructive/20 text-destructive"
           }
         >
           {row.status}
@@ -109,7 +109,7 @@ export function ModerationDecisionRow({
       </header>
 
       {row.payload && (
-        <pre className="text-xs text-zinc-400 bg-zinc-950 rounded p-2 max-h-32 overflow-auto mb-3">
+        <pre className="text-xs text-mute bg-background rounded p-2 max-h-32 overflow-auto mb-3">
           {JSON.stringify(row.payload, null, 2)}
         </pre>
       )}
@@ -124,19 +124,19 @@ export function ModerationDecisionRow({
                 placeholder={`Motif obligatoire pour: ${pendingDecision}`}
                 rows={2}
                 maxLength={1000}
-                className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+                className="w-full rounded border border-ink bg-background p-2 text-sm text-ink"
               />
             </div>
           )}
 
-          {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+          {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
 
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
               disabled={busy}
               onClick={() => decide("dismiss")}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="bg-lime hover:bg-lime text-ink"
               title="Pas de violation — restaure / approuve."
             >
               <Check className="w-3 h-3 mr-1" />
@@ -155,7 +155,7 @@ export function ModerationDecisionRow({
               variant="outline"
               disabled={busy}
               onClick={() => decide("delete")}
-              className="text-red-300 border-red-500/40 hover:bg-red-500/10"
+              className="text-destructive border-destructive/40 hover:bg-destructive/10"
             >
               <X className="w-3 h-3 mr-1" />
               Delete
@@ -165,7 +165,7 @@ export function ModerationDecisionRow({
               variant="outline"
               disabled={busy}
               onClick={() => decide("escalate")}
-              className="text-blue-300 border-blue-500/40 hover:bg-blue-500/10"
+              className="text-teal border-teal/40 hover:bg-teal/10"
             >
               <AlertTriangle className="w-3 h-3 mr-1" />
               Escalate
@@ -175,7 +175,7 @@ export function ModerationDecisionRow({
               variant="outline"
               disabled={busy}
               onClick={() => decide("warn")}
-              className="text-amber-300 border-amber-500/40 hover:bg-amber-500/10"
+              className="text-gold border-gold/40 hover:bg-gold/10"
               title="Avertit l'auteur. Wave 4A.2 — branche le notify."
             >
               Warn
@@ -185,14 +185,14 @@ export function ModerationDecisionRow({
       )}
 
       {!isPending && (
-        <div className="text-xs text-zinc-500">
+        <div className="text-xs text-mute">
           Actionné{row.reviewed_at ? ` le ${new Date(row.reviewed_at).toLocaleString("fr-FR")}` : ""}
           {row.reason ? ` · ${row.reason}` : ""}
         </div>
       )}
 
       {isPending && !supported && (
-        <div className="text-xs text-amber-300 flex items-center gap-2">
+        <div className="text-xs text-gold flex items-center gap-2">
           <AlertTriangle className="w-3 h-3" />
           Pas d&apos;adapter pour ce content_type. La décision renverra 409 unsupported_action.
         </div>

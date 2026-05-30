@@ -27,8 +27,8 @@ export default async function PartnerCreatorBriefsPage() {
 
   if (!partner || partner.partner_type !== "creator") {
     return (
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardContent className="p-10 text-center text-zinc-400">
+      <Card className="bg-card border-ink">
+        <CardContent className="p-10 text-center text-mute">
           Cet espace est réservé aux partenaires de type créateur.
         </CardContent>
       </Card>
@@ -38,14 +38,14 @@ export default async function PartnerCreatorBriefsPage() {
   return (
     <main className="space-y-6">
       <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Mail className="w-7 h-7 text-pink-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <Mail className="w-7 h-7 text-pink" />
           Briefs sponsorisés
         </h1>
       </header>
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Inbox briefs</CardTitle>
+          <CardTitle className="text-ink">Inbox briefs</CardTitle>
         </CardHeader>
         <CardContent>
           <EmptyState

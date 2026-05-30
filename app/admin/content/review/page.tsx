@@ -51,8 +51,8 @@ export default async function AdminContentReviewPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Modération · Quiz IA</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <h1 className="mb-2 text-2xl font-bold text-ink">Modération · Quiz IA</h1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -89,17 +89,17 @@ export default async function AdminContentReviewPage() {
       <div className="mb-6 flex items-center gap-3">
         <Link
           href="/admin"
-          className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+          className="text-sm text-mute underline-offset-4 hover:text-ink hover:underline"
         >
           ← Retour
         </Link>
       </div>
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Modération · Quiz générés par IA</h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <h1 className="text-3xl font-bold text-ink">Modération · Quiz générés par IA</h1>
+        <p className="mt-1 text-sm text-mute">
           Approuvez les quiz pédagogiquement valides. Les rejets sont loggés
-          dans <code className="rounded bg-zinc-800 px-1">admin_audit_logs</code>.
+          dans <code className="rounded bg-card px-1">admin_audit_logs</code>.
         </p>
       </header>
 
@@ -110,18 +110,18 @@ export default async function AdminContentReviewPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold text-white">
+        <h2 className="mb-3 font-semibold text-ink">
           File en attente ({pending.length})
         </h2>
 
         {error && (
-          <p className="mb-3 rounded border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+          <p className="mb-3 rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
             Erreur de chargement : {error.message}
           </p>
         )}
 
         {pending.length === 0 && !error && (
-          <p className="rounded border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-400">
+          <p className="rounded border border-ink bg-card p-6 text-center text-sm text-mute">
             Aucun quiz IA en attente de revue pédagogique.
           </p>
         )}
@@ -146,10 +146,10 @@ function StatCard({
   tone: "yellow" | "green" | "red" | "blue"
 }) {
   const palette: Record<typeof tone, string> = {
-    yellow: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
-    green: "border-green-500/30 bg-green-500/10 text-green-300",
-    red: "border-red-500/30 bg-red-500/10 text-red-300",
-    blue: "border-blue-500/30 bg-blue-500/10 text-blue-300",
+    yellow: "border-gold/30 bg-gold/10 text-gold",
+    green: "border-lime/30 bg-lime/10 text-lime",
+    red: "border-destructive/30 bg-destructive/10 text-destructive",
+    blue: "border-teal/30 bg-teal/10 text-teal",
   }
   return (
     <div className={`rounded border p-3 ${palette[tone]}`}>

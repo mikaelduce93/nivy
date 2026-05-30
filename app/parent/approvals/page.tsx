@@ -89,16 +89,16 @@ export default async function ParentApprovalsPage() {
   const getApprovalIcon = (type: string) => {
     switch (type) {
       case "booking":
-        return <Ticket className="h-5 w-5 text-purple-400" />
+        return <Ticket className="h-5 w-5 text-pink" />
       case "purchase_above_ceiling":
-        return <ShoppingBag className="h-5 w-5 text-blue-400" />
+        return <ShoppingBag className="h-5 w-5 text-teal" />
       case "food_order":
-        return <ShoppingBag className="h-5 w-5 text-emerald-400" />
+        return <ShoppingBag className="h-5 w-5 text-lime" />
       case "coach_meeting":
       case "venue_visit":
-        return <Calendar className="h-5 w-5 text-orange-400" />
+        return <Calendar className="h-5 w-5 text-coral" />
       default:
-        return <FileCheck className="h-5 w-5 text-zinc-400" />
+        return <FileCheck className="h-5 w-5 text-mute" />
     }
   }
 
@@ -129,34 +129,34 @@ export default async function ParentApprovalsPage() {
         return {
           icon: Clock,
           text: "En attente",
-          class: "bg-amber-500/20 text-amber-400"
+          class: "bg-gold/20 text-gold"
         }
       case "approved":
         return {
           icon: CheckCircle,
           text: "Approuvé",
-          class: "bg-emerald-500/20 text-emerald-400"
+          class: "bg-lime/20 text-lime"
         }
       case "denied":
         return {
           icon: XCircle,
           text: "Refusé",
-          class: "bg-red-500/20 text-red-400"
+          class: "bg-destructive/20 text-destructive"
         }
       default:
         return {
           icon: FileCheck,
           text: status,
-          class: "bg-zinc-500/20 text-zinc-400"
+          class: "bg-muted text-mute"
         }
     }
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -166,10 +166,10 @@ export default async function ParentApprovalsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Approbations</h1>
-            <p className="text-zinc-400">Gérez les demandes de vos teens</p>
+            <h1 className="text-3xl font-black text-ink">Approbations</h1>
+            <p className="text-mute">Gérez les demandes de vos teens</p>
           </div>
-          <Button variant="outline" className="border-zinc-700 text-zinc-300">
+          <Button variant="outline" className="border-ink text-ink-2">
             <Filter className="h-4 w-4 mr-2" />
             Filtrer
           </Button>
@@ -177,17 +177,17 @@ export default async function ParentApprovalsPage() {
 
         {/* Signature gate banner */}
         {!hasSigned && (
-          <Card className="mb-8 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
+          <Card className="mb-8 bg-gradient-to-br from-gold/10 to-coral/10 border-gold/30">
             <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="h-5 w-5 text-amber-400" />
+                <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-gold" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white">
+                  <h3 className="font-bold text-ink">
                     Autorisation parentale non signée
                   </h3>
-                  <p className="text-sm text-zinc-400 mt-1">
+                  <p className="text-sm text-mute mt-1">
                     Pour valider certaines demandes (sorties, paiements,
                     consentements photo) vous devez d&apos;abord signer
                     l&apos;autorisation parentale.
@@ -196,7 +196,7 @@ export default async function ParentApprovalsPage() {
               </div>
               <Button
                 asChild
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shrink-0"
+                className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink shrink-0"
               >
                 <Link href="/parent/e-signature?redirect=/parent/approvals">
                   <ShieldCheck className="h-4 w-4 mr-2" />
@@ -209,57 +209,57 @@ export default async function ParentApprovalsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-400 font-medium">En attente</p>
-                  <p className="text-3xl font-black text-white">{pendingApprovals.length}</p>
+                  <p className="text-xs text-gold font-medium">En attente</p>
+                  <p className="text-3xl font-black text-ink">{pendingApprovals.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-amber-400" />
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-gold" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-400 font-medium">Approuvés</p>
-                  <p className="text-3xl font-black text-white">{approvedApprovals.length}</p>
+                  <p className="text-xs text-lime font-medium">Approuvés</p>
+                  <p className="text-3xl font-black text-ink">{approvedApprovals.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-emerald-400" />
+                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-lime" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-500/20 to-pink-500/20 border-red-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-destructive/20 to-pink/20 border-destructive/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-red-400 font-medium">Refusés</p>
-                  <p className="text-3xl font-black text-white">{rejectedApprovals.length}</p>
+                  <p className="text-xs text-destructive font-medium">Refusés</p>
+                  <p className="text-3xl font-black text-ink">{rejectedApprovals.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                  <XCircle className="h-6 w-6 text-red-400" />
+                <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <XCircle className="h-6 w-6 text-destructive" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-400 font-medium">Total</p>
-                  <p className="text-3xl font-black text-white">{approvals.length}</p>
+                  <p className="text-xs text-teal font-medium">Total</p>
+                  <p className="text-3xl font-black text-ink">{approvals.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <FileCheck className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
+                  <FileCheck className="h-6 w-6 text-teal" />
                 </div>
               </div>
             </CardContent>
@@ -268,10 +268,10 @@ export default async function ParentApprovalsPage() {
 
         {/* Pending Approvals - Priority */}
         {pendingApprovals.length > 0 && (
-          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30 mb-8">
+          <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold/30 mb-8">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-amber-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-gold" />
                 Demandes en attente ({pendingApprovals.length})
               </CardTitle>
             </CardHeader>
@@ -283,19 +283,19 @@ export default async function ParentApprovalsPage() {
                   return (
                     <div
                       key={approval.id}
-                      className="p-5 rounded-2xl bg-zinc-900 border border-amber-500/20"
+                      className="p-5 rounded-2xl bg-card border border-gold/20"
                     >
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-xl bg-zinc-800 flex items-center justify-center">
+                          <div className="h-12 w-12 rounded-xl bg-card flex items-center justify-center">
                             {getApprovalIcon(approval.action_type)}
                           </div>
                           <div>
-                            <h3 className="text-lg font-bold text-white">
+                            <h3 className="text-lg font-bold text-ink">
                               {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
                             </h3>
-                            <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-zinc-400">
-                              <span className="bg-zinc-800 px-2 py-0.5 rounded text-xs">
+                            <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-mute">
+                              <span className="bg-card px-2 py-0.5 rounded text-xs">
                                 {getApprovalTypeName(approval.action_type)}
                               </span>
                               <span>•</span>
@@ -304,10 +304,10 @@ export default async function ParentApprovalsPage() {
                               <span>{formatDate(approval.requested_at)}</span>
                             </div>
                             {approval.details?.reason && (
-                              <p className="text-sm text-zinc-500 mt-2">{approval.details?.reason}</p>
+                              <p className="text-sm text-mute mt-2">{approval.details?.reason}</p>
                             )}
                             {approval.amount && (
-                              <p className="text-emerald-400 font-bold mt-2">{approval.amount} DH</p>
+                              <p className="text-lime font-bold mt-2">{approval.amount} DH</p>
                             )}
                           </div>
                         </div>
@@ -330,10 +330,10 @@ export default async function ParentApprovalsPage() {
         )}
 
         {/* All Approvals History */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <FileCheck className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <FileCheck className="h-5 w-5 text-lime" />
               Historique des approbations
             </CardTitle>
           </CardHeader>
@@ -346,17 +346,17 @@ export default async function ParentApprovalsPage() {
                   return (
                     <div
                       key={approval.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all"
+                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-ink transition-all"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-lg bg-card flex items-center justify-center">
                           {getApprovalIcon(approval.action_type)}
                         </div>
                         <div>
-                          <p className="font-medium text-white">
+                          <p className="font-medium text-ink">
                             {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
                           </p>
-                          <div className="flex items-center gap-2 text-xs text-zinc-500">
+                          <div className="flex items-center gap-2 text-xs text-mute">
                             <span>{approval.teen?.full_name}</span>
                             <span>•</span>
                             <span>{getApprovalTypeName(approval.action_type)}</span>
@@ -367,7 +367,7 @@ export default async function ParentApprovalsPage() {
                       </div>
                       <div className="flex items-center gap-3">
                         {approval.amount && (
-                          <span className="text-zinc-400 font-medium">{approval.amount} DH</span>
+                          <span className="text-mute font-medium">{approval.amount} DH</span>
                         )}
                         <span className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${status.class}`}>
                           <StatusIcon className="h-3 w-3" />

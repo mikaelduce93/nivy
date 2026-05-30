@@ -45,28 +45,28 @@ function statusBadge(status: string) {
     case "paid":
     case "completed":
       return (
-        <Badge className="bg-green-500/20 text-green-400">
+        <Badge className="bg-lime/20 text-lime">
           <CheckCircle2 className="w-3 h-3 mr-1" />
           Payé
         </Badge>
       )
     case "pending":
       return (
-        <Badge className="bg-yellow-500/20 text-yellow-400">
+        <Badge className="bg-gold/20 text-gold">
           <Clock className="w-3 h-3 mr-1" />
           En attente
         </Badge>
       )
     case "processing":
       return (
-        <Badge className="bg-blue-500/20 text-blue-400">
+        <Badge className="bg-teal/20 text-teal">
           <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
           Traitement
         </Badge>
       )
     case "failed":
       return (
-        <Badge className="bg-red-500/20 text-red-400">
+        <Badge className="bg-destructive/20 text-destructive">
           <XCircle className="w-3 h-3 mr-1" />
           Échoué
         </Badge>
@@ -83,9 +83,9 @@ export default async function PartnerPayoutsPage() {
   if (userInfo.role !== "partner") {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes Paiements</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-red-400">
+        <h1 className="text-3xl font-black text-ink">Mes Paiements</h1>
+        <Card className="bg-card border-ink">
+          <CardContent className="p-10 text-center text-destructive">
             Accès refusé — espace réservé aux partenaires.
           </CardContent>
         </Card>
@@ -97,11 +97,11 @@ export default async function PartnerPayoutsPage() {
   if (!partnerId) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes Paiements</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <h1 className="text-3xl font-black text-ink">Mes Paiements</h1>
+        <Card className="bg-card border-ink">
           <CardContent className="p-10 text-center">
-            <p className="text-zinc-300 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-zinc-500 mt-2">
+            <p className="text-ink-2 font-semibold">Profil partenaire introuvable</p>
+            <p className="text-sm text-mute mt-2">
               Votre compte n'est pas encore lié à une fiche partenaire active.
             </p>
           </CardContent>
@@ -146,62 +146,62 @@ export default async function PartnerPayoutsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Wallet className="w-7 h-7 text-green-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <Wallet className="w-7 h-7 text-lime" />
           Mes Paiements
         </h1>
-        <p className="text-zinc-400 mt-1">
+        <p className="text-mute mt-1">
           Historique des virements générés par Nivy (mensuel, le 1er de chaque mois)
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-green-400 font-medium">Total payé</p>
-                <p className="text-2xl font-black text-white">
+                <p className="text-xs text-lime font-medium">Total payé</p>
+                <p className="text-2xl font-black text-ink">
                   {Math.round(totalPaid).toLocaleString()} DH
                 </p>
               </div>
-              <TrendingUp className="h-6 w-6 text-green-400" />
+              <TrendingUp className="h-6 w-6 text-lime" />
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-yellow-400 font-medium">En attente</p>
-                <p className="text-2xl font-black text-white">
+                <p className="text-xs text-gold font-medium">En attente</p>
+                <p className="text-2xl font-black text-ink">
                   {Math.round(totalPending).toLocaleString()} DH
                 </p>
               </div>
-              <Clock className="h-6 w-6 text-yellow-400" />
+              <Clock className="h-6 w-6 text-gold" />
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-red-400 font-medium">Échoués</p>
-                <p className="text-2xl font-black text-white">
+                <p className="text-xs text-destructive font-medium">Échoués</p>
+                <p className="text-2xl font-black text-ink">
                   {Math.round(totalFailed).toLocaleString()} DH
                 </p>
               </div>
-              <XCircle className="h-6 w-6 text-red-400" />
+              <XCircle className="h-6 w-6 text-destructive" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Payout list */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Historique des paiements</CardTitle>
+          <CardTitle className="text-ink">Historique des paiements</CardTitle>
         </CardHeader>
         <CardContent>
           {payouts.length === 0 ? (
@@ -215,20 +215,20 @@ export default async function PartnerPayoutsPage() {
               {payouts.map((p) => (
                 <div
                   key={p.id}
-                  className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-zinc-800/50 border border-zinc-800"
+                  className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-card border border-ink"
                 >
                   <div className="min-w-0">
-                    <p className="font-bold text-white">
+                    <p className="font-bold text-ink">
                       {Math.round(num(p.total_dh)).toLocaleString()} DH
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-mute">
                       Période {formatPeriod(p.period_start, p.period_end)}
                       {p.reference ? ` · ${p.reference}` : ""}
                     </p>
                   </div>
                   <div className="text-right">
                     {statusBadge(p.status)}
-                    <p className="text-xs text-zinc-500 mt-1">
+                    <p className="text-xs text-mute mt-1">
                       {p.paid_at
                         ? `Payé le ${formatDate(p.paid_at)}`
                         : `Créé le ${formatDate(p.created_at)}`}

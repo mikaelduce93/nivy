@@ -16,13 +16,13 @@ export default function ParentsPage() {
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="relative pt-32 pb-20 px-4 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-coral-500/10 to-purple-500/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-lime/10 via-coral-500/10 to-pink/10" />
           
           <div className="max-w-7xl mx-auto relative z-10">
             <TrustBanner />
             
             <div className="text-center space-y-6 mt-12">
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-600 via-coral-500 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-lime via-coral-500 to-pink bg-clip-text text-transparent">
                 Guide Parents
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -57,7 +57,7 @@ export default function ParentsPage() {
               ].map((item, idx) => (
                 <Card key={idx}>
                   <CardContent className="p-6 text-center">
-                    <item.icon className="w-12 h-12 mx-auto mb-4 text-emerald-600" />
+                    <item.icon className="w-12 h-12 mx-auto mb-4 text-lime" />
                     <h3 className="text-xl font-bold mb-2">{item.title}</h3>
                     <p className="text-muted-foreground">{item.description}</p>
                   </CardContent>
@@ -101,13 +101,13 @@ export default function ParentsPage() {
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-6">
                   <div className="flex-shrink-0">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-r from-emerald-600 to-coral-600 flex items-center justify-center text-white text-2xl font-bold">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-r from-lime to-coral-600 flex items-center justify-center text-ink text-2xl font-bold">
                       {item.step}
                     </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start gap-3 mb-2">
-                      <item.icon className="w-6 h-6 text-emerald-600 mt-1" />
+                      <item.icon className="w-6 h-6 text-lime mt-1" />
                       <h3 className="text-xl font-bold">{item.title}</h3>
                     </div>
                     <p className="text-muted-foreground">{item.description}</p>
@@ -168,7 +168,7 @@ export default function ParentsPage() {
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link href="/support">
-                <Button size="lg" className="bg-gradient-to-r from-emerald-600 to-coral-600">
+                <Button size="lg" className="bg-gradient-to-r from-lime to-coral-600">
                   <Phone className="mr-2 h-5 w-5" />
                   Nous Contacter
                 </Button>

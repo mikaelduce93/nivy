@@ -68,58 +68,58 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <BackButton href="/admin" label="Retour au dashboard" />
         <div className="mb-8">
-          <h1 className="text-4xl font-black text-white mb-2">Gestion des utilisateurs</h1>
-          <p className="text-zinc-400">Gérez tous les utilisateurs de la plateforme</p>
+          <h1 className="text-4xl font-black text-ink mb-2">Gestion des utilisateurs</h1>
+          <p className="text-mute">Gérez tous les utilisateurs de la plateforme</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card className="p-4 bg-zinc-900 border-zinc-800">
+          <Card className="p-4 bg-card border-ink">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-zinc-400 text-sm mb-1">Total</p>
-                <p className="text-3xl font-black text-white">{stats.total}</p>
+                <p className="text-mute text-sm mb-1">Total</p>
+                <p className="text-3xl font-black text-ink">{stats.total}</p>
               </div>
-              <Users className="w-10 h-10 text-cyan-400" />
+              <Users className="w-10 h-10 text-teal" />
             </div>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-purple-500/30">
+          <Card className="p-4 bg-card border-pink/30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-zinc-400 text-sm mb-1">Administrateurs</p>
-                <p className="text-3xl font-black text-purple-400">{stats.admins}</p>
+                <p className="text-mute text-sm mb-1">Administrateurs</p>
+                <p className="text-3xl font-black text-pink">{stats.admins}</p>
               </div>
-              <Shield className="w-10 h-10 text-purple-400" />
+              <Shield className="w-10 h-10 text-pink" />
             </div>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-blue-500/30">
+          <Card className="p-4 bg-card border-teal/30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-zinc-400 text-sm mb-1">Parents</p>
-                <p className="text-3xl font-black text-blue-400">{stats.parents}</p>
+                <p className="text-mute text-sm mb-1">Parents</p>
+                <p className="text-3xl font-black text-teal">{stats.parents}</p>
               </div>
-              <UserPlus className="w-10 h-10 text-blue-400" />
+              <UserPlus className="w-10 h-10 text-teal" />
             </div>
           </Card>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
             <Input
               placeholder="Rechercher par nom, email, téléphone..."
-              className="pl-10 bg-zinc-900 border-zinc-800"
+              className="pl-10 bg-card border-ink"
             />
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="bg-transparent border-zinc-800">
+            <Button variant="outline" className="bg-transparent border-ink">
               <Filter className="w-4 h-4 mr-2" />
               Filtres
             </Button>
-            <Button variant="outline" className="bg-transparent border-zinc-800">
+            <Button variant="outline" className="bg-transparent border-ink">
               <Download className="w-4 h-4 mr-2" />
               Exporter
             </Button>
@@ -129,10 +129,10 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         {filteredProfiles && filteredProfiles.length > 0 ? (
           <div className="space-y-4">
             {filteredProfiles.map((profile) => (
-              <Card key={profile.id} className="p-6 bg-zinc-900 border-zinc-800">
+              <Card key={profile.id} className="p-6 bg-card border-ink">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center flex-shrink-0">
                       {profile.avatar_url ? (
                         <Image
                           src={profile.avatar_url || "/placeholder.svg"}
@@ -142,7 +142,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                           className="w-full h-full object-cover rounded-full"
                         />
                       ) : (
-                        <span className="text-white font-bold text-lg">
+                        <span className="text-ink font-bold text-lg">
                           {(profile.prenom || "U").charAt(0).toUpperCase()}
                         </span>
                       )}
@@ -150,11 +150,11 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
 
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-white">
+                        <h3 className="text-lg font-bold text-ink">
                           {profile.prenom} {profile.nom}
                         </h3>
                         {profile.is_admin && (
-                          <div className="px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs font-semibold flex items-center gap-1">
+                          <div className="px-2 py-1 rounded-full bg-pink/20 text-pink text-xs font-semibold flex items-center gap-1">
                             <Shield className="w-3 h-3" />
                             ADMIN
                           </div>
@@ -163,29 +163,29 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
 
                       <div className="grid md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <p className="text-zinc-500 mb-1">Contact</p>
-                          <p className="text-zinc-300">{profile.email}</p>
-                          {profile.telephone && <p className="text-zinc-400">{profile.telephone}</p>}
+                          <p className="text-mute mb-1">Contact</p>
+                          <p className="text-ink-2">{profile.email}</p>
+                          {profile.telephone && <p className="text-mute">{profile.telephone}</p>}
                         </div>
 
                         <div>
-                          <p className="text-zinc-500 mb-1">Statistiques</p>
-                          <p className="text-cyan-400">
+                          <p className="text-mute mb-1">Statistiques</p>
+                          <p className="text-teal">
                             {profile.bookings_count} réservation{profile.bookings_count !== 1 ? "s" : ""}
                           </p>
-                          <p className="text-blue-400">
+                          <p className="text-teal">
                             {profile.children_count} ado{profile.children_count !== 1 ? "s" : ""}
                           </p>
                         </div>
 
                         <div>
-                          <p className="text-zinc-500 mb-1">Revenus générés</p>
-                          <p className="text-green-400 font-bold text-lg">{profile.total_revenue} DH</p>
+                          <p className="text-mute mb-1">Revenus générés</p>
+                          <p className="text-lime font-bold text-lg">{profile.total_revenue} DH</p>
                         </div>
 
                         <div>
-                          <p className="text-zinc-500 mb-1">Inscription</p>
-                          <p className="text-zinc-400 text-xs">
+                          <p className="text-mute mb-1">Inscription</p>
+                          <p className="text-mute text-xs">
                             {new Date(profile.created_at).toLocaleDateString("fr-FR", {
                               day: "numeric",
                               month: "short",
@@ -202,7 +202,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                       asChild
                       size="sm"
                       variant="outline"
-                      className="bg-transparent border-cyan-500 text-cyan-400"
+                      className="bg-transparent border-teal text-teal"
                     >
                       <Link href={`/admin/utilisateurs/${profile.id}`}>Détails</Link>
                     </Button>
@@ -212,10 +212,10 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
             ))}
           </div>
         ) : (
-          <Card className="p-12 text-center bg-zinc-900 border-zinc-800">
-            <Users className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Aucun utilisateur trouvé</h3>
-            <p className="text-zinc-400">Essayez de modifier vos critères de recherche</p>
+          <Card className="p-12 text-center bg-card border-ink">
+            <Users className="w-16 h-16 text-ink mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-ink mb-2">Aucun utilisateur trouvé</h3>
+            <p className="text-mute">Essayez de modifier vos critères de recherche</p>
           </Card>
         )}
       </div>

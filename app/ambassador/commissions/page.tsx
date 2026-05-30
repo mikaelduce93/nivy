@@ -162,9 +162,9 @@ export default async function AmbassadorCommissionsPage() {
 
   const getTransactionIcon = (type: string, amount: number) => {
     if (type === "withdrawal") {
-      return <ArrowUpRight className="h-5 w-5 text-red-400" />
+      return <ArrowUpRight className="h-5 w-5 text-destructive" />
     }
-    return <ArrowDownRight className="h-5 w-5 text-emerald-400" />
+    return <ArrowDownRight className="h-5 w-5 text-lime" />
   }
 
   const getStatusBadge = (status: string) => {
@@ -173,25 +173,25 @@ export default async function AmbassadorCommissionsPage() {
         return {
           icon: CheckCircle,
           text: "Complété",
-          class: "bg-emerald-500/20 text-emerald-400"
+          class: "bg-lime/20 text-lime"
         }
       case "pending":
         return {
           icon: Clock,
           text: "En attente",
-          class: "bg-amber-500/20 text-amber-400"
+          class: "bg-gold/20 text-gold"
         }
       case "active":
         return {
           icon: CheckCircle,
           text: "Actif",
-          class: "bg-emerald-500/20 text-emerald-400"
+          class: "bg-lime/20 text-lime"
         }
       default:
         return {
           icon: CheckCircle,
           text: status,
-          class: "bg-zinc-500/20 text-zinc-400"
+          class: "bg-muted text-mute"
         }
     }
   }
@@ -205,7 +205,7 @@ export default async function AmbassadorCommissionsPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -215,15 +215,15 @@ export default async function AmbassadorCommissionsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Mes Commissions</h1>
-            <p className="text-zinc-400">Historique complet de vos gains</p>
+            <h1 className="text-3xl font-black text-ink">Mes Commissions</h1>
+            <p className="text-mute">Historique complet de vos gains</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
+            <Button variant="outline" className="border-ink text-ink-2">
               <Filter className="h-4 w-4 mr-2" />
               Filtrer
             </Button>
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
+            <Button variant="outline" className="border-ink text-ink-2">
               <Download className="h-4 w-4 mr-2" />
               Exporter
             </Button>
@@ -232,62 +232,62 @@ export default async function AmbassadorCommissionsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-card">
+          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-400 font-medium">Total gagné</p>
-                  <p className="text-3xl font-black text-white">{stats?.totalEarnings || 0} DH</p>
+                  <p className="text-xs text-lime font-medium">Total gagné</p>
+                  <p className="text-3xl font-black text-ink">{stats?.totalEarnings || 0} DH</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-emerald-400" />
+                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-lime" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-card">
+          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-400 font-medium">Disponible</p>
-                  <p className="text-3xl font-black text-white">{stats?.availableBalance || 0} DH</p>
+                  <p className="text-xs text-teal font-medium">Disponible</p>
+                  <p className="text-3xl font-black text-ink">{stats?.availableBalance || 0} DH</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
+                  <Wallet className="h-6 w-6 text-teal" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-card">
+          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-purple-400 font-medium">Ce mois</p>
-                  <p className="text-3xl font-black text-white">{stats?.monthlyEarnings || 0} DH</p>
+                  <p className="text-xs text-pink font-medium">Ce mois</p>
+                  <p className="text-3xl font-black text-ink">{stats?.monthlyEarnings || 0} DH</p>
                   {growth !== 0 && (
-                    <p className={`text-xs mt-1 ${growth > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    <p className={`text-xs mt-1 ${growth > 0 ? "text-lime" : "text-destructive"}`}>
                       {growth > 0 ? "+" : ""}{growth}% vs mois dernier
                     </p>
                   )}
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-purple-400" />
+                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-pink" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-card">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-400 font-medium">Taux commission</p>
-                  <p className="text-3xl font-black text-white">{stats?.commissionRate || 15}%</p>
+                  <p className="text-xs text-gold font-medium">Taux commission</p>
+                  <p className="text-3xl font-black text-ink">{stats?.commissionRate || 15}%</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-amber-400" />
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-gold" />
                 </div>
               </div>
             </CardContent>
@@ -296,14 +296,14 @@ export default async function AmbassadorCommissionsPage() {
 
         {/* Summary Cards */}
         <div className="grid md:grid-cols-2 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border-emerald-500/20">
+          <Card className="bg-gradient-to-br from-lime/10 to-lime/10 border-lime/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-emerald-400 font-medium">Total retiré</p>
-                  <p className="text-2xl font-black text-white mt-1">{stats?.totalWithdrawn || 0} DH</p>
+                  <p className="text-sm text-lime font-medium">Total retiré</p>
+                  <p className="text-2xl font-black text-ink mt-1">{stats?.totalWithdrawn || 0} DH</p>
                 </div>
-                <Button asChild size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                <Button asChild size="sm" className="bg-lime hover:bg-lime">
                   <Link href="/ambassador/withdrawals">
                     Retirer
                   </Link>
@@ -312,24 +312,24 @@ export default async function AmbassadorCommissionsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
+          <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-amber-400 font-medium">En attente de traitement</p>
-                  <p className="text-2xl font-black text-white mt-1">{stats?.pendingWithdrawals || 0} DH</p>
+                  <p className="text-sm text-gold font-medium">En attente de traitement</p>
+                  <p className="text-2xl font-black text-ink mt-1">{stats?.pendingWithdrawals || 0} DH</p>
                 </div>
-                <Clock className="h-8 w-8 text-amber-400" />
+                <Clock className="h-8 w-8 text-gold" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Transaction History */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-lime" />
               Historique des transactions
             </CardTitle>
           </CardHeader>
@@ -344,22 +344,22 @@ export default async function AmbassadorCommissionsPage() {
                   return (
                     <div
                       key={transaction.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-zinc-800 hover:border-zinc-700 transition-all"
+                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-ink transition-all"
                     >
                       <div className="flex items-center gap-4">
                         <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${
-                          isPositive ? "bg-emerald-500/20" : "bg-red-500/20"
+                          isPositive ? "bg-lime/20" : "bg-destructive/20"
                         }`}>
                           {getTransactionIcon(transaction.type, transaction.amount)}
                         </div>
                         <div>
-                          <p className="font-medium text-white">{transaction.description}</p>
-                          <p className="text-xs text-zinc-500">{formatDateTime(transaction.date)}</p>
+                          <p className="font-medium text-ink">{transaction.description}</p>
+                          <p className="text-xs text-mute">{formatDateTime(transaction.date)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <p className={`text-lg font-black ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
+                          <p className={`text-lg font-black ${isPositive ? "text-lime" : "text-destructive"}`}>
                             {isPositive ? "+" : ""}{transaction.amount} DH
                           </p>
                         </div>
@@ -374,12 +374,12 @@ export default async function AmbassadorCommissionsPage() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <Wallet className="h-20 w-20 mx-auto mb-6 text-zinc-700" />
-                <h3 className="text-2xl font-bold text-white mb-2">Pas encore de transactions</h3>
-                <p className="text-zinc-400 mb-6">
+                <Wallet className="h-20 w-20 mx-auto mb-6 text-ink" />
+                <h3 className="text-2xl font-bold text-ink mb-2">Pas encore de transactions</h3>
+                <p className="text-mute mb-6">
                   Vos commissions apparaîtront ici lorsque vos filleuls s'inscriront
                 </p>
-                <Button asChild className="bg-amber-500 hover:bg-amber-600 text-white">
+                <Button asChild className="bg-gold hover:bg-gold text-ink">
                   <Link href="/ambassador">
                     Partager mon code
                   </Link>

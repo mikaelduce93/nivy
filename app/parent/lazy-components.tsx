@@ -35,7 +35,7 @@ function FinancialOverviewSkeleton() {
     <SkeletonCard
       noImage
       lines={4}
-      className="min-h-[440px] border-white/5 bg-zinc-900/40"
+      className="min-h-[440px] border-ink bg-card"
     />
   )
 }
@@ -62,7 +62,7 @@ function EvolutionTrackerSkeleton() {
     <SkeletonCard
       noImage
       lines={5}
-      className="min-h-[260px] border-white/5 bg-zinc-900/40"
+      className="min-h-[260px] border-ink bg-card"
     />
   )
 }
@@ -89,7 +89,7 @@ function SponsorChallengeFormSkeleton() {
     <SkeletonCard
       noImage
       lines={3}
-      className="min-h-[200px] border-white/5 bg-zinc-900/40"
+      className="min-h-[200px] border-ink bg-card"
     />
   )
 }

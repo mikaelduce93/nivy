@@ -58,44 +58,44 @@ export default async function AdminLogsPage() {
   const getActionIcon = (action: string) => {
     switch (action) {
       case "login":
-        return <LogIn className="h-4 w-4 text-emerald-400" />
+        return <LogIn className="h-4 w-4 text-lime" />
       case "logout":
-        return <LogOut className="h-4 w-4 text-zinc-400" />
+        return <LogOut className="h-4 w-4 text-mute" />
       case "create":
-        return <Plus className="h-4 w-4 text-blue-400" />
+        return <Plus className="h-4 w-4 text-teal" />
       case "update":
-        return <Edit className="h-4 w-4 text-amber-400" />
+        return <Edit className="h-4 w-4 text-gold" />
       case "delete":
-        return <Trash2 className="h-4 w-4 text-red-400" />
+        return <Trash2 className="h-4 w-4 text-destructive" />
       case "permission":
-        return <ShieldCheck className="h-4 w-4 text-purple-400" />
+        return <ShieldCheck className="h-4 w-4 text-pink" />
       case "payment":
-        return <CreditCard className="h-4 w-4 text-emerald-400" />
+        return <CreditCard className="h-4 w-4 text-lime" />
       case "user":
-        return <Users className="h-4 w-4 text-blue-400" />
+        return <Users className="h-4 w-4 text-teal" />
       default:
-        return <Activity className="h-4 w-4 text-zinc-400" />
+        return <Activity className="h-4 w-4 text-mute" />
     }
   }
 
   const getActionBadge = (action: string) => {
     switch (action) {
       case "login":
-        return "bg-emerald-500/20 text-emerald-400"
+        return "bg-lime/20 text-lime"
       case "logout":
-        return "bg-zinc-500/20 text-zinc-400"
+        return "bg-muted text-mute"
       case "create":
-        return "bg-blue-500/20 text-blue-400"
+        return "bg-teal/20 text-teal"
       case "update":
-        return "bg-amber-500/20 text-amber-400"
+        return "bg-gold/20 text-gold"
       case "delete":
-        return "bg-red-500/20 text-red-400"
+        return "bg-destructive/20 text-destructive"
       case "permission":
-        return "bg-purple-500/20 text-purple-400"
+        return "bg-pink/20 text-pink"
       case "payment":
-        return "bg-emerald-500/20 text-emerald-400"
+        return "bg-lime/20 text-lime"
       default:
-        return "bg-zinc-500/20 text-zinc-400"
+        return "bg-muted text-mute"
     }
   }
 
@@ -121,10 +121,10 @@ export default async function AdminLogsPage() {
   const loginCount = logs.filter((log: any) => log.action === "login").length
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/admin">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -134,15 +134,15 @@ export default async function AdminLogsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Logs d'Activité</h1>
-            <p className="text-zinc-400">Surveillez toutes les actions sur la plateforme</p>
+            <h1 className="text-3xl font-black text-ink">Logs d'Activité</h1>
+            <p className="text-mute">Surveillez toutes les actions sur la plateforme</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
+            <Button variant="outline" className="border-ink text-ink-2">
               <Filter className="h-4 w-4 mr-2" />
               Filtrer
             </Button>
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
+            <Button variant="outline" className="border-ink text-ink-2">
               <Download className="h-4 w-4 mr-2" />
               Exporter
             </Button>
@@ -151,57 +151,57 @@ export default async function AdminLogsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-400 font-medium">Total Logs</p>
-                  <p className="text-3xl font-black text-white">{logs.length}</p>
+                  <p className="text-xs text-lime font-medium">Total Logs</p>
+                  <p className="text-3xl font-black text-ink">{logs.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-emerald-400" />
+                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
+                  <Activity className="h-6 w-6 text-lime" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-400 font-medium">Aujourd'hui</p>
-                  <p className="text-3xl font-black text-white">{todayLogs.length}</p>
+                  <p className="text-xs text-teal font-medium">Aujourd'hui</p>
+                  <p className="text-3xl font-black text-ink">{todayLogs.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-teal" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-purple-400 font-medium">Utilisateurs</p>
-                  <p className="text-3xl font-black text-white">{uniqueUsers}</p>
+                  <p className="text-xs text-pink font-medium">Utilisateurs</p>
+                  <p className="text-3xl font-black text-ink">{uniqueUsers}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <User className="h-6 w-6 text-purple-400" />
+                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
+                  <User className="h-6 w-6 text-pink" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-400 font-medium">Connexions</p>
-                  <p className="text-3xl font-black text-white">{loginCount}</p>
+                  <p className="text-xs text-gold font-medium">Connexions</p>
+                  <p className="text-3xl font-black text-ink">{loginCount}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <LogIn className="h-6 w-6 text-amber-400" />
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <LogIn className="h-6 w-6 text-gold" />
                 </div>
               </div>
             </CardContent>
@@ -209,10 +209,10 @@ export default async function AdminLogsPage() {
         </div>
 
         {/* Activity Log List */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Activity className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Activity className="h-5 w-5 text-lime" />
               Journal d'activité
             </CardTitle>
           </CardHeader>
@@ -222,20 +222,20 @@ export default async function AdminLogsPage() {
                 {logs.map((log: any) => (
                   <div
                     key={log.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all"
+                    className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-ink transition-all"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-zinc-800 flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-xl bg-card flex items-center justify-center">
                         {getActionIcon(log.action)}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-white">{log.description || log.action}</p>
+                          <p className="font-semibold text-ink">{log.description || log.action}</p>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${getActionBadge(log.action)}`}>
                             {log.action}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-zinc-400">
+                        <div className="flex items-center gap-2 text-xs text-mute">
                           <User className="h-3 w-3" />
                           <span>{log.user?.full_name || log.user?.email || "Système"}</span>
                           {log.resource_type && (
@@ -247,7 +247,7 @@ export default async function AdminLogsPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 text-zinc-500">
+                    <div className="flex items-center gap-3 text-mute">
                       <Clock className="h-4 w-4" />
                       <span className="text-sm">{formatDate(log.created_at)}</span>
                     </div>
@@ -256,9 +256,9 @@ export default async function AdminLogsPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Activity className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                <h3 className="text-xl font-bold text-white mb-2">Aucun log</h3>
-                <p className="text-zinc-400">Les logs d'activité apparaîtront ici</p>
+                <Activity className="h-16 w-16 mx-auto mb-4 text-ink" />
+                <h3 className="text-xl font-bold text-ink mb-2">Aucun log</h3>
+                <p className="text-mute">Les logs d'activité apparaîtront ici</p>
               </div>
             )}
           </CardContent>

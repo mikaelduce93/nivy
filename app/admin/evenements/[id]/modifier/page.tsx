@@ -184,33 +184,33 @@ export default function EditEventPage() {
 
   if (isFetching) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
-          <p className="text-zinc-400">Chargement de l'événement...</p>
+          <Loader2 className="w-12 h-12 text-teal animate-spin mx-auto mb-4" />
+          <p className="text-mute">Chargement de l'événement...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <div className="mb-8">
-          <Button asChild variant="outline" className="mb-4 bg-transparent border-zinc-700 text-zinc-300">
+          <Button asChild variant="outline" className="mb-4 bg-transparent border-ink text-ink-2">
             <Link href="/admin/evenements">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour aux événements
             </Link>
           </Button>
-          <h1 className="text-4xl font-black text-white mb-2">Modifier l'événement</h1>
-          <p className="text-zinc-400">Modifiez les informations de l'événement</p>
+          <h1 className="text-4xl font-black text-ink mb-2">Modifier l'événement</h1>
+          <p className="text-mute">Modifiez les informations de l'événement</p>
         </div>
 
         {error && (
-          <Card className="mb-6 bg-red-500/10 border-red-500/50">
+          <Card className="mb-6 bg-destructive/10 border-destructive/50">
             <CardContent className="pt-6">
-              <p className="text-red-400">{error}</p>
+              <p className="text-destructive">{error}</p>
             </CardContent>
           </Card>
         )}
@@ -218,45 +218,45 @@ export default function EditEventPage() {
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6">
             {/* Informations de base */}
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-ink">
               <CardHeader>
-                <CardTitle className="text-white">Informations de base</CardTitle>
-                <CardDescription className="text-zinc-400">
+                <CardTitle className="text-ink">Informations de base</CardTitle>
+                <CardDescription className="text-mute">
                   Les informations principales de l'événement
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-zinc-300">
-                    Titre de l'événement <span className="text-red-400">*</span>
+                  <Label htmlFor="title" className="text-ink-2">
+                    Titre de l'événement <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="title"
                     value={title}
                     onChange={(e) => handleTitleChange(e.target.value)}
                     placeholder="Ex: Soirée Teens Party - Casablanca"
-                    className="bg-zinc-950 border-zinc-700 text-white"
+                    className="bg-background border-ink text-ink"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="slug" className="text-zinc-300">
-                    Slug (URL) <span className="text-red-400">*</span>
+                  <Label htmlFor="slug" className="text-ink-2">
+                    Slug (URL) <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="slug"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
                     placeholder="soiree-teens-party-casablanca"
-                    className="bg-zinc-950 border-zinc-700 text-white font-mono text-sm"
+                    className="bg-background border-ink text-ink font-mono text-sm"
                     required
                   />
-                  <p className="text-xs text-zinc-500">Généré automatiquement à partir du titre</p>
+                  <p className="text-xs text-mute">Généré automatiquement à partir du titre</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-zinc-300">
+                  <Label htmlFor="description" className="text-ink-2">
                     Description
                   </Label>
                   <Textarea
@@ -264,21 +264,21 @@ export default function EditEventPage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Décrivez votre événement..."
-                    className="bg-zinc-950 border-zinc-700 text-white min-h-32"
+                    className="bg-background border-ink text-ink min-h-32"
                     rows={4}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category" className="text-zinc-300">
-                      Catégorie <span className="text-red-400">*</span>
+                    <Label htmlFor="category" className="text-ink-2">
+                      Catégorie <span className="text-destructive">*</span>
                     </Label>
                     <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
+                      <SelectTrigger className="bg-background border-ink text-ink">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border-zinc-700">
+                      <SelectContent className="bg-card border-ink">
                         <SelectItem value="party">Soirée / Party</SelectItem>
                         <SelectItem value="concert">Concert</SelectItem>
                         <SelectItem value="workshop">Atelier</SelectItem>
@@ -290,14 +290,14 @@ export default function EditEventPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="status" className="text-zinc-300">
-                      Statut <span className="text-red-400">*</span>
+                    <Label htmlFor="status" className="text-ink-2">
+                      Statut <span className="text-destructive">*</span>
                     </Label>
                     <Select value={status} onValueChange={setStatus}>
-                      <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
+                      <SelectTrigger className="bg-background border-ink text-ink">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border-zinc-700">
+                      <SelectContent className="bg-card border-ink">
                         <SelectItem value="upcoming">À venir</SelectItem>
                         <SelectItem value="ongoing">En cours</SelectItem>
                         <SelectItem value="completed">Terminé</SelectItem>
@@ -308,7 +308,7 @@ export default function EditEventPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="imageUrl" className="text-zinc-300 flex items-center gap-2">
+                  <Label htmlFor="imageUrl" className="text-ink-2 flex items-center gap-2">
                     <ImageIcon className="w-4 h-4" />
                     URL de l'image
                   </Label>
@@ -317,56 +317,56 @@ export default function EditEventPage() {
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="https://..."
-                    className="bg-zinc-950 border-zinc-700 text-white"
+                    className="bg-background border-ink text-ink"
                   />
                 </div>
               </CardContent>
             </Card>
 
             {/* Date et heure */}
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-ink">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-ink flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   Date et heure
                 </CardTitle>
-                <CardDescription className="text-zinc-400">
+                <CardDescription className="text-mute">
                   Quand aura lieu l'événement ?
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="eventDate" className="text-zinc-300">
-                      Date de l'événement <span className="text-red-400">*</span>
+                    <Label htmlFor="eventDate" className="text-ink-2">
+                      Date de l'événement <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="eventDate"
                       type="date"
                       value={eventDate}
                       onChange={(e) => setEventDate(e.target.value)}
-                      className="bg-zinc-950 border-zinc-700 text-white"
+                      className="bg-background border-ink text-ink"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="eventTime" className="text-zinc-300">
-                      Heure de début <span className="text-red-400">*</span>
+                    <Label htmlFor="eventTime" className="text-ink-2">
+                      Heure de début <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="eventTime"
                       type="time"
                       value={eventTime}
                       onChange={(e) => setEventTime(e.target.value)}
-                      className="bg-zinc-950 border-zinc-700 text-white"
+                      className="bg-background border-ink text-ink"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endTime" className="text-zinc-300">
+                  <Label htmlFor="endTime" className="text-ink-2">
                     Heure de fin (optionnel)
                   </Label>
                   <Input
@@ -374,61 +374,61 @@ export default function EditEventPage() {
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="bg-zinc-950 border-zinc-700 text-white"
+                    className="bg-background border-ink text-ink"
                   />
                 </div>
               </CardContent>
             </Card>
 
             {/* Lieu */}
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-ink">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-ink flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
                   Lieu de l'événement
                 </CardTitle>
-                <CardDescription className="text-zinc-400">
+                <CardDescription className="text-mute">
                   Où aura lieu l'événement ?
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="venueName" className="text-zinc-300">
-                    Nom du lieu <span className="text-red-400">*</span>
+                  <Label htmlFor="venueName" className="text-ink-2">
+                    Nom du lieu <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="venueName"
                     value={venueName}
                     onChange={(e) => setVenueName(e.target.value)}
                     placeholder="Ex: Salle des fêtes Anfa"
-                    className="bg-zinc-950 border-zinc-700 text-white"
+                    className="bg-background border-ink text-ink"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="venueAddress" className="text-zinc-300">
-                    Adresse <span className="text-red-400">*</span>
+                  <Label htmlFor="venueAddress" className="text-ink-2">
+                    Adresse <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="venueAddress"
                     value={venueAddress}
                     onChange={(e) => setVenueAddress(e.target.value)}
                     placeholder="Ex: Boulevard de la Corniche, Casablanca"
-                    className="bg-zinc-950 border-zinc-700 text-white"
+                    className="bg-background border-ink text-ink"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-zinc-300">
-                    Ville <span className="text-red-400">*</span>
+                  <Label htmlFor="city" className="text-ink-2">
+                    Ville <span className="text-destructive">*</span>
                   </Label>
                   <Select value={city} onValueChange={setCity}>
-                    <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
+                    <SelectTrigger className="bg-background border-ink text-ink">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-700">
+                    <SelectContent className="bg-card border-ink">
                       <SelectItem value="Casablanca">Casablanca</SelectItem>
                       <SelectItem value="Rabat">Rabat</SelectItem>
                       <SelectItem value="Marrakech">Marrakech</SelectItem>
@@ -446,21 +446,21 @@ export default function EditEventPage() {
             </Card>
 
             {/* Capacité et disponibilité */}
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-ink">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-ink flex items-center gap-2">
                   <Users className="w-5 h-5" />
                   Capacité et restrictions d'âge
                 </CardTitle>
-                <CardDescription className="text-zinc-400">
+                <CardDescription className="text-mute">
                   Combien de personnes et quel âge ?
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="capacity" className="text-zinc-300">
-                      Capacité maximale <span className="text-red-400">*</span>
+                    <Label htmlFor="capacity" className="text-ink-2">
+                      Capacité maximale <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="capacity"
@@ -469,14 +469,14 @@ export default function EditEventPage() {
                       value={capacity}
                       onChange={(e) => setCapacity(e.target.value)}
                       placeholder="100"
-                      className="bg-zinc-950 border-zinc-700 text-white"
+                      className="bg-background border-ink text-ink"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="availableSpots" className="text-zinc-300">
-                      Places disponibles <span className="text-red-400">*</span>
+                    <Label htmlFor="availableSpots" className="text-ink-2">
+                      Places disponibles <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="availableSpots"
@@ -485,7 +485,7 @@ export default function EditEventPage() {
                       value={availableSpots}
                       onChange={(e) => setAvailableSpots(e.target.value)}
                       placeholder="100"
-                      className="bg-zinc-950 border-zinc-700 text-white"
+                      className="bg-background border-ink text-ink"
                       required
                     />
                   </div>
@@ -493,7 +493,7 @@ export default function EditEventPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="ageMin" className="text-zinc-300">
+                    <Label htmlFor="ageMin" className="text-ink-2">
                       Âge minimum
                     </Label>
                     <Input
@@ -503,12 +503,12 @@ export default function EditEventPage() {
                       max="99"
                       value={ageMin}
                       onChange={(e) => setAgeMin(e.target.value)}
-                      className="bg-zinc-950 border-zinc-700 text-white"
+                      className="bg-background border-ink text-ink"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="ageMax" className="text-zinc-300">
+                    <Label htmlFor="ageMax" className="text-ink-2">
                       Âge maximum
                     </Label>
                     <Input
@@ -518,7 +518,7 @@ export default function EditEventPage() {
                       max="99"
                       value={ageMax}
                       onChange={(e) => setAgeMax(e.target.value)}
-                      className="bg-zinc-950 border-zinc-700 text-white"
+                      className="bg-background border-ink text-ink"
                     />
                   </div>
                 </div>
@@ -526,20 +526,20 @@ export default function EditEventPage() {
             </Card>
 
             {/* Tarification */}
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-ink">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-ink flex items-center gap-2">
                   <DollarSign className="w-5 h-5" />
                   Tarification
                 </CardTitle>
-                <CardDescription className="text-zinc-400">
+                <CardDescription className="text-mute">
                   Prix de base (les réductions VIP seront calculées automatiquement)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="basePrice" className="text-zinc-300">
-                    Prix de base (DH) <span className="text-red-400">*</span>
+                  <Label htmlFor="basePrice" className="text-ink-2">
+                    Prix de base (DH) <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="basePrice"
@@ -549,10 +549,10 @@ export default function EditEventPage() {
                     value={basePrice}
                     onChange={(e) => setBasePrice(e.target.value)}
                     placeholder="150.00"
-                    className="bg-zinc-950 border-zinc-700 text-white"
+                    className="bg-background border-ink text-ink"
                     required
                   />
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-mute">
                     Les détenteurs de cartes VIP bénéficieront de réductions automatiques
                   </p>
                 </div>
@@ -567,7 +567,7 @@ export default function EditEventPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal"
               >
                 {isLoading ? (
                   <>
@@ -585,7 +585,7 @@ export default function EditEventPage() {
                 type="button"
                 variant="outline"
                 onClick={() => router.push('/admin/evenements')}
-                className="bg-transparent border-zinc-700 text-zinc-300"
+                className="bg-transparent border-ink text-ink-2"
               >
                 Annuler
               </Button>

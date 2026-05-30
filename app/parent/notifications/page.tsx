@@ -52,9 +52,9 @@ export default async function ParentNotificationsPage() {
   const unreadCount = notifications.filter((n: any) => !n.is_read).length
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-background text-ink">
       <div className="container mx-auto px-6 py-32 max-w-5xl">
-        <Button asChild variant="ghost" className="mb-6 text-zinc-400 hover:text-white">
+        <Button asChild variant="ghost" className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au dashboard
@@ -63,22 +63,22 @@ export default async function ParentNotificationsPage() {
 
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <Bell className="w-8 h-8 text-emerald-400" />
+            <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+              <Bell className="w-8 h-8 text-lime" />
               Notifications
               {unreadCount > 0 && (
-                <Badge className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                <Badge className="bg-teal/20 text-teal border border-teal/30">
                   {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
                 </Badge>
               )}
             </h1>
-            <p className="text-zinc-400 mt-1">
+            <p className="text-mute mt-1">
               Activité de vos teens, approbations et alertes Nivy
             </p>
           </div>
           <div className="flex items-center gap-2">
             <MarkAllReadButton unreadCount={unreadCount} />
-            <Button asChild variant="outline" className="border-zinc-700 text-zinc-200">
+            <Button asChild variant="outline" className="border-ink text-ink-2">
               <Link href="/parent/settings">
                 <SettingsIcon className="w-4 h-4 mr-2" />
                 Préférences

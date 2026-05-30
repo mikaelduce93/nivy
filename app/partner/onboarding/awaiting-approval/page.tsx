@@ -18,11 +18,11 @@ export default async function PartnerAwaitingApprovalPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-8 text-center space-y-4">
       <h1 className="text-2xl font-bold">Demande partenaire en attente</h1>
-      <p className="text-gray-600 max-w-md">
+      <p className="text-mute max-w-md">
         Votre dossier partenaire est en cours d&apos;examen par notre équipe.
         Vous recevrez un email dès qu&apos;il sera approuvé.
       </p>
-      <Link href="/auth/login" className="text-purple-600 underline">
+      <Link href="/auth/login" className="text-pink underline">
         Retour à la connexion
       </Link>
     </main>

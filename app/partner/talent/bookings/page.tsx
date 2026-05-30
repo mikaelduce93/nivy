@@ -28,8 +28,8 @@ export default async function PartnerTalentBookingsPage() {
 
   if (!partner || partner.partner_type !== "event_talent") {
     return (
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardContent className="p-10 text-center text-zinc-400">
+      <Card className="bg-card border-ink">
+        <CardContent className="p-10 text-center text-mute">
           Cet espace est réservé aux partenaires de type DJ / performer.
         </CardContent>
       </Card>
@@ -39,14 +39,14 @@ export default async function PartnerTalentBookingsPage() {
   return (
     <main className="space-y-6">
       <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Calendar className="w-7 h-7 text-purple-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <Calendar className="w-7 h-7 text-pink" />
           Mes bookings
         </h1>
       </header>
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Demandes & confirmations</CardTitle>
+          <CardTitle className="text-ink">Demandes & confirmations</CardTitle>
         </CardHeader>
         <CardContent>
           <EmptyState

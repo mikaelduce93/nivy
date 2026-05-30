@@ -83,21 +83,21 @@ function statusBadge(status: string) {
     case "paid":
     case "completed":
       return (
-        <Badge className="bg-green-500/20 text-green-400">
+        <Badge className="bg-lime/20 text-lime">
           <CheckCircle2 className="w-3 h-3 mr-1" />
           Payée
         </Badge>
       )
     case "issued":
       return (
-        <Badge className="bg-blue-500/20 text-blue-400">
+        <Badge className="bg-teal/20 text-teal">
           <FileText className="w-3 h-3 mr-1" />
           Émise
         </Badge>
       )
     case "draft":
       return (
-        <Badge className="bg-zinc-500/20 text-zinc-400">
+        <Badge className="bg-muted text-mute">
           <FileEdit className="w-3 h-3 mr-1" />
           Brouillon
         </Badge>
@@ -105,7 +105,7 @@ function statusBadge(status: string) {
     case "pending":
     case "processing":
       return (
-        <Badge className="bg-yellow-500/20 text-yellow-400">
+        <Badge className="bg-gold/20 text-gold">
           <Clock className="w-3 h-3 mr-1" />
           En attente
         </Badge>
@@ -113,7 +113,7 @@ function statusBadge(status: string) {
     case "failed":
     case "cancelled":
       return (
-        <Badge className="bg-red-500/20 text-red-400">
+        <Badge className="bg-destructive/20 text-destructive">
           <XCircle className="w-3 h-3 mr-1" />
           {status === "cancelled" ? "Annulée" : "Échouée"}
         </Badge>
@@ -132,9 +132,9 @@ export default async function PartnerInvoicesPage() {
   if (userInfo.role !== "partner") {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes Factures</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-red-400">
+        <h1 className="text-3xl font-black text-ink">Mes Factures</h1>
+        <Card className="bg-card border-ink">
+          <CardContent className="p-10 text-center text-destructive">
             Accès refusé — espace réservé aux partenaires.
           </CardContent>
         </Card>
@@ -146,11 +146,11 @@ export default async function PartnerInvoicesPage() {
   if (!partnerId) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes Factures</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <h1 className="text-3xl font-black text-ink">Mes Factures</h1>
+        <Card className="bg-card border-ink">
           <CardContent className="p-10 text-center">
-            <p className="text-zinc-300 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-zinc-500 mt-2">
+            <p className="text-ink-2 font-semibold">Profil partenaire introuvable</p>
+            <p className="text-sm text-mute mt-2">
               Votre compte n'est pas encore lié à une fiche partenaire active.
             </p>
           </CardContent>
@@ -238,11 +238,11 @@ export default async function PartnerInvoicesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <FileText className="w-7 h-7 text-purple-400" />
+        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+          <FileText className="w-7 h-7 text-pink" />
           Mes Factures
         </h1>
-        <p className="text-zinc-400 mt-1">
+        <p className="text-mute mt-1">
           Chaque virement Nivy génère une facture. La facture PDF est disponible sur
           demande auprès du support.
         </p>
@@ -250,26 +250,26 @@ export default async function PartnerInvoicesPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-purple-400 font-medium">Total facturé</p>
-            <p className="text-2xl font-black text-white">
+            <p className="text-xs text-pink font-medium">Total facturé</p>
+            <p className="text-2xl font-black text-ink">
               {Math.round(totalInvoiced).toLocaleString()} DH
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-green-400 font-medium">Total payé</p>
-            <p className="text-2xl font-black text-white">
+            <p className="text-xs text-lime font-medium">Total payé</p>
+            <p className="text-2xl font-black text-ink">
               {Math.round(totalPaid).toLocaleString()} DH
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardContent className="p-5">
-            <p className="text-xs text-yellow-400 font-medium">En attente</p>
-            <p className="text-2xl font-black text-white">
+            <p className="text-xs text-gold font-medium">En attente</p>
+            <p className="text-2xl font-black text-ink">
               {Math.round(totalPending).toLocaleString()} DH
             </p>
           </CardContent>
@@ -277,12 +277,12 @@ export default async function PartnerInvoicesPage() {
       </div>
 
       {/* Notice */}
-      <Card className="bg-blue-500/10 border-blue-500/20">
+      <Card className="bg-teal/10 border-teal/20">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-blue-400 mt-0.5" />
-            <p className="text-sm text-zinc-300">
-              <span className="font-medium text-blue-400">Facturation mensuelle —</span>{" "}
+            <AlertTriangle className="w-5 h-5 text-teal mt-0.5" />
+            <p className="text-sm text-ink-2">
+              <span className="font-medium text-teal">Facturation mensuelle —</span>{" "}
               {usedFallback
                 ? "vue dérivée (transition) — les factures officielles seront émises au prochain cycle de versement."
                 : "chaque ligne ci-dessous correspond à une facture émise par Nivy (cron mensuel partner-payout-monthly)."}
@@ -292,9 +292,9 @@ export default async function PartnerInvoicesPage() {
       </Card>
 
       {/* Invoices table */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-card border-ink">
         <CardHeader>
-          <CardTitle className="text-white">Factures</CardTitle>
+          <CardTitle className="text-ink">Factures</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {invoices.length === 0 ? (
@@ -306,27 +306,27 @@ export default async function PartnerInvoicesPage() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-zinc-800">
-                  <TableHead className="text-zinc-400">Numéro</TableHead>
-                  <TableHead className="text-zinc-400">Période</TableHead>
-                  <TableHead className="text-zinc-400">Date</TableHead>
-                  <TableHead className="text-zinc-400">Montant</TableHead>
-                  <TableHead className="text-zinc-400">Statut</TableHead>
+                <TableRow className="border-ink">
+                  <TableHead className="text-mute">Numéro</TableHead>
+                  <TableHead className="text-mute">Période</TableHead>
+                  <TableHead className="text-mute">Date</TableHead>
+                  <TableHead className="text-mute">Montant</TableHead>
+                  <TableHead className="text-mute">Statut</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {invoices.map((inv) => (
-                  <TableRow key={inv.id} className="border-zinc-800 hover:bg-zinc-800/50">
-                    <TableCell className="font-mono font-bold text-purple-400">
+                  <TableRow key={inv.id} className="border-ink hover:bg-card">
+                    <TableCell className="font-mono font-bold text-pink">
                       {inv.invoice_number}
                     </TableCell>
-                    <TableCell className="text-white">
+                    <TableCell className="text-ink">
                       {formatPeriod(inv.period_start, inv.period_end)}
                     </TableCell>
-                    <TableCell className="text-zinc-400">
+                    <TableCell className="text-mute">
                       {formatDate(inv.paid_at || inv.issued_at || inv.created_at)}
                     </TableCell>
-                    <TableCell className="font-bold text-white">
+                    <TableCell className="font-bold text-ink">
                       {Math.round(inv.total_dh).toLocaleString()} DH
                     </TableCell>
                     <TableCell>{statusBadge(inv.status)}</TableCell>

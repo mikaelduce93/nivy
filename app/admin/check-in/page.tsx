@@ -39,14 +39,14 @@ export default async function CheckInPage() {
     .order("event_date", { ascending: true })
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <div className="max-w-6xl mx-auto">
           <BackButton href="/admin" label="Retour au dashboard" />
 
           <div className="mb-8">
-            <h1 className="text-4xl font-black text-white mb-2">Check-in securise</h1>
-            <p className="text-zinc-400">
+            <h1 className="text-4xl font-black text-ink mb-2">Check-in securise</h1>
+            <p className="text-mute">
               Scannez les QR codes pour l'entree et la sortie des participants
             </p>
           </div>
@@ -55,9 +55,9 @@ export default async function CheckInPage() {
             <CheckInInterface events={events} adminId={user.id} />
           ) : (
             <div className="text-center py-16">
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-zinc-800 flex items-center justify-center">
+              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-card flex items-center justify-center">
                 <svg
-                  className="w-12 h-12 text-zinc-600"
+                  className="w-12 h-12 text-mute"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -70,10 +70,10 @@ export default async function CheckInPage() {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">
+              <h2 className="text-2xl font-bold text-ink mb-2">
                 Aucun evenement a venir
               </h2>
-              <p className="text-zinc-400 max-w-md mx-auto">
+              <p className="text-mute max-w-md mx-auto">
                 Il n'y a pas d'evenements programmes pour les 7 prochains jours.
                 Le check-in sera disponible lorsqu'un evenement sera proche.
               </p>

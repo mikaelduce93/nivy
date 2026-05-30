@@ -193,13 +193,13 @@ export default function NewOfferPage() {
   if (success) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="bg-zinc-900 border-zinc-800 max-w-md w-full">
+        <Card className="bg-card border-ink max-w-md w-full">
           <CardContent className="pt-8 pb-8 text-center">
-            <div className="h-16 w-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="h-8 w-8 text-emerald-400" />
+            <div className="h-16 w-16 rounded-full bg-lime/20 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="h-8 w-8 text-lime" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Offre soumise !</h2>
-            <p className="text-zinc-400">
+            <h2 className="text-2xl font-bold text-ink mb-2">Offre soumise !</h2>
+            <p className="text-mute">
               {/* #53 — offers are NEVER live on create (status='pending_approval',
                   is_active=false). Tell the truth: it awaits moderation. */}
               Votre offre est en attente de validation par l&apos;équipe Nivy.
@@ -219,24 +219,24 @@ export default function NewOfferPage() {
           variant="ghost"
           size="icon"
           asChild
-          className="text-zinc-400 hover:text-white"
+          className="text-mute hover:text-ink"
         >
           <Link href="/partner/offers">
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-black text-white">Nouvelle offre</h1>
-          <p className="text-zinc-400">
+          <h1 className="text-3xl font-black text-ink">Nouvelle offre</h1>
+          <p className="text-mute">
             Créez une offre exclusive pour les membres Nivy
           </p>
         </div>
       </div>
 
       {error && (
-        <Card className="bg-red-500/10 border-red-500/30">
+        <Card className="bg-destructive/10 border-destructive/30">
           <CardContent className="pt-4 pb-4">
-            <p role="alert" aria-live="polite" className="text-red-400">
+            <p role="alert" aria-live="polite" className="text-destructive">
               {error}
             </p>
           </CardContent>
@@ -248,10 +248,10 @@ export default function NewOfferPage() {
         className="space-y-6"
       >
         {/* Offer Type Selection */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white">Type d&apos;offre</CardTitle>
-            <CardDescription className="text-zinc-400">
+            <CardTitle className="text-ink">Type d&apos;offre</CardTitle>
+            <CardDescription className="text-mute">
               Sélectionnez le type d&apos;offre que vous souhaitez créer
             </CardDescription>
           </CardHeader>
@@ -266,61 +266,61 @@ export default function NewOfferPage() {
                 aria-pressed={selectedType === type.id}
                 className={`p-4 rounded-xl border text-left transition-all ${
                   selectedType === type.id
-                    ? "bg-emerald-500/20 border-emerald-500/50"
-                    : "bg-zinc-800 border-zinc-700 hover:border-zinc-600"
+                    ? "bg-lime/20 border-lime/50"
+                    : "bg-card border-ink hover:border-ink"
                 }`}
               >
                 <type.icon
                   className={`h-8 w-8 mb-3 ${
                     selectedType === type.id
-                      ? "text-emerald-400"
-                      : "text-zinc-400"
+                      ? "text-lime"
+                      : "text-mute"
                   }`}
                 />
-                <p className="font-semibold text-white">{type.name}</p>
-                <p className="text-xs text-zinc-400 mt-1">{type.description}</p>
+                <p className="font-semibold text-ink">{type.name}</p>
+                <p className="text-xs text-mute mt-1">{type.description}</p>
               </button>
             ))}
           </CardContent>
         </Card>
 
         {/* Offer Details */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white">Détails de l&apos;offre</CardTitle>
+            <CardTitle className="text-ink">Détails de l&apos;offre</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-zinc-300">
-                Nom de l&apos;offre <span className="text-red-400">*</span>
+              <Label htmlFor="name" className="text-ink-2">
+                Nom de l&apos;offre <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
                 placeholder="Ex: -15% sur tout le magasin"
                 aria-invalid={!!errors.name}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                className="bg-card border-ink text-ink placeholder:text-mute"
                 {...register("name")}
               />
               {errors.name && (
-                <p role="alert" className="text-sm text-red-400">
+                <p role="alert" className="text-sm text-destructive">
                   {errors.name.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-zinc-300">
+              <Label htmlFor="description" className="text-ink-2">
                 Description
               </Label>
               <Textarea
                 id="description"
                 placeholder="Décrivez votre offre en détail..."
                 aria-invalid={!!errors.description}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[100px]"
+                className="bg-card border-ink text-ink placeholder:text-mute min-h-[100px]"
                 {...register("description")}
               />
               {errors.description && (
-                <p role="alert" className="text-sm text-red-400">
+                <p role="alert" className="text-sm text-destructive">
                   {errors.description.message}
                 </p>
               )}
@@ -328,7 +328,7 @@ export default function NewOfferPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-zinc-300">Type de réduction</Label>
+                <Label className="text-ink-2">Type de réduction</Label>
                 <Controller
                   control={control}
                   name="discountType"
@@ -339,10 +339,10 @@ export default function NewOfferPage() {
                         field.onChange(v as "percentage" | "fixed_amount")
                       }
                     >
-                      <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+                      <SelectTrigger className="bg-card border-ink text-ink">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border-zinc-700">
+                      <SelectContent className="bg-card border-ink">
                         <SelectItem value="percentage">
                           Pourcentage (%)
                         </SelectItem>
@@ -355,9 +355,9 @@ export default function NewOfferPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="value" className="text-zinc-300">
+                <Label htmlFor="value" className="text-ink-2">
                   Valeur {discountType === "percentage" ? "(%)" : "(DH)"}{" "}
-                  <span className="text-red-400">*</span>
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="value"
@@ -368,11 +368,11 @@ export default function NewOfferPage() {
                   step={discountType === "percentage" ? "1" : "0.01"}
                   placeholder={discountType === "percentage" ? "15" : "50"}
                   aria-invalid={!!errors.discountValue}
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                  className="bg-card border-ink text-ink placeholder:text-mute"
                   {...register("discountValue")}
                 />
                 {errors.discountValue && (
-                  <p role="alert" className="text-sm text-red-400">
+                  <p role="alert" className="text-sm text-destructive">
                     {errors.discountValue.message}
                   </p>
                 )}
@@ -381,7 +381,7 @@ export default function NewOfferPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="min" className="text-zinc-300">
+                <Label htmlFor="min" className="text-ink-2">
                   Achat minimum (DH)
                 </Label>
                 <Input
@@ -391,12 +391,12 @@ export default function NewOfferPage() {
                   min="0"
                   step="0.01"
                   placeholder="0"
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                  className="bg-card border-ink text-ink placeholder:text-mute"
                   {...register("minPurchase")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="max" className="text-zinc-300">
+                <Label htmlFor="max" className="text-ink-2">
                   Réduction max (DH)
                 </Label>
                 <Input
@@ -406,7 +406,7 @@ export default function NewOfferPage() {
                   min="0"
                   step="0.01"
                   placeholder="Illimité"
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                  className="bg-card border-ink text-ink placeholder:text-mute"
                   {...register("maxDiscount")}
                 />
               </div>
@@ -415,18 +415,18 @@ export default function NewOfferPage() {
         </Card>
 
         {/* VIP Settings */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white">Paramètres VIP</CardTitle>
-            <CardDescription className="text-zinc-400">
+            <CardTitle className="text-ink">Paramètres VIP</CardTitle>
+            <CardDescription className="text-mute">
               Définissez les conditions d&apos;éligibilité
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-zinc-800 rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-card rounded-xl">
               <div>
-                <p className="font-medium text-white">Réservé aux membres VIP</p>
-                <p className="text-xs text-zinc-400">
+                <p className="font-medium text-ink">Réservé aux membres VIP</p>
+                <p className="text-xs text-mute">
                   Seuls les détenteurs de carte VIP pourront utiliser cette offre
                 </p>
               </div>
@@ -444,7 +444,7 @@ export default function NewOfferPage() {
 
             {requiresVip && (
               <div className="space-y-2">
-                <Label className="text-zinc-300">Niveau VIP minimum</Label>
+                <Label className="text-ink-2">Niveau VIP minimum</Label>
                 <div className="grid grid-cols-3 gap-3">
                   {vipLevels.map((level) => (
                     <button
@@ -459,25 +459,25 @@ export default function NewOfferPage() {
                       className={`p-3 rounded-xl border text-center transition-all ${
                         minVipLevel === level.id
                           ? level.id === "silver"
-                            ? "bg-gray-500/20 border-gray-400"
+                            ? "bg-muted border-line"
                             : level.id === "gold"
-                              ? "bg-yellow-500/20 border-yellow-400"
-                              : "bg-purple-500/20 border-purple-400"
-                          : "bg-zinc-800 border-zinc-700 hover:border-zinc-600"
+                              ? "bg-gold/20 border-gold"
+                              : "bg-pink/20 border-pink"
+                          : "bg-card border-ink hover:border-ink"
                       }`}
                     >
                       <p
                         className={`font-semibold ${
                           level.id === "silver"
-                            ? "text-gray-300"
+                            ? "text-ink-2"
                             : level.id === "gold"
-                              ? "text-yellow-400"
-                              : "text-purple-400"
+                              ? "text-gold"
+                              : "text-pink"
                         }`}
                       >
                         {level.name}
                       </p>
-                      <p className="text-xs text-zinc-400">
+                      <p className="text-xs text-mute">
                         {level.discount} de base
                       </p>
                     </button>
@@ -489,16 +489,16 @@ export default function NewOfferPage() {
         </Card>
 
         {/* Usage Limits */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white">
+            <CardTitle className="text-ink">
               Limites d&apos;utilisation
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="maxUser" className="text-zinc-300">
+                <Label htmlFor="maxUser" className="text-ink-2">
                   Max par utilisateur
                 </Label>
                 <Input
@@ -507,12 +507,12 @@ export default function NewOfferPage() {
                   inputMode="numeric"
                   min="1"
                   placeholder="Illimité"
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                  className="bg-card border-ink text-ink placeholder:text-mute"
                   {...register("maxUsesPerUser")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="maxTotal" className="text-zinc-300">
+                <Label htmlFor="maxTotal" className="text-ink-2">
                   Max total
                 </Label>
                 <Input
@@ -521,7 +521,7 @@ export default function NewOfferPage() {
                   inputMode="numeric"
                   min="1"
                   placeholder="Illimité"
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                  className="bg-card border-ink text-ink placeholder:text-mute"
                   {...register("maxTotalUses")}
                 />
               </div>
@@ -530,42 +530,42 @@ export default function NewOfferPage() {
         </Card>
 
         {/* Validity Period */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white">Période de validité</CardTitle>
+            <CardTitle className="text-ink">Période de validité</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="validFrom" className="text-zinc-300">
-                  Date de début <span className="text-red-400">*</span>
+                <Label htmlFor="validFrom" className="text-ink-2">
+                  Date de début <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="validFrom"
                   type="date"
                   aria-invalid={!!errors.validFrom}
-                  className="bg-zinc-800 border-zinc-700 text-white"
+                  className="bg-card border-ink text-ink"
                   {...register("validFrom")}
                 />
                 {errors.validFrom && (
-                  <p role="alert" className="text-sm text-red-400">
+                  <p role="alert" className="text-sm text-destructive">
                     {errors.validFrom.message}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="validUntil" className="text-zinc-300">
-                  Date de fin <span className="text-red-400">*</span>
+                <Label htmlFor="validUntil" className="text-ink-2">
+                  Date de fin <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="validUntil"
                   type="date"
                   aria-invalid={!!errors.validUntil}
-                  className="bg-zinc-800 border-zinc-700 text-white"
+                  className="bg-card border-ink text-ink"
                   {...register("validUntil")}
                 />
                 {errors.validUntil && (
-                  <p role="alert" className="text-sm text-red-400">
+                  <p role="alert" className="text-sm text-destructive">
                     {errors.validUntil.message}
                   </p>
                 )}
@@ -575,24 +575,24 @@ export default function NewOfferPage() {
         </Card>
 
         {/* Terms */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white">Conditions</CardTitle>
+            <CardTitle className="text-ink">Conditions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Label htmlFor="terms" className="text-zinc-300">
+              <Label htmlFor="terms" className="text-ink-2">
                 Conditions d&apos;utilisation
               </Label>
               <Textarea
                 id="terms"
                 placeholder="Ex: Non cumulable avec d'autres offres. Valable en magasin uniquement..."
                 aria-invalid={!!errors.termsAndConditions}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[80px]"
+                className="bg-card border-ink text-ink placeholder:text-mute min-h-[80px]"
                 {...register("termsAndConditions")}
               />
               {errors.termsAndConditions && (
-                <p role="alert" className="text-sm text-red-400">
+                <p role="alert" className="text-sm text-destructive">
                   {errors.termsAndConditions.message}
                 </p>
               )}
@@ -605,7 +605,7 @@ export default function NewOfferPage() {
           <Button
             type="button"
             variant="outline"
-            className="border-zinc-700 text-zinc-300"
+            className="border-ink text-ink-2"
             asChild
           >
             <Link href="/partner/offers">Annuler</Link>
@@ -615,7 +615,7 @@ export default function NewOfferPage() {
             loading={isSubmitting}
             success={success}
             disabled={isSubmitting || success}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white flex-1"
+            className="bg-lime hover:bg-lime text-ink flex-1"
           >
             {success ? (
               <>

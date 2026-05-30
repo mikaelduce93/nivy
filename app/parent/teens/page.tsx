@@ -92,10 +92,10 @@ export default async function ParentTeensPage() {
   const stats = await getTeenStats(teenIds)
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
@@ -105,10 +105,10 @@ export default async function ParentTeensPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">Mes Teens</h1>
-            <p className="text-zinc-400">Gérez les comptes de vos adolescents</p>
+            <h1 className="text-3xl font-black text-ink">Mes Teens</h1>
+            <p className="text-mute">Gérez les comptes de vos adolescents</p>
           </div>
-          <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
+          <Button asChild className="bg-lime hover:bg-lime text-ink">
             <Link href="/parent/teens/add">
               <Plus className="h-4 w-4 mr-2" />
               Ajouter un Teen
@@ -118,65 +118,65 @@ export default async function ParentTeensPage() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-400 font-medium">Total Teens</p>
-                  <p className="text-3xl font-black text-white">{teens.length}</p>
+                  <p className="text-xs text-lime font-medium">Total Teens</p>
+                  <p className="text-3xl font-black text-ink">{teens.length}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-emerald-400" />
+                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-lime" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-yellow-400 font-medium">Total Coins</p>
-                  <p className="text-3xl font-black text-white">
+                  <p className="text-xs text-gold font-medium">Total Coins</p>
+                  <p className="text-3xl font-black text-ink">
                     {teens.reduce((sum: number, t: any) => sum + (t.total_coins || 0), 0)}
                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                  <Coins className="h-6 w-6 text-yellow-400" />
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Coins className="h-6 w-6 text-gold" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-purple-400 font-medium">Events à venir</p>
-                  <p className="text-3xl font-black text-white">
+                  <p className="text-xs text-pink font-medium">Events à venir</p>
+                  <p className="text-3xl font-black text-ink">
                     {Object.values(stats).reduce((sum: number, s: any) => sum + (s.upcomingEvents || 0), 0)}
                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-purple-400" />
+                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-pink" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border-cyan-500/30 bg-zinc-900">
+          <Card className="bg-gradient-to-br from-teal/20 to-lime/20 border-teal/30 bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-cyan-400 font-medium">Niveau moyen</p>
-                  <p className="text-3xl font-black text-white">
+                  <p className="text-xs text-teal font-medium">Niveau moyen</p>
+                  <p className="text-3xl font-black text-ink">
                     {teens.length > 0
                       ? Math.round(teens.reduce((sum: number, t: any) => sum + (t.level || 1), 0) / teens.length)
                       : 0}
                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-cyan-400" />
+                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-teal" />
                 </div>
               </div>
             </CardContent>
@@ -184,10 +184,10 @@ export default async function ParentTeensPage() {
         </div>
 
         {/* Teens List */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Users className="h-5 w-5 text-emerald-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <Users className="h-5 w-5 text-lime" />
               Liste des Teens ({teens.length})
             </CardTitle>
           </CardHeader>
@@ -199,22 +199,22 @@ export default async function ParentTeensPage() {
                   return (
                     <div
                       key={teen.teen_id}
-                      className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-emerald-500/30 transition-all"
+                      className="p-6 rounded-2xl bg-card border border-ink hover:border-lime/30 transition-all"
                     >
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         {/* Teen Info */}
                         <div className="flex items-center gap-4">
-                          <div className="h-16 w-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-black text-2xl">
+                          <div className="h-16 w-16 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-black text-2xl">
                             {teen.teen_name?.charAt(0) || "?"}
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-white">{teen.teen_name}</h3>
-                            <div className="flex items-center gap-2 text-sm text-zinc-400">
+                            <h3 className="text-xl font-bold text-ink">{teen.teen_name}</h3>
+                            <div className="flex items-center gap-2 text-sm text-mute">
                               <span>{teen.title_icon} {teen.title}</span>
-                              <span className="text-zinc-600">•</span>
-                              <span className="text-emerald-400">Niveau {teen.level}</span>
+                              <span className="text-mute">•</span>
+                              <span className="text-lime">Niveau {teen.level}</span>
                             </div>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-zinc-500">
+                            <div className="flex items-center gap-3 mt-1 text-xs text-mute">
                               <span>{teen.total_xp || 0} XP</span>
                               <span>•</span>
                               <span>{teen.badges_count || 0} badges</span>
@@ -225,16 +225,16 @@ export default async function ParentTeensPage() {
                         {/* Stats */}
                         <div className="flex items-center gap-6">
                           <div className="text-center">
-                            <p className="text-2xl font-black text-yellow-400">{teen.total_coins || 0}</p>
-                            <p className="text-xs text-zinc-500">Coins</p>
+                            <p className="text-2xl font-black text-gold">{teen.total_coins || 0}</p>
+                            <p className="text-xs text-mute">Coins</p>
                           </div>
                           <div className="text-center">
-                            <p className="text-2xl font-black text-purple-400">{teenStats.upcomingEvents || 0}</p>
-                            <p className="text-xs text-zinc-500">Events</p>
+                            <p className="text-2xl font-black text-pink">{teenStats.upcomingEvents || 0}</p>
+                            <p className="text-xs text-mute">Events</p>
                           </div>
                           <div className="text-center">
-                            <p className="text-2xl font-black text-blue-400">{teenStats.monthlySpending || 0} DH</p>
-                            <p className="text-xs text-zinc-500">Ce mois</p>
+                            <p className="text-2xl font-black text-teal">{teenStats.monthlySpending || 0} DH</p>
+                            <p className="text-xs text-mute">Ce mois</p>
                           </div>
                         </div>
 
@@ -243,7 +243,7 @@ export default async function ParentTeensPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-zinc-700 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400"
+                            className="border-ink text-ink-2 hover:border-lime/50 hover:text-lime"
                             asChild
                           >
                             <Link href={`/parent/teens/${teen.teen_id}`}>
@@ -254,7 +254,7 @@ export default async function ParentTeensPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-zinc-700 text-zinc-300 hover:border-blue-500/50 hover:text-blue-400"
+                            className="border-ink text-ink-2 hover:border-teal/50 hover:text-teal"
                             asChild
                           >
                             <Link href={`/parent/topup?teen=${teen.teen_id}`}>
@@ -265,7 +265,7 @@ export default async function ParentTeensPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-zinc-700 text-zinc-300 hover:border-purple-500/50 hover:text-purple-400"
+                            className="border-ink text-ink-2 hover:border-pink/50 hover:text-pink"
                             asChild
                           >
                             <Link href={`/parent/budget?teen=${teen.teen_id}`}>
@@ -277,14 +277,14 @@ export default async function ParentTeensPage() {
                       </div>
 
                       {/* Progress Bar */}
-                      <div className="mt-4 pt-4 border-t border-zinc-800">
-                        <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
+                      <div className="mt-4 pt-4 border-t border-ink">
+                        <div className="flex items-center justify-between text-xs text-mute mb-2">
                           <span>Progression vers niveau {(teen.level || 1) + 1}</span>
                           <span>{teen.total_xp || 0} / {((teen.level || 1) + 1) * 100} XP</span>
                         </div>
-                        <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="h-2 bg-card rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all"
+                            className="h-full bg-gradient-to-r from-lime to-teal rounded-full transition-all"
                             style={{
                               width: `${Math.min(((teen.total_xp || 0) / (((teen.level || 1) + 1) * 100)) * 100, 100)}%`
                             }}
