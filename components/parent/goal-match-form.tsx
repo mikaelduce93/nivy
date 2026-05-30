@@ -3,8 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { FieldInput } from "@/components/ui/field-input"
 
 export function GoalMatchForm({
   goalId,
@@ -46,28 +45,24 @@ export function GoalMatchForm({
   return (
     <form onSubmit={submit} className="space-y-2">
       <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label className="text-xs">Match %</Label>
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            value={pct}
-            onChange={(e) => setPct(Number(e.target.value))}
-          />
-        </div>
-        <div>
-          <Label className="text-xs">Cap (coins, vide = illimité)</Label>
-          <Input
-            type="number"
-            min={0}
-            value={cap}
-            onChange={(e) => setCap(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-        </div>
+        <FieldInput
+          label="Match %"
+          type="number"
+          min={0}
+          max={100}
+          value={pct}
+          onChange={(e) => setPct(Number(e.target.value))}
+        />
+        <FieldInput
+          label="Cap (coins, vide = illimité)"
+          type="number"
+          min={0}
+          value={cap}
+          onChange={(e) => setCap(e.target.value === "" ? "" : Number(e.target.value))}
+        />
       </div>
       {err && <p className="text-destructive text-xs">{err}</p>}
-      <Button type="submit" size="sm" disabled={busy}>
+      <Button type="submit" size="sm" disabled={busy} className="w-full">
         {busy ? "..." : "Sauvegarder le match"}
       </Button>
     </form>

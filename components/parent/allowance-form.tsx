@@ -3,20 +3,15 @@
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { FieldInput } from "@/components/ui/field-input"
+import { CheckRound } from "@/components/ui/check-round"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
+  SelectSticker,
+  SelectStickerItem,
+} from "@/components/ui/select-sticker"
 import { CheckCircle2, Loader2 } from "lucide-react"
 import {
   FormField,
-  FormLabel,
   FormError,
 } from "@/components/ui/accessibility/form-field"
 import { FormKeyboardAware } from "@/lib/hooks/use-keyboard-aware"
@@ -26,6 +21,12 @@ interface Teen {
   id: string
   name: string
 }
+
+const CADENCE_OPTIONS = [
+  { value: "weekly", label: "Hebdomadaire" },
+  { value: "biweekly", label: "Bimensuelle" },
+  { value: "monthly", label: "Mensuelle" },
+]
 
 type AllowanceErrors = {
   teenId?: string
@@ -80,7 +81,6 @@ function validateAllowance(values: {
 export function AllowanceForm({ teens }: { teens: Teen[] }) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
-  const amountRef = useRef<HTMLInputElement>(null)
 
   const [teenId, setTeenId] = useState(teens[0]?.id ?? "")
   const [amount, setAmount] = useState(20)
@@ -99,8 +99,9 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
   // Auto-focus first meaningful field on mount
   useEffect(() => {
     if (teens.length === 0) return
-    amountRef.current?.focus()
-    amountRef.current?.select?.()
+    const el = formRef.current?.querySelector<HTMLInputElement>('input[name="amount"]')
+    el?.focus()
+    el?.select?.()
   }, [teens.length])
 
   // Re-validate touched fields when they change
@@ -209,7 +210,7 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
 
   if (teens.length === 0) {
     return (
-      <div className="text-muted-foreground">
+      <div className="text-mute">
         Aucun ado lié à ton compte. Lie d&apos;abord un ado.
       </div>
     )
@@ -223,36 +224,27 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
       autoComplete="off"
     >
       <FormField name="teenId" required error={touched.teenId ? errors.teenId : undefined}>
-        <FormLabel>Ado</FormLabel>
-        <Select
+        <SelectSticker
+          label="Ado"
           value={teenId}
           onValueChange={(v) => {
             setTeenId(v)
             markTouched("teenId")
           }}
         >
-          <SelectTrigger
-            aria-invalid={!!(touched.teenId && errors.teenId)}
-            onBlur={() => markTouched("teenId")}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {teens.map((t) => (
-              <SelectItem key={t.id} value={t.id}>
-                {t.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {teens.map((t) => (
+            <SelectStickerItem key={t.id} value={t.id}>
+              {t.name}
+            </SelectStickerItem>
+          ))}
+        </SelectSticker>
         <FormError />
       </FormField>
 
       <FormField name="amount" required error={touched.amount ? errors.amount : undefined}>
-        <FormLabel>Montant (DH)</FormLabel>
-        <Input
-          ref={amountRef}
+        <FieldInput
           name="amount"
+          label="Montant (DH)"
           type="number"
           min={1}
           value={amount}
@@ -263,28 +255,29 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
         <FormError />
       </FormField>
 
-      <div>
-        <Label>Cadence</Label>
-        <Select value={cadence} onValueChange={setCadence}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="weekly">Hebdomadaire</SelectItem>
-            <SelectItem value="biweekly">Bimensuelle</SelectItem>
-            <SelectItem value="monthly">Mensuelle</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="eyebrow tracking-[0.16em] text-mute">Versement</span>
+        <span className="px-2 py-1 rounded-md border-2 border-ink text-coral font-mono text-xs">
+          ⊙ {Number.isFinite(amount) ? amount : 0} DH
+        </span>
       </div>
+
+      <SelectSticker label="Cadence" value={cadence} onValueChange={setCadence}>
+        {CADENCE_OPTIONS.map((o) => (
+          <SelectStickerItem key={o.value} value={o.value}>
+            {o.label}
+          </SelectStickerItem>
+        ))}
+      </SelectSticker>
 
       {(cadence === "weekly" || cadence === "biweekly") && (
         <FormField
           name="dayOfWeek"
           error={touched.dayOfWeek ? errors.dayOfWeek : undefined}
         >
-          <FormLabel>Jour de la semaine (0=Dim, 5=Vendredi)</FormLabel>
-          <Input
+          <FieldInput
             name="dayOfWeek"
+            label="Jour de la semaine (0=Dim, 5=Vendredi)"
             type="number"
             min={0}
             max={6}
@@ -302,9 +295,9 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
           name="dayOfMonth"
           error={touched.dayOfMonth ? errors.dayOfMonth : undefined}
         >
-          <FormLabel>Jour du mois (1..28)</FormLabel>
-          <Input
+          <FieldInput
             name="dayOfMonth"
+            label="Jour du mois (1..28)"
             type="number"
             min={1}
             max={28}
@@ -317,10 +310,13 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
         </FormField>
       )}
 
-      <div className="flex items-center gap-3">
-        <Switch checked={conditional} onCheckedChange={setConditional} />
-        <Label>Conditionnel (streak minimum)</Label>
-      </div>
+      <label className="flex items-center gap-3 cursor-pointer">
+        <CheckRound
+          checked={conditional}
+          onCheckedChange={(v) => setConditional(v === true)}
+        />
+        <span className="text-sm text-ink">Conditionnel (streak minimum)</span>
+      </label>
 
       {conditional && (
         <FormField
@@ -329,9 +325,9 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
             touched.conditionThreshold ? errors.conditionThreshold : undefined
           }
         >
-          <FormLabel>Seuil de streak</FormLabel>
-          <Input
+          <FieldInput
             name="conditionThreshold"
+            label="Seuil de streak"
             type="number"
             min={1}
             value={conditionThreshold}
@@ -355,7 +351,7 @@ export function AllowanceForm({ teens }: { teens: Teen[] }) {
         </p>
       )}
 
-      <Button type="submit" disabled={busy || success} aria-busy={busy}>
+      <Button type="submit" disabled={busy || success} aria-busy={busy} className="w-full">
         {success ? (
           <>
             <CheckCircle2

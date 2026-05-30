@@ -3,19 +3,14 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Checkbox } from "@/components/ui/checkbox"
+import { FieldInput } from "@/components/ui/field-input"
+import { CheckRound } from "@/components/ui/check-round"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { CheckCircle2, Loader2 } from "lucide-react"
+  SelectSticker,
+  SelectStickerItem,
+} from "@/components/ui/select-sticker"
+import { CheckCircle2, Loader2, Coins, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import {
   FormField,
@@ -79,7 +74,6 @@ function validateChore(values: {
 export function ChoreForm({ teens }: { teens: Teen[] }) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
-  const titleRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
@@ -100,7 +94,9 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
 
   // Auto-focus first field on mount
   useEffect(() => {
-    titleRef.current?.focus()
+    formRef.current
+      ?.querySelector<HTMLInputElement>('input[name="title"]')
+      ?.focus()
   }, [])
 
   // Re-validate touched fields when they change
@@ -218,34 +214,33 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       <FormField name="teenIds" error={touched.teenIds ? errors.teenIds : undefined}>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-ink-2">
+            <span className="eyebrow tracking-[0.16em]">
               Teens concernés
-              <span className="text-mute font-normal ml-1">
+              <span className="text-mute font-normal ml-1 normal-case tracking-normal">
                 ({teenIds.length}/{teens.length})
               </span>
-            </Label>
+            </span>
             {teens.length > 1 && (
               <button
                 type="button"
                 onClick={() => toggleAll(!allSelected)}
-                className="text-xs text-lime hover:text-lime"
+                className="text-xs text-pink hover:underline"
               >
                 {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
               </button>
             )}
           </div>
-          <div className="space-y-2 rounded-lg border border-ink bg-card p-3">
+          <div className="space-y-2 rounded-xl border-2 border-ink bg-white p-3">
             {teens.map((t) => {
               const checked = teenIds.includes(t.teen_id)
               return (
                 <label
                   key={t.teen_id}
-                  className="flex items-center gap-3 cursor-pointer rounded px-2 py-1.5 hover:bg-card"
+                  className="flex items-center gap-3 cursor-pointer rounded px-2 py-1.5"
                 >
-                  <Checkbox
+                  <CheckRound
                     checked={checked}
                     onCheckedChange={(v) => toggleTeen(t.teen_id, v === true)}
-                    className="border-ink data-[state=checked]:bg-lime data-[state=checked]:border-lime"
                   />
                   <span className="text-sm text-ink">{t.teen_name}</span>
                 </label>
@@ -261,15 +256,13 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       </FormField>
 
       <FormField name="title" required error={touched.title ? errors.title : undefined}>
-        <FormLabel className="text-ink-2">Titre</FormLabel>
-        <Input
-          ref={titleRef}
+        <FieldInput
           name="title"
+          label="Titre"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={() => markTouched("title")}
           placeholder="Ex. Faire la vaisselle 5 fois"
-          className="bg-card border-ink text-ink"
           maxLength={120}
           aria-invalid={!!(touched.title && errors.title)}
           required
@@ -278,7 +271,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       </FormField>
 
       <FormField name="description">
-        <FormLabel className="text-ink-2">Description (optionnelle)</FormLabel>
+        <FormLabel className="eyebrow tracking-[0.16em]">Description (optionnelle)</FormLabel>
         <Textarea
           name="description"
           value={description}
@@ -294,105 +287,103 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
           name="rewardDh"
           error={touched.rewardDh ? errors.rewardDh : undefined}
         >
-          <FormLabel className="text-ink-2">Récompense DH</FormLabel>
-          <Input
+          <FieldInput
             type="number"
             name="rewardDh"
+            label="Récompense DH"
             min="0"
             step="0.5"
             value={rewardDh}
             onChange={(e) => setRewardDh(e.target.value)}
             onBlur={() => markTouched("rewardDh")}
-            className="bg-card border-ink text-ink"
+            hint="1 DH = 100 coins. Versé après vérification."
             aria-invalid={!!(touched.rewardDh && errors.rewardDh)}
           />
-          <p className="text-xs text-mute">
-            1 DH = 100 coins. Versé après vérification.
-          </p>
           <FormError />
         </FormField>
         <FormField
           name="rewardXp"
           error={touched.rewardXp ? errors.rewardXp : undefined}
         >
-          <FormLabel className="text-ink-2">Récompense XP</FormLabel>
-          <Input
+          <FieldInput
             type="number"
             name="rewardXp"
+            label="Récompense XP"
             min="0"
             step="10"
             value={rewardXp}
             onChange={(e) => setRewardXp(e.target.value)}
             onBlur={() => markTouched("rewardXp")}
-            className="bg-card border-ink text-ink"
             aria-invalid={!!(touched.rewardXp && errors.rewardXp)}
           />
           <FormError />
         </FormField>
       </div>
 
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="eyebrow tracking-[0.16em] text-mute">Aperçu récompense</span>
+        <span className="px-2 py-1 rounded-md border-2 border-ink text-coral font-mono text-xs flex items-center gap-1">
+          <Coins className="h-3 w-3" /> ⊙ {Number(rewardDh) || 0} DH
+        </span>
+        <span className="px-2 py-1 rounded-md border-2 border-ink text-gold font-mono text-xs flex items-center gap-1">
+          <Sparkles className="h-3 w-3" /> {Number(rewardXp) || 0} XP
+        </span>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-ink-2">Récurrence</Label>
-          <Select value={recurrence} onValueChange={setRecurrence}>
-            <SelectTrigger className="bg-card border-ink text-ink">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-card border-ink">
-              {RECURRENCE_OPTIONS.map((o) => (
-                <SelectItem
-                  key={o.value}
-                  value={o.value}
-                  className="text-ink hover:bg-muted focus:bg-muted"
-                >
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectSticker
+          label="Récurrence"
+          value={recurrence}
+          onValueChange={setRecurrence}
+        >
+          {RECURRENCE_OPTIONS.map((o) => (
+            <SelectStickerItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectStickerItem>
+          ))}
+        </SelectSticker>
         <FormField
           name="requiredCompletions"
           error={
             touched.requiredCompletions ? errors.requiredCompletions : undefined
           }
         >
-          <FormLabel className="text-ink-2">Nombre requis</FormLabel>
-          <Input
+          <FieldInput
             type="number"
             name="requiredCompletions"
+            label="Nombre requis"
             min="1"
             max="365"
             value={requiredCompletions}
             onChange={(e) => setRequiredCompletions(e.target.value)}
             onBlur={() => markTouched("requiredCompletions")}
-            className="bg-card border-ink text-ink"
+            hint="Combien de fois pour déclencher la récompense."
             aria-invalid={
               !!(touched.requiredCompletions && errors.requiredCompletions)
             }
           />
-          <p className="text-xs text-mute">
-            Combien de fois pour déclencher la récompense.
-          </p>
           <FormError />
         </FormField>
       </div>
 
-      <div className="flex items-center justify-between p-3 rounded-lg bg-card border border-ink">
-        <div>
-          <Label className="text-ink-2">Preuve photo requise</Label>
-          <p className="text-xs text-mute mt-1">
+      <label className="flex items-start gap-3 p-3 rounded-xl border-2 border-ink bg-white cursor-pointer">
+        <CheckRound
+          checked={evidenceRequired}
+          onCheckedChange={(v) => setEvidenceRequired(v === true)}
+        />
+        <span>
+          <span className="block text-sm font-medium text-ink">Preuve photo requise</span>
+          <span className="block text-xs text-mute mt-1">
             Le teen devra uploader une photo à chaque complétion.
-          </p>
-        </div>
-        <Switch checked={evidenceRequired} onCheckedChange={setEvidenceRequired} />
-      </div>
+          </span>
+        </span>
+      </label>
 
       <Button
         type="submit"
         disabled={loading || success || teenIds.length === 0}
         aria-busy={loading}
-        className="w-full bg-lime hover:bg-lime text-ink h-12"
+        className="w-full h-12"
       >
         {success ? (
           <>

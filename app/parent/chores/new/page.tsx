@@ -1,9 +1,10 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ListChecks } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach, NivEmpty } from "@/components/brand"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { ChoreForm } from "@/components/parent/chore-form"
 
@@ -24,7 +25,7 @@ export default async function NewChorePage() {
   const teens = await getLinkedTeens(userInfo.profileId)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32 max-w-2xl">
         <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent/chores">
@@ -34,35 +35,36 @@ export default async function NewChorePage() {
         </Button>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-ink flex items-center gap-2">
-            <ListChecks className="h-7 w-7 text-lime" />
-            Nouvelle corvée
+          <p className="eyebrow text-pink">Créer une mission</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">
+            Nouvelle <em className="font-semibold italic text-pink">corvée</em>
           </h1>
-          <p className="text-mute mt-1">
-            Définissez la mission, la récompense et la fréquence.
+          <p className="mt-2 text-mute">
+            Définis la mission, la récompense et la fréquence.
           </p>
         </div>
 
         {teens.length === 0 ? (
-          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-            <CardContent className="py-12 text-center">
-              <p className="text-mute mb-6">
-                Vous devez d'abord lier un teen à votre compte.
-              </p>
-              <Button asChild className="bg-lime hover:bg-lime text-ink">
-                <Link href="/parent/teens/add">Ajouter un Teen</Link>
+          <NivEmpty
+            mood="calm"
+            title="Aucun teen lié pour l'instant"
+            description="Lie d'abord un teen à ton compte pour lui créer des missions."
+            action={
+              <Button asChild>
+                <Link href="/parent/teens/add">Ajouter un teen</Link>
               </Button>
-            </CardContent>
-          </Card>
+            }
+          />
         ) : (
-          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink">Détails de la corvée</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="space-y-6">
+            <NivCoach
+              mood="hype"
+              message="Choisis la mission et la récompense — je motive ton ado à la boucler."
+            />
+            <StickerCard className="p-6">
               <ChoreForm teens={teens as Array<{ teen_id: string; teen_name: string }>} />
-            </CardContent>
-          </Card>
+            </StickerCard>
+          </div>
         )}
       </div>
     </div>
