@@ -131,7 +131,7 @@ export default async function MentorDashboard() {
   const kyc = userInfo.mentorData?.kycStatus || "pending"
 
   return (
-    <div className="min-h-screen bg-[#030303] text-ink -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
+    <div className="min-h-screen bg-background text-ink -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
       <div className="max-w-7xl mx-auto space-y-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-ink pb-10">
           <div>

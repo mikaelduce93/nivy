@@ -19,7 +19,7 @@ function PartnerThankYouInner() {
   const reference = ref ? ref.slice(0, 8).toUpperCase() : ''
 
   return (
-    <div className="min-h-screen bg-ink text-ink flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-ink flex items-center justify-center p-4">
       <div className="container max-w-3xl">
 
         <motion.div

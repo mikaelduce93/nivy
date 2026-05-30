@@ -598,7 +598,7 @@ export function EliteBackground({
   }
 
   return (
-    <div className={cn('fixed inset-0 z-0 overflow-hidden bg-[#020203]', className)}>
+    <div className={cn('fixed inset-0 z-0 overflow-hidden bg-background', className)}>
       {presets[preset]}
     </div>
   )

@@ -20,7 +20,7 @@ export default function AdminScorecardPage() {
   if (!metrics) return <div>Chargement du Live Pulse...</div>
 
   return (
-    <div className="p-8 space-y-8 bg-ink min-h-screen text-ink">
+    <div className="p-8 space-y-8 bg-background min-h-screen text-ink">
       <h1 className="text-3xl font-bold bg-gradient-to-r from-teal to-teal bg-clip-text text-transparent">
         Live Pulse 10/10 🚀
       </h1>

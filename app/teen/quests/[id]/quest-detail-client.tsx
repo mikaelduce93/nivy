@@ -65,8 +65,8 @@ const PILLAR_CONFIG = {
   vitality: {
     icon: Dumbbell,
     color: 'var(--gen-z-lime)',
-    gradient: 'from-gen-z-lime to-lime',
-    bg: 'bg-gen-z-lime/10',
+    gradient: 'from-lime to-lime',
+    bg: 'bg-lime/10',
     label: 'VITALITY',
   },
   creativity: {
@@ -209,7 +209,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#020203] text-ink">
+    <div className="min-h-screen bg-background text-ink">
       {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div 
@@ -296,8 +296,8 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
           {/* XP Reward */}
           <div className="flex items-center justify-between p-4 rounded-2xl bg-paper-2 border border-ink">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gen-z-yellow/20 flex items-center justify-center">
-                <Zap className="w-6 h-6 text-gen-z-yellow" />
+              <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center">
+                <Zap className="w-6 h-6 text-gold" />
               </div>
               <div>
                 <p className="text-xs text-mute font-medium uppercase tracking-wider">Récompense</p>

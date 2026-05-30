@@ -556,7 +556,7 @@ export function XPCelebration({
 
         {/* Badge */}
         <motion.div
-          className="relative bg-gradient-to-br from-brand-soft to-gen-z-grape rounded-2xl p-6 shadow-2xl"
+          className="relative bg-gradient-to-br from-brand-soft to-pink rounded-2xl p-6 shadow-2xl"
           style={{
             boxShadow: `0 0 60px ${colors[0]}60`,
           }}

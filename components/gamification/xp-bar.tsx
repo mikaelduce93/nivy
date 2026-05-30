@@ -81,7 +81,7 @@ export function XPBar({
           >
             <div className="relative">
               <motion.div
-                className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-soft to-gen-z-grape flex items-center justify-center shadow-lg"
+                className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-soft to-pink flex items-center justify-center shadow-lg"
                 animate={isAnimating ? { scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] } : {}}
                 transition={{ duration: 0.4 }}
               >
@@ -114,7 +114,7 @@ export function XPBar({
           )}
         >
           <motion.div
-            className="h-full bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime rounded-full relative"
+            className="h-full bg-gradient-to-r from-brand-soft via-accent-soft to-lime rounded-full relative"
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
             transition={{ duration: animate ? 1 : 0, ease: "easeOut" }}
@@ -158,7 +158,7 @@ export function XPBar({
           {xpInCurrentLevel} / {xpNeeded} XP
         </span>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <TrendingUp className="w-3 h-3 text-gen-z-lime" />
+          <TrendingUp className="w-3 h-3 text-lime" />
           <span className="font-medium">{xpNeeded - xpInCurrentLevel} XP pour niveau {level + 1}</span>
         </div>
       </div>
@@ -192,7 +192,7 @@ export function XPGainPopup({ amount, reason, onComplete }: XPGainPopupProps) {
       exit={{ opacity: 0, y: -20, scale: 0.8 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <div className="relative overflow-hidden bg-gradient-to-r from-brand-soft/20 to-gen-z-grape/20  border border-brand-soft/30 rounded-2xl px-5 py-4 shadow-xl">
+      <div className="relative overflow-hidden bg-gradient-to-r from-brand-soft/20 to-pink/20  border border-brand-soft/30 rounded-2xl px-5 py-4 shadow-xl">
         {/* Animated background shimmer */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
@@ -202,7 +202,7 @@ export function XPGainPopup({ amount, reason, onComplete }: XPGainPopupProps) {
         
         <div className="relative flex items-center gap-4">
           <motion.div
-            className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-gen-z-grape flex items-center justify-center shadow-lg"
+            className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-pink flex items-center justify-center shadow-lg"
             animate={{ 
               rotate: [0, 15, -15, 10, -10, 0],
               scale: [1, 1.1, 1]
@@ -247,7 +247,7 @@ export function XPMiniBar({ currentXP, level, className }: XPMiniBarProps) {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <motion.div 
-        className="w-7 h-7 rounded-xl bg-gradient-to-br from-brand-soft to-gen-z-grape flex items-center justify-center shadow-md"
+        className="w-7 h-7 rounded-xl bg-gradient-to-br from-brand-soft to-pink flex items-center justify-center shadow-md"
         whileHover={{ scale: 1.1, rotate: 5 }}
       >
         <span className="text-ink font-black text-xs">{level}</span>

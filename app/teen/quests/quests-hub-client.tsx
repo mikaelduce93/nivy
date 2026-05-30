@@ -54,8 +54,8 @@ const PILLAR_CONFIG = {
   daily: {
     title: "Daily Quests",
     subtitle: "Complete these for bonus XP",
-    gradient: "from-gen-z-yellow via-accent-soft to-brand-soft",
-    bgGlow: "bg-gen-z-yellow/20",
+    gradient: "from-gold via-accent-soft to-brand-soft",
+    bgGlow: "bg-gold/20",
   },
   brain: {
     title: "Brain Challenges",
@@ -332,7 +332,7 @@ function QuickActionCard({
     lavender: "from-brand-soft/20 to-brand-soft/5 border-brand-soft/30 hover:border-brand-soft/50",
     coral: "from-accent-soft/20 to-accent-soft/5 border-accent-soft/30 hover:border-accent-soft/50",
     mint: "from-success-soft/20 to-success-soft/5 border-success-soft/30 hover:border-success-soft/50",
-    yellow: "from-gen-z-yellow/20 to-gen-z-yellow/5 border-gen-z-yellow/30 hover:border-gen-z-yellow/50",
+    yellow: "from-gold/20 to-gold/5 border-gold/30 hover:border-gold/50",
   }
 
   return (

@@ -229,7 +229,7 @@ export default async function ParentDashboardPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#020408] text-ink selection:bg-gen-z-teal/30 overflow-x-hidden">
+    <div className="relative min-h-screen bg-background text-ink selection:bg-teal/30 overflow-x-hidden">
       {/* 1. ULTRA-PREMIUM BACKGROUND */}
       {/* V1.4 a11y: gate parallax background on prefers-reduced-motion (WCAG 2.3.3). */}
       <div
@@ -249,10 +249,10 @@ export default async function ParentDashboardPage() {
         <header className="relative space-y-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
             <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gen-z-teal/10 text-gen-z-teal text-xs font-black tracking-widest uppercase border border-gen-z-teal/20">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal/10 text-teal text-xs font-black tracking-widest uppercase border border-teal/20">
                 <Zap className="w-4 h-4 fill-current" /> ESPACE PARENT ACTIF
               </div>
-              <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase italic leading-none">Centre de <span className="text-gen-z-gradient-soft">Contrôle</span></h1>
+              <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase italic leading-none">Centre de <span className="text-pink-soft">Contrôle</span></h1>
               <p className="text-mute text-lg md:text-xl font-medium">Suivi de {teens?.length || 0} profil{(teens?.length || 0) > 1 ? 's' : ''} en temps réel.</p>
             </div>
             
@@ -327,10 +327,10 @@ export default async function ParentDashboardPage() {
           <div className="lg:col-span-8 space-y-10">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black uppercase tracking-widest text-mute flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-gen-z-lime" />
+                <TrendingUp className="w-5 h-5 text-lime" />
                 Analyse de Progression
               </h3>
-              <span className="text-xs font-bold text-gen-z-lime uppercase tracking-wider">En direct</span>
+              <span className="text-xs font-bold text-lime uppercase tracking-wider">En direct</span>
             </div>
             
             <div className="space-y-10">
@@ -367,7 +367,7 @@ export default async function ParentDashboardPage() {
                             <div>
                               <p className="text-xs font-black text-ink uppercase tracking-widest">Limite Active</p>
                               {hasLimit ? (
-                                <p className="text-2xl font-black text-gen-z-teal">
+                                <p className="text-2xl font-black text-teal">
                                   {monthly.toLocaleString()} DH <span className="text-xs text-mute">/mois</span>
                                 </p>
                               ) : (
@@ -390,7 +390,7 @@ export default async function ParentDashboardPage() {
           {/* Right Column: Financial Pilot & Logs */}
           <div className="lg:col-span-4 space-y-10">
             <h3 className="text-sm font-black uppercase tracking-widest text-mute flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-gen-z-teal" />
+              <CreditCard className="w-5 h-5 text-teal" />
               Gestion Budget
             </h3>
             

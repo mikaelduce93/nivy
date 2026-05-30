@@ -28,7 +28,7 @@ interface TabConfig {
 const tabs: TabConfig[] = [
   { id: 'friends', label: 'Amis', icon: Users, color: 'text-brand-soft', bgColor: 'bg-brand-soft/10' },
   { id: 'crew', label: 'Crew', icon: Swords, color: 'text-accent-soft', bgColor: 'bg-accent-soft/10' },
-  { id: 'clubs', label: 'Clubs', icon: Crown, color: 'text-gen-z-yellow', bgColor: 'bg-gen-z-yellow/10' },
+  { id: 'clubs', label: 'Clubs', icon: Crown, color: 'text-gold', bgColor: 'bg-gold/10' },
 ]
 
 // Status styling
@@ -320,11 +320,11 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                     >
                       <div className={cn(
                         "w-10 h-10 rounded-xl flex items-center justify-center",
-                        club.joined ? "bg-gen-z-yellow/20" : "bg-paper-2"
+                        club.joined ? "bg-gold/20" : "bg-paper-2"
                       )}>
                         <Crown className={cn(
                           "w-5 h-5",
-                          club.joined ? "text-gen-z-yellow" : "text-mute"
+                          club.joined ? "text-gold" : "text-mute"
                         )} />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -336,7 +336,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                       {club.joined ? (
                         <Badge variant="glass" size="sm" className="text-[10px]">Membre</Badge>
                       ) : (
-                        <Button size="sm" variant="ghost" className="h-7 text-xs text-gen-z-yellow">
+                        <Button size="sm" variant="ghost" className="h-7 text-xs text-gold">
                           Rejoindre
                         </Button>
                       )}

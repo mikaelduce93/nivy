@@ -33,10 +33,10 @@ export function StreakCounter({
 
   // Gen-Z color palette for flame intensity
   const flameColors = {
-    starting: { from: 'from-gen-z-peach', to: 'to-gen-z-yellow', glow: 'oklch(0.85 0.10 55 / 0.5)' },
-    common: { from: 'from-accent-soft', to: 'to-gen-z-peach', glow: 'oklch(0.75 0.16 25 / 0.5)' },
+    starting: { from: 'from-gold', to: 'to-gold', glow: 'oklch(0.85 0.10 55 / 0.5)' },
+    common: { from: 'from-accent-soft', to: 'to-gold', glow: 'oklch(0.75 0.16 25 / 0.5)' },
     rare: { from: 'from-accent-soft', to: 'to-neon-creativity', glow: 'oklch(0.75 0.24 30 / 0.6)' },
-    epic: { from: 'from-gen-z-grape', to: 'to-brand-soft', glow: 'oklch(0.65 0.22 300 / 0.6)' },
+    epic: { from: 'from-pink', to: 'to-brand-soft', glow: 'oklch(0.65 0.22 300 / 0.6)' },
     legendary: { from: 'from-brand-soft', to: 'to-info-soft', glow: 'oklch(0.78 0.14 290 / 0.7)' },
   }
 
@@ -70,8 +70,8 @@ export function StreakCounter({
             "w-5 h-5",
             isCritical ? 'text-destructive' :
             flameIntensity === 'legendary' ? 'text-brand-soft' :
-            flameIntensity === 'epic' ? 'text-gen-z-grape' :
-            flameIntensity === 'rare' ? 'text-accent-soft' : 'text-gen-z-peach'
+            flameIntensity === 'epic' ? 'text-pink' :
+            flameIntensity === 'rare' ? 'text-accent-soft' : 'text-gold'
           )} 
           style={!isCritical ? { filter: `drop-shadow(0 0 8px ${colors.glow})` } : {}}
           />
@@ -81,7 +81,7 @@ export function StreakCounter({
           isCritical ? "text-destructive" : "text-foreground"
         )}>{currentStreak}</span>
         {multiplier > 1 && !isCritical && (
-          <span className="text-xs font-bold text-gen-z-yellow px-1.5 py-0.5 rounded-full bg-gen-z-yellow/20">x{multiplier}</span>
+          <span className="text-xs font-bold text-gold px-1.5 py-0.5 rounded-full bg-gold/20">x{multiplier}</span>
         )}
         {isCritical && (
           <span className="text-xs font-bold text-destructive animate-pulse">!</span>

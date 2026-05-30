@@ -18,7 +18,7 @@ export const metadata = {
 
 export default function DevenirAnnivHostPage() {
   return (
-    <main className="min-h-screen bg-ink text-ink">
+    <main className="min-h-screen bg-background text-ink">
       <div className="container mx-auto px-4 py-12 max-w-5xl space-y-12">
         <header className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-pink/20 border border-pink/30">

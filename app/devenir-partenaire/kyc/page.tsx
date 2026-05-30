@@ -74,7 +74,7 @@ export default async function ProspectKycPage({ searchParams }: Props) {
     .maybeSingle()
 
   return (
-    <main className="min-h-screen bg-ink text-ink">
+    <main className="min-h-screen bg-background text-ink">
       <div className="container mx-auto px-4 py-12 max-w-2xl space-y-8">
         <header className="text-center space-y-3">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal/20 border border-teal/30">
@@ -102,7 +102,7 @@ export default async function ProspectKycPage({ searchParams }: Props) {
 
 function SafeError({ title, body }: { title: string; body: string }) {
   return (
-    <main className="min-h-screen bg-ink text-ink">
+    <main className="min-h-screen bg-background text-ink">
       <div className="container mx-auto px-4 py-12 max-w-xl space-y-6">
         <Card className="bg-card border-ink">
           <CardHeader>

@@ -295,7 +295,7 @@ export function XPFloat({ amount, className, onComplete }: XPFloatProps) {
     <motion.div
       className={cn(
         "absolute pointer-events-none font-bold text-lg",
-        "text-gen-z-lime drop-shadow-lg",
+        "text-lime drop-shadow-lg",
         className
       )}
       initial={microAnimations.xpFloat.initial}

@@ -155,7 +155,7 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
           variant="outline"
           className="h-14 w-14 rounded-2xl border-ink bg-white/[0.05] flex items-center justify-center hover:bg-paper-2"
         >
-          <Zap className="w-6 h-6 text-gen-z-yellow" />
+          <Zap className="w-6 h-6 text-gold" />
         </Button>
       </div>
     </div>

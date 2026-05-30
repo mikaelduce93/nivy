@@ -198,7 +198,7 @@ export function EventCard({
               </span>
             )}
             {event.spots_remaining !== undefined && (
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gen-z-lime/10 text-gen-z-lime text-xs font-semibold">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-lime/10 text-lime text-xs font-semibold">
                 <Users className="w-3.5 h-3.5" />
                 {event.spots_remaining} places
               </span>

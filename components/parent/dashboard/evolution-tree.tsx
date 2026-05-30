@@ -30,8 +30,8 @@ export function EvolutionTree({ teenName, stats }: EvolutionTreeProps) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gen-z-lime/10 flex items-center justify-center border border-gen-z-lime/20 shadow-inner">
-              <TrendingUp className="h-7 w-7 text-gen-z-lime" />
+            <div className="w-14 h-14 rounded-2xl bg-lime/10 flex items-center justify-center border border-lime/20 shadow-inner">
+              <TrendingUp className="h-7 w-7 text-lime" />
             </div>
             <div>
               <h3 className="text-2xl font-black text-ink tracking-tighter uppercase italic">Evolution Hub : {teenName}</h3>

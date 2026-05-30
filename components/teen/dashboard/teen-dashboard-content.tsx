@@ -88,7 +88,7 @@ export function TeenDashboardContent({
 
   // Wrap content with elite providers on desktop
   const content = (
-    <div className="relative min-h-screen bg-[#020203] text-ink selection:bg-brand-soft/30 overflow-x-hidden">
+    <div className="relative min-h-screen bg-background text-ink selection:bg-brand-soft/30 overflow-x-hidden">
       {/* 1. BACKGROUND - Reduced on mobile for performance */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <MeshGradient className="opacity-20" />

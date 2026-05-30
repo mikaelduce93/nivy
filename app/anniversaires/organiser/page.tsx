@@ -71,7 +71,7 @@ export default function OrganizeBirthdayPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#020203] text-ink overflow-hidden selection:bg-brand-soft/30">
+    <div className="relative min-h-screen bg-background text-ink overflow-hidden selection:bg-brand-soft/30">
       <MeshGradient className="opacity-30" />
       <GrainOverlay opacity={0.05} />
       <GlowBlob color="var(--brand-soft)" className="-top-20 -right-20 opacity-20" size={600} />
@@ -91,7 +91,7 @@ export default function OrganizeBirthdayPage() {
                   <Cake className="w-12 h-12 text-brand-soft animate-pulse" />
                 </div>
                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">
-                  Plan thy <span className="text-gen-z-gradient">Legendary Night.</span>
+                  Plan thy <span className="text-pink">Legendary Night.</span>
                 </h1>
                 <p className="text-mute text-xl font-medium max-w-xl mx-auto">AI has pre-calculated the best vibes for you.</p>
               </div>

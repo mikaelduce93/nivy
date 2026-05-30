@@ -63,7 +63,7 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
     label: 'Profile',
     href: '/teen/profile',
     icon: User,
-    activeColor: 'text-gen-z-yellow',
+    activeColor: 'text-gold',
   },
 ]
 

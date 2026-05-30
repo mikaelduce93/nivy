@@ -84,7 +84,7 @@ export default async function QuestDetailPage({ params }: QuestDetailPageProps) 
 
 function QuestDetailSkeleton() {
   return (
-    <div className="min-h-screen bg-[#020203] p-4 sm:p-8 animate-pulse">
+    <div className="min-h-screen bg-background p-4 sm:p-8 animate-pulse">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Back button */}
         <div className="h-10 w-24 bg-paper-2 rounded-xl" />

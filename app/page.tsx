@@ -126,14 +126,14 @@ export default function HomePage() {
 
               {/* Live badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-card/60  border border-border/50 shadow-lg" role="status" aria-live="polite">
-                <div className="w-2.5 h-2.5 rounded-full bg-gen-z-lime animate-pulse " aria-hidden="true" />
-                <span className="text-sm font-bold text-gen-z-lime tabular-nums">{t("hero.live", { days: countdown.days, hours: countdown.hours })}</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-lime animate-pulse " aria-hidden="true" />
+                <span className="text-sm font-bold text-lime tabular-nums">{t("hero.live", { days: countdown.days, hours: countdown.hours })}</span>
               </div>
 
               {/* Main heading - Gen-Z gradient
                   Responsive scale: xs (375px) → 4xl, then ramps to 8xl on lg+. */}
               <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] sm:leading-[0.85] tracking-tighter break-words">
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime animate-gradient-x bg-[length:200%_100%]">
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-brand-soft via-accent-soft to-lime animate-gradient-x bg-[length:200%_100%]">
                   TEEN&nbsp;LIFE
                 </span>
                 <span className="block text-foreground mt-2">
@@ -145,7 +145,7 @@ export default function HomePage() {
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed text-balance">
                 Bienvenue dans le <span className="text-foreground font-bold">1er Écosystème Lifestyle</span> pour les 13–17&nbsp;ans au Maroc.
                 <br/>
-                <span className="text-gen-z-grape font-semibold">Soirées</span> • <span className="text-gen-z-lime font-semibold">Sport</span> • <span className="text-info-soft font-semibold">Études</span> • <span className="text-accent-soft font-semibold">Créativité</span>
+                <span className="text-pink font-semibold">Soirées</span> • <span className="text-lime font-semibold">Sport</span> • <span className="text-info-soft font-semibold">Études</span> • <span className="text-accent-soft font-semibold">Créativité</span>
               </p>
 
               {/* CTA buttons */}
@@ -166,7 +166,7 @@ export default function HomePage() {
 
               {/* Trust badges */}
               <div className="flex items-center justify-center lg:justify-start gap-4 pt-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gen-z-lime/10 text-gen-z-lime text-sm font-semibold">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-lime/10 text-lime text-sm font-semibold">
                   <Shield className="w-4 h-4" aria-hidden="true" /> {t("hero.trustSafe")}
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-brand-soft/10 text-brand-soft text-sm font-semibold">
@@ -213,7 +213,7 @@ export default function HomePage() {
               <span className="inline-block px-4 py-1.5 rounded-full bg-brand-soft/10 text-brand-soft text-sm font-bold mb-4">
                 🎮 GAMIFIE TA VIE
               </span>
-              <h2 id="pillars-heading" className="text-4xl md:text-6xl font-black text-foreground mb-4 text-balance">4 Piliers pour <span className="text-gen-z-gradient">Level Up</span></h2>
+              <h2 id="pillars-heading" className="text-4xl md:text-6xl font-black text-foreground mb-4 text-balance">4 Piliers pour <span className="text-pink">Level Up</span></h2>
               <p className="text-muted-foreground text-lg text-balance max-w-2xl mx-auto">Choisis ta voie et gagne des récompenses réelles</p>
             </div>
 
@@ -351,7 +351,7 @@ export default function HomePage() {
         {/* CTA SECTION - Gen-Z styled */}
         <section className="py-28 px-6 relative overflow-hidden" aria-labelledby="cta-heading">
           {/* Gen-Z gradient background */}
-          <div className="absolute inset-0 bg-gen-z-hero pointer-events-none" aria-hidden="true" />
+          <div className="absolute inset-0 bg-paper-2 pointer-events-none" aria-hidden="true" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-soft/20 rounded-full blur-[150px]" />
           
           <div className="container mx-auto max-w-4xl relative z-10 text-center">
@@ -360,7 +360,7 @@ export default function HomePage() {
             <div className="hidden motion-safe:block absolute bottom-10 right-10 text-3xl animate-float delay-500 opacity-40 select-none" aria-hidden="true">🎮</div>
             
             <h2 id="cta-heading" className="text-4xl sm:text-5xl md:text-7xl font-black text-foreground mb-8 tracking-tight text-balance break-words">
-              PRÊT À <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime">LEVEL&nbsp;UP</span> ?
+              PRÊT À <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-soft via-accent-soft to-lime">LEVEL&nbsp;UP</span> ?
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto text-balance">
               Crée ton profil, rejoins un crew et commence à gagner du XP dès aujourd'hui. Sport, études, créativité, soirées — gamifie tout ce que tu fais.
@@ -391,7 +391,7 @@ export default function HomePage() {
                 <span>Lifestyle complet</span>
               </div>
               <div className="flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-gen-z-lime" />
+                <Trophy className="w-4 h-4 text-lime" />
                 <span>XP réel, récompenses réelles</span>
               </div>
             </div>

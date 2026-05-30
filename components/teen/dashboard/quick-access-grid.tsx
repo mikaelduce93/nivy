@@ -38,7 +38,7 @@ interface QuickAccessItem {
 // Badge styles
 const badgeStyles = {
   hot: "bg-gradient-to-r from-coral to-destructive animate-pulse",
-  new: "bg-gradient-to-r from-brand-soft to-gen-z-grape",
+  new: "bg-gradient-to-r from-brand-soft to-pink",
   live: "bg-gradient-to-r from-lime to-lime animate-pulse",
 }
 
@@ -319,7 +319,7 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       description: "Convertis tes XP en récompenses exclusives",
       href: "/teen/shop",
       icon: ShoppingBag,
-      gradient: "from-brand-soft to-gen-z-grape",
+      gradient: "from-brand-soft to-pink",
       iconBg: "bg-brand-soft/20",
       badge: "NEW",
       badgeType: 'new',
@@ -345,8 +345,8 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       description: "Rejoins des communautés et gagne des XP",
       href: "/teen/circles",
       icon: Crown,
-      gradient: "from-gen-z-yellow to-gold",
-      iconBg: "bg-gen-z-yellow/20",
+      gradient: "from-gold to-gold",
+      iconBg: "bg-gold/20",
       badge: "HOT",
       badgeType: 'hot',
       particleColor: PALETTES.gold,

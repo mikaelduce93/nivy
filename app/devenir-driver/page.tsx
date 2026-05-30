@@ -20,7 +20,7 @@ export const metadata = {
 
 export default function DevenirDriverPage() {
   return (
-    <main className="min-h-screen bg-ink text-ink">
+    <main className="min-h-screen bg-background text-ink">
       <div className="container mx-auto px-4 py-12 max-w-3xl space-y-8">
         <header className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-lime/20 border border-lime/30">

@@ -47,17 +47,17 @@ export function AIOracleCard() {
               AI ORACLE PREDICTION
             </div>
             <h3 className="text-4xl md:text-5xl font-black text-ink tracking-tighter uppercase italic leading-none">
-              Balance thy <span className="text-gen-z-gradient">Inner Pillars.</span>
+              Balance thy <span className="text-pink">Inner Pillars.</span>
             </h3>
           </div>
           
           <p className="text-mute text-lg font-medium leading-relaxed max-w-xl">
-            Tu as dominé les quêtes Intellect cette semaine. Ton pilier <span className="text-gen-z-lime font-bold">Vitalité</span> est en retard. Active ce défi de 15 min pour débloquer ton aura.
+            Tu as dominé les quêtes Intellect cette semaine. Ton pilier <span className="text-lime font-bold">Vitalité</span> est en retard. Active ce défi de 15 min pour débloquer ton aura.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="flex items-center gap-3 bg-paper-2 px-6 py-3 rounded-2xl border border-ink">
-              <Zap className="w-5 h-5 text-gen-z-yellow fill-current" />
+              <Zap className="w-5 h-5 text-gold fill-current" />
               <span className="font-black text-ink text-xl">+250 XP</span>
             </div>
             <Button className="h-16 px-10 rounded-[2rem] bg-white text-ink font-black text-xl hover:scale-105 transition-all group shadow-2xl">

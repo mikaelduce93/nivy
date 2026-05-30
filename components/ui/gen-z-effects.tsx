@@ -464,7 +464,7 @@ export function LevelUpEffect({ level, show, onComplete }: LevelUpEffectProps) {
         }}
       >
         <motion.div
-          className="text-6xl font-black mb-4 text-gen-z-gradient"
+          className="text-6xl font-black mb-4 text-pink"
           animate={{ 
             scale: [1, 1.1, 1],
           }}

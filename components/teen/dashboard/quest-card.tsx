@@ -35,9 +35,9 @@ const PILLAR_CONFIG = {
   vitality: {
     icon: Dumbbell,
     color: "var(--gen-z-lime)",
-    bg: "bg-gen-z-lime/10",
+    bg: "bg-lime/10",
     label: "VITALITY",
-    border: "border-gen-z-lime/20"
+    border: "border-lime/20"
   },
   creativity: {
     icon: Palette,
@@ -111,7 +111,7 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
               {config.label}
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-gen-z-yellow fill-current" />
+              <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-gold fill-current" />
               <span className="font-black text-ink text-xs sm:text-sm md:text-base">+{quest.xp_reward} XP</span>
             </div>
           </div>

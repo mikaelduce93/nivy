@@ -43,7 +43,7 @@ export function MarketplaceOverlay() {
               <div className="flex flex-col items-end">
                 <span className="text-[10px] font-black text-mute uppercase tracking-widest mb-1">Cost</span>
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-paper-2 border border-ink">
-                  <Zap className="w-3 h-3 text-gen-z-yellow" />
+                  <Zap className="w-3 h-3 text-gold" />
                   <span className="text-xs font-black text-ink">{deal.cost}</span>
                 </div>
               </div>

@@ -34,7 +34,7 @@ function getMissionStyle(type?: string) {
   switch (type) {
     case 'daily':
       return { 
-        gradient: 'from-brand-soft via-gen-z-grape to-brand-soft', 
+        gradient: 'from-brand-soft via-pink to-brand-soft', 
         icon: '🌟', 
         color: 'lavender',
         borderGradient: 'lavender' as const,
@@ -43,7 +43,7 @@ function getMissionStyle(type?: string) {
       }
     case 'weekly':
       return { 
-        gradient: 'from-accent-soft via-gen-z-peach to-accent-soft', 
+        gradient: 'from-accent-soft via-gold to-accent-soft', 
         icon: '🔥', 
         color: 'coral',
         borderGradient: 'coral' as const,
@@ -52,7 +52,7 @@ function getMissionStyle(type?: string) {
       }
     case 'challenge':
       return { 
-        gradient: 'from-gen-z-lime via-success-soft to-gen-z-lime', 
+        gradient: 'from-lime via-success-soft to-lime', 
         icon: '⚡', 
         color: 'lime',
         borderGradient: 'mint' as const,
@@ -61,7 +61,7 @@ function getMissionStyle(type?: string) {
       }
     case 'special':
       return { 
-        gradient: 'from-neon-prestige via-gen-z-yellow to-neon-prestige', 
+        gradient: 'from-neon-prestige via-gold to-neon-prestige', 
         icon: '👑', 
         color: 'prestige',
         borderGradient: 'gold' as const,
@@ -70,7 +70,7 @@ function getMissionStyle(type?: string) {
       }
     default:
       return { 
-        gradient: 'from-accent-soft via-gen-z-peach to-accent-soft', 
+        gradient: 'from-accent-soft via-gold to-accent-soft', 
         icon: '🎯', 
         color: 'default',
         borderGradient: 'holographic' as const,

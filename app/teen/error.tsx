@@ -18,7 +18,7 @@ export default function TeenDashboardError({ error, reset }: ErrorProps) {
   }, [error])
 
   return (
-    <div className="min-h-screen bg-[#020203] text-ink flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-ink flex items-center justify-center p-4">
       {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] rounded-full bg-destructive/5 blur-[100px]" />

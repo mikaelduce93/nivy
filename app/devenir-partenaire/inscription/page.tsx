@@ -120,7 +120,7 @@ export default function PartnerRegistrationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-ink text-ink">
+    <div className="min-h-screen bg-background text-ink">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
 
         {/* Header */}

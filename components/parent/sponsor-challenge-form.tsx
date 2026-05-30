@@ -33,12 +33,12 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
           onClick={() => setIsExpanded(true)}
           whileHover={{ scale: 1.02, y: -4 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full h-24 rounded-[2.5rem] bg-gradient-to-r from-gen-z-teal via-teal to-pink p-[2px] shadow-2xl group overflow-hidden"
+          className="w-full h-24 rounded-[2.5rem] bg-gradient-to-r from-teal via-teal to-pink p-[2px] shadow-2xl group overflow-hidden"
         >
           <div className="w-full h-full rounded-[calc(2.5rem-2px)] bg-background flex items-center justify-between px-10 group-hover:bg-transparent transition-colors duration-500">
             <div className="flex items-center gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-gen-z-teal/10 flex items-center justify-center border border-gen-z-teal/20 shadow-inner group-hover:bg-paper-2 transition-colors">
-                <Target className="h-7 w-7 text-gen-z-teal group-hover:text-ink" />
+              <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center border border-teal/20 shadow-inner group-hover:bg-paper-2 transition-colors">
+                <Target className="h-7 w-7 text-teal group-hover:text-ink" />
               </div>
               <div className="text-left">
                 <h3 className="text-xl font-black text-ink tracking-tight uppercase italic group-hover:text-ink">Sponsor Quest</h3>
@@ -57,7 +57,7 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
           className="rounded-[3rem] bg-card border border-ink p-10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden"
         >
           {/* Background Glow */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gen-z-teal/10 rounded-full blur-[100px] -mr-32 -mt-32" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-teal/10 rounded-full blur-[100px] -mr-32 -mt-32" />
           
           <button 
             onClick={() => setIsExpanded(false)}
@@ -78,7 +78,7 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
                 <div className="relative">
                   <Input 
                     required
-                    className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-6 focus:border-gen-z-teal transition-all" 
+                    className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-6 focus:border-teal transition-all" 
                     placeholder="Ex: Nettoyer la chambre..." 
                   />
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-paper-2 flex items-center justify-center">
@@ -94,7 +94,7 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
                     <Input 
                       type="number"
                       defaultValue={100}
-                      className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-12 focus:border-gen-z-teal transition-all" 
+                      className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-12 focus:border-teal transition-all" 
                     />
                     <Coins className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gold" />
                   </div>
@@ -102,7 +102,7 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
                     <Input 
                       type="number"
                       defaultValue={50}
-                      className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-12 focus:border-gen-z-teal transition-all" 
+                      className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-12 focus:border-teal transition-all" 
                     />
                     <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-pink" />
                   </div>
@@ -112,12 +112,12 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
 
             <div className="p-6 rounded-[2rem] bg-white/[0.03] border border-ink flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gen-z-teal/10 flex items-center justify-center border border-gen-z-teal/20">
-                  <Camera className="w-5 h-5 text-gen-z-teal" />
+                <div className="w-10 h-10 rounded-xl bg-teal/10 flex items-center justify-center border border-teal/20">
+                  <Camera className="w-5 h-5 text-teal" />
                 </div>
                 <span className="text-xs font-bold text-mute uppercase tracking-widest">Require photo proof?</span>
               </div>
-              <div className="w-12 h-6 rounded-full bg-gen-z-teal p-1 flex justify-end cursor-pointer">
+              <div className="w-12 h-6 rounded-full bg-teal p-1 flex justify-end cursor-pointer">
                 <div className="w-4 h-4 rounded-full bg-white" />
               </div>
             </div>

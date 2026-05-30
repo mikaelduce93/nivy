@@ -62,7 +62,7 @@ export function MarketplaceDrops() {
               </div>
               <div className="flex flex-col items-end shrink-0">
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-ink/40  px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border border-ink">
-                  <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-gen-z-yellow fill-current" />
+                  <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-gold fill-current" />
                   <span className="font-black text-ink text-xs sm:text-base">{drop.cost} XP</span>
                 </div>
               </div>

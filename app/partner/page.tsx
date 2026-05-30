@@ -151,7 +151,7 @@ export default async function PartnerDashboardPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#050505] text-ink selection:bg-brand-soft/30 overflow-x-hidden">
+    <div className="relative min-h-screen bg-background text-ink selection:bg-brand-soft/30 overflow-x-hidden">
       {/* 1. BUSINESS ELITE BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <MeshGradient className="opacity-25" />
@@ -259,7 +259,7 @@ export default async function PartnerDashboardPage() {
           >
             <div className="flex items-center justify-between mb-10">
               <p className="text-xs font-black uppercase text-mute tracking-widest">Transactions</p>
-              <ShoppingBag className="w-5 h-5 text-gen-z-lime opacity-50" />
+              <ShoppingBag className="w-5 h-5 text-lime opacity-50" />
             </div>
             <p className="text-5xl font-black text-ink tracking-tighter tabular-nums">{transactionsCount}</p>
             <p className="text-xs font-bold text-mute uppercase tracking-widest mt-2">Ce mois-ci</p>

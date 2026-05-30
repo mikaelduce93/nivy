@@ -33,7 +33,7 @@ export default function TeenMap() {
 
   if (!isClient || !L) {
     return (
-      <div className="w-full h-full bg-[#020203] flex items-center justify-center">
+      <div className="w-full h-full bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <MapIcon className="w-12 h-12 text-ink animate-pulse" />
           <p className="text-mute font-black uppercase tracking-[0.3em] text-[10px]">Initializing Map Engine...</p>

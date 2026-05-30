@@ -27,8 +27,8 @@ export function EvolutionTracker({ teenName, stats }: EvolutionTrackerProps) {
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gen-z-lime/10 flex items-center justify-center border border-gen-z-lime/20">
-              <TrendingUp className="h-5 w-5 text-gen-z-lime" />
+            <div className="w-10 h-10 rounded-xl bg-lime/10 flex items-center justify-center border border-lime/20">
+              <TrendingUp className="h-5 w-5 text-lime" />
             </div>
             <h3 className="text-xl font-black text-ink tracking-tight">Evolution de {teenName}</h3>
           </div>

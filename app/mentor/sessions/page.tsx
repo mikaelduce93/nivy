@@ -43,7 +43,7 @@ export default async function MentorSessionsPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] text-ink -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
+    <div className="min-h-screen bg-background text-ink -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="border-b border-ink pb-6">
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter">Sessions</h1>
