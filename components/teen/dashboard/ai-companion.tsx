@@ -38,6 +38,10 @@ const typeColors = {
   mission: 'var(--gen-z-lime)',
 }
 
+/**
+ * @deprecated Refonte V1.5 (#83) — fusionné dans la mascotte canonique `<Niv>`
+ * (`components/brand/niv.tsx`) + surface coach `<DarkSurface>`.
+ */
 export function AICompanion({ teenName, userId }: AICompanionProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])

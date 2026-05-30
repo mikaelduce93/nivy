@@ -68,7 +68,12 @@ const agentConfig = {
   admin: { name: 'Ops', gradient: 'from-slate-600 to-slate-800', icon: Brain },
 }
 
-export function EliteAICompanion({ 
+/**
+ * @deprecated Refonte V1.5 (#83) — la surface coach bascule sur `<Niv>` +
+ * `<DarkSurface>` (`components/brand/niv.tsx`). À retirer au profit du panneau
+ * coach Niv lors du reskin des shells (teen/parent/partner).
+ */
+export function EliteAICompanion({
   role = 'teen', 
   teenName = 'Champ', 
   userId,

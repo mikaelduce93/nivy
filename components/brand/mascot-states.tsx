@@ -35,6 +35,11 @@ interface PandaMascotProps {
   label?: string
 }
 
+/**
+ * @deprecated Refonte V1.5 (#83) — remplacé par la mascotte canonique
+ * `<Niv>` (`components/brand/niv.tsx`, panda hoodie rose). Conservé pour les
+ * appelants non encore migrés ; ne pas utiliser dans le nouveau code.
+ */
 export function PandaMascot({
   state = 'happy',
   size = 'md',
