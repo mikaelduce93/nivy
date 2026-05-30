@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { PricingSticker, PricingGrid } from "@/components/sticker/pricing-sticker"
+import { ShieldCheck } from "lucide-react"
 
 export const metadata: Metadata = { title: "Plan famille" }
 
@@ -32,10 +33,15 @@ export default function FamilyPlanPage() {
             features={p.feats}
             popular={p.popular}
             niv={p.popular ? "proud" : undefined}
-            cta={{ label: "Choisir" }}
+            cta={{ label: "Choisir", href: `/carte-vip/souscrire?plan=${p.id}` }}
           />
         ))}
       </PricingGrid>
+
+      <p className="flex items-center gap-2 text-sm text-mute">
+        <ShieldCheck className="h-4 w-4 text-lime" />
+        Sans engagement, annulable quand tu veux.
+      </p>
     </div>
   )
 }

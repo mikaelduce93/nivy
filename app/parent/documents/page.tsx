@@ -1,14 +1,13 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Niv, NivCoach } from "@/components/brand"
+import { CheckRound } from "@/components/ui/check-round"
 import {
-  FileText,
   ArrowLeft,
   ShieldCheck,
-  CheckCircle2,
   Clock,
   AlertTriangle,
   Pen,
@@ -50,7 +49,7 @@ export default async function ParentDocumentsPage() {
 
   return (
     <div className="min-h-screen bg-background text-ink">
-      <div className="container mx-auto px-6 py-32 max-w-4xl">
+      <div className="container mx-auto px-6 pt-10 pb-20 sm:pt-16 max-w-4xl">
         <Button asChild variant="ghost" className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -58,98 +57,95 @@ export default async function ParentDocumentsPage() {
           </Link>
         </Button>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-ink flex items-center gap-3">
-            <FileText className="w-8 h-8 text-lime" />
-            Documents & autorisations
-          </h1>
-          <p className="text-mute mt-1">
-            Vos signatures électroniques et consentements Nivy (loi 09-08 / CNDP)
-          </p>
+        <div className="mb-8 flex items-center gap-4">
+          <Niv size={72} mood="calm" />
+          <div>
+            <p className="eyebrow">Compte · Documents</p>
+            <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">
+              Tes <em className="font-semibold italic text-pink">papiers</em> Nivy
+            </h1>
+            <p className="text-mute mt-1">
+              Tes signatures électroniques et consentements Nivy (loi 09-08 / CNDP)
+            </p>
+          </div>
         </div>
 
         {/* Status banner */}
         {hasSigned ? (
-          <Card className="mb-6 bg-lime/10 border-lime/30">
-            <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-lime/20 flex items-center justify-center">
-                  <CheckCircle2 className="h-5 w-5 text-lime" />
-                </div>
+          <StickerCard className="mb-6 p-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <CheckRound checked aria-label="Autorisation active" className="pointer-events-none mt-0.5" />
                 <div>
-                  <p className="font-bold text-ink">Autorisation parentale active</p>
+                  <p className="font-display text-lg font-extrabold text-ink">Autorisation parentale active</p>
                   <p className="text-sm text-mute mt-1">
-                    Votre signature électronique est enregistrée. Vous pouvez approuver
-                    les demandes de vos teens et recharger des coins.
+                    Ta signature électronique est enregistrée. Tu peux approuver
+                    les demandes de tes teens et recharger des coins en toute confiance.
                   </p>
                 </div>
               </div>
-              <Button asChild variant="outline" className="border-ink text-ink-2">
+              <Button asChild variant="outline" className="shrink-0">
                 <Link href="/parent/e-signature">
                   <Pen className="h-4 w-4 mr-2" />
                   Renouveler
                 </Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </StickerCard>
         ) : (
-          <Card className="mb-6 bg-gold/10 border-gold/30">
-            <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center">
-                  <AlertTriangle className="h-5 w-5 text-gold" />
+          <StickerCard className="mb-6 p-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="h-11 w-11 shrink-0 rounded-full border-2 border-ink bg-gold flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 text-ink" />
                 </div>
                 <div>
-                  <p className="font-bold text-ink">Autorisation requise</p>
+                  <p className="font-display text-lg font-extrabold text-ink">Autorisation requise</p>
                   <p className="text-sm text-mute mt-1">
-                    Avant d'approuver une demande ou de recharger des coins, vous devez
+                    Avant d'approuver une demande ou de recharger des coins, tu dois
                     signer électroniquement l'autorisation parentale.
                   </p>
                 </div>
               </div>
-              <Button
-                asChild
-                className="bg-gradient-to-r from-teal to-lime hover:from-teal hover:to-lime text-ink font-bold shrink-0"
-              >
+              <Button asChild variant="pink" className="shrink-0">
                 <Link href="/parent/e-signature">
                   <ShieldCheck className="h-4 w-4 mr-2" />
                   Signer maintenant
                 </Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </StickerCard>
         )}
 
         {/* Signed documents list */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <FileSignature className="h-5 w-5 text-lime" />
-              Mes signatures
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {signatures.length === 0 ? (
-              <EmptyState
-                size="small"
-                icon={FileText}
-                title="Aucun document signé"
-                description="Aucun document signé pour le moment."
-              />
-            ) : (
-              <div className="space-y-3">
-                {signatures.map((sig: any) => (
-                  <div
-                    key={sig.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink"
-                  >
+        <StickerCard className="p-6">
+          <h2 className="font-display text-xl font-extrabold text-ink flex items-center gap-2 mb-4">
+            <FileSignature className="h-5 w-5 text-lime" />
+            Mes signatures
+          </h2>
+          {signatures.length === 0 ? (
+            <EmptyState
+              size="small"
+              nivMood="calm"
+              title="Aucun document signé"
+              description="Aucun document signé pour le moment."
+            />
+          ) : (
+            <div className="space-y-3">
+              {signatures.map((sig: any) => (
+                <StickerCard
+                  key={sig.id}
+                  variant="panel"
+                  className="p-4"
+                >
+                  <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-lime/10 flex items-center justify-center">
+                      <div className="w-11 h-11 rounded-xl border-2 border-ink bg-paper flex items-center justify-center">
                         <FileSignature className="w-5 h-5 text-lime" />
                       </div>
                       <div>
                         <p className="font-bold text-ink">Autorisation parentale</p>
-                        <p className="text-xs text-mute flex items-center gap-2 mt-1">
+                        <p className="font-mono text-xs text-mute flex flex-wrap items-center gap-2 mt-1">
                           <Clock className="w-3 h-3" />
                           Signée le{" "}
                           {new Date(sig.created_at).toLocaleDateString("fr-FR", {
@@ -166,28 +162,28 @@ export default async function ParentDocumentsPage() {
                         </p>
                       </div>
                     </div>
-                    <Badge
+                    <span
                       className={
                         sig.terms_accepted
-                          ? "bg-lime/20 text-lime border border-lime/30"
-                          : "bg-muted text-mute"
+                          ? "shrink-0 rounded-md border-2 border-ink bg-lime px-2.5 py-1 font-mono text-[11px] font-extrabold uppercase tracking-[0.1em] text-ink"
+                          : "shrink-0 rounded-md border-2 border-line bg-paper px-2.5 py-1 font-mono text-[11px] font-extrabold uppercase tracking-[0.1em] text-mute"
                       }
                     >
-                      <CheckCircle2 className="w-3 h-3 mr-1" />
                       {sig.terms_accepted ? "Acceptée" : "Brouillon"}
-                    </Badge>
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                </StickerCard>
+              ))}
+            </div>
+          )}
+        </StickerCard>
 
         {/* Compliance footer */}
-        <p className="text-xs text-mute mt-6 text-center">
-          Documents conservés conformément à la loi 09-08 (CNDP) et au RGPD.
-          Accès via URLs signées 5 minutes — bucket privé.
-        </p>
+        <NivCoach
+          mood="calm"
+          className="mt-6"
+          message="Tes documents sont conservés conformément à la loi 09-08 (CNDP) et au RGPD. L'accès se fait via des URLs signées 5 minutes sur un bucket privé — promis, c'est bien gardé."
+        />
       </div>
     </div>
   )

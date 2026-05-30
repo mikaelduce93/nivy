@@ -3,8 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -70,11 +69,9 @@ export function ParentNotificationRow({ notification }: { notification: ParentNo
   }
 
   return (
-    <Card
-      className={cn(
-        "bg-card border-ink transition-all cursor-pointer hover:border-ink",
-        !isRead && "border-l-4 border-l-cyan-500",
-      )}
+    <StickerCard
+      variant="hover"
+      className={cn("p-4", isRead && "opacity-80")}
       onClick={onActivate}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -86,44 +83,47 @@ export function ParentNotificationRow({ notification }: { notification: ParentNo
       tabIndex={0}
       aria-label={isRead ? `Notification: ${notification.title}` : `Notification non lue: ${notification.title}`}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-full bg-lime/10 flex items-center justify-center flex-shrink-0 text-lg" aria-hidden="true">
-            {notification.emoji || "🔔"}
-          </div>
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl border-2 border-ink bg-paper flex items-center justify-center flex-shrink-0 text-lg" aria-hidden="true">
+          {notification.emoji || "🔔"}
+        </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className={cn("font-bold", isRead ? "text-mute" : "text-ink")}>
-                {notification.title}
-              </h3>
-              {notification.priority === "high" && (
-                <Badge className="bg-gold/20 text-gold text-xs">Important</Badge>
-              )}
-            </div>
-            {notification.body && (
-              <p className={cn("text-sm", isRead ? "text-mute" : "text-ink-2")}>
-                {notification.body}
-              </p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {!isRead && (
+              <span className="size-2 shrink-0 rounded-full bg-pink" aria-hidden="true" />
             )}
-            <div className="flex items-center gap-4 mt-2">
-              <span className="text-xs text-mute flex items-center gap-1">
-                <Clock className="w-3 h-3" aria-hidden="true" />
-                {formatRelative(notification.created_at)}
+            <h3 className={cn("font-bold", isRead ? "text-mute" : "text-ink")}>
+              {notification.title}
+            </h3>
+            {notification.priority === "high" && (
+              <span className="rounded-md border-2 border-ink bg-gold px-2 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.12em] text-ink">
+                Important
               </span>
-              {notification.action_url && (
-                <Link
-                  href={notification.action_url}
-                  className="text-xs text-teal hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {notification.action_label || "Voir détails"} →
-                </Link>
-              )}
-            </div>
+            )}
+          </div>
+          {notification.body && (
+            <p className={cn("text-sm", isRead ? "text-mute" : "text-ink-2")}>
+              {notification.body}
+            </p>
+          )}
+          <div className="flex items-center gap-4 mt-2">
+            <span className="font-mono text-xs text-mute flex items-center gap-1">
+              <Clock className="w-3 h-3" aria-hidden="true" />
+              {formatRelative(notification.created_at)}
+            </span>
+            {notification.action_url && (
+              <Link
+                href={notification.action_url}
+                className="text-xs font-semibold text-pink hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {notification.action_label || "Voir détails"} →
+              </Link>
+            )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </StickerCard>
   )
 }
