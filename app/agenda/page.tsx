@@ -92,7 +92,7 @@ async function EventsContent() {
 
 export default function AgendaPage() {
   return (
-    <div className="min-h-screen bg-background pt-24 pb-16">
+    <div className="min-h-screen bg-paper pt-24 pb-16">
       <Suspense fallback={<EventsSkeleton />}>
         <EventsContent />
       </Suspense>

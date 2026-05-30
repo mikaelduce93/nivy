@@ -1,13 +1,18 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Clock, Users, Search, ArrowRight, Download, Grid, List, SlidersHorizontal, X, TrendingUp, Sparkles, Flame } from 'lucide-react'
 import Link from "next/link"
 import Image from 'next/image'
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
+import { CheckRound } from "@/components/ui/check-round"
+import { Niv, NivEmpty } from "@/components/brand"
+import { Marquee } from "@/components/kit/marquee"
+import { cn } from "@/lib/utils"
 
 interface Event {
   id: string
@@ -142,78 +147,76 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
   const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent)
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage)
 
+  const viewPill = (active: boolean) =>
+    cn(
+      "rounded-none",
+      active ? "bg-ink text-paper" : "bg-white text-mute hover:text-ink",
+    )
+
   return (
     <>
       {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-primary">{filteredEvents.length} événements disponibles</span>
-        </div>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4">Prochaines Soirées</h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Découvre tous nos événements à venir et réserve ta place pour des soirées inoubliables
+      <div className="mb-10 flex flex-col items-center gap-4 text-center">
+        <Niv mood="hype" size={104} float />
+        <p className="eyebrow tracking-[0.16em]">Agenda · {filteredEvents.length} événements</p>
+        <h1 className="font-display text-4xl font-extrabold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
+          Prochaines <em className="font-semibold italic text-pink">soirées</em>
+        </h1>
+        <p className="max-w-2xl text-lg text-ink-2">
+          Découvre tous nos événements à venir et réserve ta place pour des soirées inoubliables.
         </p>
       </div>
 
+      {initialCities.length > 0 && (
+        <div className="mb-10">
+          <Marquee items={initialCities} />
+        </div>
+      )}
+
       {/* Search and Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-mute" aria-hidden="true" />
           <Input
             type="text"
-            placeholder="Rechercher un événement par nom ou description..."
+            placeholder="Rechercher un événement…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-11 h-12 text-base"
+            className="h-12 border-2 border-ink pl-11 focus-visible:ring-0"
           />
         </div>
 
         <div className="flex gap-2">
           <Button
-            variant={showFilters ? "default" : "outline"}
+            variant={showFilters ? "pink" : "outline"}
             onClick={() => setShowFilters(!showFilters)}
             className="relative"
           >
-            <SlidersHorizontal className="w-4 h-4 mr-2" />
+            <SlidersHorizontal className="mr-2 size-4" aria-hidden="true" />
             Filtres
             {activeFiltersCount > 0 && (
-              <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-primary text-ink">
+              <span className="absolute -right-2 -top-2 grid size-5 place-items-center rounded-full border-2 border-ink bg-pink font-mono text-[10px] font-bold text-ink">
                 {activeFiltersCount}
-              </Badge>
+              </span>
             )}
           </Button>
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 bg-background border border-input rounded-md text-sm font-medium hover:bg-accent cursor-pointer"
-          >
-            <option value="date">Date ↑</option>
-            <option value="price-asc">Prix ↑</option>
-            <option value="price-desc">Prix ↓</option>
-            <option value="popularity">Popularité</option>
-            <option value="spots">Places restantes</option>
-          </select>
+          <div className="w-40">
+            <SelectSticker value={sortBy} onValueChange={setSortBy}>
+              <SelectStickerItem value="date">Date ↑</SelectStickerItem>
+              <SelectStickerItem value="price-asc">Prix ↑</SelectStickerItem>
+              <SelectStickerItem value="price-desc">Prix ↓</SelectStickerItem>
+              <SelectStickerItem value="popularity">Popularité</SelectStickerItem>
+              <SelectStickerItem value="spots">Places restantes</SelectStickerItem>
+            </SelectSticker>
+          </div>
 
-          <div className="flex border border-input rounded-md overflow-hidden">
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="icon"
-              onClick={() => setViewMode("grid")}
-              className="rounded-none"
-              aria-label="Vue grille"
-            >
-              <Grid className="w-4 h-4" />
+          <div className="flex overflow-hidden rounded-xl border-2 border-ink">
+            <Button variant="ghost" size="icon" onClick={() => setViewMode("grid")} className={viewPill(viewMode === "grid")} aria-label="Vue grille">
+              <Grid className="size-4" aria-hidden="true" />
             </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="icon"
-              onClick={() => setViewMode("list")}
-              className="rounded-none"
-              aria-label="Vue liste"
-            >
-              <List className="w-4 h-4" />
+            <Button variant="ghost" size="icon" onClick={() => setViewMode("list")} className={viewPill(viewMode === "list")} aria-label="Vue liste">
+              <List className="size-4" aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -221,126 +224,66 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
 
       {/* Filters Panel */}
       {showFilters && (
-        <Card className="p-6 mb-6 animate-in slide-in-from-top-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold">Filtres avancés</h3>
+        <StickerCard className="mb-6 gap-4 p-6">
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-lg font-bold">Filtres avancés</h3>
             {activeFiltersCount > 0 && (
               <Button variant="ghost" size="sm" onClick={clearFilters}>
-                <X className="w-4 h-4 mr-1" />
+                <X className="mr-1 size-4" aria-hidden="true" />
                 Réinitialiser
               </Button>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Ville</label>
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm"
-              >
-                <option value="all">Toutes les villes</option>
-                {initialCities.map((city) => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <SelectSticker label="Ville" value={selectedCity} onValueChange={setSelectedCity}>
+              <SelectStickerItem value="all">Toutes les villes</SelectStickerItem>
+              {initialCities.map((city) => (
+                <SelectStickerItem key={city} value={city}>{city}</SelectStickerItem>
+              ))}
+            </SelectSticker>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Type</label>
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm"
-              >
-                <option value="all">Tous les types</option>
-                <option value="regular">Soirée Régulière</option>
-                <option value="themed">Soirée à Thème</option>
-                <option value="special">Événement Spécial</option>
-                <option value="vip">Soirée VIP</option>
-              </select>
-            </div>
+            <SelectSticker label="Type" value={selectedType} onValueChange={setSelectedType}>
+              <SelectStickerItem value="all">Tous les types</SelectStickerItem>
+              <SelectStickerItem value="regular">Soirée régulière</SelectStickerItem>
+              <SelectStickerItem value="themed">Soirée à thème</SelectStickerItem>
+              <SelectStickerItem value="special">Événement spécial</SelectStickerItem>
+              <SelectStickerItem value="vip">Soirée VIP</SelectStickerItem>
+            </SelectSticker>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Thème</label>
-              <select
-                value={selectedTheme}
-                onChange={(e) => setSelectedTheme(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm"
-              >
-                <option value="all">Tous les thèmes</option>
-                {initialThemes.map((theme) => (
-                  <option key={theme} value={theme}>{theme}</option>
-                ))}
-              </select>
-            </div>
+            <SelectSticker label="Thème" value={selectedTheme} onValueChange={setSelectedTheme}>
+              <SelectStickerItem value="all">Tous les thèmes</SelectStickerItem>
+              {initialThemes.map((theme) => (
+                <SelectStickerItem key={theme} value={theme}>{theme}</SelectStickerItem>
+              ))}
+            </SelectSticker>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Mon âge</label>
-              <select
-                value={selectedAge}
-                onChange={(e) => setSelectedAge(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm"
-              >
-                <option value="all">Tous les âges</option>
-                {[11, 12, 13, 14, 15, 16, 17].map((age) => (
-                  <option key={age} value={age}>{age} ans</option>
-                ))}
-              </select>
-            </div>
+            <SelectSticker label="Mon âge" value={selectedAge} onValueChange={setSelectedAge}>
+              <SelectStickerItem value="all">Tous les âges</SelectStickerItem>
+              {[11, 12, 13, 14, 15, 16, 17].map((age) => (
+                <SelectStickerItem key={age} value={String(age)}>{age} ans</SelectStickerItem>
+              ))}
+            </SelectSticker>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-border">
-            <label className="flex items-center gap-2 cursor-pointer w-fit">
-              <input
-                type="checkbox"
-                checked={showAEFEOnly}
-                onChange={(e) => setShowAEFEOnly(e.target.checked)}
-                className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
-              />
-              <span className="text-sm font-medium">Uniquement profil AEFE</span>
-              <Badge variant="outline" className="bg-teal/10 text-teal border-teal/30">
-                -20%
-              </Badge>
-            </label>
+          <div className="border-t-2 border-dashed border-line pt-4">
+            <CheckRound
+              checked={showAEFEOnly}
+              onCheckedChange={(checked) => setShowAEFEOnly(checked === true)}
+              label={<span className="flex items-center gap-2">Uniquement profil AEFE <span className="rounded-full border-2 border-ink bg-teal px-2 py-0.5 font-mono text-[10px] font-bold text-ink">-20%</span></span>}
+            />
           </div>
-        </Card>
+        </StickerCard>
       )}
 
       {/* Active Filters Pills */}
       {activeFiltersCount > 0 && (
-        <div className="flex flex-wrap gap-2 mb-6">
-          {selectedCity !== "all" && (
-            <Badge variant="secondary" className="gap-2">
-              Ville: {selectedCity}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCity("all")} />
-            </Badge>
-          )}
-          {selectedType !== "all" && (
-            <Badge variant="secondary" className="gap-2">
-              Type: {selectedType}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedType("all")} />
-            </Badge>
-          )}
-          {selectedTheme !== "all" && (
-            <Badge variant="secondary" className="gap-2">
-              Thème: {selectedTheme}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedTheme("all")} />
-            </Badge>
-          )}
-          {selectedAge !== "all" && (
-            <Badge variant="secondary" className="gap-2">
-              Âge: {selectedAge} ans
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedAge("all")} />
-            </Badge>
-          )}
-          {showAEFEOnly && (
-            <Badge variant="secondary" className="gap-2 bg-teal/10 text-teal">
-              Profil AEFE
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setShowAEFEOnly(false)} />
-            </Badge>
-          )}
+        <div className="mb-6 flex flex-wrap gap-2">
+          {selectedCity !== "all" && <FilterPill label={`Ville : ${selectedCity}`} onClear={() => setSelectedCity("all")} />}
+          {selectedType !== "all" && <FilterPill label={`Type : ${selectedType}`} onClear={() => setSelectedType("all")} />}
+          {selectedTheme !== "all" && <FilterPill label={`Thème : ${selectedTheme}`} onClear={() => setSelectedTheme("all")} />}
+          {selectedAge !== "all" && <FilterPill label={`Âge : ${selectedAge} ans`} onClear={() => setSelectedAge("all")} />}
+          {showAEFEOnly && <FilterPill label="Profil AEFE" onClear={() => setShowAEFEOnly(false)} />}
         </div>
       )}
 
@@ -348,7 +291,7 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
       {currentEvents.length > 0 ? (
         <>
           {viewMode === "grid" && (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {currentEvents.map((event) => (
                 <EventCardGrid key={event.id} event={event} onAddToCalendar={addToCalendar} />
               ))}
@@ -356,7 +299,7 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
           )}
 
           {viewMode === "list" && (
-            <div className="space-y-4 mb-8">
+            <div className="mb-8 space-y-4">
               {currentEvents.map((event) => (
                 <EventCardList key={event.id} event={event} onAddToCalendar={addToCalendar} />
               ))}
@@ -365,12 +308,8 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
+            <div className="flex items-center justify-center gap-2">
+              <Button variant="outline" onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1}>
                 Précédent
               </Button>
 
@@ -388,41 +327,41 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
                   }
 
                   return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? "default" : "outline"}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className="w-10"
-                    >
+                    <Button key={pageNum} variant={currentPage === pageNum ? "pink" : "outline"} onClick={() => setCurrentPage(pageNum)} className="w-10">
                       {pageNum}
                     </Button>
                   )
                 })}
               </div>
 
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-              >
+              <Button variant="outline" onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages}>
                 Suivant
               </Button>
             </div>
           )}
         </>
       ) : (
-        <Card className="p-12 text-center">
-          <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-2xl font-bold mb-2">Aucun événement trouvé</h3>
-          <p className="text-muted-foreground mb-6">
-            Essayez de modifier vos filtres pour voir plus d'événements
-          </p>
-          <Button onClick={clearFilters}>
-            Réinitialiser les filtres
-          </Button>
-        </Card>
+        <div className="mx-auto max-w-md">
+          <NivEmpty
+            mood="calm"
+            title="Aucun événement trouvé"
+            description="Essaie de modifier tes filtres pour voir plus d'événements."
+            action={<Button variant="pink" onClick={clearFilters}>Réinitialiser les filtres</Button>}
+          />
+        </div>
       )}
     </>
+  )
+}
+
+function FilterPill({ label, onClear }: { label: string; onClear: () => void }) {
+  return (
+    <span className="flex items-center gap-2 rounded-full border-2 border-ink bg-paper-2 px-3 py-1 font-mono text-xs font-bold uppercase tracking-[0.1em] text-ink">
+      {label}
+      <button type="button" onClick={onClear} aria-label="Retirer le filtre">
+        <X className="size-3.5" aria-hidden="true" />
+      </button>
+    </span>
   )
 }
 
@@ -436,96 +375,60 @@ function EventCardGrid({ event, onAddToCalendar }: { event: Event; onAddToCalend
   const isNew = new Date().getTime() - new Date(event.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
 
   return (
-    <Card className="overflow-hidden group hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
-      <div className="relative h-48">
+    <StickerCard variant="hover" className="overflow-hidden p-0">
+      <div className="relative h-48 border-b-2 border-ink">
         <Image
-          src={event.image_url || "/placeholder.svg?height=192&width=400&query=teens party event"}
+          src={event.image_url || "/placeholder.svg?height=192&width=400&query=soiree nivy"}
           alt={event.title}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover group-hover:scale-110 transition-transform duration-500"
+          className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/20 group-hover:from-black/70 transition-colors" />
 
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {isNew && (
-            <Badge className="bg-lime text-ink gap-1">
-              <Sparkles className="w-3 h-3" />
-              Nouveau
-            </Badge>
-          )}
-          {isPopular && (
-            <Badge className="bg-pink text-ink gap-1">
-              <TrendingUp className="w-3 h-3" />
-              Populaire
-            </Badge>
-          )}
-          {event.has_aefe_discount && (
-            <Badge className="bg-teal text-ink">AEFE -20%</Badge>
-          )}
-          {isAlmostFull && (
-            <Badge className="bg-coral text-ink gap-1">
-              <Flame className="w-3 h-3" />
-              Presque complet
-            </Badge>
-          )}
-          {isFull && (
-            <Badge className="bg-destructive text-ink">COMPLET</Badge>
-          )}
+        <div className="absolute left-3 top-3 flex flex-col gap-2">
+          {isNew && <CardBadge className="bg-lime"><Sparkles className="size-3" aria-hidden="true" />Nouveau</CardBadge>}
+          {isPopular && <CardBadge className="bg-pink"><TrendingUp className="size-3" aria-hidden="true" />Populaire</CardBadge>}
+          {event.has_aefe_discount && <CardBadge className="bg-teal">AEFE -20%</CardBadge>}
+          {isAlmostFull && <CardBadge className="bg-coral"><Flame className="size-3" aria-hidden="true" />Presque complet</CardBadge>}
+          {isFull && <CardBadge className="bg-destructive text-paper">Complet</CardBadge>}
         </div>
 
-        <div className="absolute top-3 right-3 bg-primary text-ink font-bold text-center rounded-lg overflow-hidden shadow-lg">
-          <div className="px-3 py-1 text-2xl">{eventDate.getDate()}</div>
-          <div className="px-3 py-0.5 text-xs bg-primary/80">
+        <div className="absolute right-3 top-3 overflow-hidden rounded-lg border-2 border-ink bg-pink text-center font-display text-ink">
+          <div className="px-3 py-1 text-2xl font-extrabold">{eventDate.getDate()}</div>
+          <div className="border-t-2 border-ink px-3 py-0.5 font-mono text-[10px] font-bold uppercase">
             {eventDate.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase()}
           </div>
         </div>
       </div>
 
       <div className="p-6">
-        <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-          {event.title}
-        </h3>
+        <h3 className="mb-3 line-clamp-2 font-display text-xl font-bold text-ink">{event.title}</h3>
 
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="w-4 h-4 text-primary" />
-            <span>{eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="w-4 h-4 text-primary" />
-            <span>{event.city}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="w-4 h-4 text-primary" />
-            <span>{event.age_min}-{event.age_max} ans • {spotsLeft} places</span>
-          </div>
+        <div className="mb-4 space-y-2">
+          <CardMeta icon={Clock}>{eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</CardMeta>
+          <CardMeta icon={MapPin}>{event.city}</CardMeta>
+          <CardMeta icon={Users}>{event.age_min}-{event.age_max} ans • {spotsLeft} places</CardMeta>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">À partir de</p>
-            <p className="text-2xl font-black text-primary">{event.price} DH</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">À partir de</p>
+            <p className="font-display text-2xl font-extrabold text-ink">{event.price} DH</p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onAddToCalendar(event)}
-            className="text-xs"
-          >
-            <Download className="w-4 h-4 mr-1" />
+          <Button variant="ghost" size="sm" onClick={() => onAddToCalendar(event)} className="text-xs">
+            <Download className="mr-1 size-4" aria-hidden="true" />
             Calendrier
           </Button>
         </div>
 
-        <Button asChild className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" disabled={isFull}>
+        <Button asChild variant="pink" className="w-full" disabled={isFull}>
           <Link href={`/agenda/${event.id}`}>
             {isFull ? "Complet" : "Voir les détails"}
-            {!isFull && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
+            {!isFull && <ArrowRight className="ml-2 size-4" aria-hidden="true" />}
           </Link>
         </Button>
       </div>
-    </Card>
+    </StickerCard>
   )
 }
 
@@ -539,97 +442,75 @@ function EventCardList({ event, onAddToCalendar }: { event: Event; onAddToCalend
   const isNew = new Date().getTime() - new Date(event.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
 
   return (
-    <Card className="overflow-hidden group hover:shadow-lg transition-all">
+    <StickerCard variant="hover" className="overflow-hidden p-0">
       <div className="flex flex-col sm:flex-row">
-        <div className="relative w-full sm:w-64 h-48 sm:h-auto flex-shrink-0">
+        <div className="relative h-48 w-full shrink-0 border-b-2 border-ink sm:h-auto sm:w-64 sm:border-b-0 sm:border-r-2">
           <Image
-            src={event.image_url || "/placeholder.svg?height=200&width=256&query=teens party event"}
+            src={event.image_url || "/placeholder.svg?height=200&width=256&query=soiree nivy"}
             alt={event.title}
             fill
             sizes="256px"
             className="object-cover"
           />
-          <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-            {isNew && (
-              <Badge className="bg-lime text-ink gap-1 text-xs">
-                <Sparkles className="w-3 h-3" />
-                Nouveau
-              </Badge>
-            )}
-            {isPopular && (
-              <Badge className="bg-pink text-ink gap-1 text-xs">
-                <TrendingUp className="w-3 h-3" />
-                Populaire
-              </Badge>
-            )}
-            {event.has_aefe_discount && (
-              <Badge className="bg-teal text-ink text-xs">AEFE -20%</Badge>
-            )}
-            {isAlmostFull && (
-              <Badge className="bg-coral text-ink gap-1 text-xs">
-                <Flame className="w-3 h-3" />
-                Presque complet
-              </Badge>
-            )}
-            {isFull && (
-              <Badge className="bg-destructive text-ink text-xs">COMPLET</Badge>
-            )}
+          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+            {isNew && <CardBadge className="bg-lime"><Sparkles className="size-3" aria-hidden="true" />Nouveau</CardBadge>}
+            {isPopular && <CardBadge className="bg-pink"><TrendingUp className="size-3" aria-hidden="true" />Populaire</CardBadge>}
+            {event.has_aefe_discount && <CardBadge className="bg-teal">AEFE -20%</CardBadge>}
+            {isAlmostFull && <CardBadge className="bg-coral"><Flame className="size-3" aria-hidden="true" />Presque complet</CardBadge>}
+            {isFull && <CardBadge className="bg-destructive text-paper">Complet</CardBadge>}
           </div>
         </div>
 
-        <div className="flex-1 p-6 flex flex-col justify-between">
+        <div className="flex flex-1 flex-col justify-between p-6">
           <div>
-            <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
-              {event.title}
-            </h3>
-            <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-              {event.description}
-            </p>
+            <h3 className="mb-2 font-display text-2xl font-bold text-ink">{event.title}</h3>
+            <p className="mb-4 line-clamp-2 text-sm text-mute">{event.description}</p>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="w-4 h-4 text-primary" />
-                <span>{eventDate.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="w-4 h-4 text-primary" />
-                <span>{eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span>{event.city}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Users className="w-4 h-4 text-primary" />
-                <span>{event.age_min}-{event.age_max} ans • {spotsLeft} places</span>
-              </div>
+            <div className="mb-4 grid grid-cols-2 gap-4">
+              <CardMeta icon={Calendar}>{eventDate.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}</CardMeta>
+              <CardMeta icon={Clock}>{eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</CardMeta>
+              <CardMeta icon={MapPin}>{event.city}</CardMeta>
+              <CardMeta icon={Users}>{event.age_min}-{event.age_max} ans • {spotsLeft} places</CardMeta>
             </div>
           </div>
 
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs text-muted-foreground">À partir de</p>
-              <p className="text-3xl font-black text-primary">{event.price} DH</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">À partir de</p>
+              <p className="font-display text-3xl font-extrabold text-ink">{event.price} DH</p>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onAddToCalendar(event)}
-              >
-                <Download className="w-4 h-4 mr-1" />
+              <Button variant="outline" size="sm" onClick={() => onAddToCalendar(event)}>
+                <Download className="mr-1 size-4" aria-hidden="true" />
                 Ajouter
               </Button>
-              <Button asChild disabled={isFull}>
+              <Button asChild variant="pink" disabled={isFull}>
                 <Link href={`/agenda/${event.id}`}>
                   {isFull ? "Complet" : "Réserver"}
-                  {!isFull && <ArrowRight className="w-4 h-4 ml-2" />}
+                  {!isFull && <ArrowRight className="ml-2 size-4" aria-hidden="true" />}
                 </Link>
               </Button>
             </div>
           </div>
         </div>
       </div>
-    </Card>
+    </StickerCard>
+  )
+}
+
+function CardBadge({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <span className={cn("flex w-fit items-center gap-1 rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink", className)}>
+      {children}
+    </span>
+  )
+}
+
+function CardMeta({ icon: Icon, children }: { icon: typeof Clock; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2 text-sm text-ink-2">
+      <Icon className="size-4 text-pink" aria-hidden="true" />
+      <span>{children}</span>
+    </div>
   )
 }
