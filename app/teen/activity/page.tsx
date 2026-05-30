@@ -26,15 +26,15 @@ const ICON_MAP: Record<string, any> = {
 const BG_MAP: Record<string, string> = {
   xp: "bg-brand-soft/20",
   quest: "bg-success-soft/20",
-  badge: "bg-yellow-500/20",
-  achievement: "bg-yellow-500/20",
+  badge: "bg-gold/20",
+  achievement: "bg-gold/20",
   social: "bg-accent-soft/20",
   event: "bg-success-soft/20",
   level: "bg-success-soft/20",
-  streak: "bg-orange-500/20",
-  challenge: "bg-orange-500/20",
-  reward: "bg-pink-500/20",
-  general: "bg-zinc-700/30",
+  streak: "bg-coral/20",
+  challenge: "bg-coral/20",
+  reward: "bg-pink/20",
+  general: "bg-muted",
 }
 
 const FILTERS = [
@@ -85,12 +85,12 @@ export default function ActivityPage() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-success-soft to-emerald-500 flex items-center justify-center">
-                <Activity className="w-6 h-6 text-black" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-success-soft to-lime flex items-center justify-center">
+                <Activity className="w-6 h-6 text-ink" />
               </div>
               <div>
                 <h1 className="text-4xl font-black tracking-tighter uppercase italic">Activité</h1>
-                <p className="text-zinc-500 text-sm font-medium">Ton historique d'actions</p>
+                <p className="text-mute text-sm font-medium">Ton historique d'actions</p>
               </div>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function ActivityPage() {
           >
             <div className="flex items-center gap-2 mb-2">
               <Zap className="w-5 h-5 text-brand-soft" />
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">Aujourd'hui</span>
+              <span className="text-xs text-mute uppercase tracking-wider">Aujourd'hui</span>
             </div>
             <p className="text-2xl font-black text-brand-soft">+{todayXP} XP</p>
           </motion.div>
@@ -114,11 +114,11 @@ export default function ActivityPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 rounded-2xl bg-gradient-to-br from-success-soft/10 to-emerald-500/5 border border-success-soft/20"
+            className="p-4 rounded-2xl bg-gradient-to-br from-success-soft/10 to-lime/5 border border-success-soft/20"
           >
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-5 h-5 text-success-soft" />
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">Cette semaine</span>
+              <span className="text-xs text-mute uppercase tracking-wider">Cette semaine</span>
             </div>
             <p className="text-2xl font-black text-success-soft">+{weekXP} XP</p>
           </motion.div>
@@ -127,13 +127,13 @@ export default function ActivityPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
+            className="p-4 rounded-2xl bg-card border border-ink"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-5 h-5 text-zinc-400" />
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">Actions</span>
+              <Clock className="w-5 h-5 text-mute" />
+              <span className="text-xs text-mute uppercase tracking-wider">Actions</span>
             </div>
-            <p className="text-2xl font-black text-white">{activitiesCount}</p>
+            <p className="text-2xl font-black text-ink">{activitiesCount}</p>
           </motion.div>
         </div>
 
@@ -148,8 +148,8 @@ export default function ActivityPage() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
                   filter === f.id
-                    ? "bg-white text-black"
-                    : "bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                    ? "bg-white text-ink"
+                    : "bg-card text-mute hover:text-ink hover:bg-card"
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -165,13 +165,13 @@ export default function ActivityPage() {
         {loading && activities.length === 0 && (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 rounded-2xl bg-zinc-900/40 animate-pulse" />
+              <div key={i} className="h-20 rounded-2xl bg-card animate-pulse" />
             ))}
           </div>
         )}
         {filteredActivities.map((activity, idx) => {
           const Icon = ICON_MAP[activity.icon] || Activity
-          const bgColor = BG_MAP[activity.type] || "bg-zinc-700/30"
+          const bgColor = BG_MAP[activity.type] || "bg-muted"
 
           return (
             <motion.div
@@ -179,18 +179,18 @@ export default function ActivityPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-colors"
+              className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink hover:border-ink transition-colors"
             >
               <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", bgColor)}>
-                <Icon className={cn("w-6 h-6", activity.color || "text-zinc-300")} />
+                <Icon className={cn("w-6 h-6", activity.color || "text-ink-2")} />
               </div>
 
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-white truncate">{activity.text}</h4>
+                <h4 className="font-bold text-ink truncate">{activity.text}</h4>
               </div>
 
               <div className="text-right shrink-0">
-                <span className="text-xs text-zinc-500">{activity.time}</span>
+                <span className="text-xs text-mute">{activity.time}</span>
               </div>
             </motion.div>
           )

@@ -103,12 +103,12 @@ export default async function FriendsPage() {
 function FriendsSkeleton() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 space-y-6" aria-hidden="true">
-      <div className="h-10 w-48 rounded-xl bg-white/5 motion-safe:animate-pulse" />
+      <div className="h-10 w-48 rounded-xl bg-paper-2 motion-safe:animate-pulse" />
       <div className="grid gap-3 sm:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-24 rounded-2xl border border-white/5 bg-white/5 motion-safe:animate-pulse"
+            className="h-24 rounded-2xl border border-ink bg-paper-2 motion-safe:animate-pulse"
           />
         ))}
       </div>
@@ -116,7 +116,7 @@ function FriendsSkeleton() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="h-16 rounded-xl bg-white/5 motion-safe:animate-pulse"
+            className="h-16 rounded-xl bg-paper-2 motion-safe:animate-pulse"
           />
         ))}
       </div>

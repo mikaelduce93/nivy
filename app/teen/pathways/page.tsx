@@ -121,7 +121,7 @@ export default async function TeenPathwaysPage() {
             En exploration
           </H2>
           {declared.length === 0 ? (
-            <div className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-8 text-center">
+            <div className="rounded-2xl border border-border bg-card/40  p-8 text-center">
               <div className="mx-auto mb-3 h-12 w-12 rounded-2xl bg-info-soft/15 flex items-center justify-center">
                 <Compass className="h-6 w-6 text-info" />
               </div>
@@ -151,7 +151,7 @@ export default async function TeenPathwaysPage() {
             Decouvrir
           </H2>
           {undeclared.length === 0 ? (
-            <div className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-8 text-center text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-border bg-card/40  p-8 text-center text-sm text-muted-foreground">
               Tu as deja declare tous les parcours disponibles. Bravo !
             </div>
           ) : (
@@ -190,7 +190,7 @@ function PathwayCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-3xl border backdrop-blur-md p-5 sm:p-6 transition-all",
+        "group relative overflow-hidden rounded-2xl border  p-5 sm:p-6 transition-all",
         isDeclared
           ? "border-success/20 bg-gradient-to-br from-success-soft/10 via-success-soft/[0.03] to-transparent"
           : "border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent",

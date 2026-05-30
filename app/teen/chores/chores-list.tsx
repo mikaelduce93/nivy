@@ -59,35 +59,35 @@ export function ChoresList({ chores, completionsByChore }: ChoresListProps) {
         const lastRejection = list.find((x) => x.rejection_reason)
         return (
           <FlipItem as="div" key={c.id}>
-            <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+            <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
               <CardHeader>
-                <CardTitle className="text-white">{c.title}</CardTitle>
+                <CardTitle className="text-ink">{c.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {c.description && (
-                  <p className="text-sm text-zinc-400">{c.description}</p>
+                  <p className="text-sm text-mute">{c.description}</p>
                 )}
                 <div className="flex flex-wrap gap-2 text-xs">
-                  <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 flex items-center gap-1">
+                  <span className="px-2 py-1 rounded bg-lime/10 text-lime flex items-center gap-1">
                     <Coins className="h-3 w-3" /> {c.reward_dh} DH
                   </span>
-                  <span className="px-2 py-1 rounded bg-purple-500/10 text-purple-400 flex items-center gap-1">
+                  <span className="px-2 py-1 rounded bg-pink/10 text-pink flex items-center gap-1">
                     <Sparkles className="h-3 w-3" /> {c.reward_xp} XP
                   </span>
-                  <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-300">
+                  <span className="px-2 py-1 rounded bg-card text-ink-2">
                     {c.recurrence}
                   </span>
-                  <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-300">
+                  <span className="px-2 py-1 rounded bg-card text-ink-2">
                     {verified}/{c.required_completions} validées
                   </span>
                   {pending > 0 && (
-                    <span className="px-2 py-1 rounded bg-amber-500/10 text-amber-400">
+                    <span className="px-2 py-1 rounded bg-gold/10 text-gold">
                       {pending} en attente
                     </span>
                   )}
                 </div>
                 {lastRejection?.rejection_reason && (
-                  <p className="text-xs text-red-400">
+                  <p className="text-xs text-destructive">
                     Dernier refus: {lastRejection.rejection_reason}
                   </p>
                 )}

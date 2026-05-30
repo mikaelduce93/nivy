@@ -88,17 +88,17 @@ export function QuizHubClient({
       <header className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-purple-500 flex items-center justify-center">
-              <Brain className="w-6 h-6 text-black" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-pink flex items-center justify-center">
+              <Brain className="w-6 h-6 text-ink" />
             </div>
             <div>
               <h1 className="text-4xl font-black tracking-tighter uppercase italic">Quiz</h1>
-              <p className="text-zinc-500 text-sm font-medium">Teste tes connaissances</p>
+              <p className="text-mute text-sm font-medium">Teste tes connaissances</p>
             </div>
           </div>
           <Link
             href="/teen/quiz/history"
-            className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-mute hover:text-ink transition-colors"
           >
             <HistoryIcon className="w-4 h-4" />
             <span>Historique</span>
@@ -125,7 +125,7 @@ export function QuizHubClient({
             delay={0.2}
           />
           <StatCard
-            icon={<Trophy className="w-4 h-4 text-yellow-500" />}
+            icon={<Trophy className="w-4 h-4 text-gold" />}
             value={stats.perfectCount.toString()}
             label="100%"
             delay={0.3}
@@ -138,7 +138,7 @@ export function QuizHubClient({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative overflow-hidden rounded-3xl p-8 bg-gradient-to-br from-brand-soft/20 to-purple-500/10 border border-brand-soft/30"
+          className="relative overflow-hidden rounded-2xl p-8 bg-gradient-to-br from-brand-soft/20 to-pink/10 border border-brand-soft/30"
           data-testid="daily-quiz-card"
         >
           <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-brand-soft/20 text-brand-soft text-xs font-black uppercase">
@@ -146,12 +146,12 @@ export function QuizHubClient({
           </div>
 
           <div className="flex items-center gap-6 flex-wrap">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-soft to-purple-500 flex items-center justify-center">
-              <Brain className="w-10 h-10 text-black" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-soft to-pink flex items-center justify-center">
+              <Brain className="w-10 h-10 text-ink" />
             </div>
             <div className="flex-1 min-w-[240px]">
-              <h3 className="text-2xl font-black text-white mb-1">{dailyQuiz.quiz.title}</h3>
-              <p className="text-zinc-400 mb-4">
+              <h3 className="text-2xl font-black text-ink mb-1">{dailyQuiz.quiz.title}</h3>
+              <p className="text-mute mb-4">
                 {dailyQuiz.quiz.description ||
                   `${dailyQuiz.quiz.questions_count} questions pour tester tes connaissances`}
               </p>
@@ -163,21 +163,21 @@ export function QuizHubClient({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  <span className="font-bold text-yellow-500">
+                  <Star className="w-5 h-5 text-gold" />
+                  <span className="font-bold text-gold">
                     {dailyQuiz.quiz.questions_count} questions
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-zinc-400" />
-                  <span className="text-zinc-400">
+                  <Clock className="w-5 h-5 text-mute" />
+                  <span className="text-mute">
                     {dailyQuiz.quiz.time_limit_minutes ?? 15} min
                   </span>
                 </div>
               </div>
             </div>
             <Link href={`/teen/quiz/${dailyQuiz.quiz.id}`}>
-              <Button className="bg-brand-soft text-black font-bold hover:bg-brand-soft/80">
+              <Button className="bg-brand-soft text-ink font-bold hover:bg-brand-soft/80">
                 <Play className="w-4 h-4 mr-2" />
                 {dailyQuiz.completedToday ? "Rejouer" : "Commencer"}
               </Button>
@@ -193,7 +193,7 @@ export function QuizHubClient({
           {selectedSubject && (
             <button
               onClick={() => setSelectedSubject(null)}
-              className="text-xs text-zinc-500 hover:text-white"
+              className="text-xs text-mute hover:text-ink"
             >
               ← Retour aux catégories
             </button>
@@ -221,7 +221,7 @@ export function QuizHubClient({
                     transition={{ delay: idx * 0.05 }}
                     whileHover={{ scale: 1.02, y: -4 }}
                     onClick={() => setSelectedSubject(category.id)}
-                    className="text-left relative p-6 rounded-3xl bg-zinc-900/50 border border-white/5 hover:border-white/20 transition-all"
+                    className="text-left relative p-6 rounded-2xl bg-card border border-ink hover:border-ink transition-all"
                     data-testid={`quiz-category-${category.id}`}
                   >
                     <div
@@ -230,10 +230,10 @@ export function QuizHubClient({
                         category.meta.color,
                       )}
                     >
-                      <Icon className="w-7 h-7 text-white" />
+                      <Icon className="w-7 h-7 text-ink" />
                     </div>
-                    <h3 className="font-black text-lg text-white mb-1">{category.meta.name}</h3>
-                    <p className="text-sm text-zinc-400 mb-4">
+                    <h3 className="font-black text-lg text-ink mb-1">{category.meta.name}</h3>
+                    <p className="text-sm text-mute mb-4">
                       {category.completed}/{category.total} quiz
                     </p>
                     <Progress value={progress} className="h-2" />
@@ -254,18 +254,18 @@ export function QuizHubClient({
                 <Link
                   key={quiz.id}
                   href={`/teen/quiz/${quiz.id}`}
-                  className="p-5 rounded-3xl bg-zinc-900/50 border border-white/5 hover:border-white/20 transition-all"
+                  className="p-5 rounded-2xl bg-card border border-ink hover:border-ink transition-all"
                   data-testid={`quiz-card-${quiz.id}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-white truncate">{quiz.title}</h3>
+                      <h3 className="font-bold text-ink truncate">{quiz.title}</h3>
                       {quiz.description && (
-                        <p className="text-sm text-zinc-400 line-clamp-2 mt-1">
+                        <p className="text-sm text-mute line-clamp-2 mt-1">
                           {quiz.description}
                         </p>
                       )}
-                      <div className="mt-3 flex items-center gap-4 text-xs text-zinc-500">
+                      <div className="mt-3 flex items-center gap-4 text-xs text-mute">
                         <span>{quiz.questions_count} questions</span>
                         {quiz.difficulty && <span className="capitalize">{quiz.difficulty}</span>}
                         {quiz.grade_level && <span>{quiz.grade_level}</span>}
@@ -299,16 +299,16 @@ export function QuizHubClient({
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.04 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
+                className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink"
               >
                 <div className="w-12 h-12 rounded-xl bg-brand-soft/20 flex items-center justify-center">
                   <Brain className="w-6 h-6 text-brand-soft" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-white truncate">
+                  <h4 className="font-bold text-ink truncate">
                     {attempt.quiz?.title ?? "Quiz supprimé"}
                   </h4>
-                  <p className="text-sm text-zinc-400 capitalize">
+                  <p className="text-sm text-mute capitalize">
                     {attempt.quiz?.subject ?? "—"}
                   </p>
                 </div>
@@ -319,7 +319,7 @@ export function QuizHubClient({
                       attempt.score >= 90
                         ? "text-success-soft"
                         : attempt.score >= 70
-                          ? "text-yellow-500"
+                          ? "text-gold"
                           : "text-accent-soft",
                     )}
                   >
@@ -332,7 +332,7 @@ export function QuizHubClient({
                     </div>
                   )}
                 </div>
-                <span className="text-xs text-zinc-500 shrink-0">
+                <span className="text-xs text-mute shrink-0">
                   {formatRelativeTime(attempt.created_at)}
                 </span>
               </motion.div>
@@ -360,13 +360,13 @@ function StatCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+      className="p-4 rounded-2xl bg-card border border-ink text-center"
     >
       <div className="flex items-center justify-center gap-2 mb-1">
         {icon}
         <span className="font-black text-xl">{value}</span>
       </div>
-      <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{label}</p>
+      <p className="text-[10px] text-mute uppercase tracking-wider">{label}</p>
     </motion.div>
   )
 }
@@ -374,11 +374,11 @@ function StatCard({
 function EmptyCard({ title, description }: { title: string; description: string }) {
   return (
     <div
-      className="p-8 rounded-3xl bg-zinc-900/40 border border-dashed border-white/10 text-center"
+      className="p-8 rounded-2xl bg-card border border-dashed border-ink text-center"
       data-testid="quiz-empty-state"
     >
-      <h3 className="font-bold text-white mb-1">{title}</h3>
-      <p className="text-sm text-zinc-400">{description}</p>
+      <h3 className="font-bold text-ink mb-1">{title}</h3>
+      <p className="text-sm text-mute">{description}</p>
     </div>
   )
 }

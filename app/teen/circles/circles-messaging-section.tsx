@@ -13,7 +13,7 @@ export function CirclesMessagingSection({ teenId }: { teenId: string }) {
   const router = useRouter()
   return (
     <section className="mx-auto w-full max-w-3xl px-4 pb-24">
-      <h2 className="mb-4 text-lg font-bold text-white">Cercles de discussion</h2>
+      <h2 className="mb-4 text-lg font-bold text-ink">Cercles de discussion</h2>
       <CirclesList
         teenId={teenId}
         onSelectCircle={(circleId) => router.push(`/teen/circles/${circleId}`)}

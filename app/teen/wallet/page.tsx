@@ -84,11 +84,11 @@ export default async function WalletHubPage() {
 function WalletHubSkeleton() {
   return (
     <div className="space-y-8 pt-8 animate-pulse">
-      <div className="h-12 bg-zinc-800/50 rounded-2xl w-full max-w-md" />
-      <div className="h-48 bg-zinc-800/30 rounded-3xl" />
+      <div className="h-12 bg-card rounded-2xl w-full max-w-md" />
+      <div className="h-48 bg-card rounded-2xl" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-32 bg-zinc-800/30 rounded-3xl" />
+          <div key={i} className="h-32 bg-card rounded-2xl" />
         ))}
       </div>
     </div>

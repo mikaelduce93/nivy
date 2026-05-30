@@ -145,21 +145,21 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                <Dumbbell className="w-6 h-6 text-black" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-coral to-destructive flex items-center justify-center">
+                <Dumbbell className="w-6 h-6 text-ink" />
               </div>
               <div>
                 <h1 className="text-4xl font-black tracking-tighter uppercase italic">Défis Physiques</h1>
-                <p className="text-zinc-500 text-sm font-medium">Bouge et gagne des XP</p>
+                <p className="text-mute text-sm font-medium">Bouge et gagne des XP</p>
               </div>
             </div>
           </div>
 
           {/* Streak */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/30">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <span className="font-black text-orange-500">{currentStreak}</span>
-            <span className="text-xs text-orange-500/70">jours</span>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-coral/10 border border-coral/30">
+            <Flame className="w-5 h-5 text-coral" />
+            <span className="font-black text-coral">{currentStreak}</span>
+            <span className="text-xs text-coral/70">jours</span>
           </div>
         </div>
 
@@ -168,52 +168,52 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+            className="p-4 rounded-2xl bg-card border border-ink text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Trophy className="w-4 h-4 text-yellow-500" />
+              <Trophy className="w-4 h-4 text-gold" />
               <span className="font-black text-xl">{totalWorkouts}</span>
             </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Workouts</p>
+            <p className="text-[10px] text-mute uppercase tracking-wider">Workouts</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+            className="p-4 rounded-2xl bg-card border border-ink text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
               <Zap className="w-4 h-4 text-brand-soft" />
               <span className="font-black text-xl">{totalXPEarned.toLocaleString()}</span>
             </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">XP Total</p>
+            <p className="text-[10px] text-mute uppercase tracking-wider">XP Total</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+            className="p-4 rounded-2xl bg-card border border-ink text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
               <Timer className="w-4 h-4 text-success-soft" />
               <span className="font-black text-xl">{minutesThisWeek}</span>
             </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Min/Semaine</p>
+            <p className="text-[10px] text-mute uppercase tracking-wider">Min/Semaine</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+            className="p-4 rounded-2xl bg-card border border-ink text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
               <Check className="w-4 h-4 text-accent-soft" />
               <span className="font-black text-xl">{completedToday}/{totalToday}</span>
             </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Aujourd'hui</p>
+            <p className="text-[10px] text-mute uppercase tracking-wider">Aujourd'hui</p>
           </motion.div>
         </div>
       </header>
@@ -222,14 +222,14 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="p-6 rounded-3xl bg-gradient-to-br from-orange-500/10 to-red-500/5 border border-orange-500/20"
+        className="p-6 rounded-2xl bg-gradient-to-br from-coral/10 to-destructive/5 border border-coral/20"
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-black text-lg">Progression du jour</h3>
-          <span className="text-sm text-orange-500 font-bold">{todayPct}%</span>
+          <span className="text-sm text-coral font-bold">{todayPct}%</span>
         </div>
         <Progress value={todayPct} className="h-3" />
-        <p className="text-sm text-zinc-500 mt-3">
+        <p className="text-sm text-mute mt-3">
           {totalToday > 0 && completedToday === totalToday
             ? "Bravo! Tu as terminé tous les défis du jour! 🎉"
             : `${Math.max(0, totalToday - completedToday)} défis restants pour compléter ta journée`}
@@ -247,8 +247,8 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
                 category === cat.id
-                  ? "bg-orange-500 text-black"
-                  : "bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                  ? "bg-coral text-ink"
+                  : "bg-card text-mute hover:text-ink hover:bg-card"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -282,7 +282,7 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
                     {tags.map((t) => (
                       <span
                         key={t}
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-coral/10 text-coral border border-coral/20"
                       >
                         {tagToLabel(t)}
                       </span>
@@ -339,7 +339,7 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
                     {tags.map((t) => (
                       <span
                         key={t}
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-coral/10 text-coral border border-coral/20"
                       >
                         {tagToLabel(t)}
                       </span>
@@ -375,14 +375,14 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
+                className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink"
               >
-                <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                  <Dumbbell className="w-6 h-6 text-orange-500" />
+                <div className="w-12 h-12 rounded-xl bg-coral/20 flex items-center justify-center">
+                  <Dumbbell className="w-6 h-6 text-coral" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-white truncate">{workout.name}</h4>
-                  <div className="flex items-center gap-3 text-sm text-zinc-400">
+                  <h4 className="font-bold text-ink truncate">{workout.name}</h4>
+                  <div className="flex items-center gap-3 text-sm text-mute">
                     <span>{workout.date}</span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
@@ -403,7 +403,7 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
 
       {/* Quick Start */}
       <div className="flex gap-4">
-        <Button className="flex-1 h-14 bg-orange-500 text-black font-bold hover:bg-orange-400">
+        <Button className="flex-1 h-14 bg-coral text-ink font-bold hover:bg-coral">
           <Play className="w-5 h-5 mr-2" />
           Workout Rapide
         </Button>

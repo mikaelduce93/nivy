@@ -173,7 +173,7 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
       <Button
         type="submit"
         disabled={submitting || !opponentId}
-        className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-black uppercase tracking-wider"
+        className="w-full bg-gradient-to-r from-pink to-pink hover:from-pink hover:to-pink text-ink font-black uppercase tracking-wider"
       >
         {submitting ? (
           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -183,7 +183,7 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
         Envoyer le défi
       </Button>
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-mute">
         Ta mise XP est débitée immédiatement et placée en escrow. Si ton ami
         refuse ou laisse expirer l&apos;invitation, ta mise t&apos;est rendue.
       </p>

@@ -39,12 +39,12 @@ export function AideScolaireClient({
       {/* Header */}
       <header className="space-y-6">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-purple-500 flex items-center justify-center">
-            <GraduationCap className="w-6 h-6 text-black" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-pink flex items-center justify-center">
+            <GraduationCap className="w-6 h-6 text-ink" />
           </div>
           <div>
             <h1 className="text-4xl font-black tracking-tighter uppercase italic">Aide Scolaire</h1>
-            <p className="text-zinc-500 text-sm font-medium">Apprends et gagne des XP</p>
+            <p className="text-mute text-sm font-medium">Apprends et gagne des XP</p>
           </div>
         </div>
 
@@ -53,11 +53,11 @@ export function AideScolaireClient({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-2xl bg-gradient-to-br from-brand-soft/10 to-purple-500/5 border border-brand-soft/20"
+            className="p-4 rounded-2xl bg-gradient-to-br from-brand-soft/10 to-pink/5 border border-brand-soft/20"
           >
             <div className="flex items-center gap-2 mb-2">
               <Zap className="w-5 h-5 text-brand-soft" />
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">XP Total</span>
+              <span className="text-xs text-mute uppercase tracking-wider">XP Total</span>
             </div>
             <p className="text-2xl font-black text-brand-soft">{totalXP.toLocaleString()}</p>
           </motion.div>
@@ -66,11 +66,11 @@ export function AideScolaireClient({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 rounded-2xl bg-gradient-to-br from-success-soft/10 to-emerald-500/5 border border-success-soft/20"
+            className="p-4 rounded-2xl bg-gradient-to-br from-success-soft/10 to-lime/5 border border-success-soft/20"
           >
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="w-5 h-5 text-success-soft" />
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">Notes</span>
+              <span className="text-xs text-mute uppercase tracking-wider">Notes</span>
             </div>
             <p className="text-2xl font-black text-success-soft">{gradeCount}</p>
           </motion.div>
@@ -79,13 +79,13 @@ export function AideScolaireClient({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
+            className="p-4 rounded-2xl bg-card border border-ink"
           >
             <div className="flex items-center gap-2 mb-2">
               <Target className="w-5 h-5 text-accent-soft" />
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">Matières</span>
+              <span className="text-xs text-mute uppercase tracking-wider">Matières</span>
             </div>
-            <p className="text-2xl font-black text-white">{subjects.length}</p>
+            <p className="text-2xl font-black text-ink">{subjects.length}</p>
           </motion.div>
         </div>
       </header>
@@ -111,7 +111,7 @@ export function AideScolaireClient({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 whileHover={{ scale: 1.02, y: -4 }}
-                className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5 hover:border-white/20 transition-all cursor-pointer"
+                className="p-6 rounded-2xl bg-card border border-ink hover:border-ink transition-all cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className={cn(
@@ -120,13 +120,13 @@ export function AideScolaireClient({
                   )}>
                     {subject.icon}
                   </div>
-                  <span className="text-xs text-zinc-500">{subject.gradeCount} note{subject.gradeCount > 1 ? "s" : ""}</span>
+                  <span className="text-xs text-mute">{subject.gradeCount} note{subject.gradeCount > 1 ? "s" : ""}</span>
                 </div>
 
-                <h3 className="font-black text-lg text-white mb-2">{subject.name}</h3>
+                <h3 className="font-black text-lg text-ink mb-2">{subject.name}</h3>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-zinc-400">
+                  <span className="text-sm text-mute">
                     {subject.average !== null
                       ? `Moyenne: ${subject.average}/20`
                       : "Aucune note"}
@@ -135,7 +135,7 @@ export function AideScolaireClient({
                     <span className={cn(
                       "text-sm font-bold",
                       subject.average >= 14 ? "text-success-soft" :
-                      subject.average >= 10 ? "text-yellow-500" :
+                      subject.average >= 10 ? "text-gold" :
                       "text-accent-soft"
                     )}>
                       {subject.average >= 14 ? "Excellent" :
@@ -163,7 +163,7 @@ export function AideScolaireClient({
         </div>
 
         {/* No recommendations endpoint yet — show a coming-soon state */}
-        <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
+        <div className="p-6 rounded-2xl bg-card border border-ink">
           <EmptyState
             preset="quests"
             size="small"
@@ -180,7 +180,7 @@ export function AideScolaireClient({
           <h2 className="text-xl font-black uppercase">Activité Récente</h2>
         </div>
 
-        <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
+        <div className="p-6 rounded-2xl bg-card border border-ink">
           <EmptyState
             preset="feed"
             size="small"

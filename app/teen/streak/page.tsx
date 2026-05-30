@@ -85,11 +85,11 @@ export default async function StreakPage() {
 function StreakSkeleton() {
   return (
     <div className="space-y-8 pt-6 animate-pulse">
-      <div className="h-14 bg-zinc-800/50 rounded-2xl w-64" />
-      <div className="h-48 bg-zinc-800/30 rounded-3xl" />
+      <div className="h-14 bg-card rounded-2xl w-64" />
+      <div className="h-48 bg-card rounded-2xl" />
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-40 bg-zinc-800/30 rounded-3xl" />
+          <div key={i} className="h-40 bg-card rounded-2xl" />
         ))}
       </div>
     </div>

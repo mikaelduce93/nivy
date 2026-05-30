@@ -267,7 +267,7 @@ export function MessagesClient({ conversations, currentUserId }: MessagesClientP
             isDesktop
           />
         ) : (
-          <div className="flex items-center justify-center h-[600px] rounded-3xl bg-card/30 border border-border backdrop-blur-md">
+          <div className="flex items-center justify-center h-[600px] rounded-2xl bg-card/30 border border-border ">
             <div className="text-center">
               <MessageCircle className="w-16 h-16 text-muted-foreground/60 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-foreground mb-2">Sélectionne une conversation</h3>
@@ -300,8 +300,8 @@ function ConversationList({
       <header className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-info-soft to-blue-500 flex items-center justify-center">
-              <MessageCircle className="w-6 h-6 text-black" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-info-soft to-teal flex items-center justify-center">
+              <MessageCircle className="w-6 h-6 text-ink" />
             </div>
             <div>
               <H1 className="text-4xl font-black tracking-tighter uppercase italic leading-none">
@@ -312,7 +312,7 @@ function ConversationList({
               </p>
             </div>
           </div>
-          <Button size="icon" className="rounded-full bg-info-soft text-black">
+          <Button size="icon" className="rounded-full bg-info-soft text-ink">
             <Plus className="w-5 h-5" />
           </Button>
         </div>
@@ -347,7 +347,7 @@ function ConversationList({
                 "flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all",
                 selectedId === convo.id
                   ? "bg-info-soft/10 border border-info-soft/30"
-                  : "bg-card/30 border border-border hover:border-border/80 backdrop-blur-md"
+                  : "bg-card/30 border border-border hover:border-border/80 "
               )}
             >
               <div className="relative">
@@ -377,7 +377,7 @@ function ConversationList({
               <div className="text-right shrink-0">
                 <span className="text-xs text-muted-foreground">{formatTime(convo.lastMessageAt)}</span>
                 {convo.unreadCount > 0 && (
-                  <div className="mt-1 w-6 h-6 rounded-full bg-info-soft text-black text-xs font-black flex items-center justify-center ml-auto">
+                  <div className="mt-1 w-6 h-6 rounded-full bg-info-soft text-ink text-xs font-black flex items-center justify-center ml-auto">
                     {convo.unreadCount}
                   </div>
                 )}
@@ -412,7 +412,7 @@ function ChatView({
   return (
     <div className={cn(
       "flex flex-col",
-      isDesktop ? "h-[600px] rounded-3xl bg-card/30 border border-border backdrop-blur-md" : "min-h-screen"
+      isDesktop ? "h-[600px] rounded-2xl bg-card/30 border border-border " : "min-h-screen"
     )}>
       {/* Chat Header */}
       <div className={cn("flex items-center gap-4 p-4 border-b border-border", !isDesktop && "pt-6")}>
@@ -466,7 +466,7 @@ function ChatView({
             <div className={cn(
               "max-w-[70%] p-4 rounded-2xl",
               msg.sender === "me"
-                ? "bg-info-soft text-black rounded-br-md"
+                ? "bg-info-soft text-ink rounded-br-md"
                 : "bg-muted text-foreground rounded-bl-md"
             )}>
               <p>{msg.text}</p>
@@ -474,11 +474,11 @@ function ChatView({
                 "flex items-center gap-1 mt-1",
                 msg.sender === "me" ? "justify-end" : "justify-start"
               )}>
-                <span className={cn("text-xs", msg.sender === "me" ? "text-black/60" : "text-muted-foreground")}>
+                <span className={cn("text-xs", msg.sender === "me" ? "text-ink/60" : "text-muted-foreground")}>
                   {msg.time}
                 </span>
                 {msg.sender === "me" && (
-                  <CheckCheck className={cn("w-4 h-4", msg.read ? "text-black" : "text-black/40")} />
+                  <CheckCheck className={cn("w-4 h-4", msg.read ? "text-ink" : "text-ink/40")} />
                 )}
               </div>
             </div>
@@ -507,7 +507,7 @@ function ChatView({
           </Button>
           <Button
             size="icon"
-            className="shrink-0 rounded-full bg-info-soft text-black"
+            className="shrink-0 rounded-full bg-info-soft text-ink"
             onClick={onSend}
           >
             <Send className="w-5 h-5" />

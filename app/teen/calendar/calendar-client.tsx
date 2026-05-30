@@ -23,11 +23,11 @@ const MONTHS = [
 const DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
 
 const TYPE_CONFIG: Record<string, { color: string; icon: string }> = {
-  event:     { color: "from-accent-soft to-pink-500",       icon: "🎉" },
-  challenge: { color: "from-brand-soft to-purple-500",  icon: "🧠" },
-  battle:    { color: "from-orange-500 to-red-500",         icon: "⚔️" },
-  workshop:  { color: "from-success-soft to-emerald-500",     icon: "💻" },
-  sport:     { color: "from-blue-500 to-cyan-500",          icon: "🏃" },
+  event:     { color: "from-accent-soft to-pink",       icon: "🎉" },
+  challenge: { color: "from-brand-soft to-pink",  icon: "🧠" },
+  battle:    { color: "from-coral to-destructive",         icon: "⚔️" },
+  workshop:  { color: "from-success-soft to-lime",     icon: "💻" },
+  sport:     { color: "from-teal to-teal",          icon: "🏃" },
 }
 
 function getTypeConfig(type: string) {
@@ -100,12 +100,12 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
       {/* Header */}
       <header>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-info-soft to-blue-500 flex items-center justify-center">
-            <CalendarIcon className="w-6 h-6 text-black" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-info-soft to-teal flex items-center justify-center">
+            <CalendarIcon className="w-6 h-6 text-ink" />
           </div>
           <div>
             <h1 className="text-4xl font-black tracking-tighter uppercase italic">Calendrier</h1>
-            <p className="text-zinc-500 text-sm font-medium">Tes événements à venir</p>
+            <p className="text-mute text-sm font-medium">Tes événements à venir</p>
           </div>
         </div>
       </header>
@@ -115,7 +115,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5"
+          className="p-6 rounded-2xl bg-card border border-ink"
         >
           {/* Month Navigation */}
           <div className="flex items-center justify-between mb-6">
@@ -133,7 +133,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
           {/* Days Header */}
           <div className="grid grid-cols-7 gap-2 mb-4">
             {DAYS.map((day) => (
-              <div key={day} className="text-center text-sm font-bold text-zinc-500 uppercase">
+              <div key={day} className="text-center text-sm font-bold text-mute uppercase">
                 {day}
               </div>
             ))}
@@ -158,10 +158,10 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
                   className={cn(
                     "relative aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all",
                     isSelected
-                      ? "bg-info-soft text-black"
+                      ? "bg-info-soft text-ink"
                       : isToday
-                        ? "bg-brand-soft/20 text-white border border-brand-soft/30"
-                        : "hover:bg-white/5"
+                        ? "bg-brand-soft/20 text-ink border border-brand-soft/30"
+                        : "hover:bg-paper-2"
                   )}
                 >
                   <span className="font-bold">{day}</span>
@@ -172,7 +172,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
                           key={i}
                           className={cn(
                             "w-1.5 h-1.5 rounded-full",
-                            isSelected ? "bg-black/50" : "bg-accent-soft"
+                            isSelected ? "bg-ink/50" : "bg-accent-soft"
                           )}
                         />
                       ))}
@@ -190,7 +190,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5"
+            className="p-6 rounded-2xl bg-card border border-ink"
           >
             <h3 className="font-black text-lg mb-4">
               {selectedDate
@@ -204,8 +204,8 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
 
             {selectedEvents.length === 0 ? (
               <div className="text-center py-8">
-                <CalendarIcon className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500">Aucun événement ce jour</p>
+                <CalendarIcon className="w-12 h-12 text-ink mx-auto mb-3" />
+                <p className="text-mute">Aucun événement ce jour</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -218,14 +218,14 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
                         "p-4 rounded-2xl border transition-all",
                         event.registered
                           ? "bg-success-soft/10 border-success-soft/30"
-                          : "bg-zinc-800/50 border-white/5"
+                          : "bg-card border-ink"
                       )}
                     >
                       <div className="flex items-start gap-3">
                         <div className="text-2xl">{config.icon}</div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-white">{event.title}</h4>
-                          <div className="flex items-center gap-3 mt-2 text-sm text-zinc-400">
+                          <h4 className="font-bold text-ink">{event.title}</h4>
+                          <div className="flex items-center gap-3 mt-2 text-sm text-mute">
                             {event.time && (
                               <div className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
@@ -251,7 +251,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
                                 <Check className="w-4 h-4" /> {event.rsvpLabel}
                               </span>
                             ) : (
-                              <Button size="sm" className="bg-info-soft text-black font-bold">
+                              <Button size="sm" className="bg-info-soft text-ink font-bold">
                                 S'inscrire
                               </Button>
                             )}
@@ -270,7 +270,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5"
+            className="p-6 rounded-2xl bg-card border border-ink"
           >
             <h3 className="font-black text-lg mb-4">À venir</h3>
             {upcoming.length === 0 ? (
@@ -283,18 +283,18 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
             ) : (
               <div className="space-y-3">
                 {upcoming.map((event) => (
-                  <div key={event.id} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/50">
+                  <div key={event.id} className="flex items-center gap-3 p-3 rounded-xl bg-card">
                     <div className="text-xl">{getTypeConfig(event.type).icon}</div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-sm text-white truncate">{event.title}</h4>
-                      <p className="text-xs text-zinc-500">
+                      <h4 className="font-bold text-sm text-ink truncate">{event.title}</h4>
+                      <p className="text-xs text-mute">
                         {new Date(event.date + "T12:00:00").toLocaleDateString("fr-FR", {
                           day: "numeric",
                           month: "short",
                         })}
                       </p>
                     </div>
-                    <Bell className="w-4 h-4 text-zinc-500" />
+                    <Bell className="w-4 h-4 text-mute" />
                   </div>
                 ))}
               </div>

@@ -132,18 +132,18 @@ export default function CreateSubmissionPage() {
             ))}
           </select>
           {visibility === "public" && (
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-mute">
               Les posts publics passent par la modération avant publication.
             </p>
           )}
         </div>
 
-        {error && <div className="rounded bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && <div className="rounded bg-destructive p-3 text-sm text-destructive">{error}</div>}
 
         <button
           type="submit"
           disabled={submitting || (!body && !mediaUrl)}
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded bg-teal px-4 py-2 text-ink hover:bg-teal disabled:opacity-50"
         >
           {submitting ? "Envoi…" : "Publier"}
         </button>

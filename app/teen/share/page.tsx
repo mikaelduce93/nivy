@@ -64,12 +64,12 @@ interface ShareTemplate {
 const shareableItems: ShareableItem[] = []
 
 const shareTemplates: ShareTemplate[] = [
-  { id: "gradient1", name: "Sunset", preview: "bg-gradient-to-br from-orange-500 via-pink-500 to-purple-600", bgGradient: "from-orange-500 via-pink-500 to-purple-600", textColor: "text-white" },
-  { id: "gradient2", name: "Ocean", preview: "bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500", bgGradient: "from-blue-500 via-cyan-500 to-teal-500", textColor: "text-white" },
-  { id: "gradient3", name: "Forest", preview: "bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600", bgGradient: "from-emerald-500 via-green-500 to-teal-600", textColor: "text-white" },
-  { id: "gradient4", name: "Night", preview: "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900", bgGradient: "from-slate-900 via-purple-900 to-slate-900", textColor: "text-white" },
-  { id: "gradient5", name: "Fire", preview: "bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500", bgGradient: "from-red-500 via-orange-500 to-yellow-500", textColor: "text-white" },
-  { id: "gradient6", name: "Aurora", preview: "bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500", bgGradient: "from-violet-500 via-purple-500 to-pink-500", textColor: "text-white" },
+  { id: "gradient1", name: "Sunset", preview: "bg-gradient-to-br from-coral via-pink to-pink", bgGradient: "from-coral via-pink to-pink", textColor: "text-ink" },
+  { id: "gradient2", name: "Ocean", preview: "bg-gradient-to-br from-teal via-teal to-teal", bgGradient: "from-teal via-teal to-teal", textColor: "text-ink" },
+  { id: "gradient3", name: "Forest", preview: "bg-gradient-to-br from-lime via-lime to-teal", bgGradient: "from-lime via-lime to-teal", textColor: "text-ink" },
+  { id: "gradient4", name: "Night", preview: "bg-gradient-to-br from-paper-2 via-pink to-card", bgGradient: "from-paper-2 via-pink to-card", textColor: "text-ink" },
+  { id: "gradient5", name: "Fire", preview: "bg-gradient-to-br from-destructive via-coral to-gold", bgGradient: "from-destructive via-coral to-gold", textColor: "text-ink" },
+  { id: "gradient6", name: "Aurora", preview: "bg-gradient-to-br from-pink via-pink to-pink", bgGradient: "from-pink via-pink to-pink", textColor: "text-ink" },
 ]
 
 export default function TeenSharePage() {
@@ -286,7 +286,7 @@ export default function TeenSharePage() {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center`}>
-                      <item.icon className="h-7 w-7 text-white" />
+                      <item.icon className="h-7 w-7 text-ink" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-foreground">{item.title}</h3>
@@ -314,14 +314,14 @@ export default function TeenSharePage() {
               title: `Mon profil ${BRAND_NAME}`,
               subtitle: "Découvre mon parcours",
               icon: Star,
-              color: "from-purple-500 to-pink-500",
+              color: "from-pink to-pink",
               date: ""
             })
             setCustomText(`Rejoins-moi sur ${BRAND_NAME} ! 🎉`)
             setShowPreviewDialog(true)
           }}>
-            <div className="aspect-video bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <div className="text-center text-white">
+            <div className="aspect-video bg-gradient-to-br from-pink to-pink flex items-center justify-center">
+              <div className="text-center text-ink">
                 <Star className="h-12 w-12 mx-auto mb-2" />
                 <p className="font-bold">Carte Profil</p>
               </div>
@@ -340,14 +340,14 @@ export default function TeenSharePage() {
               subtitle: "Je suis en feu 🔥",
               value: 15,
               icon: Flame,
-              color: "from-red-500 to-orange-500",
+              color: "from-destructive to-coral",
               date: ""
             })
             setCustomText(`Streak en feu sur ${BRAND_NAME} ! 🔥`)
             setShowPreviewDialog(true)
           }}>
-            <div className="aspect-video bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
-              <div className="text-center text-white">
+            <div className="aspect-video bg-gradient-to-br from-destructive to-coral flex items-center justify-center">
+              <div className="text-center text-ink">
                 <Flame className="h-12 w-12 mx-auto mb-2" />
                 <p className="font-bold">Carte Streak</p>
               </div>
@@ -365,14 +365,14 @@ export default function TeenSharePage() {
               title: `Rejoins ${BRAND_NAME} !`,
               subtitle: "La communauté des teens au Maroc",
               icon: Heart,
-              color: "from-emerald-500 to-teal-500",
+              color: "from-lime to-teal",
               date: ""
             })
             setCustomText(`Rejoins la communauté ${BRAND_NAME} ! Events, défis et fun garantis 🎉`)
             setShowPreviewDialog(true)
           }}>
-            <div className="aspect-video bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-              <div className="text-center text-white">
+            <div className="aspect-video bg-gradient-to-br from-lime to-teal flex items-center justify-center">
+              <div className="text-center text-ink">
                 <Heart className="h-12 w-12 mx-auto mb-2" />
                 <p className="font-bold">Carte Invitation</p>
               </div>
@@ -401,18 +401,18 @@ export default function TeenSharePage() {
               {/* Preview */}
               <div>
                 <Label className="mb-2 block">Aperçu</Label>
-                <div className={`aspect-[9/16] rounded-2xl bg-gradient-to-br ${selectedTemplate.bgGradient} p-6 flex flex-col items-center justify-center text-white relative overflow-hidden`}>
+                <div className={`aspect-[9/16] rounded-2xl bg-gradient-to-br ${selectedTemplate.bgGradient} p-6 flex flex-col items-center justify-center text-ink relative overflow-hidden`}>
                   {/* Decorative circles */}
-                  <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
-                  <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/10 rounded-full translate-x-1/4 translate-y-1/4" />
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-paper-2 rounded-full -translate-x-1/2 -translate-y-1/2" />
+                  <div className="absolute bottom-0 right-0 w-48 h-48 bg-paper-2 rounded-full translate-x-1/4 translate-y-1/4" />
 
                   {/* Content */}
                   <p className="text-sm font-medium mb-8 opacity-80">{BRAND_NAME}</p>
 
-                  <div className="bg-white/20 rounded-2xl p-6 backdrop-blur-sm text-center">
+                  <div className="bg-paper-2 rounded-2xl p-6  text-center">
                     {selectedItem && (
                       <>
-                        <div className={`h-16 w-16 rounded-full bg-white/30 flex items-center justify-center mx-auto mb-4`}>
+                        <div className={`h-16 w-16 rounded-full bg-paper-2 flex items-center justify-center mx-auto mb-4`}>
                           <selectedItem.icon className="h-8 w-8" />
                         </div>
                         <h3 className="text-xl font-bold mb-2">{selectedItem.title}</h3>
@@ -473,7 +473,7 @@ export default function TeenSharePage() {
                       className="flex-1"
                       onClick={() => handleSocialShare("instagram")}
                     >
-                      <Instagram className="h-5 w-5 mr-2 text-pink-500" />
+                      <Instagram className="h-5 w-5 mr-2 text-pink" />
                       Instagram
                     </Button>
                     <Button
@@ -481,7 +481,7 @@ export default function TeenSharePage() {
                       className="flex-1"
                       onClick={() => handleSocialShare("twitter")}
                     >
-                      <Twitter className="h-5 w-5 mr-2 text-blue-400" />
+                      <Twitter className="h-5 w-5 mr-2 text-teal" />
                       Twitter
                     </Button>
                     <Button
@@ -489,7 +489,7 @@ export default function TeenSharePage() {
                       className="flex-1"
                       onClick={() => handleSocialShare("facebook")}
                     >
-                      <Facebook className="h-5 w-5 mr-2 text-blue-600" />
+                      <Facebook className="h-5 w-5 mr-2 text-teal" />
                       Facebook
                     </Button>
                   </div>

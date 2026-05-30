@@ -153,11 +153,11 @@ export function TeenCheckoutClient({
 
   if (view.kind === "submitting") {
     return (
-      <Card className="p-8 bg-zinc-900 border-zinc-800 text-center space-y-4">
-        <Loader2 className="w-10 h-10 mx-auto animate-spin text-emerald-400" />
+      <Card className="p-8 bg-card border-ink text-center space-y-4">
+        <Loader2 className="w-10 h-10 mx-auto animate-spin text-lime" />
         <div>
-          <p className="font-bold text-white">Traitement du paiement…</p>
-          <p className="text-xs text-zinc-400 mt-1">Ne ferme pas cette page.</p>
+          <p className="font-bold text-ink">Traitement du paiement…</p>
+          <p className="text-xs text-mute mt-1">Ne ferme pas cette page.</p>
         </div>
       </Card>
     )
@@ -165,11 +165,11 @@ export function TeenCheckoutClient({
 
   if (view.kind === "pending_approval") {
     return (
-      <Card className="p-8 bg-zinc-900 border-amber-500/40 text-center space-y-4">
-        <Clock className="w-10 h-10 mx-auto text-amber-400" />
+      <Card className="p-8 bg-card border-gold/40 text-center space-y-4">
+        <Clock className="w-10 h-10 mx-auto text-gold" />
         <div className="space-y-2">
-          <h2 className="text-xl font-black text-white">Approbation parentale requise</h2>
-          <p className="text-sm text-zinc-300">
+          <h2 className="text-xl font-black text-ink">Approbation parentale requise</h2>
+          <p className="text-sm text-ink-2">
             Tu utilises {view.xpUsed.toLocaleString()} XP ({view.xpValueDH.toFixed(2)} DH).
             On a envoyé une demande à ton parent — tu seras notifié dès la réponse.
           </p>
@@ -195,11 +195,11 @@ export function TeenCheckoutClient({
 
   if (view.kind === "completed") {
     return (
-      <Card className="p-8 bg-zinc-900 border-emerald-500/40 text-center space-y-4">
-        <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400" />
+      <Card className="p-8 bg-card border-lime/40 text-center space-y-4">
+        <CheckCircle2 className="w-10 h-10 mx-auto text-lime" />
         <div>
-          <h2 className="text-xl font-black text-white">Paiement confirmé</h2>
-          <p className="text-sm text-zinc-300 mt-1">
+          <h2 className="text-xl font-black text-ink">Paiement confirmé</h2>
+          <p className="text-sm text-ink-2 mt-1">
             {view.xpUsed.toLocaleString()} XP utilisés. Redirection en cours…
           </p>
         </div>
@@ -209,11 +209,11 @@ export function TeenCheckoutClient({
 
   if (view.kind === "error") {
     return (
-      <Card className="p-8 bg-zinc-900 border-red-500/40 text-center space-y-4">
-        <AlertCircle className="w-10 h-10 mx-auto text-red-400" />
+      <Card className="p-8 bg-card border-destructive/40 text-center space-y-4">
+        <AlertCircle className="w-10 h-10 mx-auto text-destructive" />
         <div>
-          <h2 className="text-xl font-black text-white">Paiement non effectué</h2>
-          <p className="text-sm text-zinc-300 mt-1">{view.message}</p>
+          <h2 className="text-xl font-black text-ink">Paiement non effectué</h2>
+          <p className="text-sm text-ink-2 mt-1">{view.message}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           {view.canRetry && (

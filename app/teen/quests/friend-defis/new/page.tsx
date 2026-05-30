@@ -72,8 +72,8 @@ export default async function NewFriendDefiPage() {
       </header>
 
       {friends.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/40 p-6 text-center">
-          <p className="text-sm text-zinc-400">
+        <div className="rounded-2xl border border-dashed border-ink bg-card p-6 text-center">
+          <p className="text-sm text-mute">
             Aucun ami pour le moment. Ajoute des amis avant de lancer un défi.
           </p>
           <Button asChild className="mt-4">

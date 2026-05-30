@@ -58,21 +58,21 @@ export function GamesClient({ games, stats }: Props) {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
-                <Gamepad2 className="w-6 h-6 text-black" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink flex items-center justify-center">
+                <Gamepad2 className="w-6 h-6 text-ink" />
               </div>
               <div>
                 <h1 className="text-4xl font-black tracking-tighter uppercase italic">Games</h1>
-                <p className="text-zinc-500 text-sm font-medium">Joue et gagne des XP</p>
+                <p className="text-mute text-sm font-medium">Joue et gagne des XP</p>
               </div>
             </div>
           </div>
 
           {/* Win streak badge */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/30">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <span className="font-black text-orange-500">{winStreak}</span>
-            <span className="text-xs text-orange-500/70">wins</span>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-coral/10 border border-coral/30">
+            <Flame className="w-5 h-5 text-coral" />
+            <span className="font-black text-coral">{winStreak}</span>
+            <span className="text-xs text-coral/70">wins</span>
           </div>
         </div>
 
@@ -81,39 +81,39 @@ export function GamesClient({ games, stats }: Props) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+            className="p-4 rounded-2xl bg-card border border-ink text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
               <Play className="w-4 h-4 text-accent-soft" />
               <span className="font-black text-xl">{todayPlayed}</span>
             </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Joués aujourd'hui</p>
+            <p className="text-[10px] text-mute uppercase tracking-wider">Joués aujourd'hui</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+            className="p-4 rounded-2xl bg-card border border-ink text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
               <Zap className="w-4 h-4 text-brand-soft" />
               <span className="font-black text-xl">+{totalXpToday}</span>
             </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">XP aujourd'hui</p>
+            <p className="text-[10px] text-mute uppercase tracking-wider">XP aujourd'hui</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+            className="p-4 rounded-2xl bg-card border border-ink text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Trophy className="w-4 h-4 text-yellow-500" />
+              <Trophy className="w-4 h-4 text-gold" />
               <span className="font-black text-xl">{totalWins}</span>
             </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Victoires</p>
+            <p className="text-[10px] text-mute uppercase tracking-wider">Victoires</p>
           </motion.div>
         </div>
 
@@ -128,8 +128,8 @@ export function GamesClient({ games, stats }: Props) {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
                   category === cat.id
-                    ? "bg-accent-soft text-black"
-                    : "bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                    ? "bg-accent-soft text-ink"
+                    : "bg-card text-mute hover:text-ink hover:bg-card"
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -144,7 +144,7 @@ export function GamesClient({ games, stats }: Props) {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-black uppercase">Jeux Quotidiens</h2>
-          <span className="text-sm text-zinc-500">Reset dans 8h</span>
+          <span className="text-sm text-mute">Reset dans 8h</span>
         </div>
 
         {dailyGames.length === 0 ? (
@@ -163,13 +163,13 @@ export function GamesClient({ games, stats }: Props) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               whileHover={{ scale: 1.02, y: -4 }}
-              className="relative p-6 rounded-3xl border transition-all cursor-pointer bg-zinc-900/50 border-white/5 hover:border-accent-soft/50"
+              className="relative p-6 rounded-2xl border transition-all cursor-pointer bg-card border-ink hover:border-accent-soft/50"
             >
               <div className="flex items-start gap-4">
                 <div className="text-5xl">{game.icon || "🎮"}</div>
                 <div className="flex-1">
-                  <h3 className="font-black text-lg text-white">{game.name}</h3>
-                  <p className="text-sm text-zinc-400 mb-3">{game.description}</p>
+                  <h3 className="font-black text-lg text-ink">{game.name}</h3>
+                  <p className="text-sm text-mute mb-3">{game.description}</p>
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-brand-soft" />
                     <span className="font-bold text-brand-soft">+{game.base_xp} XP</span>
@@ -177,7 +177,7 @@ export function GamesClient({ games, stats }: Props) {
                 </div>
               </div>
 
-              <Button className="w-full mt-4 bg-accent-soft text-black font-bold">
+              <Button className="w-full mt-4 bg-accent-soft text-ink font-bold">
                 <Play className="w-4 h-4 mr-2" />
                 Jouer
               </Button>
@@ -202,25 +202,25 @@ export function GamesClient({ games, stats }: Props) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 whileHover={{ scale: 1.02 }}
-                className="relative overflow-hidden p-6 rounded-3xl bg-gradient-to-r from-accent-soft/10 to-transparent border border-accent-soft/20 cursor-pointer"
+                className="relative overflow-hidden p-6 rounded-2xl bg-gradient-to-r from-accent-soft/10 to-transparent border border-accent-soft/20 cursor-pointer"
               >
                 <div className="flex items-center gap-4">
                   <div className="text-5xl">{game.icon || "🎮"}</div>
                   <div className="flex-1">
-                    <h3 className="font-black text-lg text-white">{game.name}</h3>
-                    <p className="text-sm text-zinc-400">{game.description}</p>
+                    <h3 className="font-black text-lg text-ink">{game.name}</h3>
+                    <p className="text-sm text-mute">{game.description}</p>
                   </div>
                   <div className="text-right">
                     <div className="flex items-center gap-2 text-brand-soft mb-1">
                       <Zap className="w-4 h-4" />
                       <span className="font-black">+{game.base_xp} XP</span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-zinc-500">
+                    <div className="flex items-center gap-1 text-xs text-mute">
                       <Users className="w-3 h-3" />
                       <span>max {game.max_players}</span>
                     </div>
                   </div>
-                  <Button className="bg-white text-black font-bold">
+                  <Button className="bg-white text-ink font-bold">
                     Rejoindre
                   </Button>
                 </div>
@@ -234,28 +234,28 @@ export function GamesClient({ games, stats }: Props) {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-3xl p-8 bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-500/30"
+        className="relative overflow-hidden rounded-2xl p-8 bg-gradient-to-br from-gold/20 to-gold/10 border border-gold/30"
       >
-        <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-500 text-xs font-black uppercase">
+        <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-gold/20 text-gold text-xs font-black uppercase">
           Event Spécial
         </div>
         <div className="flex items-center gap-6">
           <div className="text-6xl">🏆</div>
           <div className="flex-1">
-            <h3 className="text-2xl font-black text-white mb-2">Tournoi Weekend</h3>
-            <p className="text-zinc-400 mb-4">Affronte les meilleurs joueurs et gagne des prix exclusifs!</p>
+            <h3 className="text-2xl font-black text-ink mb-2">Tournoi Weekend</h3>
+            <p className="text-mute mb-4">Affronte les meilleurs joueurs et gagne des prix exclusifs!</p>
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-yellow-500" />
-                <span className="font-bold text-yellow-500">1000 XP</span>
+                <Sparkles className="w-5 h-5 text-gold" />
+                <span className="font-bold text-gold">1000 XP</span>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-zinc-400" />
-                <span className="text-zinc-400">342 inscrits</span>
+                <Users className="w-5 h-5 text-mute" />
+                <span className="text-mute">342 inscrits</span>
               </div>
             </div>
           </div>
-          <Button className="bg-yellow-500 text-black font-bold hover:bg-yellow-400">
+          <Button className="bg-gold text-ink font-bold hover:bg-gold">
             S'inscrire
           </Button>
         </div>

@@ -65,12 +65,12 @@ export function StreakClient({
       {/* Header */}
       <header>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-            <Flame className="w-6 h-6 text-black" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-coral to-destructive flex items-center justify-center">
+            <Flame className="w-6 h-6 text-ink" />
           </div>
           <div>
             <h1 className="text-4xl font-black tracking-tighter uppercase italic">Streak</h1>
-            <p className="text-zinc-500 text-sm font-medium">Ta régularité quotidienne</p>
+            <p className="text-mute text-sm font-medium">Ta régularité quotidienne</p>
           </div>
         </div>
       </header>
@@ -79,55 +79,55 @@ export function StreakClient({
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-3xl p-8 bg-gradient-to-br from-orange-500/20 to-red-500/10 border border-orange-500/30"
+        className="relative overflow-hidden rounded-2xl p-8 bg-gradient-to-br from-coral/20 to-destructive/10 border border-coral/30"
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-[100px]" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-coral/10 rounded-full blur-[100px]" />
 
         <div className="relative z-10">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-zinc-400 uppercase tracking-wider font-bold">Streak Actuelle</p>
+              <p className="text-sm text-mute uppercase tracking-wider font-bold">Streak Actuelle</p>
               <div className="flex items-baseline gap-3 mt-2">
-                <span className="text-7xl font-black text-orange-500">{currentStreak}</span>
-                <span className="text-2xl text-zinc-500">jours</span>
+                <span className="text-7xl font-black text-coral">{currentStreak}</span>
+                <span className="text-2xl text-mute">jours</span>
               </div>
               {streakMultiplier > 1 && (
                 <div className="flex items-center gap-2 mt-4">
-                  <Flame className="w-5 h-5 text-orange-500" />
-                  <span className="text-orange-500 font-bold">x{streakMultiplier.toFixed(1)} multiplicateur XP actif!</span>
+                  <Flame className="w-5 h-5 text-coral" />
+                  <span className="text-coral font-bold">x{streakMultiplier.toFixed(1)} multiplicateur XP actif!</span>
                 </div>
               )}
             </div>
             <div className="text-center">
-              <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-4">
-                <Flame className="w-16 h-16 text-black" />
+              <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-coral to-destructive flex items-center justify-center mb-4">
+                <Flame className="w-16 h-16 text-ink" />
               </div>
-              <p className="text-sm text-zinc-400">Meilleur: <span className="font-bold text-white">{bestStreak} jours</span></p>
+              <p className="text-sm text-mute">Meilleur: <span className="font-bold text-ink">{bestStreak} jours</span></p>
             </div>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-4 mt-8">
-            <div className="p-4 rounded-2xl bg-black/20 text-center">
+            <div className="p-4 rounded-2xl bg-ink/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Zap className="w-4 h-4 text-brand-soft" />
                 <span className="font-black text-xl">{totalStreakXP}</span>
               </div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">XP Streak</p>
+              <p className="text-[10px] text-mute uppercase tracking-wider">XP Streak</p>
             </div>
-            <div className="p-4 rounded-2xl bg-black/20 text-center">
+            <div className="p-4 rounded-2xl bg-ink/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <Trophy className="w-4 h-4 text-yellow-500" />
+                <Trophy className="w-4 h-4 text-gold" />
                 <span className="font-black text-xl">{unlockedCount}</span>
               </div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Badges</p>
+              <p className="text-[10px] text-mute uppercase tracking-wider">Badges</p>
             </div>
-            <div className="p-4 rounded-2xl bg-black/20 text-center">
+            <div className="p-4 rounded-2xl bg-ink/20 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Target className="w-4 h-4 text-success-soft" />
                 <span className="font-black text-xl">{daysToNextMilestone}</span>
               </div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Au prochain</p>
+              <p className="text-[10px] text-mute uppercase tracking-wider">Au prochain</p>
             </div>
           </div>
         </div>
@@ -140,7 +140,7 @@ export function StreakClient({
           <span className="text-sm text-success-soft font-bold">{Math.round(dailyProgress)}% complété</span>
         </div>
 
-        <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
+        <div className="p-6 rounded-2xl bg-card border border-ink">
           <Progress value={dailyProgress} className="h-3 mb-6" />
 
           {dailyTasks.length === 0 ? (
@@ -162,21 +162,21 @@ export function StreakClient({
                     "flex items-center gap-4 p-4 rounded-2xl border transition-all",
                     task.completed
                       ? "bg-success-soft/10 border-success-soft/30"
-                      : "bg-zinc-800/50 border-white/5"
+                      : "bg-card border-ink"
                   )}
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
                     task.completed
                       ? "bg-success-soft border-success-soft"
-                      : "border-zinc-500"
+                      : "border-line"
                   )}>
-                    {task.completed && <Check className="w-5 h-5 text-black" />}
+                    {task.completed && <Check className="w-5 h-5 text-ink" />}
                   </div>
                   <div className="flex-1">
                     <h4 className={cn(
                       "font-bold",
-                      task.completed ? "text-zinc-400 line-through" : "text-white"
+                      task.completed ? "text-mute line-through" : "text-ink"
                     )}>
                       {task.title}
                     </h4>
@@ -191,7 +191,7 @@ export function StreakClient({
           )}
 
           {dailyProgress < 100 && dailyTasks.length > 0 && (
-            <Button className="w-full mt-6 bg-orange-500 text-black font-bold hover:bg-orange-400">
+            <Button className="w-full mt-6 bg-coral text-ink font-bold hover:bg-coral">
               <Flame className="w-4 h-4 mr-2" />
               Compléter pour maintenir la streak
             </Button>
@@ -211,21 +211,21 @@ export function StreakClient({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.1 }}
               className={cn(
-                "relative p-6 rounded-3xl border text-center transition-all",
+                "relative p-6 rounded-2xl border text-center transition-all",
                 milestone.unlocked
-                  ? "bg-gradient-to-br from-orange-500/10 to-red-500/5 border-orange-500/30"
-                  : "bg-zinc-900/50 border-white/5 opacity-60"
+                  ? "bg-gradient-to-br from-coral/10 to-destructive/5 border-coral/30"
+                  : "bg-card border-ink opacity-60"
               )}
             >
               {!milestone.unlocked && (
                 <div className="absolute top-3 right-3">
-                  <Lock className="w-4 h-4 text-zinc-500" />
+                  <Lock className="w-4 h-4 text-mute" />
                 </div>
               )}
 
               <div className="text-5xl mb-4">{milestone.badge}</div>
-              <h4 className="font-black text-white mb-1">{milestone.title}</h4>
-              <p className="text-sm text-zinc-400 mb-3">{milestone.days} jours</p>
+              <h4 className="font-black text-ink mb-1">{milestone.title}</h4>
+              <p className="text-sm text-mute mb-3">{milestone.days} jours</p>
 
               <div className="flex items-center justify-center gap-2 text-brand-soft">
                 <Zap className="w-4 h-4" />
@@ -248,7 +248,7 @@ export function StreakClient({
         <h2 className="text-xl font-black uppercase">Historique</h2>
 
         {streakHistory.length === 0 ? (
-          <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
+          <div className="p-6 rounded-2xl bg-card border border-ink">
             <EmptyState
               preset="feed"
               size="small"
@@ -257,7 +257,7 @@ export function StreakClient({
             />
           </div>
         ) : (
-          <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
+          <div className="p-6 rounded-2xl bg-card border border-ink">
             <div className="grid grid-cols-10 gap-2">
               {streakHistory.map((day, idx) => (
                 <motion.div
@@ -268,29 +268,29 @@ export function StreakClient({
                   className={cn(
                     "aspect-square rounded-xl flex items-center justify-center transition-all",
                     day.completed
-                      ? "bg-gradient-to-br from-orange-500 to-red-500"
-                      : "bg-zinc-800"
+                      ? "bg-gradient-to-br from-coral to-destructive"
+                      : "bg-card"
                   )}
                 >
                   {day.completed ? (
-                    <Flame className="w-4 h-4 text-white" />
+                    <Flame className="w-4 h-4 text-ink" />
                   ) : (
-                    <span className="text-zinc-600 text-xs">✕</span>
+                    <span className="text-mute text-xs">✕</span>
                   )}
                 </motion.div>
               ))}
             </div>
 
             <div className="flex items-center justify-between mt-6 text-sm">
-              <span className="text-zinc-500">{streakHistory.length} derniers jours</span>
+              <span className="text-mute">{streakHistory.length} derniers jours</span>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-gradient-to-br from-orange-500 to-red-500" />
-                  <span className="text-zinc-400">Actif</span>
+                  <div className="w-3 h-3 rounded bg-gradient-to-br from-coral to-destructive" />
+                  <span className="text-mute">Actif</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-zinc-800" />
-                  <span className="text-zinc-400">Manqué</span>
+                  <div className="w-3 h-3 rounded bg-card" />
+                  <span className="text-mute">Manqué</span>
                 </div>
               </div>
             </div>
@@ -302,19 +302,19 @@ export function StreakClient({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-3xl bg-gradient-to-r from-brand-soft/10 to-purple-500/5 border border-brand-soft/20"
+        className="p-6 rounded-2xl bg-gradient-to-r from-brand-soft/10 to-pink/5 border border-brand-soft/20"
       >
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-brand-soft/20 flex items-center justify-center">
             <Clock className="w-7 h-7 text-brand-soft" />
           </div>
           <div className="flex-1">
-            <h3 className="font-black text-white">Protection Streak</h3>
-            <p className="text-sm text-zinc-400">Utilise un pass pour ne pas perdre ta streak si tu manques un jour</p>
+            <h3 className="font-black text-ink">Protection Streak</h3>
+            <p className="text-sm text-mute">Utilise un pass pour ne pas perdre ta streak si tu manques un jour</p>
           </div>
           <div className="text-right">
             <p className="font-black text-2xl text-brand-soft">{streakPasses}</p>
-            <p className="text-xs text-zinc-500">disponibles</p>
+            <p className="text-xs text-mute">disponibles</p>
           </div>
         </div>
       </motion.div>

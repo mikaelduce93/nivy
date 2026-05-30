@@ -82,13 +82,13 @@ interface Creation {
 }
 
 const defaultPassionPaths: PassionPath[] = [
-  { id: "music", name: "Musique", description: "Apprends à jouer, composer et produire", icon: Music, color: "from-pink-500 to-rose-500", progress: 0, totalLessons: 20, completedLessons: 0, xpReward: 500, unlocked: true },
-  { id: "art", name: "Arts Visuels", description: "Dessin, peinture, illustration digitale", icon: Palette, color: "from-purple-500 to-violet-500", progress: 0, totalLessons: 25, completedLessons: 0, xpReward: 600, unlocked: true },
-  { id: "photo", name: "Photographie", description: "Techniques de photo et retouche", icon: Camera, color: "from-cyan-500 to-blue-500", progress: 0, totalLessons: 15, completedLessons: 0, xpReward: 400, unlocked: true },
-  { id: "coding", name: "Programmation", description: "Apprends à coder", icon: Code, color: "from-emerald-500 to-teal-500", progress: 0, totalLessons: 30, completedLessons: 0, xpReward: 800, unlocked: true },
-  { id: "podcast", name: "Podcast & Radio", description: "Animation et production audio", icon: Mic2, color: "from-amber-500 to-orange-500", progress: 0, totalLessons: 12, completedLessons: 0, xpReward: 350, unlocked: false },
-  { id: "writing", name: "Écriture Créative", description: "Histoires, poésie, blog", icon: BookOpen, color: "from-indigo-500 to-purple-500", progress: 0, totalLessons: 18, completedLessons: 0, xpReward: 450, unlocked: false },
-  { id: "gaming", name: "Game Design", description: "Crée tes propres jeux", icon: Gamepad2, color: "from-red-500 to-pink-500", progress: 0, totalLessons: 22, completedLessons: 0, xpReward: 700, unlocked: false }
+  { id: "music", name: "Musique", description: "Apprends à jouer, composer et produire", icon: Music, color: "from-pink to-pink", progress: 0, totalLessons: 20, completedLessons: 0, xpReward: 500, unlocked: true },
+  { id: "art", name: "Arts Visuels", description: "Dessin, peinture, illustration digitale", icon: Palette, color: "from-pink to-pink", progress: 0, totalLessons: 25, completedLessons: 0, xpReward: 600, unlocked: true },
+  { id: "photo", name: "Photographie", description: "Techniques de photo et retouche", icon: Camera, color: "from-teal to-teal", progress: 0, totalLessons: 15, completedLessons: 0, xpReward: 400, unlocked: true },
+  { id: "coding", name: "Programmation", description: "Apprends à coder", icon: Code, color: "from-lime to-teal", progress: 0, totalLessons: 30, completedLessons: 0, xpReward: 800, unlocked: true },
+  { id: "podcast", name: "Podcast & Radio", description: "Animation et production audio", icon: Mic2, color: "from-gold to-coral", progress: 0, totalLessons: 12, completedLessons: 0, xpReward: 350, unlocked: false },
+  { id: "writing", name: "Écriture Créative", description: "Histoires, poésie, blog", icon: BookOpen, color: "from-pink to-pink", progress: 0, totalLessons: 18, completedLessons: 0, xpReward: 450, unlocked: false },
+  { id: "gaming", name: "Game Design", description: "Crée tes propres jeux", icon: Gamepad2, color: "from-destructive to-pink", progress: 0, totalLessons: 22, completedLessons: 0, xpReward: 700, unlocked: false }
 ]
 
 export function TeenPassionsClient({ initialData, teenId }: { initialData: any, teenId: string }) {
@@ -101,7 +101,7 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
         name: p.name,
         description: p.description,
         icon: defaultPassionPaths.find(dp => dp.id === p.id)?.icon || Sparkles,
-        color: defaultPassionPaths.find(dp => dp.id === p.id)?.color || "from-purple-500 to-violet-500",
+        color: defaultPassionPaths.find(dp => dp.id === p.id)?.color || "from-pink to-pink",
         progress: p.progress || 0,
         totalLessons: p.total_levels || 10,
         completedLessons: (p.currentLevel || 1) - 1,
@@ -200,11 +200,11 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
   const getDifficultyBadge = (difficulty: string) => {
     switch (difficulty) {
       case "beginner":
-        return <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-600 text-xs">Débutant</span>
+        return <span className="px-2 py-0.5 rounded-full bg-lime/20 text-lime text-xs">Débutant</span>
       case "intermediate":
-        return <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 text-xs">Intermédiaire</span>
+        return <span className="px-2 py-0.5 rounded-full bg-gold/20 text-gold text-xs">Intermédiaire</span>
       case "advanced":
-        return <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-600 text-xs">Avancé</span>
+        return <span className="px-2 py-0.5 rounded-full bg-destructive/20 text-destructive text-xs">Avancé</span>
     }
   }
 
@@ -223,76 +223,76 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-pink to-white">
       <div className="container mx-auto px-4 py-8 md:pl-72">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-              <Sparkles className="h-8 w-8 text-purple-500" />
+            <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+              <Sparkles className="h-8 w-8 text-pink" />
               Parcours Passion
             </h1>
-            <p className="text-gray-600">Explore tes passions et développe tes talents!</p>
+            <p className="text-mute">Explore tes passions et développe tes talents!</p>
           </div>
-          <Button onClick={() => setShowUploadDialog(true)} className="bg-purple-500 hover:bg-purple-600">
+          <Button onClick={() => setShowUploadDialog(true)} className="bg-pink hover:bg-pink">
             <Plus className="h-4 w-4 mr-2" />
             Ajouter une création
           </Button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-200">
+          <Card className="bg-gradient-to-br from-pink/10 to-pink/10 border-pink">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-purple-600 font-medium">XP Gagnés</p>
-                  <p className="text-2xl font-black text-gray-900">{stats.totalXP}</p>
+                  <p className="text-xs text-pink font-medium">XP Gagnés</p>
+                  <p className="text-2xl font-black text-ink">{stats.totalXP}</p>
                 </div>
-                <Star className="h-8 w-8 text-purple-400" />
+                <Star className="h-8 w-8 text-pink" />
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-200">
+          <Card className="bg-gradient-to-br from-lime/10 to-teal/10 border-lime">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-600 font-medium">Parcours Actifs</p>
-                  <p className="text-2xl font-black text-gray-900">{stats.pathsStarted}</p>
+                  <p className="text-xs text-lime font-medium">Parcours Actifs</p>
+                  <p className="text-2xl font-black text-ink">{stats.pathsStarted}</p>
                 </div>
-                <Sparkles className="h-8 w-8 text-emerald-400" />
+                <Sparkles className="h-8 w-8 text-lime" />
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-200">
+          <Card className="bg-gradient-to-br from-teal/10 to-teal/10 border-teal">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-600 font-medium">Tutos Terminés</p>
-                  <p className="text-2xl font-black text-gray-900">{stats.tutorialsCompleted}</p>
+                  <p className="text-xs text-teal font-medium">Tutos Terminés</p>
+                  <p className="text-2xl font-black text-ink">{stats.tutorialsCompleted}</p>
                 </div>
-                <CheckCircle2 className="h-8 w-8 text-blue-400" />
+                <CheckCircle2 className="h-8 w-8 text-teal" />
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-200">
+          <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-600 font-medium">Créations</p>
-                  <p className="text-2xl font-black text-gray-900">{stats.creationsUploaded}</p>
+                  <p className="text-xs text-gold font-medium">Créations</p>
+                  <p className="text-2xl font-black text-ink">{stats.creationsUploaded}</p>
                 </div>
-                <Trophy className="h-8 w-8 text-amber-400" />
+                <Trophy className="h-8 w-8 text-gold" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/50 border border-purple-100">
-            <TabsTrigger value="paths" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+          <TabsList className="bg-paper-2 border border-pink">
+            <TabsTrigger value="paths" className="data-[state=active]:bg-pink data-[state=active]:text-ink">
               <Sparkles className="h-4 w-4 mr-2" />
               Parcours
             </TabsTrigger>
-            <TabsTrigger value="portfolio" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+            <TabsTrigger value="portfolio" className="data-[state=active]:bg-pink data-[state=active]:text-ink">
               <ImageIcon className="h-4 w-4 mr-2" />
               Mon Portfolio
             </TabsTrigger>
@@ -315,27 +315,27 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
                       <CardContent className="p-5">
                         <div className="flex items-start justify-between mb-4">
                           <div className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${path.color} flex items-center justify-center`}>
-                            {path.unlocked ? <PathIcon className="h-7 w-7 text-white" /> : <Lock className="h-7 w-7 text-white" />}
+                            {path.unlocked ? <PathIcon className="h-7 w-7 text-ink" /> : <Lock className="h-7 w-7 text-ink" />}
                           </div>
-                          <div className="flex items-center gap-1 text-amber-600">
+                          <div className="flex items-center gap-1 text-gold">
                             <Star className="h-4 w-4" />
                             <span className="text-sm font-medium">+{path.xpReward} XP</span>
                           </div>
                         </div>
-                        <h3 className="font-bold text-gray-900 mb-1">{path.name}</h3>
-                        <p className="text-sm text-gray-500 mb-4">{path.description}</p>
+                        <h3 className="font-bold text-ink mb-1">{path.name}</h3>
+                        <p className="text-sm text-mute mb-4">{path.description}</p>
                         {path.unlocked ? (
                           <>
                             <Progress value={path.progress} className="h-2 mb-2" />
-                            <div className="flex justify-between text-xs text-gray-500">
+                            <div className="flex justify-between text-xs text-mute">
                               <span>{path.completedLessons}/{path.totalLessons} leçons</span>
                               <span>{path.progress}% complété</span>
                             </div>
                           </>
                         ) : (
                           <div className="text-center py-2">
-                            <Lock className="h-5 w-5 mx-auto mb-1 text-gray-400" />
-                            <p className="text-xs text-gray-500">Débloque avec 500 XP</p>
+                            <Lock className="h-5 w-5 mx-auto mb-1 text-mute" />
+                            <p className="text-xs text-mute">Débloque avec 500 XP</p>
                           </div>
                         )}
                       </CardContent>
@@ -346,11 +346,11 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
             ) : (
               <div>
                 <div className="flex items-center gap-2 mb-6">
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedPath(null)} className="text-gray-500">
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedPath(null)} className="text-mute">
                     Tous les parcours
                   </Button>
-                  <ChevronRight className="h-4 w-4 text-gray-400" />
-                  <span className="font-medium text-purple-600">{selectedPath.name}</span>
+                  <ChevronRight className="h-4 w-4 text-mute" />
+                  <span className="font-medium text-pink">{selectedPath.name}</span>
                 </div>
 
                 <Card className="mb-6 overflow-hidden">
@@ -358,40 +358,40 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4 mb-4">
                       <div className={`h-16 w-16 rounded-2xl bg-gradient-to-br ${selectedPath.color} flex items-center justify-center`}>
-                        <Sparkles className="h-8 w-8 text-white" />
+                        <Sparkles className="h-8 w-8 text-ink" />
                       </div>
                       <div className="flex-1">
-                        <h2 className="text-2xl font-bold text-gray-900">{selectedPath.name}</h2>
-                        <p className="text-gray-500">{selectedPath.description}</p>
+                        <h2 className="text-2xl font-bold text-ink">{selectedPath.name}</h2>
+                        <p className="text-mute">{selectedPath.description}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-3xl font-black text-purple-600">{selectedPath.progress}%</p>
-                        <p className="text-sm text-gray-500">complété</p>
+                        <p className="text-3xl font-black text-pink">{selectedPath.progress}%</p>
+                        <p className="text-sm text-mute">complété</p>
                       </div>
                     </div>
                     <Progress value={selectedPath.progress} className="h-3" />
                   </CardContent>
                 </Card>
 
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Tutoriels</h3>
+                <h3 className="text-lg font-bold text-ink mb-4">Tutoriels</h3>
                 <div className="space-y-3">
                   {filteredTutorials.length > 0 ? filteredTutorials.map((tutorial) => (
-                    <Card key={tutorial.id} className={tutorial.completed ? "border-green-200 bg-green-50/30" : ""}>
+                    <Card key={tutorial.id} className={tutorial.completed ? "border-lime bg-lime/30" : ""}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
-                            <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${tutorial.completed ? "bg-green-100" : "bg-purple-100"}`}>
-                              {tutorial.completed ? <CheckCircle2 className="h-5 w-5 text-green-600" /> : <span className="text-sm font-bold text-purple-600">{tutorial.order}</span>}
+                            <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${tutorial.completed ? "bg-lime" : "bg-pink"}`}>
+                              {tutorial.completed ? <CheckCircle2 className="h-5 w-5 text-lime" /> : <span className="text-sm font-bold text-pink">{tutorial.order}</span>}
                             </div>
                             <div>
-                              <h4 className="font-semibold text-gray-900">{tutorial.title}</h4>
-                              <div className="flex items-center gap-3 text-sm text-gray-500">
+                              <h4 className="font-semibold text-ink">{tutorial.title}</h4>
+                              <div className="flex items-center gap-3 text-sm text-mute">
                                 <span>{tutorial.duration}</span>
                                 {getDifficultyBadge(tutorial.difficulty)}
                               </div>
                             </div>
                           </div>
-                          <Button size="sm" onClick={() => handleCompleteTutorial(tutorial)} className={tutorial.completed ? "bg-green-500" : "bg-purple-500"}>
+                          <Button size="sm" onClick={() => handleCompleteTutorial(tutorial)} className={tutorial.completed ? "bg-lime" : "bg-pink"}>
                             <Play className="h-4 w-4 mr-1" />
                             {tutorial.completed ? "Revoir" : "Commencer"}
                           </Button>
@@ -418,15 +418,15 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
                 const path = passionPaths.find(p => p.id === creation.pathId)
                 return (
                   <Card key={creation.id} className="overflow-hidden hover:shadow-lg transition-all">
-                    <div className={`aspect-video bg-gradient-to-br ${path?.color || "from-gray-400 to-gray-500"} relative flex items-center justify-center`}>
-                      <TypeIcon className="h-12 w-12 text-white/80" />
+                    <div className={`aspect-video bg-gradient-to-br ${path?.color || "from-paper-2 to-card"} relative flex items-center justify-center`}>
+                      <TypeIcon className="h-12 w-12 text-ink/80" />
                     </div>
                     <CardContent className="p-4">
-                      <h3 className="font-bold text-gray-900 mb-1">{creation.title}</h3>
-                      <p className="text-sm text-gray-500 mb-3 line-clamp-2">{creation.description}</p>
-                      <div className="flex items-center justify-between text-sm text-gray-500">
+                      <h3 className="font-bold text-ink mb-1">{creation.title}</h3>
+                      <p className="text-sm text-mute mb-3 line-clamp-2">{creation.description}</p>
+                      <div className="flex items-center justify-between text-sm text-mute">
                         <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1"><Heart className="h-4 w-4 text-pink-500" />{creation.likes}</span>
+                          <span className="flex items-center gap-1"><Heart className="h-4 w-4 text-pink" />{creation.likes}</span>
                           <span className="flex items-center gap-1"><Eye className="h-4 w-4" />{creation.views}</span>
                         </div>
                         <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{formatDate(creation.createdAt)}</span>
@@ -438,10 +438,10 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
             </div>
             {filteredCreations.length === 0 && (
               <div className="text-center py-16">
-                <ImageIcon className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Ton portfolio est vide</h3>
-                <p className="text-gray-500 mb-4">Ajoute tes premières créations!</p>
-                <Button onClick={() => setShowUploadDialog(true)} className="bg-purple-500">
+                <ImageIcon className="h-16 w-16 mx-auto mb-4 text-ink-2" />
+                <h3 className="text-xl font-bold text-ink mb-2">Ton portfolio est vide</h3>
+                <p className="text-mute mb-4">Ajoute tes premières créations!</p>
+                <Button onClick={() => setShowUploadDialog(true)} className="bg-pink">
                   <Plus className="h-4 w-4 mr-2" />
                   Ajouter une création
                 </Button>
@@ -454,7 +454,7 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Upload className="h-5 w-5 text-purple-500" />
+                <Upload className="h-5 w-5 text-pink" />
                 Ajouter une création
               </DialogTitle>
               <DialogDescription>Partage ton travail avec la communauté</DialogDescription>
@@ -474,22 +474,22 @@ export function TeenPassionsClient({ initialData, teenId }: { initialData: any, 
                   {passionPaths.filter(p => p.unlocked).map((path) => {
                     const PathIcon = path.icon || Sparkles
                     return (
-                      <button key={path.id} type="button" onClick={() => setUploadForm(prev => ({ ...prev, pathId: path.id }))} className={`p-3 rounded-xl border-2 transition-all ${uploadForm.pathId === path.id ? "border-purple-500 bg-purple-50" : "border-gray-200"}`}>
-                        <PathIcon className={`h-6 w-6 mx-auto ${uploadForm.pathId === path.id ? "text-purple-500" : "text-gray-400"}`} />
+                      <button key={path.id} type="button" onClick={() => setUploadForm(prev => ({ ...prev, pathId: path.id }))} className={`p-3 rounded-xl border-2 transition-all ${uploadForm.pathId === path.id ? "border-pink bg-pink" : "border-line"}`}>
+                        <PathIcon className={`h-6 w-6 mx-auto ${uploadForm.pathId === path.id ? "text-pink" : "text-mute"}`} />
                         <p className="text-xs mt-1 truncate">{path.name}</p>
                       </button>
                     )
                   })}
                 </div>
               </div>
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
-                <Upload className="h-10 w-10 mx-auto mb-2 text-gray-400" />
-                <p className="text-sm text-gray-500">Glisse ton fichier ici</p>
+              <div className="border-2 border-dashed border-line rounded-xl p-8 text-center">
+                <Upload className="h-10 w-10 mx-auto mb-2 text-mute" />
+                <p className="text-sm text-mute">Glisse ton fichier ici</p>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowUploadDialog(false)}>Annuler</Button>
-              <Button onClick={handleUploadCreation} disabled={uploading || !uploadForm.title || !uploadForm.pathId} className="bg-purple-500">
+              <Button onClick={handleUploadCreation} disabled={uploading || !uploadForm.title || !uploadForm.pathId} className="bg-pink">
                 {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
                 Publier
               </Button>

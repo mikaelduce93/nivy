@@ -81,12 +81,12 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-black" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink flex items-center justify-center">
+                <Shield className="w-6 h-6 text-ink" />
               </div>
               <div>
                 <h1 className="text-4xl font-black tracking-tighter uppercase italic">Circles</h1>
-                <p className="text-zinc-500 text-sm font-medium">Tes crews et communautés</p>
+                <p className="text-mute text-sm font-medium">Tes crews et communautés</p>
               </div>
             </div>
           </div>
@@ -97,7 +97,7 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
             onClick={() => setTab("crew")}
             className={cn(
               "px-4 py-2 rounded-xl font-bold text-sm transition-all",
-              tab === "crew" ? "bg-accent-soft text-black" : "bg-zinc-900/50 text-zinc-400 hover:text-white"
+              tab === "crew" ? "bg-accent-soft text-ink" : "bg-card text-mute hover:text-ink"
             )}
           >
             Ma Crew
@@ -106,7 +106,7 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
             onClick={() => setTab("discover")}
             className={cn(
               "px-4 py-2 rounded-xl font-bold text-sm transition-all",
-              tab === "discover" ? "bg-accent-soft text-black" : "bg-zinc-900/50 text-zinc-400 hover:text-white"
+              tab === "discover" ? "bg-accent-soft text-ink" : "bg-card text-mute hover:text-ink"
             )}
           >
             Découvrir
@@ -120,46 +120,46 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative overflow-hidden rounded-3xl p-8 border border-accent-soft/20 bg-gradient-to-br from-accent-soft/10 to-pink-500/5"
+              className="relative overflow-hidden rounded-2xl p-8 border border-accent-soft/20 bg-gradient-to-br from-accent-soft/10 to-pink/5"
             >
               <div className="flex items-center gap-6 mb-8">
                 <div
                   className="w-20 h-20 rounded-2xl flex items-center justify-center"
                   style={{ backgroundColor: crew.color || "#06b6d4" }}
                 >
-                  <Shield className="w-10 h-10 text-white" />
+                  <Shield className="w-10 h-10 text-ink" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-black text-white">{crew.name}</h2>
-                  <p className="text-zinc-400">
+                  <h2 className="text-3xl font-black text-ink">{crew.name}</h2>
+                  <p className="text-mute">
                     {members.length} membres • Lvl moy. {Math.round(crew.average_level)}
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-4 gap-4 mb-8">
-                <div className="text-center p-4 rounded-2xl bg-black/20">
+                <div className="text-center p-4 rounded-2xl bg-ink/20">
                   <p className="text-2xl font-black text-accent-soft">{crew.total_xp.toLocaleString()}</p>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Total XP</p>
+                  <p className="text-[10px] text-mute uppercase tracking-wider">Total XP</p>
                 </div>
-                <div className="text-center p-4 rounded-2xl bg-black/20">
+                <div className="text-center p-4 rounded-2xl bg-ink/20">
                   <p className="text-2xl font-black text-success-soft">{crew.total_challenges_won}</p>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Défis gagnés</p>
+                  <p className="text-[10px] text-mute uppercase tracking-wider">Défis gagnés</p>
                 </div>
-                <div className="text-center p-4 rounded-2xl bg-black/20">
+                <div className="text-center p-4 rounded-2xl bg-ink/20">
                   <p className="text-2xl font-black text-brand-soft">
                     {myRank ? `#${myRank}` : "—"}
                   </p>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Rang</p>
+                  <p className="text-[10px] text-mute uppercase tracking-wider">Rang</p>
                 </div>
-                <div className="text-center p-4 rounded-2xl bg-black/20">
-                  <p className="text-2xl font-black text-yellow-500">{crew.total_events_attended}</p>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Events</p>
+                <div className="text-center p-4 rounded-2xl bg-ink/20">
+                  <p className="text-2xl font-black text-gold">{crew.total_events_attended}</p>
+                  <p className="text-[10px] text-mute uppercase tracking-wider">Events</p>
                 </div>
               </div>
 
               <div className="flex gap-4">
-                <Button className="flex-1 bg-accent-soft text-black font-bold" disabled>
+                <Button className="flex-1 bg-accent-soft text-ink font-bold" disabled>
                   <Trophy className="w-4 h-4 mr-2" />
                   Défi (bientôt)
                 </Button>
@@ -188,33 +188,33 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
+                    className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink"
                   >
                     <div className="relative">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-lg font-bold text-white">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-lg font-bold text-ink">
                         {member.pseudo.charAt(0).toUpperCase()}
                       </div>
                       {member.role === "owner" && (
-                        <Crown className="absolute -top-1 -right-1 w-5 h-5 text-yellow-500 fill-current" />
+                        <Crown className="absolute -top-1 -right-1 w-5 h-5 text-gold fill-current" />
                       )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-white">{member.pseudo}</h4>
+                        <h4 className="font-bold text-ink">{member.pseudo}</h4>
                         <span
                           className={cn(
                             "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
                             member.role === "owner"
-                              ? "bg-yellow-500/20 text-yellow-500"
+                              ? "bg-gold/20 text-gold"
                               : member.role === "admin"
                               ? "bg-brand-soft/20 text-brand-soft"
-                              : "bg-zinc-800 text-zinc-400"
+                              : "bg-card text-mute"
                           )}
                         >
                           {member.role}
                         </span>
                       </div>
-                      <p className="text-xs text-zinc-500">Lvl {member.level}</p>
+                      <p className="text-xs text-mute">Lvl {member.level}</p>
                     </div>
                     <div className="flex items-center gap-1 text-brand-soft">
                       <Zap className="w-4 h-4" />
@@ -237,12 +237,12 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
       ) : (
         <>
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher une crew..."
-              className="pl-12 h-12 rounded-xl bg-zinc-900/50 border-white/10"
+              className="pl-12 h-12 rounded-xl bg-card border-ink"
             />
           </div>
 
@@ -267,20 +267,20 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.1 }}
-                      className="p-6 rounded-3xl border transition-all cursor-pointer hover:border-white/20 bg-zinc-900/50 border-white/5"
+                      className="p-6 rounded-2xl border transition-all cursor-pointer hover:border-ink bg-card border-ink"
                     >
                       <div className="flex items-center gap-4">
                         <div
                           className="w-16 h-16 rounded-2xl flex items-center justify-center"
                           style={{ backgroundColor: c.color || "#06b6d4" }}
                         >
-                          <Shield className="w-8 h-8 text-white" />
+                          <Shield className="w-8 h-8 text-ink" />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-1">
-                            <h3 className="font-black text-lg text-white">{c.name}</h3>
+                            <h3 className="font-black text-lg text-ink">{c.name}</h3>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-zinc-400">
+                          <div className="flex items-center gap-4 text-sm text-mute">
                             <span className="flex items-center gap-1">
                               <Users className="w-3 h-3" />
                               max {c.max_members}
@@ -297,7 +297,7 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
                             </span>
                           </div>
                           {c.description && (
-                            <p className="text-xs text-zinc-500 mt-2 line-clamp-1">{c.description}</p>
+                            <p className="text-xs text-mute mt-2 line-clamp-1">{c.description}</p>
                           )}
                         </div>
                         <Button>Voir</Button>
@@ -312,17 +312,17 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-6 rounded-3xl bg-gradient-to-r from-accent-soft/10 to-pink-500/5 border border-accent-soft/20"
+            className="p-6 rounded-2xl bg-gradient-to-r from-accent-soft/10 to-pink/5 border border-accent-soft/20"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-accent-soft/20 flex items-center justify-center">
                 <Plus className="w-7 h-7 text-accent-soft" />
               </div>
               <div className="flex-1">
-                <h3 className="font-black text-white">Crée ta propre Crew!</h3>
-                <p className="text-sm text-zinc-400">Invite tes amis et domine le classement</p>
+                <h3 className="font-black text-ink">Crée ta propre Crew!</h3>
+                <p className="text-sm text-mute">Invite tes amis et domine le classement</p>
               </div>
-              <Button className="bg-accent-soft text-black font-bold">Créer</Button>
+              <Button className="bg-accent-soft text-ink font-bold">Créer</Button>
             </div>
           </motion.div>
         </>

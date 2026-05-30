@@ -253,7 +253,7 @@ function FeedListRow({
         duration: reduced ? 0 : DURATION_NORMAL,
         ease: EASE_STANDARD,
       }}
-      className="rounded-2xl border border-border bg-card/30 p-4 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md select-none"
+      className="rounded-2xl border border-border bg-card/30 p-4 shadow-sm  transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md select-none"
     >
       <Link
         href={postUrl}
@@ -335,7 +335,7 @@ function FeedListRow({
               aria-disabled={reporting || p.user_reported}
               className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
             >
-              <Flag className="h-5 w-5 text-orange-500" />
+              <Flag className="h-5 w-5 text-coral" />
               <span>{p.user_reported ? 'Déjà signalé' : reporting ? 'Signalement…' : 'Signaler'}</span>
             </button>
             {!isOwnPost && (
@@ -346,7 +346,7 @@ function FeedListRow({
                 aria-disabled={blocking}
                 className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
               >
-                <UserX className="h-5 w-5 text-red-500" />
+                <UserX className="h-5 w-5 text-destructive" />
                 <span>{blocking ? 'Blocage…' : "Bloquer l'auteur"}</span>
               </button>
             )}

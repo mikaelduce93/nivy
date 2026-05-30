@@ -293,7 +293,7 @@ function CommentRow({
           <button
             type="button"
             onClick={onReport}
-            className="inline-flex items-center gap-1 hover:text-orange-500"
+            className="inline-flex items-center gap-1 hover:text-coral"
             aria-label="Signaler ce commentaire"
           >
             <Flag className="h-3 w-3" />

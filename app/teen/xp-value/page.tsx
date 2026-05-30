@@ -93,12 +93,12 @@ function formatTime(date: string): string {
 }
 
 const transactionTypeConfig: Record<string, { color: string; icon: any; label: string }> = {
-  earn: { color: "text-green-400 bg-green-500/20", icon: ArrowUpRight, label: "Gagné" },
-  payment: { color: "text-red-400 bg-red-500/20", icon: ArrowDownRight, label: "Dépensé" },
-  refund: { color: "text-blue-400 bg-blue-500/20", icon: ArrowUpRight, label: "Remboursé" },
-  bonus: { color: "text-yellow-400 bg-yellow-500/20", icon: Sparkles, label: "Bonus" },
-  penalty: { color: "text-red-400 bg-red-500/20", icon: ArrowDownRight, label: "Pénalité" },
-  transfer: { color: "text-purple-400 bg-purple-500/20", icon: ArrowRight, label: "Transfert" },
+  earn: { color: "text-lime bg-lime/20", icon: ArrowUpRight, label: "Gagné" },
+  payment: { color: "text-destructive bg-destructive/20", icon: ArrowDownRight, label: "Dépensé" },
+  refund: { color: "text-teal bg-teal/20", icon: ArrowUpRight, label: "Remboursé" },
+  bonus: { color: "text-gold bg-gold/20", icon: Sparkles, label: "Bonus" },
+  penalty: { color: "text-destructive bg-destructive/20", icon: ArrowDownRight, label: "Pénalité" },
+  transfer: { color: "text-pink bg-pink/20", icon: ArrowRight, label: "Transfert" },
 }
 
 // ============================================================================
@@ -114,7 +114,7 @@ function ValueCard({ stats }: ValueCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-600 p-6"
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal via-teal to-pink p-6"
     >
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-20">
@@ -125,45 +125,45 @@ function ValueCard({ stats }: ValueCardProps) {
       </div>
 
       {/* Floating coins animation */}
-      <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10 blur-2xl" />
-      <div className="absolute -left-8 -bottom-8 w-24 h-24 rounded-full bg-white/10 blur-2xl" />
+      <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-paper-2 blur-2xl" />
+      <div className="absolute -left-8 -bottom-8 w-24 h-24 rounded-full bg-paper-2 blur-2xl" />
 
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-            <Wallet className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-paper-2  flex items-center justify-center">
+            <Wallet className="w-6 h-6 text-ink" />
           </div>
           <div>
-            <p className="text-white/80 text-sm">Valeur de tes XP</p>
-            <h2 className="text-3xl font-bold text-white">
+            <p className="text-ink/80 text-sm">Valeur de tes XP</p>
+            <h2 className="text-3xl font-bold text-ink">
               {formatCurrency(stats.xp_value_dh)}
             </h2>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-            <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+          <div className="bg-paper-2  rounded-xl p-3">
+            <div className="flex items-center gap-2 text-ink/70 text-sm mb-1">
               <Zap className="w-4 h-4" />
               Total XP
             </div>
-            <p className="text-xl font-bold text-white">{formatNumber(stats.total_xp)}</p>
+            <p className="text-xl font-bold text-ink">{formatNumber(stats.total_xp)}</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-            <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+          <div className="bg-paper-2  rounded-xl p-3">
+            <div className="flex items-center gap-2 text-ink/70 text-sm mb-1">
               <Coins className="w-4 h-4" />
               Taux
             </div>
-            <p className="text-xl font-bold text-white">{stats.xp_rate} XP = 1 DH</p>
+            <p className="text-xl font-bold text-ink">{stats.xp_rate} XP = 1 DH</p>
           </div>
         </div>
 
-        <div className="mt-4 p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+        <div className="mt-4 p-3 bg-paper-2  rounded-xl">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-white/70">Paiement max avec XP</span>
-            <span className="font-bold text-white">{stats.max_payment_percentage * 100}%</span>
+            <span className="text-ink/70">Paiement max avec XP</span>
+            <span className="font-bold text-ink">{stats.max_payment_percentage * 100}%</span>
           </div>
-          <div className="mt-2 h-2 bg-white/20 rounded-full overflow-hidden">
+          <div className="mt-2 h-2 bg-paper-2 rounded-full overflow-hidden">
             <div
               className="h-full bg-white rounded-full"
               style={{ width: `${stats.max_payment_percentage * 100}%` }}
@@ -191,21 +191,21 @@ function StatsCards({ stats, savings }: StatsCardsProps) {
       label: "XP Gagnés (total)",
       value: formatNumber(stats.lifetime_earned),
       subtext: `≈ ${formatCurrency(stats.lifetime_earned / stats.xp_rate)}`,
-      color: "from-green-500 to-emerald-500",
+      color: "from-lime to-lime",
     },
     {
       icon: PiggyBank,
       label: "Économies réalisées",
       value: formatCurrency(savings),
       subtext: "en utilisant tes XP",
-      color: "from-yellow-500 to-amber-500",
+      color: "from-gold to-gold",
     },
     {
       icon: Gift,
       label: "XP Dépensés",
       value: formatNumber(stats.lifetime_spent),
       subtext: `≈ ${formatCurrency(stats.lifetime_spent / stats.xp_rate)}`,
-      color: "from-purple-500 to-pink-500",
+      color: "from-pink to-pink",
     },
   ]
 
@@ -217,14 +217,14 @@ function StatsCards({ stats, savings }: StatsCardsProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="bg-zinc-800/50 rounded-2xl p-4 border border-zinc-700/50"
+          className="bg-card rounded-2xl p-4 border border-ink"
         >
           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-3`}>
-            <card.icon className="w-5 h-5 text-white" />
+            <card.icon className="w-5 h-5 text-ink" />
           </div>
-          <p className="text-sm text-zinc-400 mb-1">{card.label}</p>
-          <p className="text-2xl font-bold text-white">{card.value}</p>
-          <p className="text-xs text-zinc-500 mt-1">{card.subtext}</p>
+          <p className="text-sm text-mute mb-1">{card.label}</p>
+          <p className="text-2xl font-bold text-ink">{card.value}</p>
+          <p className="text-xs text-mute mt-1">{card.subtext}</p>
         </motion.div>
       ))}
     </div>
@@ -255,39 +255,39 @@ function ROICalculator({ stats }: ROICalculatorProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-800/50 rounded-2xl p-6 border border-zinc-700/50"
+      className="bg-card rounded-2xl p-6 border border-ink"
     >
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-          <Calculator className="w-5 h-5 text-white" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+          <Calculator className="w-5 h-5 text-ink" />
         </div>
         <div>
-          <h3 className="font-bold text-white">Calculateur ROI</h3>
-          <p className="text-sm text-zinc-400">Simule tes économies</p>
+          <h3 className="font-bold text-ink">Calculateur ROI</h3>
+          <p className="text-sm text-mute">Simule tes économies</p>
         </div>
       </div>
 
       <div className="space-y-6">
         {/* Purchase amount */}
         <div>
-          <label className="block text-sm font-medium text-zinc-300 mb-2">
+          <label className="block text-sm font-medium text-ink-2 mb-2">
             Montant de l'achat (DH)
           </label>
           <input
             type="number"
             value={purchaseAmount}
             onChange={(e) => setPurchaseAmount(Math.max(0, Number(e.target.value)))}
-            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full px-4 py-3 bg-card border border-ink rounded-xl text-ink focus:outline-none focus:ring-2 focus:ring-teal"
           />
         </div>
 
         {/* XP percentage slider */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-zinc-300">
+            <label className="text-sm font-medium text-ink-2">
               Pourcentage en XP
             </label>
-            <span className="text-cyan-400 font-bold">{xpPercentage}%</span>
+            <span className="text-teal font-bold">{xpPercentage}%</span>
           </div>
           <input
             type="range"
@@ -295,39 +295,39 @@ function ROICalculator({ stats }: ROICalculatorProps) {
             max={stats.max_payment_percentage * 100}
             value={xpPercentage}
             onChange={(e) => setXpPercentage(Number(e.target.value))}
-            className="w-full h-2 bg-zinc-700 rounded-full appearance-none cursor-pointer accent-cyan-500"
+            className="w-full h-2 bg-muted rounded-full appearance-none cursor-pointer accent-teal"
           />
-          <div className="flex justify-between text-xs text-zinc-500 mt-1">
+          <div className="flex justify-between text-xs text-mute mt-1">
             <span>0%</span>
             <span>{stats.max_payment_percentage * 100}% max</span>
           </div>
         </div>
 
         {/* Results */}
-        <div className="space-y-3 pt-4 border-t border-zinc-700">
+        <div className="space-y-3 pt-4 border-t border-ink">
           <div className="flex items-center justify-between">
-            <span className="text-zinc-400">XP utilisés</span>
-            <span className="font-bold text-white">{formatNumber(maxXpUsable)} XP</span>
+            <span className="text-mute">XP utilisés</span>
+            <span className="font-bold text-ink">{formatNumber(maxXpUsable)} XP</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-zinc-400">Valeur XP</span>
-            <span className="font-bold text-cyan-400">{formatCurrency(xpValue)}</span>
+            <span className="text-mute">Valeur XP</span>
+            <span className="font-bold text-teal">{formatCurrency(xpValue)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-zinc-400">Reste à payer</span>
-            <span className="font-bold text-white">{formatCurrency(cashToPay)}</span>
+            <span className="text-mute">Reste à payer</span>
+            <span className="font-bold text-ink">{formatCurrency(cashToPay)}</span>
           </div>
-          <div className="flex items-center justify-between pt-3 border-t border-zinc-700">
-            <span className="text-zinc-300 font-medium">Tu économises</span>
-            <span className="text-xl font-bold text-green-400">{formatCurrency(savings)}</span>
+          <div className="flex items-center justify-between pt-3 border-t border-ink">
+            <span className="text-ink-2 font-medium">Tu économises</span>
+            <span className="text-xl font-bold text-lime">{formatCurrency(savings)}</span>
           </div>
         </div>
 
         {/* Availability check */}
         {maxXpUsable > stats.total_xp && (
-          <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-            <Info className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-400">
+          <div className="flex items-start gap-2 p-3 bg-gold/10 border border-gold/30 rounded-xl">
+            <Info className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-gold">
               Tu n'as pas assez d'XP. Il te manque {formatNumber(maxXpUsable - stats.total_xp)} XP.
             </p>
           </div>
@@ -351,15 +351,15 @@ function Projections({ projections, stats }: ProjectionsProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-800/50 rounded-2xl p-6 border border-zinc-700/50"
+      className="bg-card rounded-2xl p-6 border border-ink"
     >
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-          <BarChart3 className="w-5 h-5 text-white" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink to-pink flex items-center justify-center">
+          <BarChart3 className="w-5 h-5 text-ink" />
         </div>
         <div>
-          <h3 className="font-bold text-white">Projections</h3>
-          <p className="text-sm text-zinc-400">Tes économies futures estimées</p>
+          <h3 className="font-bold text-ink">Projections</h3>
+          <p className="text-sm text-mute">Tes économies futures estimées</p>
         </div>
       </div>
 
@@ -367,19 +367,19 @@ function Projections({ projections, stats }: ProjectionsProps) {
         {projections.map((projection, index) => (
           <div key={projection.month} className="relative">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-zinc-300">{projection.month}</span>
-              <span className="text-sm text-zinc-400">
+              <span className="text-sm font-medium text-ink-2">{projection.month}</span>
+              <span className="text-sm text-mute">
                 +{formatNumber(projection.estimated_xp)} XP
               </span>
             </div>
-            <div className="h-8 bg-zinc-900 rounded-lg overflow-hidden relative">
+            <div className="h-8 bg-card rounded-lg overflow-hidden relative">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(100, (projection.estimated_xp / (stats.lifetime_earned || 1)) * 100)}%` }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-end pr-3"
+                className="h-full bg-gradient-to-r from-teal to-teal rounded-lg flex items-center justify-end pr-3"
               >
-                <span className="text-xs font-bold text-white">
+                <span className="text-xs font-bold text-ink">
                   {formatCurrency(projection.estimated_value)}
                 </span>
               </motion.div>
@@ -388,14 +388,14 @@ function Projections({ projections, stats }: ProjectionsProps) {
         ))}
       </div>
 
-      <div className="mt-6 p-4 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-xl border border-cyan-500/20">
+      <div className="mt-6 p-4 bg-gradient-to-r from-teal/10 to-pink/10 rounded-xl border border-teal/20">
         <div className="flex items-center gap-2 mb-2">
-          <Target className="w-5 h-5 text-cyan-400" />
-          <span className="font-medium text-white">Objectif suggéré</span>
+          <Target className="w-5 h-5 text-teal" />
+          <span className="font-medium text-ink">Objectif suggéré</span>
         </div>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-mute">
           Continue comme ça! D'ici 3 mois, tu pourrais avoir{" "}
-          <span className="text-cyan-400 font-bold">
+          <span className="text-teal font-bold">
             {formatCurrency(projections[2]?.estimated_value || 0)}
           </span>{" "}
           d'économies potentielles.
@@ -418,7 +418,7 @@ function TransactionHistory({ transactions, loading }: TransactionHistoryProps) 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-teal animate-spin" />
       </div>
     )
   }
@@ -450,8 +450,8 @@ function TransactionHistory({ transactions, loading }: TransactionHistoryProps) 
       {Object.entries(groupedTransactions).map(([date, txs]) => (
         <div key={date}>
           <div className="flex items-center gap-2 mb-3">
-            <Calendar className="w-4 h-4 text-zinc-500" />
-            <span className="text-sm font-medium text-zinc-400">{date}</span>
+            <Calendar className="w-4 h-4 text-mute" />
+            <span className="text-sm font-medium text-mute">{date}</span>
           </div>
           <div className="space-y-2">
             {txs.map((tx) => {
@@ -463,24 +463,24 @@ function TransactionHistory({ transactions, loading }: TransactionHistoryProps) 
                   key={tx.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-4 p-4 bg-zinc-900/50 rounded-xl"
+                  className="flex items-center gap-4 p-4 bg-card rounded-xl"
                 >
                   <div className={`w-10 h-10 rounded-xl ${config.color} flex items-center justify-center`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-white truncate">
+                    <p className="font-medium text-ink truncate">
                       {tx.description || config.label}
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-mute">
                       {formatTime(tx.created_at)} - Solde: {formatNumber(tx.balance_after)} XP
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className={`font-bold ${tx.amount >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    <p className={`font-bold ${tx.amount >= 0 ? "text-lime" : "text-destructive"}`}>
                       {tx.amount >= 0 ? "+" : ""}{formatNumber(tx.amount)}
                     </p>
-                    <p className="text-xs text-zinc-500">XP</p>
+                    <p className="text-xs text-mute">XP</p>
                   </div>
                 </motion.div>
               )
@@ -507,52 +507,52 @@ function HowItWorks() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-800/50 rounded-2xl p-6 border border-zinc-700/50"
+      className="bg-card rounded-2xl p-6 border border-ink"
     >
-      <h3 className="font-bold text-white mb-6 flex items-center gap-2">
-        <Info className="w-5 h-5 text-cyan-400" />
+      <h3 className="font-bold text-ink mb-6 flex items-center gap-2">
+        <Info className="w-5 h-5 text-teal" />
         XP & Coins — comment ça marche
       </h3>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5">
+        <div className="rounded-2xl border border-teal/20 bg-teal/5 p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-cyan-400" />
+            <div className="w-10 h-10 rounded-xl bg-teal/20 flex items-center justify-center">
+              <Zap className="w-5 h-5 text-teal" />
             </div>
-            <h4 className="font-bold text-white">XP — l'effort</h4>
+            <h4 className="font-bold text-ink">XP — l'effort</h4>
           </div>
-          <p className="text-sm text-zinc-300 leading-relaxed">
-            <span className="font-semibold text-white">XP = effort gagné.</span>{" "}
+          <p className="text-sm text-ink-2 leading-relaxed">
+            <span className="font-semibold text-ink">XP = effort gagné.</span>{" "}
             Tu en gagnes via défis, quiz, événements et activités. Les XP
-            <span className="font-semibold text-white"> ne se convertissent jamais</span>{" "}
+            <span className="font-semibold text-ink"> ne se convertissent jamais</span>{" "}
             en DH ni en coins. Ils servent à débloquer des niveaux, badges,
             paliers et récompenses exclusives.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
+        <div className="rounded-2xl border border-gold/20 bg-gold/5 p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-              <Coins className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
+              <Coins className="w-5 h-5 text-gold" />
             </div>
-            <h4 className="font-bold text-white">Coins — l'argent</h4>
+            <h4 className="font-bold text-ink">Coins — l'argent</h4>
           </div>
-          <p className="text-sm text-zinc-300 leading-relaxed">
-            <span className="font-semibold text-white">Coins = monnaie chargée par tes parents</span>{" "}
+          <p className="text-sm text-ink-2 leading-relaxed">
+            <span className="font-semibold text-ink">Coins = monnaie chargée par tes parents</span>{" "}
             (1 DH = 100 coins, taux verrouillé). Sert à payer tes achats et
             réservations. Chaque dépense te rapporte un cashback{" "}
-            <span className="font-semibold text-white">en XP</span> — c'est la
+            <span className="font-semibold text-ink">en XP</span> — c'est la
             seule passerelle entre les deux.
           </p>
         </div>
       </div>
 
-      <div className="mt-4 p-4 rounded-xl bg-zinc-900/60 border border-zinc-700/40 flex items-start gap-3">
-        <Info className="w-5 h-5 text-zinc-400 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-zinc-400">
+      <div className="mt-4 p-4 rounded-xl bg-card border border-ink flex items-start gap-3">
+        <Info className="w-5 h-5 text-mute flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-mute">
           Pour utiliser tes coins, va sur{" "}
-          <a href="/teen/wallet" className="text-cyan-400 font-semibold hover:underline">
+          <a href="/teen/wallet" className="text-teal font-semibold hover:underline">
             /teen/wallet
           </a>
           . Pour suivre tes XP, reste sur cette page.
@@ -653,27 +653,27 @@ export default function XPValuePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mx-auto mb-4" />
-          <p className="text-zinc-400">Chargement de tes stats XP...</p>
+          <Loader2 className="w-12 h-12 text-teal animate-spin mx-auto mb-4" />
+          <p className="text-mute">Chargement de tes stats XP...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 border-b border-zinc-800">
+      <div className="bg-gradient-to-b from-paper-2 to-card border-b border-ink">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-              <Coins className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+              <Coins className="w-6 h-6 text-ink" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Valeur de tes XP</h1>
-              <p className="text-zinc-400">Découvre combien valent tes XP en DH</p>
+              <h1 className="text-2xl font-bold text-ink">Valeur de tes XP</h1>
+              <p className="text-mute">Découvre combien valent tes XP en DH</p>
             </div>
           </div>
         </div>
@@ -685,7 +685,7 @@ export default function XPValuePage() {
         <ValueCard stats={stats} />
 
         {/* Tabs */}
-        <div className="flex gap-2 p-1 bg-zinc-800/50 rounded-xl">
+        <div className="flex gap-2 p-1 bg-card rounded-xl">
           {[
             { id: "overview", label: "Vue d'ensemble", icon: BarChart3 },
             { id: "calculator", label: "Calculateur", icon: Calculator },
@@ -696,8 +696,8 @@ export default function XPValuePage() {
               onClick={() => setActiveTab(id as "overview" | "calculator" | "history")}
               className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
                 activeTab === id
-                  ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-gradient-to-r from-teal to-teal text-ink"
+                  : "text-mute hover:text-ink"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -723,15 +723,15 @@ export default function XPValuePage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-800/50 rounded-2xl p-6 border border-zinc-700/50"
+            className="bg-card rounded-2xl p-6 border border-ink"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                <History className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+                <History className="w-5 h-5 text-ink" />
               </div>
               <div>
-                <h3 className="font-bold text-white">Historique XP</h3>
-                <p className="text-sm text-zinc-400">Tes gains et dépenses</p>
+                <h3 className="font-bold text-ink">Historique XP</h3>
+                <p className="text-sm text-mute">Tes gains et dépenses</p>
               </div>
             </div>
             <TransactionHistory
@@ -745,11 +745,11 @@ export default function XPValuePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-2xl p-6 border border-yellow-500/20"
+          className="bg-gradient-to-r from-gold/10 to-gold/10 rounded-2xl p-6 border border-gold/20"
         >
           <div className="flex items-center gap-3 mb-4">
-            <Trophy className="w-6 h-6 text-yellow-500" />
-            <h3 className="font-bold text-white">Astuces pour gagner plus d'XP</h3>
+            <Trophy className="w-6 h-6 text-gold" />
+            <h3 className="font-bold text-ink">Astuces pour gagner plus d'XP</h3>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
@@ -758,8 +758,8 @@ export default function XPValuePage() {
               "Finis les quiz éducatifs (+100 XP)",
               "Maintiens ta streak active (bonus x1.5)",
             ].map((tip, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm text-zinc-300">
-                <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+              <div key={i} className="flex items-center gap-2 text-sm text-ink-2">
+                <Check className="w-4 h-4 text-lime flex-shrink-0" />
                 {tip}
               </div>
             ))}

@@ -87,14 +87,14 @@ interface QuizQuestion {
 }
 
 const subjects: Subject[] = [
-  { id: "math", name: "Mathématiques", icon: Calculator, color: "from-blue-500 to-cyan-500", quizCount: 12, videoCount: 8, completedQuizzes: 0 },
-  { id: "physics", name: "Physique-Chimie", icon: Beaker, color: "from-purple-500 to-pink-500", quizCount: 10, videoCount: 6, completedQuizzes: 0 },
-  { id: "french", name: "Français", icon: BookText, color: "from-emerald-500 to-teal-500", quizCount: 8, videoCount: 5, completedQuizzes: 0 },
-  { id: "history", name: "Histoire-Géo", icon: Globe, color: "from-amber-500 to-orange-500", quizCount: 9, videoCount: 7, completedQuizzes: 0 },
-  { id: "english", name: "Anglais", icon: BookOpen, color: "from-red-500 to-rose-500", quizCount: 7, videoCount: 4, completedQuizzes: 0 },
-  { id: "art", name: "Arts", icon: Palette, color: "from-violet-500 to-purple-500", quizCount: 5, videoCount: 6, completedQuizzes: 0 },
-  { id: "music", name: "Musique", icon: Music, color: "from-pink-500 to-rose-500", quizCount: 4, videoCount: 5, completedQuizzes: 0 },
-  { id: "sport", name: "Sport", icon: Dumbbell, color: "from-green-500 to-emerald-500", quizCount: 6, videoCount: 8, completedQuizzes: 0 },
+  { id: "math", name: "Mathématiques", icon: Calculator, color: "from-teal to-teal", quizCount: 12, videoCount: 8, completedQuizzes: 0 },
+  { id: "physics", name: "Physique-Chimie", icon: Beaker, color: "from-pink to-pink", quizCount: 10, videoCount: 6, completedQuizzes: 0 },
+  { id: "french", name: "Français", icon: BookText, color: "from-lime to-teal", quizCount: 8, videoCount: 5, completedQuizzes: 0 },
+  { id: "history", name: "Histoire-Géo", icon: Globe, color: "from-gold to-coral", quizCount: 9, videoCount: 7, completedQuizzes: 0 },
+  { id: "english", name: "Anglais", icon: BookOpen, color: "from-destructive to-pink", quizCount: 7, videoCount: 4, completedQuizzes: 0 },
+  { id: "art", name: "Arts", icon: Palette, color: "from-pink to-pink", quizCount: 5, videoCount: 6, completedQuizzes: 0 },
+  { id: "music", name: "Musique", icon: Music, color: "from-pink to-pink", quizCount: 4, videoCount: 5, completedQuizzes: 0 },
+  { id: "sport", name: "Sport", icon: Dumbbell, color: "from-lime to-lime", quizCount: 6, videoCount: 8, completedQuizzes: 0 },
 ]
 
 const sampleQuizQuestions: QuizQuestion[] = [
@@ -233,27 +233,27 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
   const getDifficultyBadge = (difficulty: string) => {
     switch (difficulty) {
       case "easy":
-        return <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">Facile</span>
+        return <span className="px-2 py-0.5 rounded-full bg-lime/20 text-lime text-xs">Facile</span>
       case "medium":
-        return <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs">Moyen</span>
+        return <span className="px-2 py-0.5 rounded-full bg-gold/20 text-gold text-xs">Moyen</span>
       case "hard":
-        return <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs">Difficile</span>
+        return <span className="px-2 py-0.5 rounded-full bg-destructive/20 text-destructive text-xs">Difficile</span>
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-pink to-white">
       <div className="container mx-auto px-4 py-8 md:pl-72">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-              <GraduationCap className="h-8 w-8 text-purple-500" />
+            <h1 className="text-3xl font-black text-ink flex items-center gap-3">
+              <GraduationCap className="h-8 w-8 text-pink" />
               Aide Scolaire
             </h1>
-            <p className="text-gray-600">Apprends, révise et gagne des XP!</p>
+            <p className="text-mute">Apprends, révise et gagne des XP!</p>
           </div>
-          <Button onClick={() => setShowGradeDialog(true)} className="bg-purple-500 hover:bg-purple-600">
+          <Button onClick={() => setShowGradeDialog(true)} className="bg-pink hover:bg-pink">
             <Plus className="h-4 w-4 mr-2" />
             Ajouter une note
           </Button>
@@ -261,50 +261,50 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-200">
+          <Card className="bg-gradient-to-br from-pink/10 to-pink/10 border-pink">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-purple-600 font-medium">XP Gagnés</p>
-                  <p className="text-2xl font-black text-gray-900">{stats.totalXP}</p>
+                  <p className="text-xs text-pink font-medium">XP Gagnés</p>
+                  <p className="text-2xl font-black text-ink">{stats.totalXP}</p>
                 </div>
-                <Star className="h-8 w-8 text-purple-400" />
+                <Star className="h-8 w-8 text-pink" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-200">
+          <Card className="bg-gradient-to-br from-teal/10 to-teal/10 border-teal">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-blue-600 font-medium">Quiz Complétés</p>
-                  <p className="text-2xl font-black text-gray-900">{stats.quizzesCompleted}</p>
+                  <p className="text-xs text-teal font-medium">Quiz Complétés</p>
+                  <p className="text-2xl font-black text-ink">{stats.quizzesCompleted}</p>
                 </div>
-                <FileQuestion className="h-8 w-8 text-blue-400" />
+                <FileQuestion className="h-8 w-8 text-teal" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-200">
+          <Card className="bg-gradient-to-br from-lime/10 to-teal/10 border-lime">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-emerald-600 font-medium">Vidéos Vues</p>
-                  <p className="text-2xl font-black text-gray-900">{stats.videosWatched}</p>
+                  <p className="text-xs text-lime font-medium">Vidéos Vues</p>
+                  <p className="text-2xl font-black text-ink">{stats.videosWatched}</p>
                 </div>
-                <Video className="h-8 w-8 text-emerald-400" />
+                <Video className="h-8 w-8 text-lime" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-200">
+          <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-amber-600 font-medium">Moyenne Quiz</p>
-                  <p className="text-2xl font-black text-gray-900">{stats.averageScore}%</p>
+                  <p className="text-xs text-gold font-medium">Moyenne Quiz</p>
+                  <p className="text-2xl font-black text-ink">{stats.averageScore}%</p>
                 </div>
-                <Trophy className="h-8 w-8 text-amber-400" />
+                <Trophy className="h-8 w-8 text-gold" />
               </div>
             </CardContent>
           </Card>
@@ -312,16 +312,16 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/50 border border-purple-100">
-            <TabsTrigger value="subjects" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+          <TabsList className="bg-paper-2 border border-pink">
+            <TabsTrigger value="subjects" className="data-[state=active]:bg-pink data-[state=active]:text-ink">
               <BookOpen className="h-4 w-4 mr-2" />
               Matières
             </TabsTrigger>
-            <TabsTrigger value="quizzes" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+            <TabsTrigger value="quizzes" className="data-[state=active]:bg-pink data-[state=active]:text-ink">
               <FileQuestion className="h-4 w-4 mr-2" />
               Quiz
             </TabsTrigger>
-            <TabsTrigger value="tutorials" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+            <TabsTrigger value="tutorials" className="data-[state=active]:bg-pink data-[state=active]:text-ink">
               <Video className="h-4 w-4 mr-2" />
               Tutoriels
             </TabsTrigger>
@@ -341,17 +341,17 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
                 >
                   <CardContent className="p-6">
                     <div className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${subject.color} flex items-center justify-center mb-4`}>
-                      <subject.icon className="h-7 w-7 text-white" />
+                      <subject.icon className="h-7 w-7 text-ink" />
                     </div>
-                    <h3 className="font-bold text-gray-900 mb-2">{subject.name}</h3>
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <h3 className="font-bold text-ink mb-2">{subject.name}</h3>
+                    <div className="flex items-center gap-3 text-xs text-mute">
                       <span>{subject.quizCount} quiz</span>
                       <span>•</span>
                       <span>{subject.videoCount} vidéos</span>
                     </div>
                     <div className="mt-3">
                       <Progress value={(subject.completedQuizzes / Math.max(subject.quizCount, 1)) * 100} className="h-1.5" />
-                      <p className="text-xs text-gray-400 mt-1">{subject.completedQuizzes}/{subject.quizCount} complétés</p>
+                      <p className="text-xs text-mute mt-1">{subject.completedQuizzes}/{subject.quizCount} complétés</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -367,43 +367,43 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedSubject(null)}
-                  className="text-gray-500"
+                  className="text-mute"
                 >
                   Toutes les matières
                 </Button>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-                <span className="font-medium text-purple-600">{selectedSubject.name}</span>
+                <ChevronRight className="h-4 w-4 text-mute" />
+                <span className="font-medium text-pink">{selectedSubject.name}</span>
               </div>
             )}
 
             <div className="grid md:grid-cols-2 gap-4">
               {filteredQuizzes.map((quiz) => (
-                <Card key={quiz.id} className={`border ${quiz.completed ? "border-green-200 bg-green-50/50" : "border-purple-100"}`}>
+                <Card key={quiz.id} className={`border ${quiz.completed ? "border-lime bg-lime/50" : "border-pink"}`}>
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-bold text-gray-900">{quiz.title}</h3>
-                          {quiz.completed && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                          <h3 className="font-bold text-ink">{quiz.title}</h3>
+                          {quiz.completed && <CheckCircle2 className="h-4 w-4 text-lime" />}
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
+                        <div className="flex items-center gap-3 text-sm text-mute mb-3">
                           <span>{quiz.questions} questions</span>
                           {getDifficultyBadge(quiz.difficulty)}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Star className="h-4 w-4 text-amber-400" />
-                          <span className="text-sm text-amber-600 font-medium">+{quiz.xpReward} XP</span>
+                          <Star className="h-4 w-4 text-gold" />
+                          <span className="text-sm text-gold font-medium">+{quiz.xpReward} XP</span>
                         </div>
                         {quiz.completed && quiz.score && (
                           <div className="mt-2">
-                            <span className="text-sm text-green-600 font-medium">Score: {quiz.score}%</span>
+                            <span className="text-sm text-lime font-medium">Score: {quiz.score}%</span>
                           </div>
                         )}
                       </div>
                       <Button
                         size="sm"
                         onClick={() => handleStartQuiz(quiz)}
-                        className={quiz.completed ? "bg-green-500 hover:bg-green-600" : "bg-purple-500 hover:bg-purple-600"}
+                        className={quiz.completed ? "bg-lime hover:bg-lime" : "bg-pink hover:bg-pink"}
                       >
                         {quiz.completed ? "Refaire" : "Commencer"}
                       </Button>
@@ -431,42 +431,42 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedSubject(null)}
-                  className="text-gray-500"
+                  className="text-mute"
                 >
                   Toutes les matières
                 </Button>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-                <span className="font-medium text-purple-600">{selectedSubject.name}</span>
+                <ChevronRight className="h-4 w-4 text-mute" />
+                <span className="font-medium text-pink">{selectedSubject.name}</span>
               </div>
             )}
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredTutorials.map((tutorial) => (
                 <Card key={tutorial.id} className="overflow-hidden hover:shadow-lg transition-all">
-                  <div className="aspect-video bg-gradient-to-br from-purple-500 to-pink-500 relative">
+                  <div className="aspect-video bg-gradient-to-br from-pink to-pink relative">
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/30 transition-all">
-                        <Play className="h-6 w-6 text-white ml-1" />
+                      <div className="h-14 w-14 rounded-full bg-paper-2  flex items-center justify-center cursor-pointer hover:bg-paper-2 transition-all">
+                        <Play className="h-6 w-6 text-ink ml-1" />
                       </div>
                     </div>
-                    <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-black/60 text-white text-xs">
+                    <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-ink/60 text-paper text-xs">
                       {tutorial.duration}
                     </div>
                     {tutorial.watched && (
-                      <div className="absolute top-2 right-2 px-2 py-1 rounded bg-green-500 text-white text-xs flex items-center gap-1">
+                      <div className="absolute top-2 right-2 px-2 py-1 rounded bg-lime text-ink text-xs flex items-center gap-1">
                         <CheckCircle2 className="h-3 w-3" />
                         Vu
                       </div>
                     )}
                   </div>
                   <CardContent className="p-4">
-                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">{tutorial.title}</h3>
+                    <h3 className="font-bold text-ink mb-2 line-clamp-2">{tutorial.title}</h3>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-amber-400" />
-                        <span className="text-sm text-amber-600 font-medium">+{tutorial.xpReward} XP</span>
+                        <Star className="h-4 w-4 text-gold" />
+                        <span className="text-sm text-gold font-medium">+{tutorial.xpReward} XP</span>
                       </div>
-                      <Button size="sm" variant="outline" className="text-purple-600 border-purple-200">
+                      <Button size="sm" variant="outline" className="text-pink border-pink">
                         <Play className="h-3 w-3 mr-1" />
                         Regarder
                       </Button>
@@ -492,7 +492,7 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5 text-purple-500" />
+                <GraduationCap className="h-5 w-5 text-pink" />
                 Ajouter une note
               </DialogTitle>
               <DialogDescription>
@@ -572,7 +572,7 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
               <Button variant="outline" onClick={() => setShowGradeDialog(false)}>
                 Annuler
               </Button>
-              <Button onClick={handleSubmitGrade} disabled={submitting} className="bg-purple-500 hover:bg-purple-600">
+              <Button onClick={handleSubmitGrade} disabled={submitting} className="bg-pink hover:bg-pink">
                 {submitting ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
@@ -589,7 +589,7 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <FileQuestion className="h-5 w-5 text-purple-500" />
+                <FileQuestion className="h-5 w-5 text-pink" />
                 {selectedQuiz?.title}
               </DialogTitle>
             </DialogHeader>
@@ -597,12 +597,12 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
             {!quizState.finished ? (
               <div className="py-4">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-mute">
                     Question {quizState.currentQuestion + 1}/{sampleQuizQuestions.length}
                   </span>
                   <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-amber-400" />
-                    <span className="text-sm text-amber-600">+{selectedQuiz?.xpReward} XP</span>
+                    <Star className="h-4 w-4 text-gold" />
+                    <span className="text-sm text-gold">+{selectedQuiz?.xpReward} XP</span>
                   </div>
                 </div>
 
@@ -612,7 +612,7 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
                 />
 
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 className="text-lg font-semibold text-ink mb-4">
                     {sampleQuizQuestions[quizState.currentQuestion]?.question}
                   </h3>
 
@@ -621,10 +621,10 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
                       <Button
                         key={index}
                         variant="outline"
-                        className="w-full justify-start h-auto py-3 px-4 text-left hover:bg-purple-50 hover:border-purple-300"
+                        className="w-full justify-start h-auto py-3 px-4 text-left hover:bg-pink hover:border-pink"
                         onClick={() => handleAnswerSelect(index)}
                       >
-                        <span className="h-6 w-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm mr-3">
+                        <span className="h-6 w-6 rounded-full bg-pink text-pink flex items-center justify-center text-sm mr-3">
                           {String.fromCharCode(65 + index)}
                         </span>
                         {option}
@@ -636,28 +636,28 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
             ) : (
               <div className="py-8 text-center">
                 <div className={`h-20 w-20 mx-auto rounded-full flex items-center justify-center mb-4 ${
-                  quizState.score >= 70 ? "bg-green-100" : quizState.score >= 50 ? "bg-amber-100" : "bg-red-100"
+                  quizState.score >= 70 ? "bg-lime" : quizState.score >= 50 ? "bg-gold" : "bg-destructive"
                 }`}>
                   {quizState.score >= 70 ? (
-                    <Trophy className="h-10 w-10 text-green-500" />
+                    <Trophy className="h-10 w-10 text-lime" />
                   ) : quizState.score >= 50 ? (
-                    <Award className="h-10 w-10 text-amber-500" />
+                    <Award className="h-10 w-10 text-gold" />
                   ) : (
-                    <XCircle className="h-10 w-10 text-red-500" />
+                    <XCircle className="h-10 w-10 text-destructive" />
                   )}
                 </div>
 
-                <h3 className="text-2xl font-black text-gray-900 mb-2">
+                <h3 className="text-2xl font-black text-ink mb-2">
                   {quizState.score >= 70 ? "Excellent!" : quizState.score >= 50 ? "Pas mal!" : "Continue!"}
                 </h3>
 
-                <p className="text-4xl font-black text-purple-500 mb-4">{quizState.score}%</p>
+                <p className="text-4xl font-black text-pink mb-4">{quizState.score}%</p>
 
-                <p className="text-gray-600 mb-6">
+                <p className="text-mute mb-6">
                   {quizState.answers.filter((a, i) => a === sampleQuizQuestions[i].correctAnswer).length} / {sampleQuizQuestions.length} bonnes réponses
                 </p>
 
-                <div className="flex items-center justify-center gap-2 text-amber-600 mb-6">
+                <div className="flex items-center justify-center gap-2 text-gold mb-6">
                   <Star className="h-5 w-5" />
                   <span className="font-bold">
                     +{selectedQuiz ? Math.round((quizState.score / 100) * selectedQuiz.xpReward) : 0} XP gagnés!
@@ -678,7 +678,7 @@ export function TeenAcademicClient({ initialData, teenId }: { initialData: any, 
                         score: 0
                       })
                     }}
-                    className="bg-purple-500 hover:bg-purple-600"
+                    className="bg-pink hover:bg-pink"
                   >
                     Refaire le quiz
                   </Button>

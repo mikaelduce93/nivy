@@ -58,28 +58,28 @@ const PILLAR_CONFIG = {
   intellect: {
     icon: Brain,
     color: 'var(--info-soft)',
-    gradient: 'from-info-soft to-cyan-600',
+    gradient: 'from-info-soft to-teal',
     bg: 'bg-info-soft/10',
     label: 'INTELLECT',
   },
   vitality: {
     icon: Dumbbell,
     color: 'var(--gen-z-lime)',
-    gradient: 'from-gen-z-lime to-green-600',
+    gradient: 'from-gen-z-lime to-lime',
     bg: 'bg-gen-z-lime/10',
     label: 'VITALITY',
   },
   creativity: {
     icon: Palette,
     color: 'var(--brand-soft)',
-    gradient: 'from-brand-soft to-purple-600',
+    gradient: 'from-brand-soft to-pink',
     bg: 'bg-brand-soft/10',
     label: 'CREATIVITY',
   },
   social: {
     icon: Users,
     color: 'var(--accent-soft)',
-    gradient: 'from-accent-soft to-rose-600',
+    gradient: 'from-accent-soft to-pink',
     bg: 'bg-accent-soft/10',
     label: 'SOCIAL',
   },
@@ -209,7 +209,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#020203] text-white">
+    <div className="min-h-screen bg-[#020203] text-ink">
       {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div 
@@ -228,7 +228,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+          className="flex items-center gap-2 text-mute hover:text-ink transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">Retour aux quêtes</span>
@@ -241,7 +241,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-3xl bg-zinc-900/60 backdrop-blur-xl border border-white/10 p-6 sm:p-8"
+          className="relative overflow-hidden rounded-2xl bg-card  border border-ink p-6 sm:p-8"
           style={{ viewTransitionName: `vt-quest-${quest.id}` }}
         >
           {/* Pillar badge */}
@@ -259,13 +259,13 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
             
             <div className="flex items-center gap-3">
               {quest.difficulty && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 text-xs font-bold text-zinc-400">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-paper-2 text-xs font-bold text-mute">
                   <Flame className="w-3.5 h-3.5" />
                   {quest.difficulty}
                 </div>
               )}
               {quest.duration && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 text-xs font-bold text-zinc-400">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-paper-2 text-xs font-bold text-mute">
                   <Clock className="w-3.5 h-3.5" />
                   {quest.duration}
                 </div>
@@ -281,27 +281,27 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
                 "bg-gradient-to-br", config.gradient
               )}
             >
-              <Target className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              <Target className="w-8 h-8 sm:w-10 sm:h-10 text-ink" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-2">
                 {quest.title}
               </h1>
-              <p className="text-zinc-400 text-sm sm:text-base">
+              <p className="text-mute text-sm sm:text-base">
                 {quest.description}
               </p>
             </div>
           </div>
 
           {/* XP Reward */}
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-paper-2 border border-ink">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gen-z-yellow/20 flex items-center justify-center">
                 <Zap className="w-6 h-6 text-gen-z-yellow" />
               </div>
               <div>
-                <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">Récompense</p>
-                <p className="text-2xl font-black text-white">+{quest.xp_reward} XP</p>
+                <p className="text-xs text-mute font-medium uppercase tracking-wider">Récompense</p>
+                <p className="text-2xl font-black text-ink">+{quest.xp_reward} XP</p>
                 {optimisticXpDelta > 0 && (
                   <p
                     className="mt-1 text-xs font-bold text-success-soft animate-in fade-in slide-in-from-bottom-1"
@@ -317,7 +317,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
               variant="ghost"
               size="icon"
               onClick={handleShare}
-              className="rounded-xl text-zinc-400 hover:text-white"
+              className="rounded-xl text-mute hover:text-ink"
             >
               <Share2 className="w-5 h-5" />
             </Button>
@@ -333,7 +333,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
             className="space-y-3"
           >
             <div className="flex items-center justify-between text-sm">
-              <span className="font-bold text-white">Progression</span>
+              <span className="font-bold text-ink">Progression</span>
               <span className="font-bold" style={{ color: config.color }}>
                 {completedSteps}/{totalSteps} étapes
               </span>
@@ -350,7 +350,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
             transition={{ delay: 0.2 }}
             className="space-y-4"
           >
-            <h2 className="text-lg font-black uppercase tracking-wider text-zinc-500">Étapes</h2>
+            <h2 className="text-lg font-black uppercase tracking-wider text-mute">Étapes</h2>
             <div className="space-y-3">
               {steps.map((step, index) => (
                 <motion.button
@@ -364,15 +364,15 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
                     "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left",
                     step.completed
                       ? "bg-success-soft/10 border-success-soft/30"
-                      : "bg-white/5 border-white/10 hover:bg-white/10",
+                      : "bg-paper-2 border-ink hover:bg-paper-2",
                     !isInProgress && "opacity-60 cursor-not-allowed"
                   )}
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors",
                     step.completed
-                      ? "bg-success-soft text-black"
-                      : "bg-white/10 text-zinc-500"
+                      ? "bg-success-soft text-ink"
+                      : "bg-paper-2 text-mute"
                   )}>
                     {step.completed ? (
                       <CheckCircle2 className="w-5 h-5" />
@@ -383,12 +383,12 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
                   <div className="flex-1 min-w-0">
                     <p className={cn(
                       "font-bold",
-                      step.completed ? "text-success-soft line-through" : "text-white"
+                      step.completed ? "text-success-soft line-through" : "text-ink"
                     )}>
                       {step.title}
                     </p>
                     {step.description && (
-                      <p className="text-sm text-zinc-500 truncate">{step.description}</p>
+                      <p className="text-sm text-mute truncate">{step.description}</p>
                     )}
                   </div>
                 </motion.button>
@@ -405,7 +405,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
           className="pt-4"
         >
           {isCompleted ? (
-            <div className="flex items-center justify-center gap-4 p-6 rounded-3xl bg-success-soft/20 border border-success-soft/30">
+            <div className="flex items-center justify-center gap-4 p-6 rounded-2xl bg-success-soft/20 border border-success-soft/30">
               <Trophy className="w-8 h-8 text-success-soft" />
               <div>
                 <p className="text-xl font-black text-success-soft">Quête Complétée !</p>

@@ -132,7 +132,7 @@ export default async function TeenMentorsPage({
         <form
           method="GET"
           aria-label="Filtres mentors"
-          className="mb-8 rounded-3xl border border-border bg-card/40 backdrop-blur-md p-4 flex flex-wrap gap-3 items-end"
+          className="mb-8 rounded-2xl border border-border bg-card/40  p-4 flex flex-wrap gap-3 items-end"
         >
           <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-none">
             <label
@@ -237,7 +237,7 @@ function MentorCard({ mentor }: { mentor: MentorRow }) {
       // browser auto-tweens the bounding box + opacity.
       style={{ viewTransitionName: `vt-mentor-${mentor.id}` }}
       className={cn(
-        "group relative block overflow-hidden rounded-3xl border backdrop-blur-md transition-all duration-300",
+        "group relative block overflow-hidden rounded-2xl border  transition-all duration-300",
         "border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent",
         "hover:-translate-y-0.5 hover:border-info/30 hover:shadow-2xl hover:shadow-background/40",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/40"

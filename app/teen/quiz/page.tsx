@@ -51,16 +51,16 @@ export default async function QuizPage() {
 function QuizHubSkeleton() {
   return (
     <div className="min-h-screen pb-32 space-y-8 pt-6 animate-pulse">
-      <div className="h-12 bg-zinc-800/50 rounded-2xl w-72" />
+      <div className="h-12 bg-card rounded-2xl w-72" />
       <div className="grid grid-cols-4 gap-4">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-24 bg-zinc-800/30 rounded-2xl" />
+          <div key={i} className="h-24 bg-card rounded-2xl" />
         ))}
       </div>
-      <div className="h-40 bg-zinc-800/30 rounded-3xl" />
+      <div className="h-40 bg-card rounded-2xl" />
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-44 bg-zinc-800/30 rounded-3xl" />
+          <div key={i} className="h-44 bg-card rounded-2xl" />
         ))}
       </div>
     </div>

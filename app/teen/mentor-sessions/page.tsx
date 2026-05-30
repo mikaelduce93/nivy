@@ -54,37 +54,37 @@ const STATUS_TOKENS: Record<
 > = {
   pending_approval: {
     label: "En attente parent",
-    tone: "bg-amber-500/15 text-amber-300 ring-amber-400/30",
+    tone: "bg-gold/15 text-gold ring-gold/30",
     icon: <Hourglass className="h-3 w-3" aria-hidden />,
   },
   approved: {
     label: "Approuvee",
-    tone: "bg-cyan-500/15 text-cyan-300 ring-cyan-400/30",
+    tone: "bg-teal/15 text-teal ring-teal/30",
     icon: <CheckCircle2 className="h-3 w-3" aria-hidden />,
   },
   dispatched: {
     label: "En cours",
-    tone: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/30",
+    tone: "bg-lime/15 text-lime ring-lime/30",
     icon: <Sparkles className="h-3 w-3" aria-hidden />,
   },
   completed: {
     label: "Terminee",
-    tone: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/30",
+    tone: "bg-lime/15 text-lime ring-lime/30",
     icon: <CheckCircle2 className="h-3 w-3" aria-hidden />,
   },
   denied: {
     label: "Refusee par parent",
-    tone: "bg-red-500/15 text-red-300 ring-red-400/30",
+    tone: "bg-destructive/15 text-destructive ring-destructive/30",
     icon: <XCircle className="h-3 w-3" aria-hidden />,
   },
   cancelled: {
     label: "Annulee",
-    tone: "bg-zinc-700/40 text-zinc-300 ring-zinc-500/30",
+    tone: "bg-muted text-ink-2 ring-line",
     icon: <XCircle className="h-3 w-3" aria-hidden />,
   },
   no_show: {
     label: "Non presentee",
-    tone: "bg-zinc-700/40 text-zinc-300 ring-zinc-500/30",
+    tone: "bg-muted text-ink-2 ring-line",
     icon: <XCircle className="h-3 w-3" aria-hidden />,
   },
 }
@@ -114,11 +114,11 @@ export default async function TeenMentorSessionsPage() {
   const history = rows.filter((r) => !upcoming.includes(r))
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32 max-w-3xl">
         <Link
           href="/teen"
-          className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white mb-6"
+          className="inline-flex items-center gap-2 text-sm text-mute hover:text-ink mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
@@ -126,21 +126,21 @@ export default async function TeenMentorSessionsPage() {
 
         <header className="mb-8 flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-black" />
+            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-teal to-lime flex items-center justify-center">
+              <Calendar className="h-6 w-6 text-ink" />
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic text-white">
+              <h1 className="text-3xl font-black tracking-tighter uppercase italic text-ink">
                 Mes sessions
               </h1>
-              <p className="text-zinc-500 text-sm font-medium">
+              <p className="text-mute text-sm font-medium">
                 Tes rendez-vous avec tes mentors.
               </p>
             </div>
           </div>
           <Link
             href="/teen/mentors"
-            className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-black hover:bg-white/90"
+            className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-ink hover:bg-paper-2"
           >
             <GraduationCap className="h-4 w-4" />
             Trouver un mentor
@@ -148,7 +148,7 @@ export default async function TeenMentorSessionsPage() {
         </header>
 
         {error ? (
-          <div className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             Impossible de charger tes sessions pour le moment.
           </div>
         ) : null}
@@ -200,7 +200,7 @@ function Section({
 }) {
   return (
     <section>
-      <h2 className="text-sm font-black uppercase tracking-wider text-zinc-300 mb-3">
+      <h2 className="text-sm font-black uppercase tracking-wider text-ink-2 mb-3">
         {title}
       </h2>
       {children}
@@ -220,16 +220,16 @@ function EmptySection({
   ctaLabel?: string
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-8 text-center">
-      <div className="mx-auto mb-3 h-12 w-12 rounded-2xl bg-cyan-500/15 flex items-center justify-center">
-        <Calendar className="h-6 w-6 text-cyan-300" />
+    <div className="rounded-2xl border border-ink bg-white/[0.02]  p-8 text-center">
+      <div className="mx-auto mb-3 h-12 w-12 rounded-2xl bg-teal/15 flex items-center justify-center">
+        <Calendar className="h-6 w-6 text-teal" />
       </div>
-      <h3 className="text-base font-black text-white">{title}</h3>
-      <p className="mt-1 text-sm text-zinc-400">{description}</p>
+      <h3 className="text-base font-black text-ink">{title}</h3>
+      <p className="mt-1 text-sm text-mute">{description}</p>
       {ctaHref && ctaLabel ? (
         <Link
           href={ctaHref}
-          className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-black hover:bg-white/90"
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-ink hover:bg-paper-2"
         >
           {ctaLabel}
         </Link>
@@ -241,7 +241,7 @@ function EmptySection({
 function SessionRowCard({ session }: { session: SessionRow }) {
   const tokens = STATUS_TOKENS[session.status] ?? {
     label: session.status,
-    tone: "bg-zinc-700/40 text-zinc-300 ring-zinc-500/30",
+    tone: "bg-muted text-ink-2 ring-line",
     icon: <Clock className="h-3 w-3" aria-hidden />,
   }
   const dt = new Date(session.scheduled_for)
@@ -261,14 +261,14 @@ function SessionRowCard({ session }: { session: SessionRow }) {
     <Link
       href={`/teen/mentors/${session.mentor_id}`}
       className={cn(
-        "group relative block overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-5",
-        "hover:border-white/20 hover:shadow-2xl hover:shadow-black/30 transition-all"
+        "group relative block overflow-hidden rounded-2xl border border-ink bg-white/[0.02]  p-5",
+        "hover:border-ink hover:shadow-2xl hover:shadow-black/30 transition-all"
       )}
     >
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-start gap-3 min-w-0">
-          <div className="h-10 w-10 rounded-xl bg-cyan-500/15 flex items-center justify-center shrink-0">
-            <GraduationCap className="h-5 w-5 text-cyan-300" />
+          <div className="h-10 w-10 rounded-xl bg-teal/15 flex items-center justify-center shrink-0">
+            <GraduationCap className="h-5 w-5 text-teal" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -282,20 +282,20 @@ function SessionRowCard({ session }: { session: SessionRow }) {
                 {tokens.label}
               </span>
               {session.is_intro ? (
-                <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-300 ring-1 ring-amber-400/30">
+                <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-gold ring-1 ring-gold/30">
                   Intro gratuite
                 </span>
               ) : null}
               {session.parent_attended ? (
-                <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/30">
+                <span className="rounded-full bg-lime/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-lime ring-1 ring-lime/30">
                   Parent present
                 </span>
               ) : null}
             </div>
-            <h3 className="mt-2 text-base font-black text-white truncate">
+            <h3 className="mt-2 text-base font-black text-ink truncate">
               {mentorTitle}
             </h3>
-            <p className="mt-0.5 text-xs text-zinc-400">
+            <p className="mt-0.5 text-xs text-mute">
               {formatted} - {session.duration_minutes} min
               {session.meeting_provider
                 ? ` - ${session.meeting_provider}`
@@ -304,10 +304,10 @@ function SessionRowCard({ session }: { session: SessionRow }) {
           </div>
         </div>
         <div className="text-right shrink-0">
-          <div className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+          <div className="text-[10px] font-black uppercase tracking-wider text-mute">
             Montant
           </div>
-          <div className="text-sm font-black tabular-nums text-white">
+          <div className="text-sm font-black tabular-nums text-ink">
             {session.is_intro || amount === 0 ? "Gratuit" : `${amount.toFixed(0)} DH`}
           </div>
         </div>

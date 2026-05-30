@@ -255,14 +255,14 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
       <header className="space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-pink-500 via-rose-400 to-fuchsia-400">
-              <Users className="w-6 h-6 text-black" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-pink via-pink to-pink">
+              <Users className="w-6 h-6 text-ink" />
             </div>
             <div>
               <h1 className="text-4xl font-black tracking-tighter uppercase italic">
                 Défis amis
               </h1>
-              <p className="text-zinc-500 text-sm font-medium">
+              <p className="text-mute text-sm font-medium">
                 Affronte ton crew, mise des XP, prends la couronne
               </p>
             </div>
@@ -270,7 +270,7 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
 
           <Button
             onClick={() => router.push("/teen/quests/friend-defis/new")}
-            className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-black uppercase tracking-wider"
+            className="bg-gradient-to-r from-pink to-pink hover:from-pink hover:to-pink text-ink font-black uppercase tracking-wider"
           >
             <Plus className="w-4 h-4 mr-2" />
             Lancer un défi
@@ -295,8 +295,8 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
                   "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-wider transition-all",
                   "ring-1",
                   isActive
-                    ? "bg-pink-500/20 text-pink-200 ring-pink-400/40"
-                    : "bg-white/5 text-zinc-400 ring-white/10 hover:text-zinc-200 hover:bg-white/10",
+                    ? "bg-pink/20 text-pink ring-pink/40"
+                    : "bg-paper-2 text-mute ring-white/10 hover:text-ink-2 hover:bg-paper-2",
                 )}
                 aria-pressed={isActive}
               >
@@ -305,7 +305,7 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
                 <span
                   className={cn(
                     "ml-1 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[10px]",
-                    isActive ? "bg-pink-400/30 text-pink-100" : "bg-white/10 text-zinc-300",
+                    isActive ? "bg-pink/30 text-pink" : "bg-paper-2 text-ink-2",
                   )}
                 >
                   {count}
@@ -319,7 +319,7 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
         {actionError ? (
           <div
             role="alert"
-            className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+            className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             <strong className="font-black">Erreur : </strong>
             {actionError}
@@ -446,7 +446,7 @@ function FriendDefiTile({
               onClick={() => onAccept(row.id)}
               disabled={busy}
               size="sm"
-              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-black uppercase tracking-wider"
+              className="flex-1 bg-lime hover:bg-lime text-ink font-black uppercase tracking-wider"
             >
               <Check className="w-4 h-4 mr-1" />
               Accepter
@@ -456,7 +456,7 @@ function FriendDefiTile({
               disabled={busy}
               size="sm"
               variant="outline"
-              className="flex-1 border-red-500/40 text-red-200 hover:bg-red-500/10 font-black uppercase tracking-wider"
+              className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/10 font-black uppercase tracking-wider"
             >
               <X className="w-4 h-4 mr-1" />
               Refuser
@@ -465,7 +465,7 @@ function FriendDefiTile({
         ) : null}
 
         {filter === "pending" && isCreator ? (
-          <p className="text-xs text-zinc-500 italic">
+          <p className="text-xs text-mute italic">
             En attente de réponse de l'adversaire…
           </p>
         ) : null}
@@ -475,7 +475,7 @@ function FriendDefiTile({
             onClick={() => onRecordProgress(row.id)}
             disabled={busy}
             size="sm"
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white font-black uppercase tracking-wider"
+            className="w-full bg-pink hover:bg-pink text-ink font-black uppercase tracking-wider"
           >
             <TrendingUp className="w-4 h-4 mr-1" />
             +1 progression
@@ -499,14 +499,14 @@ function CompletedSummary({
 }) {
   if (row.is_draw) {
     return (
-      <p className="text-xs font-bold uppercase tracking-wider text-amber-300">
+      <p className="text-xs font-bold uppercase tracking-wider text-gold">
         Match nul — pot partagé
       </p>
     )
   }
   if (!row.winner_id) {
     return (
-      <p className="text-xs italic text-zinc-500">
+      <p className="text-xs italic text-mute">
         Résolution en attente…
       </p>
     )
@@ -516,7 +516,7 @@ function CompletedSummary({
     <p
       className={cn(
         "text-xs font-black uppercase tracking-wider",
-        won ? "text-emerald-300" : "text-zinc-400",
+        won ? "text-lime" : "text-mute",
       )}
     >
       {won ? `Victoire +${row.xp_pot ?? 0} XP` : "Défaite"}

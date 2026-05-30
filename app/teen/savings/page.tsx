@@ -116,7 +116,7 @@ export default async function TeenSavingsPage() {
                     />
                   )}
                   {g.status === "withdrawn" && (
-                    <p className="text-xs italic text-emerald-400">
+                    <p className="text-xs italic text-lime">
                       Récupéré — coins disponibles
                     </p>
                   )}

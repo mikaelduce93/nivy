@@ -171,7 +171,7 @@ export function FeedPostLongPress({
               aria-disabled={reporting || reported}
               className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
             >
-              <Flag className="h-5 w-5 text-orange-500" />
+              <Flag className="h-5 w-5 text-coral" />
               <span>{reported ? 'Déjà signalé' : reporting ? 'Signalement…' : 'Signaler'}</span>
             </button>
             <button
@@ -181,7 +181,7 @@ export function FeedPostLongPress({
               aria-disabled={blocking || !postAuthorId}
               className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
             >
-              <UserX className="h-5 w-5 text-red-500" />
+              <UserX className="h-5 w-5 text-destructive" />
               <span>{blocking ? 'Blocage…' : "Bloquer l'auteur"}</span>
             </button>
           </div>

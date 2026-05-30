@@ -63,7 +63,7 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
             animate={{ scale: 1, opacity: 1 }}
             className="relative"
           >
-            <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-4xl font-black text-black overflow-hidden">
+            <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-4xl font-black text-ink overflow-hidden">
               {profile?.avatar_url ? (
                 <Image
                   src={profile.avatar_url}
@@ -80,7 +80,7 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
             <button
               type="button"
               aria-label="Modifier la photo de profil"
-              className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+              className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-white text-ink flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
             >
               <Camera className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -94,9 +94,9 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
             )}
             <div className="flex items-center gap-2 mt-2">
               <span className="text-xl">{titleIcon}</span>
-              <span className="text-zinc-400">{title}</span>
-              <span className="text-zinc-600">•</span>
-              <span className="text-zinc-400">Level {stats.level}</span>
+              <span className="text-mute">{title}</span>
+              <span className="text-mute">•</span>
+              <span className="text-mute">Level {stats.level}</span>
             </div>
           </div>
 
@@ -113,18 +113,18 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
         <div className="grid grid-cols-4 gap-4">
           {[
             { label: "Level", value: stats.level, icon: Star, color: "text-success-soft" },
-            { label: "Coins", value: stats.coins.toLocaleString(), icon: Coins, color: "text-yellow-500" },
+            { label: "Coins", value: stats.coins.toLocaleString(), icon: Coins, color: "text-gold" },
             { label: "Rank", value: stats.rank ? `#${stats.rank}` : "-", icon: Trophy, color: "text-brand-soft" },
             { label: "Friends", value: stats.friendsCount, icon: Users, color: "text-accent-soft" },
           ].map((stat) => (
             <motion.div
               key={stat.label}
               whileHover={{ scale: 1.02 }}
-              className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
+              className="p-4 rounded-2xl bg-card border border-ink text-center"
             >
               <stat.icon className={cn("w-5 h-5 mx-auto mb-2", stat.color)} />
-              <p className="text-xl font-black text-white">{stat.value}</p>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{stat.label}</p>
+              <p className="text-xl font-black text-ink">{stat.value}</p>
+              <p className="text-[10px] text-mute uppercase tracking-wider">{stat.label}</p>
             </motion.div>
           ))}
         </div>
@@ -158,17 +158,17 @@ function ProfileTab({ data }: { data: ProfileHubClientProps["data"] }) {
   return (
     <div className="space-y-6">
       {/* Bio */}
-      <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
-        <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Bio</h3>
-        <p className="text-zinc-300">
+      <div className="p-6 rounded-2xl bg-card border border-ink">
+        <h3 className="text-sm font-bold text-mute uppercase tracking-wider mb-4">Bio</h3>
+        <p className="text-ink-2">
           {profile?.bio || "No bio yet. Tap Edit to add one!"}
         </p>
       </div>
 
       {/* Achievements Preview */}
-      <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
+      <div className="p-6 rounded-2xl bg-card border border-ink">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Achievements</h3>
+          <h3 className="text-sm font-bold text-mute uppercase tracking-wider">Achievements</h3>
           <Link href="/teen/wallet?tab=badges" className="text-sm text-brand-soft font-bold hover:underline">
             See all
           </Link>
@@ -176,7 +176,7 @@ function ProfileTab({ data }: { data: ProfileHubClientProps["data"] }) {
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-zinc-500">Progress</span>
+              <span className="text-mute">Progress</span>
               <span className="font-bold text-brand-soft">{stats.badges}/{stats.totalBadges}</span>
             </div>
             <Progress value={(stats.badges / stats.totalBadges) * 100} className="h-3" />
@@ -195,7 +195,7 @@ function ProfileTab({ data }: { data: ProfileHubClientProps["data"] }) {
           <Shield className="w-5 h-5 text-info-soft" />
           <div>
             <p className="text-sm font-bold text-info-soft">Privacy</p>
-            <p className="text-xs text-zinc-400">Your profile is only visible to friends</p>
+            <p className="text-xs text-mute">Your profile is only visible to friends</p>
           </div>
         </div>
       </div>
@@ -207,13 +207,13 @@ function StatsTab({ stats }: { stats: ProfileHubClientProps["data"]["stats"] }) 
   return (
     <div className="space-y-6">
       {/* XP Overview */}
-      <div className="p-6 rounded-3xl bg-gradient-to-br from-brand-soft/10 to-info-soft/5 border border-brand-soft/20">
+      <div className="p-6 rounded-2xl bg-gradient-to-br from-brand-soft/10 to-info-soft/5 border border-brand-soft/20">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <p className="text-sm text-zinc-400 uppercase tracking-wider">Total XP</p>
+            <p className="text-sm text-mute uppercase tracking-wider">Total XP</p>
             <p className="text-5xl font-black text-brand-soft">{stats.totalXp.toLocaleString()}</p>
           </div>
-          <div className="w-20 h-20 rounded-3xl bg-brand-soft/20 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-2xl bg-brand-soft/20 flex items-center justify-center">
             <Zap className="w-10 h-10 text-brand-soft" />
           </div>
         </div>
@@ -222,7 +222,7 @@ function StatsTab({ stats }: { stats: ProfileHubClientProps["data"]["stats"] }) 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Best Streak", value: stats.bestStreak, icon: Flame, color: "text-orange-500", suffix: " days" },
+          { label: "Best Streak", value: stats.bestStreak, icon: Flame, color: "text-coral", suffix: " days" },
           { label: "Badges", value: stats.badges, icon: Award, color: "text-brand-soft", suffix: "" },
           { label: "Events", value: stats.eventsAttended, icon: Calendar, color: "text-success-soft", suffix: "" },
           { label: "Missions", value: stats.missionsCompleted, icon: Target, color: "text-accent-soft", suffix: "" },
@@ -232,18 +232,18 @@ function StatsTab({ stats }: { stats: ProfileHubClientProps["data"]["stats"] }) 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
-            className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5 text-center"
+            className="p-6 rounded-2xl bg-card border border-ink text-center"
           >
             <stat.icon className={cn("w-8 h-8 mx-auto mb-3", stat.color)} />
-            <p className="text-3xl font-black text-white">{stat.value}{stat.suffix}</p>
-            <p className="text-xs text-zinc-500 uppercase tracking-wider mt-1">{stat.label}</p>
+            <p className="text-3xl font-black text-ink">{stat.value}{stat.suffix}</p>
+            <p className="text-xs text-mute uppercase tracking-wider mt-1">{stat.label}</p>
           </motion.div>
         ))}
       </div>
 
       {/* Comparison */}
-      <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
-        <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Vs. Average</h3>
+      <div className="p-6 rounded-2xl bg-card border border-ink">
+        <h3 className="text-sm font-bold text-mute uppercase tracking-wider mb-4">Vs. Average</h3>
         <div className="space-y-4">
           {[
             { label: "XP", yours: stats.totalXp, avg: 1500, color: "bg-brand-soft" },
@@ -254,10 +254,10 @@ function StatsTab({ stats }: { stats: ProfileHubClientProps["data"]["stats"] }) 
             return (
               <div key={item.label}>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-zinc-400">{item.label}</span>
-                  <span className="font-bold text-white">{item.yours}</span>
+                  <span className="text-mute">{item.label}</span>
+                  <span className="font-bold text-ink">{item.yours}</span>
                 </div>
-                <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-2 bg-card rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${pct}%` }}
@@ -291,14 +291,14 @@ function ActivityTab({ stats, teenId }: { stats: ProfileHubClientProps["data"]["
   }
 
   const colorMap: Record<string, string> = {
-    streak: "text-orange-500",
+    streak: "text-coral",
     quest: "text-success-soft",
     social: "text-accent-soft",
     event: "text-info-soft",
     badge: "text-brand-soft",
     xp: "text-brand-soft",
     level: "text-success-soft",
-    general: "text-zinc-400",
+    general: "text-mute",
   }
 
   useEffect(() => {
@@ -333,9 +333,9 @@ function ActivityTab({ stats, teenId }: { stats: ProfileHubClientProps["data"]["
   if (activities.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <Clock className="w-16 h-16 text-zinc-700 mb-4" />
-        <h3 className="text-xl font-bold text-white mb-2">No activity yet</h3>
-        <p className="text-zinc-500 max-w-sm">
+        <Clock className="w-16 h-16 text-ink mb-4" />
+        <h3 className="text-xl font-bold text-ink mb-2">No activity yet</h3>
+        <p className="text-mute max-w-sm">
           Complete quests and engage with the app to see your activity here!
         </p>
       </div>
@@ -346,7 +346,7 @@ function ActivityTab({ stats, teenId }: { stats: ProfileHubClientProps["data"]["
     <div className="space-y-4">
       {activities.map((activity, idx) => {
         const ActivityIcon = iconMap[activity.type] || Clock
-        const iconColor = colorMap[activity.type] || "text-zinc-400"
+        const iconColor = colorMap[activity.type] || "text-mute"
 
         return (
           <motion.div
@@ -354,14 +354,14 @@ function ActivityTab({ stats, teenId }: { stats: ProfileHubClientProps["data"]["
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.05 }}
-            className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
+            className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink"
           >
-            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-paper-2 flex items-center justify-center">
               <ActivityIcon className={cn("w-6 h-6", iconColor)} />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-white">{activity.text}</p>
-              <p className="text-sm text-zinc-500">{activity.time}</p>
+              <p className="font-medium text-ink">{activity.text}</p>
+              <p className="text-sm text-mute">{activity.time}</p>
             </div>
           </motion.div>
         )
@@ -408,13 +408,13 @@ function SettingsTab() {
     <div className="space-y-6">
       {sections.map((section) => (
         <div key={section.title}>
-          <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">{section.title}</h3>
+          <h3 className="text-sm font-bold text-mute uppercase tracking-wider mb-3">{section.title}</h3>
           <div className="space-y-2">
             {section.items.map((item) => (
               <motion.div key={item.label} whileHover={{ x: 4 }}>
-                <Link href={item.href} className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-colors">
-                  <item.icon className="w-5 h-5 text-zinc-400" />
-                  <span className="flex-1 text-white">{item.label}</span>
+                <Link href={item.href} className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink hover:border-ink transition-colors">
+                  <item.icon className="w-5 h-5 text-mute" />
+                  <span className="flex-1 text-ink">{item.label}</span>
                 </Link>
               </motion.div>
             ))}
@@ -425,7 +425,7 @@ function SettingsTab() {
       {/* Logout */}
       <Button 
         variant="outline" 
-        className="w-full rounded-2xl border-red-500/30 text-red-500 hover:bg-red-500/10"
+        className="w-full rounded-2xl border-destructive/30 text-destructive hover:bg-destructive/10"
         onClick={handleLogout}
         disabled={loggingOut}
       >

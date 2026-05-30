@@ -307,19 +307,19 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
-                <Users className="w-6 h-6 text-black" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink flex items-center justify-center">
+                <Users className="w-6 h-6 text-ink" />
               </div>
               <div>
                 <h1 className="text-4xl font-black tracking-tighter uppercase italic">Amis</h1>
-                <p className="text-zinc-400 text-sm font-medium">
+                <p className="text-mute text-sm font-medium">
                   {friends.length} amis • {onlineCount} en ligne
                 </p>
               </div>
             </div>
           </div>
 
-          <Button className="bg-accent-soft text-black font-bold">
+          <Button className="bg-accent-soft text-ink font-bold">
             <UserPlus className="w-4 h-4 mr-2" />
             Ajouter
           </Button>
@@ -331,7 +331,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
             Rechercher un ami
           </label>
           <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute"
             aria-hidden="true"
           />
           <Input
@@ -340,7 +340,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Rechercher un ami..."
             aria-label="Rechercher un ami"
-            className="pl-12 h-12 rounded-xl bg-zinc-900/50 border-white/10"
+            className="pl-12 h-12 rounded-xl bg-card border-ink"
           />
         </div>
 
@@ -357,13 +357,13 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                 className={cn(
                   "px-4 py-2 rounded-xl font-bold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft",
                   active
-                    ? "bg-accent-soft text-black"
-                    : "bg-zinc-900/50 text-zinc-300 hover:text-white",
+                    ? "bg-accent-soft text-ink"
+                    : "bg-card text-ink-2 hover:text-ink",
                 )}
               >
                 {t.label}
                 {t.id === "requests" && optimisticRequests.length > 0 && (
-                  <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-xs">
+                  <span className="ml-2 px-2 py-0.5 rounded-full bg-paper-2 text-xs">
                     <span className="sr-only">
                       {optimisticRequests.length} demande{optimisticRequests.length > 1 ? "s" : ""} en attente
                     </span>
@@ -382,7 +382,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
           <h2 className="text-xl font-black uppercase">Demandes en attente</h2>
 
           {loadingRequests ? (
-            <div className="text-zinc-500 text-sm">Chargement…</div>
+            <div className="text-mute text-sm">Chargement…</div>
           ) : optimisticRequests.length === 0 ? (
             <EmptyState
               preset="search"
@@ -406,12 +406,12 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                   }}
                   disabled={actioningRequestId === request.id}
                   leftAction={
-                    <span className="px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                    <span className="px-3 py-1 rounded-full bg-destructive text-ink text-xs font-bold">
                       Refuser
                     </span>
                   }
                   rightAction={
-                    <span className="px-3 py-1 rounded-full bg-green-500 text-white text-xs font-bold">
+                    <span className="px-3 py-1 rounded-full bg-lime text-ink text-xs font-bold">
                       Accepter
                     </span>
                   }
@@ -422,13 +422,13 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                     transition={{ delay: idx * 0.1 }}
                     className="flex items-center gap-4 p-4 rounded-2xl bg-accent-soft/10 border border-accent-soft/30"
                   >
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-ink">
                       {request.name.charAt(0).toUpperCase()}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white">{request.name}</h4>
-                      <p className="text-sm text-zinc-400">
+                      <h4 className="font-bold text-ink">{request.name}</h4>
+                      <p className="text-sm text-mute">
                         {request.mutual > 0 ? `${request.mutual} amis en commun • ` : ""}
                         {request.sentAt}
                       </p>
@@ -437,7 +437,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                     <div className="flex items-center gap-2">
                       <Button
                         size="icon"
-                        className="rounded-full bg-success-soft text-black"
+                        className="rounded-full bg-success-soft text-ink"
                         onClick={() => respondToRequest(request.id, "accept")}
                         disabled={actioningRequestId === request.id}
                         aria-label={`Accepter la demande de ${request.name}`}
@@ -503,11 +503,11 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                     duration: reduced ? 0 : DURATION_NORMAL,
                     ease: EASE_STANDARD,
                   }}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-colors"
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink hover:border-ink transition-colors"
                 >
                   {/* Avatar */}
                   <div className="relative">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-ink">
                       {friend.name.charAt(0)}
                     </div>
                     <div
@@ -520,12 +520,12 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                           : "Hors ligne"
                       }
                       className={cn(
-                        "absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-zinc-900",
+                        "absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-ink",
                         friend.status === "online"
-                          ? "bg-green-500"
+                          ? "bg-lime"
                           : friend.status === "away"
-                          ? "bg-yellow-500"
-                          : "bg-zinc-500",
+                          ? "bg-gold"
+                          : "bg-muted",
                       )}
                     />
                   </div>
@@ -533,10 +533,10 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-white">{friend.name}</h4>
+                      <h4 className="font-bold text-ink">{friend.name}</h4>
                     </div>
                     {friend.mutual_calculated && friend.mutual > 0 && (
-                      <p className="text-sm text-zinc-400">{friend.mutual} amis en commun</p>
+                      <p className="text-sm text-mute">{friend.mutual} amis en commun</p>
                     )}
                   </div>
 
@@ -546,7 +546,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                       <Zap className="w-4 h-4" />
                       <span className="font-bold">{friend.xp.toLocaleString()}</span>
                     </div>
-                    <p className="text-xs text-zinc-400 uppercase">XP</p>
+                    <p className="text-xs text-mute uppercase">XP</p>
                   </div>
 
                   {/* Actions */}
@@ -586,7 +586,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
           </div>
 
           {suggestions.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-zinc-900/40 border border-white/5 text-sm text-zinc-400">
+            <div className="p-6 rounded-2xl bg-card border border-ink text-sm text-mute">
               Aucune suggestion pour le moment
             </div>
           ) : (
@@ -610,12 +610,12 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                       })
                     }
                     leftAction={
-                      <span className="px-3 py-1 rounded-full bg-zinc-700 text-white text-xs font-bold">
+                      <span className="px-3 py-1 rounded-full bg-muted text-ink text-xs font-bold">
                         Masquer
                       </span>
                     }
                     rightAction={
-                      <span className="px-3 py-1 rounded-full bg-zinc-700 text-white text-xs font-bold">
+                      <span className="px-3 py-1 rounded-full bg-muted text-ink text-xs font-bold">
                         Masquer
                       </span>
                     }
@@ -624,18 +624,18 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
-                      className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-brand-soft/30 transition-colors"
+                      className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink hover:border-brand-soft/30 transition-colors"
                     >
                     {/* Avatar */}
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-ink">
                       {sugg.name.charAt(0).toUpperCase()}
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white truncate">{sugg.name}</h4>
+                      <h4 className="font-bold text-ink truncate">{sugg.name}</h4>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="text-xs text-zinc-400 font-medium">
+                        <span className="text-xs text-mute font-medium">
                           Niveau {sugg.level}
                         </span>
                         <span
@@ -658,8 +658,8 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                       className={cn(
                         "font-bold",
                         invited
-                          ? "bg-zinc-800 text-zinc-400"
-                          : "bg-brand-soft text-black hover:bg-brand-soft/90",
+                          ? "bg-card text-mute"
+                          : "bg-brand-soft text-ink hover:bg-brand-soft/90",
                       )}
                     >
                       {invited ? (
@@ -687,15 +687,15 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="p-6 rounded-3xl bg-gradient-to-r from-yellow-500/10 to-amber-500/5 border border-yellow-500/20"
+        className="p-6 rounded-2xl bg-gradient-to-r from-gold/10 to-gold/5 border border-gold/20"
       >
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-yellow-500/20 flex items-center justify-center">
-            <Trophy className="w-7 h-7 text-yellow-500" />
+          <div className="w-14 h-14 rounded-2xl bg-gold/20 flex items-center justify-center">
+            <Trophy className="w-7 h-7 text-gold" />
           </div>
           <div className="flex-1">
-            <h3 className="font-black text-white">Classement Amis</h3>
-            <p className="text-sm text-zinc-400">Vois qui a le plus d&apos;XP parmi tes amis</p>
+            <h3 className="font-black text-ink">Classement Amis</h3>
+            <p className="text-sm text-mute">Vois qui a le plus d&apos;XP parmi tes amis</p>
           </div>
           <Button variant="outline">Voir le classement</Button>
         </div>

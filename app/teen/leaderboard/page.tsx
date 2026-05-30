@@ -73,10 +73,10 @@ export default async function CreatorLeaderboardPage({
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Top Créateurs · {monthStart.slice(0, 7)}</h1>
         <div className="flex gap-3 text-sm">
-          <Link href="/teen/feed" className="text-blue-600 hover:underline">
+          <Link href="/teen/feed" className="text-teal hover:underline">
             Feed
           </Link>
-          <Link href="/teen/leaderboard" className="text-blue-600 hover:underline">
+          <Link href="/teen/leaderboard" className="text-teal hover:underline">
             XP global
           </Link>
         </div>
@@ -90,7 +90,7 @@ export default async function CreatorLeaderboardPage({
               key={c}
               href={c === "all" ? "/teen/leaderboard" : `/teen/leaderboard?category=${c}`}
               className={`rounded px-3 py-1 text-xs ${
-                active ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                active ? "bg-teal text-ink" : "bg-paper-2 text-ink hover:bg-paper-2"
               }`}
             >
               {c}
@@ -102,7 +102,7 @@ export default async function CreatorLeaderboardPage({
       {loadError && (
         <div
           role="alert"
-          className="mb-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="mb-3 rounded border border-destructive bg-destructive px-3 py-2 text-sm text-destructive"
         >
           {loadError}
         </div>

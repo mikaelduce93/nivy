@@ -171,7 +171,7 @@ export function BookMentorSessionButton({
     return (
       <>
         {celebrateNode}
-        <div className="rounded-3xl border border-success/30 bg-success-soft/10 p-6 flex gap-3 items-start">
+        <div className="rounded-2xl border border-success/30 bg-success-soft/10 p-6 flex gap-3 items-start">
           <CheckCircle2 className="h-6 w-6 text-success shrink-0" />
           <div>
             <H3 className="font-black text-foreground">Demande envoyee !</H3>
@@ -190,7 +190,7 @@ export function BookMentorSessionButton({
       {celebrateNode}
       <form
         onSubmit={handleSubmit}
-        className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-6 space-y-4"
+        className="rounded-2xl border border-border bg-card/40  p-6 space-y-4"
       >
       <div>
         <H3 className="text-lg font-black text-foreground">Nouvelle session</H3>

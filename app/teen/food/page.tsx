@@ -86,7 +86,7 @@ export default async function TeenFoodDiscoveryPage({
     <div className="mx-auto max-w-5xl">
       <header className="mb-6 flex items-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-soft to-brand-soft">
-          <Utensils className="h-6 w-6 text-black" aria-hidden />
+          <Utensils className="h-6 w-6 text-ink" aria-hidden />
         </div>
         <div>
           <H1 className="text-4xl font-black tracking-tighter uppercase leading-none">
@@ -102,7 +102,7 @@ export default async function TeenFoodDiscoveryPage({
       <form
         method="GET"
         aria-label="Filtres restaurants"
-        className="mb-6 flex flex-wrap items-end gap-2 rounded-3xl border border-border bg-card/30 p-3 backdrop-blur-md"
+        className="mb-6 flex flex-wrap items-end gap-2 rounded-2xl border border-border bg-card/30 p-3 "
       >
         <label htmlFor="food-sub-category" className="sr-only">
           Catégorie
@@ -168,7 +168,7 @@ export default async function TeenFoodDiscoveryPage({
             <Link
               key={p.id}
               href={`/teen/food/${p.id}`}
-              className="rounded-2xl border border-border bg-card/30 p-4 backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-2xl hover:shadow-background/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="rounded-2xl border border-border bg-card/30 p-4  transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-2xl hover:shadow-background/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <div className="font-bold text-foreground">{p.company_name}</div>
               <div className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">

@@ -66,7 +66,7 @@ const PILLAR_CONFIG = {
   body: {
     title: "Body Challenges",
     subtitle: "Physical activities & sports",
-    gradient: "from-accent-soft via-orange-500 to-red-500",
+    gradient: "from-accent-soft via-coral to-destructive",
     bgGlow: "bg-accent-soft/20",
   },
   creative: {
@@ -138,19 +138,19 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
                 "w-12 h-12 rounded-2xl flex items-center justify-center",
                 "bg-gradient-to-br", config.gradient
               )}>
-                <Swords className="w-6 h-6 text-black" />
+                <Swords className="w-6 h-6 text-ink" />
               </div>
               <div>
                 <h1 className="text-4xl font-black tracking-tighter uppercase italic">Quests</h1>
-                <p className="text-zinc-500 text-sm font-medium">Level up your life</p>
+                <p className="text-mute text-sm font-medium">Level up your life</p>
               </div>
             </div>
           </div>
 
           {/* Quick Stats */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
-              <Flame className="w-4 h-4 text-orange-500" />
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-paper-2 border border-ink">
+              <Flame className="w-4 h-4 text-coral" />
               <span className="font-bold text-sm">{completedCount} Done</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-soft/10 border border-brand-soft/20">
@@ -181,7 +181,7 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
         key={currentTab}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl p-8 border border-white/10"
+        className="relative overflow-hidden rounded-2xl p-8 border border-ink"
       >
         {/* Background Glow */}
         <div className={cn("absolute inset-0 opacity-30", config.bgGlow)} />
@@ -190,19 +190,19 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
         <div className="relative z-10 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-black uppercase tracking-tight">{config.title}</h2>
-            <p className="text-zinc-400 mt-1">{config.subtitle}</p>
+            <p className="text-mute mt-1">{config.subtitle}</p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-3xl font-black">{filteredQuests.length}</p>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Available</p>
+              <p className="text-[10px] text-mute uppercase tracking-wider">Available</p>
             </div>
             <div className={cn(
               "w-16 h-16 rounded-2xl flex items-center justify-center",
               "bg-gradient-to-br", config.gradient
             )}>
-              <Target className="w-8 h-8 text-black" />
+              <Target className="w-8 h-8 text-ink" />
             </div>
           </div>
         </div>
@@ -262,7 +262,7 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
       </AnimatePresence>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-ink">
         <QuickActionCard
           icon={Brain}
           title="Generate AI Quiz"
@@ -341,22 +341,22 @@ function QuickActionCard({
         whileHover={{ scale: 1.02, y: -4 }}
         whileTap={{ scale: 0.98 }}
         className={cn(
-          "relative overflow-hidden rounded-3xl p-6 border transition-all cursor-pointer",
+          "relative overflow-hidden rounded-2xl p-6 border transition-all cursor-pointer",
           "bg-gradient-to-br",
           colorClasses[color]
         )}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-              <Icon className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-paper-2 flex items-center justify-center">
+              <Icon className="w-6 h-6 text-ink" />
             </div>
             <div>
-              <h4 className="font-bold text-white">{title}</h4>
-              <p className="text-sm text-zinc-400">{description}</p>
+              <h4 className="font-bold text-ink">{title}</h4>
+              <p className="text-sm text-mute">{description}</p>
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-zinc-500" />
+          <ArrowRight className="w-5 h-5 text-mute" />
         </div>
       </motion.div>
     </Link>

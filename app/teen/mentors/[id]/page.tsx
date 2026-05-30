@@ -106,7 +106,7 @@ export default async function TeenMentorDetailPage({
         {/* TICKET-024 — destination half of the View Transitions morph.
             Pairs with the MentorCard on /teen/mentors. */}
         <div
-          className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent backdrop-blur-md p-6 sm:p-8 mb-6"
+          className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent  p-6 sm:p-8 mb-6"
           style={{ viewTransitionName: `vt-mentor-${mentor.id}` }}
         >
           <div
@@ -172,7 +172,7 @@ export default async function TeenMentorDetailPage({
         </div>
 
         {/* Bio */}
-        <section className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-6 mb-6">
+        <section className="rounded-2xl border border-border bg-card/40  p-6 mb-6">
           <H2 className="text-sm font-black uppercase tracking-wider text-foreground mb-3">
             Bio
           </H2>
@@ -212,7 +212,7 @@ export default async function TeenMentorDetailPage({
         </section>
 
         {/* Trust & safety */}
-        <section className="rounded-3xl border border-success/20 bg-success-soft/5 p-5 mb-6 flex gap-3 items-start">
+        <section className="rounded-2xl border border-success/20 bg-success-soft/5 p-5 mb-6 flex gap-3 items-start">
           <ShieldCheck className="h-5 w-5 text-success shrink-0 mt-0.5" />
           <div className="text-sm text-foreground/90 leading-relaxed">
             <strong className="font-black text-success">
@@ -233,7 +233,7 @@ export default async function TeenMentorDetailPage({
             hourlyDh={hourly}
           />
         ) : (
-          <div className="rounded-3xl border border-warning/20 bg-warning/5 p-5 text-sm text-warning-foreground">
+          <div className="rounded-2xl border border-warning/20 bg-warning/5 p-5 text-sm text-warning-foreground">
             Ce mentor n'est pas disponible pour des reservations actuellement.
           </div>
         )}
@@ -252,7 +252,7 @@ function StatTile({
   icon: React.ReactNode
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card/40 backdrop-blur-md p-4">
+    <div className="rounded-2xl border border-border bg-card/40  p-4">
       <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
         <span className="text-info">{icon}</span>
         {label}

@@ -67,10 +67,10 @@ export default async function QuestsHubPage() {
 function QuestsHubSkeleton() {
   return (
     <div className="space-y-8 pt-8 animate-pulse">
-      <div className="h-12 bg-zinc-800/50 rounded-2xl w-full max-w-md" />
+      <div className="h-12 bg-card rounded-2xl w-full max-w-md" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-64 bg-zinc-800/30 rounded-3xl" />
+          <div key={i} className="h-64 bg-card rounded-2xl" />
         ))}
       </div>
     </div>

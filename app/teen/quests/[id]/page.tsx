@@ -87,24 +87,24 @@ function QuestDetailSkeleton() {
     <div className="min-h-screen bg-[#020203] p-4 sm:p-8 animate-pulse">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Back button */}
-        <div className="h-10 w-24 bg-white/5 rounded-xl" />
+        <div className="h-10 w-24 bg-paper-2 rounded-xl" />
         
         {/* Header */}
         <div className="space-y-4">
-          <div className="h-6 w-32 bg-white/5 rounded-lg" />
-          <div className="h-12 w-3/4 bg-white/5 rounded-xl" />
-          <div className="h-6 w-1/2 bg-white/5 rounded-lg" />
+          <div className="h-6 w-32 bg-paper-2 rounded-lg" />
+          <div className="h-12 w-3/4 bg-paper-2 rounded-xl" />
+          <div className="h-6 w-1/2 bg-paper-2 rounded-lg" />
         </div>
         
         {/* Steps */}
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-20 bg-white/5 rounded-2xl" />
+            <div key={i} className="h-20 bg-paper-2 rounded-2xl" />
           ))}
         </div>
         
         {/* Action button */}
-        <div className="h-14 w-full bg-white/5 rounded-2xl" />
+        <div className="h-14 w-full bg-paper-2 rounded-2xl" />
       </div>
     </div>
   )

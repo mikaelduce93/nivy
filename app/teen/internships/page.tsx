@@ -126,7 +126,7 @@ export default async function TeenInternshipsPage({
         {/* Filters */}
         <form
           method="GET"
-          className="mb-8 rounded-3xl border border-border bg-card/40 backdrop-blur-md p-4 flex flex-wrap gap-3 items-end"
+          className="mb-8 rounded-2xl border border-border bg-card/40  p-4 flex flex-wrap gap-3 items-end"
         >
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
@@ -236,7 +236,7 @@ function InternshipCard({ internship }: { internship: Internship }) {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-3xl border border-border backdrop-blur-md p-5 sm:p-6",
+        "group relative overflow-hidden rounded-2xl border border-border  p-5 sm:p-6",
         "bg-gradient-to-br from-success-soft/10 via-success-soft/[0.03] to-transparent",
         "hover:border-success/30 hover:shadow-2xl hover:shadow-background/40 transition-all"
       )}

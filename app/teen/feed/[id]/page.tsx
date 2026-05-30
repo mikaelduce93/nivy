@@ -81,7 +81,7 @@ export default async function SubmissionDetailPage({
       {/* TICKET-024 — destination half of the View Transitions morph.
           Pairs with the feed card on /teen/feed. */}
       <article
-        className="rounded-2xl border border-border bg-card/30 p-6 shadow-sm backdrop-blur-md"
+        className="rounded-2xl border border-border bg-card/30 p-6 shadow-sm "
         style={{ viewTransitionName: `vt-feed-${post.id}` }}
       >
         <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

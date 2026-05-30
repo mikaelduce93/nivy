@@ -36,18 +36,18 @@ export function TeenSettingsClient({ privacy, permissions, teenId }: { privacy: 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-black text-purple-700">Paramètres</h1>
-        <p className="text-sm text-gray-500">Gère ta confidentialité et consulte tes permissions.</p>
+        <h1 className="text-3xl font-black text-pink">Paramètres</h1>
+        <p className="text-sm text-mute">Gère ta confidentialité et consulte tes permissions.</p>
       </div>
 
-      <Card className="bg-white/80 border-purple-100">
+      <Card className="bg-paper-2 border-pink">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-purple-700">
+          <CardTitle className="flex items-center gap-2 text-pink">
             <Settings className="h-5 w-5" />
             Préférences de confidentialité
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 text-sm text-gray-600">
+        <CardContent className="space-y-4 text-sm text-mute">
           <div className="flex items-center justify-between">
             <span>Profil visible aux autres teens</span>
             <Switch
@@ -83,41 +83,41 @@ export function TeenSettingsClient({ privacy, permissions, teenId }: { privacy: 
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 border-purple-100">
+      <Card className="bg-paper-2 border-pink">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-purple-700">
+          <CardTitle className="flex items-center gap-2 text-pink">
             <ShieldCheck className="h-5 w-5" />
             Permissions parentales (Lecture seule)
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-gray-600">
+        <CardContent className="space-y-2 text-sm text-mute">
           <div className="flex items-center justify-between">
             <span>Voir l'activité</span>
-            <span className={permissions.can_view_activity ? "text-emerald-600" : "text-red-500"}>
+            <span className={permissions.can_view_activity ? "text-lime" : "text-destructive"}>
               {permissions.can_view_activity ? "Autorisé" : "Bloqué"}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span>Valider les events</span>
-            <span className={permissions.can_approve_events ? "text-emerald-600" : "text-red-500"}>
+            <span className={permissions.can_approve_events ? "text-lime" : "text-destructive"}>
               {permissions.can_approve_events ? "Autorisé" : "Bloqué"}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span>Recharger des crédits</span>
-            <span className={permissions.can_topup_credits ? "text-emerald-600" : "text-red-500"}>
+            <span className={permissions.can_topup_credits ? "text-lime" : "text-destructive"}>
               {permissions.can_topup_credits ? "Autorisé" : "Bloqué"}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span>Fixer un budget</span>
-            <span className={permissions.can_set_spending_limit ? "text-emerald-600" : "text-red-500"}>
+            <span className={permissions.can_set_spending_limit ? "text-lime" : "text-destructive"}>
               {permissions.can_set_spending_limit ? "Autorisé" : "Bloqué"}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span>Voir la localisation</span>
-            <span className={permissions.can_view_location ? "text-emerald-600" : "text-red-500"}>
+            <span className={permissions.can_view_location ? "text-lime" : "text-destructive"}>
               {permissions.can_view_location ? "Autorisé" : "Bloqué"}
             </span>
           </div>
@@ -125,10 +125,10 @@ export function TeenSettingsClient({ privacy, permissions, teenId }: { privacy: 
       </Card>
 
       <div className="flex flex-wrap gap-3">
-        <Button asChild variant="secondary" className="bg-purple-50">
+        <Button asChild variant="secondary" className="bg-pink">
           <Link href="/teen/profile">Notifications</Link>
         </Button>
-        <Button asChild variant="ghost" className="text-purple-600">
+        <Button asChild variant="ghost" className="text-pink">
           <Link href="/teen/profile">Mon profil</Link>
         </Button>
       </div>

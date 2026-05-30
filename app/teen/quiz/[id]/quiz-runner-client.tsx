@@ -129,7 +129,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
       <div className="min-h-screen pb-32 pt-6" data-testid="quiz-result-screen">
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
-            <Link href="/teen/quiz" className="text-sm text-zinc-400 hover:text-white">
+            <Link href="/teen/quiz" className="text-sm text-mute hover:text-ink">
               ← Retour aux quiz
             </Link>
           </div>
@@ -138,7 +138,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className={cn(
-              "p-8 rounded-3xl border text-center",
+              "p-8 rounded-2xl border text-center",
               result.passed
                 ? "bg-success-soft/10 border-success-soft/30"
                 : "bg-accent-soft/10 border-accent-soft/30",
@@ -146,7 +146,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
           >
             <div className="flex justify-center mb-4">
               {result.passed ? (
-                <Trophy className="w-16 h-16 text-yellow-500" />
+                <Trophy className="w-16 h-16 text-gold" />
               ) : (
                 <Brain className="w-16 h-16 text-accent-soft" />
               )}
@@ -154,19 +154,19 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
             <h1 className="text-4xl font-black mb-2 uppercase italic">
               {result.passed ? "Bravo !" : "Pas mal..."}
             </h1>
-            <p className="text-zinc-400 mb-6">
+            <p className="text-mute mb-6">
               Tu as répondu correctement à {result.correctCount} / {result.totalQuestions} questions
             </p>
             <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-              <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5">
-                <div className="text-3xl font-black text-white">{result.score}%</div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">Score</div>
+              <div className="p-4 rounded-2xl bg-card border border-ink">
+                <div className="text-3xl font-black text-ink">{result.score}%</div>
+                <div className="text-xs text-mute uppercase tracking-wider">Score</div>
               </div>
-              <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5">
+              <div className="p-4 rounded-2xl bg-card border border-ink">
                 <div className="text-3xl font-black text-brand-soft flex items-center justify-center gap-1">
                   <Zap className="w-6 h-6" />+{result.xpEarned}
                 </div>
-                <div className="text-xs text-zinc-500 uppercase tracking-wider">XP gagnés</div>
+                <div className="text-xs text-mute uppercase tracking-wider">XP gagnés</div>
               </div>
             </div>
           </motion.div>
@@ -191,9 +191,9 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                     <X className="w-5 h-5 text-accent-soft shrink-0 mt-0.5" />
                   )}
                   <div className="flex-1">
-                    <p className="font-medium text-white">{r.question}</p>
+                    <p className="font-medium text-ink">{r.question}</p>
                     {!r.isCorrect && quiz.questions[i] && (
-                      <p className="text-sm text-zinc-400 mt-1">
+                      <p className="text-sm text-mute mt-1">
                         Bonne réponse : <strong>{quiz.questions[i].options[r.correctAnswer]}</strong>
                       </p>
                     )}
@@ -210,7 +210,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
               </Button>
             </Link>
             <Link href="/teen/quiz/history" className="flex-1">
-              <Button className="w-full bg-brand-soft text-black font-bold">
+              <Button className="w-full bg-brand-soft text-ink font-bold">
                 Voir l'historique
               </Button>
             </Link>
@@ -226,11 +226,11 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Link href="/teen/quiz" className="text-sm text-zinc-400 hover:text-white">
+          <Link href="/teen/quiz" className="text-sm text-mute hover:text-ink">
             ← Quitter
           </Link>
           {timeLimitSec > 0 && (
-            <div className="flex items-center gap-2 text-sm text-zinc-400">
+            <div className="flex items-center gap-2 text-sm text-mute">
               <Clock className="w-4 h-4" />
               <span>
                 {Math.floor(secondsLeft / 60)}:
@@ -249,11 +249,11 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                 meta.color,
               )}
             >
-              <Brain className="w-6 h-6 text-white" />
+              <Brain className="w-6 h-6 text-ink" />
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-tight">{quiz.title}</h1>
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-mute">
                 {meta.name} · Question {currentIndex + 1} / {totalQuestions}
               </p>
             </div>
@@ -273,7 +273,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
             exit={{ opacity: 0, x: -20 }}
             className="space-y-4"
           >
-            <h2 className="text-xl font-bold text-white">{currentQuestion.question}</h2>
+            <h2 className="text-xl font-bold text-ink">{currentQuestion.question}</h2>
             <div className="space-y-2" data-testid="quiz-options">
               {currentQuestion.options.map((option, idx) => {
                 const isSelected = answers[currentIndex] === idx
@@ -285,8 +285,8 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                     className={cn(
                       "w-full p-4 rounded-2xl border text-left transition-all",
                       isSelected
-                        ? "bg-brand-soft/20 border-brand-soft text-white"
-                        : "bg-zinc-900/50 border-white/5 text-zinc-300 hover:border-white/20",
+                        ? "bg-brand-soft/20 border-brand-soft text-ink"
+                        : "bg-card border-ink text-ink-2 hover:border-ink",
                     )}
                     data-testid={`quiz-option-${idx}`}
                   >
@@ -320,7 +320,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
               type="button"
               disabled={answers[currentIndex] < 0}
               onClick={() => setCurrentIndex((i) => Math.min(totalQuestions - 1, i + 1))}
-              className="flex-1 bg-brand-soft text-black font-bold"
+              className="flex-1 bg-brand-soft text-ink font-bold"
               data-testid="quiz-next-button"
             >
               Suivant <ArrowRight className="w-4 h-4 ml-2" />
@@ -330,7 +330,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
               type="button"
               disabled={!allAnswered || submitting}
               onClick={submit}
-              className="flex-1 bg-success-soft text-black font-bold"
+              className="flex-1 bg-success-soft text-ink font-bold"
               data-testid="quiz-submit-button"
             >
               {submitting ? "Envoi..." : "Valider"}

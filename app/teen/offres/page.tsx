@@ -347,17 +347,17 @@ export default async function TeenOffresPage() {
       {/* Header */}
       <header className="mb-6">
         <div className="mb-2 flex items-center gap-2">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/30">
-            <Sparkles className="h-4 w-4 text-emerald-300" aria-hidden />
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-lime/15 ring-1 ring-lime/30">
+            <Sparkles className="h-4 w-4 text-lime" aria-hidden />
           </span>
-          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">
+          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-lime">
             Wave 3 · Personalized
           </span>
         </div>
-        <h1 className="text-2xl font-black leading-tight text-white sm:text-3xl">
+        <h1 className="text-2xl font-black leading-tight text-ink sm:text-3xl">
           Offres &amp; défis partenaires
         </h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-mute">
           Sélection personnalisée selon tes centres d&apos;intérêt et ta ville.
           Scanne sur place pour les défis, fonce vers le partenaire pour les
           réductions.
@@ -415,7 +415,7 @@ export default async function TeenOffresPage() {
                     />
                     <button
                       type="submit"
-                      className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-black transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                      className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-ink transition-colors hover:bg-paper-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                       aria-label={`${ctaLabel} — ${o.title}`}
                     >
                       {ctaLabel}
@@ -430,7 +430,7 @@ export default async function TeenOffresPage() {
 
       {/* Footer hint */}
       {offers.length > 0 ? (
-        <p className="mt-6 flex items-center justify-center gap-1 text-[11px] text-zinc-500">
+        <p className="mt-6 flex items-center justify-center gap-1 text-[11px] text-mute">
           <RefreshCw className="h-3 w-3" aria-hidden />
           Le classement évolue selon tes signaux (vues, clics, scans).
         </p>
