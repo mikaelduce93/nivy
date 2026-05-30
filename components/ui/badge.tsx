@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
-// Gen-Z Badge: Pill shape, vibrant colors, playful
+// Badge néo-brutaliste (charte paper V1.5) : pill, bordure encre fine, couleurs charte.
 const badgeVariants = cva(
   [
     'inline-flex items-center justify-center',
@@ -12,73 +12,65 @@ const badgeVariants = cva(
     'text-xs font-semibold',
     'w-fit whitespace-nowrap shrink-0',
     '[&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none',
-    'transition-all duration-200',
+    'transition-all duration-150',
     'focus-visible:ring-[3px] focus-visible:ring-ring/50',
     'overflow-hidden',
   ].join(' '),
   {
     variants: {
       variant: {
-        // Primary
         default:
-          'border-transparent bg-primary text-primary-foreground shadow-sm [a&]:hover:bg-primary/90 [a&]:hover:shadow-md',
-        // Secondary
+          'border-ink bg-primary text-primary-foreground [a&]:hover:opacity-90',
         secondary:
-          'border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/80',
-        // Destructive
+          'border-ink bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/80',
         destructive:
-          'border-transparent bg-destructive text-white shadow-sm [a&]:hover:bg-destructive/90',
-        // Success
+          'border-ink bg-destructive text-destructive-foreground [a&]:hover:opacity-90',
         success:
-          'border-transparent bg-success text-success-foreground shadow-sm [a&]:hover:bg-success/90',
-        // Warning
+          'border-ink bg-success text-success-foreground [a&]:hover:opacity-90',
         warning:
-          'border-transparent bg-warning text-warning-foreground shadow-sm [a&]:hover:bg-warning/90',
-        // Info
+          'border-ink bg-warning text-warning-foreground [a&]:hover:opacity-90',
         info:
-          'border-transparent bg-info text-info-foreground shadow-sm [a&]:hover:bg-info/90',
-        // Outline
+          'border-ink bg-info text-info-foreground [a&]:hover:opacity-90',
         outline:
-          'border-border text-foreground bg-background [a&]:hover:bg-muted',
-        // Outline variants
+          'border-ink text-foreground bg-transparent [a&]:hover:bg-accent',
+        // Outline variants — bordure colorée + fond soft charte
         'outline-success':
-          'border-success/50 text-success bg-success/10 [a&]:hover:bg-success/20',
+          'border-success text-foreground bg-success-soft [a&]:hover:bg-success/20',
         'outline-warning':
-          'border-warning/50 text-warning-foreground bg-warning/10 [a&]:hover:bg-warning/20',
+          'border-warning text-foreground bg-warning-soft [a&]:hover:bg-warning/20',
         'outline-destructive':
-          'border-destructive/50 text-destructive bg-destructive/10 [a&]:hover:bg-destructive/20',
-        // Gen-Z Vibrant Colors
+          'border-destructive text-destructive bg-danger-soft [a&]:hover:bg-destructive/20',
+        // Variants couleur (noms conservés) → charte paper
         lavender:
-          'border-transparent bg-brand-soft text-white shadow-sm [a&]:hover:shadow-md',
+          'border-ink bg-pink text-ink [a&]:hover:opacity-90',
         coral:
-          'border-transparent bg-accent-soft text-white shadow-sm [a&]:hover:shadow-md',
+          'border-ink bg-coral text-ink [a&]:hover:opacity-90',
         lime:
-          'border-transparent bg-gen-z-lime text-on-bright shadow-sm [a&]:hover:shadow-md',
+          'border-ink bg-lime text-on-bright [a&]:hover:opacity-90',
         mint:
-          'border-transparent bg-success-soft text-on-bright shadow-sm [a&]:hover:shadow-md',
+          'border-ink bg-teal text-paper [a&]:hover:opacity-90',
         grape:
-          'border-transparent bg-gen-z-grape text-white shadow-sm [a&]:hover:shadow-md',
+          'border-ink bg-ink-2 text-paper [a&]:hover:opacity-90',
         peach:
-          'border-transparent bg-gen-z-peach text-on-bright shadow-sm [a&]:hover:shadow-md',
+          'border-ink bg-gold text-ink [a&]:hover:opacity-90',
         sky:
-          'border-transparent bg-info-soft text-on-bright shadow-sm [a&]:hover:shadow-md',
-        // Gradient
+          'border-ink bg-info-soft text-foreground [a&]:hover:opacity-90',
         gradient:
-          'border-transparent bg-gradient-to-r from-brand-soft to-accent-soft text-white shadow-sm',
-        // Glass
+          'border-ink bg-pink text-ink [a&]:hover:opacity-90',
+        // Glass — neutralisé en pill paper (plus de backdrop-blur)
         glass:
-          'border-white/20 bg-white/10 backdrop-blur-md text-foreground [a&]:hover:bg-white/20',
-        // Neon Pillars
+          'border-ink bg-card text-foreground [a&]:hover:bg-accent',
+        // Anciens « neon pillars » → accents charte
         party:
-          'border-transparent bg-neon-party text-white shadow-sm shadow-neon-party/30',
+          'border-ink bg-pink text-ink',
         vitality:
-          'border-transparent bg-neon-vitality text-on-bright shadow-sm shadow-neon-vitality/30',
+          'border-ink bg-lime text-on-bright',
         intellect:
-          'border-transparent bg-neon-intellect text-white shadow-sm shadow-neon-intellect/30',
+          'border-ink bg-teal text-paper',
         creativity:
-          'border-transparent bg-neon-creativity text-white shadow-sm shadow-neon-creativity/30',
+          'border-ink bg-coral text-ink',
         prestige:
-          'border-transparent bg-neon-prestige text-on-bright shadow-sm shadow-neon-prestige/30',
+          'border-ink bg-gold text-ink',
       },
       size: {
         default: 'px-3 py-1 text-xs',

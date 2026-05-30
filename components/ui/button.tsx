@@ -9,22 +9,21 @@ import { Check, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useJuice, type JuiceEvent } from '@/lib/hooks/use-juice'
 
-// Gen-Z Button Styles: Bold, rounded, bouncy, with colored shadows
+// Boutons néo-brutalistes (charte paper V1.5) : bordure 2px encre, ombre
+// « sticker » décalée + lift au survol, retour à plat à l'active. Accent rose.
+// Noms de variants conservés (API stable) ; seul le rendu change.
 const buttonVariants = cva(
   [
-    // Base styles - Gen-Z aesthetic
     "inline-flex items-center justify-center gap-2 whitespace-nowrap",
-    "rounded-2xl text-sm font-semibold",
-    "transition-all duration-200 ease-out",
-    // Active state - bouncy feedback
-    "active:scale-[0.96] active:translate-y-[1px]",
+    "rounded-xl text-sm font-semibold border-2",
+    "transition-all duration-150 ease-out",
+    // Active — retour à plat (le survol soulève via translate + ombre)
+    "active:translate-x-0 active:translate-y-0 active:shadow-none",
     // Disabled state
     "disabled:pointer-events-none disabled:opacity-50",
     // SVG handling
     "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0",
-    // Focus state - Gen-Z glow, surface-aware (TICKET-018).
-    // Uses --focus-ring-color (set by parent surface) with fallback to --ring.
-    // Keeps 3px ring + 2px transparent offset — WCAG 2.4.7.
+    // Focus — anneau rose, surface-aware (TICKET-018), 3px + 2px offset (WCAG 2.4.7)
     "outline-none focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
     "focus-visible:ring-[color:var(--focus-ring-color,var(--ring))]",
     // Invalid state
@@ -33,97 +32,80 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Primary - with colored shadow
+        // Solide encre (workhorse) — hover ombre rose
         default: [
-          'bg-primary text-primary-foreground',
-          'hover:bg-primary/90 hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--primary)]',
+          'bg-primary text-primary-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink',
         ].join(' '),
-        // Gen-Z Gradient - eye-catching
+        // CTA rose (loud) — hover ombre encre
+        pink: [
+          'bg-pink text-ink border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
+        ].join(' '),
+        // Dégradé : conservé pour compat, mappé sur le CTA rose
         gradient: [
-          'bg-gradient-to-r from-brand-soft via-accent-soft to-gen-z-lime',
-          'text-white font-bold',
-          'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_32px_-8px_var(--brand-soft)]',
-          'bg-[length:200%_100%] hover:bg-[position:100%_0]',
-          'transition-all duration-300',
+          'bg-pink text-ink border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
-        // Destructive
         destructive: [
-          'bg-destructive text-white',
-          'hover:bg-destructive/90 hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--destructive)]',
+          'bg-destructive text-destructive-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
           'focus-visible:ring-destructive/40',
         ].join(' '),
-        // Success
         success: [
-          'bg-success text-success-foreground',
-          'hover:bg-success/90 hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--success)]',
-          'focus-visible:ring-success/40',
+          'bg-success text-success-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
-        // Warning
         warning: [
-          'bg-warning text-warning-foreground',
-          'hover:bg-warning/90 hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--warning)]',
-          'focus-visible:ring-warning/40',
+          'bg-warning text-warning-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
-        // Outline - with hover fill
         outline: [
-          'border-2 border-primary bg-transparent text-primary',
-          'hover:bg-primary/10 hover:-translate-y-0.5',
-          'hover:shadow-[0_4px_16px_-4px_var(--primary)]',
+          'bg-transparent text-ink border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
-        // Secondary - subtle
         secondary: [
-          'bg-secondary text-secondary-foreground',
-          'hover:bg-secondary/80 hover:-translate-y-0.5',
+          'bg-secondary text-secondary-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
-        // Ghost - minimal
+        // Ghost — minimal, sans bordure ni ombre
         ghost: [
-          'text-foreground',
-          'hover:bg-muted hover:text-foreground',
+          'border-transparent text-foreground',
+          'hover:bg-accent hover:text-accent-foreground',
         ].join(' '),
-        // Link - underline
-        link: 'text-primary underline-offset-4 hover:underline p-0 h-auto',
-        // Gen-Z Pill colors
+        // Link — souligné rose, sans bordure
+        link: 'border-transparent text-pink underline-offset-4 hover:underline p-0 h-auto',
+        // Variants couleur (noms conservés) → charte paper
         lavender: [
-          'bg-brand-soft text-white',
-          'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--brand-soft)]',
+          'bg-pink text-ink border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
         coral: [
-          'bg-accent-soft text-white',
-          'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--accent-soft)]',
+          'bg-coral text-ink border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
         lime: [
-          'bg-gen-z-lime text-on-bright',
-          'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--gen-z-lime)]',
+          'bg-lime text-on-bright border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
         mint: [
-          'bg-success-soft text-on-bright',
-          'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--success-soft)]',
+          'bg-teal text-paper border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md',
         ].join(' '),
         grape: [
-          'bg-gen-z-grape text-white',
-          'hover:-translate-y-0.5',
-          'hover:shadow-[0_8px_24px_-8px_var(--gen-z-grape)]',
+          'bg-ink-2 text-paper border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink',
         ].join(' '),
       },
       size: {
-        // Default raised to h-11 (44px) — meets WCAG 2.5.5 + Apple HIG touch target minimum
+        // Default h-11 (44px) — WCAG 2.5.5 + Apple HIG touch target
         default: 'h-11 px-5 py-2.5 has-[>svg]:px-4',
-        // sm visually 36px, but min-h-11 ensures hit area is still 44px on touch
-        sm: 'h-9 min-h-11 rounded-xl gap-1.5 px-3.5 text-xs has-[>svg]:px-2.5',
-        lg: 'h-12 rounded-2xl px-7 text-base has-[>svg]:px-5',
-        xl: 'h-14 rounded-3xl px-10 text-lg font-bold has-[>svg]:px-7',
+        sm: 'h-9 min-h-11 rounded-lg gap-1.5 px-3.5 text-xs has-[>svg]:px-2.5',
+        lg: 'h-12 rounded-xl px-7 text-base has-[>svg]:px-5',
+        xl: 'h-14 rounded-2xl px-10 text-lg font-bold has-[>svg]:px-7',
         icon: 'size-11 rounded-xl',
         'icon-sm': 'size-9 min-h-11 min-w-11 rounded-lg',
-        'icon-lg': 'size-12 rounded-2xl',
+        'icon-lg': 'size-12 rounded-xl',
       },
     },
     defaultVariants: {

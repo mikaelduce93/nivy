@@ -19,39 +19,35 @@ import { cn } from '@/lib/utils'
  */
 
 // ---------------------------------------------------------------------------
-// Shared base — feature-rich Geist tuning + balanced wrapping
+// Shared base — Bricolage Grotesque (display, charte) + emphase <em> rose
+// L'emphase éditoriale de la charte (mot en italique rose) s'applique
+// automatiquement à tout <em> placé dans un titre.
 // ---------------------------------------------------------------------------
-const headingBase = 'font-sans text-balance text-foreground antialiased'
+const headingBase =
+  'font-display text-balance text-foreground antialiased [&_em]:text-pink [&_em]:italic [&_em]:font-semibold'
 
 // ---------------------------------------------------------------------------
-// Accent variants — gradient text (cyan→emerald or brand-soft→accent-soft)
+// Accent variants — emphase rose pleine (plus de gradient holographique gen-z)
 // ---------------------------------------------------------------------------
 type AccentVariant = 'none' | 'brand' | 'accent' | 'gen-z'
 
 const accentClasses: Record<AccentVariant, string> = {
   none: '',
-  // brand-soft → accent-soft (lavender → coral)
-  brand:
-    'bg-clip-text text-transparent bg-gradient-to-r from-brand-soft to-accent-soft',
-  // primary → accent (saturated)
-  accent:
-    'bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent',
-  // multi-stop gen-z holographic
-  'gen-z':
-    'bg-clip-text text-transparent bg-gradient-to-r from-brand-soft via-accent-soft to-success-soft',
+  brand: 'text-pink',
+  accent: 'text-pink',
+  'gen-z': 'text-pink',
 }
 
 // ---------------------------------------------------------------------------
-// Per-level scale — canonical typography
+// Per-level scale — canonical typography (charte : display gras, tracking serré)
 // ---------------------------------------------------------------------------
-// text-4xl + italic + font-semibold — page-title pattern (per ticket spec)
 const h1Scale = cn(
   headingBase,
-  'text-4xl italic font-semibold tracking-tight leading-[1.05]',
+  'text-4xl font-extrabold tracking-tight leading-[1.05]',
 )
 const h2Scale = cn(
   headingBase,
-  'text-2xl font-semibold tracking-tight leading-tight',
+  'text-2xl font-bold tracking-tight leading-tight',
 )
 const h3Scale = cn(
   headingBase,
