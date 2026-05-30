@@ -62,7 +62,7 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
   })()
 
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+    <header className="sticky top-0 z-50 bg-paper border-b-2 border-ink">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         {/* Mobile menu */}
         <Sheet>
@@ -98,8 +98,8 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
         {/* Logo */}
         <Link href="/teen" className="flex items-center gap-2">
           <span className="text-2xl">🎮</span>
-          <span className="font-bold text-xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent hidden sm:inline">
-            Teen Club
+          <span className="font-display font-extrabold text-xl tracking-tight text-ink hidden sm:inline">
+            Teen <span className="text-pink italic">Club</span>
           </span>
         </Link>
 
@@ -116,17 +116,17 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
           </Link>
 
           {/* Niveau et titre */}
-          <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
+          <div className="flex items-center gap-2 border-2 border-ink bg-info-soft rounded-full px-3 py-1.5">
             <span className="text-lg">{userInfo.teenData?.titleIcon || "🌱"}</span>
-            <span className="text-sm font-medium text-primary">
+            <span className="text-sm font-bold text-ink">
               Niv. {currentLevel}
             </span>
           </div>
 
           {/* Coins */}
-          <div className="flex items-center gap-2 bg-warning/10 rounded-full px-3 py-1.5">
+          <div className="flex items-center gap-2 border-2 border-ink bg-coral/15 rounded-full px-3 py-1.5">
             <span className="text-lg">💰</span>
-            <span className="text-sm font-medium text-warning">
+            <span className="text-sm font-bold text-ink tabular-nums">
               {currentCoins.toLocaleString()}
             </span>
           </div>
@@ -146,7 +146,7 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
           >
             <Bell className="h-5 w-5" aria-hidden="true" />
             {notificationCounts.total > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center" aria-hidden="true">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full border border-ink bg-pink text-ink text-[10px] font-bold flex items-center justify-center" aria-hidden="true">
                 {notificationCounts.total > 9 ? "9+" : notificationCounts.total}
               </span>
             )}
@@ -155,8 +155,8 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="Menu utilisateur">
-                <Avatar className="h-10 w-10 border-2 border-border">
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-bold">
+                <Avatar className="h-10 w-10 border-2 border-ink">
+                  <AvatarFallback className="bg-pink text-ink font-bold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -189,7 +189,7 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 Déconnexion
               </DropdownMenuItem>

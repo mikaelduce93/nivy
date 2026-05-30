@@ -51,7 +51,6 @@ export default async function TeenLayout({
         <SkipToContent />
         {/* #40 — login-streak WRITE runs here post-hydration, not during RSC render. */}
         <StreakPinger />
-        <div className="pointer-events-none fixed inset-0 bg-dots opacity-20" />
         <TeenHeader userInfo={userInfo} />
         <div className="flex relative">
           <TeenSidebar />

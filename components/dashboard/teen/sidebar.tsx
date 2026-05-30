@@ -43,7 +43,7 @@ export function TeenSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-16 bg-background/80 backdrop-blur-sm border-r border-border">
+    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-16 bg-paper-2 border-r-2 border-ink">
       <div className="flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
         <nav className="flex-1 px-3 space-y-1">
           {navigation.map((item) => {
@@ -55,8 +55,8 @@ export function TeenSidebar() {
                 className={cn(
                   "group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                    ? "bg-primary text-primary-foreground border-2 border-ink"
+                    : "border-2 border-transparent text-muted-foreground hover:bg-accent hover:text-foreground"
                 )}
                 // TICKET-018 — surface-aware focus ring: active link has bg-primary,
                 // so a primary-coloured ring would disappear. Override to the on-primary
