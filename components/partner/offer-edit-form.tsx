@@ -2,16 +2,10 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { FieldInput } from "@/components/ui/field-input"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Loader2, Save, Percent, Gift, Truck } from "lucide-react"
 import { toast } from "sonner"
@@ -36,13 +30,18 @@ interface OfferEditFormProps {
   }
 }
 
+// #167 — ids/labels unifiés avec la page « nouvelle offre ».
 const offerTypes = [
   { id: "reduction", name: "Réduction", icon: Percent },
-  { id: "discount", name: "Remise", icon: Gift },
-  { id: "challenge", name: "Défi", icon: Truck },
+  { id: "gift", name: "Cadeau", icon: Gift },
+  { id: "service", name: "Service", icon: Truck },
 ]
 
-const vipLevels = ["silver", "gold", "platinum"]
+const vipLevels = [
+  { id: "silver", name: "Argent" },
+  { id: "gold", name: "Or" },
+  { id: "platinum", name: "Platine" },
+]
 
 // #50 — partner-settable subset of partner_offers.status. Approval
 // (status='approved' / going live) is reserved for admin moderation (#58).
@@ -126,157 +125,142 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Offer Type */}
+      {/* Offer Type — option active = fond ink + texte paper + ombre rose */}
       <div className="space-y-2">
-        <Label className="text-ink-2">Type d'offre</Label>
+        <p className="eyebrow tracking-[0.16em]">Type d&apos;offre</p>
         <div className="grid grid-cols-3 gap-3">
-          {offerTypes.map((type) => (
-            <button
-              key={type.id}
-              type="button"
-              onClick={() => handleChange("offerType", type.id)}
-              className={`p-3 rounded-xl border text-center transition-all ${
-                formData.offerType === type.id
-                  ? "bg-lime/20 border-lime/50"
-                  : "bg-card border-ink hover:border-ink"
-              }`}
-            >
-              <type.icon className={`h-6 w-6 mx-auto mb-1 ${
-                formData.offerType === type.id ? "text-lime" : "text-mute"
-              }`} />
-              <p className="text-sm font-medium text-ink">{type.name}</p>
-            </button>
-          ))}
+          {offerTypes.map((type) => {
+            const isActive = formData.offerType === type.id
+            return (
+              <button
+                key={type.id}
+                type="button"
+                onClick={() => handleChange("offerType", type.id)}
+                aria-pressed={isActive}
+                className={`rounded-xl border-2 border-ink p-3 text-center transition-all motion-reduce:translate-x-0 motion-reduce:translate-y-0 ${
+                  isActive
+                    ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                    : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
+                }`}
+              >
+                <type.icon
+                  className={`mx-auto mb-1 size-6 ${
+                    isActive ? "text-paper" : "text-mute"
+                  }`}
+                  aria-hidden="true"
+                />
+                <p className="text-sm font-medium">{type.name}</p>
+              </button>
+            )
+          })}
         </div>
       </div>
 
       {/* Title */}
-      <div className="space-y-2">
-        <Label className="text-ink-2">Nom de l'offre</Label>
-        <Input
-          value={formData.title}
-          onChange={(e) => handleChange("title", e.target.value)}
-          placeholder="Ex: -15% sur tout le magasin"
-          className="bg-card border-ink text-ink placeholder:text-mute"
-          maxLength={100}
-        />
-      </div>
+      <FieldInput
+        label="Nom de l'offre"
+        value={formData.title}
+        onChange={(e) => handleChange("title", e.target.value)}
+        placeholder="Ex : -15% sur tout le magasin"
+        maxLength={100}
+      />
 
       {/* Description */}
-      <div className="space-y-2">
-        <Label className="text-ink-2">Description</Label>
+      <div className="space-y-1.5">
+        <Label htmlFor="edit-description" className="eyebrow tracking-[0.16em]">
+          Description
+        </Label>
         <Textarea
+          id="edit-description"
           value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
-          placeholder="Décrivez votre offre en détail..."
-          className="bg-card border-ink text-ink placeholder:text-mute min-h-[100px]"
+          placeholder="Décris ton offre en détail…"
+          className="min-h-[100px] border-2 border-input focus-visible:border-ink focus-visible:ring-0"
           maxLength={500}
         />
       </div>
 
       {/* Value & Min Purchase */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-ink-2">
-            {formData.offerType === "reduction" ? "Valeur (%)" : "Valeur (DH)"}
-          </Label>
-          <Input
-            type="number"
-            value={formData.discountValue}
-            onChange={(e) => handleChange("discountValue", parseFloat(e.target.value) || 0)}
-            placeholder="15"
-            className="bg-card border-ink text-ink placeholder:text-mute"
-            min={0}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label className="text-ink-2">Achat minimum (DH)</Label>
-          <Input
-            type="number"
-            value={formData.minPurchaseAmount}
-            onChange={(e) => handleChange("minPurchaseAmount", parseFloat(e.target.value) || 0)}
-            placeholder="0"
-            className="bg-card border-ink text-ink placeholder:text-mute"
-            min={0}
-          />
-        </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldInput
+          type="number"
+          label={formData.offerType === "reduction" ? "Valeur (%)" : "Valeur (DH)"}
+          value={formData.discountValue}
+          onChange={(e) => handleChange("discountValue", parseFloat(e.target.value) || 0)}
+          placeholder="15"
+          min={0}
+        />
+        <FieldInput
+          type="number"
+          label="Achat minimum (DH)"
+          value={formData.minPurchaseAmount}
+          onChange={(e) => handleChange("minPurchaseAmount", parseFloat(e.target.value) || 0)}
+          placeholder="0"
+          min={0}
+        />
       </div>
 
       {/* Usage Limits */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-ink-2">Max par utilisateur (optionnel)</Label>
-          <Input
-            type="number"
-            value={formData.maxUsesPerUser}
-            onChange={(e) => handleChange("maxUsesPerUser", e.target.value)}
-            placeholder="Illimité"
-            className="bg-card border-ink text-ink placeholder:text-mute"
-            min={1}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label className="text-ink-2">Max total (optionnel)</Label>
-          <Input
-            type="number"
-            value={formData.maxTotalUses}
-            onChange={(e) => handleChange("maxTotalUses", e.target.value)}
-            placeholder="Illimité"
-            className="bg-card border-ink text-ink placeholder:text-mute"
-            min={1}
-          />
-        </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldInput
+          type="number"
+          label="Max par utilisateur (optionnel)"
+          value={formData.maxUsesPerUser}
+          onChange={(e) => handleChange("maxUsesPerUser", e.target.value)}
+          placeholder="Illimité"
+          min={1}
+        />
+        <FieldInput
+          type="number"
+          label="Max total (optionnel)"
+          value={formData.maxTotalUses}
+          onChange={(e) => handleChange("maxTotalUses", e.target.value)}
+          placeholder="Illimité"
+          min={1}
+        />
       </div>
 
       {/* Validity Period */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-ink-2">Valide à partir du</Label>
-          <Input
-            type="date"
-            value={formData.validFrom}
-            onChange={(e) => handleChange("validFrom", e.target.value)}
-            className="bg-card border-ink text-ink"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label className="text-ink-2">Valide jusqu'au</Label>
-          <Input
-            type="date"
-            value={formData.validUntil}
-            onChange={(e) => handleChange("validUntil", e.target.value)}
-            className="bg-card border-ink text-ink"
-          />
-        </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldInput
+          type="date"
+          label="Valide à partir du"
+          value={formData.validFrom}
+          onChange={(e) => handleChange("validFrom", e.target.value)}
+        />
+        <FieldInput
+          type="date"
+          label="Valide jusqu'au"
+          value={formData.validUntil}
+          onChange={(e) => handleChange("validUntil", e.target.value)}
+        />
       </div>
 
       {/* Status */}
-      <div className="space-y-2">
-        <Label className="text-ink-2">Statut</Label>
-        <Select value={formData.status} onValueChange={(v) => handleChange("status", v)}>
-          <SelectTrigger className="bg-card border-ink text-ink">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-card border-ink">
-            {STATUS_OPTIONS.map((s) => (
-              <SelectItem key={s.id} value={s.id} className="text-ink hover:bg-muted">
-                {s.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="space-y-1.5">
+        <SelectSticker
+          label="Statut"
+          value={formData.status}
+          onValueChange={(v) => handleChange("status", v)}
+        >
+          {STATUS_OPTIONS.map((s) => (
+            <SelectStickerItem key={s.id} value={s.id}>
+              {s.name}
+            </SelectStickerItem>
+          ))}
+        </SelectSticker>
         <p className="text-xs text-mute">
-          La mise en ligne d'une offre est validée par l'équipe de modération.
+          La mise en ligne d&apos;une offre est validée par l&apos;équipe de modération.
         </p>
       </div>
 
       {/* VIP Settings */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between p-4 bg-card rounded-xl">
+        <div className="flex items-center justify-between rounded-xl border-2 border-line bg-paper-2 p-4">
           <div>
             <p className="font-medium text-ink">Réservé aux membres VIP</p>
             <p className="text-xs text-mute">
-              Seuls les détenteurs de carte VIP pourront utiliser cette offre
+              Seuls les détenteurs d&apos;une carte VIP pourront en profiter
             </p>
           </div>
           <Switch
@@ -287,24 +271,26 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
 
         {formData.requiresVip && (
           <div className="space-y-2">
-            <Label className="text-ink-2">Niveau VIP minimum</Label>
-            <div className="flex gap-2">
-              {vipLevels.map((level) => (
-                <Button
-                  key={level}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleChange("minVipLevel", level)}
-                  className={`capitalize ${
-                    formData.minVipLevel === level
-                      ? "bg-lime/20 border-lime/50 text-lime"
-                      : "border-ink text-ink-2 hover:bg-card"
-                  }`}
-                >
-                  {level}
-                </Button>
-              ))}
+            <p className="eyebrow tracking-[0.16em]">Niveau VIP minimum</p>
+            <div className="grid grid-cols-3 gap-3">
+              {vipLevels.map((level) => {
+                const isActive = formData.minVipLevel === level.id
+                return (
+                  <button
+                    key={level.id}
+                    type="button"
+                    onClick={() => handleChange("minVipLevel", level.id)}
+                    aria-pressed={isActive}
+                    className={`rounded-xl border-2 border-ink px-3 py-2 text-center text-sm font-medium transition-all motion-reduce:translate-x-0 motion-reduce:translate-y-0 ${
+                      isActive
+                        ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                        : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
+                    }`}
+                  >
+                    {level.name}
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
@@ -315,24 +301,25 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
         <Button
           type="button"
           variant="outline"
-          className="flex-1 border-ink text-ink-2"
+          className="flex-1"
           onClick={() => router.back()}
         >
           Annuler
         </Button>
         <Button
           type="submit"
+          variant="pink"
           disabled={loading}
-          className="flex-1 bg-lime hover:bg-lime text-ink"
+          className="flex-1"
         >
           {loading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Enregistrement...
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              Enregistrement…
             </>
           ) : (
             <>
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="size-4" aria-hidden="true" />
               Enregistrer
             </>
           )}

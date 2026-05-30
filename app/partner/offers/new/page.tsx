@@ -11,32 +11,23 @@ import { useRouter } from "next/navigation"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card"
-import { Button, PremiumButton } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { FieldInput } from "@/components/ui/field-input"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
+import { CheckRound } from "@/components/ui/check-round"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { NivCelebration } from "@/components/brand"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   ArrowLeft,
   Tag,
   Percent,
   Gift,
   Truck,
-  CheckCircle,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
 import { FormKeyboardAware } from "@/lib/hooks/use-keyboard-aware"
@@ -63,9 +54,9 @@ const offerTypes = [
 ]
 
 const vipLevels = [
-  { id: "silver" as const, name: "Silver", discount: "10%" },
-  { id: "gold" as const, name: "Gold", discount: "20%" },
-  { id: "platinum" as const, name: "Platinum", discount: "30%" },
+  { id: "silver" as const, name: "Argent", discount: "10%" },
+  { id: "gold" as const, name: "Or", discount: "20%" },
+  { id: "platinum" as const, name: "Platine", discount: "30%" },
 ]
 
 const offerSchema = z
@@ -192,261 +183,236 @@ export default function NewOfferPage() {
 
   if (success) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="bg-card border-ink max-w-md w-full">
-          <CardContent className="pt-8 pb-8 text-center">
-            <div className="h-16 w-16 rounded-full bg-lime/20 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="h-8 w-8 text-lime" />
-            </div>
-            <h2 className="text-2xl font-bold text-ink mb-2">Offre soumise !</h2>
-            <p className="text-mute">
-              {/* #53 — offers are NEVER live on create (status='pending_approval',
-                  is_active=false). Tell the truth: it awaits moderation. */}
-              Votre offre est en attente de validation par l&apos;équipe Nivy.
-              Elle sera visible une fois approuvée.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <NivCelebration
+          tone="lime"
+          trigger={success}
+          palette="reward"
+          title="C'est parti !"
+          caption="Ton deal passe en modération, on te ping dès que c'est live."
+          className="max-w-md"
+        />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="max-w-2xl space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          asChild
-          className="text-mute hover:text-ink"
-        >
-          <Link href="/partner/offers">
-            <ArrowLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/partner/offers" aria-label="Retour aux offres">
+            <ArrowLeft className="size-5" aria-hidden="true" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-black text-ink">Nouvelle offre</h1>
+          <p className="eyebrow tracking-[0.16em] text-mute">Nouvelle offre</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Crée ton <em className="font-semibold italic text-pink">deal</em>
+          </h1>
           <p className="text-mute">
-            Créez une offre exclusive pour les membres Nivy
+            Une offre exclusive pour les membres Nivy
           </p>
         </div>
       </div>
 
+      {/* Progression du flow */}
+      <SegmentedProgress
+        steps={5}
+        current={0}
+        showLabel
+        label="Type · Détails · VIP · Limites · Dates"
+      />
+
       {error && (
-        <Card className="bg-destructive/10 border-destructive/30">
-          <CardContent className="pt-4 pb-4">
-            <p role="alert" aria-live="polite" className="text-destructive">
-              {error}
-            </p>
-          </CardContent>
-        </Card>
+        <div
+          role="alert"
+          aria-live="polite"
+          className="rounded-xl border-2 border-coral bg-coral/10 px-4 py-3 text-sm font-medium text-ink"
+        >
+          {error}
+        </div>
       )}
 
       <FormKeyboardAware
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-6"
+        className="space-y-6 pb-24 sm:pb-0"
       >
         {/* Offer Type Selection */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink">Type d&apos;offre</CardTitle>
-            <CardDescription className="text-mute">
-              Sélectionnez le type d&apos;offre que vous souhaitez créer
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-3 gap-4">
-            {offerTypes.map((type) => (
-              <button
-                key={type.id}
-                type="button"
-                onClick={() =>
-                  setValue("selectedType", type.id, { shouldValidate: true })
-                }
-                aria-pressed={selectedType === type.id}
-                className={`p-4 rounded-xl border text-left transition-all ${
-                  selectedType === type.id
-                    ? "bg-lime/20 border-lime/50"
-                    : "bg-card border-ink hover:border-ink"
-                }`}
-              >
-                <type.icon
-                  className={`h-8 w-8 mb-3 ${
-                    selectedType === type.id
-                      ? "text-lime"
-                      : "text-mute"
+        <StickerCard className="gap-4 p-5">
+          <div>
+            <h2 className="font-display text-lg font-bold text-ink">
+              Type d&apos;offre
+            </h2>
+            <p className="text-sm text-mute">
+              Choisis le type d&apos;offre que tu veux créer
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {offerTypes.map((type) => {
+              const isActive = selectedType === type.id
+              return (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() =>
+                    setValue("selectedType", type.id, { shouldValidate: true })
+                  }
+                  aria-pressed={isActive}
+                  className={`rounded-xl border-2 border-ink p-4 text-left transition-all motion-reduce:translate-x-0 motion-reduce:translate-y-0 ${
+                    isActive
+                      ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                      : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
                   }`}
-                />
-                <p className="font-semibold text-ink">{type.name}</p>
-                <p className="text-xs text-mute mt-1">{type.description}</p>
-              </button>
-            ))}
-          </CardContent>
-        </Card>
+                >
+                  <type.icon
+                    className={`mb-3 size-8 ${
+                      isActive ? "text-paper" : "text-mute"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <p className="font-display font-bold">{type.name}</p>
+                  <p
+                    className={`mt-1 text-xs ${
+                      isActive ? "text-paper/70" : "text-mute"
+                    }`}
+                  >
+                    {type.description}
+                  </p>
+                </button>
+              )
+            })}
+          </div>
+        </StickerCard>
 
         {/* Offer Details */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink">Détails de l&apos;offre</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-ink-2">
-                Nom de l&apos;offre <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="name"
-                placeholder="Ex: -15% sur tout le magasin"
-                aria-invalid={!!errors.name}
-                className="bg-card border-ink text-ink placeholder:text-mute"
-                {...register("name")}
-              />
-              {errors.name && (
-                <p role="alert" className="text-sm text-destructive">
-                  {errors.name.message}
-                </p>
+        <StickerCard className="gap-4 p-5">
+          <h2 className="font-display text-lg font-bold text-ink">
+            Détails de l&apos;offre
+          </h2>
+
+          <FieldInput
+            id="name"
+            label="Nom de l'offre *"
+            placeholder="Ex : -15% sur tout le magasin"
+            error={errors.name?.message}
+            {...register("name")}
+          />
+
+          <div className="space-y-1.5">
+            <Label htmlFor="description" className="eyebrow tracking-[0.16em]">
+              Description
+            </Label>
+            <Textarea
+              id="description"
+              placeholder="Décris ton offre en détail…"
+              aria-invalid={!!errors.description}
+              className="min-h-[100px] border-2 border-input focus-visible:border-ink focus-visible:ring-0"
+              {...register("description")}
+            />
+            {errors.description && (
+              <p role="alert" className="text-xs font-medium text-coral">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Controller
+              control={control}
+              name="discountType"
+              render={({ field }) => (
+                <SelectSticker
+                  label="Type de réduction"
+                  value={field.value}
+                  onValueChange={(v) =>
+                    field.onChange(v as "percentage" | "fixed_amount")
+                  }
+                >
+                  <SelectStickerItem value="percentage">
+                    Pourcentage (%)
+                  </SelectStickerItem>
+                  <SelectStickerItem value="fixed_amount">
+                    Montant fixe (DH)
+                  </SelectStickerItem>
+                </SelectSticker>
               )}
-            </div>
+            />
+            <FieldInput
+              id="value"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              max={discountType === "percentage" ? "100" : undefined}
+              step={discountType === "percentage" ? "1" : "0.01"}
+              label={`Valeur ${discountType === "percentage" ? "(%)" : "(DH)"} *`}
+              placeholder={discountType === "percentage" ? "15" : "50"}
+              error={errors.discountValue?.message}
+              {...register("discountValue")}
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-ink-2">
-                Description
-              </Label>
-              <Textarea
-                id="description"
-                placeholder="Décrivez votre offre en détail..."
-                aria-invalid={!!errors.description}
-                className="bg-card border-ink text-ink placeholder:text-mute min-h-[100px]"
-                {...register("description")}
-              />
-              {errors.description && (
-                <p role="alert" className="text-sm text-destructive">
-                  {errors.description.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-ink-2">Type de réduction</Label>
-                <Controller
-                  control={control}
-                  name="discountType"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={(v) =>
-                        field.onChange(v as "percentage" | "fixed_amount")
-                      }
-                    >
-                      <SelectTrigger className="bg-card border-ink text-ink">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-ink">
-                        <SelectItem value="percentage">
-                          Pourcentage (%)
-                        </SelectItem>
-                        <SelectItem value="fixed_amount">
-                          Montant fixe (DH)
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="value" className="text-ink-2">
-                  Valeur {discountType === "percentage" ? "(%)" : "(DH)"}{" "}
-                  <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="value"
-                  type="number"
-                  inputMode="decimal"
-                  min="0"
-                  max={discountType === "percentage" ? "100" : undefined}
-                  step={discountType === "percentage" ? "1" : "0.01"}
-                  placeholder={discountType === "percentage" ? "15" : "50"}
-                  aria-invalid={!!errors.discountValue}
-                  className="bg-card border-ink text-ink placeholder:text-mute"
-                  {...register("discountValue")}
-                />
-                {errors.discountValue && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {errors.discountValue.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="min" className="text-ink-2">
-                  Achat minimum (DH)
-                </Label>
-                <Input
-                  id="min"
-                  type="number"
-                  inputMode="decimal"
-                  min="0"
-                  step="0.01"
-                  placeholder="0"
-                  className="bg-card border-ink text-ink placeholder:text-mute"
-                  {...register("minPurchase")}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="max" className="text-ink-2">
-                  Réduction max (DH)
-                </Label>
-                <Input
-                  id="max"
-                  type="number"
-                  inputMode="decimal"
-                  min="0"
-                  step="0.01"
-                  placeholder="Illimité"
-                  className="bg-card border-ink text-ink placeholder:text-mute"
-                  {...register("maxDiscount")}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FieldInput
+              id="min"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              label="Achat minimum (DH)"
+              placeholder="0"
+              {...register("minPurchase")}
+            />
+            <FieldInput
+              id="max"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              label="Réduction max (DH)"
+              placeholder="Illimité"
+              {...register("maxDiscount")}
+            />
+          </div>
+        </StickerCard>
 
         {/* VIP Settings */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink">Paramètres VIP</CardTitle>
-            <CardDescription className="text-mute">
-              Définissez les conditions d&apos;éligibilité
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-card rounded-xl">
-              <div>
-                <p className="font-medium text-ink">Réservé aux membres VIP</p>
-                <p className="text-xs text-mute">
-                  Seuls les détenteurs de carte VIP pourront utiliser cette offre
-                </p>
-              </div>
-              <Controller
-                control={control}
-                name="requiresVip"
-                render={({ field }) => (
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                )}
-              />
-            </div>
+        <StickerCard className="gap-4 p-5">
+          <div>
+            <h2 className="font-display text-lg font-bold text-ink">
+              Paramètres VIP
+            </h2>
+            <p className="text-sm text-mute">
+              Définis les conditions d&apos;éligibilité
+            </p>
+          </div>
 
-            {requiresVip && (
-              <div className="space-y-2">
-                <Label className="text-ink-2">Niveau VIP minimum</Label>
-                <div className="grid grid-cols-3 gap-3">
-                  {vipLevels.map((level) => (
+          <div className="flex items-center justify-between rounded-xl border-2 border-line bg-paper-2 p-4">
+            <div>
+              <p className="font-medium text-ink">Réservé aux membres VIP</p>
+              <p className="text-xs text-mute">
+                Seuls les détenteurs d&apos;une carte VIP pourront en profiter
+              </p>
+            </div>
+            <Controller
+              control={control}
+              name="requiresVip"
+              render={({ field }) => (
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          </div>
+
+          {requiresVip && (
+            <div className="space-y-2">
+              <p className="eyebrow tracking-[0.16em]">Niveau VIP minimum</p>
+              <div className="grid grid-cols-3 gap-3">
+                {vipLevels.map((level) => {
+                  const isActive = minVipLevel === level.id
+                  return (
                     <button
                       key={level.id}
                       type="button"
@@ -455,182 +421,124 @@ export default function NewOfferPage() {
                           shouldValidate: true,
                         })
                       }
-                      aria-pressed={minVipLevel === level.id}
-                      className={`p-3 rounded-xl border text-center transition-all ${
-                        minVipLevel === level.id
-                          ? level.id === "silver"
-                            ? "bg-muted border-line"
-                            : level.id === "gold"
-                              ? "bg-gold/20 border-gold"
-                              : "bg-pink/20 border-pink"
-                          : "bg-card border-ink hover:border-ink"
+                      aria-pressed={isActive}
+                      className={`rounded-xl border-2 border-ink p-3 text-center transition-all motion-reduce:translate-x-0 motion-reduce:translate-y-0 ${
+                        isActive
+                          ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                          : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
                       }`}
                     >
+                      <p className="font-display font-bold">{level.name}</p>
                       <p
-                        className={`font-semibold ${
-                          level.id === "silver"
-                            ? "text-ink-2"
-                            : level.id === "gold"
-                              ? "text-gold"
-                              : "text-pink"
+                        className={`text-xs ${
+                          isActive ? "text-paper/70" : "text-mute"
                         }`}
                       >
-                        {level.name}
-                      </p>
-                      <p className="text-xs text-mute">
                         {level.discount} de base
                       </p>
                     </button>
-                  ))}
-                </div>
+                  )
+                })}
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          )}
+        </StickerCard>
 
         {/* Usage Limits */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink">
-              Limites d&apos;utilisation
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="maxUser" className="text-ink-2">
-                  Max par utilisateur
-                </Label>
-                <Input
-                  id="maxUser"
-                  type="number"
-                  inputMode="numeric"
-                  min="1"
-                  placeholder="Illimité"
-                  className="bg-card border-ink text-ink placeholder:text-mute"
-                  {...register("maxUsesPerUser")}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="maxTotal" className="text-ink-2">
-                  Max total
-                </Label>
-                <Input
-                  id="maxTotal"
-                  type="number"
-                  inputMode="numeric"
-                  min="1"
-                  placeholder="Illimité"
-                  className="bg-card border-ink text-ink placeholder:text-mute"
-                  {...register("maxTotalUses")}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <StickerCard className="gap-4 p-5">
+          <h2 className="font-display text-lg font-bold text-ink">
+            Limites d&apos;utilisation
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FieldInput
+              id="maxUser"
+              type="number"
+              inputMode="numeric"
+              min="1"
+              label="Max par utilisateur"
+              placeholder="Illimité"
+              {...register("maxUsesPerUser")}
+            />
+            <FieldInput
+              id="maxTotal"
+              type="number"
+              inputMode="numeric"
+              min="1"
+              label="Max total"
+              placeholder="Illimité"
+              {...register("maxTotalUses")}
+            />
+          </div>
+        </StickerCard>
 
         {/* Validity Period */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink">Période de validité</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="validFrom" className="text-ink-2">
-                  Date de début <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="validFrom"
-                  type="date"
-                  aria-invalid={!!errors.validFrom}
-                  className="bg-card border-ink text-ink"
-                  {...register("validFrom")}
-                />
-                {errors.validFrom && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {errors.validFrom.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="validUntil" className="text-ink-2">
-                  Date de fin <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="validUntil"
-                  type="date"
-                  aria-invalid={!!errors.validUntil}
-                  className="bg-card border-ink text-ink"
-                  {...register("validUntil")}
-                />
-                {errors.validUntil && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {errors.validUntil.message}
-                  </p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <StickerCard className="gap-4 p-5">
+          <h2 className="font-display text-lg font-bold text-ink">
+            Période de validité
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FieldInput
+              id="validFrom"
+              type="date"
+              label="Date de début *"
+              error={errors.validFrom?.message}
+              {...register("validFrom")}
+            />
+            <FieldInput
+              id="validUntil"
+              type="date"
+              label="Date de fin *"
+              error={errors.validUntil?.message}
+              {...register("validUntil")}
+            />
+          </div>
+        </StickerCard>
 
         {/* Terms */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink">Conditions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Label htmlFor="terms" className="text-ink-2">
-                Conditions d&apos;utilisation
-              </Label>
-              <Textarea
-                id="terms"
-                placeholder="Ex: Non cumulable avec d'autres offres. Valable en magasin uniquement..."
-                aria-invalid={!!errors.termsAndConditions}
-                className="bg-card border-ink text-ink placeholder:text-mute min-h-[80px]"
-                {...register("termsAndConditions")}
-              />
-              {errors.termsAndConditions && (
-                <p role="alert" className="text-sm text-destructive">
-                  {errors.termsAndConditions.message}
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <StickerCard className="gap-4 p-5">
+          <h2 className="font-display text-lg font-bold text-ink">Conditions</h2>
+          <div className="space-y-1.5">
+            <Label htmlFor="terms" className="eyebrow tracking-[0.16em]">
+              Conditions d&apos;utilisation
+            </Label>
+            <Textarea
+              id="terms"
+              placeholder="Ex : Non cumulable avec d'autres offres. Valable en magasin uniquement…"
+              aria-invalid={!!errors.termsAndConditions}
+              className="min-h-[80px] border-2 border-input focus-visible:border-ink focus-visible:ring-0"
+              {...register("termsAndConditions")}
+            />
+            {errors.termsAndConditions && (
+              <p role="alert" className="text-xs font-medium text-coral">
+                {errors.termsAndConditions.message}
+              </p>
+            )}
+          </div>
+        </StickerCard>
 
-        {/* Actions */}
-        <div className="flex gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="border-ink text-ink-2"
-            asChild
-          >
+        {/* Actions — barre sticky sur mobile, inline sur desktop */}
+        <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t-2 border-ink bg-paper p-4 sm:static sm:border-0 sm:bg-transparent sm:p-0">
+          <Button type="button" variant="outline" asChild className="flex-1 sm:flex-none">
             <Link href="/partner/offers">Annuler</Link>
           </Button>
-          <PremiumButton
+          <Button
             type="submit"
-            loading={isSubmitting}
-            success={success}
+            variant="pink"
             disabled={isSubmitting || success}
-            className="bg-lime hover:bg-lime text-ink flex-1"
+            className="flex-1"
           >
-            {success ? (
+            {isSubmitting ? (
               <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Soumise !
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                Création en cours…
               </>
-            ) : isSubmitting ? (
-              <>Création en cours...</>
             ) : (
               <>
-                <Tag className="h-4 w-4 mr-2" />
+                <Tag className="size-4" aria-hidden="true" />
                 Créer l&apos;offre
               </>
             )}
-          </PremiumButton>
+          </Button>
         </div>
       </FormKeyboardAware>
     </div>

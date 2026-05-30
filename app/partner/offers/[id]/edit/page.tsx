@@ -1,11 +1,12 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect, notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Tag } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { OfferEditForm } from "@/components/partner/offer-edit-form"
+import { OfferDeleteZone } from "@/components/partner/offer-delete-zone"
 
 async function getOffer(offerId: string, partnerId: string) {
   const supabase = await createClient()
@@ -52,8 +53,8 @@ export default async function EditOfferPage({
   // rejected, paused, expired, archived}.
   const STATUS_LABELS: Record<string, string> = {
     draft: "Brouillon",
-    pending_approval: "En attente de modération",
-    approved: "Approuvée",
+    pending_approval: "En modération",
+    approved: "Live",
     rejected: "Rejetée",
     paused: "En pause",
     expired: "Expirée",
@@ -61,95 +62,87 @@ export default async function EditOfferPage({
   }
   const statusLabel = STATUS_LABELS[offer.status] || offer.status
 
+  // Pill mono charte : token + préfixe selon l'état (live ✓ lime / modération
+  // gold / autres mute), toujours bordure 2px ink.
+  const statusPill =
+    offer.status === "approved"
+      ? "bg-lime/30 text-ink"
+      : offer.status === "pending_approval"
+        ? "bg-gold/25 text-ink"
+        : "bg-paper-2 text-mute"
+  const statusPrefix = offer.status === "approved" ? "✓ " : ""
+
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="max-w-2xl space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild className="text-mute hover:text-ink">
-          <Link href="/partner/offers">
-            <ArrowLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/partner/offers" aria-label="Retour aux offres">
+            <ArrowLeft className="size-5" aria-hidden="true" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-black text-ink">Modifier l'offre</h1>
-          <p className="text-mute">Mettez à jour les détails de votre offre</p>
+          <p className="eyebrow tracking-[0.16em] text-mute">Modifier</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Modifie ton <em className="font-semibold italic text-pink">deal</em>
+          </h1>
+          <p className="text-mute">Mets à jour les détails de ton offre</p>
         </div>
       </div>
 
-      {/* Status Banner */}
-      <div className={`p-4 rounded-xl flex items-center justify-between ${
-        offer.status === "approved"
-          ? "bg-lime/10 border border-lime/30"
-          : offer.status === "pending_approval"
-          ? "bg-gold/10 border border-gold/30"
-          : "bg-card border border-ink"
-      }`}>
-        <div>
-          <p className={`font-medium ${
-            offer.status === "approved" ? "text-lime" :
-            offer.status === "pending_approval" ? "text-gold" : "text-mute"
-          }`}>
-            Statut: {statusLabel}
-          </p>
-          <p className="text-xs text-mute mt-1">
-            Créée le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
-          </p>
+      {/* Status Banner — pill mono dominante */}
+      <StickerCard className="gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <span
+            className={`rounded-full border-2 border-ink px-3 py-1 font-mono text-xs font-bold uppercase tracking-[0.14em] ${statusPill}`}
+          >
+            {statusPrefix}
+            {statusLabel}
+          </span>
+          <span className="font-mono text-xs text-mute">
+            Créée le {new Date(offer.created_at).toLocaleDateString("fr-FR")}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-mute">{offer.current_total_uses || 0} utilisations</span>
-        </div>
-      </div>
+        <span className="font-mono text-xs text-mute">
+          {offer.current_total_uses || 0} utilisations
+        </span>
+      </StickerCard>
 
       {/* Edit Form */}
-      <Card className="bg-card border-ink">
-        <CardHeader>
-          <CardTitle className="text-ink">Détails de l'offre</CardTitle>
-          <CardDescription className="text-mute">
-            Modifiez les informations de votre offre
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <OfferEditForm
-            offerId={id}
-            partnerId={partnerId}
-            initialData={{
-              title: offer.title || "",
-              description: offer.description || "",
-              offerType: offer.offer_type || "reduction",
-              discountValue: offer.discount_value || 0,
-              minPurchaseAmount: offer.min_purchase_amount || 0,
-              maxTotalUses: offer.max_total_uses ?? null,
-              maxUsesPerUser: offer.max_uses_per_user ?? null,
-              requiresVip: offer.requires_vip ?? false,
-              minVipLevel: offer.min_vip_level || "silver",
-              validFrom: offer.valid_from || "",
-              validUntil: offer.valid_until || "",
-              status: offer.status || "pending_approval",
-            }}
-          />
-        </CardContent>
-      </Card>
+      <StickerCard className="gap-4 p-5">
+        <div>
+          <h2 className="font-display text-lg font-bold text-ink">
+            Détails de l&apos;offre
+          </h2>
+          <p className="text-sm text-mute">
+            Modifie les informations de ton offre
+          </p>
+        </div>
+        <OfferEditForm
+          offerId={id}
+          partnerId={partnerId}
+          initialData={{
+            title: offer.title || "",
+            description: offer.description || "",
+            offerType: offer.offer_type || "reduction",
+            discountValue: offer.discount_value || 0,
+            minPurchaseAmount: offer.min_purchase_amount || 0,
+            maxTotalUses: offer.max_total_uses ?? null,
+            maxUsesPerUser: offer.max_uses_per_user ?? null,
+            requiresVip: offer.requires_vip ?? false,
+            minVipLevel: offer.min_vip_level || "silver",
+            validFrom: offer.valid_from || "",
+            validUntil: offer.valid_until || "",
+            status: offer.status || "pending_approval",
+          }}
+        />
+      </StickerCard>
 
-      {/* Danger Zone */}
-      <Card className="bg-card border-destructive/30">
-        <CardHeader>
-          <CardTitle className="text-destructive">Zone de danger</CardTitle>
-          <CardDescription className="text-mute">
-            Actions irréversibles
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center justify-between">
-          <div>
-            <p className="text-ink font-medium">Supprimer cette offre</p>
-            <p className="text-xs text-mute">
-              Cette action est irréversible. L'offre sera définitivement supprimée.
-            </p>
-          </div>
-          <Button variant="outline" className="border-destructive/50 text-destructive hover:bg-destructive/10">
-            Supprimer
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Danger Zone — réellement câblée (modal + DELETE) */}
+      <OfferDeleteZone
+        offerId={id}
+        offerTitle={offer.title || "sans titre"}
+      />
     </div>
   )
 }
