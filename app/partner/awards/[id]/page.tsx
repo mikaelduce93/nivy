@@ -1,16 +1,30 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Button } from "@/components/ui/button"
-import { StatusBadge } from "@/components/ui/status-badge"
-import { ArrowLeft, Zap } from "lucide-react"
+import { StatHero } from "@/components/brand"
+import { NivEmpty } from "@/components/brand"
+import { ArrowLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { CATS } from "../awards-client"
 
 export const metadata: Metadata = { title: "Détail attribution — Partenaire" }
 
-const STATUS: Record<string, "pending" | "success" | "danger" | "info"> = {
-  pending: "pending", approved: "success", auto_approved: "success", rejected: "danger",
+const STATUS_LABEL: Record<string, string> = {
+  pending: "En attente",
+  approved: "Approuvé",
+  auto_approved: "Approuvé auto",
+  rejected: "Refusé",
 }
+
+const STATUS_TONE: Record<string, string> = {
+  pending: "bg-gold",
+  approved: "bg-lime",
+  auto_approved: "bg-lime",
+  rejected: "bg-coral",
+}
+
+const CAT_LABEL: Record<string, string> = Object.fromEntries(CATS.map((c) => [c.id, c.label]))
 
 // Refonte V1.5 (#99) — détail/revue d'une attribution d'XP.
 export default async function AwardDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -28,28 +42,75 @@ export default async function AwardDetail({ params }: { params: Promise<{ id: st
     award = null
   }
 
+  const status = award?.parent_review_status || "pending"
+
   return (
-    <div className="space-y-6 pt-6 max-w-2xl">
-      <Button asChild variant="ghost" size="sm"><Link href="/partner/awards"><ArrowLeft className="w-4 h-4 mr-1" />Attributions</Link></Button>
+    <div className="max-w-2xl space-y-6 pt-6">
+      <Button asChild variant="ghost" size="sm">
+        <Link href="/partner/awards">
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          Attributions
+        </Link>
+      </Button>
+
       <header className="space-y-2">
         <p className="eyebrow">Attribution XP</p>
-        <h1 className="text-3xl font-extrabold tracking-tight">Détail</h1>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+          Détail de l'<em className="font-semibold italic text-pink">attribution</em>
+        </h1>
         <p className="font-mono text-sm text-mute">ID : {id}</p>
       </header>
+
       {award ? (
-        <Card className="p-6 gap-4">
-          <div className="px-6 flex items-center justify-between">
-            <span className="flex items-center gap-2 font-display text-3xl font-extrabold text-gold"><Zap className="w-7 h-7" />+{award.amount_xp} XP</span>
-            <StatusBadge variant={STATUS[award.parent_review_status || "pending"] || "pending"} label={award.parent_review_status || "pending"} />
-          </div>
-          <div className="px-6 text-sm text-ink-2 space-y-1">
-            <p><span className="text-mute">Catégorie :</span> {award.category}</p>
-            {award.reason && <p><span className="text-mute">Raison :</span> {award.reason}</p>}
-            {award.awarded_at && <p><span className="text-mute">Date :</span> {new Date(award.awarded_at).toLocaleString("fr-FR")}</p>}
-          </div>
-        </Card>
+        <div className="space-y-6">
+          {/* Bloc montant — surface sombre ponctuelle, chiffre Bricolage géant gold. */}
+          <StatHero
+            eyebrow="XP attribué"
+            tone="gold"
+            value={`+${award.amount_xp}`}
+            unit="XP"
+            meta={
+              <span
+                className={`inline-flex items-center rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-ink ${STATUS_TONE[status] || "bg-paper-2"}`}
+              >
+                {STATUS_LABEL[status] || status}
+              </span>
+            }
+          />
+
+          {/* Méta — catégorie en label+emoji, raison, date. */}
+          <StickerCard className="gap-3 p-6">
+            <dl className="space-y-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">Catégorie</dt>
+                <dd className="font-semibold text-ink">{CAT_LABEL[award.category || ""] || award.category}</dd>
+              </div>
+              {award.reason && (
+                <div className="flex items-start justify-between gap-3">
+                  <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">Raison</dt>
+                  <dd className="text-right text-ink-2">{award.reason}</dd>
+                </div>
+              )}
+              {award.awarded_at && (
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">Date</dt>
+                  <dd className="font-mono text-ink-2">{new Date(award.awarded_at).toLocaleString("fr-FR")}</dd>
+                </div>
+              )}
+            </dl>
+          </StickerCard>
+        </div>
       ) : (
-        <Card className="text-center py-14"><p className="text-mute">Attribution introuvable.</p></Card>
+        <NivEmpty
+          mood="calm"
+          title="Attribution introuvable"
+          description="Cette attribution n'existe pas ou n'est plus accessible."
+          action={
+            <Button asChild variant="pink">
+              <Link href="/partner/awards">Retour aux attributions</Link>
+            </Button>
+          }
+        />
       )}
     </div>
   )

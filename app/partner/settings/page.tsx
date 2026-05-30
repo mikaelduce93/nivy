@@ -9,8 +9,9 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ShieldAlert } from "lucide-react"
+import { NivEmpty } from "@/components/brand"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Lock } from "lucide-react"
 import { PartnerSettingsForm, type PartnerSettings } from "./partner-settings-form"
 
 export const dynamic = "force-dynamic"
@@ -31,50 +32,61 @@ export default async function PartnerSettingsPage() {
 
   if (!partner) {
     return (
-      <div className="space-y-6 max-w-3xl">
-        <h1 className="text-3xl font-black text-ink">Paramètres</h1>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-10 text-center">
-            <ShieldAlert className="w-8 h-8 text-gold mx-auto mb-2" />
-            <p className="text-ink-2 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-mute mt-2">
-              Termine ton inscription puis attends l&apos;activation admin.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="max-w-3xl space-y-6 pt-6">
+        <header className="space-y-2">
+          <p className="eyebrow">Réglages</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight">
+            Tes <em className="font-semibold italic text-pink">réglages</em>
+          </h1>
+        </header>
+        <NivEmpty
+          mood="calm"
+          title="Profil partenaire introuvable"
+          description="Termine ton inscription puis attends l'activation admin."
+        />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <header>
-        <h1 className="text-3xl font-black text-ink">Paramètres</h1>
+    <div className="max-w-3xl space-y-6 pt-6">
+      <header className="space-y-2">
+        <p className="eyebrow">Réglages</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+          Tes <em className="font-semibold italic text-pink">réglages</em>
+        </h1>
         <p className="text-mute">Mets à jour les infos publiques de ton compte partenaire.</p>
       </header>
 
-      <Card className="bg-card border-ink">
-        <CardHeader>
-          <CardTitle className="text-ink text-base">Champs verrouillés</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-ink-2 space-y-1">
-          <p>
-            <span className="text-mute">Email :</span> {partner.email}
-          </p>
-          <p>
-            <span className="text-mute">Type :</span> {partner.partner_type}
-          </p>
-          <p>
-            <span className="text-mute">Statut :</span> {partner.status}
-          </p>
-          <p className="text-xs text-mute mt-2">
-            Pour modifier ces champs, contacte l&apos;équipe Nivy. Ils ne sont pas modifiables
-            depuis cet écran (canon §6 partner-side mass-assignment guard).
-          </p>
-        </CardContent>
-      </Card>
+      <StickerCard className="gap-4 p-6">
+        <h2 className="flex items-center gap-2 font-display text-lg font-extrabold">
+          <Lock className="h-4 w-4 text-mute" aria-hidden="true" />
+          Champs verrouillés
+        </h2>
+        <div className="space-y-2">
+          <LockedRow label="Email" value={partner.email} />
+          <LockedRow label="Type" value={partner.partner_type} />
+          <LockedRow label="Statut" value={partner.status} />
+        </div>
+        <p className="text-xs text-mute">
+          Pour modifier ces champs, contacte l&apos;équipe Nivy. Ils ne sont pas modifiables depuis
+          cet écran.
+        </p>
+      </StickerCard>
 
       <PartnerSettingsForm partner={partner as PartnerSettings} />
+    </div>
+  )
+}
+
+function LockedRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">{label}</span>
+      <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-paper-2 px-3 py-1 font-mono text-xs font-semibold text-ink">
+        <Lock className="h-3 w-3 text-mute" aria-hidden="true" />
+        {value}
+      </span>
     </div>
   )
 }

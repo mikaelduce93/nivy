@@ -7,21 +7,12 @@
  * `kyc-documents` bucket. New uploads go through the canonical signed-token
  * pattern — we never get-public-url on KYC media (canon §6 F12).
  */
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import {
-  Shield,
-  FileText,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  ExternalLink,
-  AlertTriangle,
-} from "lucide-react"
-import Link from "next/link"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { NivCoach, NivEmpty } from "@/components/brand"
+import { FileText, ExternalLink, AlertTriangle } from "lucide-react"
 import { redirect } from "next/navigation"
-import { EmptyState } from "@/components/ui/states/empty-state"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { PartnerKycUploader } from "@/components/partners/PartnerKycUploader"
@@ -46,34 +37,29 @@ function docLabel(docType: string): string {
   return DOC_TYPE_LABEL[docType] || docType.replace(/_/g, " ")
 }
 
-function statusBadge(status: string) {
+const PILL_BASE =
+  "inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-ink"
+
+function statusPill(status: string) {
   switch (status) {
     case "approved":
     case "verified":
       return (
-        <Badge className="bg-lime/20 text-lime">
-          <CheckCircle2 className="w-3 h-3 mr-1" />
+        <span className={`${PILL_BASE} bg-lime`}>
+          <span aria-hidden="true" className="grid size-4 place-items-center rounded-full bg-ink text-[10px] font-bold text-lime">
+            ✓
+          </span>
           Vérifié
-        </Badge>
+        </span>
       )
     case "pending":
     case "submitted":
     case "in_review":
-      return (
-        <Badge className="bg-gold/20 text-gold">
-          <Clock className="w-3 h-3 mr-1" />
-          En cours
-        </Badge>
-      )
+      return <span className={`${PILL_BASE} bg-gold`}>En cours</span>
     case "rejected":
-      return (
-        <Badge className="bg-destructive/20 text-destructive">
-          <XCircle className="w-3 h-3 mr-1" />
-          Refusé
-        </Badge>
-      )
+      return <span className={`${PILL_BASE} bg-coral`}>Refusé</span>
     default:
-      return <Badge variant="outline">{status}</Badge>
+      return <span className={`${PILL_BASE} bg-paper-2`}>{status}</span>
   }
 }
 
@@ -83,13 +69,18 @@ export default async function PartnerKYCPage() {
 
   if (userInfo.role !== "partner") {
     return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-black text-ink">Vérification KYC</h1>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-10 text-center text-destructive">
-            Accès refusé — espace réservé aux partenaires.
-          </CardContent>
-        </Card>
+      <div className="max-w-3xl space-y-6 pt-6">
+        <header className="space-y-2">
+          <p className="eyebrow">Vérification</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight">
+            Ton <em className="font-semibold italic text-pink">dossier</em>
+          </h1>
+        </header>
+        <NivEmpty
+          mood="calm"
+          title="Accès refusé"
+          description="Cet espace est réservé aux partenaires."
+        />
       </div>
     )
   }
@@ -97,16 +88,18 @@ export default async function PartnerKYCPage() {
   const partnerId = userInfo.partnerData?.id
   if (!partnerId) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-black text-ink">Vérification KYC</h1>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-10 text-center">
-            <p className="text-ink-2 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-mute mt-2">
-              Votre compte n'est pas encore lié à une fiche partenaire active.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="max-w-3xl space-y-6 pt-6">
+        <header className="space-y-2">
+          <p className="eyebrow">Vérification</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight">
+            Ton <em className="font-semibold italic text-pink">dossier</em>
+          </h1>
+        </header>
+        <NivEmpty
+          mood="calm"
+          title="Profil partenaire introuvable"
+          description="Ton compte n'est pas encore lié à une fiche partenaire active."
+        />
       </div>
     )
   }
@@ -152,106 +145,88 @@ export default async function PartnerKYCPage() {
   const rejected = signed.filter((d) => d.status === "rejected")
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-3xl space-y-6 pt-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-ink flex items-center gap-3">
-            <Shield className="w-7 h-7 text-teal" />
-            Vérification KYC
-          </h1>
-          <p className="text-mute mt-1">
-            État de votre dossier ·{" "}
-            <span className="text-ink">{userInfo.partnerData?.companyName || "Partenaire"}</span>
-          </p>
-        </div>
-      </div>
+      <header className="space-y-2">
+        <p className="eyebrow">Vérification</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+          Ton <em className="font-semibold italic text-pink">dossier</em>
+        </h1>
+        <p className="text-mute">
+          {userInfo.partnerData?.companyName || "Partenaire"} · on vérifie tes pièces avant
+          d&apos;activer ton compte.
+        </p>
+      </header>
 
-      {/* Counters */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <p className="text-xs text-mute">Documents</p>
-            <p className="text-2xl font-black text-ink">{totals.total}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <p className="text-xs text-lime font-medium">Vérifiés</p>
-            <p className="text-2xl font-black text-ink">{totals.approved}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <p className="text-xs text-gold font-medium">En cours</p>
-            <p className="text-2xl font-black text-ink">{totals.pending}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <p className="text-xs text-destructive font-medium">Refusés</p>
-            <p className="text-2xl font-black text-ink">{totals.rejected}</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Coach rassurant — moment anxiogène (charte F4). */}
+      <NivCoach
+        mood="calm"
+        message="On vérifie tes papiers, ça prend 24 à 48h. Reste cool : tu peux suivre l'avancement ici."
+      />
 
-      {/* Rejection alerts */}
+      {/* Avancement du dossier — jauge segmentée plutôt qu'un mur de compteurs. */}
+      {totals.total > 0 && (
+        <StickerCard className="gap-3 p-6">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">
+              Avancement du dossier
+            </span>
+            <span className="font-display text-lg font-extrabold tabular-nums text-ink">
+              {totals.approved}/{totals.total} vérifié{totals.approved > 1 ? "s" : ""}
+            </span>
+          </div>
+          <SegmentedProgress steps={totals.total} current={totals.approved} />
+          {totals.pending > 0 && (
+            <p className="text-xs text-mute">
+              {totals.pending} pièce{totals.pending > 1 ? "s" : ""} en cours de revue.
+            </p>
+          )}
+        </StickerCard>
+      )}
+
+      {/* Rejection alert — re-upload direct via l'uploader ci-dessous. */}
       {rejected.length > 0 && (
-        <Card className="bg-destructive/10 border-destructive/30">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
-              <div className="text-sm">
-                <p className="font-medium text-destructive">
-                  {rejected.length} document{rejected.length > 1 ? "s" : ""} refusé
-                  {rejected.length > 1 ? "s" : ""}
-                </p>
-                <p className="text-mute mt-1">
-                  Contactez le support pour soumettre un nouveau document. Les motifs de refus
-                  sont indiqués ci-dessous.
-                </p>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="mt-3 border-destructive/40 text-destructive"
-                >
-                  <Link href="/partner/support">Contacter le support</Link>
-                </Button>
-              </div>
+        <StickerCard className="gap-2 border-coral p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-coral" />
+            <div className="text-sm">
+              <p className="font-display font-bold text-ink">
+                {rejected.length} document{rejected.length > 1 ? "s" : ""} refusé
+                {rejected.length > 1 ? "s" : ""}
+              </p>
+              <p className="mt-1 text-mute">
+                Renvoie une nouvelle pièce directement depuis l&apos;encart ci-dessous. Les motifs
+                de refus sont indiqués sur chaque document.
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </StickerCard>
       )}
 
       {/* Wave 3A.5 — in-page uploader (private bucket, canon §4.6). */}
       <PartnerKycUploader />
 
       {/* Document list */}
-      <Card className="bg-card border-ink">
-        <CardHeader>
-          <CardTitle className="text-ink">Pièces du dossier</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {signed.length === 0 ? (
-            <EmptyState
-              icon={FileText}
-              title="Aucun document KYC"
-              description="Aucune pièce justificative n'a encore été déposée pour votre fiche partenaire."
-            />
-          ) : (
-            <div className="space-y-3">
-              {signed.map((d) => (
-                <div
-                  key={d.id}
-                  className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-card border border-ink"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <FileText className="w-5 h-5 text-mute flex-shrink-0" />
+      <div className="space-y-3">
+        <h2 className="font-display text-lg font-extrabold">Pièces du dossier</h2>
+        {signed.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Aucune pièce déposée"
+            description="Balance tes papiers ici pour activer ton compte partenaire."
+          />
+        ) : (
+          <div className="space-y-3">
+            {signed.map((d) => (
+              <StickerCard key={d.id} className="gap-3 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper-2">
+                      <FileText className="h-4 w-4 text-ink" />
+                    </span>
                     <div className="min-w-0">
-                      <p className="font-semibold text-ink capitalize">
-                        {docLabel(d.doc_type)}
-                      </p>
-                      <p className="text-xs text-mute">
+                      <p className="font-display font-bold capitalize text-ink">{docLabel(d.doc_type)}</p>
+                      <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-mute">
                         Déposé le{" "}
                         {new Date(d.created_at).toLocaleDateString("fr-FR", {
                           day: "2-digit",
@@ -260,24 +235,14 @@ export default async function PartnerKYCPage() {
                         })}
                         {d.subject_kind ? ` · ${d.subject_kind}` : ""}
                       </p>
-                      {d.status === "rejected" && d.rejection_reason && (
-                        <p className="text-xs text-destructive mt-1">
-                          Motif : {d.rejection_reason}
-                        </p>
-                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    {statusBadge(d.status)}
+                    {statusPill(d.status)}
                     {d.signedUrl ? (
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                        className="border-ink text-ink-2"
-                      >
+                      <Button asChild variant="outline" size="sm">
                         <a href={d.signedUrl} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-3 h-3 mr-1" />
+                          <ExternalLink className="mr-1 h-3 w-3" />
                           Voir
                         </a>
                       </Button>
@@ -286,15 +251,20 @@ export default async function PartnerKYCPage() {
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                {d.status === "rejected" && d.rejection_reason && (
+                  <p className="rounded-xl border-2 border-coral bg-coral/10 px-3 py-2 text-sm text-coral">
+                    Motif du refus : {d.rejection_reason}
+                  </p>
+                )}
+              </StickerCard>
+            ))}
+          </div>
+        )}
+      </div>
 
       <p className="text-xs text-mute">
-        Les liens d'aperçu sont signés 15 minutes. Pour mettre à jour une pièce, contactez le
-        support partenaires.
+        Les liens d&apos;aperçu sont signés 15 minutes. Pour mettre à jour une pièce, dépose-la
+        depuis l&apos;encart ci-dessus.
       </p>
     </div>
   )
