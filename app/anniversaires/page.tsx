@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { FieldInput } from "@/components/ui/field-input"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
 import { Calendar } from "@/components/ui/calendar"
-import { Gift, CheckCircle2, Users, Music, Camera, Cake, Sparkles, ArrowRight, PartyPopper, Crown, Heart, Clock, Shield, Phone, CalendarIcon, ChevronRight, Check, Minus, Plus, Loader2, QrCode } from 'lucide-react'
+import { NivCoach, NivCelebration, DarkSurface } from "@/components/brand"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { Gift, CheckCircle2, Users, Music, Camera, Sparkles, ArrowRight, Crown, CalendarIcon, ChevronRight, Minus, Plus, Loader2, QrCode } from 'lucide-react'
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 import { getAnnivPacks, getAnnivExtras, calculateAnnivPrice, createAnnivOrder } from "@/features/anniversaires"
 import { getMyTeens } from "@/features/teens"
 
@@ -78,7 +79,7 @@ export default function AnniversairesPage() {
         }
       } catch (error) {
         console.error('Error loading data:', error)
-        toast.error("Chargement rate. On retente? 💪")
+        toast.error("Chargement raté. On retente ?")
       } finally {
         setLoadingData(false)
       }
@@ -167,7 +168,7 @@ export default function AnniversairesPage() {
       setCurrentStep(6) // Go to confirmation step
     } catch (error: any) {
       console.error('Error creating order:', error)
-      toast.error("Commande ratee. Reessaye?")
+      toast.error("Commande ratée. Réessaye ?")
     } finally {
       setLoading(false)
     }
@@ -175,76 +176,50 @@ export default function AnniversairesPage() {
 
   if (loadingData) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-paper">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Chargement des formules...</p>
+          <Loader2 className="mx-auto mb-4 size-12 animate-spin text-ink" aria-hidden="true" />
+          <p className="text-mute">Chargement des formules…</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden pt-24">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/birthday-cake-sparklers-celebration.jpg"
-            alt="Anniversaire"
-            fill
-            className="object-cover opacity-20"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
-        </div>
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center py-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink/10 border border-pink/20 mb-4 ">
-            <PartyPopper className="w-4 h-4 text-pink" />
-            <span className="text-sm font-medium text-pink">Configurateur Anniversaire</span>
+    <div className="min-h-screen bg-paper">
+      {/* Hero éditorial */}
+      <section className="pt-24">
+        <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="eyebrow tracking-[0.16em] text-pink">Configurateur anniv</p>
+            <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              Configure ton anniversaire <em className="font-semibold italic text-pink">de rêve</em>
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-mute">
+              Personnalise chaque détail en 5 étapes simples.
+            </p>
+            <NivCoach
+              className="mx-auto mt-8 max-w-lg text-left"
+              message="On organise la soirée la plus folle de Casa. Suis-moi, je te guide étape par étape !"
+            />
           </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 leading-tight">
-            Configure ton Anniversaire
-            <br />
-            <span className="text-gradient">de Rêve</span>
-          </h1>
-
-          <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Personnalise chaque détail en 5 étapes simples
-          </p>
         </div>
       </section>
 
       {/* Stepper */}
       {currentStep < 6 && (
-        <section className="py-8 bg-secondary/30 sticky top-16 z-40  border-b">
+        <section className="sticky top-16 z-40 border-b-2 border-ink bg-paper py-6">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between max-w-4xl mx-auto">
-              {steps.map((step, index) => (
-                <div key={step.number} className="flex items-center">
-                  <div className="flex flex-col items-center gap-2">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                        currentStep > step.number
-                          ? "bg-primary text-primary-foreground"
-                          : currentStep === step.number
-                          ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
-                          : "bg-secondary text-muted-foreground"
-                      }`}
-                    >
-                      {currentStep > step.number ? <Check className="w-5 h-5" /> : step.number}
-                    </div>
-                    <span className={`text-xs font-medium hidden sm:block ${currentStep >= step.number ? "text-foreground" : "text-muted-foreground"}`}>
-                      {step.title}
-                    </span>
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div className={`w-8 sm:w-16 h-0.5 mx-2 ${currentStep > step.number ? "bg-primary" : "bg-secondary"}`} />
-                  )}
-                </div>
-              ))}
+            <div className="mx-auto max-w-4xl">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="eyebrow tracking-[0.16em] text-pink">
+                  {steps[currentStep - 1]?.title}
+                </span>
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-mute">
+                  {String(currentStep).padStart(2, '0')} / {steps.length}
+                </span>
+              </div>
+              <SegmentedProgress steps={steps.length} current={currentStep - 1} size="md" />
             </div>
           </div>
         </section>
@@ -252,62 +227,59 @@ export default function AnniversairesPage() {
 
       {/* Step Content */}
       <section className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+        <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
 
           {/* Step 1: Date & Guests */}
           {currentStep === 1 && (
             <div className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-black mb-2">Quand veux-tu faire la fête ?</h2>
-                <p className="text-muted-foreground">Choisis une date et le nombre d'invités</p>
+              <div className="mb-8 text-center">
+                <h2 className="font-display text-3xl font-extrabold">Quand veux-tu faire la fête ?</h2>
+                <p className="mt-2 text-mute">Choisis une date et le nombre d'invités</p>
               </div>
 
-              <Card className="p-8">
-                <div className="grid lg:grid-cols-2 gap-8">
+              <StickerCard className="p-8">
+                <div className="grid gap-8 lg:grid-cols-2">
                   <div>
-                    <Label className="text-lg font-bold mb-4 block">Sélectionne la date</Label>
+                    <p className="eyebrow mb-4 tracking-[0.16em]">Sélectionne la date</p>
                     <Calendar
                       mode="single"
                       selected={selectedDate}
                       onSelect={setSelectedDate}
                       disabled={(date) => date < new Date()}
-                      className="rounded-md border mx-auto"
+                      className="mx-auto rounded-xl border-2 border-ink"
                     />
                   </div>
 
                   <div className="space-y-6">
                     {teens.length > 0 && (
-                      <div>
-                        <Label className="text-lg font-bold mb-4 block">Pour quel enfant ? (optionnel)</Label>
-                        <select
-                          className="w-full p-3 rounded-lg border bg-background"
-                          value={selectedTeenId}
-                          onChange={(e) => setSelectedTeenId(e.target.value)}
-                        >
-                          <option value="">Sélectionner un enfant</option>
-                          {teens.map((teen: any) => (
-                            <option key={teen.id} value={teen.id}>
-                              {teen.pseudo || `${teen.first_name} ${teen.last_name}`}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      <SelectSticker
+                        label="Pour quel enfant ? (optionnel)"
+                        placeholder="Sélectionner un enfant"
+                        value={selectedTeenId}
+                        onValueChange={setSelectedTeenId}
+                      >
+                        {teens.map((teen: any) => (
+                          <SelectStickerItem key={teen.id} value={teen.id}>
+                            {teen.pseudo || `${teen.first_name} ${teen.last_name}`}
+                          </SelectStickerItem>
+                        ))}
+                      </SelectSticker>
                     )}
 
                     <div>
-                      <Label className="text-lg font-bold mb-4 block">Nombre d'invités</Label>
-                      <div className="flex items-center gap-4 bg-secondary p-4 rounded-lg">
+                      <p className="eyebrow mb-4 tracking-[0.16em]">Nombre d'invités</p>
+                      <div className="flex items-center gap-4 rounded-xl border-2 border-ink bg-paper-2 p-4">
                         <Button
                           size="icon"
                           variant="outline"
                           onClick={() => setGuestCount(Math.max(1, guestCount - 1))}
                           aria-label="Retirer un invité"
                         >
-                          <Minus className="w-4 h-4" aria-hidden="true" />
+                          <Minus className="size-4" aria-hidden="true" />
                         </Button>
                         <div className="flex-1 text-center" aria-live="polite">
-                          <div className="text-4xl font-black">{guestCount}</div>
-                          <div className="text-sm text-muted-foreground">invités</div>
+                          <div className="font-display text-4xl font-extrabold tabular-nums">{guestCount}</div>
+                          <div className="text-sm text-mute">invités</div>
                         </div>
                         <Button
                           size="icon"
@@ -315,93 +287,108 @@ export default function AnniversairesPage() {
                           onClick={() => setGuestCount(guestCount + 1)}
                           aria-label="Ajouter un invité"
                         >
-                          <Plus className="w-4 h-4" aria-hidden="true" />
+                          <Plus className="size-4" aria-hidden="true" />
                         </Button>
                       </div>
                     </div>
 
                     {selectedDate && (
-                      <Card className="p-6 bg-primary/5 border-primary/20">
+                      <DarkSurface tone="pink" shadow className="p-6">
                         <div className="flex items-start gap-3">
-                          <CalendarIcon className="w-5 h-5 text-primary mt-1" />
+                          <CalendarIcon className="mt-1 size-5 text-pink" aria-hidden="true" />
                           <div>
-                            <p className="font-bold mb-1">Date sélectionnée</p>
-                            <p className="text-2xl font-black text-primary">
+                            <p className="eyebrow tracking-[0.16em] text-paper/60">Date sélectionnée</p>
+                            <p className="mt-1 font-display text-xl font-extrabold text-paper">
                               {selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                             </p>
                           </div>
                         </div>
-                      </Card>
+                      </DarkSurface>
                     )}
                   </div>
                 </div>
-              </Card>
+              </StickerCard>
             </div>
           )}
 
           {/* Step 2: Formula */}
           {currentStep === 2 && (
             <div className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-black mb-2">Choisis ta formule</h2>
-                <p className="text-muted-foreground">Packs pour anniversaire pendant nos events</p>
+              <div className="mb-8 text-center">
+                <h2 className="font-display text-3xl font-extrabold">Choisis ta formule</h2>
+                <p className="mt-2 text-mute">Packs pour anniversaire pendant nos events</p>
               </div>
 
-              <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {packs.map((pack) => (
-                  <Card
-                    key={pack.id}
-                    className={`overflow-hidden cursor-pointer transition-all ${
-                      selectedPackId === pack.id ? "ring-4 ring-primary" : "hover:border-primary/50"
-                    }`}
-                    onClick={() => setSelectedPackId(pack.id)}
-                  >
-                    <div className="relative h-48 bg-gradient-to-br from-pink to-pink">
-                      {pack.image_url && (
-                        <Image
-                          src={pack.image_url}
-                          alt={pack.name}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 1024px) 100vw, 33vw"
-                        />
+              <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+                {packs.map((pack) => {
+                  const isActive = selectedPackId === pack.id
+                  return (
+                    <StickerCard
+                      key={pack.id}
+                      variant="hover"
+                      onClick={() => setSelectedPackId(pack.id)}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={isActive}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          setSelectedPackId(pack.id)
+                        }
+                      }}
+                      className={cn(
+                        "overflow-hidden",
+                        isActive &&
+                          "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink",
                       )}
-                      {selectedPackId === pack.id && (
-                        <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                          <Check className="w-5 h-5 text-primary-foreground" />
-                        </div>
-                      )}
-                    </div>
+                    >
+                      <div className="relative h-48 border-b-2 border-ink bg-pink/10">
+                        {pack.image_url && (
+                          <Image
+                            src={pack.image_url}
+                            alt={pack.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 1024px) 100vw, 33vw"
+                          />
+                        )}
+                        {isActive && (
+                          <span className="absolute right-4 top-4 grid size-8 place-items-center rounded-full border-2 border-ink bg-lime text-ink">
+                            <CheckCircle2 className="size-5" aria-hidden="true" />
+                          </span>
+                        )}
+                      </div>
 
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold mb-2">{pack.name}</h3>
-                      {pack.description && (
-                        <p className="text-sm text-muted-foreground mb-3">{pack.description}</p>
-                      )}
-                      <p className="text-3xl font-black text-primary mb-4">{pack.base_price} DH</p>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Inclus {pack.included_guests} invités
-                      </p>
-                      {pack.features && Array.isArray(pack.features) && pack.features.length > 0 && (
-                        <ul className="space-y-2">
-                          {pack.features.map((feature: string, idx: number) => (
-                            <li key={idx} className="flex items-start gap-2 text-sm">
-                              <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </Card>
-                ))}
+                      <div className="p-6">
+                        <h3 className="font-display text-xl font-extrabold">{pack.name}</h3>
+                        {pack.description && (
+                          <p className={cn("mt-2 text-sm", isActive ? "text-paper/70" : "text-mute")}>{pack.description}</p>
+                        )}
+                        <p className="mt-4 font-display text-3xl font-extrabold tabular-nums text-pink">{pack.base_price} DH</p>
+                        <p className={cn("mt-2 font-mono text-xs font-bold uppercase tracking-[0.14em]", isActive ? "text-paper/60" : "text-mute")}>
+                          Inclus {pack.included_guests} invités
+                        </p>
+                        {pack.features && Array.isArray(pack.features) && pack.features.length > 0 && (
+                          <ul className="mt-4 space-y-2">
+                            {pack.features.map((feature: string, idx: number) => (
+                              <li key={idx} className="flex items-start gap-2 text-sm">
+                                <CheckCircle2 className={cn("mt-0.5 size-4 shrink-0", isActive ? "text-lime" : "text-pink")} aria-hidden="true" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </StickerCard>
+                  )
+                })}
               </div>
 
               {packs.length === 0 && (
-                <Card className="p-12 text-center">
-                  <Gift className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Aucune formule disponible pour le moment</p>
-                </Card>
+                <StickerCard className="items-center p-12 text-center">
+                  <Gift className="mx-auto mb-4 size-16 text-mute" aria-hidden="true" />
+                  <p className="text-mute">Aucune formule disponible pour le moment</p>
+                </StickerCard>
               )}
             </div>
           )}
@@ -409,24 +396,23 @@ export default function AnniversairesPage() {
           {/* Step 3: Extras */}
           {currentStep === 3 && (
             <div className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-black mb-2">Options Supplémentaires</h2>
-                <p className="text-muted-foreground">Ajoute des extras pour rendre ta fête encore plus exceptionnelle (optionnel)</p>
+              <div className="mb-8 text-center">
+                <h2 className="font-display text-3xl font-extrabold">Options supplémentaires</h2>
+                <p className="mt-2 text-mute">Ajoute des extras pour rendre ta fête encore plus exceptionnelle (optionnel)</p>
               </div>
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {extras.map((extra) => {
+                  const isActive = selectedExtraIds.includes(extra.id)
                   const IconComponent = extra.category === 'entertainment' ? Music :
                                        extra.category === 'photo_video' ? Camera :
                                        extra.category === 'decor' ? Sparkles :
                                        extra.category === 'transport' ? Crown : Gift
 
                   return (
-                    <Card
+                    <StickerCard
                       key={extra.id}
-                      className={`p-6 cursor-pointer transition-all ${
-                        selectedExtraIds.includes(extra.id) ? "ring-2 ring-primary bg-primary/5" : "hover:border-primary/50"
-                      }`}
+                      variant="hover"
                       onClick={() => {
                         setSelectedExtraIds(prev =>
                           prev.includes(extra.id)
@@ -434,40 +420,60 @@ export default function AnniversairesPage() {
                             : [...prev, extra.id]
                         )
                       }}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={isActive}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          setSelectedExtraIds(prev =>
+                            prev.includes(extra.id)
+                              ? prev.filter(id => id !== extra.id)
+                              : [...prev, extra.id]
+                          )
+                        }
+                      }}
+                      className={cn(
+                        "p-6",
+                        isActive &&
+                          "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink",
+                      )}
                     >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                          selectedExtraIds.includes(extra.id) ? "bg-primary text-primary-foreground" : "bg-secondary"
-                        }`}>
-                          <IconComponent className="w-6 h-6" />
-                        </div>
-                        {selectedExtraIds.includes(extra.id) && (
-                          <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                            <Check className="w-4 h-4 text-primary-foreground" />
-                          </div>
+                      <div className="mb-4 flex items-start justify-between">
+                        <span className={cn(
+                          "grid size-12 place-items-center rounded-xl border-2 border-ink",
+                          isActive ? "bg-paper text-ink" : "bg-paper-2 text-pink",
+                        )}>
+                          <IconComponent className="size-6" aria-hidden="true" />
+                        </span>
+                        {isActive && (
+                          <span className="grid size-6 place-items-center rounded-full border-2 border-ink bg-lime text-[11px] font-extrabold text-ink">
+                            ✓
+                          </span>
                         )}
                       </div>
-                      <h4 className="font-bold mb-2">{extra.name}</h4>
+                      <h4 className="font-display font-bold">{extra.name}</h4>
                       {extra.description && (
-                        <p className="text-sm text-muted-foreground mb-3">{extra.description}</p>
+                        <p className={cn("mt-2 text-sm", isActive ? "text-paper/70" : "text-mute")}>{extra.description}</p>
                       )}
-                      <p className="text-2xl font-black text-primary">+{extra.price} DH</p>
-                    </Card>
+                      <p className="mt-3 font-display text-2xl font-extrabold tabular-nums text-pink">+{extra.price} DH</p>
+                    </StickerCard>
                   )
                 })}
               </div>
 
               {extras.length === 0 && (
-                <Card className="p-12 text-center">
-                  <Sparkles className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Aucun extra disponible pour le moment</p>
+                <StickerCard className="items-center p-12 text-center">
+                  <Sparkles className="mx-auto mb-4 size-16 text-mute" aria-hidden="true" />
+                  <p className="text-mute">Aucun extra disponible pour le moment</p>
                   <Button
                     className="mt-4"
+                    variant="pink"
                     onClick={() => setCurrentStep(4)}
                   >
                     Passer cette étape
                   </Button>
-                </Card>
+                </StickerCard>
               )}
             </div>
           )}
@@ -475,197 +481,195 @@ export default function AnniversairesPage() {
           {/* Step 4: Personal Info */}
           {currentStep === 4 && (
             <div className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-black mb-2">Informations Personnelles</h2>
-                <p className="text-muted-foreground">Quelques infos pour finaliser ta réservation</p>
+              <div className="mb-8 text-center">
+                <h2 className="font-display text-3xl font-extrabold">Informations personnelles</h2>
+                <p className="mt-2 text-mute">Quelques infos pour finaliser ta réservation</p>
               </div>
 
-              <Card className="p-8">
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="childName">Prénom de l'enfant *</Label>
-                    <Input
-                      id="childName"
-                      placeholder="Prénom"
-                      value={personalInfo.childName}
-                      onChange={(e) => setPersonalInfo(prev => ({ ...prev, childName: e.target.value }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="childAge">Âge de l'enfant *</Label>
-                    <Input
-                      id="childAge"
-                      type="number"
-                      placeholder="Âge"
-                      value={personalInfo.childAge}
-                      onChange={(e) => setPersonalInfo(prev => ({ ...prev, childAge: e.target.value }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="parentName">Nom du parent *</Label>
-                    <Input
-                      id="parentName"
-                      placeholder="Nom complet"
-                      value={personalInfo.parentName}
-                      onChange={(e) => setPersonalInfo(prev => ({ ...prev, parentName: e.target.value }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="email@example.com"
-                      value={personalInfo.email}
-                      onChange={(e) => setPersonalInfo(prev => ({ ...prev, email: e.target.value }))}
-                    />
-                  </div>
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="phone">Téléphone *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+212 6XX XXX XXX"
-                      value={personalInfo.phone}
-                      onChange={(e) => setPersonalInfo(prev => ({ ...prev, phone: e.target.value }))}
-                    />
-                  </div>
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="notes">Notes / Demandes spéciales (optionnel)</Label>
-                    <Textarea
+              <StickerCard className="p-8">
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <FieldInput
+                    label="Prénom de l'enfant *"
+                    id="childName"
+                    placeholder="Prénom"
+                    value={personalInfo.childName}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, childName: e.target.value }))}
+                  />
+                  <FieldInput
+                    label="Âge de l'enfant *"
+                    id="childAge"
+                    type="number"
+                    placeholder="Âge"
+                    value={personalInfo.childAge}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, childAge: e.target.value }))}
+                  />
+                  <FieldInput
+                    label="Nom du parent *"
+                    id="parentName"
+                    placeholder="Nom complet"
+                    value={personalInfo.parentName}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, parentName: e.target.value }))}
+                  />
+                  <FieldInput
+                    label="Email *"
+                    id="email"
+                    type="email"
+                    placeholder="email@example.com"
+                    value={personalInfo.email}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                  <FieldInput
+                    label="Téléphone *"
+                    id="phone"
+                    type="tel"
+                    prefix="🇲🇦 +212"
+                    placeholder="6XX XXX XXX"
+                    value={personalInfo.phone}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, phone: e.target.value }))}
+                    containerClassName="sm:col-span-2"
+                  />
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                    <label htmlFor="notes" className="eyebrow tracking-[0.16em]">
+                      Notes / Demandes spéciales (optionnel)
+                    </label>
+                    <textarea
                       id="notes"
-                      placeholder="Allergie alimentaire, demande spéciale..."
+                      placeholder="Allergie alimentaire, demande spéciale…"
                       value={personalInfo.notes}
                       onChange={(e) => setPersonalInfo(prev => ({ ...prev, notes: e.target.value }))}
                       rows={4}
+                      className="w-full rounded-xl border-2 border-input bg-card px-3.5 py-2.5 text-base outline-none transition-colors placeholder:text-mute focus:border-ink md:text-sm"
                     />
                   </div>
                 </div>
-              </Card>
+              </StickerCard>
             </div>
           )}
 
           {/* Step 5: Summary */}
           {currentStep === 5 && (
             <div className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-black mb-2">Récapitulatif de ta réservation</h2>
-                <p className="text-muted-foreground">Vérifie tous les détails avant de payer</p>
+              <div className="mb-8 text-center">
+                <h2 className="font-display text-3xl font-extrabold">Récapitulatif de ta réservation</h2>
+                <p className="mt-2 text-mute">Vérifie tous les détails avant de payer</p>
               </div>
 
-              <div className="grid lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                  <Card className="p-6">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                      <CalendarIcon className="w-5 h-5 text-primary" />
-                      Date et Invités
+              <div className="grid gap-6 lg:grid-cols-3">
+                <div className="space-y-6 lg:col-span-2">
+                  <StickerCard className="p-6">
+                    <h3 className="flex items-center gap-2 font-display text-lg font-extrabold">
+                      <CalendarIcon className="size-5 text-pink" aria-hidden="true" />
+                      Date et invités
                     </h3>
-                    <div className="space-y-2 text-sm">
-                      <p><strong>Date:</strong> {selectedDate?.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                      <p><strong>Nombre d'invités:</strong> {guestCount} personnes</p>
+                    <div className="mt-4 space-y-2 text-sm">
+                      <p><strong>Date :</strong> {selectedDate?.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                      <p><strong>Nombre d'invités :</strong> {guestCount} personnes</p>
                     </div>
-                  </Card>
+                  </StickerCard>
 
-                  <Card className="p-6">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                      <Gift className="w-5 h-5 text-primary" />
+                  <StickerCard className="p-6">
+                    <h3 className="flex items-center gap-2 font-display text-lg font-extrabold">
+                      <Gift className="size-5 text-pink" aria-hidden="true" />
                       Formule
                     </h3>
-                    <div className="space-y-2 text-sm">
-                      <p className="font-bold text-lg">{selectedPack?.name}</p>
+                    <div className="mt-4 space-y-2 text-sm">
+                      <p className="font-display text-lg font-bold">{selectedPack?.name}</p>
                       {selectedPack?.description && (
-                        <p className="text-muted-foreground">{selectedPack.description}</p>
+                        <p className="text-mute">{selectedPack.description}</p>
                       )}
-                      <p className="text-sm text-muted-foreground">Inclus {selectedPack?.included_guests} invités</p>
+                      <p className="text-mute">Inclus {selectedPack?.included_guests} invités</p>
                     </div>
-                  </Card>
+                  </StickerCard>
 
                   {selectedExtraIds.length > 0 && (
-                    <Card className="p-6">
-                      <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-primary" />
-                        Options Supplémentaires
+                    <StickerCard className="p-6">
+                      <h3 className="flex items-center gap-2 font-display text-lg font-extrabold">
+                        <Sparkles className="size-5 text-pink" aria-hidden="true" />
+                        Options supplémentaires
                       </h3>
-                      <ul className="space-y-2 text-sm">
+                      <ul className="mt-4 space-y-2 text-sm">
                         {selectedExtraIds.map(extraId => {
                           const extra = extras.find(e => e.id === extraId)
                           return extra ? (
                             <li key={extraId} className="flex justify-between">
                               <span>{extra.name}</span>
-                              <span className="font-bold">+{extra.price} DH</span>
+                              <span className="font-mono font-bold">+{extra.price} DH</span>
                             </li>
                           ) : null
                         })}
                       </ul>
-                    </Card>
+                    </StickerCard>
                   )}
 
-                  <Card className="p-6">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                      <Users className="w-5 h-5 text-primary" />
+                  <StickerCard className="p-6">
+                    <h3 className="flex items-center gap-2 font-display text-lg font-extrabold">
+                      <Users className="size-5 text-pink" aria-hidden="true" />
                       Informations
                     </h3>
-                    <div className="space-y-2 text-sm">
-                      <p><strong>Enfant:</strong> {personalInfo.childName}, {personalInfo.childAge} ans</p>
-                      <p><strong>Parent:</strong> {personalInfo.parentName}</p>
-                      <p><strong>Contact:</strong> {personalInfo.email} / {personalInfo.phone}</p>
+                    <div className="mt-4 space-y-2 text-sm">
+                      <p><strong>Enfant :</strong> {personalInfo.childName}, {personalInfo.childAge} ans</p>
+                      <p><strong>Parent :</strong> {personalInfo.parentName}</p>
+                      <p><strong>Contact :</strong> {personalInfo.email} / {personalInfo.phone}</p>
                       {personalInfo.notes && (
-                        <p><strong>Notes:</strong> {personalInfo.notes}</p>
+                        <p><strong>Notes :</strong> {personalInfo.notes}</p>
                       )}
                     </div>
-                  </Card>
+                  </StickerCard>
                 </div>
 
                 <div>
-                  <Card className="p-6 sticky top-32">
-                    <h3 className="font-bold text-lg mb-4">Total</h3>
-                    <div className="space-y-3 text-sm mb-6">
-                      <div className="flex justify-between">
-                        <span>Formule de base</span>
-                        <span className="font-bold">{selectedPack?.base_price} DH</span>
-                      </div>
-                      {guestCount > (selectedPack?.included_guests || 0) && (
-                        <div className="flex justify-between text-muted-foreground">
-                          <span>Invités supplémentaires ({guestCount - (selectedPack?.included_guests || 0)} × 150 DH)</span>
-                          <span>+{(guestCount - (selectedPack?.included_guests || 0)) * 150} DH</span>
+                  <div className="sticky top-32 space-y-4">
+                    <DarkSurface tone="pink" shadow className="p-6">
+                      <p className="eyebrow tracking-[0.16em] text-paper/60">Total à payer</p>
+                      <p className="mt-2 font-display text-[clamp(2.5rem,8vw,3.25rem)] font-extrabold leading-none tabular-nums text-pink">
+                        {totalPrice}
+                        <span className="ml-1.5 align-baseline font-mono text-base font-medium text-paper/60">DH</span>
+                      </p>
+                      <div className="mt-5 space-y-2 border-t-2 border-paper/15 pt-4 font-mono text-sm">
+                        <div className="flex justify-between text-paper/80">
+                          <span>Formule de base</span>
+                          <span className="font-bold text-paper">{selectedPack?.base_price} DH</span>
                         </div>
-                      )}
-                      {selectedExtraIds.map(extraId => {
-                        const extra = extras.find(e => e.id === extraId)
-                        return extra ? (
-                          <div key={extraId} className="flex justify-between text-muted-foreground">
-                            <span>{extra.name}</span>
-                            <span>+{extra.price} DH</span>
+                        {guestCount > (selectedPack?.included_guests || 0) && (
+                          <div className="flex justify-between text-paper/60">
+                            <span>Invités supp. ({guestCount - (selectedPack?.included_guests || 0)} × 150 DH)</span>
+                            <span>+{(guestCount - (selectedPack?.included_guests || 0)) * 150} DH</span>
                           </div>
-                        ) : null
-                      })}
-                      <div className="border-t pt-3 flex justify-between text-2xl font-black text-primary">
-                        <span>Total</span>
-                        <span>{totalPrice} DH</span>
+                        )}
+                        {selectedExtraIds.map(extraId => {
+                          const extra = extras.find(e => e.id === extraId)
+                          return extra ? (
+                            <div key={extraId} className="flex justify-between text-paper/60">
+                              <span>{extra.name}</span>
+                              <span>+{extra.price} DH</span>
+                            </div>
+                          ) : null
+                        })}
                       </div>
-                    </div>
+                    </DarkSurface>
                     <Button
-                      className="w-full bg-gradient-to-r from-pink to-pink hover:opacity-90"
+                      className="w-full"
+                      variant="pink"
                       size="lg"
                       onClick={handlePayment}
                       disabled={loading}
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Création...
+                          <Loader2 className="mr-2 size-5 animate-spin" aria-hidden="true" />
+                          Création…
                         </>
                       ) : (
                         <>
                           Payer maintenant
-                          <ArrowRight className="w-5 h-5 ml-2" />
+                          <ArrowRight className="ml-2 size-5" aria-hidden="true" />
                         </>
                       )}
                     </Button>
-                    <p className="text-xs text-muted-foreground text-center mt-4">
+                    <p className="text-center text-xs text-mute">
                       Paiement sécurisé par carte bancaire ou virement
                     </p>
-                  </Card>
+                  </div>
                 </div>
               </div>
             </div>
@@ -674,87 +678,90 @@ export default function AnniversairesPage() {
           {/* Step 6: Confirmation */}
           {currentStep === 6 && orderCreated && (
             <div className="space-y-8">
-              <div className="text-center mb-8">
-                <div className="w-20 h-20 rounded-full bg-lime/10 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-10 h-10 text-lime" />
-                </div>
-                <h2 className="text-3xl font-black mb-2">Réservation Confirmée !</h2>
-                <p className="text-muted-foreground">Ton anniversaire est réservé 🎉</p>
-              </div>
+              <NivCelebration
+                tone="lime"
+                title="Réservation confirmée"
+                caption="Ton anniversaire est réservé. On a hâte d'y être !"
+                palette="reward"
+              />
 
-              <Card className="p-8 max-w-2xl mx-auto">
-                <div className="space-y-6">
+              <div className="mx-auto max-w-2xl space-y-6">
+                <DarkSurface tone="pink" shadow className="p-8">
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">Référence de commande</p>
-                    <p className="text-2xl font-black text-primary">{orderCreated.reference_code}</p>
+                    <p className="eyebrow tracking-[0.16em] text-paper/60">Référence de commande</p>
+                    <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-pink">{orderCreated.reference_code}</p>
                   </div>
 
                   {orderCreated.qr_code && (
-                    <div className="flex flex-col items-center gap-4 py-6 border-y">
-                      <QrCode className="w-8 h-8 text-muted-foreground" />
-                      <div className="w-64 h-64 bg-white p-4 rounded-lg">
+                    <div className="mt-6 flex flex-col items-center gap-4 border-t-2 border-paper/15 pt-6">
+                      <QrCode className="size-7 text-paper/70" aria-hidden="true" />
+                      <div className="size-64 rounded-xl border-2 border-ink bg-white p-4">
                         <Image
                           src={orderCreated.qr_code}
                           alt="QR Code"
                           width={256}
                           height={256}
-                          className="w-full h-full"
+                          className="size-full"
                         />
                       </div>
-                      <p className="text-sm text-muted-foreground text-center">
+                      <p className="text-center text-sm text-paper/70">
                         Présente ce QR code le jour de ton anniversaire
                       </p>
                     </div>
                   )}
 
-                  <div className="space-y-3 text-sm">
+                  <div className="mt-6 space-y-3 border-t-2 border-paper/15 pt-6 font-mono text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Date</span>
-                      <span className="font-bold">{new Date(orderCreated.event_date).toLocaleDateString('fr-FR')}</span>
+                      <span className="text-paper/60">Date</span>
+                      <span className="font-bold text-paper">{new Date(orderCreated.event_date).toLocaleDateString('fr-FR')}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Invités</span>
-                      <span className="font-bold">{orderCreated.guest_count} personnes</span>
+                      <span className="text-paper/60">Invités</span>
+                      <span className="font-bold text-paper">{orderCreated.guest_count} personnes</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Total</span>
-                      <span className="font-bold text-primary">{orderCreated.total_price} DH</span>
+                      <span className="text-paper/60">Total</span>
+                      <span className="font-bold text-pink">{orderCreated.total_price} DH</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Statut paiement</span>
-                      <span className="font-bold capitalize">{orderCreated.payment_status}</span>
+                      <span className="text-paper/60">Statut paiement</span>
+                      <span className="font-bold capitalize text-paper">{orderCreated.payment_status}</span>
                     </div>
                   </div>
+                </DarkSurface>
 
-                  <div className="bg-teal/10 border border-teal/20 rounded-lg p-4">
+                <StickerCard className="p-4">
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl border-2 border-ink bg-teal/15 text-lg" aria-hidden="true">📧</span>
                     <p className="text-sm">
-                      📧 Un email de confirmation a été envoyé à <strong>{personalInfo.email}</strong>
+                      Un email de confirmation a été envoyé à <strong>{personalInfo.email}</strong>
                     </p>
                   </div>
+                </StickerCard>
 
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => router.push('/profile/commandes')}
-                    >
-                      Mes commandes
-                    </Button>
-                    <Button
-                      className="flex-1"
-                      onClick={() => router.push('/agenda')}
-                    >
-                      Retour aux événements
-                    </Button>
-                  </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => router.push('/profile/commandes')}
+                  >
+                    Mes commandes
+                  </Button>
+                  <Button
+                    variant="pink"
+                    className="flex-1"
+                    onClick={() => router.push('/agenda')}
+                  >
+                    Retour aux événements
+                  </Button>
                 </div>
-              </Card>
+              </div>
             </div>
           )}
 
           {/* Navigation Buttons */}
           {currentStep < 6 && (
-            <div className="flex items-center justify-between mt-12 pt-8 border-t">
+            <div className="mt-12 flex items-center justify-between border-t-2 border-ink pt-8">
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1) as Step)}
@@ -762,16 +769,17 @@ export default function AnniversairesPage() {
               >
                 Retour
               </Button>
-              <div className="text-sm text-muted-foreground">
+              <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-mute">
                 Étape {currentStep} sur 5
               </div>
               {currentStep < 5 ? (
                 <Button
+                  variant="pink"
                   onClick={() => setCurrentStep((prev) => Math.min(5, prev + 1) as Step)}
                   disabled={!canProceed()}
                 >
                   Continuer
-                  <ChevronRight className="w-4 h-4 ml-2" />
+                  <ChevronRight className="ml-2 size-4" aria-hidden="true" />
                 </Button>
               ) : (
                 <Button
