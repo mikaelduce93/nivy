@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { OnboardingCompleteClient } from "@/components/onboarding/onboarding-complete-client"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
 export const dynamic = "force-dynamic"
 
@@ -46,9 +47,36 @@ export default async function OnboardingCompletePage() {
     })
     .eq("id", userInfo.profileId)
 
+  // Récap de valeur RÉEL (jamais de données mockées en hero — cf. #186).
+  let starterXp: number | null = null
+  let starterCoins: number | null = null
+  try {
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("total_xp")
+      .eq("id", userInfo.profileId)
+      .maybeSingle()
+    if (prof && typeof prof.total_xp === "number") starterXp = prof.total_xp
+  } catch {
+    /* best-effort — le récap est décoratif, pas bloquant */
+  }
+  try {
+    const { data: wallet } = await supabase
+      .from("user_coins")
+      .select("balance")
+      .eq("teen_id", userInfo.profileId)
+      .maybeSingle()
+    if (wallet && typeof wallet.balance === "number") starterCoins = wallet.balance
+  } catch {
+    /* best-effort */
+  }
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-pink/5 p-4 sm:p-6 lg:p-10 flex items-center justify-center">
-      <OnboardingCompleteClient redirectTo="/teen" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-paper p-4 sm:p-6 lg:p-10">
+      <MeshBackground />
+      <div className="relative z-10 w-full max-w-lg">
+        <OnboardingCompleteClient redirectTo="/teen" xp={starterXp} coins={starterCoins} />
+      </div>
     </main>
   )
 }
