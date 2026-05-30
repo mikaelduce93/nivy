@@ -312,7 +312,7 @@ export function Navbar() {
   const menuItems = isHome ? homeMenuItems : fullMenuItems
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80  border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-paper/90 backdrop-blur-md border-b-2 border-ink">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -483,7 +483,7 @@ export function Navbar() {
           id="mobile-menu"
           role="navigation"
           aria-label="Menu mobile"
-          className="lg:hidden border-t border-border bg-background/95  max-h-[80vh] overflow-y-auto"
+          className="lg:hidden border-t-2 border-ink bg-paper/95 backdrop-blur-md max-h-[80vh] overflow-y-auto"
         >
           <div className="px-4 py-6 space-y-4">
             {menuItems.map((item) => (
