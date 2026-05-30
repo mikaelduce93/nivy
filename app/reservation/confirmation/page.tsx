@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from 'next/navigation'
-import { CheckCircle2, Calendar, MapPin, Download, ArrowRight, Wallet, Navigation, Share2 } from 'lucide-react'
+import { Calendar, MapPin, ArrowRight, Share2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import Link from "next/link"
@@ -10,6 +9,9 @@ import { QRCodeSVG } from 'qrcode.react'
 import { TicketActions } from "@/components/ticket-actions"
 import { PaymentCartClearOnMount } from "@/components/payment-cart-clear-on-mount"
 import { getPublicAppConfig } from "@/lib/config/app-config"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, DarkSurface, NivCelebration } from "@/components/brand"
+import { CheckRound } from "@/components/ui/check-round"
 
 export default async function ReservationConfirmationPage({
   searchParams,
@@ -51,86 +53,72 @@ export default async function ReservationConfirmationPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <Navbar />
       {/* Clear any stashed cart from /reservation/paiement now that payment is confirmed. */}
       <PaymentCartClearOnMount />
 
       <div className="container mx-auto px-6 py-32">
-        <div className="max-w-3xl mx-auto">
-          {/* Success Animation */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-lime/10 border-4 border-lime/50 mb-6 animate-scale-in">
-              <CheckCircle2 className="w-12 h-12 text-lime" />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-black mb-4">Réservation confirmée !</h1>
-            <p className="text-xl text-muted-foreground">
-              Vos billets ont été envoyés par email à{" "}
-              <span className="font-semibold text-foreground">{user.email}</span>
-            </p>
-          </div>
+        <div className="max-w-3xl mx-auto space-y-8">
+          {/* Moment de pic — célébration Niv + confetti */}
+          <NivCelebration
+            tone="lime"
+            palette="reward"
+            title="Réservation confirmée"
+            caption={
+              <>
+                Tes billets ont été envoyés par email à{" "}
+                <span className="font-semibold text-paper">{user.email}</span>
+              </>
+            }
+          />
 
-          <Card className="p-8 mb-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
-            <div className="text-center">
-              <p className="font-bold text-lg mb-4">Votre billet électronique</p>
-              <div className="inline-block p-6 bg-white rounded-2xl">
-                <QRCodeSVG 
-                  value={booking.booking_reference}
-                  size={200}
-                  level="H"
-                  includeMargin
-                />
-              </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Présentez ce code QR à l'entrée
-              </p>
-              <p className="text-xs text-muted-foreground mt-2 font-mono">
-                {booking.booking_reference}
-              </p>
+          {/* Billet électronique — surface sombre ponctuelle */}
+          <DarkSurface tone="pink" shadow className="p-8 text-center">
+            <p className="eyebrow tracking-[0.16em] text-paper/60">Ton billet</p>
+            <p className="mt-2 mb-6 font-display text-xl font-extrabold text-paper">Billet électronique</p>
+            <div className="inline-block p-6 bg-white rounded-2xl border-2 border-ink">
+              <QRCodeSVG
+                value={booking.booking_reference}
+                size={200}
+                level="H"
+                includeMargin
+              />
             </div>
-          </Card>
+            <p className="text-sm text-paper/70 mt-4">
+              Présentez ce code QR à l'entrée
+            </p>
+            <p className="text-xs text-paper/60 mt-2 font-mono">
+              {booking.booking_reference}
+            </p>
+          </DarkSurface>
 
           <TicketActions booking={booking} />
 
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <Button variant="outline" className="flex flex-col h-auto py-4 gap-2">
-              <Wallet className="w-5 h-5" />
-              <span className="text-xs">Ajouter à Wallet</span>
-            </Button>
-            <Button variant="outline" className="flex flex-col h-auto py-4 gap-2">
-              <Calendar className="w-5 h-5" />
-              <span className="text-xs">Calendrier</span>
-            </Button>
-            <Button variant="outline" className="flex flex-col h-auto py-4 gap-2">
-              <Navigation className="w-5 h-5" />
-              <span className="text-xs">Itinéraire</span>
-            </Button>
-          </div>
+          {/* Total payé — surface sombre ponctuelle */}
+          <StatHero
+            eyebrow="Total payé"
+            value={booking.total_amount}
+            unit="DH"
+            tone="lime"
+            meta={
+              <span className="font-mono tabular-nums">Réf. {booking.booking_reference}</span>
+            }
+          />
 
           {/* Booking Summary Card */}
-          <Card className="p-8 mb-8">
-            <div className="flex items-center justify-between mb-6 pb-6 border-b border-border">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Référence de réservation</p>
-                <p className="text-2xl font-black font-mono">{booking.booking_reference}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground mb-1">Total</p>
-                <p className="text-3xl font-black text-primary">{booking.total_amount} DH</p>
-              </div>
-            </div>
-
+          <StickerCard className="p-8">
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold mb-4">{booking.events?.title}</h2>
+                <h2 className="font-display text-2xl font-extrabold mb-4 text-ink">{booking.events?.title}</h2>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-5 h-5 text-primary" />
+                    <div className="w-10 h-10 rounded-full border-2 border-ink bg-pink/15 flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-5 h-5 text-pink" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Date</p>
-                      <p className="font-semibold">
+                      <p className="text-sm text-mute">Date</p>
+                      <p className="font-semibold text-ink">
                         {new Date(booking.events?.event_date).toLocaleDateString("fr-FR", {
                           weekday: "long",
                           day: "numeric",
@@ -140,66 +128,68 @@ export default async function ReservationConfirmationPage({
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-primary" />
+                    <div className="w-10 h-10 rounded-full border-2 border-ink bg-pink/15 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-pink" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Lieu</p>
-                      <p className="font-semibold">{booking.events?.city}</p>
+                      <p className="text-sm text-mute">Lieu</p>
+                      <p className="font-semibold text-ink">{booking.events?.city}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-border">
-                <p className="text-sm font-semibold mb-3">Billets ({booking.booking_tickets?.length || 1})</p>
+              <div className="pt-6 border-t-2 border-ink">
+                <p className="text-sm font-semibold mb-3 text-ink">Billets ({booking.booking_tickets?.length || 1})</p>
                 <div className="space-y-2">
                   {booking.booking_tickets?.map((ticket: any) => (
-                    <div key={ticket.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="font-medium">
+                    <div key={ticket.id} className="flex items-center justify-between p-3 rounded-xl border-2 border-line bg-paper-2">
+                      <span className="font-medium text-ink">
                         {ticket.children?.prenom} {ticket.children?.nom}
                       </span>
-                      <span className="text-sm text-muted-foreground capitalize">{ticket.ticket_type}</span>
+                      <span className="text-sm text-mute capitalize">{ticket.ticket_type}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          </Card>
+          </StickerCard>
 
-          <Card className="p-8 mb-8 bg-primary/5 border-primary/20">
-            <h3 className="font-bold text-lg mb-4">Consignes pour l'événement</h3>
+          <StickerCard className="p-8">
+            <p className="eyebrow tracking-[0.16em] text-mute">Avant l'événement</p>
+            <h3 className="mt-2 mb-4 font-display text-lg font-extrabold text-ink">Consignes pour l'événement</h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Arrivez 15 minutes avant le début pour le check-in</span>
+                <CheckRound checked disabled aria-hidden />
+                <span className="text-sm text-ink-2">Arrive 15 minutes avant le début pour le check-in</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Apportez une pièce d'identité pour vérification</span>
+                <CheckRound checked disabled aria-hidden />
+                <span className="text-sm text-ink-2">Apporte une pièce d'identité pour vérification</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Dress code: {booking.events?.dress_code || 'Tenue de soirée'}</span>
+                <CheckRound checked disabled aria-hidden />
+                <span className="text-sm text-ink-2">Dress code : {booking.events?.dress_code || 'Tenue de soirée'}</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Événement 100% sans alcool / Contrôle à l'entrée</span>
+                <CheckRound checked disabled aria-hidden />
+                <span className="text-sm text-ink-2">Événement 100% sans alcool / Contrôle à l'entrée</span>
               </li>
             </ul>
-          </Card>
+          </StickerCard>
 
-          <Card className="p-8 mb-8 bg-gradient-to-r from-teal/10 to-pink/10 border-teal/30">
+          <DarkSurface tone="pink" shadow className="p-8">
             <div className="flex items-start gap-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal to-pink flex items-center justify-center flex-shrink-0">
-                <Share2 className="w-8 h-8 text-ink" />
-              </div>
+              <span className="grid size-16 shrink-0 place-items-center rounded-2xl border-2 border-paper/30">
+                <Share2 className="w-8 h-8 text-paper" />
+              </span>
               <div className="flex-1">
-                <h3 className="font-bold text-xl mb-2">Deviens ambassadeur Teens Party</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Gagne jusqu'à 50 DH par billet vendu ! Partage ta passion et aide tes amis à découvrir nos événements.
+                <p className="eyebrow tracking-[0.16em] text-paper/60">Programme ambassadeur</p>
+                <h3 className="mt-1 font-display text-xl font-extrabold text-paper mb-2">Deviens ambassadeur Nivy</h3>
+                <p className="text-sm text-paper/70 mb-4">
+                  Gagne jusqu'à 50 DH par billet vendu ! Partage ta passion et aide tes amis à découvrir les events Nivy.
                 </p>
-                <Button asChild>
+                <Button asChild variant="pink">
                   <Link href="/devenir-ambassadeur">
                     Rejoindre le programme
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -207,31 +197,25 @@ export default async function ReservationConfirmationPage({
                 </Button>
               </div>
             </div>
-          </Card>
+          </DarkSurface>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button asChild className="flex-1 bg-primary hover:bg-primary/90">
+            <Button asChild variant="pink" className="flex-1">
               <Link href={`/mes-reservations/${bookingId}`}>
                 Voir mes billets
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
-            <Button asChild variant="outline" className="flex-1 bg-transparent">
-              <Link href="/">
-                <Download className="w-4 h-4 mr-2" />
-                Télécharger PDF
-              </Link>
-            </Button>
           </div>
 
-          <p className="text-center text-sm text-muted-foreground mt-8">
-            Des questions ? Contactez-nous à{" "}
-            <a href={`mailto:${contactEmail}`} className="text-primary hover:underline">
+          <p className="text-center text-sm text-mute">
+            Des questions ? Contacte-nous à{" "}
+            <a href={`mailto:${contactEmail}`} className="text-pink hover:underline">
               {contactEmail}
             </a>
             {" "}ou via WhatsApp au{" "}
-            <a href={`https://wa.me/${whatsappPhone}`} className="text-primary hover:underline">
+            <a href={`https://wa.me/${whatsappPhone}`} className="text-pink hover:underline">
               {supportPhone}
             </a>
           </p>

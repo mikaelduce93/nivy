@@ -1,12 +1,14 @@
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { redirect } from "next/navigation"
-import { Clock, CheckCircle2, XCircle, AlertTriangle, ArrowRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import Link from "next/link"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach } from "@/components/brand"
+import type { NivMood } from "@/components/brand"
 
 /**
  * /reservation/approbation?request=<parental_approvals.id> (issue #45)
@@ -16,46 +18,70 @@ import Link from "next/link"
  * Shows the live status. Read via service-role then authorized to the
  * requesting teen (teen_id == auth.uid()).
  */
-const STATUS_VIEW: Record<
-  string,
-  { icon: any; tone: string; title: string; message: string }
-> = {
+type StatusView = {
+  mood: NivMood
+  /** Couleur de la pill statut (token économique charte). */
+  badgeClass: string
+  badgeLabel: string
+  title: string
+  message: string
+  /** CTA contextualisé au statut. */
+  cta: { label: string; href: string }
+}
+
+const FINALIZE_CTA = { label: "Finaliser ma réservation", href: "/agenda" }
+const REDO_CTA = { label: "Refaire ma réservation", href: "/agenda" }
+const BACK_CTA = { label: "Retour à l'agenda", href: "/agenda" }
+
+const STATUS_VIEW: Record<string, StatusView> = {
   pending: {
-    icon: Clock,
-    tone: "from-gold to-coral",
+    mood: "calm",
+    badgeClass: "border-gold bg-gold/15 text-ink",
+    badgeLabel: "En attente",
     title: "En attente d'approbation",
     message:
       "Ta réservation dépasse ton budget : ton parent a reçu une demande d'approbation. Tu seras notifié dès qu'il aura décidé.",
+    cta: BACK_CTA,
   },
   approved: {
-    icon: CheckCircle2,
-    tone: "from-lime to-lime",
+    mood: "hype",
+    badgeClass: "border-lime bg-lime/20 text-ink",
+    badgeLabel: "Approuvée",
     title: "Demande approuvée !",
     message: "Ton parent a approuvé la demande. Tu peux finaliser ta réservation.",
+    cta: FINALIZE_CTA,
   },
   auto_approved: {
-    icon: CheckCircle2,
-    tone: "from-lime to-lime",
+    mood: "hype",
+    badgeClass: "border-lime bg-lime/20 text-ink",
+    badgeLabel: "Approuvée",
     title: "Demande approuvée !",
     message: "La demande a été approuvée automatiquement. Tu peux finaliser ta réservation.",
+    cta: FINALIZE_CTA,
   },
   denied: {
-    icon: XCircle,
-    tone: "from-destructive to-pink",
+    mood: "proud",
+    badgeClass: "border-coral bg-coral/15 text-ink",
+    badgeLabel: "Refusée",
     title: "Demande refusée",
     message: "Ton parent a refusé cette demande. Parles-en avec lui si tu penses que c'est une erreur.",
+    cta: REDO_CTA,
   },
   auto_denied: {
-    icon: XCircle,
-    tone: "from-destructive to-pink",
+    mood: "proud",
+    badgeClass: "border-coral bg-coral/15 text-ink",
+    badgeLabel: "Refusée",
     title: "Demande refusée",
     message: "La demande a été refusée automatiquement.",
+    cta: REDO_CTA,
   },
   expired: {
-    icon: AlertTriangle,
-    tone: "from-paper-2 to-card",
+    mood: "calm",
+    badgeClass: "border-ink bg-paper-2 text-ink",
+    badgeLabel: "Expirée",
     title: "Demande expirée",
     message: "Cette demande d'approbation a expiré. Tu peux refaire ta réservation.",
+    cta: REDO_CTA,
   },
 }
 
@@ -90,33 +116,38 @@ export default async function ReservationApprovalPage({
   }
 
   const view = STATUS_VIEW[approval.status] ?? STATUS_VIEW.pending
-  const Icon = view.icon
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <Navbar />
       <div className="container mx-auto px-6 py-32">
-        <div className="max-w-lg mx-auto">
-          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink p-8 text-center">
-            <div
-              className={`w-20 h-20 rounded-full bg-gradient-to-br ${view.tone} flex items-center justify-center mx-auto mb-6`}
-            >
-              <Icon className="h-10 w-10 text-ink" />
+        <div className="max-w-lg mx-auto space-y-6">
+          <StickerCard className="p-8 text-center">
+            <p className="eyebrow tracking-[0.16em] text-mute">Approbation parentale</p>
+            <div className="mt-3 mb-4 flex justify-center">
+              <span
+                className={`rounded-full border-2 px-4 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.16em] ${view.badgeClass}`}
+              >
+                {view.badgeLabel}
+              </span>
             </div>
-            <h1 className="text-2xl font-black text-ink mb-2">{view.title}</h1>
+            <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink mb-2">{view.title}</h1>
             <p className="text-mute mb-6">{view.message}</p>
             {approval.amount != null && (
               <p className="text-sm text-mute mb-6">
-                Montant concerné : <span className="font-bold text-ink">{approval.amount} DH</span>
+                Montant concerné :{" "}
+                <span className="font-mono font-bold text-ink tabular-nums">{approval.amount} DH</span>
               </p>
             )}
-            <Button asChild className="w-full">
-              <Link href="/agenda">
-                Retour à l'agenda
+            <Button asChild variant="pink" className="w-full">
+              <Link href={view.cta.href}>
+                {view.cta.label}
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </Button>
-          </Card>
+          </StickerCard>
+
+          <NivCoach mood={view.mood} message={view.message} />
         </div>
       </div>
       <Footer />

@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CreditCard, Smartphone, Wallet, CheckCircle2, Loader2, Sparkles, ArrowLeft } from 'lucide-react'
+import { StickerCard } from '@/components/ui/sticker-card'
+import { CheckRound } from '@/components/ui/check-round'
+import { CreditCard, Smartphone, Wallet, Loader2, Sparkles, ArrowLeft } from 'lucide-react'
 import { XPPaymentSelector } from '@/components/xp-payment-selector'
 import { MobileMoneyPayment } from '@/components/mobile-money-payment'
 import { useXP } from '@/lib/hooks/use-gamification'
@@ -257,24 +258,28 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
               const Icon = method.icon
               const isSelected = selectedMethod === method.id
               return (
-                <Card
+                <StickerCard
                   key={method.id}
-                  className={`p-4 cursor-pointer transition-all ${
+                  role="button"
+                  tabIndex={isProcessing ? -1 : 0}
+                  aria-pressed={isSelected}
+                  variant="hover"
+                  className={`p-4 ${
                     isSelected
-                      ? 'border-primary bg-primary/5'
-                      : 'border-ink hover:border-ink'
+                      ? 'border-ink bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink'
+                      : ''
                   } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
                   onClick={() => !isProcessing && setSelectedMethod(method.id)}
                 >
                   <div className="flex items-start gap-3">
-                    <Icon className={`w-6 h-6 ${method.color}`} />
+                    <Icon className={`w-6 h-6 ${isSelected ? 'text-paper' : method.color}`} />
                     <div className="flex-1">
                       <p className="font-semibold text-sm mb-0.5">{method.name}</p>
-                      <p className="text-xs text-muted-foreground">{method.description}</p>
+                      <p className={`text-xs ${isSelected ? 'text-paper/70' : 'text-mute'}`}>{method.description}</p>
                     </div>
-                    {isSelected && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                    {isSelected && <CheckRound checked disabled aria-hidden />}
                   </div>
-                </Card>
+                </StickerCard>
               )
             })}
           </div>
@@ -282,30 +287,31 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       )}
 
       {/* Payment Summary */}
-      <Card className="p-4 bg-gradient-to-br from-paper-2 to-card border-ink">
+      <StickerCard className="p-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-mute">Total</span>
-            <span className="text-ink">{actualTotalAmount} DH</span>
+            <span className="font-mono text-ink tabular-nums">{actualTotalAmount} DH</span>
           </div>
           {xpToUse > 0 && (
             <div className="flex justify-between text-sm">
               <span className="text-pink">Réduction XP ({xpToUse} XP)</span>
-              <span className="text-pink">-{actualTotalAmount - dhToPay} DH</span>
+              <span className="font-mono text-pink tabular-nums">-{actualTotalAmount - dhToPay} DH</span>
             </div>
           )}
-          <div className="flex justify-between text-lg font-bold pt-2 border-t border-ink">
+          <div className="flex justify-between text-lg font-bold pt-2 border-t-2 border-ink">
             <span className="text-ink">À payer</span>
-            <span className="text-teal">{dhToPay} DH</span>
+            <span className="font-mono text-ink tabular-nums">{dhToPay} DH</span>
           </div>
         </div>
-      </Card>
+      </StickerCard>
 
       {/* Pay Button */}
       <Button
         onClick={handlePayment}
         disabled={isProcessing}
-        className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0 text-lg py-6"
+        variant="default"
+        className="w-full text-lg py-6"
         size="lg"
       >
         {isProcessing ? (
