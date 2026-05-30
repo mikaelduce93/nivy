@@ -1,15 +1,15 @@
 /**
- * Wave 3B.2 — mentor availability page (truthful empty state).
+ * Espace mentor — disponibilités (état vide honnête).
  *
- * `mentor_availability` table is not in the canonical DB yet (canon §1 row 7
- * deferred to Wave 3B.3). We render an honest "module not yet available"
- * state — never fake calendar slots.
+ * La gestion des créneaux récurrents n'est pas encore branchée côté données :
+ * on affiche un état « bientôt disponible » sincère — jamais de faux créneaux.
  */
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar } from "lucide-react"
+import Link from "next/link"
 import { getUserRole } from "@/lib/auth/get-user-role"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
@@ -19,12 +19,15 @@ export default async function MentorAvailabilityPage() {
   if (userInfo.role !== "mentor") {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-black text-ink">Mes disponibilités</h1>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-10 text-center text-destructive">
-            Accès réservé aux mentors.
-          </CardContent>
-        </Card>
+        <header>
+          <p className="eyebrow tracking-[0.16em] text-pink">Disponibilités</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Mes disponibilités
+          </h1>
+        </header>
+        <StickerCard className="items-center p-10 text-center">
+          <p className="font-bold text-coral">Accès réservé aux mentors.</p>
+        </StickerCard>
       </main>
     )
   }
@@ -32,24 +35,25 @@ export default async function MentorAvailabilityPage() {
   return (
     <main className="space-y-6">
       <header>
-        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
-          <Calendar className="w-7 h-7 text-teal" />
-          Mes disponibilités
+        <p className="eyebrow tracking-[0.16em] text-pink">Disponibilités</p>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">
+          Tes <em className="font-semibold italic text-pink">créneaux</em>
         </h1>
+        <p className="mt-2 text-mute">
+          Bientôt : un calendrier hebdo pour poser tes disponibilités récurrentes.
+        </p>
       </header>
-      <Card className="bg-card border-ink">
-        <CardHeader>
-          <CardTitle className="text-ink">Calendrier</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EmptyState
-            icon={Calendar}
-            title="Module en cours de mise en place"
-            description="La gestion de tes créneaux récurrents (mentor_availability) sera disponible avec Wave 3B.3. En attendant, tu peux contacter ton parent partenaire pour fixer une session ad-hoc via /mentor/sessions."
-            action={{ label: "Voir mes sessions", href: "/mentor/sessions" }}
-          />
-        </CardContent>
-      </Card>
+
+      <NivEmpty
+        mood="calm"
+        title="La gestion des créneaux arrive très bientôt"
+        description="On finalise un calendrier hebdo pour que tu fixes tes disponibilités en deux clics. En attendant, gère tes rendez-vous depuis tes sessions."
+        action={
+          <Button asChild variant="pink">
+            <Link href="/mentor/sessions">Voir mes sessions</Link>
+          </Button>
+        }
+      />
     </main>
   )
 }

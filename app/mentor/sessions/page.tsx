@@ -1,6 +1,9 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+import { Button } from "@/components/ui/button"
+import { NivEmpty } from "@/components/brand"
 import { MentorSessionsClient, type MentorSessionRow } from "./sessions-client"
 
 const VALID_FILTERS = ["pending_approval", "approved", "completed", "denied"] as const
@@ -46,16 +49,26 @@ export default async function MentorSessionsPage({
     <div className="min-h-screen bg-background text-ink -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="border-b border-ink pb-6">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tighter">Sessions</h1>
-          <p className="text-mute mt-2">
-            Gérez vos demandes en attente, vos rendez-vous à venir et l'historique.
+          <p className="eyebrow tracking-[0.16em] text-pink">Espace mentor</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
+            Tes <em className="font-semibold italic text-pink">sessions</em>
+          </h1>
+          <p className="mt-2 text-mute">
+            Tes demandes en attente, tes rendez-vous à venir et ton historique.
           </p>
         </header>
 
         {!mentorId ? (
-          <div className="rounded-2xl border border-gold/30 bg-gold/10 p-6 text-gold">
-            Profil mentor introuvable. Complétez votre fiche depuis l'écran Profil.
-          </div>
+          <NivEmpty
+            mood="calm"
+            title="Profil mentor introuvable"
+            description="Complète ta fiche depuis l'écran Profil pour gérer tes sessions."
+            action={
+              <Button asChild variant="pink">
+                <Link href="/mentor/profile/edit">Compléter mon profil</Link>
+              </Button>
+            }
+          />
         ) : (
           <MentorSessionsClient initialSessions={sessions} initialFilter={filter} />
         )}

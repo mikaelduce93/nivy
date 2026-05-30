@@ -4,6 +4,9 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { CheckCircle2, Clock, XCircle, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StickerTabs } from "@/components/brand/sticker-tab"
+import { NivEmpty } from "@/components/brand"
 
 export type MentorSessionRow = {
   id: string
@@ -43,6 +46,12 @@ const FILTER_ICONS: Record<Filter, React.ComponentType<{ className?: string }>> 
   denied: XCircle,
 }
 
+// Libellés FR pour le badge-ligne (étend FILTER_LABELS au statut `cancelled`).
+const STATUS_LABELS: Record<string, string> = {
+  ...FILTER_LABELS,
+  cancelled: "Annulée",
+}
+
 export function MentorSessionsClient({
   initialSessions,
   initialFilter,
@@ -71,7 +80,7 @@ export function MentorSessionsClient({
       const res = await fetch(`/api/mentor/sessions/${id}/complete`, { method: "POST" })
       const json = await res.json()
       if (!res.ok || !json?.success) {
-        setError(json?.error || "Échec — la finalisation peut nécessiter une RPC backend (voir TODO).")
+        setError(json?.error || "On n'a pas pu clôturer la session. Réessaie dans un instant.")
       } else {
         setSessions((prev) => prev.filter((s) => s.id !== id))
       }
@@ -84,121 +93,108 @@ export function MentorSessionsClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
-        {(Object.keys(FILTER_LABELS) as Filter[]).map((f) => {
+      <StickerTabs
+        ariaLabel="Filtrer les sessions"
+        value={filter}
+        onValueChange={(v) => handleFilter(v as Filter)}
+        tabs={(Object.keys(FILTER_LABELS) as Filter[]).map((f) => {
           const Icon = FILTER_ICONS[f]
-          const active = f === filter
-          return (
-            <button
-              key={f}
-              type="button"
-              onClick={() => handleFilter(f)}
-              disabled={isPending}
-              className={cn(
-                "px-4 py-2 rounded-2xl border text-xs font-black uppercase tracking-wider inline-flex items-center gap-2 transition-colors",
-                active
-                  ? "bg-pink/20 border-pink/40 text-pink"
-                  : "bg-paper-2 border-ink text-mute hover:bg-paper-2 hover:text-ink",
-              )}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              {FILTER_LABELS[f]}
-            </button>
-          )
+          return {
+            value: f,
+            label: FILTER_LABELS[f],
+            icon: <Icon className="size-4" />,
+          }
         })}
-      </div>
+      />
 
       {error && (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="rounded-2xl border-2 border-coral bg-coral/10 p-4 text-sm font-medium text-coral">
           {error}
         </div>
       )}
 
       {sessions.length === 0 ? (
-        <div className="rounded-2xl border border-ink bg-card p-10 text-center">
-          <p className="text-ink-2 font-bold">Aucune session dans cette catégorie.</p>
-          <p className="text-mute text-sm mt-2">
-            Les nouvelles demandes apparaîtront ici dès qu'un teen vous réserve.
-          </p>
-        </div>
+        <NivEmpty
+          title="Aucune session ici"
+          description="Les nouvelles demandes s'affichent dès qu'un teen te réserve. Reste prêt, coach."
+        />
       ) : (
         <ul className="space-y-3">
           {sessions.map((s) => (
-            <li
-              key={s.id}
-              className="rounded-2xl border border-ink bg-card p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-base font-black text-ink">
-                    {new Date(s.scheduled_for).toLocaleString("fr-FR", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
-                  </span>
-                  {s.is_intro && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-teal/15 border border-teal/30 text-teal uppercase tracking-wider">
-                      Intro
+            <li key={s.id}>
+              <StickerCard className="p-5">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="font-mono text-base font-bold text-ink">
+                      {new Date(s.scheduled_for).toLocaleString("fr-FR", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
                     </span>
-                  )}
-                </div>
-                <div className="text-xs text-mute font-bold uppercase tracking-tight space-x-2">
-                  <span>{s.duration_minutes} min</span>
-                  <span>•</span>
-                  <span>
-                    {Number(s.amount_dh) > 0
-                      ? `${Number(s.amount_dh).toFixed(2)} DH`
-                      : "Gratuit"}
-                  </span>
-                  <span>•</span>
-                  <span>Mentee: {s.mentee_user_id.slice(0, 8)}…</span>
-                </div>
-                {s.notes && (
-                  <p className="mt-2 text-xs text-mute line-clamp-2">{s.notes}</p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3">
-                {s.meeting_url && (
-                  <a
-                    href={s.meeting_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs font-bold text-pink hover:text-pink underline underline-offset-2"
-                  >
-                    Lien meeting
-                  </a>
-                )}
-
-                {filter === "approved" && (
-                  <button
-                    type="button"
-                    onClick={() => handleComplete(s.id)}
-                    disabled={busyId === s.id}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-lime/15 hover:bg-lime/25 border border-lime/30 text-lime text-xs font-black uppercase tracking-wider disabled:opacity-50"
-                  >
-                    {busyId === s.id ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    {s.is_intro && (
+                      <span className="rounded-full border-2 border-ink bg-teal/15 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-teal">
+                        Intro
+                      </span>
                     )}
-                    Marquer terminée
-                  </button>
-                )}
-
-                <span
-                  className={cn(
-                    "text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full border",
-                    s.status === "approved" && "bg-lime/10 border-lime/30 text-lime",
-                    s.status === "pending_approval" && "bg-gold/10 border-gold/30 text-gold",
-                    s.status === "completed" && "bg-teal/10 border-teal/30 text-teal",
-                    s.status === "denied" && "bg-destructive/10 border-destructive/30 text-destructive",
-                    s.status === "cancelled" && "bg-muted border-line text-ink-2",
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs font-bold uppercase tracking-[0.08em] text-mute">
+                    <span>{s.duration_minutes} min</span>
+                    <span aria-hidden="true">•</span>
+                    <span className={Number(s.amount_dh) > 0 ? "text-coral" : undefined}>
+                      {Number(s.amount_dh) > 0
+                        ? `⊙ ${Number(s.amount_dh).toFixed(2)} DH`
+                        : "Gratuit"}
+                    </span>
+                  </div>
+                  {s.notes && (
+                    <p className="mt-2 line-clamp-2 text-xs text-mute">{s.notes}</p>
                   )}
-                >
-                  {s.status}
-                </span>
-              </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {s.meeting_url && (
+                    <a
+                      href={s.meeting_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-bold text-pink underline underline-offset-2 hover:text-pink"
+                    >
+                      Lien meeting
+                    </a>
+                  )}
+
+                  {filter === "approved" && (
+                    <button
+                      type="button"
+                      onClick={() => handleComplete(s.id)}
+                      disabled={busyId === s.id}
+                      className="inline-flex min-h-touch items-center gap-2 rounded-xl border-2 border-ink bg-lime px-4 py-2 font-mono text-xs font-bold uppercase tracking-[0.1em] text-ink shadow-stkr-sm transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md disabled:opacity-50 motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                    >
+                      {busyId === s.id ? (
+                        <Loader2 className="size-3.5 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="size-3.5" />
+                      )}
+                      Marquer terminée
+                    </button>
+                  )}
+
+                  <span
+                    className={cn(
+                      "rounded-full border-2 border-ink px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]",
+                      s.status === "approved" && "bg-lime/15 text-lime",
+                      s.status === "pending_approval" && "bg-gold/15 text-gold",
+                      s.status === "completed" && "bg-teal/15 text-teal",
+                      s.status === "denied" && "bg-coral/15 text-coral",
+                      s.status === "cancelled" && "bg-paper-2 text-ink-2",
+                    )}
+                  >
+                    {STATUS_LABELS[s.status] ?? s.status}
+                  </span>
+                </div>
+                </div>
+              </StickerCard>
             </li>
           ))}
         </ul>
