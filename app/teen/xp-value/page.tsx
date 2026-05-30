@@ -2,48 +2,33 @@
  * PAGE VALEUR XP
  * ===============
  * Affiche la valeur des XP en DH, calculateur ROI,
- * historique des conversions et projections
+ * historique des transactions et projections.
  */
 
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { motion } from "framer-motion"
+import Link from "next/link"
 import {
-  Coins,
-  TrendingUp,
-  Calculator,
-  History,
-  Sparkles,
-  ArrowRight,
-  ArrowUpRight,
-  ArrowDownRight,
-  Zap,
-  Gift,
-  Calendar,
-  Target,
-  Trophy,
-  ChevronRight,
-  Info,
-  Loader2,
-  PiggyBank,
-  Wallet,
-  BarChart3,
-  Clock,
-  Check,
+  Coins, TrendingUp, Calculator, History, Sparkles, ArrowRight,
+  ArrowUpRight, ArrowDownRight, Zap, Gift, Calendar, Target,
+  Trophy, Info, Loader2, PiggyBank, Wallet, BarChart3, Check,
 } from "lucide-react"
-import { EmptyState } from "@/components/ui/states/empty-state"
 
-// ============================================================================
-// TYPES
-// ============================================================================
+import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { StickerTabs } from "@/components/brand/sticker-tab"
+import { Niv, DarkSurface } from "@/components/brand"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 interface XPStats {
   total_xp: number
   xp_value_dh: number
   lifetime_earned: number
   lifetime_spent: number
-  xp_rate: number // XP per DH
+  xp_rate: number
   max_payment_percentage: number
 }
 
@@ -65,229 +50,117 @@ interface Projection {
   estimated_value: number
 }
 
-// ============================================================================
-// HELPERS
-// ============================================================================
+const formatNumber = (num: number) => num.toLocaleString("fr-FR")
+const formatCurrency = (amount: number) => `${amount.toFixed(2)} DH`
+const formatDate = (date: string) => new Date(date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })
+const formatTime = (date: string) => new Date(date).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
 
-function formatNumber(num: number): string {
-  return num.toLocaleString("fr-FR")
+const transactionTypeConfig: Record<string, { bg: string; icon: any; label: string }> = {
+  earn: { bg: "bg-lime", icon: ArrowUpRight, label: "Gagné" },
+  payment: { bg: "bg-destructive", icon: ArrowDownRight, label: "Dépensé" },
+  refund: { bg: "bg-teal", icon: ArrowUpRight, label: "Remboursé" },
+  bonus: { bg: "bg-gold", icon: Sparkles, label: "Bonus" },
+  penalty: { bg: "bg-destructive", icon: ArrowDownRight, label: "Pénalité" },
+  transfer: { bg: "bg-pink", icon: ArrowRight, label: "Transfert" },
 }
 
-function formatCurrency(amount: number): string {
-  return `${amount.toFixed(2)} DH`
-}
-
-function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })
-}
-
-function formatTime(date: string): string {
-  return new Date(date).toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
-
-const transactionTypeConfig: Record<string, { color: string; icon: any; label: string }> = {
-  earn: { color: "text-lime bg-lime/20", icon: ArrowUpRight, label: "Gagné" },
-  payment: { color: "text-destructive bg-destructive/20", icon: ArrowDownRight, label: "Dépensé" },
-  refund: { color: "text-teal bg-teal/20", icon: ArrowUpRight, label: "Remboursé" },
-  bonus: { color: "text-gold bg-gold/20", icon: Sparkles, label: "Bonus" },
-  penalty: { color: "text-destructive bg-destructive/20", icon: ArrowDownRight, label: "Pénalité" },
-  transfer: { color: "text-pink bg-pink/20", icon: ArrowRight, label: "Transfert" },
-}
-
-// ============================================================================
-// VALUE CARD
-// ============================================================================
-
-interface ValueCardProps {
-  stats: XPStats
-}
-
-function ValueCard({ stats }: ValueCardProps) {
+/* -------------------------------- ValueCard -------------------------------- */
+function ValueCard({ stats }: { stats: XPStats }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal via-teal to-pink p-6"
-    >
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: "24px 24px",
-        }} />
-      </div>
-
-      {/* Floating coins animation */}
-      <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-paper-2 blur-2xl" />
-      <div className="absolute -left-8 -bottom-8 w-24 h-24 rounded-full bg-paper-2 blur-2xl" />
-
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-paper-2  flex items-center justify-center">
-            <Wallet className="w-6 h-6 text-ink" />
-          </div>
-          <div>
-            <p className="text-ink/80 text-sm">Valeur de tes XP</p>
-            <h2 className="text-3xl font-bold text-ink">
-              {formatCurrency(stats.xp_value_dh)}
-            </h2>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-paper-2  rounded-xl p-3">
-            <div className="flex items-center gap-2 text-ink/70 text-sm mb-1">
-              <Zap className="w-4 h-4" />
-              Total XP
-            </div>
-            <p className="text-xl font-bold text-ink">{formatNumber(stats.total_xp)}</p>
-          </div>
-          <div className="bg-paper-2  rounded-xl p-3">
-            <div className="flex items-center gap-2 text-ink/70 text-sm mb-1">
-              <Coins className="w-4 h-4" />
-              Taux
-            </div>
-            <p className="text-xl font-bold text-ink">{stats.xp_rate} XP = 1 DH</p>
-          </div>
-        </div>
-
-        <div className="mt-4 p-3 bg-paper-2  rounded-xl">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-ink/70">Paiement max avec XP</span>
-            <span className="font-bold text-ink">{stats.max_payment_percentage * 100}%</span>
-          </div>
-          <div className="mt-2 h-2 bg-paper-2 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-white rounded-full"
-              style={{ width: `${stats.max_payment_percentage * 100}%` }}
-            />
-          </div>
+    <DarkSurface tone="teal" shadow className="p-6">
+      <div className="mb-6 flex items-center gap-3">
+        <span className="grid size-12 place-items-center rounded-2xl border-2 border-paper/30">
+          <Wallet className="size-6 text-paper" aria-hidden="true" />
+        </span>
+        <div>
+          <p className="eyebrow tracking-[0.16em] text-paper/60">Valeur de tes XP</p>
+          <h2 className="font-display text-3xl font-extrabold tabular-nums text-teal">{formatCurrency(stats.xp_value_dh)}</h2>
         </div>
       </div>
-    </motion.div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-xl border border-paper/15 bg-paper/5 p-3">
+          <p className="flex items-center gap-2 font-mono text-xs text-paper/70"><Zap className="size-4" aria-hidden="true" />Total XP</p>
+          <p className="mt-1 font-display text-xl font-extrabold tabular-nums text-paper">{formatNumber(stats.total_xp)}</p>
+        </div>
+        <div className="rounded-xl border border-paper/15 bg-paper/5 p-3">
+          <p className="flex items-center gap-2 font-mono text-xs text-paper/70"><Coins className="size-4" aria-hidden="true" />Taux</p>
+          <p className="mt-1 font-display text-xl font-extrabold tabular-nums text-paper">{stats.xp_rate} XP = 1 DH</p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-paper/15 bg-paper/5 p-3">
+        <div className="flex items-center justify-between font-mono text-sm text-paper/70">
+          <span>Paiement max avec XP</span>
+          <span className="font-bold text-paper">{stats.max_payment_percentage * 100}%</span>
+        </div>
+        <div className="mt-2">
+          <SegmentedProgress steps={10} current={Math.round(stats.max_payment_percentage * 10)} />
+        </div>
+      </div>
+    </DarkSurface>
   )
 }
 
-// ============================================================================
-// STATS CARDS
-// ============================================================================
-
-interface StatsCardsProps {
-  stats: XPStats
-  savings: number
-}
-
-function StatsCards({ stats, savings }: StatsCardsProps) {
+/* ------------------------------- StatsCards -------------------------------- */
+function StatsCards({ stats, savings }: { stats: XPStats; savings: number }) {
   const cards = [
-    {
-      icon: TrendingUp,
-      label: "XP Gagnés (total)",
-      value: formatNumber(stats.lifetime_earned),
-      subtext: `≈ ${formatCurrency(stats.lifetime_earned / stats.xp_rate)}`,
-      color: "from-lime to-lime",
-    },
-    {
-      icon: PiggyBank,
-      label: "Économies réalisées",
-      value: formatCurrency(savings),
-      subtext: "en utilisant tes XP",
-      color: "from-gold to-gold",
-    },
-    {
-      icon: Gift,
-      label: "XP Dépensés",
-      value: formatNumber(stats.lifetime_spent),
-      subtext: `≈ ${formatCurrency(stats.lifetime_spent / stats.xp_rate)}`,
-      color: "from-pink to-pink",
-    },
+    { icon: TrendingUp, label: "XP gagnés (total)", value: formatNumber(stats.lifetime_earned), subtext: `≈ ${formatCurrency(stats.lifetime_earned / stats.xp_rate)}`, bg: "bg-lime" },
+    { icon: PiggyBank, label: "Économies réalisées", value: formatCurrency(savings), subtext: "en utilisant tes XP", bg: "bg-gold" },
+    { icon: Gift, label: "XP dépensés", value: formatNumber(stats.lifetime_spent), subtext: `≈ ${formatCurrency(stats.lifetime_spent / stats.xp_rate)}`, bg: "bg-pink" },
   ]
-
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      {cards.map((card, index) => (
-        <motion.div
-          key={card.label}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-          className="bg-card rounded-2xl p-4 border border-ink"
-        >
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-3`}>
-            <card.icon className="w-5 h-5 text-ink" />
-          </div>
-          <p className="text-sm text-mute mb-1">{card.label}</p>
-          <p className="text-2xl font-bold text-ink">{card.value}</p>
-          <p className="text-xs text-mute mt-1">{card.subtext}</p>
-        </motion.div>
+      {cards.map((card) => (
+        <StickerCard key={card.label} variant="hover" className="gap-1 p-4">
+          <span className={cn("mb-2 grid size-10 place-items-center rounded-xl border-2 border-ink", card.bg)}>
+            <card.icon className="size-5 text-ink" aria-hidden="true" />
+          </span>
+          <p className="text-sm text-mute">{card.label}</p>
+          <p className="font-display text-2xl font-extrabold tabular-nums text-ink">{card.value}</p>
+          <p className="font-mono text-xs text-mute">{card.subtext}</p>
+        </StickerCard>
       ))}
     </div>
   )
 }
 
-// ============================================================================
-// ROI CALCULATOR
-// ============================================================================
-
-interface ROICalculatorProps {
-  stats: XPStats
-}
-
-function ROICalculator({ stats }: ROICalculatorProps) {
+/* ------------------------------ ROICalculator ------------------------------ */
+function ROICalculator({ stats }: { stats: XPStats }) {
   const [purchaseAmount, setPurchaseAmount] = useState<number>(100)
   const [xpPercentage, setXpPercentage] = useState<number>(50)
 
-  const maxXpUsable = Math.min(
-    stats.total_xp,
-    Math.floor((purchaseAmount * xpPercentage / 100) * stats.xp_rate)
-  )
+  const maxXpUsable = Math.min(stats.total_xp, Math.floor((purchaseAmount * xpPercentage / 100) * stats.xp_rate))
   const xpValue = maxXpUsable / stats.xp_rate
   const cashToPay = Math.max(0, purchaseAmount - xpValue)
   const savings = Math.min(xpValue, purchaseAmount)
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-2xl p-6 border border-ink"
-    >
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
-          <Calculator className="w-5 h-5 text-ink" />
-        </div>
+    <StickerCard className="gap-6 p-6">
+      <div className="flex items-center gap-3">
+        <span className="grid size-10 place-items-center rounded-xl border-2 border-ink bg-teal"><Calculator className="size-5 text-ink" aria-hidden="true" /></span>
         <div>
-          <h3 className="font-bold text-ink">Calculateur ROI</h3>
-          <p className="text-sm text-mute">Simule tes économies</p>
+          <h3 className="font-display font-bold text-ink">Calculateur ROI</h3>
+          <p className="text-sm text-mute">Simule tes économies.</p>
         </div>
       </div>
 
       <div className="space-y-6">
-        {/* Purchase amount */}
-        <div>
-          <label className="block text-sm font-medium text-ink-2 mb-2">
-            Montant de l'achat (DH)
-          </label>
+        <div className="space-y-1.5">
+          <label className="eyebrow tracking-[0.16em]" htmlFor="roi-amount">Montant de l'achat (DH)</label>
           <input
+            id="roi-amount"
             type="number"
             value={purchaseAmount}
             onChange={(e) => setPurchaseAmount(Math.max(0, Number(e.target.value)))}
-            className="w-full px-4 py-3 bg-card border border-ink rounded-xl text-ink focus:outline-none focus:ring-2 focus:ring-teal"
+            className="w-full rounded-xl border-2 border-ink bg-white px-4 py-3 text-ink outline-none focus-visible:border-ink"
           />
         </div>
 
-        {/* XP percentage slider */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-ink-2">
-              Pourcentage en XP
-            </label>
-            <span className="text-teal font-bold">{xpPercentage}%</span>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="eyebrow tracking-[0.16em]">Pourcentage en XP</span>
+            <span className="font-mono font-bold text-teal">{xpPercentage}%</span>
           </div>
           <input
             type="range"
@@ -295,194 +168,129 @@ function ROICalculator({ stats }: ROICalculatorProps) {
             max={stats.max_payment_percentage * 100}
             value={xpPercentage}
             onChange={(e) => setXpPercentage(Number(e.target.value))}
-            className="w-full h-2 bg-muted rounded-full appearance-none cursor-pointer accent-teal"
+            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-paper-2 accent-pink"
           />
-          <div className="flex justify-between text-xs text-mute mt-1">
+          <div className="mt-1 flex justify-between font-mono text-xs text-mute">
             <span>0%</span>
             <span>{stats.max_payment_percentage * 100}% max</span>
           </div>
         </div>
 
-        {/* Results */}
-        <div className="space-y-3 pt-4 border-t border-ink">
-          <div className="flex items-center justify-between">
-            <span className="text-mute">XP utilisés</span>
-            <span className="font-bold text-ink">{formatNumber(maxXpUsable)} XP</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-mute">Valeur XP</span>
-            <span className="font-bold text-teal">{formatCurrency(xpValue)}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-mute">Reste à payer</span>
-            <span className="font-bold text-ink">{formatCurrency(cashToPay)}</span>
-          </div>
-          <div className="flex items-center justify-between pt-3 border-t border-ink">
-            <span className="text-ink-2 font-medium">Tu économises</span>
-            <span className="text-xl font-bold text-lime">{formatCurrency(savings)}</span>
+        <div className="space-y-3 border-t-2 border-dashed border-line pt-4 font-mono text-sm">
+          <Row label="XP utilisés" value={`${formatNumber(maxXpUsable)} XP`} />
+          <Row label="Valeur XP" value={formatCurrency(xpValue)} valueClass="text-teal" />
+          <Row label="Reste à payer" value={formatCurrency(cashToPay)} />
+          <div className="flex items-center justify-between border-t-2 border-dashed border-line pt-3">
+            <span className="font-medium text-ink-2">Tu économises</span>
+            <span className="font-display text-xl font-extrabold text-lime">{formatCurrency(savings)}</span>
           </div>
         </div>
 
-        {/* Availability check */}
         {maxXpUsable > stats.total_xp && (
-          <div className="flex items-start gap-2 p-3 bg-gold/10 border border-gold/30 rounded-xl">
-            <Info className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-gold">
-              Tu n'as pas assez d'XP. Il te manque {formatNumber(maxXpUsable - stats.total_xp)} XP.
-            </p>
+          <div className="flex items-start gap-2 rounded-xl border-2 border-gold bg-warning-soft p-3">
+            <Info className="mt-0.5 size-5 shrink-0 text-gold" aria-hidden="true" />
+            <p className="text-sm text-ink-2">Tu n'as pas assez d'XP. Il te manque {formatNumber(maxXpUsable - stats.total_xp)} XP.</p>
           </div>
         )}
       </div>
-    </motion.div>
+    </StickerCard>
   )
 }
 
-// ============================================================================
-// PROJECTIONS
-// ============================================================================
-
-interface ProjectionsProps {
-  projections: Projection[]
-  stats: XPStats
+function Row({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-mute">{label}</span>
+      <span className={cn("font-bold text-ink", valueClass)}>{value}</span>
+    </div>
+  )
 }
 
-function Projections({ projections, stats }: ProjectionsProps) {
+/* ------------------------------- Projections ------------------------------- */
+function Projections({ projections, stats }: { projections: Projection[]; stats: XPStats }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-2xl p-6 border border-ink"
-    >
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink to-pink flex items-center justify-center">
-          <BarChart3 className="w-5 h-5 text-ink" />
-        </div>
+    <StickerCard className="gap-6 p-6">
+      <div className="flex items-center gap-3">
+        <span className="grid size-10 place-items-center rounded-xl border-2 border-ink bg-pink"><BarChart3 className="size-5 text-ink" aria-hidden="true" /></span>
         <div>
-          <h3 className="font-bold text-ink">Projections</h3>
-          <p className="text-sm text-mute">Tes économies futures estimées</p>
+          <h3 className="font-display font-bold text-ink">Projections</h3>
+          <p className="text-sm text-mute">Tes économies futures estimées.</p>
         </div>
       </div>
 
       <div className="space-y-4">
-        {projections.map((projection, index) => (
-          <div key={projection.month} className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-ink-2">{projection.month}</span>
-              <span className="text-sm text-mute">
-                +{formatNumber(projection.estimated_xp)} XP
-              </span>
+        {projections.map((projection) => (
+          <div key={projection.month}>
+            <div className="mb-2 flex items-center justify-between font-mono text-sm">
+              <span className="font-medium text-ink-2">{projection.month}</span>
+              <span className="text-mute">+{formatNumber(projection.estimated_xp)} XP</span>
             </div>
-            <div className="h-8 bg-card rounded-lg overflow-hidden relative">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, (projection.estimated_xp / (stats.lifetime_earned || 1)) * 100)}%` }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="h-full bg-gradient-to-r from-teal to-teal rounded-lg flex items-center justify-end pr-3"
+            <div className="relative h-8 overflow-hidden rounded-lg border-2 border-ink bg-paper-2">
+              <div
+                className="flex h-full items-center justify-end rounded-[6px] bg-teal pr-3"
+                style={{ width: `${Math.min(100, (projection.estimated_xp / (stats.lifetime_earned || 1)) * 100)}%` }}
               >
-                <span className="text-xs font-bold text-ink">
-                  {formatCurrency(projection.estimated_value)}
-                </span>
-              </motion.div>
+                <span className="font-mono text-xs font-bold text-ink">{formatCurrency(projection.estimated_value)}</span>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 p-4 bg-gradient-to-r from-teal/10 to-pink/10 rounded-xl border border-teal/20">
-        <div className="flex items-center gap-2 mb-2">
-          <Target className="w-5 h-5 text-teal" />
-          <span className="font-medium text-ink">Objectif suggéré</span>
-        </div>
-        <p className="text-sm text-mute">
-          Continue comme ça! D'ici 3 mois, tu pourrais avoir{" "}
-          <span className="text-teal font-bold">
-            {formatCurrency(projections[2]?.estimated_value || 0)}
-          </span>{" "}
-          d'économies potentielles.
+      <div className="rounded-xl border-2 border-ink bg-info-soft p-4">
+        <p className="mb-2 flex items-center gap-2 font-display font-bold text-ink"><Target className="size-5 text-teal" aria-hidden="true" />Objectif suggéré</p>
+        <p className="text-sm text-ink-2">
+          Continue comme ça ! D'ici 3 mois, tu pourrais avoir{" "}
+          <span className="font-bold text-teal">{formatCurrency(projections[2]?.estimated_value || 0)}</span> d'économies potentielles.
         </p>
       </div>
-    </motion.div>
+    </StickerCard>
   )
 }
 
-// ============================================================================
-// TRANSACTION HISTORY
-// ============================================================================
-
-interface TransactionHistoryProps {
-  transactions: XPTransaction[]
-  loading: boolean
-}
-
-function TransactionHistory({ transactions, loading }: TransactionHistoryProps) {
+/* ---------------------------- TransactionHistory --------------------------- */
+function TransactionHistory({ transactions, loading }: { transactions: XPTransaction[]; loading: boolean }) {
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-teal animate-spin" />
-      </div>
-    )
+    return <div className="flex items-center justify-center py-12"><Loader2 className="size-8 animate-spin text-ink" aria-hidden="true" /></div>
   }
-
   if (transactions.length === 0) {
-    return (
-      <EmptyState
-        size="small"
-        icon={History}
-        title="Aucune transaction XP"
-        description="Gagne des XP pour voir ton historique apparaître ici !"
-        action={{ label: "Voir les quêtes", href: "/teen/quests" }}
-      />
-    )
+    return <EmptyState size="small" title="Aucune transaction XP" description="Gagne des XP pour voir ton historique apparaître ici !" action={{ label: "Voir les quêtes", href: "/teen/quests" }} />
   }
 
-  // Group by date
-  const groupedTransactions: Record<string, XPTransaction[]> = {}
+  const grouped: Record<string, XPTransaction[]> = {}
   transactions.forEach((tx) => {
     const date = formatDate(tx.created_at)
-    if (!groupedTransactions[date]) {
-      groupedTransactions[date] = []
-    }
-    groupedTransactions[date].push(tx)
+    if (!grouped[date]) grouped[date] = []
+    grouped[date].push(tx)
   })
 
   return (
     <div className="space-y-6">
-      {Object.entries(groupedTransactions).map(([date, txs]) => (
+      {Object.entries(grouped).map(([date, txs]) => (
         <div key={date}>
-          <div className="flex items-center gap-2 mb-3">
-            <Calendar className="w-4 h-4 text-mute" />
-            <span className="text-sm font-medium text-mute">{date}</span>
+          <div className="mb-3 flex items-center gap-2 font-mono text-sm text-mute">
+            <Calendar className="size-4" aria-hidden="true" />{date}
           </div>
           <div className="space-y-2">
             {txs.map((tx) => {
               const config = transactionTypeConfig[tx.type] || transactionTypeConfig.earn
               const Icon = config.icon
-
               return (
-                <motion.div
-                  key={tx.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-4 p-4 bg-card rounded-xl"
-                >
-                  <div className={`w-10 h-10 rounded-xl ${config.color} flex items-center justify-center`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-ink truncate">
-                      {tx.description || config.label}
-                    </p>
-                    <p className="text-xs text-mute">
-                      {formatTime(tx.created_at)} - Solde: {formatNumber(tx.balance_after)} XP
-                    </p>
+                <div key={tx.id} className="flex items-center gap-4 rounded-xl border-2 border-ink bg-white p-4">
+                  <span className={cn("grid size-10 place-items-center rounded-xl border-2 border-ink", config.bg)}>
+                    <Icon className="size-5 text-ink" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-ink">{tx.description || config.label}</p>
+                    <p className="font-mono text-xs text-mute">{formatTime(tx.created_at)} · Solde : {formatNumber(tx.balance_after)} XP</p>
                   </div>
                   <div className="text-right">
-                    <p className={`font-bold ${tx.amount >= 0 ? "text-lime" : "text-destructive"}`}>
+                    <p className={cn("font-display font-bold tabular-nums", tx.amount >= 0 ? "text-lime" : "text-destructive")}>
                       {tx.amount >= 0 ? "+" : ""}{formatNumber(tx.amount)}
                     </p>
-                    <p className="text-xs text-mute">XP</p>
+                    <p className="font-mono text-xs text-mute">XP</p>
                   </div>
-                </motion.div>
+                </div>
               )
             })}
           </div>
@@ -492,88 +300,43 @@ function TransactionHistory({ transactions, loading }: TransactionHistoryProps) 
   )
 }
 
-// ============================================================================
-// HOW IT WORKS
-// ============================================================================
-
-// Audit fix: this block previously promoted a 50% XP→DH conversion narrative
-// ("100 XP = 1 DH d'économies", "Utilise jusqu'à 50% en XP") which violates
-// whitepaper §29 invariant #1: "No XP↔coins conversion ever" and §5's strict
-// dual-currency separation (XP = effort earned, never converts; Coins = parent-
-// loaded currency for purchases + cashback). Replaced with a compliant
-// explainer that matches the §5 wording.
+/* ------------------------------- HowItWorks -------------------------------- */
 function HowItWorks() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-2xl p-6 border border-ink"
-    >
-      <h3 className="font-bold text-ink mb-6 flex items-center gap-2">
-        <Info className="w-5 h-5 text-teal" />
-        XP & Coins — comment ça marche
-      </h3>
-
+    <StickerCard className="gap-6 p-6">
+      <h3 className="flex items-center gap-2 font-display font-bold text-ink"><Info className="size-5 text-teal" aria-hidden="true" />XP & Coins — comment ça marche</h3>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-teal/20 bg-teal/5 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-teal/20 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-teal" />
-            </div>
-            <h4 className="font-bold text-ink">XP — l'effort</h4>
-          </div>
-          <p className="text-sm text-ink-2 leading-relaxed">
-            <span className="font-semibold text-ink">XP = effort gagné.</span>{" "}
-            Tu en gagnes via défis, quiz, événements et activités. Les XP
-            <span className="font-semibold text-ink"> ne se convertissent jamais</span>{" "}
-            en DH ni en coins. Ils servent à débloquer des niveaux, badges,
-            paliers et récompenses exclusives.
+        <div className="rounded-2xl border-2 border-ink bg-info-soft p-5">
+          <p className="mb-3 flex items-center gap-3 font-display font-bold text-ink">
+            <span className="grid size-10 place-items-center rounded-xl border-2 border-ink bg-teal"><Zap className="size-5 text-ink" aria-hidden="true" /></span>
+            XP — l'effort
+          </p>
+          <p className="text-sm leading-relaxed text-ink-2">
+            <span className="font-semibold text-ink">XP = effort gagné.</span> Tu en gagnes via défis, quiz, événements et activités. Les XP <span className="font-semibold text-ink">ne se convertissent jamais</span> en DH ni en coins. Ils servent à débloquer des niveaux, badges, paliers et récompenses exclusives.
           </p>
         </div>
-
-        <div className="rounded-2xl border border-gold/20 bg-gold/5 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
-              <Coins className="w-5 h-5 text-gold" />
-            </div>
-            <h4 className="font-bold text-ink">Coins — l'argent</h4>
-          </div>
-          <p className="text-sm text-ink-2 leading-relaxed">
-            <span className="font-semibold text-ink">Coins = monnaie chargée par tes parents</span>{" "}
-            (1 DH = 100 coins, taux verrouillé). Sert à payer tes achats et
-            réservations. Chaque dépense te rapporte un cashback{" "}
-            <span className="font-semibold text-ink">en XP</span> — c'est la
-            seule passerelle entre les deux.
+        <div className="rounded-2xl border-2 border-ink bg-warning-soft p-5">
+          <p className="mb-3 flex items-center gap-3 font-display font-bold text-ink">
+            <span className="grid size-10 place-items-center rounded-xl border-2 border-ink bg-gold"><Coins className="size-5 text-ink" aria-hidden="true" /></span>
+            Coins — l'argent
+          </p>
+          <p className="text-sm leading-relaxed text-ink-2">
+            <span className="font-semibold text-ink">Coins = monnaie chargée par tes parents</span> (1 DH = 100 coins, taux verrouillé). Sert à payer tes achats et réservations. Chaque dépense te rapporte un cashback <span className="font-semibold text-ink">en XP</span> — c'est la seule passerelle entre les deux.
           </p>
         </div>
       </div>
-
-      <div className="mt-4 p-4 rounded-xl bg-card border border-ink flex items-start gap-3">
-        <Info className="w-5 h-5 text-mute flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-mute">
-          Pour utiliser tes coins, va sur{" "}
-          <a href="/teen/wallet" className="text-teal font-semibold hover:underline">
-            /teen/wallet
-          </a>
-          . Pour suivre tes XP, reste sur cette page.
-        </p>
+      <div className="flex items-start gap-3 rounded-xl border-2 border-line bg-paper-2 p-4">
+        <Info className="mt-0.5 size-5 shrink-0 text-mute" aria-hidden="true" />
+        <p className="text-sm text-mute">Pour utiliser tes coins, va sur <Link href="/teen/wallet" className="font-semibold text-pink hover:underline">/teen/wallet</Link>. Pour suivre tes XP, reste sur cette page.</p>
       </div>
-    </motion.div>
+    </StickerCard>
   )
 }
 
-// ============================================================================
-// MAIN PAGE
-// ============================================================================
-
+/* --------------------------------- Main page ------------------------------- */
 export default function XPValuePage() {
   const [stats, setStats] = useState<XPStats>({
-    total_xp: 0,
-    xp_value_dh: 0,
-    lifetime_earned: 0,
-    lifetime_spent: 0,
-    xp_rate: 100,
-    max_payment_percentage: 0.5,
+    total_xp: 0, xp_value_dh: 0, lifetime_earned: 0, lifetime_spent: 0, xp_rate: 100, max_payment_percentage: 0.5,
   })
   const [transactions, setTransactions] = useState<XPTransaction[]>([])
   const [projections, setProjections] = useState<Projection[]>([])
@@ -582,16 +345,11 @@ export default function XPValuePage() {
   const [transactionsLoading, setTransactionsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<"overview" | "calculator" | "history">("overview")
 
-  // Fetch stats
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true)
-
-      // Fetch XP stats
       const { fetchWithTimeout } = await import('@/lib/fetch/with-timeout')
-      const response = await fetchWithTimeout("/api/payments/xp", {
-        timeout: 10000, // 10 seconds
-      })
+      const response = await fetchWithTimeout("/api/payments/xp", { timeout: 10000 })
       if (response.ok) {
         const data = await response.json()
         setStats({
@@ -603,17 +361,13 @@ export default function XPValuePage() {
           max_payment_percentage: data.max_percentage || 0.5,
         })
         setSavings(data.total_savings || 0)
-
-        // Calculate projections based on average monthly earnings
-        const monthlyAvg = (data.lifetime_earned || 0) / 6 // Assume 6 months of data
+        const monthlyAvg = (data.lifetime_earned || 0) / 6
         const months = ["Ce mois", "Mois prochain", "Dans 2 mois", "Dans 3 mois"]
-        setProjections(
-          months.map((month, i) => ({
-            month,
-            estimated_xp: Math.round((data.total_xp || 0) + monthlyAvg * (i + 1)),
-            estimated_value: ((data.total_xp || 0) + monthlyAvg * (i + 1)) / (data.xp_rate || 100),
-          }))
-        )
+        setProjections(months.map((month, i) => ({
+          month,
+          estimated_xp: Math.round((data.total_xp || 0) + monthlyAvg * (i + 1)),
+          estimated_value: ((data.total_xp || 0) + monthlyAvg * (i + 1)) / (data.xp_rate || 100),
+        })))
       }
     } catch (error) {
       console.error("Error fetching XP stats:", error)
@@ -622,14 +376,11 @@ export default function XPValuePage() {
     }
   }, [])
 
-  // Fetch transactions
   const fetchTransactions = useCallback(async () => {
     try {
       setTransactionsLoading(true)
       const { fetchWithTimeout } = await import('@/lib/fetch/with-timeout')
-      const response = await fetchWithTimeout("/api/payments/xp?type=transactions&limit=50", {
-        timeout: 10000, // 10 seconds
-      })
+      const response = await fetchWithTimeout("/api/payments/xp?type=transactions&limit=50", { timeout: 10000 })
       if (response.ok) {
         const data = await response.json()
         setTransactions(data.transactions || [])
@@ -641,72 +392,49 @@ export default function XPValuePage() {
     }
   }, [])
 
-  useEffect(() => {
-    fetchStats()
-  }, [fetchStats])
-
-  useEffect(() => {
-    if (activeTab === "history") {
-      fetchTransactions()
-    }
-  }, [activeTab, fetchTransactions])
+  useEffect(() => { fetchStats() }, [fetchStats])
+  useEffect(() => { if (activeTab === "history") fetchTransactions() }, [activeTab, fetchTransactions])
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-paper">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-teal animate-spin mx-auto mb-4" />
-          <p className="text-mute">Chargement de tes stats XP...</p>
+          <Loader2 className="mx-auto mb-4 size-12 animate-spin text-ink" aria-hidden="true" />
+          <p className="text-mute">Chargement de tes stats XP…</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="bg-gradient-to-b from-paper-2 to-card border-b border-ink">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
-              <Coins className="w-6 h-6 text-ink" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-ink">Valeur de tes XP</h1>
-              <p className="text-mute">Découvre combien valent tes XP en DH</p>
-            </div>
+    <div className="min-h-screen bg-paper pb-24">
+      <div className="border-b-2 border-ink">
+        <div className="mx-auto flex max-w-4xl items-center gap-4 px-4 py-6">
+          <Niv mood="calm" size={72} />
+          <div>
+            <p className="eyebrow tracking-[0.16em]">Valeur XP</p>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight">
+              Valeur de tes <em className="font-semibold italic text-pink">XP</em>
+            </h1>
+            <p className="text-sm text-mute">Découvre combien valent tes XP en DH.</p>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Value Card */}
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
         <ValueCard stats={stats} />
 
-        {/* Tabs */}
-        <div className="flex gap-2 p-1 bg-card rounded-xl">
-          {[
-            { id: "overview", label: "Vue d'ensemble", icon: BarChart3 },
-            { id: "calculator", label: "Calculateur", icon: Calculator },
-            { id: "history", label: "Historique", icon: History },
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id as "overview" | "calculator" | "history")}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
-                activeTab === id
-                  ? "bg-gradient-to-r from-teal to-teal text-ink"
-                  : "text-mute hover:text-ink"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{label}</span>
-            </button>
-          ))}
-        </div>
+        <StickerTabs
+          ariaLabel="Sections XP"
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as "overview" | "calculator" | "history")}
+          tabs={[
+            { value: "overview", label: "Vue d'ensemble", icon: <BarChart3 /> },
+            { value: "calculator", label: "Calculateur", icon: <Calculator /> },
+            { value: "history", label: "Historique", icon: <History /> },
+          ]}
+        />
 
-        {/* Tab content */}
         {activeTab === "overview" && (
           <div className="space-y-6">
             <StatsCards stats={stats} savings={savings} />
@@ -715,42 +443,24 @@ export default function XPValuePage() {
           </div>
         )}
 
-        {activeTab === "calculator" && (
-          <ROICalculator stats={stats} />
-        )}
+        {activeTab === "calculator" && <ROICalculator stats={stats} />}
 
         {activeTab === "history" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-card rounded-2xl p-6 border border-ink"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
-                <History className="w-5 h-5 text-ink" />
-              </div>
+          <StickerCard className="gap-6 p-6">
+            <div className="flex items-center gap-3">
+              <span className="grid size-10 place-items-center rounded-xl border-2 border-ink bg-teal"><History className="size-5 text-ink" aria-hidden="true" /></span>
               <div>
-                <h3 className="font-bold text-ink">Historique XP</h3>
-                <p className="text-sm text-mute">Tes gains et dépenses</p>
+                <h3 className="font-display font-bold text-ink">Historique XP</h3>
+                <p className="text-sm text-mute">Tes gains et dépenses.</p>
               </div>
             </div>
-            <TransactionHistory
-              transactions={transactions}
-              loading={transactionsLoading}
-            />
-          </motion.div>
+            <TransactionHistory transactions={transactions} loading={transactionsLoading} />
+          </StickerCard>
         )}
 
         {/* Quick tips */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-gold/10 to-gold/10 rounded-2xl p-6 border border-gold/20"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <Trophy className="w-6 h-6 text-gold" />
-            <h3 className="font-bold text-ink">Astuces pour gagner plus d'XP</h3>
-          </div>
+        <StickerCard className="gap-4 p-6">
+          <h3 className="flex items-center gap-3 font-display font-bold text-ink"><Trophy className="size-6 text-gold" aria-hidden="true" />Astuces pour gagner plus d'XP</h3>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               "Complète les défis quotidiens (+50-200 XP)",
@@ -759,12 +469,11 @@ export default function XPValuePage() {
               "Maintiens ta streak active (bonus x1.5)",
             ].map((tip, i) => (
               <div key={i} className="flex items-center gap-2 text-sm text-ink-2">
-                <Check className="w-4 h-4 text-lime flex-shrink-0" />
-                {tip}
+                <Check className="size-4 shrink-0 text-lime" aria-hidden="true" />{tip}
               </div>
             ))}
           </div>
-        </motion.div>
+        </StickerCard>
       </div>
     </div>
   )

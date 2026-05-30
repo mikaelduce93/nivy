@@ -1,9 +1,12 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Crown, Zap, Star, Lock, Check, Gift, Sparkles, Shield, TrendingUp, Users, Calendar, Percent } from "lucide-react"
+import { Crown, Zap, Star, Lock, Check, Gift, Sparkles, Shield, Users, Calendar, Percent } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { Niv, DarkSurface } from "@/components/brand"
 import {
   VIP_TIER_CONFIG,
   TIER_XP_REQUIREMENTS,
@@ -12,8 +15,7 @@ import {
 } from "@/gamification-system/features/vip-system/schema"
 
 // #66 — per-slug benefit copy (UI only). Tier order, FR names and XP thresholds
-// are DERIVED from the canonical VIP config (single source of truth, aligned
-// with the vip_tiers DB table) — no local divergent silver/gold/platinum array.
+// are DERIVED from the canonical VIP config (single source of truth).
 const TIER_BENEFITS: Record<VipTierSlug, { icon: typeof Star; text: string }[]> = {
   standard: [
     { icon: Star, text: "Accès de base" },
@@ -58,23 +60,15 @@ const TIER_BENEFITS: Record<VipTierSlug, { icon: typeof Star; text: string }[]> 
   ],
 }
 
-// Derived catalogue: 7 tiers (standard..legendary), FR names + thresholds from
-// VIP_TIER_CONFIG / TIER_XP_REQUIREMENTS; visuals from the config gradient.
 const VIP_TIERS = VipTierSlugEnum.options.map((slug) => {
   const cfg = VIP_TIER_CONFIG[slug]
   return {
     id: slug,
     name: cfg.name,
     xpRequired: TIER_XP_REQUIREMENTS[slug],
-    color: cfg.gradient,
-    borderColor: cfg.borderColor,
-    bgColor: cfg.bgColor,
     benefits: TIER_BENEFITS[slug],
   }
 })
-
-// TODO(data): vip_perks_used stats endpoint not implemented; keep empty.
-const VIP_PERKS_USED: Array<{ id: number; perk: string; usedCount: number; icon: any }> = []
 
 interface VipCardClientProps {
   userXP: number
@@ -84,254 +78,151 @@ interface VipCardClientProps {
 
 export function VipCardClient({ userXP, tierSlug, memberSince }: VipCardClientProps) {
   const currentTier = VIP_TIERS.find((t) => t.id === tierSlug) || VIP_TIERS[0]
-  const nextTier =
-    VIP_TIERS.find((t) => t.xpRequired > userXP) ?? VIP_TIERS[VIP_TIERS.length - 1]
+  const nextTier = VIP_TIERS.find((t) => t.xpRequired > userXP) ?? VIP_TIERS[VIP_TIERS.length - 1]
   const progressToNext = nextTier.xpRequired > 0 ? Math.min(100, (userXP / nextTier.xpRequired) * 100) : 100
 
   return (
-    <div className="min-h-screen pb-32 space-y-8 pt-6">
+    <div className="min-h-screen space-y-8 pb-32 pt-6">
       {/* Header */}
-      <header className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gold to-gold flex items-center justify-center">
-                <Crown className="w-6 h-6 text-ink" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">VIP Card</h1>
-                <p className="text-mute text-sm font-medium">Ton statut et avantages</p>
-              </div>
-            </div>
-          </div>
+      <header className="flex items-center gap-4">
+        <Niv mood="proud" size={72} />
+        <div>
+          <p className="eyebrow tracking-[0.16em]">Carte VIP</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight">
+            Carte <em className="font-semibold italic text-pink">VIP</em>
+          </h1>
+          <p className="text-sm text-mute">Ton statut et tes avantages.</p>
         </div>
       </header>
 
-      {/* Current VIP Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, rotateY: -10 }}
-        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-        className="relative overflow-hidden rounded-2xl p-8 border border-gold/30"
-        style={{
-          background: "linear-gradient(135deg, rgba(180, 83, 9, 0.3) 0%, rgba(146, 64, 14, 0.2) 50%, rgba(120, 53, 15, 0.3) 100%)",
-        }}
-      >
-        {/* Shine effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute top-0 left-1/4 w-1/2 h-32 bg-gradient-to-b from-white/5 to-transparent blur-2xl pointer-events-none" />
-        
-        <div className="relative z-10">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs text-gold/80 uppercase tracking-[0.2em] font-bold mb-2">Teen VIP Member</p>
-              <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gold to-gold uppercase">
-                {currentTier.name}
-              </h2>
-              <p className="text-gold/60 mt-2">{memberSince ? `Membre depuis ${new Date(memberSince).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}` : "Teen Nivy"}</p>
-            </div>
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold to-gold flex items-center justify-center border-2 border-gold/50">
-              <Crown className="w-10 h-10 text-gold" />
-            </div>
-          </div>
-
-          {/* Card Number Style */}
-          <div className="mt-8 font-mono text-2xl text-gold/80 tracking-widest">
-            **** **** **** {Math.floor(Math.random() * 9000 + 1000)}
-          </div>
-
-          {/* XP Display */}
-          <div className="mt-8 flex items-end justify-between">
-            <div>
-              <p className="text-xs text-gold/60 uppercase tracking-wider mb-1">Total XP</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-gold">{userXP.toLocaleString()}</span>
-                <Zap className="w-5 h-5 text-gold" />
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gold/60 uppercase tracking-wider mb-1">Prochain niveau</p>
-              <p className="text-lg font-bold text-gold">{nextTier.name}</p>
-            </div>
-          </div>
-
-          {/* Progress to next tier */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gold">{userXP} / {nextTier.xpRequired} XP</span>
-              <span className="text-sm text-gold font-bold">{Math.round(progressToNext)}%</span>
-            </div>
-            <div className="h-3 rounded-full bg-ink/30 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progressToNext}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-gold to-gold rounded-full"
-              />
-            </div>
-            <p className="text-xs text-gold/60 mt-2">
-              {nextTier.xpRequired - userXP} XP pour atteindre {nextTier.name}
+      {/* Current VIP card — surface sombre ponctuelle */}
+      <DarkSurface tone="gold" shadow className="p-8">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="eyebrow tracking-[0.16em] text-paper/60">Membre VIP Nivy</p>
+            <h2 className="mt-1 font-display text-5xl font-extrabold uppercase text-gold">{currentTier.name}</h2>
+            <p className="mt-2 text-sm text-paper/60">
+              {memberSince ? `Membre depuis ${new Date(memberSince).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}` : "Teen Nivy"}
             </p>
           </div>
+          <span className="grid size-20 place-items-center rounded-2xl border-2 border-paper/30">
+            <Crown className="size-10 text-gold" aria-hidden="true" />
+          </span>
         </div>
-      </motion.div>
 
-      {/* Current Benefits */}
+        {/* Card number (masqué — pas de faux numéro) */}
+        <p className="mt-8 font-mono text-2xl tracking-widest text-paper/70">•••• •••• •••• ••••</p>
+
+        <div className="mt-8 flex items-end justify-between">
+          <div>
+            <p className="eyebrow tracking-[0.16em] text-paper/60">Total XP</p>
+            <p className="flex items-baseline gap-2 font-display text-3xl font-extrabold tabular-nums text-gold">
+              {userXP.toLocaleString("fr-FR")}
+              <Zap className="size-5" aria-hidden="true" />
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="eyebrow tracking-[0.16em] text-paper/60">Prochain niveau</p>
+            <p className="font-display text-lg font-bold text-paper">{nextTier.name}</p>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <div className="mb-2 flex items-center justify-between font-mono text-sm text-paper/80">
+            <span>{userXP} / {nextTier.xpRequired} XP</span>
+            <span className="font-bold text-gold">{Math.round(progressToNext)}%</span>
+          </div>
+          <SegmentedProgress steps={10} current={Math.floor(progressToNext / 10)} size="md" />
+          <p className="mt-2 font-mono text-xs text-paper/60">
+            {Math.max(0, nextTier.xpRequired - userXP)} XP pour atteindre {nextTier.name}
+          </p>
+        </div>
+      </DarkSurface>
+
+      {/* Current benefits */}
       <section className="space-y-4">
-        <h2 className="text-xl font-black uppercase">Tes Avantages Actifs</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <p className="eyebrow tracking-[0.16em]">Tes avantages actifs</p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {currentTier.benefits.map((benefit, idx) => {
             const Icon = benefit.icon
             return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-success-soft/10 border border-success-soft/30"
-              >
-                <div className="w-10 h-10 rounded-xl bg-success-soft/20 flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-success-soft" />
+              <StickerCard key={idx} className="p-4">
+                <div className="flex items-center gap-4">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink bg-lime">
+                    <Icon className="size-5 text-ink" aria-hidden="true" />
+                  </span>
+                  <h4 className="flex-1 font-bold text-ink">{benefit.text}</h4>
+                  <Check className="size-5 text-lime" aria-hidden="true" />
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-ink">{benefit.text}</h4>
-                </div>
-                <Check className="w-5 h-5 text-success-soft" />
-              </motion.div>
+              </StickerCard>
             )
           })}
         </div>
       </section>
 
-      {/* All Tiers */}
+      {/* All tiers */}
       <section className="space-y-4">
-        <h2 className="text-xl font-black uppercase">Niveaux VIP</h2>
-
+        <p className="eyebrow tracking-[0.16em]">Niveaux VIP</p>
         <div className="space-y-4">
-          {VIP_TIERS.map((tier, idx) => {
+          {VIP_TIERS.map((tier) => {
             const isUnlocked = userXP >= tier.xpRequired
             const isCurrent = tier.id === currentTier.id
-
             return (
-              <motion.div
+              <StickerCard
                 key={tier.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className={cn(
-                  "p-6 rounded-2xl border transition-all",
-                  isCurrent 
-                    ? `bg-gradient-to-r ${tier.bgColor} ${tier.borderColor}` 
-                    : isUnlocked
-                      ? "bg-card border-ink"
-                      : "bg-card border-ink opacity-60"
-                )}
+                style={isCurrent ? { background: "var(--ink)", color: "var(--paper)", boxShadow: "6px 6px 0 var(--pink)" } : undefined}
+                className={cn("gap-4 p-6", !isUnlocked && !isCurrent && "opacity-60")}
               >
                 <div className="flex items-center gap-4">
-                  <div className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br",
-                    tier.color
-                  )}>
-                    <Crown className="w-8 h-8 text-ink" />
-                  </div>
+                  <span className={cn("grid size-16 shrink-0 place-items-center rounded-2xl border-2 border-ink", isCurrent ? "bg-pink" : "bg-paper-2")}>
+                    <Crown className="size-8 text-ink" aria-hidden="true" />
+                  </span>
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
-                      <h4 className="font-black text-xl">{tier.name}</h4>
+                      <h4 className="font-display text-xl font-extrabold">{tier.name}</h4>
                       {isCurrent && (
-                        <span className="px-2 py-0.5 rounded-full bg-success-soft/20 text-success-soft text-[10px] font-bold uppercase">
-                          Actuel
-                        </span>
+                        <span className="rounded-full border-2 border-paper bg-lime px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">Actuel</span>
                       )}
-                      {!isUnlocked && (
-                        <Lock className="w-4 h-4 text-mute" />
-                      )}
+                      {!isUnlocked && <Lock className="size-4 text-mute" aria-hidden="true" />}
                     </div>
-                    <p className="text-sm text-mute">
-                      {tier.xpRequired === 0 ? "Niveau de départ" : `${tier.xpRequired.toLocaleString()} XP requis`}
+                    <p className={cn("font-mono text-sm", isCurrent ? "text-paper/70" : "text-mute")}>
+                      {tier.xpRequired === 0 ? "Niveau de départ" : `${tier.xpRequired.toLocaleString("fr-FR")} XP requis`}
                     </p>
                   </div>
-                  <Button 
-                    variant={isCurrent ? "default" : "outline"} 
-                    size="sm"
-                    disabled={!isUnlocked && !isCurrent}
-                  >
+                  <span className={cn("rounded-full border-2 px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em]", isCurrent ? "border-paper text-paper" : isUnlocked ? "border-ink text-ink" : "border-line text-mute")}>
                     {isCurrent ? "Actif" : isUnlocked ? "Débloqué" : "Verrouillé"}
-                  </Button>
+                  </span>
                 </div>
-
-                {/* Benefits Preview */}
-                <div className="flex flex-wrap gap-2 mt-4">
+                <div className="flex flex-wrap gap-2">
                   {tier.benefits.map((benefit, i) => {
                     const Icon = benefit.icon
                     return (
-                      <span 
-                        key={i} 
-                        className="flex items-center gap-2 px-3 py-1 rounded-full bg-paper-2 text-xs text-mute"
-                      >
-                        <Icon className="w-3 h-3" />
+                      <span key={i} className={cn("flex items-center gap-1.5 rounded-full border-2 px-3 py-1 font-mono text-xs", isCurrent ? "border-paper/30 text-paper/80" : "border-line text-mute")}>
+                        <Icon className="size-3" aria-hidden="true" />
                         {benefit.text}
                       </span>
                     )
                   })}
                 </div>
-              </motion.div>
+              </StickerCard>
             )
           })}
         </div>
       </section>
-
-      {/* Usage Stats — hidden until backend exposes vip_perks_used */}
-      {VIP_PERKS_USED.length > 0 && (
-      <section className="space-y-4">
-        <h2 className="text-xl font-black uppercase">Utilisation</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {VIP_PERKS_USED.map((perk, idx) => {
-            const Icon = perk.icon
-            return (
-              <motion.div
-                key={perk.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="p-4 rounded-2xl bg-card border border-ink"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-brand-soft/20 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-brand-soft" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-ink">{perk.perk}</h4>
-                    <p className="text-sm text-mute">Utilisé {perk.usedCount} fois</p>
-                  </div>
-                  <TrendingUp className="w-5 h-5 text-success-soft" />
-                </div>
-              </motion.div>
-            )
-          })}
-        </div>
-      </section>
-      )}
 
       {/* Upgrade CTA */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="p-6 rounded-2xl bg-gradient-to-r from-pink/10 to-pink/5 border border-pink/20"
-      >
-        <div className="flex items-center gap-6">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink to-pink flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-ink" />
-          </div>
+      <DarkSurface tone="pink" shadow className="p-6">
+        <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:text-left">
+          <Niv mood="hype" size={72} className="shrink-0" />
           <div className="flex-1">
-            <h3 className="text-lg font-black text-ink">Monte de niveau!</h3>
-            <p className="text-sm text-mute">Gagne plus d'XP pour débloquer des avantages exclusifs</p>
+            <h3 className="font-display text-lg font-extrabold text-paper">Monte de niveau !</h3>
+            <p className="text-sm text-paper/70">Gagne plus d'XP pour débloquer des avantages exclusifs.</p>
           </div>
-          <Button className="bg-gradient-to-r from-pink to-pink text-ink font-bold">
-            Voir les quêtes
+          <Button asChild variant="pink">
+            <Link href="/teen/quests">Voir les quêtes</Link>
           </Button>
         </div>
-      </motion.div>
+      </DarkSurface>
     </div>
   )
 }
