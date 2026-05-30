@@ -15,6 +15,10 @@ interface EnergyOrbProps {
 
 /**
  * A futuristic "Energy Orb" progress indicator with liquid-like animations.
+ *
+ * @deprecated Refonte V1.5 (#81) — langage gen-z incompatible avec la charte
+ * paper. Préférer les jauges/anneaux sticker (twin-currency-gauge) ou un
+ * `<Progress>`. Conservé pour compat.
  */
 export function EnergyOrb({
   value,

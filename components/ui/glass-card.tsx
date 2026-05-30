@@ -7,6 +7,11 @@ interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   neon?: "none" | "party" | "vitality" | "intellect" | "creativity" | "prestige"
 }
 
+/**
+ * @deprecated Refonte V1.5 (#81) — le glassmorphism est banni par la charte
+ * paper (§3). Remplacer par `<Card>` (sticker : #fff + bordure encre + ombre).
+ * Conservé pour compat ; ne pas utiliser dans le nouveau code.
+ */
 const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
   ({ className, variant = "default", intensity = "medium", neon = "none", ...props }, ref) => {
     const intensityClasses = {

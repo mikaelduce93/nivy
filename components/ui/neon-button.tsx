@@ -79,6 +79,10 @@ function defaultJuiceForVariant(variant?: NeonButtonProps['variant']): JuiceEven
   }
 }
 
+/**
+ * @deprecated Refonte V1.5 (#81) — le néon est banni par la charte paper (§3).
+ * Remplacer par `<Button variant="pink">` (sticker). Conservé pour compat.
+ */
 const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
   ({ className, variant, size, glow, asChild = false, onClick, disabled, juice, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
