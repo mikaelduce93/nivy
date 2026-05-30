@@ -1,3 +1,5 @@
+// @deprecated — Hors périmètre de la refonte V2 « paper néo-brutaliste » (issue #182).
+// Cette route est candidate à la suppression : aucun reskin n'est appliqué ici (iso).
 // V1.2 TODO: Per FRONTEND_REDO §5 this route is recommended for DELETE.
 // The whitepaper §12 commission model is cash-based (DH withdrawals) +
 // optional XP-only for under-18 ambassadors — there is no separate

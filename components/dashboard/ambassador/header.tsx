@@ -46,7 +46,7 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-paper-2  border-b border-gold">
+    <header className="sticky top-0 z-50 bg-paper border-b-2 border-ink">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         {/* Mobile menu */}
         <Sheet>
@@ -58,8 +58,8 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
           <SheetContent side="left" className="w-64 p-0">
             <div className="py-4">
               <div className="px-4 mb-4">
-                <h2 className="text-lg font-bold text-gold">Teen Club</h2>
-                <p className="text-sm text-mute">Espace Ambassadeur</p>
+                <span className="eyebrow tracking-[0.16em] text-pink">Espace ambassadeur</span>
+                <h2 className="font-display text-lg font-extrabold text-ink mt-1">Nivy</h2>
               </div>
             </div>
           </SheetContent>
@@ -69,8 +69,8 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
         <Link href="/ambassador" className="flex items-center gap-2">
           <span className="text-2xl">🌟</span>
           <div className="hidden sm:block">
-            <span className="font-bold text-xl text-gold">Teen Club</span>
-            <span className="text-sm text-mute ml-2">Ambassador</span>
+            <span className="font-display font-extrabold text-xl text-ink">Nivy</span>
+            <span className="eyebrow tracking-[0.16em] text-mute ml-2">Ambassadeur</span>
           </div>
         </Link>
 
@@ -80,13 +80,12 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
             variant="outline"
             size="sm"
             onClick={copyReferralLink}
-            className="border-gold hover:bg-gold"
           >
             <Copy className="h-4 w-4 mr-2" />
             Copier mon lien
           </Button>
-          <div className="flex items-center gap-2 bg-lime rounded-full px-3 py-1.5">
-            <span className="text-sm font-medium text-lime">
+          <div className="flex items-center gap-2 rounded-full border-2 border-ink bg-white px-3 py-1.5 shadow-stkr-sm">
+            <span className="font-mono text-xs font-semibold text-ink">
               {commissionRate}% commission
             </span>
           </div>
@@ -100,8 +99,8 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="Menu utilisateur">
-                <Avatar className="h-10 w-10 border-2 border-gold">
-                  <AvatarFallback className="bg-gradient-to-br from-gold to-coral text-ink font-bold">
+                <Avatar className="h-10 w-10 border-2 border-ink">
+                  <AvatarFallback className="bg-pink text-ink font-bold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>

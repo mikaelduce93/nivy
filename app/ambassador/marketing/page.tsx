@@ -2,17 +2,15 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getSocialBaseUrl } from "@/lib/config/app-config"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { DarkSurface, NivCoach } from "@/components/brand"
 import {
-  Download,
-  Share2,
   QrCode,
   Image as ImageIcon,
   FileText,
   Video,
   ArrowLeft,
-  Copy,
   Instagram,
   MessageCircle,
   Facebook
@@ -20,6 +18,7 @@ import {
 import Link from "next/link"
 import { QRCodeGenerator } from "@/components/ambassador/qr-code-generator"
 import { ShareButtons } from "@/components/ambassador/share-buttons"
+import { TextTemplateCard } from "@/components/ambassador/text-template-card"
 
 async function getAmbassadorData(profileId: string) {
   const supabase = await createClient()
@@ -58,28 +57,28 @@ export default async function AmbassadorMarketingPage() {
     {
       platform: "Instagram Story",
       icon: Instagram,
-      color: "from-pink to-pink",
+      iconColor: "text-pink",
       description: "Template vertical 1080x1920",
       format: "9:16"
     },
     {
       platform: "Instagram Post",
       icon: Instagram,
-      color: "from-pink to-coral",
+      iconColor: "text-coral",
       description: "Template carré 1080x1080",
       format: "1:1"
     },
     {
       platform: "Facebook",
       icon: Facebook,
-      color: "from-teal to-teal",
+      iconColor: "text-teal",
       description: "Template paysage 1200x630",
       format: "1.91:1"
     },
     {
       platform: "WhatsApp Status",
       icon: MessageCircle,
-      color: "from-lime to-lime",
+      iconColor: "text-lime",
       description: "Template vertical 1080x1920",
       format: "9:16"
     }
@@ -92,223 +91,137 @@ export default async function AmbassadorMarketingPage() {
     },
     {
       title: "Bio Instagram",
-      content: `Ambassadeur Nivy | Des expériences uniques pour les 13-19 ans au Maroc | Code promo: ${referralCode} | -10% sur ta 1ère inscription`
+      content: `Ambassadeur Nivy | Des expériences uniques pour les 13-17 ans au Maroc | Code promo: ${referralCode} | -10% sur ta 1ère inscription`
     },
     {
       title: "Post Facebook",
-      content: `Vous cherchez des activités pour vos ados ? Nivy c'est LA communauté qui organise des events exclusifs pour les 13-19 ans au Maroc ! Inscrivez-vous avec mon code ${referralCode} et profitez de -10% sur votre première inscription.`
+      content: `Vous cherchez des activités pour vos ados ? Nivy c'est LA communauté qui organise des events exclusifs pour les 13-17 ans au Maroc ! Inscrivez-vous avec mon code ${referralCode} et profitez de -10% sur votre première inscription.`
     }
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
+        <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-ink">Matériel Marketing</h1>
-            <p className="text-mute">Téléchargez des visuels et templates pour promouvoir Nivy</p>
-          </div>
-          <ShareButtons referralCode={referralCode} referralLink={referralLink} />
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <span className="eyebrow tracking-[0.16em] text-pink">Matériel marketing</span>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Ton kit pour faire <em className="font-semibold italic text-pink">parler</em> de Nivy.
+          </h1>
+          <p className="mt-2 text-mute">Visuels, templates et liens prêts à partager.</p>
         </div>
 
-        {/* Your Code & QR */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <Share2 className="h-5 w-5 text-gold" />
-                Votre code & lien
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-card rounded-xl p-5">
-                <p className="text-xs text-mute mb-2">Votre code parrain</p>
-                <p className="text-3xl font-black font-mono tracking-wider text-gold">{referralCode}</p>
-              </div>
-              <div className="bg-card rounded-xl p-5">
-                <p className="text-xs text-mute mb-2">Votre lien personnalisé</p>
-                <p className="text-sm text-ink font-mono break-all">{referralLink}</p>
-              </div>
-              <ShareButtons referralCode={referralCode} referralLink={referralLink} />
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <QrCode className="h-5 w-5 text-lime" />
-                Votre QR Code
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <QRCodeGenerator referralLink={referralLink} referralCode={referralCode} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Social Media Templates */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-pink" />
-              Templates Réseaux Sociaux
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-4 gap-4">
-              {socialTemplates.map((template, index) => (
-                <div
-                  key={index}
-                  className="bg-card rounded-xl p-5 border border-ink hover:border-pink/30 transition-all group cursor-pointer"
-                >
-                  <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${template.color} flex items-center justify-center mb-4`}>
-                    <template.icon className="h-6 w-6 text-ink" />
-                  </div>
-                  <h3 className="font-bold text-ink mb-1">{template.platform}</h3>
-                  <p className="text-xs text-mute mb-3">{template.description}</p>
-                  <p className="text-xs text-mute mb-4">Format: {template.format}</p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full border-ink text-ink-2 hover:border-pink/50 hover:text-pink group-hover:border-pink/50"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Télécharger
-                  </Button>
-                </div>
-              ))}
+        {/* Duo héro : code (surface sombre) + QR (sticker) */}
+        <div className="mb-8 grid gap-6 md:grid-cols-2">
+          <DarkSurface tone="pink" shadow className="p-6">
+            <span className="eyebrow tracking-[0.16em] text-paper/60">Ton code parrain</span>
+            <p className="mt-2 font-mono text-4xl font-bold tracking-wider text-pink">{referralCode}</p>
+            <div className="mt-4 rounded-xl border-2 border-paper/15 bg-black/20 p-3">
+              <span className="eyebrow tracking-[0.16em] text-paper/50">Ton lien</span>
+              <p className="mt-1 break-all font-mono text-sm text-paper/90">{referralLink}</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <ShareButtons referralCode={referralCode} referralLink={referralLink} />
+            </div>
+          </DarkSurface>
 
-        {/* Text Templates */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <FileText className="h-5 w-5 text-teal" />
-              Templates Texte
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {textTemplates.map((template, index) => (
+          <StickerCard className="p-6">
+            <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+              <QrCode className="h-5 w-5 text-teal" />
+              Ton QR code
+            </h2>
+            <QRCodeGenerator referralLink={referralLink} referralCode={referralCode} />
+          </StickerCard>
+        </div>
+
+        {/* Social Media Templates — « Bientôt dispo » (pas d'asset = pas de bouton mort) */}
+        <StickerCard className="mb-8 p-6">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <ImageIcon className="h-5 w-5 text-pink" />
+            Templates réseaux sociaux
+          </h2>
+          <div className="grid gap-4 md:grid-cols-4">
+            {socialTemplates.map((template, index) => (
               <div
                 key={index}
-                className="bg-card rounded-xl p-5 border border-ink"
+                className="rounded-xl border-2 border-line bg-white p-5"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-ink">{template.title}</h3>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-teal hover:text-teal hover:bg-teal/10"
-                    onClick={() => {
-                      // Client-side copy would need a client component
-                    }}
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copier
-                  </Button>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink bg-paper-2">
+                  <template.icon className={`h-6 w-6 ${template.iconColor}`} />
                 </div>
-                <p className="text-sm text-ink-2 leading-relaxed">{template.content}</p>
+                <h3 className="mb-1 font-display font-extrabold text-ink">{template.platform}</h3>
+                <p className="mb-3 text-xs text-mute">{template.description}</p>
+                <p className="mb-4 font-mono text-xs text-mute">Format : {template.format}</p>
+                <span className="inline-flex w-full items-center justify-center rounded-lg border-2 border-line px-3 py-2 font-mono text-xs font-semibold text-mute">
+                  Bientôt dispo
+                </span>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </StickerCard>
 
-        {/* Video Resources */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink mb-8">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <Video className="h-5 w-5 text-destructive" />
-              Ressources Vidéo
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-card rounded-xl p-5 border border-ink">
-                <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
-                  <Video className="h-12 w-12 text-mute" />
-                </div>
-                <h3 className="font-bold text-ink mb-1">Présentation Nivy</h3>
-                <p className="text-xs text-mute mb-3">Vidéo de 30 secondes</p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full border-ink text-ink-2 hover:border-destructive/50 hover:text-destructive"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Télécharger
-                </Button>
-              </div>
-              <div className="bg-card rounded-xl p-5 border border-ink">
-                <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
-                  <Video className="h-12 w-12 text-mute" />
-                </div>
-                <h3 className="font-bold text-ink mb-1">Témoignages Parents</h3>
-                <p className="text-xs text-mute mb-3">Vidéo de 45 secondes</p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full border-ink text-ink-2 hover:border-destructive/50 hover:text-destructive"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Télécharger
-                </Button>
-              </div>
-              <div className="bg-card rounded-xl p-5 border border-ink">
-                <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
-                  <Video className="h-12 w-12 text-mute" />
-                </div>
-                <h3 className="font-bold text-ink mb-1">Highlights Events</h3>
-                <p className="text-xs text-mute mb-3">Vidéo de 60 secondes</p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full border-ink text-ink-2 hover:border-destructive/50 hover:text-destructive"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Télécharger
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Text Templates — copier-coller fonctionnel */}
+        <StickerCard className="mb-8 p-6">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <FileText className="h-5 w-5 text-teal" />
+            Templates texte
+          </h2>
+          <div className="space-y-4">
+            {textTemplates.map((template, index) => (
+              <TextTemplateCard key={index} title={template.title} content={template.content} />
+            ))}
+          </div>
+        </StickerCard>
 
-        {/* Tips */}
-        <Card className="bg-gradient-to-r from-gold/10 via-coral/10 to-destructive/10 border-gold/20">
-          <CardContent className="p-6">
-            <h3 className="font-bold text-ink mb-4 flex items-center gap-2">
-              <span className="text-xl">💡</span> Conseils pour maximiser vos conversions
-            </h3>
-            <div className="grid md:grid-cols-4 gap-4">
-              <div className="p-4 bg-card rounded-xl border border-ink">
-                <p className="font-bold text-ink mb-1">Postez régulièrement</p>
-                <p className="text-xs text-mute">2-3 posts par semaine sur vos réseaux</p>
+        {/* Video Resources — « Bientôt dispo » */}
+        <StickerCard className="mb-8 p-6">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <Video className="h-5 w-5 text-coral" />
+            Ressources vidéo
+          </h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              { title: "Présentation Nivy", duration: "Vidéo de 30 secondes" },
+              { title: "Témoignages parents", duration: "Vidéo de 45 secondes" },
+              { title: "Highlights events", duration: "Vidéo de 60 secondes" },
+            ].map((video, index) => (
+              <div key={index} className="rounded-xl border-2 border-line bg-white p-5">
+                <div className="mb-4 flex aspect-video items-center justify-center rounded-lg border-2 border-line bg-paper-2">
+                  <Video className="h-12 w-12 text-mute" />
+                </div>
+                <h3 className="mb-1 font-display font-extrabold text-ink">{video.title}</h3>
+                <p className="mb-3 text-xs text-mute">{video.duration}</p>
+                <span className="inline-flex w-full items-center justify-center rounded-lg border-2 border-line px-3 py-2 font-mono text-xs font-semibold text-mute">
+                  Bientôt dispo
+                </span>
               </div>
-              <div className="p-4 bg-card rounded-xl border border-ink">
-                <p className="font-bold text-ink mb-1">Utilisez les stories</p>
-                <p className="text-xs text-mute">Partagez des moments authentiques</p>
-              </div>
-              <div className="p-4 bg-card rounded-xl border border-ink">
-                <p className="font-bold text-ink mb-1">Personnalisez</p>
-                <p className="text-xs text-mute">Adaptez les messages à votre audience</p>
-              </div>
-              <div className="p-4 bg-card rounded-xl border border-ink">
-                <p className="font-bold text-ink mb-1">Ciblez les parents</p>
-                <p className="text-xs text-mute">Ce sont eux qui décident et paient</p>
-              </div>
+            ))}
+          </div>
+        </StickerCard>
+
+        {/* Coach Niv — le script de partage */}
+        <NivCoach
+          mood="hype"
+          message={
+            <div className="space-y-2">
+              <p className="font-semibold text-paper">Mon script de partage qui convertit :</p>
+              <ul className="list-disc space-y-1 pl-4 text-paper/80">
+                <li>Poste 2-3 fois par semaine, c'est la régularité qui paie.</li>
+                <li>Mise sur les stories : montre l'ambiance des events, du vrai.</li>
+                <li>Personnalise le message selon ton audience.</li>
+                <li>Cible les parents : ce sont eux qui décident et qui paient.</li>
+              </ul>
             </div>
-          </CardContent>
-        </Card>
+          }
+        />
       </div>
     </div>
   )

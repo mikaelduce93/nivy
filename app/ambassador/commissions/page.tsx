@@ -1,20 +1,18 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { DarkSurface, StatHero, NivEmpty } from "@/components/brand"
 import {
   Wallet,
   ArrowLeft,
   TrendingUp,
   Calendar,
-  Filter,
-  Download,
-  DollarSign,
+  Clock,
   ArrowUpRight,
   ArrowDownRight,
-  Clock,
-  CheckCircle
 } from "lucide-react"
 import Link from "next/link"
 
@@ -167,32 +165,20 @@ export default async function AmbassadorCommissionsPage() {
     return <ArrowDownRight className="h-5 w-5 text-lime" />
   }
 
-  const getStatusBadge = (status: string) => {
+  // Statut → StatusBadge charte (plus jamais le code brut).
+  const getStatus = (status: string): { variant: StatusVariant; label: string } => {
     switch (status) {
       case "completed":
-        return {
-          icon: CheckCircle,
-          text: "Complété",
-          class: "bg-lime/20 text-lime"
-        }
-      case "pending":
-        return {
-          icon: Clock,
-          text: "En attente",
-          class: "bg-gold/20 text-gold"
-        }
+      case "paid":
+        return { variant: "success", label: "Complété" }
       case "active":
-        return {
-          icon: CheckCircle,
-          text: "Actif",
-          class: "bg-lime/20 text-lime"
-        }
+        return { variant: "success", label: "Actif" }
+      case "pending":
+        return { variant: "pending", label: "En attente" }
+      case "failed":
+        return { variant: "danger", label: "Refusé" }
       default:
-        return {
-          icon: CheckCircle,
-          text: status,
-          class: "bg-muted text-mute"
-        }
+        return { variant: "neutral", label: "Inconnu" }
     }
   }
 
@@ -202,192 +188,134 @@ export default async function AmbassadorCommissionsPage() {
     : 0
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
+        <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-ink">Mes Commissions</h1>
-            <p className="text-mute">Historique complet de vos gains</p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-ink text-ink-2">
-              <Filter className="h-4 w-4 mr-2" />
-              Filtrer
-            </Button>
-            <Button variant="outline" className="border-ink text-ink-2">
-              <Download className="h-4 w-4 mr-2" />
-              Exporter
-            </Button>
-          </div>
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <span className="eyebrow tracking-[0.16em] text-pink">Mes commissions</span>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Ton <em className="font-semibold italic text-pink">cash</em>, suivi au dirham près.
+          </h1>
+          <p className="mt-2 text-mute">Historique complet de tes gains.</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-lime font-medium">Total gagné</p>
-                  <p className="text-3xl font-black text-ink">{stats?.totalEarnings || 0} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-lime" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Hiérarchie 1-2-3 : Disponible dominant + stats secondaires */}
+        <div className="mb-8 grid gap-4 lg:grid-cols-[1.2fr_2fr]">
+          {/* Disponible — surface sombre, montant retirable */}
+          <StatHero
+            eyebrow="Disponible"
+            value={(stats?.availableBalance || 0).toLocaleString()}
+            unit="DH"
+            tone="lime"
+            icon={<Wallet className="h-5 w-5" />}
+            meta={
+              <Button asChild variant="lime" size="sm" className="mt-1">
+                <Link href="/ambassador/withdrawals">Retirer</Link>
+              </Button>
+            }
+          />
 
-          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-teal font-medium">Disponible</p>
-                  <p className="text-3xl font-black text-ink">{stats?.availableBalance || 0} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-teal" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Stats secondaires en cartes sticker */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <StickerCard className="p-5">
+              <span className="eyebrow tracking-[0.16em] text-mute">Total gagné</span>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{(stats?.totalEarnings || 0).toLocaleString()} DH</p>
+            </StickerCard>
 
-          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
-            <CardContent className="p-5">
+            <StickerCard className="p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-pink font-medium">Ce mois</p>
-                  <p className="text-3xl font-black text-ink">{stats?.monthlyEarnings || 0} DH</p>
-                  {growth !== 0 && (
-                    <p className={`text-xs mt-1 ${growth > 0 ? "text-lime" : "text-destructive"}`}>
-                      {growth > 0 ? "+" : ""}{growth}% vs mois dernier
-                    </p>
-                  )}
-                </div>
-                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-pink" />
-                </div>
+                <span className="eyebrow tracking-[0.16em] text-mute">Ce mois</span>
+                <Calendar className="h-4 w-4 text-pink" />
               </div>
-            </CardContent>
-          </Card>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{(stats?.monthlyEarnings || 0).toLocaleString()} DH</p>
+              {growth !== 0 && (
+                <p className={`mt-1 font-mono text-xs ${growth > 0 ? "text-lime" : "text-destructive"}`}>
+                  {growth > 0 ? "+" : ""}{growth}% vs mois dernier
+                </p>
+              )}
+            </StickerCard>
 
-          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-            <CardContent className="p-5">
+            <StickerCard className="p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gold font-medium">Taux commission</p>
-                  <p className="text-3xl font-black text-ink">{stats?.commissionRate || 15}%</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-gold" />
-                </div>
+                <span className="eyebrow tracking-[0.16em] text-mute">Taux</span>
+                <TrendingUp className="h-4 w-4 text-gold" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{stats?.commissionRate || 15}%</p>
+            </StickerCard>
 
-        {/* Summary Cards */}
-        <div className="grid md:grid-cols-2 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-lime/10 to-lime/10 border-lime/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-lime font-medium">Total retiré</p>
-                  <p className="text-2xl font-black text-ink mt-1">{stats?.totalWithdrawn || 0} DH</p>
-                </div>
-                <Button asChild size="sm" className="bg-lime hover:bg-lime">
-                  <Link href="/ambassador/withdrawals">
-                    Retirer
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            <StickerCard className="p-5">
+              <span className="eyebrow tracking-[0.16em] text-mute">Total retiré</span>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{(stats?.totalWithdrawn || 0).toLocaleString()} DH</p>
+            </StickerCard>
 
-          <Card className="bg-gradient-to-br from-gold/10 to-coral/10 border-gold/20">
-            <CardContent className="p-6">
+            <StickerCard className="col-span-2 p-5 md:col-span-1">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gold font-medium">En attente de traitement</p>
-                  <p className="text-2xl font-black text-ink mt-1">{stats?.pendingWithdrawals || 0} DH</p>
-                </div>
-                <Clock className="h-8 w-8 text-gold" />
+                <span className="eyebrow tracking-[0.16em] text-mute">En traitement</span>
+                <Clock className="h-4 w-4 text-gold" />
               </div>
-            </CardContent>
-          </Card>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{(stats?.pendingWithdrawals || 0).toLocaleString()} DH</p>
+            </StickerCard>
+          </div>
         </div>
 
         {/* Transaction History */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-lime" />
-              Historique des transactions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {commissions.length > 0 ? (
-              <div className="space-y-3">
-                {commissions.map((transaction: any) => {
-                  const status = getStatusBadge(transaction.status)
-                  const StatusIcon = status.icon
-                  const isPositive = transaction.amount > 0
+        <StickerCard className="p-6">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <Wallet className="h-5 w-5 text-lime" />
+            Historique des transactions
+          </h2>
+          {commissions.length > 0 ? (
+            <div className="space-y-3">
+              {commissions.map((transaction: any) => {
+                const status = getStatus(transaction.status)
+                const isPositive = transaction.amount > 0
 
-                  return (
-                    <div
-                      key={transaction.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-ink transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${
-                          isPositive ? "bg-lime/20" : "bg-destructive/20"
-                        }`}>
-                          {getTransactionIcon(transaction.type, transaction.amount)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-ink">{transaction.description}</p>
-                          <p className="text-xs text-mute">{formatDateTime(transaction.date)}</p>
-                        </div>
+                return (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between rounded-xl border-2 border-line bg-white p-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink ${
+                        isPositive ? "bg-lime/15" : "bg-destructive/12"
+                      }`}>
+                        {getTransactionIcon(transaction.type, transaction.amount)}
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className={`text-lg font-black ${isPositive ? "text-lime" : "text-destructive"}`}>
-                            {isPositive ? "+" : ""}{transaction.amount} DH
-                          </p>
-                        </div>
-                        <span className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${status.class}`}>
-                          <StatusIcon className="h-3 w-3" />
-                          {status.text}
-                        </span>
+                      <div>
+                        <p className="font-medium text-ink">{transaction.description}</p>
+                        <p className="font-mono text-xs text-mute">{formatDateTime(transaction.date)}</p>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <Wallet className="h-20 w-20 mx-auto mb-6 text-ink" />
-                <h3 className="text-2xl font-bold text-ink mb-2">Pas encore de transactions</h3>
-                <p className="text-mute mb-6">
-                  Vos commissions apparaîtront ici lorsque vos filleuls s'inscriront
-                </p>
-                <Button asChild className="bg-gold hover:bg-gold text-ink">
-                  <Link href="/ambassador">
-                    Partager mon code
-                  </Link>
+                    <div className="flex items-center gap-4">
+                      <p className={`font-mono text-lg font-bold tabular-nums ${isPositive ? "text-lime" : "text-destructive"}`}>
+                        {isPositive ? "+" : ""}{transaction.amount} DH
+                      </p>
+                      <StatusBadge variant={status.variant} label={status.label} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <NivEmpty
+              title="Pas encore de transactions"
+              description="Tes commissions apparaîtront ici dès que tes filleuls s'inscriront."
+              action={
+                <Button asChild variant="pink">
+                  <Link href="/ambassador">Partager mon code</Link>
                 </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              }
+            />
+          )}
+        </StickerCard>
       </div>
     </div>
   )

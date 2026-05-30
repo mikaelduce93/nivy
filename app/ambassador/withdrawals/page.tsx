@@ -1,9 +1,11 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Wallet, ArrowDownToLine, Clock, CheckCircle, XCircle, AlertCircle, ArrowLeft } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { StatHero, NivEmpty } from "@/components/brand"
+import { Wallet, ArrowDownToLine, Clock, AlertCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { WithdrawalForm } from "@/components/ambassador/withdrawal-form"
 
@@ -65,19 +67,16 @@ export default async function AmbassadorWithdrawalsPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="bg-card border-ink max-w-md">
-          <CardContent className="p-8 text-center">
-            <AlertCircle className="h-16 w-16 mx-auto mb-4 text-ink" />
-            <h2 className="text-xl font-bold text-ink mb-2">Compte non trouvé</h2>
-            <p className="text-mute mb-4">
-              Impossible de charger vos informations d'ambassadeur.
-            </p>
-            <Button asChild className="bg-gold hover:bg-gold text-ink">
+      <div className="flex min-h-screen items-center justify-center bg-paper p-6">
+        <NivEmpty
+          title="Compte non trouvé"
+          description="Impossible de charger tes infos d'ambassadeur."
+          action={
+            <Button asChild variant="pink">
               <Link href="/ambassador">Retour au dashboard</Link>
             </Button>
-          </CardContent>
-        </Card>
+          }
+        />
       </div>
     )
   }
@@ -85,170 +84,119 @@ export default async function AmbassadorWithdrawalsPage() {
   const { ambassadorId, totalEarnings, pendingWithdrawals, withdrawnAmount, availableBalance, withdrawals } = data
   const minimumWithdrawal = 100 // 100 DH minimum
 
-  // ambassador_payouts.status ∈ {pending, paid, failed}.
-  const getStatusIcon = (status: string) => {
+  // ambassador_payouts.status ∈ {pending, paid, failed} → StatusBadge charte.
+  const getStatus = (status: string): { variant: StatusVariant; label: string } => {
     switch (status) {
       case "paid":
-        return <CheckCircle className="h-5 w-5 text-lime" />
+        return { variant: "success", label: "Effectué" }
       case "pending":
-        return <Clock className="h-5 w-5 text-gold" />
+        return { variant: "pending", label: "En attente" }
       case "failed":
-        return <XCircle className="h-5 w-5 text-destructive" />
+        return { variant: "danger", label: "Refusé" }
       default:
-        return <Clock className="h-5 w-5 text-mute" />
-    }
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "bg-lime/20 text-lime"
-      case "pending":
-        return "bg-gold/20 text-gold"
-      case "failed":
-        return "bg-destructive/20 text-destructive"
-      default:
-        return "bg-muted text-mute"
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "Effectué"
-      case "pending":
-        return "En attente"
-      case "failed":
-        return "Refusé"
-      default:
-        return status
+        return { variant: "neutral", label: "Inconnu" }
     }
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
+        <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-ink">Mes Retraits</h1>
-            <p className="text-mute">Gérez vos gains et demandez des retraits</p>
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <span className="eyebrow tracking-[0.16em] text-pink">Mes retraits</span>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Récupère ton <em className="font-semibold italic text-pink">cash</em>, quand tu veux.
+          </h1>
+          <p className="mt-2 text-mute">Gère tes gains et demande un retrait.</p>
+        </div>
+
+        {/* Hiérarchie 1-2-3 : Disponible dominant + 3 soldes sticker */}
+        <div className="mb-8 grid gap-4 lg:grid-cols-[1.2fr_2fr]">
+          {/* Disponible — StatHero (montant retirable) */}
+          <StatHero
+            eyebrow="Disponible"
+            value={availableBalance.toLocaleString()}
+            unit="DH"
+            tone="lime"
+            icon={<Wallet className="h-5 w-5" />}
+          />
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <StickerCard className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="eyebrow tracking-[0.16em] text-mute">En attente</span>
+                <Clock className="h-4 w-4 text-gold" />
+              </div>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{pendingWithdrawals.toLocaleString()} DH</p>
+            </StickerCard>
+
+            <StickerCard className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="eyebrow tracking-[0.16em] text-mute">Total retiré</span>
+                <ArrowDownToLine className="h-4 w-4 text-teal" />
+              </div>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{withdrawnAmount.toLocaleString()} DH</p>
+            </StickerCard>
+
+            <StickerCard className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="eyebrow tracking-[0.16em] text-mute">Total gagné</span>
+                <Wallet className="h-4 w-4 text-pink" />
+              </div>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{totalEarnings.toLocaleString()} DH</p>
+            </StickerCard>
           </div>
         </div>
 
-        {/* Balance Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-lime font-medium">Disponible</p>
-                  <p className="text-3xl font-black text-ink">{availableBalance.toLocaleString()} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-lime" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gold font-medium">En attente</p>
-                  <p className="text-3xl font-black text-ink">{pendingWithdrawals.toLocaleString()} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-gold" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-teal font-medium">Total retiré</p>
-                  <p className="text-3xl font-black text-ink">{withdrawnAmount.toLocaleString()} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
-                  <ArrowDownToLine className="h-6 w-6 text-teal" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-pink font-medium">Total gagné</p>
-                  <p className="text-3xl font-black text-ink">{totalEarnings.toLocaleString()} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-pink" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-6 md:grid-cols-2">
           {/* Withdrawal Form */}
-          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <ArrowDownToLine className="h-5 w-5 text-lime" />
-                Demander un retrait
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {availableBalance >= minimumWithdrawal ? (
-                <WithdrawalForm
-                  ambassadorId={ambassadorId}
-                  availableBalance={availableBalance}
-                  minimumWithdrawal={minimumWithdrawal}
-                />
-              ) : (
-                <div className="text-center py-8">
-                  <AlertCircle className="h-16 w-16 mx-auto mb-4 text-ink" />
-                  <h3 className="text-lg font-bold text-ink mb-2">Solde insuffisant</h3>
-                  <p className="text-mute text-sm mb-4">
-                    Vous devez avoir au moins {minimumWithdrawal} DH de solde disponible pour demander un retrait.
+          <StickerCard className="p-6">
+            <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+              <ArrowDownToLine className="h-5 w-5 text-lime" />
+              Demander un retrait
+            </h2>
+            {availableBalance >= minimumWithdrawal ? (
+              <WithdrawalForm
+                ambassadorId={ambassadorId}
+                availableBalance={availableBalance}
+                minimumWithdrawal={minimumWithdrawal}
+              />
+            ) : (
+              <div className="py-8 text-center">
+                <AlertCircle className="mx-auto mb-4 h-16 w-16 text-ink" />
+                <h3 className="mb-2 font-display text-lg font-extrabold text-ink">Solde insuffisant</h3>
+                <p className="mb-4 text-sm text-mute">
+                  Il te faut au moins {minimumWithdrawal} DH de solde disponible pour demander un retrait.
+                </p>
+                <div className="rounded-xl border-2 border-line bg-white p-4">
+                  <span className="eyebrow tracking-[0.16em] text-mute">Ton solde actuel</span>
+                  <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{availableBalance.toLocaleString()} DH</p>
+                  <p className="mt-1 font-mono text-xs text-mute">
+                    Il te manque {(minimumWithdrawal - availableBalance).toLocaleString()} DH
                   </p>
-                  <div className="bg-card rounded-xl p-4">
-                    <p className="text-xs text-mute">Votre solde actuel</p>
-                    <p className="text-2xl font-black text-ink">{availableBalance.toLocaleString()} DH</p>
-                    <p className="text-xs text-mute mt-1">
-                      Il vous manque {(minimumWithdrawal - availableBalance).toLocaleString()} DH
-                    </p>
-                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            )}
+          </StickerCard>
 
           {/* Withdrawal History */}
-          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <Clock className="h-5 w-5 text-gold" />
-                Historique des retraits
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          <StickerCard className="p-6">
+            <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+              <Clock className="h-5 w-5 text-gold" />
+              Historique des retraits
+            </h2>
+            <div className="space-y-3">
               {withdrawals.length > 0 ? (
                 withdrawals.map((withdrawal: any) => {
+                  const status = getStatus(withdrawal.status)
                   const date = new Date(withdrawal.created_at)
                   const dateText = date.toLocaleDateString('fr-FR', {
                     day: 'numeric',
@@ -259,62 +207,30 @@ export default async function AmbassadorWithdrawalsPage() {
                   return (
                     <div
                       key={withdrawal.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink"
+                      className="flex items-center justify-between rounded-xl border-2 border-line bg-white p-4"
                     >
-                      <div className="flex items-center gap-3">
-                        {getStatusIcon(withdrawal.status)}
-                        <div>
-                          <p className="font-bold text-ink">{Number(withdrawal.amount_dh).toLocaleString()} DH</p>
-                          <p className="text-xs text-mute">{dateText}</p>
-                        </div>
+                      <div>
+                        <p className="font-mono text-lg font-bold tabular-nums text-ink">{Number(withdrawal.amount_dh).toLocaleString()} DH</p>
+                        <p className="font-mono text-xs text-mute">{dateText}</p>
                       </div>
-                      <div className="text-right">
-                        <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusBadge(withdrawal.status)}`}>
-                          {getStatusText(withdrawal.status)}
-                        </span>
+                      <div className="flex flex-col items-end gap-1">
+                        <StatusBadge variant={status.variant} label={status.label} />
                         {withdrawal.method && (
-                          <p className="text-xs text-mute mt-1 capitalize">{withdrawal.method}</p>
+                          <p className="font-mono text-[11px] capitalize text-mute">{withdrawal.method}</p>
                         )}
                       </div>
                     </div>
                   )
                 })
               ) : (
-                <div className="text-center py-8">
-                  <ArrowDownToLine className="h-16 w-16 mx-auto mb-4 text-ink" />
-                  <p className="text-mute">Aucun retrait effectué</p>
-                  <p className="text-xs text-mute mt-1">Vos retraits apparaîtront ici</p>
-                </div>
+                <NivEmpty
+                  title="Aucun retrait effectué"
+                  description="Tes retraits apparaîtront ici une fois demandés."
+                />
               )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Payment Methods Info */}
-        <Card className="mt-8 bg-gradient-to-r from-gold/10 via-coral/10 to-destructive/10 border-gold/20">
-          <CardContent className="p-6">
-            <h3 className="font-bold text-ink mb-4 flex items-center gap-2">
-              <span className="text-xl">💳</span> Méthodes de paiement disponibles
-            </h3>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-4 bg-card rounded-xl border border-ink">
-                <p className="font-bold text-ink mb-1">Virement bancaire</p>
-                <p className="text-xs text-mute">RIB marocain uniquement</p>
-                <p className="text-xs text-gold mt-2">2-3 jours ouvrés</p>
-              </div>
-              <div className="p-4 bg-card rounded-xl border border-ink">
-                <p className="font-bold text-ink mb-1">Cash Plus</p>
-                <p className="text-xs text-mute">Retrait en agence</p>
-                <p className="text-xs text-gold mt-2">24-48h</p>
-              </div>
-              <div className="p-4 bg-card rounded-xl border border-ink">
-                <p className="font-bold text-ink mb-1">Portefeuille mobile</p>
-                <p className="text-xs text-mute">Orange Money, inwi money</p>
-                <p className="text-xs text-gold mt-2">Instantané</p>
-              </div>
             </div>
-          </CardContent>
-        </Card>
+          </StickerCard>
+        </div>
       </div>
     </div>
   )

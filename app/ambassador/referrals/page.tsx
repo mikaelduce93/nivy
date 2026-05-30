@@ -1,19 +1,14 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { DarkSurface, StatHero, NivCoach, NivEmpty } from "@/components/brand"
 import {
   Users,
   ArrowLeft,
-  TrendingUp,
-  Calendar,
-  Filter,
-  Search,
-  Star,
   CheckCircle,
-  Clock,
-  UserPlus
 } from "lucide-react"
 import Link from "next/link"
 
@@ -140,228 +135,147 @@ export default async function AmbassadorReferralsPage() {
     return formatDate(dateString)
   }
 
-  const getStatusBadge = (status: string | null) => {
+  const getStatus = (status: string | null): { variant: StatusVariant; label: string } => {
     switch (status) {
       case "active":
       case null:
       case undefined:
-        return {
-          icon: CheckCircle,
-          text: "Actif",
-          class: "bg-lime/20 text-lime"
-        }
+        return { variant: "success", label: "Actif" }
       case "pending":
-        return {
-          icon: Clock,
-          text: "En attente",
-          class: "bg-gold/20 text-gold"
-        }
+        return { variant: "pending", label: "En attente" }
       case "inactive":
-        return {
-          icon: Clock,
-          text: "Inactif",
-          class: "bg-muted text-mute"
-        }
+        return { variant: "neutral", label: "Inactif" }
       default:
-        return {
-          icon: CheckCircle,
-          text: status,
-          class: "bg-muted text-mute"
-        }
+        return { variant: "neutral", label: "Inconnu" }
     }
   }
 
+  // Privacy mineurs : on masque l'email, on ne montre que prénom + initiale.
+  const maskEmail = (email: string) => {
+    if (!email || !email.includes("@")) return ""
+    const [local, domain] = email.split("@")
+    const head = local.slice(0, 2)
+    return `${head}${"•".repeat(Math.max(local.length - 2, 1))}@${domain}`
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
+        <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-ink">Mes Filleuls</h1>
-            <p className="text-mute">Suivez tous vos parrainages</p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-ink text-ink-2">
-              <Search className="h-4 w-4 mr-2" />
-              Rechercher
-            </Button>
-            <Button variant="outline" className="border-ink text-ink-2">
-              <Filter className="h-4 w-4 mr-2" />
-              Filtrer
-            </Button>
-          </div>
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <span className="eyebrow tracking-[0.16em] text-pink">Mes filleuls</span>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Ton <em className="font-semibold italic text-pink">crew</em>, tout ton réseau Nivy.
+          </h1>
+          <p className="mt-2 text-mute">Suis tous tes parrainages.</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-teal font-medium">Total</p>
-                  <p className="text-3xl font-black text-ink">{stats?.totalReferrals || 0}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-teal" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* 3 KPI forts : Total · Actifs · Gains (surface sombre) */}
+        <div className="mb-8 grid gap-4 sm:grid-cols-3">
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <span className="eyebrow tracking-[0.16em] text-mute">Total filleuls</span>
+              <Users className="h-5 w-5 text-teal" />
+            </div>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-ink">{stats?.totalReferrals || 0}</p>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-lime font-medium">Actifs</p>
-                  <p className="text-3xl font-black text-ink">{stats?.activeReferrals || 0}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-lime" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <span className="eyebrow tracking-[0.16em] text-mute">Actifs</span>
+              <CheckCircle className="h-5 w-5 text-lime" />
+            </div>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-ink">{stats?.activeReferrals || 0}</p>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-pink font-medium">Ce mois</p>
-                  <p className="text-3xl font-black text-ink">+{stats?.monthlyReferrals || 0}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-pink" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gold font-medium">Cette semaine</p>
-                  <p className="text-3xl font-black text-ink">+{stats?.weeklyReferrals || 0}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-gold" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-lime font-medium">Gains totaux</p>
-                  <p className="text-3xl font-black text-ink">{stats?.totalEarnings || 0} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
-                  <Star className="h-6 w-6 text-lime" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Gains — surface sombre (argent) */}
+          <DarkSurface tone="lime" shadow className="p-5">
+            <span className="eyebrow tracking-[0.16em] text-paper/60">Gains DH</span>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-lime">
+              {(stats?.totalEarnings || 0).toLocaleString()} <span className="font-mono text-sm text-paper/60">DH</span>
+            </p>
+          </DarkSurface>
         </div>
 
         {/* Referrals List */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <Users className="h-5 w-5 text-gold" />
-              Liste des filleuls ({referrals.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {referrals.length > 0 ? (
-              <div className="space-y-3">
-                {referrals.map((referral: any) => {
-                  const status = getStatusBadge(referral.status)
-                  const StatusIcon = status.icon
-                  const userName = referral.user?.full_name || "Utilisateur"
-                  const userEmail = referral.user?.email || ""
-                  const userRole = referral.user?.role || "user"
+        <StickerCard className="p-6">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <Users className="h-5 w-5 text-gold" />
+            Liste des filleuls ({referrals.length})
+          </h2>
+          {referrals.length > 0 ? (
+            <div className="space-y-3">
+              {referrals.map((referral: any) => {
+                const status = getStatus(referral.status)
+                const userName = referral.user?.full_name || "Utilisateur"
+                const userEmail = referral.user?.email || ""
+                const userRole = referral.user?.role || "user"
 
-                  return (
-                    <div
-                      key={referral.id}
-                      className="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-2xl bg-card border border-ink hover:border-gold/30 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center text-ink font-black text-xl">
-                          {userName.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-ink">{userName}</h3>
-                          <p className="text-sm text-mute">{userEmail}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs bg-card text-mute px-2 py-0.5 rounded">
-                              {userRole === "teen" ? "Teen" : userRole === "parent" ? "Parent" : "Utilisateur"}
-                            </span>
-                            <span className="text-xs text-mute">
-                              Inscrit {getRelativeTime(referral.created_at)}
-                            </span>
-                          </div>
-                        </div>
+                return (
+                  <div
+                    key={referral.id}
+                    className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-line bg-white p-5 md:flex-row md:items-center"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink bg-pink font-display text-xl font-extrabold text-ink">
+                        {userName.charAt(0)}
                       </div>
-
-                      <div className="flex items-center gap-4 mt-4 md:mt-0">
-                        <div className="text-right">
-                          <p className="text-lg font-black text-lime">
-                            +{referral.commission_amount || 0} DH
-                          </p>
-                          <p className="text-xs text-mute">Commission</p>
+                      <div>
+                        <h3 className="font-display text-lg font-extrabold text-ink">{userName}</h3>
+                        {userEmail && (
+                          <p className="font-mono text-xs text-mute">{maskEmail(userEmail)}</p>
+                        )}
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="rounded-full border-2 border-line px-2 py-0.5 font-mono text-[11px] text-mute">
+                            {userRole === "teen" ? "Ado" : userRole === "parent" ? "Parent" : "Membre"}
+                          </span>
+                          <span className="font-mono text-xs text-mute">
+                            Inscrit {getRelativeTime(referral.created_at)}
+                          </span>
                         </div>
-                        <span className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full ${status.class}`}>
-                          <StatusIcon className="h-3 w-3" />
-                          {status.text}
-                        </span>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <UserPlus className="h-20 w-20 mx-auto mb-6 text-ink" />
-                <h3 className="text-2xl font-bold text-ink mb-2">Pas encore de filleuls</h3>
-                <p className="text-mute mb-6 max-w-md mx-auto">
-                  Partagez votre code de parrainage pour commencer à gagner des commissions
-                </p>
-                <Button asChild className="bg-gold hover:bg-gold text-ink">
-                  <Link href="/ambassador">
-                    Partager mon code
-                  </Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
-        {/* Info Box */}
-        <div className="mt-8 p-6 bg-gradient-to-r from-gold/10 to-coral/10 border border-gold/20 rounded-2xl">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center shrink-0">
-              <Star className="h-6 w-6 text-gold" />
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="font-mono text-lg font-bold tabular-nums text-lime">
+                          +{referral.commission_amount || 0} DH
+                        </p>
+                        <p className="font-mono text-[11px] text-mute">Commission</p>
+                      </div>
+                      <StatusBadge variant={status.variant} label={status.label} />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-            <div>
-              <h3 className="font-bold text-ink mb-1">Comment gagner plus ?</h3>
-              <p className="text-sm text-mute">
-                Plus vos filleuls sont actifs (réservations, achats), plus vous gagnez de commissions récurrentes.
-                Partagez votre code sur les réseaux sociaux et auprès de votre entourage pour maximiser vos gains.
-              </p>
-            </div>
-          </div>
-        </div>
+          ) : (
+            <NivEmpty
+              title="Pas encore de filleuls"
+              description="Partage ton code de parrainage pour ramener ton premier filleul et commencer à gagner."
+              action={
+                <Button asChild variant="pink">
+                  <Link href="/ambassador">Partager mon code</Link>
+                </Button>
+              }
+            />
+          )}
+        </StickerCard>
+
+        {/* Coach Niv — comment gagner plus */}
+        <NivCoach
+          className="mt-8"
+          mood="happy"
+          message="Plus tes filleuls sont actifs (réservations, achats), plus tu touches de commissions récurrentes. Partage ton code sur tes réseaux et autour de toi pour maximiser tes gains."
+        />
       </div>
     </div>
   )

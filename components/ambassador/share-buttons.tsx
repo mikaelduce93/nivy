@@ -29,8 +29,8 @@ export function ShareButtons({ referralCode, referralLink }: ShareButtonsProps) 
 
   const handleShare = async () => {
     const shareData = {
-      title: "Teen Club - Rejoins-nous !",
-      text: `Rejoins Teen Club avec mon code ${referralCode} et profite d'avantages exclusifs !`,
+      title: "Nivy — Rejoins-nous !",
+      text: `Rejoins Nivy avec mon code ${referralCode} et profite d'avantages exclusifs !`,
       url: link,
     }
 
@@ -41,7 +41,7 @@ export function ShareButtons({ referralCode, referralLink }: ShareButtonsProps) 
       } else {
         // Fallback: copy to clipboard
         await navigator.clipboard.writeText(
-          `Rejoins Teen Club avec mon code ${referralCode} ! ${link}`
+          `Rejoins Nivy avec mon code ${referralCode} ! ${link}`
         )
         toast.success("Lien copié ! Partagez-le sur vos réseaux.")
       }
@@ -55,7 +55,8 @@ export function ShareButtons({ referralCode, referralLink }: ShareButtonsProps) 
   return (
     <>
       <Button
-        className="bg-white text-gold hover:bg-paper-2 font-semibold"
+        variant="pink"
+        className="font-semibold"
         onClick={handleCopy}
       >
         {copied ? (
@@ -72,7 +73,6 @@ export function ShareButtons({ referralCode, referralLink }: ShareButtonsProps) 
       </Button>
       <Button
         variant="outline"
-        className="border-ink text-ink hover:bg-paper-2"
         onClick={handleShare}
       >
         <Share2 className="h-4 w-4 mr-2" />
