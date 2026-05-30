@@ -44,7 +44,7 @@ export const StickerCard = React.forwardRef<HTMLDivElement, StickerCardProps>(
       ref={ref}
       data-slot="sticker-card"
       className={cn(
-        "rounded-2xl border-2 border-ink bg-white text-ink transition-all duration-200 ease-out",
+        "flex flex-col rounded-2xl border-2 border-ink bg-white text-ink transition-all duration-200 ease-out",
         VARIANTS[variant],
         className,
       )}

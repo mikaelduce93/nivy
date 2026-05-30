@@ -1,234 +1,213 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { TrustBanner } from "@/components/trust-banner"
-import { Shield, Users, Camera, Phone, FileCheck, AlertCircle, CheckCircle2, Lock } from 'lucide-react'
-import { Card } from "@/components/ui/card"
+import { Shield, Users, Camera, Phone, FileCheck, AlertCircle, CheckCircle2, Lock } from "lucide-react"
+
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Niv } from "@/components/brand"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
 export const metadata = {
   title: "Sécurité | Nivy",
-  description: "Notre engagement sécurité : encadrement professionnel, sans alcool, contrôles stricts pour des événements ados en toute sérénité"
+  description:
+    "Notre engagement sécurité : encadrement professionnel, sans alcool, contrôles stricts pour des événements ados en toute sérénité",
 }
+
+const MEASURES = [
+  {
+    icon: Shield,
+    bg: "bg-lime",
+    title: "100% sans alcool",
+    items: [
+      "Contrôles à l'entrée et fouilles si nécessaire",
+      "Surveillance continue pendant l'événement",
+      "Boissons servies uniquement par notre staff",
+      "Zéro tolérance — expulsion immédiate si infraction",
+    ],
+  },
+  {
+    icon: Users,
+    bg: "bg-teal",
+    title: "Encadrement professionnel",
+    items: [
+      "Ratio 1 adulte pour 10 adolescents maximum",
+      "Staff formé aux premiers secours",
+      "Équipe de sécurité professionnelle sur place",
+      "Supervision continue de A à Z",
+    ],
+  },
+  {
+    icon: Camera,
+    bg: "bg-gold",
+    title: "Check-in / check-out sécurisé",
+    items: [
+      "Scan QR code à l'arrivée et au départ",
+      "Notifications temps réel aux parents",
+      "Photo de confirmation à l'entrée",
+      "Aucune sortie non autorisée",
+    ],
+  },
+  {
+    icon: Phone,
+    bg: "bg-pink",
+    title: "Communication parents",
+    items: [
+      "Ligne directe disponible H24 pendant l'événement",
+      "Updates réguliers par SMS/WhatsApp",
+      "Réponse immédiate en cas d'urgence",
+      "Rapport post-événement disponible",
+    ],
+  },
+]
+
+const OTHER = [
+  {
+    icon: Lock,
+    title: "Contrôles d'accès",
+    items: [
+      "Vérification d'âge à l'entrée (CIN/Carte d'identité)",
+      "Liste de participants pré-validée",
+      "Bracelets d'identification obligatoires",
+      "Sortie uniquement avec autorisation parentale",
+    ],
+  },
+  {
+    icon: AlertCircle,
+    title: "Règles de conduite",
+    items: [
+      "Respect obligatoire entre participants",
+      "Interdiction de fumer (y compris vape)",
+      "Tenue vestimentaire appropriée requise",
+      "Téléphones autorisés mais usage modéré",
+    ],
+  },
+  {
+    icon: Shield,
+    title: "Sécurité physique",
+    items: [
+      "Lieux vérifiés et aux normes de sécurité",
+      "Issues de secours clairement indiquées",
+      "Extincteurs et matériel de premiers secours",
+      "Éclairage optimal dans toutes les zones",
+    ],
+  },
+  {
+    icon: Users,
+    title: "Protection des mineurs",
+    items: [
+      "Autorisation parentale obligatoire",
+      "Aucun contact avec des adultes externes",
+      "Protection des données personnelles (CNDP)",
+      "Droit à l'image respecté (opt-out disponible)",
+    ],
+  },
+]
 
 export default function SecuritePage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <Navbar />
       <TrustBanner />
-      
-      <main className="pt-24 pb-16">
+
+      <main className="pb-16 pt-20">
         {/* Hero */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime/10 border border-lime/20 mb-6">
-            <Shield className="w-4 h-4 text-lime" />
-            <span className="text-sm font-semibold text-lime">Votre tranquillité, notre priorité</span>
+        <div className="relative overflow-hidden">
+          <MeshBackground />
+          <div className="relative mx-auto mb-12 max-w-4xl px-4 pt-12 text-center sm:px-6 lg:px-8">
+            <div className="flex flex-col items-center gap-5">
+              <Niv mood="proud" size={104} float />
+              <p className="eyebrow tracking-[0.16em]">Sécurité · ta tranquillité, notre priorité</p>
+              <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight md:text-5xl">
+                La sécurité <em className="font-semibold italic text-pink">avant tout</em>
+              </h1>
+              <p className="max-w-3xl text-xl leading-relaxed text-ink-2">
+                Des événements pour ados conçus avec les plus hauts standards de sécurité.
+                Encadrement professionnel, contrôles stricts, environnement surveillé.
+              </p>
+            </div>
           </div>
-          
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-lime via-teal to-teal bg-clip-text text-transparent">
-              La Sécurité Avant Tout
-            </span>
-          </h1>
-          
-          <p className="text-xl text-mute leading-relaxed max-w-3xl mx-auto">
-            Des événements pour ados conçus avec les plus hauts standards de sécurité. 
-            Encadrement professionnel, contrôles stricts, environnement surveillé.
-          </p>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           {/* Main Security Measures */}
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <Card className="p-6 bg-card border-lime/20 hover:border-lime/40 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-lime/10 flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-lime" />
-              </div>
-              <h3 className="text-xl font-bold text-ink mb-3">100% Sans Alcool</h3>
-              <ul className="space-y-2 text-mute">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-lime flex-shrink-0 mt-0.5" />
-                  <span>Contrôles à l'entrée et fouilles si nécessaire</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-lime flex-shrink-0 mt-0.5" />
-                  <span>Surveillance continue pendant l'événement</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-lime flex-shrink-0 mt-0.5" />
-                  <span>Boissons servies uniquement par notre staff</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-lime flex-shrink-0 mt-0.5" />
-                  <span>Zéro tolérance - Expulsion immédiate si infraction</span>
-                </li>
-              </ul>
-            </Card>
-
-            <Card className="p-6 bg-card border-teal/20 hover:border-teal/40 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-teal/10 flex items-center justify-center mb-4">
-                <Users className="w-6 h-6 text-teal" />
-              </div>
-              <h3 className="text-xl font-bold text-ink mb-3">Encadrement Professionnel</h3>
-              <ul className="space-y-2 text-mute">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <span>Ratio 1 adulte pour 10 adolescents maximum</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <span>Staff formé aux premiers secours</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <span>Équipe de sécurité professionnelle sur place</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <span>Supervision continue de A à Z</span>
-                </li>
-              </ul>
-            </Card>
-
-            <Card className="p-6 bg-card border-teal/20 hover:border-teal/40 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-teal/10 flex items-center justify-center mb-4">
-                <Camera className="w-6 h-6 text-teal" />
-              </div>
-              <h3 className="text-xl font-bold text-ink mb-3">Check-in/Check-out Sécurisé</h3>
-              <ul className="space-y-2 text-mute">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <span>Scan QR code à l'arrivée et au départ</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <span>Notifications temps réel aux parents</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <span>Photo de confirmation à l'entrée</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <span>Aucune sortie non autorisée</span>
-                </li>
-              </ul>
-            </Card>
-
-            <Card className="p-6 bg-card border-pink/20 hover:border-pink/40 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-pink/10 flex items-center justify-center mb-4">
-                <Phone className="w-6 h-6 text-pink" />
-              </div>
-              <h3 className="text-xl font-bold text-ink mb-3">Communication Parents</h3>
-              <ul className="space-y-2 text-mute">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-pink flex-shrink-0 mt-0.5" />
-                  <span>Ligne directe disponible H24 pendant l'événement</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-pink flex-shrink-0 mt-0.5" />
-                  <span>Updates réguliers par SMS/WhatsApp</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-pink flex-shrink-0 mt-0.5" />
-                  <span>Réponse immédiate en cas d'urgence</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-pink flex-shrink-0 mt-0.5" />
-                  <span>Rapport post-événement disponible</span>
-                </li>
-              </ul>
-            </Card>
+          <div className="mb-12 grid gap-6 md:grid-cols-2">
+            {MEASURES.map((m) => (
+              <StickerCard key={m.title} variant="hover" className="gap-3 p-6">
+                <span className={`grid size-12 place-items-center rounded-xl border-2 border-ink ${m.bg}`}>
+                  <m.icon className="size-6 text-ink" aria-hidden="true" />
+                </span>
+                <h3 className="font-display text-xl font-extrabold text-ink">{m.title}</h3>
+                <ul className="space-y-2 text-mute">
+                  {m.items.map((it) => (
+                    <li key={it} className="flex items-start gap-2">
+                      <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-lime">
+                        <CheckCircle2 className="size-3.5 text-ink" aria-hidden="true" />
+                      </span>
+                      <span>{it}</span>
+                    </li>
+                  ))}
+                </ul>
+              </StickerCard>
+            ))}
           </div>
 
           {/* Additional Measures */}
-          <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl border border-ink p-8 mb-12">
-            <h2 className="text-2xl font-bold text-ink mb-6 flex items-center gap-3">
-              <FileCheck className="w-6 h-6 text-teal" />
-              Autres Mesures de Sécurité
+          <StickerCard className="mb-12 gap-6 p-8">
+            <h2 className="flex items-center gap-3 font-display text-2xl font-extrabold text-ink">
+              <FileCheck className="size-6 text-teal" aria-hidden="true" />
+              Autres mesures de sécurité
             </h2>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Lock className="w-5 h-5 text-lime" />
-                  Contrôles d'Accès
-                </h3>
-                <ul className="space-y-2 text-sm text-mute">
-                  <li>• Vérification d'âge à l'entrée (CIN/Carte d'identité)</li>
-                  <li>• Liste de participants pré-validée</li>
-                  <li>• Bracelets d'identification obligatoires</li>
-                  <li>• Sortie uniquement avec autorisation parentale</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-ink mb-3 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-teal" />
-                  Règles de Conduite
-                </h3>
-                <ul className="space-y-2 text-sm text-mute">
-                  <li>• Respect obligatoire entre participants</li>
-                  <li>• Interdiction de fumer (y compris vape)</li>
-                  <li>• Tenue vestimentaire appropriée requise</li>
-                  <li>• Téléphones autorisés mais usage modéré</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-teal" />
-                  Sécurité Physique
-                </h3>
-                <ul className="space-y-2 text-sm text-mute">
-                  <li>• Lieux vérifiés et aux normes de sécurité</li>
-                  <li>• Issues de secours clairement indiquées</li>
-                  <li>• Extincteurs et matériel de premiers secours</li>
-                  <li>• Éclairage optimal dans toutes les zones</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-pink" />
-                  Protection des Mineurs
-                </h3>
-                <ul className="space-y-2 text-sm text-mute">
-                  <li>• Autorisation parentale obligatoire</li>
-                  <li>• Aucun contact avec des adultes externes</li>
-                  <li>• Protection des données personnelles (CNDP)</li>
-                  <li>• Droit à l'image respecté (opt-out disponible)</li>
-                </ul>
-              </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              {OTHER.map((o) => (
+                <div key={o.title}>
+                  <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-ink">
+                    <o.icon className="size-5 text-teal" aria-hidden="true" />
+                    {o.title}
+                  </h3>
+                  <ul className="space-y-2 text-sm text-mute">
+                    {o.items.map((it) => (
+                      <li key={it}>• {it}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-          </div>
+          </StickerCard>
 
           {/* Emergency Protocol */}
-          <Card className="p-8 bg-gradient-to-br from-destructive/30 to-coral/30 border-destructive/20">
+          <StickerCard className="border-destructive p-8" style={{ background: "var(--danger-soft)" }}>
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-destructive/10 flex items-center justify-center flex-shrink-0">
-                <AlertCircle className="w-6 h-6 text-destructive" />
-              </div>
+              <span className="grid size-12 shrink-0 place-items-center rounded-xl border-2 border-ink bg-white">
+                <AlertCircle className="size-6 text-destructive" aria-hidden="true" />
+              </span>
               <div>
-                <h2 className="text-2xl font-bold text-ink mb-4">Protocole d'Urgence</h2>
-                <p className="text-ink-2 mb-4">
+                <h2 className="mb-4 font-display text-2xl font-extrabold text-ink">Protocole d'urgence</h2>
+                <p className="mb-4 text-ink-2">
                   En cas d'incident ou d'urgence médicale, notre équipe suit un protocole strict :
                 </p>
-                <ol className="space-y-2 text-ink-2 list-decimal list-inside">
+                <ol className="list-inside list-decimal space-y-2 text-ink-2">
                   <li>Contact immédiat des parents et services d'urgence si nécessaire</li>
                   <li>Premiers secours prodigués par notre staff formé</li>
-                  <li>Évacuation ordonnée si situation l'exige</li>
+                  <li>Évacuation ordonnée si la situation l'exige</li>
                   <li>Rapport détaillé fourni aux parents</li>
                 </ol>
-                <div className="mt-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-                  <p className="text-sm font-semibold text-destructive mb-2">Numéro d'Urgence Événement</p>
-                  <p className="text-2xl font-bold text-ink">+212 661 234 567</p>
-                  <p className="text-sm text-mute mt-1">Disponible uniquement pendant les événements</p>
+                <div className="mt-6 rounded-xl border-2 border-ink bg-white p-4">
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-destructive">
+                    Numéro d'urgence événement
+                  </p>
+                  <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-ink">
+                    +212 661 234 567
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-mute">
+                    Disponible uniquement pendant les événements
+                  </p>
                 </div>
               </div>
             </div>
-          </Card>
+          </StickerCard>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   )
