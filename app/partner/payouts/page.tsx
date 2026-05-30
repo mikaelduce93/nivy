@@ -6,20 +6,12 @@
  * row with role='owner', so we use the service-role client and filter
  * explicitly by `partner_id = userInfo.partnerData.id`.
  */
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import {
-  Wallet,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  TrendingUp,
-  RefreshCw,
-} from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, NivEmpty } from "@/components/brand"
+import { Clock, XCircle } from "lucide-react"
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
-import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -40,40 +32,25 @@ function formatPeriod(start: string, end: string): string {
   return `${formatDate(start)} → ${formatDate(end)}`
 }
 
+/** Pill mono UPPERCASE bordure ink — palette charte par statut. */
 function statusBadge(status: string) {
-  switch (status) {
-    case "paid":
-    case "completed":
-      return (
-        <Badge className="bg-lime/20 text-lime">
-          <CheckCircle2 className="w-3 h-3 mr-1" />
-          Payé
-        </Badge>
-      )
-    case "pending":
-      return (
-        <Badge className="bg-gold/20 text-gold">
-          <Clock className="w-3 h-3 mr-1" />
-          En attente
-        </Badge>
-      )
-    case "processing":
-      return (
-        <Badge className="bg-teal/20 text-teal">
-          <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-          Traitement
-        </Badge>
-      )
-    case "failed":
-      return (
-        <Badge className="bg-destructive/20 text-destructive">
-          <XCircle className="w-3 h-3 mr-1" />
-          Échoué
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{status}</Badge>
+  const map: Record<string, { label: string; tint: string }> = {
+    paid: { label: "Payé", tint: "bg-lime/20" },
+    completed: { label: "Payé", tint: "bg-lime/20" },
+    pending: { label: "En attente", tint: "bg-gold/20" },
+    processing: { label: "Traitement", tint: "bg-gold/20" },
+    failed: { label: "Échoué", tint: "bg-coral/20" },
   }
+  const cfg = map[status]
+  return (
+    <span
+      className={`inline-block rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-ink ${
+        cfg?.tint ?? "bg-white"
+      }`}
+    >
+      {cfg?.label ?? status}
+    </span>
+  )
 }
 
 export default async function PartnerPayoutsPage() {
@@ -83,12 +60,17 @@ export default async function PartnerPayoutsPage() {
   if (userInfo.role !== "partner") {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-ink">Mes Paiements</h1>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-10 text-center text-destructive">
+        <div>
+          <p className="eyebrow tracking-[0.16em] text-mute">Ton cash</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Tes <em className="font-semibold italic text-pink">virements</em>
+          </h1>
+        </div>
+        <StickerCard className="p-10 text-center">
+          <p className="font-semibold text-coral">
             Accès refusé — espace réservé aux partenaires.
-          </CardContent>
-        </Card>
+          </p>
+        </StickerCard>
       </div>
     )
   }
@@ -97,15 +79,20 @@ export default async function PartnerPayoutsPage() {
   if (!partnerId) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-ink">Mes Paiements</h1>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-10 text-center">
-            <p className="text-ink-2 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-mute mt-2">
-              Votre compte n'est pas encore lié à une fiche partenaire active.
-            </p>
-          </CardContent>
-        </Card>
+        <div>
+          <p className="eyebrow tracking-[0.16em] text-mute">Ton cash</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Tes <em className="font-semibold italic text-pink">virements</em>
+          </h1>
+        </div>
+        <StickerCard className="p-10 text-center">
+          <p className="font-display text-lg font-bold text-ink">
+            Profil partenaire introuvable
+          </p>
+          <p className="mt-2 text-sm text-mute">
+            Ton compte n'est pas encore lié à une fiche partenaire active.
+          </p>
+        </StickerCard>
       </div>
     )
   }
@@ -146,100 +133,85 @@ export default async function PartnerPayoutsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
-          <Wallet className="w-7 h-7 text-lime" />
-          Mes Paiements
+        <p className="eyebrow tracking-[0.16em] text-mute">Ton cash</p>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Tes <em className="font-semibold italic text-pink">virements</em>
         </h1>
-        <p className="text-mute mt-1">
-          Historique des virements générés par Nivy (mensuel, le 1er de chaque mois)
+        <p className="text-mute">
+          Tes virements générés par Nivy (mensuel, le 1er de chaque mois)
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-lime font-medium">Total payé</p>
-                <p className="text-2xl font-black text-ink">
-                  {Math.round(totalPaid).toLocaleString()} DH
-                </p>
-              </div>
-              <TrendingUp className="h-6 w-6 text-lime" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-gold font-medium">En attente</p>
-                <p className="text-2xl font-black text-ink">
-                  {Math.round(totalPending).toLocaleString()} DH
-                </p>
-              </div>
-              <Clock className="h-6 w-6 text-gold" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-destructive font-medium">Échoués</p>
-                <p className="text-2xl font-black text-ink">
-                  {Math.round(totalFailed).toLocaleString()} DH
-                </p>
-              </div>
-              <XCircle className="h-6 w-6 text-destructive" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats — hiérarchie 1-2-3 : le total payé domine en surface sombre */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatHero
+          eyebrow="Total payé"
+          value={Math.round(totalPaid).toLocaleString()}
+          unit="DH"
+          tone="lime"
+          className="sm:col-span-2"
+          meta="encaissé sur ton compte"
+        />
+        <StickerCard className="justify-center gap-1 p-5">
+          <p className="flex items-center gap-1.5 eyebrow tracking-[0.16em] text-mute">
+            <Clock className="size-3.5" aria-hidden="true" />
+            En attente
+          </p>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-gold">
+            {Math.round(totalPending).toLocaleString()}
+            <span className="ml-1 font-mono text-sm text-mute">DH</span>
+          </p>
+        </StickerCard>
+        <StickerCard className="justify-center gap-1 p-5">
+          <p className="flex items-center gap-1.5 eyebrow tracking-[0.16em] text-mute">
+            <XCircle className="size-3.5" aria-hidden="true" />
+            Échoués
+          </p>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-coral">
+            {Math.round(totalFailed).toLocaleString()}
+            <span className="ml-1 font-mono text-sm text-mute">DH</span>
+          </p>
+        </StickerCard>
       </div>
 
       {/* Payout list */}
-      <Card className="bg-card border-ink">
-        <CardHeader>
-          <CardTitle className="text-ink">Historique des paiements</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {payouts.length === 0 ? (
-            <EmptyState
-              icon={Wallet}
-              title="Aucun paiement"
-              description="Vos virements apparaîtront ici une fois le premier cycle de versement clôturé."
-            />
-          ) : (
-            <div className="space-y-3">
-              {payouts.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-card border border-ink"
-                >
+      <div className="space-y-2">
+        <p className="eyebrow tracking-[0.16em] text-mute">Historique des virements</p>
+        {payouts.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Ton premier virement arrive bientôt"
+            description="Après le 1er cycle de versement, tes virements s'affichent ici. T'inquiète."
+          />
+        ) : (
+          <div className="space-y-3">
+            {payouts.map((p) => (
+              <StickerCard key={p.id} variant="hover" className="p-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="font-bold text-ink">
-                      {Math.round(num(p.total_dh)).toLocaleString()} DH
+                    <p className="font-display text-lg font-extrabold tabular-nums text-ink">
+                      {Math.round(num(p.total_dh)).toLocaleString()}
+                      <span className="ml-1 font-mono text-sm text-mute">DH</span>
                     </p>
-                    <p className="text-xs text-mute">
-                      Période {formatPeriod(p.period_start, p.period_end)}
+                    <p className="font-mono text-xs text-mute">
+                      {formatPeriod(p.period_start, p.period_end)}
                       {p.reference ? ` · ${p.reference}` : ""}
                     </p>
                   </div>
                   <div className="text-right">
                     {statusBadge(p.status)}
-                    <p className="text-xs text-mute mt-1">
+                    <p className="mt-1 font-mono text-xs text-mute">
                       {p.paid_at
                         ? `Payé le ${formatDate(p.paid_at)}`
                         : `Créé le ${formatDate(p.created_at)}`}
                     </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </StickerCard>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

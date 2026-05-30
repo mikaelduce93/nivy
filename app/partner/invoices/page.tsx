@@ -9,8 +9,8 @@
  *
  * RSC. Service-role read filtered by partner_id (mirrors payouts page).
  */
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, NivEmpty } from "@/components/brand"
 import {
   Table,
   TableBody,
@@ -19,18 +19,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  FileText,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  AlertTriangle,
-  FileEdit,
-} from "lucide-react"
+import { AlertTriangle } from "lucide-react"
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
-import { EmptyState } from "@/components/ui/states/empty-state"
 
 export const dynamic = "force-dynamic"
 
@@ -78,49 +70,28 @@ function syntheticInvoiceNumber(payout: {
   return `INV-${yr}-${short}`
 }
 
+/** Pill mono UPPERCASE bordure ink — palette charte par statut. */
 function statusBadge(status: string) {
-  switch (status) {
-    case "paid":
-    case "completed":
-      return (
-        <Badge className="bg-lime/20 text-lime">
-          <CheckCircle2 className="w-3 h-3 mr-1" />
-          Payée
-        </Badge>
-      )
-    case "issued":
-      return (
-        <Badge className="bg-teal/20 text-teal">
-          <FileText className="w-3 h-3 mr-1" />
-          Émise
-        </Badge>
-      )
-    case "draft":
-      return (
-        <Badge className="bg-muted text-mute">
-          <FileEdit className="w-3 h-3 mr-1" />
-          Brouillon
-        </Badge>
-      )
-    case "pending":
-    case "processing":
-      return (
-        <Badge className="bg-gold/20 text-gold">
-          <Clock className="w-3 h-3 mr-1" />
-          En attente
-        </Badge>
-      )
-    case "failed":
-    case "cancelled":
-      return (
-        <Badge className="bg-destructive/20 text-destructive">
-          <XCircle className="w-3 h-3 mr-1" />
-          {status === "cancelled" ? "Annulée" : "Échouée"}
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{status}</Badge>
+  const map: Record<string, { label: string; tint: string }> = {
+    paid: { label: "Payée", tint: "bg-lime/20" },
+    completed: { label: "Payée", tint: "bg-lime/20" },
+    issued: { label: "Émise", tint: "bg-teal/20" },
+    draft: { label: "Brouillon", tint: "bg-white" },
+    pending: { label: "En attente", tint: "bg-gold/20" },
+    processing: { label: "En attente", tint: "bg-gold/20" },
+    failed: { label: "Échouée", tint: "bg-coral/20" },
+    cancelled: { label: "Annulée", tint: "bg-coral/20" },
   }
+  const cfg = map[status]
+  return (
+    <span
+      className={`inline-block rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-ink ${
+        cfg?.tint ?? "bg-white"
+      }`}
+    >
+      {cfg?.label ?? status}
+    </span>
+  )
 }
 
 const num = (v: number | string | null | undefined): number => Number(v ?? 0)
@@ -132,12 +103,17 @@ export default async function PartnerInvoicesPage() {
   if (userInfo.role !== "partner") {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-ink">Mes Factures</h1>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-10 text-center text-destructive">
+        <div>
+          <p className="eyebrow tracking-[0.16em] text-mute">Facturation</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Tes <em className="font-semibold italic text-pink">factures</em>
+          </h1>
+        </div>
+        <StickerCard className="p-10 text-center">
+          <p className="font-semibold text-coral">
             Accès refusé — espace réservé aux partenaires.
-          </CardContent>
-        </Card>
+          </p>
+        </StickerCard>
       </div>
     )
   }
@@ -146,15 +122,20 @@ export default async function PartnerInvoicesPage() {
   if (!partnerId) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-ink">Mes Factures</h1>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-10 text-center">
-            <p className="text-ink-2 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-mute mt-2">
-              Votre compte n'est pas encore lié à une fiche partenaire active.
-            </p>
-          </CardContent>
-        </Card>
+        <div>
+          <p className="eyebrow tracking-[0.16em] text-mute">Facturation</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Tes <em className="font-semibold italic text-pink">factures</em>
+          </h1>
+        </div>
+        <StickerCard className="p-10 text-center">
+          <p className="font-display text-lg font-bold text-ink">
+            Profil partenaire introuvable
+          </p>
+          <p className="mt-2 text-sm text-mute">
+            Ton compte n'est pas encore lié à une fiche partenaire active.
+          </p>
+        </StickerCard>
       </div>
     )
   }
@@ -238,105 +219,138 @@ export default async function PartnerInvoicesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-ink flex items-center gap-3">
-          <FileText className="w-7 h-7 text-pink" />
-          Mes Factures
+        <p className="eyebrow tracking-[0.16em] text-mute">Facturation</p>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Tes <em className="font-semibold italic text-pink">factures</em>
         </h1>
-        <p className="text-mute mt-1">
-          Chaque virement Nivy génère une facture. La facture PDF est disponible sur
-          demande auprès du support.
+        <p className="text-mute">
+          Chaque virement Nivy génère une facture. Le PDF est dispo sur demande
+          auprès du support.
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <p className="text-xs text-pink font-medium">Total facturé</p>
-            <p className="text-2xl font-black text-ink">
-              {Math.round(totalInvoiced).toLocaleString()} DH
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <p className="text-xs text-lime font-medium">Total payé</p>
-            <p className="text-2xl font-black text-ink">
-              {Math.round(totalPaid).toLocaleString()} DH
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-ink">
-          <CardContent className="p-5">
-            <p className="text-xs text-gold font-medium">En attente</p>
-            <p className="text-2xl font-black text-ink">
-              {Math.round(totalPending).toLocaleString()} DH
-            </p>
-          </CardContent>
-        </Card>
+      {/* Stats — hiérarchie 1-2-3 : le total facturé domine en surface sombre */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatHero
+          eyebrow="Total facturé"
+          value={Math.round(totalInvoiced).toLocaleString()}
+          unit="DH"
+          tone="pink"
+          className="sm:col-span-2"
+          meta={`${invoices.length} facture${invoices.length > 1 ? "s" : ""}`}
+        />
+        <StickerCard className="justify-center gap-1 p-5">
+          <p className="eyebrow tracking-[0.16em] text-mute">Total payé</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-lime">
+            {Math.round(totalPaid).toLocaleString()}
+            <span className="ml-1 font-mono text-sm text-mute">DH</span>
+          </p>
+        </StickerCard>
+        <StickerCard className="justify-center gap-1 p-5">
+          <p className="eyebrow tracking-[0.16em] text-mute">En attente</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-gold">
+            {Math.round(totalPending).toLocaleString()}
+            <span className="ml-1 font-mono text-sm text-mute">DH</span>
+          </p>
+        </StickerCard>
       </div>
 
       {/* Notice */}
-      <Card className="bg-teal/10 border-teal/20">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-teal mt-0.5" />
-            <p className="text-sm text-ink-2">
-              <span className="font-medium text-teal">Facturation mensuelle —</span>{" "}
-              {usedFallback
-                ? "vue dérivée (transition) — les factures officielles seront émises au prochain cycle de versement."
-                : "chaque ligne ci-dessous correspond à une facture émise par Nivy (cron mensuel partner-payout-monthly)."}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <StickerCard variant="panel" className="p-4">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-teal" aria-hidden="true" />
+          <p className="text-sm text-ink-2">
+            <span className="font-semibold text-teal">Facturation mensuelle —</span>{" "}
+            {usedFallback
+              ? "vue dérivée (transition) — les factures officielles seront émises au prochain cycle de versement."
+              : "chaque ligne ci-dessous correspond à une facture émise par Nivy (cron mensuel partner-payout-monthly)."}
+          </p>
+        </div>
+      </StickerCard>
 
-      {/* Invoices table */}
-      <Card className="bg-card border-ink">
-        <CardHeader>
-          <CardTitle className="text-ink">Factures</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {invoices.length === 0 ? (
-            <EmptyState
-              icon={FileText}
-              title="Aucune facture"
-              description="Vos factures apparaîtront ici dès le premier cycle de versement."
-            />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-ink">
-                  <TableHead className="text-mute">Numéro</TableHead>
-                  <TableHead className="text-mute">Période</TableHead>
-                  <TableHead className="text-mute">Date</TableHead>
-                  <TableHead className="text-mute">Montant</TableHead>
-                  <TableHead className="text-mute">Statut</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.map((inv) => (
-                  <TableRow key={inv.id} className="border-ink hover:bg-card">
-                    <TableCell className="font-mono font-bold text-pink">
+      {/* Invoices */}
+      <div className="space-y-2">
+        <p className="eyebrow tracking-[0.16em] text-mute">Factures</p>
+        {invoices.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Pas encore de facture"
+            description="Tes factures pop ici dès le premier cycle de versement. Tranquille."
+          />
+        ) : (
+          <>
+            {/* Mobile-first : cartes sticker empilées en < md */}
+            <div className="space-y-3 md:hidden">
+              {invoices.map((inv) => (
+                <StickerCard key={inv.id} variant="hover" className="gap-2 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-mono text-sm font-bold text-pink">
                       {inv.invoice_number}
-                    </TableCell>
-                    <TableCell className="text-ink">
-                      {formatPeriod(inv.period_start, inv.period_end)}
-                    </TableCell>
-                    <TableCell className="text-mute">
+                    </p>
+                    {statusBadge(inv.status)}
+                  </div>
+                  <p className="font-mono text-xs text-mute">
+                    {formatPeriod(inv.period_start, inv.period_end)}
+                  </p>
+                  <div className="flex items-end justify-between gap-3">
+                    <p className="font-mono text-xs text-mute">
                       {formatDate(inv.paid_at || inv.issued_at || inv.created_at)}
-                    </TableCell>
-                    <TableCell className="font-bold text-ink">
-                      {Math.round(inv.total_dh).toLocaleString()} DH
-                    </TableCell>
-                    <TableCell>{statusBadge(inv.status)}</TableCell>
+                    </p>
+                    <p className="font-display text-lg font-extrabold tabular-nums text-ink">
+                      {Math.round(inv.total_dh).toLocaleString()}
+                      <span className="ml-1 font-mono text-sm text-mute">DH</span>
+                    </p>
+                  </div>
+                </StickerCard>
+              ))}
+            </div>
+
+            {/* md+ : table charte (en-têtes mono) */}
+            <StickerCard className="hidden p-0 md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-ink">
+                    <TableHead className="font-mono text-xs uppercase tracking-[0.08em] text-mute">
+                      Numéro
+                    </TableHead>
+                    <TableHead className="font-mono text-xs uppercase tracking-[0.08em] text-mute">
+                      Période
+                    </TableHead>
+                    <TableHead className="font-mono text-xs uppercase tracking-[0.08em] text-mute">
+                      Date
+                    </TableHead>
+                    <TableHead className="font-mono text-xs uppercase tracking-[0.08em] text-mute">
+                      Montant
+                    </TableHead>
+                    <TableHead className="font-mono text-xs uppercase tracking-[0.08em] text-mute">
+                      Statut
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {invoices.map((inv) => (
+                    <TableRow key={inv.id} className="border-ink">
+                      <TableCell className="font-mono font-bold text-pink">
+                        {inv.invoice_number}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-ink-2">
+                        {formatPeriod(inv.period_start, inv.period_end)}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-mute">
+                        {formatDate(inv.paid_at || inv.issued_at || inv.created_at)}
+                      </TableCell>
+                      <TableCell className="font-display font-extrabold tabular-nums text-ink">
+                        {Math.round(inv.total_dh).toLocaleString()} DH
+                      </TableCell>
+                      <TableCell>{statusBadge(inv.status)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </StickerCard>
+          </>
+        )}
+      </div>
     </div>
   )
 }

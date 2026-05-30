@@ -1,10 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { TrendingUp, Users, ShoppingBag, Tag, Calendar, Download } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, NivEmpty } from "@/components/brand"
+import { Users, ShoppingBag, Tag, Calendar } from "lucide-react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { EmptyState } from "@/components/ui/states/empty-state"
 
 type TxRow = {
   teen_id: string | null
@@ -46,7 +45,10 @@ export default async function PartnerStatsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-black text-ink">Statistiques</h1>
+          <p className="eyebrow tracking-[0.16em] text-mute">Tes perfs</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Tes <em className="font-semibold italic text-pink">stats</em>
+          </h1>
           <p className="text-mute">Stats indisponibles — profil partenaire introuvable.</p>
         </div>
       </div>
@@ -116,179 +118,157 @@ export default async function PartnerStatsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-ink">Statistiques</h1>
-          <p className="text-mute">Analysez vos performances Teen Club</p>
-        </div>
-        <Button variant="outline" className="border-ink text-ink-2 hover:text-ink">
-          <Download className="h-4 w-4 mr-2" />
-          Rapport PDF
-        </Button>
+      <div>
+        <p className="eyebrow tracking-[0.16em] text-mute">Tes perfs</p>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Tes <em className="font-semibold italic text-pink">stats</em>
+        </h1>
+        <p className="text-mute">Ton activité Teen Club sur les 6 derniers mois</p>
       </div>
 
       {totalTransactions === 0 && (
-        <Card className="bg-card border-ink">
-          <CardContent className="p-8 text-center">
-            <p className="text-ink-2 font-semibold">Pas encore de données à analyser</p>
-            <p className="text-sm text-mute mt-2">
-              Vos statistiques s'afficheront ici dès vos premières transactions Teen Club.
-            </p>
-          </CardContent>
-        </Card>
+        <NivEmpty
+          mood="calm"
+          title="Rien à analyser pour l'instant"
+          description="Tes stats s'affichent ici dès tes premières transactions Teen Club."
+        />
       )}
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <ShoppingBag className="h-6 w-6 text-lime" />
-            </div>
-            <p className="text-3xl font-black text-ink">{totalTransactions}</p>
-            <p className="text-sm text-mute">Transactions (6 derniers mois)</p>
-          </CardContent>
-        </Card>
+      {/* Overview — hiérarchie 1-2-3 : le CA domine en surface sombre */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatHero
+          eyebrow="Chiffre d'affaires"
+          value={Math.round(totalRevenue).toLocaleString()}
+          unit="DH"
+          tone="pink"
+          className="sm:col-span-2"
+          meta="sur les 6 derniers mois"
+        />
+        <StickerCard className="justify-center gap-1 p-5">
+          <span className="mb-1 grid size-10 place-items-center rounded-xl border-2 border-ink bg-lime">
+            <ShoppingBag className="size-5 text-ink" aria-hidden="true" />
+          </span>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-ink">
+            {totalTransactions}
+          </p>
+          <p className="font-mono text-xs text-mute">transactions</p>
+        </StickerCard>
+        <StickerCard className="justify-center gap-1 p-5">
+          <span className="mb-1 grid size-10 place-items-center rounded-xl border-2 border-ink bg-teal">
+            <Users className="size-5 text-ink" aria-hidden="true" />
+          </span>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-ink">
+            {uniqueTeens}
+          </p>
+          <p className="font-mono text-xs text-mute">clients uniques</p>
+        </StickerCard>
+      </div>
 
-        <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <Users className="h-6 w-6 text-teal" />
-            </div>
-            <p className="text-3xl font-black text-ink">{uniqueTeens}</p>
-            <p className="text-sm text-mute">Clients uniques</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <TrendingUp className="h-6 w-6 text-pink" />
-            </div>
-            <p className="text-3xl font-black text-ink">
-              {Math.round(totalRevenue).toLocaleString()} DH
-            </p>
-            <p className="text-sm text-mute">Chiffre d'affaires</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <Tag className="h-6 w-6 text-gold" />
-            </div>
-            <p className="text-3xl font-black text-ink">{offersUsedCount ?? 0}</p>
-            <p className="text-sm text-mute">Validations totales</p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StickerCard className="justify-center gap-1 p-5 sm:col-span-2 lg:col-span-1">
+          <span className="mb-1 grid size-10 place-items-center rounded-xl border-2 border-ink bg-gold">
+            <Tag className="size-5 text-ink" aria-hidden="true" />
+          </span>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-ink">
+            {offersUsedCount ?? 0}
+          </p>
+          <p className="font-mono text-xs text-mute">validations totales</p>
+        </StickerCard>
       </div>
 
       {/* Charts Section */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Monthly Evolution */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-lime" />
-              Évolution mensuelle
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {history.every((h) => h.transactions === 0) ? (
-              <EmptyState
-                size="small"
-                icon={Calendar}
-                title="Aucune activité"
-                description="Aucune activité sur les 4 derniers mois."
-              />
-            ) : (
-              <div className="space-y-4">
-                {history.map((stat) => (
-                  <div key={stat.key} className="flex items-center gap-4">
-                    <div className="w-20 text-sm text-mute">{stat.label}</div>
-                    <div className="flex-1">
-                      <div className="h-8 bg-card rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-lime to-teal rounded-full flex items-center justify-end pr-3"
-                          style={{
-                            width: `${Math.max(4, (stat.revenue / maxRevenue) * 100)}%`,
-                          }}
-                        >
-                          <span className="text-xs font-bold text-ink">
-                            {Math.round(stat.revenue).toLocaleString()} DH
-                          </span>
-                        </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Monthly Evolution — barres sticker éditoriales (rose / paper / ink) */}
+        <StickerCard className="gap-4 p-5">
+          <p className="flex items-center gap-2 eyebrow tracking-[0.16em] text-mute">
+            <Calendar className="size-4 text-pink" aria-hidden="true" />
+            Évolution mensuelle
+          </p>
+          {history.every((h) => h.transactions === 0) ? (
+            <NivEmpty
+              mood="calm"
+              title="Aucune activité"
+              description="Rien sur les 4 derniers mois."
+            />
+          ) : (
+            <div className="space-y-4">
+              {history.map((stat) => (
+                <div key={stat.key} className="flex items-center gap-4">
+                  <div className="w-20 font-mono text-xs text-mute">{stat.label}</div>
+                  <div className="flex-1">
+                    <div className="h-8 overflow-hidden rounded-full border-2 border-ink bg-paper">
+                      <div
+                        className="flex h-full items-center justify-end rounded-full bg-pink pr-3"
+                        style={{
+                          width: `${Math.max(8, (stat.revenue / maxRevenue) * 100)}%`,
+                        }}
+                      >
+                        <span className="font-mono text-xs font-bold text-ink tabular-nums">
+                          {Math.round(stat.revenue).toLocaleString()} DH
+                        </span>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-ink">{stat.transactions}</p>
-                      <p className="text-xs text-mute">transactions</p>
-                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  <div className="text-right">
+                    <p className="font-display text-sm font-bold tabular-nums text-ink">
+                      {stat.transactions}
+                    </p>
+                    <p className="font-mono text-[11px] text-mute">tx</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </StickerCard>
 
         {/* Cashback summary (replaces "Top offres" — the partner_offers table
             doesn't expose per-offer usage on partner_transactions yet). */}
-        <Card className="bg-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <Tag className="h-5 w-5 text-gold" />
-              Cashback & engagement
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink">
-              <div>
-                <p className="font-semibold text-ink">XP cashback distribué</p>
-                <p className="text-xs text-mute">Récompenses crédités aux teens</p>
+        <StickerCard className="gap-4 p-5">
+          <p className="flex items-center gap-2 eyebrow tracking-[0.16em] text-mute">
+            <Tag className="size-4 text-gold" aria-hidden="true" />
+            Cashback & engagement
+          </p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-ink bg-paper p-4">
+              <div className="min-w-0">
+                <p className="font-display font-bold text-ink">XP cashback distribué</p>
+                <p className="font-mono text-xs text-mute">Récompenses créditées aux teens</p>
               </div>
-              <p className="font-black text-lime text-xl">
-                {Math.round(totalCashbackXp).toLocaleString()} XP
+              <p className="font-display text-xl font-extrabold tabular-nums text-gold">
+                {Math.round(totalCashbackXp).toLocaleString()}
+                <span className="ml-1 font-mono text-sm text-mute">XP</span>
               </p>
             </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink">
-              <div>
-                <p className="font-semibold text-ink">Panier moyen</p>
-                <p className="text-xs text-mute">CA / transaction</p>
+            <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-ink bg-paper p-4">
+              <div className="min-w-0">
+                <p className="font-display font-bold text-ink">Panier moyen</p>
+                <p className="font-mono text-xs text-mute">CA / transaction</p>
               </div>
-              <p className="font-black text-ink text-xl">
+              <p className="font-display text-xl font-extrabold tabular-nums text-ink">
                 {totalTransactions > 0
                   ? Math.round(totalRevenue / totalTransactions).toLocaleString()
-                  : 0}{" "}
-                DH
+                  : 0}
+                <span className="ml-1 font-mono text-sm text-mute">DH</span>
               </p>
             </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink">
-              <div>
-                <p className="font-semibold text-ink">Fréquence client</p>
-                <p className="text-xs text-mute">Visites par membre unique</p>
+            <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-ink bg-paper p-4">
+              <div className="min-w-0">
+                <p className="font-display font-bold text-ink">Fréquence client</p>
+                <p className="font-mono text-xs text-mute">Visites par membre unique</p>
               </div>
-              <p className="font-black text-ink text-xl">
+              <p className="font-display text-xl font-extrabold tabular-nums text-ink">
                 {uniqueTeens > 0
                   ? (totalTransactions / uniqueTeens).toFixed(1)
                   : "0.0"}
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </StickerCard>
       </div>
 
-      {/* Customer breakdown — left as informational placeholder until
-          tier-by-partner aggregates land (see audit §D5). */}
-      <Card className="bg-card border-ink">
-        <CardHeader>
-          <CardTitle className="text-ink">Répartition par niveau</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-mute py-6 text-center">
-            Répartition par tier indisponible pour le moment — disponible dès la prochaine mise à jour.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Customer breakdown (tier split) — deferred jusqu'à l'arrivée des
+          agrégats tier-par-partenaire (audit §D5). Section retirée pour ne pas
+          exposer une feature creuse en prod. */}
     </div>
   )
 }
