@@ -1,38 +1,38 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import {
-  Crown, Check, Star, Sparkles, PartyPopper, Loader2,
+  Crown, Check, Star, Sparkles, Loader2,
   Calendar, Percent, Clock, Gift, ArrowRight, BadgeCheck
 } from 'lucide-react'
 import { toast } from "sonner"
+
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Niv, NivCelebration, DarkSurface } from "@/components/brand"
+import { Confetti } from "@/components/ui/effects/confetti"
 import { confirmPassSubscription, getMyPass } from "@/features/pass"
-import confetti from 'canvas-confetti'
 
 export default function PassConfirmationPage() {
   const searchParams = useSearchParams()
-  const router = useRouter()
   const sessionId = searchParams.get('session_id')
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [passData, setPassData] = useState<any>(null)
+  const [celebrate, setCelebrate] = useState(false)
 
   useEffect(() => {
     async function confirmSubscription() {
       if (!sessionId) {
-        // No session ID, check if user already has a pass
         const passResult = await getMyPass()
         if (passResult.success && passResult.data) {
           setPassData(passResult.data)
-          triggerConfetti()
+          setCelebrate(true)
         } else {
           setError("Session de paiement non trouvée")
         }
@@ -45,14 +45,13 @@ export default function PassConfirmationPage() {
 
         if (result.success && result.data) {
           setPassData(result.data)
-          triggerConfetti()
+          setCelebrate(true)
           toast.success("Pass VIP activé avec succès!")
         } else if (!result.success) {
-          // Check if user already has a pass
           const passResult = await getMyPass()
           if (passResult.success && passResult.data) {
             setPassData(passResult.data)
-            triggerConfetti()
+            setCelebrate(true)
           } else {
             setError((result as { error?: string }).error || "Erreur lors de l'activation")
           }
@@ -68,68 +67,17 @@ export default function PassConfirmationPage() {
     confirmSubscription()
   }, [sessionId])
 
-  const triggerConfetti = () => {
-    // Multiple bursts of confetti
-    const count = 200
-    const defaults = {
-      origin: { y: 0.7 }
-    }
-
-    function fire(particleRatio: number, opts: any) {
-      confetti({
-        ...defaults,
-        ...opts,
-        particleCount: Math.floor(count * particleRatio)
-      })
-    }
-
-    fire(0.25, {
-      spread: 26,
-      startVelocity: 55,
-    })
-    fire(0.2, {
-      spread: 60,
-    })
-    fire(0.35, {
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8
-    })
-    fire(0.1, {
-      spread: 120,
-      startVelocity: 25,
-      decay: 0.92,
-      scalar: 1.2
-    })
-    fire(0.1, {
-      spread: 120,
-      startVelocity: 45,
-    })
-  }
-
-  const getTierConfig = (tier: string) => {
-    if (tier === 'platinum') {
-      return {
-        name: "Platinum",
-        color: "from-pink to-pink",
-        icon: Crown,
-        gradient: "bg-gradient-to-r from-pink to-pink"
-      }
-    }
-    return {
-      name: "Gold",
-      color: "from-gold to-coral",
-      icon: Star,
-      gradient: "bg-gradient-to-r from-gold to-coral"
-    }
-  }
+  const getTierConfig = (tier: string) =>
+    tier === 'platinum'
+      ? { name: "Platinum", icon: Crown, tone: "pink" as const }
+      : { name: "Gold", icon: Star, tone: "gold" as const }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-paper">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Activation de ton Pass VIP...</p>
+          <Loader2 className="mx-auto mb-4 size-12 animate-spin text-ink" aria-hidden="true" />
+          <p className="text-mute">Activation de ton Pass VIP…</p>
         </div>
       </div>
     )
@@ -137,16 +85,14 @@ export default function PassConfirmationPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-paper">
         <Navbar />
-        <div className="container mx-auto px-4 py-32 text-center">
-          <div className="max-w-md mx-auto">
-            <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl">😕</span>
-            </div>
-            <h1 className="text-3xl font-black mb-4">Oups!</h1>
-            <p className="text-muted-foreground mb-8">{error}</p>
-            <Button asChild>
+        <div className="container mx-auto px-4 py-28 text-center">
+          <div className="mx-auto max-w-md">
+            <Niv mood="calm" size={96} className="mx-auto" />
+            <h1 className="mt-4 font-display text-3xl font-extrabold">Oups !</h1>
+            <p className="mt-2 mb-8 text-mute">{error}</p>
+            <Button asChild variant="pink">
               <Link href="/carte-vip/souscrire">Réessayer</Link>
             </Button>
           </div>
@@ -164,161 +110,79 @@ export default function PassConfirmationPage() {
   const TierIcon = tierConfig.icon
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <Navbar />
+      <Confetti trigger={celebrate} palette="levelup" />
 
-      <section className="py-32">
-        <div className="container mx-auto px-4 max-w-3xl">
-          {/* Success Header */}
-          <div className="text-center mb-12">
-            <div className="relative inline-block mb-6">
-              <div className={`w-32 h-32 rounded-full ${tierConfig.gradient} flex items-center justify-center shadow-2xl animate-pulse`}>
-                <TierIcon className="w-16 h-16 text-ink" />
+      <section className="py-24">
+        <div className="container mx-auto max-w-3xl space-y-8 px-4">
+          {/* Success header */}
+          <NivCelebration
+            tone={tierConfig.tone}
+            title={`Bienvenue au club VIP ${tierConfig.name}`}
+            caption="Ton Pass est maintenant actif. Profite de tous tes avantages !"
+            trigger={false}
+          />
+
+          {/* VIP Card — surface sombre ponctuelle */}
+          <DarkSurface tone={tierConfig.tone} shadow className="p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-paper/60">Carte VIP</p>
+                <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-paper">{passData.card_number}</p>
               </div>
-              <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-lime flex items-center justify-center border-4 border-background">
-                <Check className="w-6 h-6 text-ink" />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <PartyPopper className="w-6 h-6 text-primary" />
-              <span className="text-primary font-bold">FÉLICITATIONS!</span>
-              <PartyPopper className="w-6 h-6 text-primary" />
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl font-black mb-4">
-              Bienvenue au Club
-              <br />
-              <span className={`bg-clip-text text-transparent ${tierConfig.gradient}`}>
-                VIP {tierConfig.name}!
+              <span className="grid size-12 place-items-center rounded-xl border-2 border-paper/30">
+                <TierIcon className="size-7 text-paper" aria-hidden="true" />
               </span>
-            </h1>
-
-            <p className="text-lg text-muted-foreground">
-              Ton Pass est maintenant actif. Profite de tous tes avantages!
-            </p>
-          </div>
-
-          {/* VIP Card */}
-          <Card className={`overflow-hidden mb-8 ${tierConfig.gradient} p-1`}>
-            <div className="bg-background rounded-lg p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">CARTE VIP</p>
-                  <p className="text-2xl font-black">{passData.card_number}</p>
-                </div>
-                <div className={`p-3 rounded-xl ${tierConfig.gradient}`}>
-                  <TierIcon className="w-8 h-8 text-ink" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">TYPE</p>
-                  <p className="font-bold text-lg">Pass {tierConfig.name}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">EXPIRE LE</p>
-                  <p className="font-bold text-lg">
-                    {new Date(passData.expiry_date).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </p>
-                </div>
-              </div>
-
-              <div className={`h-2 rounded-full ${tierConfig.gradient}`} />
             </div>
-          </Card>
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-paper/60">Type</p>
+                <p className="font-display text-lg font-bold text-paper">Pass {tierConfig.name}</p>
+              </div>
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-paper/60">Expire le</p>
+                <p className="font-mono text-lg font-bold text-paper">
+                  {new Date(passData.expiry_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              </div>
+            </div>
+          </DarkSurface>
 
-          {/* Benefits Summary */}
-          <Card className="p-6 mb-8">
-            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
+          {/* Benefits */}
+          <StickerCard className="gap-4 p-6">
+            <h3 className="flex items-center gap-2 font-display text-lg font-extrabold">
+              <Sparkles className="size-5 text-pink" aria-hidden="true" />
               Tes avantages
             </h3>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="flex items-start gap-3 p-4 bg-secondary/50 rounded-lg">
-                <Percent className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold">{passData.discount_percentage}% de réduction</p>
-                  <p className="text-sm text-muted-foreground">Sur tous les events</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 bg-secondary/50 rounded-lg">
-                <Calendar className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold">{passData.monthly_events_included} events inclus</p>
-                  <p className="text-sm text-muted-foreground">Chaque mois</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 bg-secondary/50 rounded-lg">
-                <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold">{passData.priority_booking_hours}h d'avance</p>
-                  <p className="text-sm text-muted-foreground">Réservation prioritaire</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 bg-secondary/50 rounded-lg">
-                <BadgeCheck className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold">Badge {tierConfig.name}</p>
-                  <p className="text-sm text-muted-foreground">Sur ton profil</p>
-                </div>
-              </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Benefit icon={Percent} title={`${passData.discount_percentage}% de réduction`}>Sur tous les events</Benefit>
+              <Benefit icon={Calendar} title={`${passData.monthly_events_included} events inclus`}>Chaque mois</Benefit>
+              <Benefit icon={Clock} title={`${passData.priority_booking_hours}h d'avance`}>Réservation prioritaire</Benefit>
+              <Benefit icon={BadgeCheck} title={`Badge ${tierConfig.name}`}>Sur ton profil</Benefit>
             </div>
-          </Card>
+          </StickerCard>
 
-          {/* Next Steps */}
-          <Card className="p-6 bg-primary/5 border-primary/20 mb-8">
-            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <Gift className="w-5 h-5 text-primary" />
+          {/* Next steps */}
+          <StickerCard className="gap-4 p-6">
+            <h3 className="flex items-center gap-2 font-display text-lg font-extrabold">
+              <Gift className="size-5 text-pink" aria-hidden="true" />
               Prochaines étapes
             </h3>
-
             <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">1</div>
-                <div>
-                  <p className="font-medium">Consulte les events disponibles</p>
-                  <p className="text-sm text-muted-foreground">Profite de ta réduction sur tous les events</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">2</div>
-                <div>
-                  <p className="font-medium">Active les notifications</p>
-                  <p className="text-sm text-muted-foreground">Sois averti(e) des nouveaux events en priorité</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">3</div>
-                <div>
-                  <p className="font-medium">Invite tes amis</p>
-                  <p className="text-sm text-muted-foreground">Partage ton code parrain et gagne des bonus</p>
-                </div>
-              </li>
+              <Step n={1} title="Consulte les events disponibles">Profite de ta réduction sur tous les events.</Step>
+              <Step n={2} title="Active les notifications">Sois averti(e) des nouveaux events en priorité.</Step>
+              <Step n={3} title="Invite tes amis">Partage ton code parrain et gagne des bonus.</Step>
             </ul>
-          </Card>
+          </StickerCard>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button asChild className={`flex-1 ${tierConfig.gradient} hover:opacity-90 text-ink`}>
-              <Link href="/agenda">
-                Voir les événements
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+          {/* CTA */}
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Button asChild variant="pink" className="flex-1">
+              <Link href="/agenda">Voir les événements<ArrowRight className="ml-2 size-4" aria-hidden="true" /></Link>
             </Button>
             <Button asChild variant="outline" className="flex-1">
-              <Link href="/auth/redirect">
-                Mon profil
-              </Link>
+              <Link href="/auth/redirect">Mon profil</Link>
             </Button>
           </div>
         </div>
@@ -326,5 +190,29 @@ export default function PassConfirmationPage() {
 
       <Footer />
     </div>
+  )
+}
+
+function Benefit({ icon: Icon, title, children }: { icon: typeof Percent; title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 rounded-xl border-2 border-line bg-paper-2 p-4">
+      <Icon className="mt-0.5 size-5 shrink-0 text-pink" aria-hidden="true" />
+      <div>
+        <p className="font-display font-bold">{title}</p>
+        <p className="text-sm text-mute">{children}</p>
+      </div>
+    </div>
+  )
+}
+
+function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-3">
+      <span className="grid size-6 shrink-0 place-items-center rounded-full border-2 border-ink bg-ink font-mono text-sm font-bold text-paper">{n}</span>
+      <div>
+        <p className="font-medium text-ink">{title}</p>
+        <p className="text-sm text-mute">{children}</p>
+      </div>
+    </li>
   )
 }

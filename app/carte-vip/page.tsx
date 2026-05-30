@@ -9,39 +9,38 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
-import { Sparkles, Check, Gift, Star, Users, Ticket, ShoppingBag, Calendar, Calculator, ArrowRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Users, Ticket, ShoppingBag, Star, Calculator, ArrowRight } from 'lucide-react'
+
+import { StickerCard } from '@/components/ui/sticker-card'
+import { PricingSticker, PricingGrid } from '@/components/sticker/pricing-sticker'
+import { Niv, DarkSurface } from '@/components/brand'
+import { MeshBackground } from '@/components/ui/effects/mesh-background'
 
 export default function CarteVIPPage() {
   const [eventsPerMonth, setEventsPerMonth] = useState(2)
   const [clubsPerMonth, setClubsPerMonth] = useState(1)
-  const [selectedTier, setSelectedTier] = useState<'silver' | 'gold' | 'platinum'>('gold')
 
   const calculateSavings = () => {
     const eventPrice = 150
     const clubPrice = 200
-    
+
     const monthlySpending = (eventsPerMonth * eventPrice) + (clubsPerMonth * clubPrice)
-    
+
     const savings = {
       silver: monthlySpending * 0.1,
-      gold: monthlySpending * 0.2 + 50, // 20% + 1 invité gratuit/mois
-      platinum: monthlySpending * 0.3 + 150 // 30% + avantages
+      gold: monthlySpending * 0.2 + 50,
+      platinum: monthlySpending * 0.3 + 150
     }
-    
+
     const yearlySpending = monthlySpending * 12
     const yearlySavings = {
       silver: yearlySpending * 0.1,
-      gold: (yearlySpending * 0.2 + 600) - 299, // minus annual fee
-      platinum: (yearlySpending * 0.3 + 1800) - 599 // minus annual fee
+      gold: (yearlySpending * 0.2 + 600) - 299,
+      platinum: (yearlySpending * 0.3 + 1800) - 599
     }
-    
+
     return { monthly: savings, yearly: yearlySavings }
   }
 
@@ -49,63 +48,16 @@ export default function CarteVIPPage() {
 
   const tiers = [
     {
-      id: 'silver' as const,
-      name: 'SILVER',
-      icon: '🥉',
-      price: 'Gratuit',
-      priceAmount: 0,
-      color: 'from-paper-2 to-card',
-      borderColor: 'border-line',
-      benefits: [
-        '1 point par 10dh dépensés',
-        '-10% sur anniversaires',
-        'Accès préventes 24h avant',
-        'Badge profil Silver',
-        'Newsletter exclusive'
-      ]
+      id: 'silver' as const, name: 'Silver', icon: '🥉', priceAmount: 0,
+      benefits: ['1 point par 10dh dépensés', '-10% sur anniversaires', 'Accès préventes 24h avant', 'Badge profil Silver', 'Newsletter exclusive']
     },
     {
-      id: 'gold' as const,
-      name: 'GOLD',
-      icon: '🥇',
-      price: '299dh',
-      priceAmount: 299,
-      popular: true,
-      color: 'from-gold to-gold',
-      borderColor: 'border-gold',
-      benefits: [
-        '2 points par 10dh dépensés',
-        '-20% sur tous événements',
-        '-15% sur clubs',
-        '-10% chez partenaires',
-        '1 invité gratuit par mois',
-        'Accès préventes 48h avant',
-        'Badge profil Gold',
-        'Cadeaux d\'anniversaire'
-      ]
+      id: 'gold' as const, name: 'Gold', icon: '🥇', priceAmount: 299, popular: true,
+      benefits: ['2 points par 10dh dépensés', '-20% sur tous événements', '-15% sur clubs', '-10% chez partenaires', '1 invité gratuit par mois', 'Accès préventes 48h avant', 'Badge profil Gold', "Cadeaux d'anniversaire"]
     },
     {
-      id: 'platinum' as const,
-      name: 'PLATINUM',
-      icon: '💎',
-      price: '599dh',
-      priceAmount: 599,
-      color: 'from-pink to-pink',
-      borderColor: 'border-pink',
-      benefits: [
-        '3 points par 10dh dépensés',
-        '-30% sur tous événements',
-        '-25% sur clubs',
-        '-20% chez partenaires',
-        'Accès VIP systématique',
-        '5 invités offerts anniversaire',
-        'Conciergerie dédiée 24/7',
-        'Accès préventes 72h avant',
-        'Badge profil Platinum',
-        'Expériences VIP exclusives',
-        'Meet & Greet artistes',
-        'Merch exclusif'
-      ]
+      id: 'platinum' as const, name: 'Platinum', icon: '💎', priceAmount: 599,
+      benefits: ['3 points par 10dh dépensés', '-30% sur tous événements', '-25% sur clubs', '-20% chez partenaires', 'Accès VIP systématique', '5 invités offerts anniversaire', 'Conciergerie dédiée 24/7', 'Accès préventes 72h avant', 'Badge profil Platinum', 'Expériences VIP exclusives', 'Meet & Greet artistes', 'Merch exclusif']
     }
   ]
 
@@ -126,213 +78,153 @@ export default function CarteVIPPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background pt-20">
-      {/* Hero Section */}
-      <section className="relative py-16 px-4 bg-gradient-to-br from-pink via-pink to-coral">
-        <div className="absolute inset-0 bg-ink/20" />
-        <div className="container mx-auto relative z-10 text-center text-ink">
-          <Badge className="mb-4 bg-paper-2 text-ink border-ink">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Programme Fidélité
-          </Badge>
-          <h1 className="text-5xl font-bold mb-6">Carte TEEN PARTY VIP</h1>
-          <p className="text-xl max-w-2xl mx-auto mb-8 text-ink/90">
-            Profite de réductions exclusives, accumule des points à chaque événement et débloque des avantages incroyables
+    <div className="min-h-screen bg-paper pt-20">
+      {/* Hero */}
+      <section className="relative overflow-hidden px-4 py-14">
+        <MeshBackground />
+        <div className="relative z-10 container mx-auto text-center">
+          <Niv mood="hype" size={100} float className="mx-auto" />
+          <p className="mt-4 eyebrow tracking-[0.16em]">Programme fidélité</p>
+          <h1 className="mt-2 font-display text-5xl font-extrabold tracking-tight">
+            Carte <em className="font-semibold italic text-pink">VIP</em>
+          </h1>
+          <p className="mx-auto mb-8 mt-4 max-w-2xl text-xl text-ink-2">
+            Réductions exclusives, points à chaque événement et avantages incroyables.
           </p>
-          <div className="flex gap-4 justify-center">
-            <Button size="lg" className="bg-white text-pink hover:bg-paper-2">
-              Devenir membre VIP
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-            <Button size="lg" variant="outline" className="border-ink text-ink hover:bg-paper-2">
-              <Calculator className="mr-2 w-4 h-4" />
-              Calculer mes économies
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button size="lg" variant="pink" asChild>
+              <Link href="/carte-vip/souscrire">Devenir membre VIP<ArrowRight className="ml-2 size-4" aria-hidden="true" /></Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Tiers Comparison */}
-      <section className="py-16 px-4 bg-muted/30">
+      {/* Tiers */}
+      <section className="border-y-2 border-ink bg-paper-2 px-4 py-16">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Choisis ton niveau VIP</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Trois niveaux d'adhésion pour s'adapter à ton rythme de sorties
-            </p>
+          <div className="mb-12 text-center">
+            <h2 className="font-display text-3xl font-extrabold tracking-tight">Choisis ton niveau VIP</h2>
+            <p className="mx-auto mt-2 max-w-2xl text-mute">Trois niveaux d'adhésion pour s'adapter à ton rythme de sorties.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {tiers.map((tier) => (
-              <Card 
-                key={tier.id}
-                className={`relative ${tier.popular ? 'ring-2 ring-gold shadow-lg' : ''} ${tier.borderColor} border-2 hover:shadow-xl transition-shadow cursor-pointer`}
-                onClick={() => setSelectedTier(tier.id)}
-              >
-                {tier.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-ink">
-                    Plus populaire
-                  </Badge>
-                )}
-                <CardHeader className="text-center">
-                  <div className={`text-6xl mb-4 bg-gradient-to-br ${tier.color} bg-clip-text text-transparent`}>
-                    {tier.icon}
-                  </div>
-                  <CardTitle className="text-2xl">{tier.name}</CardTitle>
-                  <CardDescription className="text-3xl font-bold text-foreground mt-2">
-                    {tier.price}
-                    {tier.priceAmount > 0 && <span className="text-sm font-normal text-muted-foreground">/an</span>}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {tier.benefits.map((benefit, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <Check className="w-5 h-5 text-lime shrink-0 mt-0.5" />
-                        <span className="text-sm">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button className="w-full mt-6" variant={tier.popular ? 'default' : 'outline'}>
-                    Choisir {tier.name}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="mx-auto max-w-6xl">
+            <PricingGrid>
+              {tiers.map((tier) => (
+                <PricingSticker
+                  key={tier.id}
+                  name={`${tier.icon} ${tier.name}`}
+                  price={tier.priceAmount > 0 ? String(tier.priceAmount) : "Gratuit"}
+                  per={tier.priceAmount > 0 ? "DH/an" : undefined}
+                  features={tier.benefits}
+                  popular={'popular' in tier && !!tier.popular}
+                  featured="ink"
+                  niv={'popular' in tier && tier.popular ? "proud" : undefined}
+                  cta={{ label: `Choisir ${tier.name}`, href: "/carte-vip/souscrire" }}
+                />
+              ))}
+            </PricingGrid>
           </div>
         </div>
       </section>
 
       {/* Savings Calculator */}
-      <section className="py-16 px-4">
+      <section className="px-4 py-16">
         <div className="container mx-auto max-w-4xl">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="w-6 h-6" />
+          <StickerCard className="gap-6 p-8">
+            <div>
+              <h2 className="flex items-center gap-2 font-display text-2xl font-extrabold">
+                <Calculator className="size-6 text-pink" aria-hidden="true" />
                 Calculateur d'économies
-              </CardTitle>
-              <CardDescription>
-                Découvre combien tu peux économiser avec la carte VIP
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <Label>Événements par mois : {eventsPerMonth}</Label>
-                  <Slider
-                    value={[eventsPerMonth]}
-                    onValueChange={(v) => setEventsPerMonth(v[0])}
-                    min={0}
-                    max={10}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label>Séances clubs par mois : {clubsPerMonth}</Label>
-                  <Slider
-                    value={[clubsPerMonth]}
-                    onValueChange={(v) => setClubsPerMonth(v[0])}
-                    min={0}
-                    max={8}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-              </div>
+              </h2>
+              <p className="mt-1 text-mute">Découvre combien tu peux économiser avec la carte VIP.</p>
+            </div>
 
-              <div className="grid md:grid-cols-3 gap-4 pt-4 border-t">
-                {tiers.map((tier) => (
-                  <div key={tier.id} className="text-center p-4 rounded-lg bg-muted">
-                    <p className="text-sm text-muted-foreground mb-1">{tier.name}</p>
-                    <p className="text-2xl font-bold text-lime">
-                      +{Math.round(savings.yearly[tier.id as keyof typeof savings.yearly])}dh
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">économisés par an</p>
-                  </div>
-                ))}
+            <div className="space-y-4">
+              <div>
+                <span className="eyebrow tracking-[0.16em]">Événements par mois : {eventsPerMonth}</span>
+                <Slider value={[eventsPerMonth]} onValueChange={(v) => setEventsPerMonth(v[0])} min={0} max={10} step={1} className="mt-2" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <span className="eyebrow tracking-[0.16em]">Séances clubs par mois : {clubsPerMonth}</span>
+                <Slider value={[clubsPerMonth]} onValueChange={(v) => setClubsPerMonth(v[0])} min={0} max={8} step={1} className="mt-2" />
+              </div>
+            </div>
+
+            <div className="grid gap-4 border-t-2 border-dashed border-line pt-6 md:grid-cols-3">
+              {tiers.map((tier) => (
+                <StickerCard key={tier.id} className="gap-1 p-4 text-center">
+                  <p className="eyebrow">{tier.name}</p>
+                  <p className="font-display text-2xl font-extrabold tabular-nums text-lime">
+                    +{Math.round(savings.yearly[tier.id as keyof typeof savings.yearly])}dh
+                  </p>
+                  <p className="font-mono text-xs text-mute">économisés par an</p>
+                </StickerCard>
+              ))}
+            </div>
+          </StickerCard>
         </div>
       </section>
 
       {/* Points System */}
-      <section className="py-16 px-4 bg-muted/30">
+      <section className="bg-paper-2 px-4 py-16">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Système de Points Fidélité</h2>
-            <p className="text-muted-foreground">
-              Accumule des points à chaque dépense et échange-les contre des récompenses
-            </p>
+          <div className="mb-12 text-center">
+            <h2 className="font-display text-3xl font-extrabold tracking-tight">Système de points fidélité</h2>
+            <p className="mt-2 text-mute">Accumule des points à chaque dépense et échange-les contre des récompenses.</p>
           </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+          <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {pointsRewards.map((reward, idx) => (
-              <Card key={idx} className="text-center hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <reward.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <div className="text-3xl font-bold text-primary mb-2">{reward.points}</div>
-                  <p className="text-sm text-muted-foreground">points</p>
-                  <p className="font-semibold mt-2">{reward.reward}</p>
-                </CardContent>
-              </Card>
+              <StickerCard key={idx} variant="hover" className="items-center gap-2 p-6 text-center">
+                <span className="grid size-16 place-items-center rounded-full border-2 border-ink bg-paper-2">
+                  <reward.icon className="size-8 text-pink" aria-hidden="true" />
+                </span>
+                <div className="font-display text-3xl font-extrabold tabular-nums text-pink">{reward.points}</div>
+                <p className="font-mono text-xs uppercase tracking-[0.12em] text-mute">points</p>
+                <p className="font-display font-bold">{reward.reward}</p>
+              </StickerCard>
             ))}
           </div>
         </div>
       </section>
 
       {/* Partners */}
-      <section className="py-16 px-4">
+      <section className="px-4 py-16">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Partenaires Exclusifs</h2>
-            <p className="text-muted-foreground">
-              Profite de réductions chez nos partenaires avec ta carte VIP
-            </p>
+          <div className="mb-12 text-center">
+            <h2 className="font-display text-3xl font-extrabold tracking-tight">Partenaires exclusifs</h2>
+            <p className="mt-2 text-mute">Profite de réductions chez nos partenaires avec ta carte VIP.</p>
           </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {partners.map((partner, idx) => (
-              <Card key={idx} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold">{partner.name}</h3>
-                    <Badge variant="secondary">{partner.discount}</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{partner.category}</p>
-                </CardContent>
-              </Card>
+              <StickerCard key={idx} variant="hover" className="p-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-bold">{partner.name}</h3>
+                  <span className="rounded-full border-2 border-ink bg-pink px-2.5 py-0.5 font-mono text-[11px] font-bold text-ink">{partner.discount}</span>
+                </div>
+                <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-mute">{partner.category}</p>
+              </StickerCard>
             ))}
           </div>
-
-          <div className="text-center mt-8">
+          <div className="mt-8 text-center">
             <Button variant="outline" asChild>
-              <Link href="/devenir-partenaire">
-                Voir tous les partenaires
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
+              <Link href="/devenir-partenaire">Voir tous les partenaires<ArrowRight className="ml-2 size-4" aria-hidden="true" /></Link>
             </Button>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-4 bg-gradient-to-r from-pink to-pink">
-        <div className="container mx-auto text-center text-ink">
-          <h2 className="text-3xl font-bold mb-4">Prêt à devenir VIP ?</h2>
-          <p className="text-xl mb-8 text-ink/90 max-w-2xl mx-auto">
-            Rejoins le programme fidélité Teen Party et profite d'avantages exclusifs dès maintenant
-          </p>
-          <Button size="lg" className="bg-white text-pink hover:bg-paper-2" asChild>
-            <Link href="/carte-vip/souscrire">
-              Souscrire maintenant
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
+      <section className="px-4 py-16">
+        <div className="container mx-auto max-w-4xl">
+          <DarkSurface tone="pink" shadow className="p-10 text-center sm:p-12">
+            <h2 className="font-display text-3xl font-extrabold text-paper">Prêt à devenir VIP ?</h2>
+            <p className="mx-auto mb-8 mt-3 max-w-2xl text-xl text-paper/80">
+              Rejoins le programme fidélité Nivy et profite d'avantages exclusifs dès maintenant.
+            </p>
+            <Button size="lg" variant="pink" asChild>
+              <Link href="/carte-vip/souscrire">Souscrire maintenant<ArrowRight className="ml-2 size-4" aria-hidden="true" /></Link>
+            </Button>
+          </DarkSurface>
         </div>
       </section>
     </div>
