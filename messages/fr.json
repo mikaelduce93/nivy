@@ -63,6 +63,10 @@
   "auth": {
     "login": {
       "title": "Yo, te revoila!",
+      "eyebrow": "Connexion · Nivy",
+      "titleLead": "Bon retour dans ton",
+      "titleEm": "crew",
+      "nivBubble": "Salam, content de te revoir. On reprend la ou tu t'es arrete.",
       "subtitle": "Connecte-toi pour reprendre le mouv.",
       "emailLabel": "Email",
       "emailPlaceholder": "ton@email.com",
@@ -78,6 +82,15 @@
     },
     "signup": {
       "title": "Rejoins le crew NIVY",
+      "eyebrow": "Rejoins Nivy",
+      "titleLead": "Cree ton",
+      "titleEm": "compte",
+      "nivBubble": "Yallah, on cree ton crew. 3 etapes, moins d'une minute.",
+      "stepYou": "Toi",
+      "stepContact": "Contact",
+      "stepSecurity": "Securite",
+      "next": "Continuer",
+      "back": "Retour",
       "subtitle": "Cree ton compte parent pour gerer les sorties de ton ado.",
       "firstName": "Prenom",
       "lastName": "Nom",

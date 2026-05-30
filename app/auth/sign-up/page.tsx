@@ -1,14 +1,16 @@
 "use client"
 
 import type React from "react"
-import { UserPlus, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { FieldInput } from "@/components/ui/field-input"
+import { CheckRound } from "@/components/ui/check-round"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { NivCoach } from "@/components/brand"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, useRef, Suspense } from "react"
@@ -16,6 +18,7 @@ import { useT } from "@/lib/i18n"
 
 function SignUpForm() {
   const t = useT()
+  const [step, setStep] = useState(0)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [prenom, setPrenom] = useState("")
@@ -83,7 +86,7 @@ function SignUpForm() {
           data: {
             nom,
             prenom,
-            telephone,
+            telephone: telephone.trim() ? `+212 ${telephone.trim()}` : "",
             ville,
             accept_newsletter: acceptNewsletter,
             // #52 — pre-account wizard continuity (source + tempUserId).
@@ -102,207 +105,177 @@ function SignUpForm() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-teal/10 via-teal/5 to-pink/10" />
-      <div className="absolute top-20 -left-20 w-72 h-72 bg-teal/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 -right-20 w-96 h-96 bg-pink/20 rounded-full blur-3xl" />
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-paper p-6 md:p-10">
+      <MeshBackground />
 
-      <div className="w-full max-w-2xl relative z-10">
-        <div className="relative">
-          <div className="absolute -inset-1 bg-gradient-to-r from-teal via-teal to-pink rounded-2xl blur-xl opacity-50" />
-          <Card className="relative bg-card border-ink rounded-2xl">
-            <CardHeader className="text-center pb-8">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center mx-auto mb-4" aria-hidden="true">
-                <UserPlus className="w-8 h-8 text-ink" />
+      <div className="relative z-10 w-full max-w-md">
+        <StickerCard className="p-6 sm:p-7">
+          <p className="eyebrow tracking-[0.16em]">{t("auth.signup.eyebrow")}</p>
+          <h1 className="mt-2 font-display text-3xl font-extrabold leading-[1.05] tracking-tight text-ink text-balance">
+            {t("auth.signup.titleLead")}{" "}
+            <em className="font-semibold italic text-pink">{t("auth.signup.titleEm")}</em>
+          </h1>
+
+          <div className="mt-4">
+            <NivCoach mood="hype" message={t("auth.signup.nivBubble")} />
+          </div>
+
+          <div className="mt-5">
+            <SegmentedProgress steps={3} current={step} showLabel />
+          </div>
+
+          <form onSubmit={handleSignUp} noValidate className="mt-5 flex flex-col gap-4">
+            {step === 0 && (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FieldInput
+                  id="prenom"
+                  name="prenom"
+                  type="text"
+                  autoComplete="given-name"
+                  label={t("auth.signup.firstName")}
+                  placeholder="Yassine"
+                  required
+                  value={prenom}
+                  onChange={(e) => setPrenom(e.target.value)}
+                />
+                <FieldInput
+                  id="nom"
+                  name="nom"
+                  type="text"
+                  autoComplete="family-name"
+                  label={t("auth.signup.lastName")}
+                  placeholder="El Amrani"
+                  required
+                  value={nom}
+                  onChange={(e) => setNom(e.target.value)}
+                />
               </div>
-              <CardTitle className="text-3xl font-black text-ink text-balance">{t("auth.signup.title")}</CardTitle>
-              <CardDescription className="text-mute text-balance">
-                {t("auth.signup.subtitle")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSignUp} noValidate>
-                <div className="flex flex-col gap-5">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="prenom" className="text-ink-2">
-                        {t("auth.signup.firstName")}
-                      </Label>
-                      <Input
-                        id="prenom"
-                        name="prenom"
-                        type="text"
-                        autoComplete="given-name"
-                        placeholder="Prénom…"
-                        required
-                        value={prenom}
-                        onChange={(e) => setPrenom(e.target.value)}
-                        className="bg-card border-ink text-ink placeholder:text-mute focus-visible:ring-teal"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="nom" className="text-ink-2">
-                        {t("auth.signup.lastName")}
-                      </Label>
-                      <Input
-                        id="nom"
-                        name="nom"
-                        type="text"
-                        autoComplete="family-name"
-                        placeholder="Nom…"
-                        required
-                        value={nom}
-                        onChange={(e) => setNom(e.target.value)}
-                        className="bg-card border-ink text-ink placeholder:text-mute focus-visible:ring-teal"
-                      />
-                    </div>
-                  </div>
+            )}
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="email" className="text-ink-2">
-                      {t("auth.signup.email")}
-                    </Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      inputMode="email"
-                      autoComplete="email"
-                      spellCheck={false}
-                      placeholder="parent@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="bg-card border-ink text-ink placeholder:text-mute focus-visible:ring-teal"
-                    />
-                  </div>
+            {step === 1 && (
+              <>
+                <FieldInput
+                  id="email"
+                  name="email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  spellCheck={false}
+                  label={t("auth.signup.email")}
+                  placeholder="parent@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <FieldInput
+                  id="telephone"
+                  name="telephone"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  label={t("auth.signup.phone")}
+                  prefix="🇲🇦 +212"
+                  placeholder="6 12 34 56 78"
+                  required
+                  value={telephone}
+                  onChange={(e) => setTelephone(e.target.value)}
+                />
+                <FieldInput
+                  id="ville"
+                  name="ville"
+                  type="text"
+                  autoComplete="address-level2"
+                  label={t("auth.signup.city")}
+                  placeholder="Casablanca"
+                  required
+                  value={ville}
+                  onChange={(e) => setVille(e.target.value)}
+                />
+              </>
+            )}
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="telephone" className="text-ink-2">
-                      {t("auth.signup.phone")}
-                    </Label>
-                    <Input
-                      id="telephone"
-                      name="telephone"
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      placeholder="+212 6XX XXX XXX"
-                      required
-                      value={telephone}
-                      onChange={(e) => setTelephone(e.target.value)}
-                      className="bg-card border-ink text-ink placeholder:text-mute focus-visible:ring-teal"
-                    />
-                  </div>
+            {step === 2 && (
+              <>
+                <FieldInput
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  label={t("auth.signup.password")}
+                  placeholder="Minimum 8 caracteres"
+                  required
+                  minLength={8}
+                  hint={t("auth.signup.passwordHint")}
+                  aria-describedby="password-hint"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <CheckRound
+                  id="newsletter"
+                  checked={acceptNewsletter}
+                  onCheckedChange={(checked) => setAcceptNewsletter(checked as boolean)}
+                  label={t("auth.signup.newsletterLabel")}
+                />
+                <CheckRound
+                  id="conditions"
+                  checked={acceptConditions}
+                  onCheckedChange={(checked) => setAcceptConditions(checked as boolean)}
+                  label={
+                    <>
+                      {t("auth.signup.termsLabel")}{" "}
+                      <Link href="/conditions" className="font-semibold text-pink underline">
+                        ({t("auth.signup.termsLink")})
+                      </Link>
+                    </>
+                  }
+                />
+              </>
+            )}
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="ville" className="text-ink-2">
-                      {t("auth.signup.city")}
-                    </Label>
-                    <Input
-                      id="ville"
-                      name="ville"
-                      type="text"
-                      autoComplete="address-level2"
-                      placeholder="Casablanca…"
-                      required
-                      value={ville}
-                      onChange={(e) => setVille(e.target.value)}
-                      className="bg-card border-ink text-ink placeholder:text-mute focus-visible:ring-teal"
-                    />
-                  </div>
+            {error && (
+              <div
+                ref={errorRef}
+                tabIndex={-1}
+                role="alert"
+                aria-live="assertive"
+                className="rounded-xl border-2 border-coral bg-coral/10 p-3 outline-none"
+              >
+                <p className="text-sm font-medium text-coral">{error}</p>
+              </div>
+            )}
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="password" className="text-ink-2">
-                      {t("auth.signup.password")}
-                    </Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete="new-password"
-                      placeholder="Minimum 8 caractères…"
-                      required
-                      minLength={8}
-                      aria-describedby="password-hint"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="bg-card border-ink text-ink placeholder:text-mute focus-visible:ring-teal"
-                    />
-                    <p id="password-hint" className="text-xs text-mute">{t("auth.signup.passwordHint")}</p>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id="newsletter"
-                        checked={acceptNewsletter}
-                        onCheckedChange={(checked) => setAcceptNewsletter(checked as boolean)}
-                        className="border-ink"
-                      />
-                      <Label htmlFor="newsletter" className="text-sm font-normal cursor-pointer text-ink-2">
-                        {t("auth.signup.newsletterLabel")}
-                      </Label>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id="conditions"
-                        checked={acceptConditions}
-                        onCheckedChange={(checked) => setAcceptConditions(checked as boolean)}
-                        className="border-ink"
-                        required
-                      />
-                      <Label htmlFor="conditions" className="text-sm font-normal cursor-pointer text-ink-2">
-                        {t("auth.signup.termsLabel")}{" "}
-                        <Link href="/conditions" className="text-teal hover:text-teal underline">
-                          ({t("auth.signup.termsLink")})
-                        </Link>
-                      </Label>
-                    </div>
-                  </div>
-
-                  {error && (
-                    <div
-                      ref={errorRef}
-                      tabIndex={-1}
-                      role="alert"
-                      aria-live="assertive"
-                      className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 outline-none focus:ring-2 focus:ring-destructive"
-                    >
-                      <p className="text-sm text-destructive">{error}</p>
-                    </div>
+            <div className="flex items-center gap-3">
+              {step > 0 && (
+                <Button type="button" variant="outline" onClick={() => setStep((s) => s - 1)}>
+                  {t("auth.signup.back")}
+                </Button>
+              )}
+              {step < 2 ? (
+                <Button type="button" variant="pink" className="flex-1 h-12 text-base" onClick={() => setStep((s) => s + 1)}>
+                  {t("auth.signup.next")}
+                </Button>
+              ) : (
+                <Button type="submit" variant="pink" className="flex-1 h-12 text-base" disabled={isLoading} aria-busy={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                      <span>{t("auth.signup.loading")}</span>
+                    </>
+                  ) : (
+                    t("auth.signup.submit")
                   )}
+                </Button>
+              )}
+            </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0 h-12 text-base font-semibold focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
-                    disabled={isLoading}
-                    aria-busy={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
-                        <span>{t("auth.signup.loading")}</span>
-                      </>
-                    ) : (
-                      t("auth.signup.submit")
-                    )}
-                  </Button>
-                </div>
-                <div className="mt-6 text-center text-sm">
-                  <span className="text-mute">{t("auth.signup.haveAccount")} </span>
-                  <Link
-                    href="/auth/login"
-                    className="text-teal hover:text-teal font-semibold underline-offset-4 hover:underline"
-                  >
-                    {t("auth.signup.signIn")}
-                  </Link>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
+            <div className="text-center text-sm">
+              <span className="text-mute">{t("auth.signup.haveAccount")} </span>
+              <Link href="/auth/login" className="font-semibold text-pink underline-offset-4 hover:underline">
+                {t("auth.signup.signIn")}
+              </Link>
+            </div>
+          </form>
+        </StickerCard>
       </div>
     </div>
   )
