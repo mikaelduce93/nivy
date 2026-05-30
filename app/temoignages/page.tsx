@@ -29,14 +29,14 @@ export default async function TemoignagesPage() {
       <Navbar />
 
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-background to-orange-500/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-gold/20 via-background to-coral/20" />
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-yellow-500/30 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-gold/30 rounded-full blur-3xl animate-pulse" />
         </div>
 
         <div className="relative container mx-auto px-6 py-32">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 text-yellow-400 text-sm font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 text-gold text-sm font-semibold mb-6">
               <Heart className="w-4 h-4" />
               Témoignages
             </div>
@@ -61,16 +61,16 @@ export default async function TemoignagesPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {testimonials.map((testimonial) => (
               <div key={testimonial.id} className="group relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition duration-500" />
-                <div className="relative bg-card rounded-3xl p-6 border border-border">
-                  <Quote className="w-10 h-10 text-yellow-400/20 mb-4" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-gold to-coral rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition duration-500" />
+                <div className="relative bg-card rounded-2xl p-6 border border-border">
+                  <Quote className="w-10 h-10 text-gold/20 mb-4" />
 
                   {testimonial.rating && (
                     <div className="flex gap-1 mb-4">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`w-4 h-4 ${i < testimonial.rating ? "fill-yellow-400 text-yellow-400" : "text-muted"}`}
+                          className={`w-4 h-4 ${i < testimonial.rating ? "fill-gold text-gold" : "text-muted"}`}
                         />
                       ))}
                     </div>
@@ -89,7 +89,7 @@ export default async function TemoignagesPage() {
                         />
                       </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 flex items-center justify-center text-white font-bold">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center text-ink font-bold">
                         {testimonial.author_name.charAt(0)}
                       </div>
                     )}
@@ -100,7 +100,7 @@ export default async function TemoignagesPage() {
                   </div>
 
                   {testimonial.video_url && (
-                    <div className="mt-4 flex items-center gap-2 text-xs text-purple-400">
+                    <div className="mt-4 flex items-center gap-2 text-xs text-pink">
                       <Video className="w-4 h-4" />
                       <span>Voir la vidéo</span>
                     </div>

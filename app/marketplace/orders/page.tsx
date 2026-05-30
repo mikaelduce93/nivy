@@ -24,24 +24,24 @@ export default async function OrdersPage() {
       <h1 className="text-2xl font-bold mb-4">Mes commandes</h1>
       <section className="mb-8">
         <h2 className="font-semibold mb-2">Achats</h2>
-        {(!bought || bought.length === 0) && <p className="text-sm text-gray-500">Aucun achat.</p>}
+        {(!bought || bought.length === 0) && <p className="text-sm text-mute">Aucun achat.</p>}
         <ul className="space-y-2">
           {(bought ?? []).map((t) => (
             <li key={t.id} className="border rounded p-3 flex justify-between">
               <span>{t.amount_coins} coins · {t.meet_method}</span>
-              <span className="text-xs text-gray-600">{t.status}</span>
+              <span className="text-xs text-mute">{t.status}</span>
             </li>
           ))}
         </ul>
       </section>
       <section>
         <h2 className="font-semibold mb-2">Ventes</h2>
-        {(!sold || sold.length === 0) && <p className="text-sm text-gray-500">Aucune vente.</p>}
+        {(!sold || sold.length === 0) && <p className="text-sm text-mute">Aucune vente.</p>}
         <ul className="space-y-2">
           {(sold ?? []).map((t) => (
             <li key={t.id} className="border rounded p-3 flex justify-between">
               <span>{t.amount_coins} coins · {t.meet_method}</span>
-              <span className="text-xs text-gray-600">{t.status}</span>
+              <span className="text-xs text-mute">{t.status}</span>
             </li>
           ))}
         </ul>

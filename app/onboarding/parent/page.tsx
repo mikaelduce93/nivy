@@ -54,7 +54,7 @@ export default async function ParentOnboardingStubPage() {
       <h1 className="text-2xl font-bold">
         {firstName ? `Bienvenue, ${firstName} ! Autorisation signée ✓` : "Autorisation signée ✓"}
       </h1>
-      <p className="text-gray-600 max-w-md">
+      <p className="text-mute max-w-md">
         Merci, votre consentement parental (loi 09-08 / CNDP) est enregistré.
         Vous pouvez maintenant accéder à votre espace parent.
       </p>

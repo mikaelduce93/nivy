@@ -54,7 +54,7 @@ export default async function OnboardingInterestsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 p-4 sm:p-6 lg:p-10">
+    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-pink/5 p-4 sm:p-6 lg:p-10">
       <InterestPicker
         taxonomy={rows}
         initialSelected={initialSelected}

@@ -60,8 +60,8 @@ export default async function ReservationConfirmationPage({
         <div className="max-w-3xl mx-auto">
           {/* Success Animation */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-500/10 border-4 border-green-500/50 mb-6 animate-scale-in">
-              <CheckCircle2 className="w-12 h-12 text-green-500" />
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-lime/10 border-4 border-lime/50 mb-6 animate-scale-in">
+              <CheckCircle2 className="w-12 h-12 text-lime" />
             </div>
             <h1 className="text-4xl md:text-6xl font-black mb-4">Réservation confirmée !</h1>
             <p className="text-xl text-muted-foreground">
@@ -189,10 +189,10 @@ export default async function ReservationConfirmationPage({
             </ul>
           </Card>
 
-          <Card className="p-8 mb-8 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-cyan-500/30">
+          <Card className="p-8 mb-8 bg-gradient-to-r from-teal/10 to-pink/10 border-teal/30">
             <div className="flex items-start gap-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                <Share2 className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal to-pink flex items-center justify-center flex-shrink-0">
+                <Share2 className="w-8 h-8 text-ink" />
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-xl mb-2">Deviens ambassadeur Teens Party</h3>

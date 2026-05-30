@@ -19,16 +19,16 @@ export default async function TeenOnboardingStubPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-8 text-center space-y-4">
       <h1 className="text-2xl font-bold">Salut Teen</h1>
-      <p className="text-gray-600 max-w-md">
+      <p className="text-mute max-w-md">
         Continue ton onboarding pour débloquer ton tableau de bord.
       </p>
       <Link
         href="/onboarding/interests"
-        className="rounded-full bg-purple-600 px-6 py-3 text-white"
+        className="rounded-full bg-pink px-6 py-3 text-ink"
       >
         Démarrer
       </Link>
-      <Link href="/auth/login" className="text-sm text-gray-500 underline">
+      <Link href="/auth/login" className="text-sm text-mute underline">
         Retour à la connexion
       </Link>
     </main>

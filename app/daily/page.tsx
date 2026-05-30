@@ -105,10 +105,10 @@ export default function DailyChallengesPage() {
 
   const getCategoryColor = (category: ChallengeCategory) => {
     switch (category) {
-      case 'school': return 'text-blue-500 bg-blue-500/10'
-      case 'sport': return 'text-green-500 bg-green-500/10'
-      case 'crea': return 'text-purple-500 bg-purple-500/10'
-      default: return 'text-gray-500 bg-gray-500/10'
+      case 'school': return 'text-teal bg-teal/10'
+      case 'sport': return 'text-lime bg-lime/10'
+      case 'crea': return 'text-pink bg-pink/10'
+      default: return 'text-mute bg-muted'
     }
   }
 
@@ -187,7 +187,7 @@ export default function DailyChallengesPage() {
       {/* Hero Section */}
       <section className="relative min-h-[30vh] flex items-center justify-center overflow-hidden pt-20 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center py-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4 ">
             <Target className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">Défis Quotidiens</span>
           </div>
@@ -228,8 +228,8 @@ export default function DailyChallengesPage() {
             {/* XP & Level */}
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-                  <Trophy className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold to-coral flex items-center justify-center">
+                  <Trophy className="w-6 h-6 text-ink" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Niveau</p>
@@ -251,8 +251,8 @@ export default function DailyChallengesPage() {
             {/* Streak */}
             <Card className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                  <Flame className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-coral to-destructive flex items-center justify-center">
+                  <Flame className="w-6 h-6 text-ink" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Série</p>
@@ -269,8 +269,8 @@ export default function DailyChallengesPage() {
             {/* Total Challenges */}
             <Card className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-lime to-lime flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-ink" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Défis complétés</p>
@@ -282,8 +282,8 @@ export default function DailyChallengesPage() {
             {/* Today Progress */}
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <Calendar className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-ink" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Aujourd'hui</p>
@@ -317,7 +317,7 @@ export default function DailyChallengesPage() {
               return (
                 <Card
                   key={userChallenge.id}
-                  className={`p-6 ${isCompleted ? 'bg-green-500/5 border-green-500/20' : isSkipped ? 'opacity-50' : ''}`}
+                  className={`p-6 ${isCompleted ? 'bg-lime/5 border-lime/20' : isSkipped ? 'opacity-50' : ''}`}
                 >
                   <div className="flex items-start gap-4">
                     {/* Icon */}
@@ -345,13 +345,13 @@ export default function DailyChallengesPage() {
                         </div>
 
                         {isCompleted && (
-                          <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                            <CheckCircle2 className="w-6 h-6 text-white" />
+                          <div className="w-10 h-10 rounded-full bg-lime flex items-center justify-center">
+                            <CheckCircle2 className="w-6 h-6 text-ink" />
                           </div>
                         )}
                         {isSkipped && (
-                          <div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center">
-                            <XCircle className="w-6 h-6 text-white" />
+                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                            <XCircle className="w-6 h-6 text-ink" />
                           </div>
                         )}
                       </div>
@@ -482,8 +482,8 @@ export default function DailyChallengesPage() {
 
                       {/* Completed Info */}
                       {isCompleted && userChallenge.completed_at && (
-                        <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                          <p className="text-sm text-green-700 dark:text-green-400">
+                        <div className="mt-4 p-3 bg-lime/10 border border-lime/20 rounded-lg">
+                          <p className="text-sm text-lime dark:text-lime">
                             ✅ Complété {new Date(userChallenge.completed_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} • +{challenge.xp_reward} XP gagné
                           </p>
                         </div>
@@ -511,9 +511,9 @@ export default function DailyChallengesPage() {
 
           {/* All Completed State */}
           {challenges.length > 0 && completedCount === 3 && (
-            <Card className="p-8 mt-8 text-center bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/20">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center mx-auto mb-4">
-                <Trophy className="w-10 h-10 text-white" />
+            <Card className="p-8 mt-8 text-center bg-gradient-to-br from-gold/10 to-coral/10 border-gold/20">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center mx-auto mb-4">
+                <Trophy className="w-10 h-10 text-ink" />
               </div>
               <h3 className="text-2xl font-black mb-2">🎉 Tous les défis complétés !</h3>
               <p className="text-muted-foreground mb-6">

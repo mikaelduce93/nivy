@@ -157,10 +157,10 @@ export default function ValidateTeenPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-500/5 via-background to-pink-500/5 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-pink/5 via-background to-pink/5 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-purple-500 mx-auto mb-4" />
+            <Loader2 className="h-12 w-12 animate-spin text-pink mx-auto mb-4" />
             <p className="text-muted-foreground">Vérification en cours...</p>
           </CardContent>
         </Card>
@@ -171,11 +171,11 @@ export default function ValidateTeenPage() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-500/5 via-background to-orange-500/5 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-destructive/5 via-background to-coral/5 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="h-8 w-8 text-red-500" />
+            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="h-8 w-8 text-destructive" />
             </div>
             <h2 className="text-xl font-bold mb-2">Lien invalide</h2>
             <p className="text-muted-foreground mb-6">{error}</p>
@@ -191,20 +191,20 @@ export default function ValidateTeenPage() {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-500/5 via-background to-emerald-500/5 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-lime/5 via-background to-lime/5 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mx-auto mb-6">
-              <PartyPopper className="h-10 w-10 text-white" />
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-lime to-lime flex items-center justify-center mx-auto mb-6">
+              <PartyPopper className="h-10 w-10 text-ink" />
             </div>
             <h2 className="text-2xl font-bold mb-2">Compte validé!</h2>
             <p className="text-muted-foreground mb-4">
               {registration?.teenName} peut maintenant utiliser Teens Party.
             </p>
-            <p className="text-sm text-green-600 mb-6">
+            <p className="text-sm text-lime mb-6">
               Redirection vers votre espace parent...
             </p>
-            <Loader2 className="h-6 w-6 animate-spin text-green-500 mx-auto" />
+            <Loader2 className="h-6 w-6 animate-spin text-lime mx-auto" />
           </CardContent>
         </Card>
       </div>
@@ -213,11 +213,11 @@ export default function ValidateTeenPage() {
 
   // Main validation view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500/5 via-background to-pink-500/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-pink/5 via-background to-pink/5 flex items-center justify-center p-4">
       <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
-            <Heart className="h-8 w-8 text-white" />
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink to-pink flex items-center justify-center mx-auto mb-4">
+            <Heart className="h-8 w-8 text-ink" />
           </div>
           <CardTitle className="text-2xl">Validation de compte Teen</CardTitle>
           <CardDescription>
@@ -229,8 +229,8 @@ export default function ValidateTeenPage() {
           {/* Teen Info */}
           <div className="bg-muted/50 rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <User className="h-5 w-5 text-purple-500" />
+              <div className="w-10 h-10 rounded-full bg-pink/20 flex items-center justify-center">
+                <User className="h-5 w-5 text-pink" />
               </div>
               <div>
                 <p className="font-semibold">{registration?.teenName}</p>
@@ -242,11 +242,11 @@ export default function ValidateTeenPage() {
           </div>
 
           {/* Security Note */}
-          <div className="flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-            <Shield className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-4 bg-teal/10 border border-teal/20 rounded-lg">
+            <Shield className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-medium text-blue-600 mb-1">Votre rôle de parent</p>
-              <p className="text-blue-600/80">
+              <p className="font-medium text-teal mb-1">Votre rôle de parent</p>
+              <p className="text-teal/80">
                 En validant, vous pourrez superviser les activités de {registration?.teenName?.split(" ")[0]},
                 approuver ses réservations et définir des limites de dépenses.
               </p>
@@ -255,8 +255,8 @@ export default function ValidateTeenPage() {
 
           {/* Login prompt if not logged in */}
           {!isLoggedIn && (
-            <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-              <p className="text-sm text-yellow-600">
+            <div className="p-4 bg-gold/10 border border-gold/20 rounded-lg">
+              <p className="text-sm text-gold">
                 <strong>Connexion requise:</strong> Vous devez être connecté pour valider cette demande.
                 Si vous n'avez pas encore de compte, vous pourrez en créer un.
               </p>
@@ -293,7 +293,7 @@ export default function ValidateTeenPage() {
               Refuser
             </Button>
             <Button
-              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white"
+              className="flex-1 bg-gradient-to-r from-pink to-pink hover:opacity-90 text-ink"
               onClick={handleApprove}
               disabled={processing}
             >

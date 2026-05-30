@@ -16,7 +16,7 @@ export default function XpShopLoading() {
           {Array.from({ length: 6 }).map((_, i) => (
             <li
               key={i}
-              className="rounded-3xl border border-border/40 bg-card p-5"
+              className="rounded-2xl border border-border/40 bg-card p-5"
             >
               <div className="mb-4 aspect-video w-full animate-pulse rounded-2xl bg-muted" />
               <div className="h-5 w-3/4 animate-pulse rounded bg-muted" />

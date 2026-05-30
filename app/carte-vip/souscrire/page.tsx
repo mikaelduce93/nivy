@@ -26,7 +26,7 @@ const PASS_TIERS = {
   gold: {
     name: "Gold",
     price: 299,
-    color: "from-yellow-500 to-orange-500",
+    color: "from-gold to-coral",
     icon: Star,
     features: [
       "20% de réduction sur tous les events",
@@ -39,7 +39,7 @@ const PASS_TIERS = {
   platinum: {
     name: "Platinum",
     price: 599,
-    color: "from-purple-500 to-pink-500",
+    color: "from-pink to-pink",
     icon: Crown,
     badge: "POPULAIRE",
     features: [
@@ -134,7 +134,7 @@ export default function SouscrirePassPage() {
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center py-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4 ">
             <Crown className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">Carte VIP</span>
           </div>
@@ -179,7 +179,7 @@ export default function SouscrirePassPage() {
                   )}
 
                   <div className={`h-32 bg-gradient-to-br ${config.color} flex items-center justify-center relative`}>
-                    <Icon className="w-16 h-16 text-white" />
+                    <Icon className="w-16 h-16 text-ink" />
                     {isSelected && (
                       <div className="absolute top-4 left-4 w-8 h-8 rounded-full bg-white flex items-center justify-center">
                         <Check className="w-5 h-5 text-primary" />
@@ -264,14 +264,14 @@ export default function SouscrirePassPage() {
                     <p className="text-2xl font-black text-primary">{Math.round(savings.passPrice / 12)} DH</p>
                   </Card>
 
-                  <Card className="p-4 bg-green-500/10 border-green-500/20">
+                  <Card className="p-4 bg-lime/10 border-lime/20">
                     <p className="text-sm text-muted-foreground mb-1">Économies/mois</p>
-                    <p className="text-2xl font-black text-green-600">{Math.round(savings.monthlySavings)} DH</p>
+                    <p className="text-2xl font-black text-lime">{Math.round(savings.monthlySavings)} DH</p>
                   </Card>
                 </div>
 
-                <div className="flex items-center gap-2 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                  <Info className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                <div className="flex items-center gap-2 p-4 bg-teal/10 border border-teal/20 rounded-lg">
+                  <Info className="w-5 h-5 text-teal flex-shrink-0" />
                   <div className="text-sm">
                     {savings.breakEvenMonths > 0 ? (
                       <p>
@@ -297,7 +297,7 @@ export default function SouscrirePassPage() {
           <Card className="p-8">
             <div className="text-center mb-6">
               <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${tierConfig.color} flex items-center justify-center mx-auto mb-4`}>
-                <TierIcon className="w-10 h-10 text-white" />
+                <TierIcon className="w-10 h-10 text-ink" />
               </div>
               <h3 className="text-2xl font-black mb-2">Pass {tierConfig.name}</h3>
               <p className="text-4xl font-black text-primary mb-1">{tierConfig.price} DH/mois</p>
@@ -320,7 +320,7 @@ export default function SouscrirePassPage() {
             </div>
 
             <Button
-              className={`w-full bg-gradient-to-r ${tierConfig.color} hover:opacity-90 text-white`}
+              className={`w-full bg-gradient-to-r ${tierConfig.color} hover:opacity-90 text-ink`}
               size="lg"
               onClick={handleSubscribe}
               disabled={loading || (currentTier === selectedTier)}

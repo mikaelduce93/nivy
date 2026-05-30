@@ -92,21 +92,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-zinc-950 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-purple-500/10" />
-      <div className="absolute top-20 -left-20 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 -right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
+    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-teal/10 via-teal/5 to-pink/10" />
+      <div className="absolute top-20 -left-20 w-72 h-72 bg-teal/20 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 -right-20 w-96 h-96 bg-pink/20 rounded-full blur-3xl" />
 
       <div className="w-full max-w-sm relative z-10">
         <div className="relative">
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-3xl blur-xl opacity-50" />
-          <Card className="relative bg-zinc-900 border-zinc-800 rounded-3xl">
+          <div className="absolute -inset-1 bg-gradient-to-r from-teal via-teal to-pink rounded-2xl blur-xl opacity-50" />
+          <Card className="relative bg-card border-ink rounded-2xl">
             <CardHeader className="text-center pb-8">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
-                <Lock className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+                <Lock className="w-8 h-8 text-ink" />
               </div>
-              <CardTitle className="text-3xl font-black text-white text-balance">{t("auth.login.title")}</CardTitle>
-              <CardDescription className="text-zinc-400 text-balance">{t("auth.login.subtitle")}</CardDescription>
+              <CardTitle className="text-3xl font-black text-ink text-balance">{t("auth.login.title")}</CardTitle>
+              <CardDescription className="text-mute text-balance">{t("auth.login.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
               <DemoAccountSwitcher />
@@ -114,7 +114,7 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-zinc-700 hover:bg-zinc-800"
+                  className="w-full border-ink hover:bg-card"
                   onClick={handleGoogleSignIn}
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -141,7 +141,7 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-zinc-700 hover:bg-zinc-800"
+                  className="w-full border-ink hover:bg-card"
                   onClick={handleAppleSignIn}
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
@@ -153,10 +153,10 @@ export default function LoginPage() {
 
               <div className="relative mb-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-zinc-800" />
+                  <div className="w-full border-t border-ink" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-zinc-900 px-2 text-zinc-500">{t("auth.login.orEmail")}</span>
+                  <span className="bg-card px-2 text-mute">{t("auth.login.orEmail")}</span>
                 </div>
               </div>
 
@@ -175,7 +175,7 @@ export default function LoginPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="focus-visible:ring-cyan-500"
+                      className="focus-visible:ring-teal"
                     />
                   </div>
                   <div className="grid gap-2">
@@ -188,7 +188,7 @@ export default function LoginPage() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="focus-visible:ring-cyan-500"
+                      className="focus-visible:ring-teal"
                     />
                   </div>
                   {error && (
@@ -197,14 +197,14 @@ export default function LoginPage() {
                       tabIndex={-1}
                       role="alert"
                       aria-live="assertive"
-                      className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 outline-none focus:ring-2 focus:ring-red-500"
+                      className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 outline-none focus:ring-2 focus:ring-destructive"
                     >
-                      <p className="text-sm text-red-400">{error}</p>
+                      <p className="text-sm text-destructive">{error}</p>
                     </div>
                   )}
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 h-12 text-base font-semibold focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                    className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0 h-12 text-base font-semibold focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
                     disabled={isLoading}
                     aria-busy={isLoading}
                   >
@@ -219,10 +219,10 @@ export default function LoginPage() {
                   </Button>
                 </div>
                 <div className="mt-6 text-center text-sm">
-                  <span className="text-zinc-400">{t("auth.login.noAccount")} </span>
+                  <span className="text-mute">{t("auth.login.noAccount")} </span>
                   <Link
                     href="/auth/sign-up"
-                    className="text-cyan-400 hover:text-cyan-300 font-semibold underline-offset-4 hover:underline"
+                    className="text-teal hover:text-teal font-semibold underline-offset-4 hover:underline"
                   >
                     {t("auth.login.createAccount")}
                   </Link>

@@ -14,11 +14,11 @@ export default function AProposPage() {
       <main className="min-h-screen bg-background">
         {/* Hero */}
         <section className="relative pt-32 pb-20 px-4 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-coral-500/10 to-purple-500/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-lime/10 via-coral-500/10 to-pink/10" />
           
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center space-y-6">
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-600 via-coral-500 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-lime via-coral-500 to-pink bg-clip-text text-transparent">
                 À Propos de Nivy
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -51,8 +51,8 @@ export default function AProposPage() {
               ].map((item, idx) => (
                 <Card key={idx}>
                   <CardContent className="p-6 text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-emerald-600 to-coral-600 mb-4">
-                      <item.icon className="w-8 h-8 text-white" />
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-lime to-coral-600 mb-4">
+                      <item.icon className="w-8 h-8 text-ink" />
                     </div>
                     <h3 className="text-xl font-bold mb-3">{item.title}</h3>
                     <p className="text-muted-foreground">{item.description}</p>
@@ -82,7 +82,7 @@ export default function AProposPage() {
         </section>
 
         {/* What we do */}
-        <section className="py-16 px-4 bg-gradient-to-r from-emerald-600 via-coral-600 to-purple-600 text-white">
+        <section className="py-16 px-4 bg-gradient-to-r from-lime via-coral-600 to-pink text-ink">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-12">Ce que Nivy couvre</h2>
             <div className="grid md:grid-cols-4 gap-8 text-center">
@@ -94,11 +94,11 @@ export default function AProposPage() {
               ].map((stat, idx) => (
                 <div key={idx}>
                   <div className="text-2xl md:text-3xl font-black mb-2">{stat.value}</div>
-                  <div className="text-white/80 text-sm">{stat.label}</div>
+                  <div className="text-ink/80 text-sm">{stat.label}</div>
                 </div>
               ))}
             </div>
-            <p className="text-center text-white/90 mt-8 text-sm">+ transport, food, marketplace, mentorat — tout unifié dans une seule app.</p>
+            <p className="text-center text-ink/90 mt-8 text-sm">+ transport, food, marketplace, mentorat — tout unifié dans une seule app.</p>
           </div>
         </section>
 
@@ -112,7 +112,7 @@ export default function AProposPage() {
             <div className="grid md:grid-cols-3 gap-6">
               <Card>
                 <CardContent className="p-6 text-center">
-                  <MapPin className="w-8 h-8 mx-auto mb-3 text-emerald-600" />
+                  <MapPin className="w-8 h-8 mx-auto mb-3 text-lime" />
                   <h3 className="font-bold mb-2">Adresse</h3>
                   <p className="text-sm text-muted-foreground">
                     Casablanca, Maroc
@@ -121,7 +121,7 @@ export default function AProposPage() {
               </Card>
               <Card>
                 <CardContent className="p-6 text-center">
-                  <Mail className="w-8 h-8 mx-auto mb-3 text-emerald-600" />
+                  <Mail className="w-8 h-8 mx-auto mb-3 text-lime" />
                   <h3 className="font-bold mb-2">Email</h3>
                   <p className="text-sm text-muted-foreground">
                     {contactEmail}
@@ -130,7 +130,7 @@ export default function AProposPage() {
               </Card>
               <Card>
                 <CardContent className="p-6 text-center">
-                  <Phone className="w-8 h-8 mx-auto mb-3 text-emerald-600" />
+                  <Phone className="w-8 h-8 mx-auto mb-3 text-lime" />
                   <h3 className="font-bold mb-2">Téléphone</h3>
                   <p className="text-sm text-muted-foreground">
                     +212 XX XX XX XX
@@ -140,7 +140,7 @@ export default function AProposPage() {
             </div>
             <div className="mt-8">
               <Link href="/support">
-                <Button size="lg" className="bg-gradient-to-r from-emerald-600 to-coral-600">
+                <Button size="lg" className="bg-gradient-to-r from-lime to-coral-600">
                   Nous Contacter
                 </Button>
               </Link>

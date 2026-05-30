@@ -44,16 +44,16 @@ export default async function ParentOnboardingESignaturePage() {
   const redirectTo = "/onboarding/parent"
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32 max-w-3xl">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <ShieldCheck className="h-8 w-8 text-cyan-400" />
-            <h1 className="text-3xl font-black text-white">
+            <ShieldCheck className="h-8 w-8 text-teal" />
+            <h1 className="text-3xl font-black text-ink">
               Bienvenue — autorisation parentale
             </h1>
           </div>
-          <p className="text-zinc-400">
+          <p className="text-mute">
             Première étape de votre inscription : nous devons vérifier votre
             identité et recueillir votre consentement signé électroniquement
             (loi 09-08 / CNDP) avant d&apos;activer votre espace parent.
@@ -61,15 +61,15 @@ export default async function ParentOnboardingESignaturePage() {
         </div>
 
         {existing ? (
-          <Card className="bg-emerald-500/10 border-emerald-500/30 mb-6">
+          <Card className="bg-lime/10 border-lime/30 mb-6">
             <CardHeader>
-              <CardTitle className="text-emerald-400 flex items-center gap-2">
+              <CardTitle className="text-lime flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5" />
                 Signature déjà enregistrée
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-ink-2">
                 Une autorisation parentale a été signée
                 {existing.parent_full_name ? ` par ${existing.parent_full_name}` : ""}
                 {" "}le {new Date(existing.created_at).toLocaleDateString("fr-FR", {
@@ -79,21 +79,21 @@ export default async function ParentOnboardingESignaturePage() {
                 })}
                 .
               </p>
-              <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
+              <Button asChild className="bg-lime hover:bg-lime text-ink">
                 <Link href={redirectTo}>Continuer mon inscription</Link>
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <Card className="bg-amber-500/10 border-amber-500/30 mb-6">
+          <Card className="bg-gold/10 border-gold/30 mb-6">
             <CardHeader>
-              <CardTitle className="text-amber-400 flex items-center gap-2">
+              <CardTitle className="text-gold flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
                 Signature requise
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-ink-2">
                 Cette signature électronique a la même valeur juridique
                 qu&apos;une signature manuscrite. Vos documents seront
                 conservés conformément au RGPD/CNDP.
@@ -102,10 +102,10 @@ export default async function ParentOnboardingESignaturePage() {
           </Card>
         )}
 
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <FileText className="h-5 w-5 text-cyan-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <FileText className="h-5 w-5 text-teal" />
               {existing ? "Renouveler la signature" : "Signer l'autorisation"}
             </CardTitle>
           </CardHeader>

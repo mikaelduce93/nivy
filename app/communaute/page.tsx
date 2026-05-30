@@ -45,18 +45,18 @@ export default async function CommunautePage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-6">Communauté</h1>
-            <p className="text-xl text-cyan-400 mb-8">Partage tes meilleurs moments</p>
+            <h1 className="text-5xl md:text-7xl font-black text-ink mb-6">Communauté</h1>
+            <p className="text-xl text-teal mb-8">Partage tes meilleurs moments</p>
 
             {user && (
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0"
+                className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0"
               >
                 <Link href="/communaute/creer">Créer un post</Link>
               </Button>
@@ -66,7 +66,7 @@ export default async function CommunautePage() {
           {loadError && (
             <div
               role="alert"
-              className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+              className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
             >
               {loadError}
             </div>
@@ -77,19 +77,19 @@ export default async function CommunautePage() {
               {posts.map((post) => (
                 <div
                   key={post.id}
-                  className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-3xl overflow-hidden border border-zinc-800"
+                  className="bg-gradient-to-br from-paper-2 to-card rounded-2xl overflow-hidden border border-ink"
                 >
                   <div className="p-6">
                     <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-lg">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center flex-shrink-0">
+                        <span className="text-ink font-bold text-lg">
                           {post.profiles?.full_name?.charAt(0) || "U"}
                         </span>
                       </div>
 
                       <div className="flex-1">
-                        <p className="text-white font-semibold">{post.profiles?.full_name || "Utilisateur"}</p>
-                        <p className="text-zinc-500 text-sm">
+                        <p className="text-ink font-semibold">{post.profiles?.full_name || "Utilisateur"}</p>
+                        <p className="text-mute text-sm">
                           {new Date(post.created_at).toLocaleDateString("fr-FR", {
                             day: "numeric",
                             month: "long",
@@ -101,13 +101,13 @@ export default async function CommunautePage() {
                     </div>
 
                     {post.event_id && post.events && (
-                      <div className="flex items-center gap-2 mb-4 px-4 py-2 bg-cyan-500/10 rounded-lg border border-cyan-500/30 w-fit">
-                        <Calendar className="w-4 h-4 text-cyan-400" />
-                        <span className="text-cyan-400 text-sm font-semibold">{post.events.title}</span>
+                      <div className="flex items-center gap-2 mb-4 px-4 py-2 bg-teal/10 rounded-lg border border-teal/30 w-fit">
+                        <Calendar className="w-4 h-4 text-teal" />
+                        <span className="text-teal text-sm font-semibold">{post.events.title}</span>
                       </div>
                     )}
 
-                    <p className="text-white leading-relaxed mb-4 whitespace-pre-line">{post.content}</p>
+                    <p className="text-ink leading-relaxed mb-4 whitespace-pre-line">{post.content}</p>
 
                     {post.media_urls && post.media_urls.length > 0 && (
                       <div className="grid grid-cols-2 gap-2 mb-4">
@@ -138,9 +138,9 @@ export default async function CommunautePage() {
             </div>
           ) : (
             <div className="text-center py-20">
-              <MessageSquare className="w-20 h-20 text-zinc-700 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-white mb-4">Aucun post pour le moment</h3>
-              <p className="text-zinc-400">Sois le premier à partager tes moments</p>
+              <MessageSquare className="w-20 h-20 text-ink mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-ink mb-4">Aucun post pour le moment</h3>
+              <p className="text-mute">Sois le premier à partager tes moments</p>
             </div>
           )}
         </div>

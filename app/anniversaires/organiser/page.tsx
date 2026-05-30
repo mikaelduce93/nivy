@@ -71,7 +71,7 @@ export default function OrganizeBirthdayPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#020203] text-white overflow-hidden selection:bg-brand-soft/30">
+    <div className="relative min-h-screen bg-[#020203] text-ink overflow-hidden selection:bg-brand-soft/30">
       <MeshGradient className="opacity-30" />
       <GrainOverlay opacity={0.05} />
       <GlowBlob color="var(--brand-soft)" className="-top-20 -right-20 opacity-20" size={600} />
@@ -87,13 +87,13 @@ export default function OrganizeBirthdayPage() {
               className="space-y-16"
             >
               <div className="text-center space-y-6">
-                <div className="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto border border-white/10 shadow-2xl">
+                <div className="w-24 h-24 bg-paper-2 rounded-[2.5rem] flex items-center justify-center mx-auto border border-ink shadow-2xl">
                   <Cake className="w-12 h-12 text-brand-soft animate-pulse" />
                 </div>
                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">
                   Plan thy <span className="text-gen-z-gradient">Legendary Night.</span>
                 </h1>
-                <p className="text-zinc-500 text-xl font-medium max-w-xl mx-auto">AI has pre-calculated the best vibes for you.</p>
+                <p className="text-mute text-xl font-medium max-w-xl mx-auto">AI has pre-calculated the best vibes for you.</p>
               </div>
 
               {/* Pack Selection */}
@@ -106,37 +106,37 @@ export default function OrganizeBirthdayPage() {
                     onClick={() => setSelectedPack(pack)}
                     className={cn(
                       "relative p-1 rounded-[3rem] cursor-pointer transition-all duration-500",
-                      selectedPack.id === pack.id ? "bg-gradient-to-br from-white/40 to-transparent" : "bg-white/5 border border-white/10"
+                      selectedPack.id === pack.id ? "bg-gradient-to-br from-white/40 to-transparent" : "bg-paper-2 border border-ink"
                     )}
                   >
                     <div className={cn(
                       "h-full w-full rounded-[2.9rem] p-8 flex flex-col justify-between space-y-8 transition-all duration-500",
-                      selectedPack.id === pack.id ? "bg-zinc-900" : "bg-transparent"
+                      selectedPack.id === pack.id ? "bg-card" : "bg-transparent"
                     )}>
                       <div className="space-y-4">
                         <div className="flex justify-between items-start">
-                          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+                          <div className="w-12 h-12 rounded-2xl bg-paper-2 flex items-center justify-center border border-ink">
                             <pack.icon className="w-6 h-6" style={{ color: pack.color }} />
                           </div>
                           {pack.tag && (
-                            <span className="text-[8px] font-black tracking-widest px-2 py-1 rounded-full bg-white/10 text-white border border-white/5">
+                            <span className="text-[8px] font-black tracking-widest px-2 py-1 rounded-full bg-paper-2 text-ink border border-ink">
                               {pack.tag}
                             </span>
                           )}
                         </div>
                         <h3 className="text-2xl font-black tracking-tight leading-none uppercase italic">{pack.label}</h3>
-                        <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">{pack.guests} GUESTS MAX</p>
+                        <p className="text-mute text-xs font-bold uppercase tracking-widest">{pack.guests} GUESTS MAX</p>
                       </div>
                       
                       <div className="space-y-1">
                         <p className="text-3xl font-black tracking-tighter">{pack.price} DH</p>
-                        <p className="text-[10px] text-zinc-600 font-bold uppercase">All Inclusive</p>
+                        <p className="text-[10px] text-mute font-bold uppercase">All Inclusive</p>
                       </div>
                     </div>
                     {selectedPack.id === pack.id && (
                       <motion.div 
                         layoutId="active-ring"
-                        className="absolute inset-0 rounded-[3rem] border-2 border-white/50 pointer-events-none"
+                        className="absolute inset-0 rounded-[3rem] border-2 border-ink pointer-events-none"
                       />
                     )}
                   </motion.div>
@@ -146,19 +146,19 @@ export default function OrganizeBirthdayPage() {
               {/* Date & Trigger */}
               <div className="max-w-md mx-auto space-y-8">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] px-2">Set the Date</label>
+                  <label className="text-[10px] font-black text-mute uppercase tracking-[0.4em] px-2">Set the Date</label>
                   <input 
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full h-20 rounded-[2rem] bg-white/5 border border-white/10 px-8 text-xl font-black uppercase tracking-tighter focus:border-white/40 transition-all outline-none"
+                    className="w-full h-20 rounded-[2rem] bg-paper-2 border border-ink px-8 text-xl font-black uppercase tracking-tighter focus:border-ink transition-all outline-none"
                   />
                 </div>
 
                 <Button 
                   onClick={handleSendToParent}
                   disabled={loading || !date}
-                  className="w-full h-24 rounded-[2.5rem] bg-white text-black font-black text-2xl uppercase italic hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_20px_80px_rgba(255,255,255,0.2)]"
+                  className="w-full h-24 rounded-[2.5rem] bg-white text-ink font-black text-2xl uppercase italic hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_20px_80px_rgba(255,255,255,0.2)]"
                 >
                   {loading ? "Transmitting..." : "Send to Sponsor"}
                   <Send className="ml-4 w-8 h-8" />
@@ -177,7 +177,7 @@ export default function OrganizeBirthdayPage() {
               </div>
               <div className="space-y-6">
                 <h2 className="text-6xl font-black uppercase italic tracking-tighter">REQUEST ACTIVE.</h2>
-                <p className="text-zinc-500 text-xl font-medium max-w-md mx-auto leading-relaxed">
+                <p className="text-mute text-xl font-medium max-w-md mx-auto leading-relaxed">
                   Thy sponsor (Parent) has received the invite. Stand by for validation.
                 </p>
               </div>
@@ -185,7 +185,7 @@ export default function OrganizeBirthdayPage() {
                 <Button 
                   onClick={() => router.push('/teen')}
                   variant="outline" 
-                  className="rounded-3xl h-16 px-12 border-white/10 text-white font-black text-lg hover:bg-white/5"
+                  className="rounded-2xl h-16 px-12 border-ink text-ink font-black text-lg hover:bg-paper-2"
                 >
                   RETURN TO HUB
                 </Button>

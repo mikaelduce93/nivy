@@ -63,8 +63,8 @@ export function SellForm() {
         <input name="city" placeholder="Ville" className="border rounded px-3 py-2" />
         <input name="neighborhood" placeholder="Quartier" className="border rounded px-3 py-2" />
       </div>
-      {err && <p className="text-sm text-red-600">Erreur : {err}</p>}
-      <button type="submit" disabled={busy} className="rounded bg-blue-600 text-white px-4 py-2 disabled:opacity-50">
+      {err && <p className="text-sm text-destructive">Erreur : {err}</p>}
+      <button type="submit" disabled={busy} className="rounded bg-teal text-ink px-4 py-2 disabled:opacity-50">
         {busy ? "Envoi…" : "Publier l'annonce"}
       </button>
     </form>

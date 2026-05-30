@@ -36,13 +36,13 @@ export default async function DJProfilePage({ params }: { params: { id: string }
             <div className="max-w-7xl mx-auto">
               <div className="flex items-end justify-between">
                 <div>
-                  <h1 className="text-5xl font-bold text-white mb-2">{dj.stage_name}</h1>
-                  <p className="text-2xl text-white/80">{dj.name}</p>
+                  <h1 className="text-5xl font-bold text-ink mb-2">{dj.stage_name}</h1>
+                  <p className="text-2xl text-ink/80">{dj.name}</p>
                   <div className="flex items-center gap-4 mt-4">
-                    <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2">
-                      <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-                      <span className="text-white font-semibold text-lg">{dj.rating}</span>
-                      <span className="text-white/70">({dj.total_reviews} avis)</span>
+                    <div className="flex items-center gap-1 bg-ink/50  rounded-full px-4 py-2">
+                      <Star className="h-5 w-5 fill-gold text-gold" />
+                      <span className="text-ink font-semibold text-lg">{dj.rating}</span>
+                      <span className="text-ink/70">({dj.total_reviews} avis)</span>
                     </div>
                     <Badge variant="secondary" className="text-lg px-4 py-2">
                       {dj.total_events} événements
@@ -52,7 +52,7 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                 <Link href={`/djs/${dj.id}/reserver`}>
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-emerald-600 to-coral-600 hover:from-emerald-700 hover:to-coral-700 text-lg px-8"
+                    className="bg-gradient-to-r from-lime to-coral-600 hover:from-lime hover:to-coral-700 text-lg px-8"
                   >
                     <Calendar className="mr-2 h-5 w-5" />
                     Réserver
@@ -94,7 +94,7 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                         <div className="grid grid-cols-2 gap-4">
                           {dj.specialties?.map((specialty: string) => (
                             <div key={specialty} className="flex items-center gap-2">
-                              <Award className="h-5 w-5 text-emerald-600" />
+                              <Award className="h-5 w-5 text-lime" />
                               <span>{specialty}</span>
                             </div>
                           ))}
@@ -161,7 +161,7 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <div className="text-4xl font-bold text-emerald-600">{dj.hourly_rate} DH</div>
+                      <div className="text-4xl font-bold text-lime">{dj.hourly_rate} DH</div>
                       <div className="text-muted-foreground">par heure</div>
                     </div>
                     <div className="space-y-2 pt-4 border-t">
@@ -188,8 +188,8 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                   </CardHeader>
                   <CardContent>
                     {dj.is_available ? (
-                      <div className="flex items-center gap-2 text-emerald-600">
-                        <div className="h-3 w-3 rounded-full bg-emerald-600 animate-pulse" />
+                      <div className="flex items-center gap-2 text-lime">
+                        <div className="h-3 w-3 rounded-full bg-lime animate-pulse" />
                         <span className="font-medium">Disponible</span>
                       </div>
                     ) : (

@@ -111,16 +111,16 @@ export default function PassConfirmationPage() {
     if (tier === 'platinum') {
       return {
         name: "Platinum",
-        color: "from-purple-500 to-pink-500",
+        color: "from-pink to-pink",
         icon: Crown,
-        gradient: "bg-gradient-to-r from-purple-500 to-pink-500"
+        gradient: "bg-gradient-to-r from-pink to-pink"
       }
     }
     return {
       name: "Gold",
-      color: "from-yellow-500 to-orange-500",
+      color: "from-gold to-coral",
       icon: Star,
-      gradient: "bg-gradient-to-r from-yellow-500 to-orange-500"
+      gradient: "bg-gradient-to-r from-gold to-coral"
     }
   }
 
@@ -141,7 +141,7 @@ export default function PassConfirmationPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-32 text-center">
           <div className="max-w-md mx-auto">
-            <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
               <span className="text-4xl">😕</span>
             </div>
             <h1 className="text-3xl font-black mb-4">Oups!</h1>
@@ -173,10 +173,10 @@ export default function PassConfirmationPage() {
           <div className="text-center mb-12">
             <div className="relative inline-block mb-6">
               <div className={`w-32 h-32 rounded-full ${tierConfig.gradient} flex items-center justify-center shadow-2xl animate-pulse`}>
-                <TierIcon className="w-16 h-16 text-white" />
+                <TierIcon className="w-16 h-16 text-ink" />
               </div>
-              <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-green-500 flex items-center justify-center border-4 border-background">
-                <Check className="w-6 h-6 text-white" />
+              <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-lime flex items-center justify-center border-4 border-background">
+                <Check className="w-6 h-6 text-ink" />
               </div>
             </div>
 
@@ -208,7 +208,7 @@ export default function PassConfirmationPage() {
                   <p className="text-2xl font-black">{passData.card_number}</p>
                 </div>
                 <div className={`p-3 rounded-xl ${tierConfig.gradient}`}>
-                  <TierIcon className="w-8 h-8 text-white" />
+                  <TierIcon className="w-8 h-8 text-ink" />
                 </div>
               </div>
 
@@ -309,7 +309,7 @@ export default function PassConfirmationPage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button asChild className={`flex-1 ${tierConfig.gradient} hover:opacity-90 text-white`}>
+            <Button asChild className={`flex-1 ${tierConfig.gradient} hover:opacity-90 text-ink`}>
               <Link href="/agenda">
                 Voir les événements
                 <ArrowRight className="w-4 h-4 ml-2" />

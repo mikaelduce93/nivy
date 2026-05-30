@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ReservationLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-zinc-950">
+    <div className="min-h-screen bg-gradient-to-b from-paper-2 to-card">
       <div className="container py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-8">

@@ -22,7 +22,7 @@ export default async function OnboardingLearningStylePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 p-4 sm:p-6 lg:p-10">
+    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-pink/5 p-4 sm:p-6 lg:p-10">
       <LearningStyleQuiz nextHref="/onboarding/complete" />
     </main>
   )

@@ -33,14 +33,14 @@ export default async function GaleriePage() {
       <Navbar />
 
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-background to-pink-500/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-pink/20 via-background to-pink/20" />
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-pink/30 rounded-full blur-3xl animate-pulse" />
         </div>
 
         <div className="relative container mx-auto px-6 py-32">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 text-purple-400 text-sm font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink/10 text-pink text-sm font-semibold mb-6">
               <Camera className="w-4 h-4" />
               Galerie Photos
             </div>
@@ -61,7 +61,7 @@ export default async function GaleriePage() {
               <a
                 key={gallery.id}
                 href={`/galerie/${gallery.id}`}
-                className="group block relative aspect-square rounded-3xl overflow-hidden"
+                className="group block relative aspect-square rounded-2xl overflow-hidden"
               >
                 <OptimizedImage
                   src={gallery.cover_photo}
@@ -71,20 +71,20 @@ export default async function GaleriePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                  <h3 className="text-xl font-bold text-white mb-2">{gallery.title}</h3>
+                  <h3 className="text-xl font-bold text-ink mb-2">{gallery.title}</h3>
                   {gallery.events && (
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-sm text-white/80">
+                      <div className="flex items-center gap-2 text-sm text-ink/80">
                         <MapPin className="w-4 h-4" />
                         <span>{gallery.events.city}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-white/80">
+                      <div className="flex items-center gap-2 text-sm text-ink/80">
                         <Calendar className="w-4 h-4" />
                         <span>{new Date(gallery.events.event_date).toLocaleDateString("fr-FR")}</span>
                       </div>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-sm text-white/60 mt-3">
+                  <div className="flex items-center gap-2 text-sm text-ink/60 mt-3">
                     <ImageIcon className="w-4 h-4" />
                     <span>{gallery.photo_count || 0} photos</span>
                   </div>

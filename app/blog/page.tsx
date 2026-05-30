@@ -49,14 +49,14 @@ export default async function BlogPage() {
       <Navbar />
 
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-background to-blue-500/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-teal/20 via-background to-teal/20" />
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-teal/30 rounded-full blur-3xl animate-pulse" />
         </div>
 
         <div className="relative container mx-auto px-6 py-32">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 text-sm font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal/10 text-teal text-sm font-semibold mb-6">
               <BookOpen className="w-4 h-4" />
               Blog Nivy
             </div>
@@ -89,8 +89,8 @@ export default async function BlogPage() {
             {posts.map((post) => (
               <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
                 <div className="relative">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition duration-500" />
-                  <div className="relative bg-card rounded-3xl overflow-hidden border border-border">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-teal to-teal rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition duration-500" />
+                  <div className="relative bg-card rounded-2xl overflow-hidden border border-border">
                     {post.cover_image && (
                       <div className="relative aspect-video">
                         <OptimizedImage
@@ -104,12 +104,12 @@ export default async function BlogPage() {
 
                     <div className="p-6">
                       {post.post_categories && (
-                        <span className="inline-block px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold mb-3">
+                        <span className="inline-block px-3 py-1 rounded-full bg-teal/10 text-teal text-xs font-bold mb-3">
                           {post.post_categories.name}
                         </span>
                       )}
 
-                      <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-cyan-400 transition-colors">
+                      <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-teal transition-colors">
                         {post.title}
                       </h3>
 

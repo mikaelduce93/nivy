@@ -22,38 +22,38 @@ const STATUS_VIEW: Record<
 > = {
   pending: {
     icon: Clock,
-    tone: "from-amber-500 to-orange-500",
+    tone: "from-gold to-coral",
     title: "En attente d'approbation",
     message:
       "Ta réservation dépasse ton budget : ton parent a reçu une demande d'approbation. Tu seras notifié dès qu'il aura décidé.",
   },
   approved: {
     icon: CheckCircle2,
-    tone: "from-emerald-500 to-green-500",
+    tone: "from-lime to-lime",
     title: "Demande approuvée !",
     message: "Ton parent a approuvé la demande. Tu peux finaliser ta réservation.",
   },
   auto_approved: {
     icon: CheckCircle2,
-    tone: "from-emerald-500 to-green-500",
+    tone: "from-lime to-lime",
     title: "Demande approuvée !",
     message: "La demande a été approuvée automatiquement. Tu peux finaliser ta réservation.",
   },
   denied: {
     icon: XCircle,
-    tone: "from-red-500 to-rose-500",
+    tone: "from-destructive to-pink",
     title: "Demande refusée",
     message: "Ton parent a refusé cette demande. Parles-en avec lui si tu penses que c'est une erreur.",
   },
   auto_denied: {
     icon: XCircle,
-    tone: "from-red-500 to-rose-500",
+    tone: "from-destructive to-pink",
     title: "Demande refusée",
     message: "La demande a été refusée automatiquement.",
   },
   expired: {
     icon: AlertTriangle,
-    tone: "from-zinc-500 to-zinc-600",
+    tone: "from-paper-2 to-card",
     title: "Demande expirée",
     message: "Cette demande d'approbation a expiré. Tu peux refaire ta réservation.",
   },
@@ -97,17 +97,17 @@ export default async function ReservationApprovalPage({
       <Navbar />
       <div className="container mx-auto px-6 py-32">
         <div className="max-w-lg mx-auto">
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 p-8 text-center">
+          <Card className="bg-gradient-to-br from-paper-2 to-card border-ink p-8 text-center">
             <div
               className={`w-20 h-20 rounded-full bg-gradient-to-br ${view.tone} flex items-center justify-center mx-auto mb-6`}
             >
-              <Icon className="h-10 w-10 text-white" />
+              <Icon className="h-10 w-10 text-ink" />
             </div>
-            <h1 className="text-2xl font-black text-white mb-2">{view.title}</h1>
-            <p className="text-zinc-400 mb-6">{view.message}</p>
+            <h1 className="text-2xl font-black text-ink mb-2">{view.title}</h1>
+            <p className="text-mute mb-6">{view.message}</p>
             {approval.amount != null && (
-              <p className="text-sm text-zinc-500 mb-6">
-                Montant concerné : <span className="font-bold text-white">{approval.amount} DH</span>
+              <p className="text-sm text-mute mb-6">
+                Montant concerné : <span className="font-bold text-ink">{approval.amount} DH</span>
               </p>
             )}
             <Button asChild className="w-full">

@@ -9,7 +9,7 @@ export default async function AuthErrorPage({
   const detail = params?.error ?? params?.reason
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-cyan-900 via-blue-900 to-indigo-900">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-teal via-teal to-pink">
       <div className="w-full max-w-sm">
         <Card>
           <CardHeader>

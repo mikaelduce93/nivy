@@ -104,15 +104,15 @@ export default function FAQPage() {
       <main className="min-h-screen bg-background">
         {/* Hero */}
         <section className="relative pt-32 pb-20 px-4 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-teal/10 via-pink/10 to-pink/10" />
           
           <div className="max-w-4xl mx-auto relative z-10">
             <div className="text-center space-y-6 mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-sm font-semibold mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal/10 text-teal text-sm font-semibold mb-6">
                 <HelpCircle className="w-4 h-4" />
                 Questions Fréquentes
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-teal via-pink to-pink bg-clip-text text-transparent">
                 Comment pouvons-nous vous aider ?
               </h1>
               <p className="text-xl text-muted-foreground">

@@ -41,13 +41,13 @@ export default async function ListingDetailPage({
   return (
     <main className="min-h-screen mx-auto max-w-2xl px-4 py-8">
       <h1 className="text-2xl font-bold mb-2">{listing.title}</h1>
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-mute mb-4">
         {listing.category} · {listing.condition ?? "—"} · {listing.city ?? "—"}
       </div>
       {/* TICKET-024 — destination half of the View Transitions morph.
           Pairs with the listing card on /marketplace. */}
       <div
-        className="relative aspect-video bg-gray-100 mb-4 flex items-center justify-center text-gray-400 overflow-hidden"
+        className="relative aspect-video bg-paper-2 mb-4 flex items-center justify-center text-mute overflow-hidden"
         style={{ viewTransitionName: `vt-listing-${listing.id}` }}
       >
         {Array.isArray(listing.images) && listing.images[0] ? (
@@ -63,21 +63,21 @@ export default async function ListingDetailPage({
           <span>no image</span>
         )}
       </div>
-      <p className="text-gray-800 whitespace-pre-line mb-4">{listing.description}</p>
+      <p className="text-ink whitespace-pre-line mb-4">{listing.description}</p>
       <div className="text-2xl font-bold mb-4">
         {listing.price_coins != null ? `${listing.price_coins} coins` : `${listing.price_dh} DH`}
       </div>
       {stats && (
-        <div className="text-sm text-gray-600 mb-4">
+        <div className="text-sm text-mute mb-4">
           Vendeur : {stats.sold_count ?? 0} ventes · note {stats.rating_avg ?? 0}/5
-          {stats.trust_badge ? <span className="ml-2 text-green-600">★ Nivy Guarantee</span> : null}
+          {stats.trust_badge ? <span className="ml-2 text-lime">★ Nivy Guarantee</span> : null}
         </div>
       )}
 
       {listing.status === "active" ? (
         <BuyButton listingId={listing.id} />
       ) : (
-        <p className="text-sm text-red-600">Annonce indisponible (statut : {listing.status}).</p>
+        <p className="text-sm text-destructive">Annonce indisponible (statut : {listing.status}).</p>
       )}
     </main>
   )

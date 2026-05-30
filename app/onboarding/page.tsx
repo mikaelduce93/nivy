@@ -160,7 +160,7 @@ export default function OnboardingPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-pink/5 flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
           <p className="text-muted-foreground">Chargement...</p>
@@ -170,7 +170,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-pink/5 flex flex-col">
       {/* Gamification Reward Popup */}
       <OnboardingRewardPopup
         reward={gamification.currentReward}
@@ -190,7 +190,7 @@ export default function OnboardingPage() {
       </AnimatePresence>
 
       {/* Progress Bar - Fixed at top */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-sm border-b">
+      <div className="fixed top-0 left-0 right-0 z-40 bg-background/80  border-b">
         <div className="max-w-4xl mx-auto px-4 py-4">
           {/* "Étape X / N" label - explicit progression visible from step 1 */}
           <div className="flex items-center justify-between mb-2">

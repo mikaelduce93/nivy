@@ -106,7 +106,7 @@ export default function AidePage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-6">
+          <h1 className="text-5xl md:text-7xl font-black text-ink mb-6">
             Centre d'Aide
           </h1>
           <p className="text-xl text-primary mb-8">
@@ -120,7 +120,7 @@ export default function AidePage() {
               placeholder="Rechercher une question..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-14 bg-card border-border text-white placeholder:text-muted-foreground rounded-2xl"
+              className="pl-12 h-14 bg-card border-border text-ink placeholder:text-muted-foreground rounded-2xl"
             />
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function AidePage() {
             <a href={`mailto:${SUPPORT_EMAIL}`}>
               <Mail className="w-8 h-8 text-primary" />
               <div className="text-center">
-                <p className="font-bold text-white">Email</p>
+                <p className="font-bold text-ink">Email</p>
                 <p className="text-sm text-muted-foreground">{SUPPORT_EMAIL}</p>
               </div>
             </a>
@@ -148,7 +148,7 @@ export default function AidePage() {
             <a href={`tel:+${WHATSAPP_PHONE}`}>
               <Phone className="w-8 h-8 text-primary" />
               <div className="text-center">
-                <p className="font-bold text-white">Téléphone</p>
+                <p className="font-bold text-ink">Téléphone</p>
                 <p className="text-sm text-muted-foreground">{SUPPORT_PHONE}</p>
               </div>
             </a>
@@ -162,7 +162,7 @@ export default function AidePage() {
             <Link href={`https://wa.me/${WHATSAPP_PHONE}`}>
               <MessageCircle className="w-8 h-8 text-primary" />
               <div className="text-center">
-                <p className="font-bold text-white">WhatsApp</p>
+                <p className="font-bold text-ink">WhatsApp</p>
                 <p className="text-sm text-muted-foreground">Chat en direct</p>
               </div>
             </Link>
@@ -174,7 +174,7 @@ export default function AidePage() {
             variant={selectedCategory === null ? 'default' : 'outline'}
             onClick={() => setSelectedCategory(null)}
             className={selectedCategory === null 
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-0' 
+              ? 'bg-gradient-to-r from-teal to-teal text-ink border-0' 
               : 'bg-card border-border text-muted-foreground hover:bg-accent'}
           >
             Toutes les catégories
@@ -187,7 +187,7 @@ export default function AidePage() {
                 variant={selectedCategory === cat.id ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={selectedCategory === cat.id 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-0' 
+                  ? 'bg-gradient-to-r from-teal to-teal text-ink border-0' 
                   : 'bg-card border-border text-muted-foreground hover:bg-accent'}
               >
                 <Icon className="w-4 h-4 mr-2" />
@@ -208,7 +208,7 @@ export default function AidePage() {
                   onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
                   className="w-full p-6 flex items-center justify-between text-left hover:bg-accent/50 transition"
                 >
-                  <span className="text-white font-semibold pr-4">{faq.question}</span>
+                  <span className="text-ink font-semibold pr-4">{faq.question}</span>
                   <ChevronDown
                     className={`w-5 h-5 text-primary flex-shrink-0 transition-transform ${
                       expandedFaq === index ? 'rotate-180' : ''
@@ -224,21 +224,21 @@ export default function AidePage() {
             ))
           ) : (
             <div className="text-center py-12">
-              <FileQuestion className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
+              <FileQuestion className="w-16 h-16 text-ink mx-auto mb-4" />
               <p className="text-muted-foreground">Aucune question trouvée pour "{searchQuery}"</p>
             </div>
           )}
         </div>
 
-        <div className="mt-20 max-w-3xl mx-auto text-center bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-3xl p-12">
-          <h2 className="text-3xl font-bold text-white mb-4">Tu ne trouves pas ta réponse ?</h2>
+        <div className="mt-20 max-w-3xl mx-auto text-center bg-gradient-to-br from-teal/10 to-teal/10 border border-teal/30 rounded-2xl p-12">
+          <h2 className="text-3xl font-bold text-ink mb-4">Tu ne trouves pas ta réponse ?</h2>
           <p className="text-muted-foreground mb-8">
             Notre équipe est disponible pour répondre à toutes tes questions
           </p>
           <Button
             asChild
             size="lg"
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0"
+            className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0"
           >
             <a href={`mailto:${SUPPORT_EMAIL}`}>
               Contacter le support

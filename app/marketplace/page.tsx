@@ -59,11 +59,11 @@ export default async function MarketplacePage({
       <header className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Marketplace</h1>
-          <p className="text-sm text-gray-600">Achète et vends en toute sécurité entre teens.</p>
+          <p className="text-sm text-mute">Achète et vends en toute sécurité entre teens.</p>
         </div>
         <Link
           href="/marketplace/sell"
-          className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="rounded-md bg-teal px-4 py-2 text-ink hover:bg-teal"
         >
           Vendre
         </Link>
@@ -95,17 +95,17 @@ export default async function MarketplacePage({
           defaultValue={sp.max_price ?? ""}
           className="rounded border px-3 py-2 text-sm w-40"
         />
-        <button className="rounded bg-gray-800 text-white px-4 py-2 text-sm">Filtrer</button>
-        <Link href="/marketplace/my-listings" className="ml-auto text-sm text-blue-600 underline">
+        <button className="rounded bg-card text-ink px-4 py-2 text-sm">Filtrer</button>
+        <Link href="/marketplace/my-listings" className="ml-auto text-sm text-teal underline">
           Mes annonces
         </Link>
-        <Link href="/marketplace/orders" className="text-sm text-blue-600 underline">
+        <Link href="/marketplace/orders" className="text-sm text-teal underline">
           Mes commandes
         </Link>
       </form>
 
       {listings.length === 0 ? (
-        <p className="text-gray-500">Aucune annonce active pour le moment.</p>
+        <p className="text-mute">Aucune annonce active pour le moment.</p>
       ) : (
         <ul className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {listings.map((l, idx) => (
@@ -117,7 +117,7 @@ export default async function MarketplacePage({
                 className="block"
                 style={{ viewTransitionName: `vt-listing-${l.id}` }}
               >
-                <div className="relative aspect-square bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden">
+                <div className="relative aspect-square bg-paper-2 flex items-center justify-center text-mute overflow-hidden">
                   {l.images && l.images[0] ? (
                     <Image
                       src={l.images[0]}
@@ -135,10 +135,10 @@ export default async function MarketplacePage({
                 </div>
                 <div className="p-3 space-y-1">
                   <div className="font-semibold truncate">{l.title}</div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-mute">
                     {l.price_coins != null ? `${l.price_coins} coins` : `${l.price_dh} DH`}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-mute">
                     {l.city ?? "—"} · {l.condition ?? l.category}
                   </div>
                 </div>

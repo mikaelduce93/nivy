@@ -200,9 +200,9 @@ export default function AnniversairesPage() {
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center py-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/10 border border-pink-500/20 mb-4 backdrop-blur-sm">
-            <PartyPopper className="w-4 h-4 text-pink-500" />
-            <span className="text-sm font-medium text-pink-500">Configurateur Anniversaire</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink/10 border border-pink/20 mb-4 ">
+            <PartyPopper className="w-4 h-4 text-pink" />
+            <span className="text-sm font-medium text-pink">Configurateur Anniversaire</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 leading-tight">
@@ -219,7 +219,7 @@ export default function AnniversairesPage() {
 
       {/* Stepper */}
       {currentStep < 6 && (
-        <section className="py-8 bg-secondary/30 sticky top-16 z-40 backdrop-blur-sm border-b">
+        <section className="py-8 bg-secondary/30 sticky top-16 z-40  border-b">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between max-w-4xl mx-auto">
               {steps.map((step, index) => (
@@ -356,7 +356,7 @@ export default function AnniversairesPage() {
                     }`}
                     onClick={() => setSelectedPackId(pack.id)}
                   >
-                    <div className="relative h-48 bg-gradient-to-br from-pink-500 to-purple-500">
+                    <div className="relative h-48 bg-gradient-to-br from-pink to-pink">
                       {pack.image_url && (
                         <Image
                           src={pack.image_url}
@@ -645,7 +645,7 @@ export default function AnniversairesPage() {
                       </div>
                     </div>
                     <Button
-                      className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90"
+                      className="w-full bg-gradient-to-r from-pink to-pink hover:opacity-90"
                       size="lg"
                       onClick={handlePayment}
                       disabled={loading}
@@ -675,8 +675,8 @@ export default function AnniversairesPage() {
           {currentStep === 6 && orderCreated && (
             <div className="space-y-8">
               <div className="text-center mb-8">
-                <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-10 h-10 text-green-500" />
+                <div className="w-20 h-20 rounded-full bg-lime/10 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-10 h-10 text-lime" />
                 </div>
                 <h2 className="text-3xl font-black mb-2">Réservation Confirmée !</h2>
                 <p className="text-muted-foreground">Ton anniversaire est réservé 🎉</p>
@@ -726,7 +726,7 @@ export default function AnniversairesPage() {
                     </div>
                   </div>
 
-                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                  <div className="bg-teal/10 border border-teal/20 rounded-lg p-4">
                     <p className="text-sm">
                       📧 Un email de confirmation a été envoyé à <strong>{personalInfo.email}</strong>
                     </p>

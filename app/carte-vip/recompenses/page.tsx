@@ -33,17 +33,17 @@ export default async function RecompensesPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-zinc-950">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-6 py-32">
           <div className="mb-12">
-            <Link href="/carte-vip" className="text-cyan-400 hover:text-cyan-300 mb-4 inline-block">
+            <Link href="/carte-vip" className="text-teal hover:text-teal mb-4 inline-block">
               ← Retour au programme
             </Link>
             <div className="flex items-center justify-between">
-              <h1 className="text-4xl md:text-6xl font-black text-white">Récompenses</h1>
+              <h1 className="text-4xl md:text-6xl font-black text-ink">Récompenses</h1>
               <div className="text-right">
-                <p className="text-zinc-400 text-sm mb-1">Tes points</p>
-                <p className="text-4xl font-black text-cyan-400">{currentPoints}</p>
+                <p className="text-mute text-sm mb-1">Tes points</p>
+                <p className="text-4xl font-black text-teal">{currentPoints}</p>
               </div>
             </div>
           </div>
@@ -58,26 +58,26 @@ export default async function RecompensesPage() {
                 return (
                   <div
                     key={reward.id}
-                    className={`relative rounded-3xl overflow-hidden border ${
+                    className={`relative rounded-2xl overflow-hidden border ${
                       canAfford && !isOutOfStock
-                        ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/10 to-blue-500/10"
-                        : "border-zinc-800 bg-zinc-900"
+                        ? "border-teal/50 bg-gradient-to-br from-teal/10 to-teal/10"
+                        : "border-ink bg-card"
                     }`}
                   >
-                    <div className="relative h-52 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+                    <div className="relative h-52 bg-gradient-to-br from-paper-2 to-card flex items-center justify-center">
                       <div
                         className={`w-24 h-24 rounded-full bg-${typeInfo.color}-500/20 flex items-center justify-center`}
                       >
                         <typeInfo.icon className={`w-12 h-12 text-${typeInfo.color}-400`} />
                       </div>
                       {isOutOfStock && (
-                        <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                          <p className="text-white font-bold text-lg">Rupture de stock</p>
+                        <div className="absolute inset-0 bg-ink/70 flex items-center justify-center">
+                          <p className="text-paper font-bold text-lg">Rupture de stock</p>
                         </div>
                       )}
                       <div className="absolute top-4 left-4">
                         <div
-                          className={`bg-${typeInfo.color}-500/90 backdrop-blur text-white font-bold text-xs px-3 py-1 rounded-full`}
+                          className={`bg-${typeInfo.color}-500/90  text-ink font-bold text-xs px-3 py-1 rounded-full`}
                         >
                           {typeInfo.label}
                         </div>
@@ -85,23 +85,23 @@ export default async function RecompensesPage() {
                     </div>
 
                     <div className="p-6">
-                      <h3 className="text-2xl font-bold text-white mb-3">{reward.title}</h3>
-                      <p className="text-zinc-400 text-sm mb-4 leading-relaxed">{reward.description}</p>
+                      <h3 className="text-2xl font-bold text-ink mb-3">{reward.title}</h3>
+                      <p className="text-mute text-sm mb-4 leading-relaxed">{reward.description}</p>
 
                       {reward.available_quantity !== null && (
-                        <p className="text-xs text-zinc-500 mb-4">Stock: {reward.available_quantity} restants</p>
+                        <p className="text-xs text-mute mb-4">Stock: {reward.available_quantity} restants</p>
                       )}
 
                       {reward.valid_until && (
-                        <p className="text-xs text-zinc-500 mb-4">
+                        <p className="text-xs text-mute mb-4">
                           Valide jusqu'au {new Date(reward.valid_until).toLocaleDateString("fr-FR")}
                         </p>
                       )}
 
-                      <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+                      <div className="flex items-center justify-between pt-4 border-t border-ink">
                         <div className="flex items-center gap-2">
-                          <Trophy className="w-6 h-6 text-cyan-400" />
-                          <span className="text-cyan-400 font-black text-xl">{reward.points_cost} pts</span>
+                          <Trophy className="w-6 h-6 text-teal" />
+                          <span className="text-teal font-black text-xl">{reward.points_cost} pts</span>
                         </div>
 
                         <Button
@@ -109,8 +109,8 @@ export default async function RecompensesPage() {
                           disabled={!canAfford || isOutOfStock}
                           className={
                             canAfford && !isOutOfStock
-                              ? "bg-cyan-500 hover:bg-cyan-600 text-white border-0"
-                              : "bg-zinc-800 text-zinc-500 border-0"
+                              ? "bg-teal hover:bg-teal text-ink border-0"
+                              : "bg-card text-mute border-0"
                           }
                         >
                           <Link href={`/carte-vip/recompenses/${reward.id}`}>
@@ -129,9 +129,9 @@ export default async function RecompensesPage() {
             </div>
           ) : (
             <div className="text-center py-20">
-              <Gift className="w-20 h-20 text-zinc-700 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-white mb-4">Bientôt des récompenses</h3>
-              <p className="text-zinc-400">Nous préparons de superbes récompenses pour toi</p>
+              <Gift className="w-20 h-20 text-ink mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-ink mb-4">Bientôt des récompenses</h3>
+              <p className="text-mute">Nous préparons de superbes récompenses pour toi</p>
             </div>
           )}
         </div>

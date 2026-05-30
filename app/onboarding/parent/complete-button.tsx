@@ -46,7 +46,7 @@ export function ParentOnboardingCompleteButton() {
       type="button"
       onClick={handleClick}
       disabled={pending}
-      className="rounded-lg bg-purple-600 px-6 py-3 text-white font-medium shadow-sm hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed"
+      className="rounded-lg bg-pink px-6 py-3 text-ink font-medium shadow-sm hover:bg-pink disabled:opacity-60 disabled:cursor-not-allowed"
     >
       {pending ? "Enregistrement…" : "Continuer vers mon espace parent"}
     </button>

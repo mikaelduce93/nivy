@@ -131,74 +131,74 @@ export default function DJCandidaturePage() {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Informations personnelles */}
-            <Card className="p-8 bg-zinc-900 border-zinc-800">
+            <Card className="p-8 bg-card border-ink">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Mic2 className="w-6 h-6 text-orange-500" />
+                <Mic2 className="w-6 h-6 text-coral" />
                 Informations personnelles
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="fullName" className="text-zinc-300">Nom complet *</Label>
+                  <Label htmlFor="fullName" className="text-ink-2">Nom complet *</Label>
                   <Input
                     id="fullName"
                     value={formData.fullName}
                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="stageName" className="text-zinc-300">Nom de scène (DJ Name) *</Label>
+                  <Label htmlFor="stageName" className="text-ink-2">Nom de scène (DJ Name) *</Label>
                   <Input
                     id="stageName"
                     value={formData.stageName}
                     onChange={(e) => setFormData({...formData, stageName: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     placeholder="DJ Shadow"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-zinc-300">Email *</Label>
+                  <Label htmlFor="email" className="text-ink-2">Email *</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-zinc-300">Téléphone *</Label>
+                  <Label htmlFor="phone" className="text-ink-2">Téléphone *</Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="city" className="text-zinc-300">Ville *</Label>
+                  <Label htmlFor="city" className="text-ink-2">Ville *</Label>
                   <Input
                     id="city"
                     value={formData.city}
                     onChange={(e) => setFormData({...formData, city: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="age" className="text-zinc-300">Âge *</Label>
+                  <Label htmlFor="age" className="text-ink-2">Âge *</Label>
                   <Input
                     id="age"
                     type="number"
                     value={formData.age}
                     onChange={(e) => setFormData({...formData, age: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     required
                   />
                 </div>
@@ -206,17 +206,17 @@ export default function DJCandidaturePage() {
             </Card>
 
             {/* Expérience */}
-            <Card className="p-8 bg-zinc-900 border-zinc-800">
+            <Card className="p-8 bg-card border-ink">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Music className="w-6 h-6 text-orange-500" />
+                <Music className="w-6 h-6 text-coral" />
                 Expérience et style
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <Label className="text-zinc-300">Années d'expérience *</Label>
+                  <Label className="text-ink-2">Années d'expérience *</Label>
                   <Select value={formData.experienceYears} onValueChange={(value) => setFormData({...formData, experienceYears: value})}>
-                    <SelectTrigger className="bg-zinc-950 border-zinc-800 text-white mt-2">
+                    <SelectTrigger className="bg-background border-ink text-ink mt-2">
                       <SelectValue placeholder="Sélectionne" />
                     </SelectTrigger>
                     <SelectContent>
@@ -228,18 +228,18 @@ export default function DJCandidaturePage() {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-zinc-300">Taille moyenne du public</Label>
+                  <Label className="text-ink-2">Taille moyenne du public</Label>
                   <Input
                     value={formData.crowdSize}
                     onChange={(e) => setFormData({...formData, crowdSize: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     placeholder="50-200 personnes"
                   />
                 </div>
               </div>
 
               <div className="mb-6">
-                <Label className="text-zinc-300 mb-4 block">Styles musicaux *</Label>
+                <Label className="text-ink-2 mb-4 block">Styles musicaux *</Label>
                 <div className="grid md:grid-cols-3 gap-4">
                   {['House', 'Techno', 'Hip-Hop', 'RnB', 'EDM', 'Pop', 'Afrobeat', 'Reggaeton', 'Trap'].map((style) => (
                     <div key={style} className="flex items-center gap-2">
@@ -248,14 +248,14 @@ export default function DJCandidaturePage() {
                         checked={formData.djStyle.includes(style)}
                         onCheckedChange={() => toggleDjStyle(style)}
                       />
-                      <label htmlFor={style} className="text-sm text-zinc-300 cursor-pointer">{style}</label>
+                      <label htmlFor={style} className="text-sm text-ink-2 cursor-pointer">{style}</label>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="mb-6">
-                <Label className="text-zinc-300 mb-4 block">Types d'événements</Label>
+                <Label className="text-ink-2 mb-4 block">Types d'événements</Label>
                 <div className="grid md:grid-cols-2 gap-4">
                   {['Soirées privées', 'Clubs', 'Festivals', 'Mariages', 'Événements corporatifs', 'Bars/Lounges'].map((type) => (
                     <div key={type} className="flex items-center gap-2">
@@ -264,29 +264,29 @@ export default function DJCandidaturePage() {
                         checked={formData.eventTypes.includes(type)}
                         onCheckedChange={() => toggleEventType(type)}
                       />
-                      <label htmlFor={type} className="text-sm text-zinc-300 cursor-pointer">{type}</label>
+                      <label htmlFor={type} className="text-sm text-ink-2 cursor-pointer">{type}</label>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <Label className="text-zinc-300">Équipement</Label>
+                <Label className="text-ink-2">Équipement</Label>
                 <Textarea
                   value={formData.equipment}
                   onChange={(e) => setFormData({...formData, equipment: e.target.value})}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                  className="bg-background border-ink text-ink mt-2"
                   rows={3}
                   placeholder="Pioneer DDJ-400, Laptop avec Rekordbox, enceintes JBL..."
                 />
               </div>
 
               <div className="mt-6">
-                <Label className="text-zinc-300">Lieux/événements où tu as mixé</Label>
+                <Label className="text-ink-2">Lieux/événements où tu as mixé</Label>
                 <Textarea
                   value={formData.previousVenues}
                   onChange={(e) => setFormData({...formData, previousVenues: e.target.value})}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                  className="bg-background border-ink text-ink mt-2"
                   rows={3}
                   placeholder="Club XYZ à Casablanca, Festival Music Fest 2024..."
                 />
@@ -294,17 +294,17 @@ export default function DJCandidaturePage() {
             </Card>
 
             {/* Musique et mixes */}
-            <Card className="p-8 bg-zinc-900 border-zinc-800">
+            <Card className="p-8 bg-card border-ink">
               <h2 className="text-2xl font-bold mb-6">Tes mixes et productions</h2>
-              <p className="text-sm text-zinc-400 mb-6">
+              <p className="text-sm text-mute mb-6">
                 Partage tes meilleures productions pour qu'on puisse évaluer ton style
               </p>
 
               <div className="space-y-6">
                 {/* Spotify */}
-                <div className="p-6 bg-green-500/5 border border-green-500/20 rounded-xl">
-                  <Label className="text-zinc-300 flex items-center gap-2 mb-3">
-                    <Music className="w-5 h-5 text-green-500" />
+                <div className="p-6 bg-lime/5 border border-lime/20 rounded-xl">
+                  <Label className="text-ink-2 flex items-center gap-2 mb-3">
+                    <Music className="w-5 h-5 text-lime" />
                     Lien Spotify (Recommandé) 🎵
                   </Label>
                   <div className="flex gap-2">
@@ -312,7 +312,7 @@ export default function DJCandidaturePage() {
                       type="url"
                       value={formData.spotifyUrl}
                       onChange={(e) => handleSpotifyUrl(e.target.value)}
-                      className="bg-zinc-950 border-zinc-700 text-white"
+                      className="bg-background border-ink text-ink"
                       placeholder="https://open.spotify.com/track/..."
                     />
                     {formData.spotifyUrl && (
@@ -321,20 +321,20 @@ export default function DJCandidaturePage() {
                         variant="outline"
                         size="icon"
                         onClick={() => window.open(formData.spotifyUrl, '_blank')}
-                        className="border-zinc-700"
+                        className="border-ink"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </Button>
                     )}
                   </div>
-                  <p className="text-xs text-zinc-500 mt-2">
+                  <p className="text-xs text-mute mt-2">
                     Colle le lien de ta playlist, album ou track Spotify
                   </p>
 
                   {/* Lecteur Spotify intégré */}
                   {spotifyEmbed && (
                     <div className="mt-4">
-                      <p className="text-sm text-green-400 mb-2">Aperçu de ton mix :</p>
+                      <p className="text-sm text-lime mb-2">Aperçu de ton mix :</p>
                       <iframe
                         title="Aperçu Spotify"
                         src={spotifyEmbed}
@@ -351,36 +351,36 @@ export default function DJCandidaturePage() {
 
                 {/* SoundCloud */}
                 <div>
-                  <Label className="text-zinc-300">Lien SoundCloud</Label>
+                  <Label className="text-ink-2">Lien SoundCloud</Label>
                   <Input
                     type="url"
                     value={formData.soundcloudUrl}
                     onChange={(e) => setFormData({...formData, soundcloudUrl: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     placeholder="https://soundcloud.com/..."
                   />
                 </div>
 
                 {/* Mixcloud */}
                 <div>
-                  <Label className="text-zinc-300">Lien Mixcloud</Label>
+                  <Label className="text-ink-2">Lien Mixcloud</Label>
                   <Input
                     type="url"
                     value={formData.mixcloudUrl}
                     onChange={(e) => setFormData({...formData, mixcloudUrl: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     placeholder="https://mixcloud.com/..."
                   />
                 </div>
 
                 {/* YouTube */}
                 <div>
-                  <Label className="text-zinc-300">Lien YouTube (Live sets, vidéos)</Label>
+                  <Label className="text-ink-2">Lien YouTube (Live sets, vidéos)</Label>
                   <Input
                     type="url"
                     value={formData.youtubeUrl}
                     onChange={(e) => setFormData({...formData, youtubeUrl: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     placeholder="https://youtube.com/..."
                   />
                 </div>
@@ -388,25 +388,25 @@ export default function DJCandidaturePage() {
             </Card>
 
             {/* Réseaux sociaux */}
-            <Card className="p-8 bg-zinc-900 border-zinc-800">
+            <Card className="p-8 bg-card border-ink">
               <h2 className="text-2xl font-bold mb-6">Réseaux sociaux</h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <Label className="text-zinc-300">Instagram</Label>
+                  <Label className="text-ink-2">Instagram</Label>
                   <Input
                     value={formData.instagram}
                     onChange={(e) => setFormData({...formData, instagram: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     placeholder="@tonpseudo"
                   />
                 </div>
                 <div>
-                  <Label className="text-zinc-300">TikTok</Label>
+                  <Label className="text-ink-2">TikTok</Label>
                   <Input
                     value={formData.tiktok}
                     onChange={(e) => setFormData({...formData, tiktok: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     placeholder="@tonpseudo"
                   />
                 </div>
@@ -414,16 +414,16 @@ export default function DJCandidaturePage() {
             </Card>
 
             {/* Disponibilité */}
-            <Card className="p-8 bg-zinc-900 border-zinc-800">
+            <Card className="p-8 bg-card border-ink">
               <h2 className="text-2xl font-bold mb-6">Disponibilité</h2>
 
               <div className="space-y-6">
                 <div>
-                  <Label className="text-zinc-300">Disponibilités *</Label>
+                  <Label className="text-ink-2">Disponibilités *</Label>
                   <Textarea
                     value={formData.availability}
                     onChange={(e) => setFormData({...formData, availability: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     rows={3}
                     placeholder="Weekends, vacances scolaires, soirées en semaine..."
                     required
@@ -436,7 +436,7 @@ export default function DJCandidaturePage() {
                     checked={formData.willingToTravel}
                     onCheckedChange={(checked) => setFormData({...formData, willingToTravel: checked as boolean})}
                   />
-                  <label htmlFor="willingToTravel" className="text-zinc-300 cursor-pointer">
+                  <label htmlFor="willingToTravel" className="text-ink-2 cursor-pointer">
                     Je suis prêt(e) à me déplacer dans d'autres villes
                   </label>
                 </div>
@@ -444,27 +444,27 @@ export default function DJCandidaturePage() {
             </Card>
 
             {/* Motivation */}
-            <Card className="p-8 bg-zinc-900 border-zinc-800">
+            <Card className="p-8 bg-card border-ink">
               <h2 className="text-2xl font-bold mb-6">Motivation</h2>
 
               <div className="space-y-6">
                 <div>
-                  <Label className="text-zinc-300">Pourquoi veux-tu rejoindre Teen Party? *</Label>
+                  <Label className="text-ink-2">Pourquoi veux-tu rejoindre Teen Party? *</Label>
                   <Textarea
                     value={formData.whyTeenParty}
                     onChange={(e) => setFormData({...formData, whyTeenParty: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     rows={4}
                     required
                   />
                 </div>
 
                 <div>
-                  <Label className="text-zinc-300">Décris ton set idéal pour une soirée Teen Party *</Label>
+                  <Label className="text-ink-2">Décris ton set idéal pour une soirée Teen Party *</Label>
                   <Textarea
                     value={formData.setDescription}
                     onChange={(e) => setFormData({...formData, setDescription: e.target.value})}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-2"
+                    className="bg-background border-ink text-ink mt-2"
                     rows={4}
                     placeholder="Je commence avec des vibes chill pour chauffer la piste, puis j'monte progressivement..."
                     required
@@ -475,14 +475,14 @@ export default function DJCandidaturePage() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-lg py-7"
+              className="w-full bg-gradient-to-r from-coral to-destructive hover:from-coral hover:to-destructive text-ink text-lg py-7"
               disabled={isProcessing}
             >
               <Send className="w-5 h-5 mr-2" />
               {isProcessing ? "Envoi..." : "Envoyer ma candidature"}
             </Button>
 
-            <p className="text-center text-sm text-zinc-500">
+            <p className="text-center text-sm text-mute">
               Nous examinerons ta candidature et te contacterons sous 48h
             </p>
           </form>

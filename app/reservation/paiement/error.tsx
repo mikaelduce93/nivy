@@ -23,8 +23,8 @@ export default function ReservationPaiementError({ error, reset }: ErrorProps) {
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
       <div className="relative z-10 max-w-lg w-full text-center">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-          <AlertTriangle className="w-10 h-10 text-red-400" aria-hidden="true" />
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/10 border border-destructive/20 flex items-center justify-center">
+          <AlertTriangle className="w-10 h-10 text-destructive" aria-hidden="true" />
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-black mb-3 tracking-tight">
@@ -36,7 +36,7 @@ export default function ReservationPaiementError({ error, reset }: ErrorProps) {
         </p>
 
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-6">
-          <ShieldCheck className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+          <ShieldCheck className="w-4 h-4 text-lime" aria-hidden="true" />
           <span>Paiement sécurisé — aucune transaction validée</span>
         </div>
 

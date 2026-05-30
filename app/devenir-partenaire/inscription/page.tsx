@@ -36,9 +36,9 @@ const PARTNER_TYPES: PartnerTypeOption[] = [
       'Support multi-magasins'
     ],
     examples: ['Vêtements', 'Électronique', 'Cosmétiques', 'Librairies', 'Sport'],
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500/30'
+    color: 'text-teal',
+    bgColor: 'bg-teal/10',
+    borderColor: 'border-teal/30'
   },
   {
     type: 'venue',
@@ -52,9 +52,9 @@ const PARTNER_TYPES: PartnerTypeOption[] = [
       'Visibilité maximale'
     ],
     examples: ['Restaurants', 'Cafés', 'Salles de fête', 'Lounges', 'Terrasses'],
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/10',
-    borderColor: 'border-purple-500/30'
+    color: 'text-pink',
+    bgColor: 'bg-pink/10',
+    borderColor: 'border-pink/30'
   },
   {
     type: 'club',
@@ -68,9 +68,9 @@ const PARTNER_TYPES: PartnerTypeOption[] = [
       'Paiements récurrents'
     ],
     examples: ['Fitness', 'Sports', 'Danse', 'Arts martiaux', 'Yoga'],
-    color: 'text-green-400',
-    bgColor: 'bg-green-500/10',
-    borderColor: 'border-green-500/30'
+    color: 'text-lime',
+    bgColor: 'bg-lime/10',
+    borderColor: 'border-lime/30'
   },
   {
     type: 'education',
@@ -84,9 +84,9 @@ const PARTNER_TYPES: PartnerTypeOption[] = [
       'Certificats automatiques'
     ],
     examples: ['Langues', 'Musique', 'Arts', 'Informatique', 'Soutien scolaire'],
-    color: 'text-yellow-400',
-    bgColor: 'bg-yellow-500/10',
-    borderColor: 'border-yellow-500/30'
+    color: 'text-gold',
+    bgColor: 'bg-gold/10',
+    borderColor: 'border-gold/30'
   }
 ]
 
@@ -120,15 +120,15 @@ export default function PartnerRegistrationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-ink text-ink">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-teal via-pink to-pink bg-clip-text text-transparent">
             Devenez Partenaire
           </h1>
-          <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+          <p className="text-xl text-mute max-w-2xl mx-auto">
             Rejoignez notre réseau de partenaires et accédez à une communauté dynamique de jeunes avec des cartes VIP
           </p>
         </div>
@@ -136,29 +136,29 @@ export default function PartnerRegistrationPage() {
         {step === 'selection' ? (
           <div>
             {/* Info Banner */}
-            <Card className="mb-8 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-cyan-500/30">
+            <Card className="mb-8 bg-gradient-to-r from-teal/10 to-pink/10 border-teal/30">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <Info className="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1" />
+                  <Info className="w-6 h-6 text-teal flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
+                    <h3 className="text-lg font-semibold text-ink mb-2">
                       Comment ça marche ?
                     </h3>
-                    <ul className="space-y-2 text-zinc-300">
+                    <ul className="space-y-2 text-ink-2">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        <CheckCircle2 className="w-4 h-4 text-lime" />
                         Choisissez votre type de partenariat
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        <CheckCircle2 className="w-4 h-4 text-lime" />
                         Complétez le formulaire d'inscription
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        <CheckCircle2 className="w-4 h-4 text-lime" />
                         Notre équipe valide votre demande sous 48h
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        <CheckCircle2 className="w-4 h-4 text-lime" />
                         Configurez vos offres et commencez à attirer des clients
                       </li>
                     </ul>
@@ -172,7 +172,7 @@ export default function PartnerRegistrationPage() {
               {PARTNER_TYPES.map((partnerType) => (
                 <Card
                   key={partnerType.type}
-                  className={`bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-all cursor-pointer group h-full ${partnerType.bgColor} hover:scale-[1.02]`}
+                  className={`bg-card border-ink hover:border-ink transition-all cursor-pointer group h-full ${partnerType.bgColor} hover:scale-[1.02]`}
                   onClick={() => handleTypeSelect(partnerType.type as PartnerType)}
                 >
                   <CardHeader>
@@ -184,10 +184,10 @@ export default function PartnerRegistrationPage() {
                       </div>
                       <ArrowRight className={`w-6 h-6 ${partnerType.color} group-hover:translate-x-1 transition-transform`} />
                     </div>
-                    <CardTitle className="text-white text-2xl">
+                    <CardTitle className="text-ink text-2xl">
                       {partnerType.title}
                     </CardTitle>
-                    <CardDescription className="text-zinc-400 text-base">
+                    <CardDescription className="text-mute text-base">
                       {partnerType.description}
                     </CardDescription>
                   </CardHeader>
@@ -195,12 +195,12 @@ export default function PartnerRegistrationPage() {
 
                     {/* Benefits */}
                     <div>
-                      <h4 className="text-sm font-semibold text-zinc-300 mb-2">
+                      <h4 className="text-sm font-semibold text-ink-2 mb-2">
                         Avantages :
                       </h4>
                       <ul className="space-y-1">
                         {partnerType.benefits.map((benefit, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-zinc-400">
+                          <li key={i} className="flex items-start gap-2 text-sm text-mute">
                             <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${partnerType.color}`} />
                             <span>{benefit}</span>
                           </li>
@@ -210,7 +210,7 @@ export default function PartnerRegistrationPage() {
 
                     {/* Examples */}
                     <div>
-                      <h4 className="text-sm font-semibold text-zinc-300 mb-2">
+                      <h4 className="text-sm font-semibold text-ink-2 mb-2">
                         Exemples :
                       </h4>
                       <div className="flex flex-wrap gap-2">
@@ -227,10 +227,10 @@ export default function PartnerRegistrationPage() {
 
                     <Button
                       className={`w-full mt-4 bg-gradient-to-r ${
-                        partnerType.type === 'retail' ? 'from-blue-600 to-blue-500' :
-                        partnerType.type === 'venue' ? 'from-purple-600 to-purple-500' :
-                        partnerType.type === 'club' ? 'from-green-600 to-green-500' :
-                        'from-yellow-600 to-yellow-500'
+                        partnerType.type === 'retail' ? 'from-teal to-teal' :
+                        partnerType.type === 'venue' ? 'from-pink to-pink' :
+                        partnerType.type === 'club' ? 'from-lime to-lime' :
+                        'from-gold to-gold'
                       } hover:opacity-90 transition-opacity`}
                     >
                       Commencer l'inscription
@@ -243,12 +243,12 @@ export default function PartnerRegistrationPage() {
 
             {/* Contact Support */}
             <div className="mt-12 text-center">
-              <Card className="bg-zinc-900 border-zinc-800 inline-block">
+              <Card className="bg-card border-ink inline-block">
                 <CardContent className="p-6">
-                  <p className="text-zinc-400 mb-2">
+                  <p className="text-mute mb-2">
                     Vous avez des questions sur le programme de partenariat ?
                   </p>
-                  <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10">
+                  <Button variant="outline" className="border-teal/50 text-teal hover:bg-teal/10">
                     Contactez notre équipe
                   </Button>
                 </CardContent>

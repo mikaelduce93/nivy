@@ -74,14 +74,14 @@ export default async function ProspectKycPage({ searchParams }: Props) {
     .maybeSingle()
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-ink text-ink">
       <div className="container mx-auto px-4 py-12 max-w-2xl space-y-8">
         <header className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-500/30">
-            <ShieldCheck className="w-7 h-7 text-blue-400" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal/20 border border-teal/30">
+            <ShieldCheck className="w-7 h-7 text-teal" />
           </div>
           <h1 className="text-3xl font-black">Dépôt KYC</h1>
-          <p className="text-zinc-400 text-sm">
+          <p className="text-mute text-sm">
             {partner?.company_name ? `Pour ${partner.company_name}.` : null} Bucket privé,
             jamais d&apos;URL publique. Lien à usage unique.
           </p>
@@ -91,7 +91,7 @@ export default async function ProspectKycPage({ searchParams }: Props) {
           <ProspectKycUploader token={token} />
         </Suspense>
 
-        <p className="text-xs text-center text-zinc-500">
+        <p className="text-xs text-center text-mute">
           Besoin d&apos;aide ?{" "}
           <Link href="/aide" className="underline">Contacter l&apos;équipe Nivy</Link>
         </p>
@@ -102,16 +102,16 @@ export default async function ProspectKycPage({ searchParams }: Props) {
 
 function SafeError({ title, body }: { title: string; body: string }) {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-ink text-ink">
       <div className="container mx-auto px-4 py-12 max-w-xl space-y-6">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-card border-ink">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-amber-400" />
+            <CardTitle className="text-ink flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-gold" />
               {title}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-zinc-300 space-y-3">
+          <CardContent className="text-sm text-ink-2 space-y-3">
             <p>{body}</p>
             <Button asChild variant="outline">
               <Link href="/aide">Contacter le support</Link>

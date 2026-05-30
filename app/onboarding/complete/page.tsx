@@ -47,7 +47,7 @@ export default async function OnboardingCompletePage() {
     .eq("id", userInfo.profileId)
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 p-4 sm:p-6 lg:p-10 flex items-center justify-center">
+    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-pink/5 p-4 sm:p-6 lg:p-10 flex items-center justify-center">
       <OnboardingCompleteClient redirectTo="/teen" />
     </main>
   )

@@ -63,7 +63,7 @@ export default async function PaymentPage({
               </div>
               <div className="flex-1 h-0.5 bg-primary max-w-24" />
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white flex items-center justify-center font-bold shadow-lg shadow-cyan-500/50">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal to-teal text-ink flex items-center justify-center font-bold shadow-lg shadow-teal/50">
                   2
                 </div>
                 <span className="hidden md:inline font-semibold text-foreground">Paiement</span>
@@ -101,7 +101,7 @@ export default async function PaymentPage({
           />
 
           <div className="mt-6">
-            <h1 className="text-4xl md:text-6xl font-black text-white mb-8">Paiement sécurisé</h1>
+            <h1 className="text-4xl md:text-6xl font-black text-ink mb-8">Paiement sécurisé</h1>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
@@ -109,26 +109,26 @@ export default async function PaymentPage({
               <PaymentMethodSelector bookingId={bookingId} />
 
               <div className="grid grid-cols-3 gap-4 mt-6">
-                <Card className="p-4 bg-zinc-900/50 border-zinc-800 text-center">
-                  <Shield className="w-6 h-6 text-green-500 mx-auto mb-2" />
+                <Card className="p-4 bg-card border-ink text-center">
+                  <Shield className="w-6 h-6 text-lime mx-auto mb-2" />
                   <p className="text-xs font-semibold">SSL Sécurisé</p>
                 </Card>
-                <Card className="p-4 bg-zinc-900/50 border-zinc-800 text-center">
-                  <CreditCard className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+                <Card className="p-4 bg-card border-ink text-center">
+                  <CreditCard className="w-6 h-6 text-teal mx-auto mb-2" />
                   <p className="text-xs font-semibold">CMI</p>
                 </Card>
-                <Card className="p-4 bg-zinc-900/50 border-zinc-800 text-center">
-                  <Smartphone className="w-6 h-6 text-purple-500 mx-auto mb-2" />
+                <Card className="p-4 bg-card border-ink text-center">
+                  <Smartphone className="w-6 h-6 text-pink mx-auto mb-2" />
                   <p className="text-xs font-semibold">Mobile Money</p>
                 </Card>
               </div>
 
-              <Card className="p-6 bg-zinc-900/50 border-zinc-800 mt-6">
+              <Card className="p-6 bg-card border-ink mt-6">
                 <div className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-green-500 mt-0.5" />
+                  <Check className="w-5 h-5 text-lime mt-0.5" />
                   <div>
                     <p className="font-semibold text-sm mb-1">Paiement 100% sécurisé</p>
-                    <p className="text-xs text-zinc-400">
+                    <p className="text-xs text-mute">
                       Vos données sont cryptées et sécurisées. Nous ne conservons jamais vos informations bancaires.
                     </p>
                   </div>
@@ -140,10 +140,10 @@ export default async function PaymentPage({
               <Card className="p-8">
                 <h2 className="text-2xl font-bold mb-6">Récapitulatif de commande</h2>
 
-                <div className="space-y-4 mb-6 pb-6 border-b border-zinc-800">
+                <div className="space-y-4 mb-6 pb-6 border-b border-ink">
                   <div>
                     <h3 className="font-bold text-lg mb-1">{booking.events?.title}</h3>
-                    <p className="text-sm text-zinc-400">
+                    <p className="text-sm text-mute">
                       {new Date(booking.events?.event_date).toLocaleDateString("fr-FR", {
                         weekday: "long",
                         day: "numeric",
@@ -153,27 +153,27 @@ export default async function PaymentPage({
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Référence</span>
+                    <span className="text-mute">Référence</span>
                     <span className="font-mono font-semibold">{booking.booking_reference}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Nombre de billets</span>
+                    <span className="text-mute">Nombre de billets</span>
                     <span className="font-semibold">1</span>
                   </div>
 
-                  <div className="pt-4 space-y-2 border-t border-zinc-800">
+                  <div className="pt-4 space-y-2 border-t border-ink">
                     <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">Billet {booking.ticket_type}</span>
+                      <span className="text-mute">Billet {booking.ticket_type}</span>
                       <span>{booking.total_amount + (booking.discount_amount || 0)} DH</span>
                     </div>
                     {booking.discount_amount > 0 && (
-                      <div className="flex justify-between text-sm text-green-500">
+                      <div className="flex justify-between text-sm text-lime">
                         <span>Réduction AEFE (-10%)</span>
                         <span>-{booking.discount_amount} DH</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-sm text-zinc-400 pt-2 border-t border-zinc-800">
+                    <div className="flex justify-between text-sm text-mute pt-2 border-t border-ink">
                       <span>Frais de service</span>
                       <span>0 DH</span>
                     </div>
@@ -182,10 +182,10 @@ export default async function PaymentPage({
 
                 <div className="flex justify-between items-center mb-8">
                   <span className="text-xl font-bold">Total à payer</span>
-                  <span className="text-3xl font-black text-cyan-400">{booking.total_amount} DH</span>
+                  <span className="text-3xl font-black text-teal">{booking.total_amount} DH</span>
                 </div>
 
-                <div className="space-y-3 text-xs text-zinc-500">
+                <div className="space-y-3 text-xs text-mute">
                   <p>✓ Confirmation immédiate par email</p>
                   <p>✓ Billets électroniques avec QR code</p>
                   <p>✓ Annulation gratuite jusqu'à 48h avant</p>

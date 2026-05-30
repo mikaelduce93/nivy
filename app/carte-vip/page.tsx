@@ -54,8 +54,8 @@ export default function CarteVIPPage() {
       icon: '🥉',
       price: 'Gratuit',
       priceAmount: 0,
-      color: 'from-gray-400 to-gray-600',
-      borderColor: 'border-gray-400',
+      color: 'from-paper-2 to-card',
+      borderColor: 'border-line',
       benefits: [
         '1 point par 10dh dépensés',
         '-10% sur anniversaires',
@@ -71,8 +71,8 @@ export default function CarteVIPPage() {
       price: '299dh',
       priceAmount: 299,
       popular: true,
-      color: 'from-yellow-400 to-yellow-600',
-      borderColor: 'border-yellow-500',
+      color: 'from-gold to-gold',
+      borderColor: 'border-gold',
       benefits: [
         '2 points par 10dh dépensés',
         '-20% sur tous événements',
@@ -90,8 +90,8 @@ export default function CarteVIPPage() {
       icon: '💎',
       price: '599dh',
       priceAmount: 599,
-      color: 'from-purple-500 to-pink-500',
-      borderColor: 'border-purple-500',
+      color: 'from-pink to-pink',
+      borderColor: 'border-pink',
       benefits: [
         '3 points par 10dh dépensés',
         '-30% sur tous événements',
@@ -128,23 +128,23 @@ export default function CarteVIPPage() {
   return (
     <div className="min-h-screen bg-background pt-20">
       {/* Hero Section */}
-      <section className="relative py-16 px-4 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500">
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="container mx-auto relative z-10 text-center text-white">
-          <Badge className="mb-4 bg-white/20 text-white border-white/40">
+      <section className="relative py-16 px-4 bg-gradient-to-br from-pink via-pink to-coral">
+        <div className="absolute inset-0 bg-ink/20" />
+        <div className="container mx-auto relative z-10 text-center text-ink">
+          <Badge className="mb-4 bg-paper-2 text-ink border-ink">
             <Sparkles className="w-3 h-3 mr-1" />
             Programme Fidélité
           </Badge>
           <h1 className="text-5xl font-bold mb-6">Carte TEEN PARTY VIP</h1>
-          <p className="text-xl max-w-2xl mx-auto mb-8 text-white/90">
+          <p className="text-xl max-w-2xl mx-auto mb-8 text-ink/90">
             Profite de réductions exclusives, accumule des points à chaque événement et débloque des avantages incroyables
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" className="bg-white text-purple-600 hover:bg-white/90">
+            <Button size="lg" className="bg-white text-pink hover:bg-paper-2">
               Devenir membre VIP
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+            <Button size="lg" variant="outline" className="border-ink text-ink hover:bg-paper-2">
               <Calculator className="mr-2 w-4 h-4" />
               Calculer mes économies
             </Button>
@@ -166,11 +166,11 @@ export default function CarteVIPPage() {
             {tiers.map((tier) => (
               <Card 
                 key={tier.id}
-                className={`relative ${tier.popular ? 'ring-2 ring-yellow-500 shadow-lg' : ''} ${tier.borderColor} border-2 hover:shadow-xl transition-shadow cursor-pointer`}
+                className={`relative ${tier.popular ? 'ring-2 ring-gold shadow-lg' : ''} ${tier.borderColor} border-2 hover:shadow-xl transition-shadow cursor-pointer`}
                 onClick={() => setSelectedTier(tier.id)}
               >
                 {tier.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-black">
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-ink">
                     Plus populaire
                   </Badge>
                 )}
@@ -188,7 +188,7 @@ export default function CarteVIPPage() {
                   <ul className="space-y-3">
                     {tier.benefits.map((benefit, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                        <Check className="w-5 h-5 text-lime shrink-0 mt-0.5" />
                         <span className="text-sm">{benefit}</span>
                       </li>
                     ))}
@@ -246,7 +246,7 @@ export default function CarteVIPPage() {
                 {tiers.map((tier) => (
                   <div key={tier.id} className="text-center p-4 rounded-lg bg-muted">
                     <p className="text-sm text-muted-foreground mb-1">{tier.name}</p>
-                    <p className="text-2xl font-bold text-green-600">
+                    <p className="text-2xl font-bold text-lime">
                       +{Math.round(savings.yearly[tier.id as keyof typeof savings.yearly])}dh
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">économisés par an</p>
@@ -321,13 +321,13 @@ export default function CarteVIPPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-4 bg-gradient-to-r from-purple-600 to-pink-600">
-        <div className="container mx-auto text-center text-white">
+      <section className="py-16 px-4 bg-gradient-to-r from-pink to-pink">
+        <div className="container mx-auto text-center text-ink">
           <h2 className="text-3xl font-bold mb-4">Prêt à devenir VIP ?</h2>
-          <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
+          <p className="text-xl mb-8 text-ink/90 max-w-2xl mx-auto">
             Rejoins le programme fidélité Teen Party et profite d'avantages exclusifs dès maintenant
           </p>
-          <Button size="lg" className="bg-white text-purple-600 hover:bg-white/90" asChild>
+          <Button size="lg" className="bg-white text-pink hover:bg-paper-2" asChild>
             <Link href="/carte-vip/souscrire">
               Souscrire maintenant
               <ArrowRight className="ml-2 w-4 h-4" />

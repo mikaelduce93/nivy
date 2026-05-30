@@ -41,7 +41,7 @@ export function BuyButton({ listingId }: { listingId: string }) {
         <option value="school">À l&apos;école</option>
         <option value="venue_partner">Partenaire Nivy</option>
       </select>
-      <button onClick={buy} disabled={busy} className="rounded bg-blue-600 text-white px-4 py-2 disabled:opacity-50">
+      <button onClick={buy} disabled={busy} className="rounded bg-teal text-ink px-4 py-2 disabled:opacity-50">
         {busy ? "Achat en cours…" : "Acheter"}
       </button>
       {msg && <p className="text-sm">{msg}</p>}

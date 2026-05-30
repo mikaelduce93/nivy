@@ -175,7 +175,7 @@ export default function EventDetailPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-ink/50 text-ink hover:bg-ink/70"
                   onClick={prevGalleryImage}
                   aria-label="Image précédente"
                 >
@@ -184,7 +184,7 @@ export default function EventDetailPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-ink/50 text-ink hover:bg-ink/70"
                   onClick={nextGalleryImage}
                   aria-label="Image suivante"
                 >
@@ -196,7 +196,7 @@ export default function EventDetailPage() {
                       key={idx}
                       onClick={() => setSelectedGalleryIndex(idx)}
                       className={`w-2 h-2 rounded-full transition-all ${
-                        idx === selectedGalleryIndex ? 'bg-white w-8' : 'bg-white/50'
+                        idx === selectedGalleryIndex ? 'bg-white w-8' : 'bg-paper-2'
                       }`}
                     />
                   ))}
@@ -209,26 +209,26 @@ export default function EventDetailPage() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-wrap gap-2 mb-4">
                 {event.has_aefe_discount && (
-                  <Badge className="bg-blue-500 text-white">AEFE -20%</Badge>
+                  <Badge className="bg-teal text-ink">AEFE -20%</Badge>
                 )}
                 {isAlmostFull && (
-                  <Badge className="bg-orange-500 text-white">Presque complet</Badge>
+                  <Badge className="bg-coral text-ink">Presque complet</Badge>
                 )}
                 {isFull && (
-                  <Badge className="bg-red-500 text-white">COMPLET</Badge>
+                  <Badge className="bg-destructive text-ink">COMPLET</Badge>
                 )}
                 <Badge variant="outline">{event.type}</Badge>
                 {event.current_attendees > 50 && (
-                  <Badge className="bg-purple-500 text-white">
+                  <Badge className="bg-pink text-ink">
                     <TrendingUp className="w-3 h-3 mr-1" />
                     Populaire
                   </Badge>
                 )}
               </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 text-white">{event.title}</h1>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 text-ink">{event.title}</h1>
               
-              <div className="flex flex-wrap gap-6 text-white/90">
+              <div className="flex flex-wrap gap-6 text-ink/90">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   <span className="font-medium">
@@ -248,7 +248,7 @@ export default function EventDetailPage() {
                   <span className="font-medium">{event.age_min}-{event.age_max} ans</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  <Star className="w-5 h-5 fill-gold text-gold" />
                   <span className="font-medium">{avisAverage}/5 ({reviews.length} avis)</span>
                 </div>
               </div>
@@ -312,7 +312,7 @@ export default function EventDetailPage() {
                     Avis ({reviews.length})
                   </h2>
                   <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <Star className="w-5 h-5 fill-gold text-gold" />
                     <span className="text-2xl font-bold">{avisAverage}</span>
                     <span className="text-muted-foreground">/5</span>
                   </div>
@@ -338,8 +338,8 @@ export default function EventDetailPage() {
                                   key={i}
                                   className={`w-4 h-4 ${
                                     i < review.rating
-                                      ? 'fill-yellow-400 text-yellow-400'
-                                      : 'text-gray-300'
+                                      ? 'fill-gold text-gold'
+                                      : 'text-ink-2'
                                   }`}
                                 />
                               ))}
@@ -480,7 +480,7 @@ export default function EventDetailPage() {
                   <div className="flex items-baseline gap-2 mb-3">
                     <p className="text-4xl font-black text-primary">{event.price} DH</p>
                     {event.has_aefe_discount && (
-                      <Badge className="bg-blue-500 text-white">-20% AEFE</Badge>
+                      <Badge className="bg-teal text-ink">-20% AEFE</Badge>
                     )}
                   </div>
                   {/* VIP Pricing Display */}
@@ -560,7 +560,7 @@ export default function EventDetailPage() {
                       onClick={() => setIsFavorite(!isFavorite)}
                       className="w-full"
                     >
-                      <Heart className={`w-4 h-4 mr-2 ${isFavorite ? "fill-current text-red-500" : ""}`} />
+                      <Heart className={`w-4 h-4 mr-2 ${isFavorite ? "fill-current text-destructive" : ""}`} />
                       Favoris
                     </Button>
                     <Button variant="outline" onClick={shareEvent} className="w-full">

@@ -125,7 +125,7 @@ export default function HomePage() {
               </div>
 
               {/* Live badge */}
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg" role="status" aria-live="polite">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-card/60  border border-border/50 shadow-lg" role="status" aria-live="polite">
                 <div className="w-2.5 h-2.5 rounded-full bg-gen-z-lime animate-pulse shadow-[0_0_12px_var(--gen-z-lime)]" aria-hidden="true" />
                 <span className="text-sm font-bold text-gen-z-lime tabular-nums">{t("hero.live", { days: countdown.days, hours: countdown.hours })}</span>
               </div>
@@ -180,7 +180,7 @@ export default function HomePage() {
 
             {/* Right Content - Avatar Dashboard Preview */}
             <div className="relative hidden lg:block">
-              <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-cyan-500/20 rounded-full blur-3xl animate-spin-slow" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-pink/20 to-teal/20 rounded-full blur-3xl animate-spin-slow" />
               {/* Brand mascot — floats above the dashboard card as the visual anchor.
                   Pointer-events disabled so it never intercepts dashboard clicks. */}
               <div
@@ -189,16 +189,16 @@ export default function HomePage() {
               >
                 <PandaMascot state="celebrating" size="lg" />
               </div>
-              <GlassCard intensity="high" className="relative p-8 border-white/10">
+              <GlassCard intensity="high" className="relative p-8 border-ink">
                 <div className="text-center mb-6">
-                  <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-wider text-zinc-400 mb-2" aria-label="Aperçu non personnalisé">
+                  <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-paper-2 border border-ink text-[10px] uppercase tracking-wider text-mute mb-2" aria-label="Aperçu non personnalisé">
                     Aperçu
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-1">Ton Tableau de Bord</h3>
-                  <p className="text-zinc-400 text-sm">Voici à quoi ressemble ton dashboard une fois inscrit</p>
+                  <h3 className="text-xl font-bold text-ink mb-1">Ton Tableau de Bord</h3>
+                  <p className="text-mute text-sm">Voici à quoi ressemble ton dashboard une fois inscrit</p>
                 </div>
                 <AvatarDashboard user={previewUser} stats={previewStats} />
-                <p className="mt-6 text-center text-xs text-zinc-500">
+                <p className="mt-6 text-center text-xs text-mute">
                   Crée ton profil pour gagner du XP réel et débloquer tes piliers.
                 </p>
               </GlassCard>
@@ -220,13 +220,13 @@ export default function HomePage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* GLOW UP (vitality) */}
               <GlassCard neon="vitality" variant="hover" className="p-6 relative group overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-green-500/20 transition-all" />
-                <div className="w-14 h-14 rounded-2xl bg-green-500/20 flex items-center justify-center mb-6 text-green-400 border border-green-500/30">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-lime/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-lime/20 transition-all" />
+                <div className="w-14 h-14 rounded-2xl bg-lime/20 flex items-center justify-center mb-6 text-lime border border-lime/30">
                   <Heart className="w-7 h-7" />
                 </div>
                 <div className="text-3xl mb-1" aria-hidden="true">💚</div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-green-400 transition-colors">Glow Up</h3>
-                <p className="text-zinc-400 text-sm mb-6">Sport, santé, fitness. Bouge pour gagner du XP.</p>
+                <h3 className="text-2xl font-black text-ink mb-2 group-hover:text-lime transition-colors">Glow Up</h3>
+                <p className="text-mute text-sm mb-6">Sport, santé, fitness. Bouge pour gagner du XP.</p>
                 <Link href="/clubs?category=sport">
                   <NeonButton variant="vitality" size="sm" className="w-full">Explorer Sport</NeonButton>
                 </Link>
@@ -234,13 +234,13 @@ export default function HomePage() {
 
               {/* BIG BRAIN (intellect) */}
               <GlassCard neon="intellect" variant="hover" className="p-6 relative group overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-cyan-500/20 transition-all" />
-                <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6 text-cyan-400 border border-cyan-500/30">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-teal/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-teal/20 transition-all" />
+                <div className="w-14 h-14 rounded-2xl bg-teal/20 flex items-center justify-center mb-6 text-teal border border-teal/30">
                   <Sparkles className="w-7 h-7" />
                 </div>
                 <div className="text-3xl mb-1" aria-hidden="true">🧠</div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-cyan-400 transition-colors">Big Brain</h3>
-                <p className="text-zinc-400 text-sm mb-6">Études, tech, focus timer. Muscle ton cerveau.</p>
+                <h3 className="text-2xl font-black text-ink mb-2 group-hover:text-teal transition-colors">Big Brain</h3>
+                <p className="text-mute text-sm mb-6">Études, tech, focus timer. Muscle ton cerveau.</p>
                 <Link href="/clubs?category=tech">
                   <NeonButton variant="intellect" size="sm" className="w-full">Explorer Tech</NeonButton>
                 </Link>
@@ -248,27 +248,27 @@ export default function HomePage() {
 
               {/* SELF-EXPRESS (creativity) */}
               <GlassCard neon="creativity" variant="hover" className="p-6 relative group overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-orange-500/20 transition-all" />
-                <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-6 text-orange-400 border border-orange-500/30">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-coral/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-coral/20 transition-all" />
+                <div className="w-14 h-14 rounded-2xl bg-coral/20 flex items-center justify-center mb-6 text-coral border border-coral/30">
                   <Palette className="w-7 h-7" />
                 </div>
                 <div className="text-3xl mb-1" aria-hidden="true">🎨</div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-orange-400 transition-colors">Self-Express</h3>
-                <p className="text-zinc-400 text-sm mb-6">Arts, musique, danse, théâtre. Exprime ton talent.</p>
+                <h3 className="text-2xl font-black text-ink mb-2 group-hover:text-coral transition-colors">Self-Express</h3>
+                <p className="text-mute text-sm mb-6">Arts, musique, danse, théâtre. Exprime ton talent.</p>
                 <Link href="/clubs?category=art">
-                  <NeonButton variant="default" size="sm" className="w-full bg-orange-600 hover:bg-orange-500 border border-orange-400/50 shadow-[0_0_15px_-5px_orange]">Explorer Arts</NeonButton>
+                  <NeonButton variant="default" size="sm" className="w-full bg-coral hover:bg-coral border border-coral/50 shadow-[0_0_15px_-5px_orange]">Explorer Arts</NeonButton>
                 </Link>
               </GlassCard>
 
               {/* MAIN CHARACTER (party) */}
               <GlassCard neon="party" variant="hover" className="p-6 relative group overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-purple-500/20 transition-all" />
-                <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400 border border-purple-500/30">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-pink/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-pink/20 transition-all" />
+                <div className="w-14 h-14 rounded-2xl bg-pink/20 flex items-center justify-center mb-6 text-pink border border-pink/30">
                   <PartyPopper className="w-7 h-7" />
                 </div>
                 <div className="text-3xl mb-1" aria-hidden="true">🎉</div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-purple-400 transition-colors">Main Character</h3>
-                <p className="text-zinc-400 text-sm mb-6">Soirées, social, crews. 100% Fun, 0% Alcool.</p>
+                <h3 className="text-2xl font-black text-ink mb-2 group-hover:text-pink transition-colors">Main Character</h3>
+                <p className="text-mute text-sm mb-6">Soirées, social, crews. 100% Fun, 0% Alcool.</p>
                 <Link href="/agenda">
                   <NeonButton variant="party" size="sm" className="w-full">Voir Soirées</NeonButton>
                 </Link>
@@ -278,15 +278,15 @@ export default function HomePage() {
         </section>
 
         {/* EVENTS SECTION */}
-        <section className="py-20 px-6 bg-black/40 backdrop-blur-sm border-y border-white/5" aria-labelledby="events-heading">
+        <section className="py-20 px-6 bg-black/40  border-y border-ink" aria-labelledby="events-heading">
           <div className="container mx-auto max-w-7xl">
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
               <div>
-                <h2 id="events-heading" className="text-4xl font-black text-white mb-2 text-balance">Events à venir</h2>
-                <p className="text-zinc-400">Ne rate pas les prochaines dates</p>
+                <h2 id="events-heading" className="text-4xl font-black text-ink mb-2 text-balance">Events à venir</h2>
+                <p className="text-mute">Ne rate pas les prochaines dates</p>
               </div>
               <Link href="/agenda">
-                <NeonButton variant="outline" className="border-white/10 text-zinc-300 hover:text-white">
+                <NeonButton variant="outline" className="border-ink text-ink-2 hover:text-ink">
                   Tout voir <ArrowRight className="w-4 h-4 ml-2" />
                 </NeonButton>
               </Link>
@@ -295,7 +295,7 @@ export default function HomePage() {
             {eventsError && (
               <div
                 role="alert"
-                className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+                className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
               >
                 {eventsError}
               </div>
@@ -308,7 +308,7 @@ export default function HomePage() {
                   <div
                     key={`evt-skel-${i}`}
                     aria-hidden="true"
-                    className="h-72 rounded-3xl bg-white/5 border border-white/5 motion-safe:animate-pulse"
+                    className="h-72 rounded-2xl bg-paper-2 border border-ink motion-safe:animate-pulse"
                   />
                 ))
               ) : upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event) => (
@@ -321,13 +321,13 @@ export default function HomePage() {
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                    <div className="absolute top-4 right-4 bg-purple-600 text-white font-bold px-3 py-1 rounded-lg text-xs shadow-lg shadow-purple-500/50">
+                    <div className="absolute top-4 right-4 bg-pink text-ink font-bold px-3 py-1 rounded-lg text-xs shadow-lg shadow-pink/50">
                       J-{Math.max(0, Math.floor((new Date(event.event_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))}
                     </div>
                     <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="text-xl font-bold text-white leading-tight mb-1">{event.title}</h3>
-                      <div className="flex items-center text-xs text-zinc-300">
-                        <MapPin className="w-3 h-3 mr-1 text-purple-400" />
+                      <h3 className="text-xl font-bold text-ink leading-tight mb-1">{event.title}</h3>
+                      <div className="flex items-center text-xs text-ink-2">
+                        <MapPin className="w-3 h-3 mr-1 text-pink" />
                         {event.city || "Casablanca"}
                       </div>
                     </div>
@@ -339,7 +339,7 @@ export default function HomePage() {
                   </div>
                 </GlassCard>
               )) : (
-                <div className="col-span-3 py-12 text-center text-zinc-500 bg-white/5 rounded-3xl border border-white/5">
+                <div className="col-span-3 py-12 text-center text-mute bg-paper-2 rounded-2xl border border-ink">
                   <Calendar className="w-12 h-12 mx-auto mb-4 opacity-20" />
                   <p>Aucun événement programmé pour le moment.</p>
                 </div>

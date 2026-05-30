@@ -28,31 +28,31 @@ export default async function AmbassadorApplicationPage() {
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-8">Candidature Ambassadeur</h1>
+          <h1 className="text-4xl md:text-6xl font-black text-ink mb-8">Candidature Ambassadeur</h1>
 
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-3xl p-8 border border-zinc-800 mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Ce qu'on recherche</h2>
+          <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-8 border border-ink mb-8">
+            <h2 className="text-2xl font-bold text-ink mb-6">Ce qu'on recherche</h2>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span className="text-zinc-400">
+                <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
+                <span className="text-mute">
                   Adolescents actifs sur les réseaux sociaux (Instagram, TikTok, Snapchat)
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span className="text-zinc-400">Passionnés par l'animation, la musique, ou l'événementiel</span>
+                <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
+                <span className="text-mute">Passionnés par l'animation, la musique, ou l'événementiel</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span className="text-zinc-400">Bonne communication et capacité à promouvoir nos événements</span>
+                <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
+                <span className="text-mute">Bonne communication et capacité à promouvoir nos événements</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span className="text-zinc-400">Disponibilité pour participer aux événements</span>
+                <CheckCircle2 className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
+                <span className="text-mute">Disponibilité pour participer aux événements</span>
               </li>
             </ul>
           </div>
