@@ -4,6 +4,7 @@ import * as React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import canvasConfetti from 'canvas-confetti'
 import { cn } from '@/lib/utils'
+import { usePrefersReducedMotion } from '@/lib/hooks/use-reduced-motion'
 
 /* ==========================================================================
    CONFETTI SYSTEM - Silicon Valley Grade Celebration Effects
@@ -57,13 +58,14 @@ export function Confetti({
 }: ConfettiProps) {
   const colors = Array.isArray(palette) ? palette : CONFETTI_PALETTES[palette]
   // Fallback no-motion : rond lime ✓ (cohérent « check succès » charte).
+  const prefersReducedMotion = usePrefersReducedMotion()
   const [ack, setAck] = React.useState(false)
 
   React.useEffect(() => {
     if (!trigger || typeof window === 'undefined') return
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) {
+    // Court-circuit reduced-motion : aucun canvas-confetti, juste l'accusé ✓.
+    if (prefersReducedMotion) {
       setAck(true)
       const hide = window.setTimeout(() => setAck(false), 700)
       return () => window.clearTimeout(hide)
@@ -110,7 +112,7 @@ export function Confetti({
       cancelled = true
       window.clearTimeout(cleanup)
     }
-  }, [trigger, duration, numberOfPieces, recycle, gravity, wind, colors])
+  }, [trigger, duration, numberOfPieces, recycle, gravity, wind, colors, prefersReducedMotion])
 
   if (!ack) return null
   return (

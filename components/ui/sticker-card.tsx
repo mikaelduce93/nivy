@@ -25,7 +25,7 @@ const VARIANTS: Record<NonNullable<StickerCardProps["variant"]>, string> = {
   default: "shadow-stkr-md",
   panel: "shadow-stkr-sm",
   hover:
-    "shadow-stkr-md cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0",
+    "shadow-stkr-md cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
 }
 
 /**

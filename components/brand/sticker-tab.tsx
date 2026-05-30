@@ -79,7 +79,7 @@ export function StickerTabs({
             tabIndex={active ? 0 : -1}
             onClick={() => onValueChange(t.value)}
             className={cn(
-              "inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-all",
+              "inline-flex min-h-touch items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-all",
               active
                 ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
                 : "text-mute hover:text-ink",

@@ -25,18 +25,20 @@ export function CheckRound({ className, label, id, ...props }: CheckRoundProps) 
     <CheckboxPrimitive.Root
       id={cid}
       data-slot="check-round"
+      // tap-target : zone cliquable ≥44×44 (a11y) ; le rond visuel reste à 24px.
       className={cn(
-        "peer grid size-6 shrink-0 place-items-center rounded-full border-2 border-ink bg-white outline-none transition-colors",
-        "data-[state=checked]:border-lime data-[state=checked]:bg-lime",
+        "peer group tap-target grid shrink-0 place-items-center rounded-full outline-none",
         "focus-visible:ring-[3px] focus-visible:ring-pink/40",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}
     >
-      <CheckboxPrimitive.Indicator className="text-ink">
-        <Check className="size-3.5" strokeWidth={4} />
-      </CheckboxPrimitive.Indicator>
+      <span className="grid size-6 place-items-center rounded-full border-2 border-ink bg-white transition-colors group-data-[state=checked]:border-lime group-data-[state=checked]:bg-lime">
+        <CheckboxPrimitive.Indicator className="text-ink">
+          <Check className="size-3.5" strokeWidth={4} />
+        </CheckboxPrimitive.Indicator>
+      </span>
     </CheckboxPrimitive.Root>
   )
 
