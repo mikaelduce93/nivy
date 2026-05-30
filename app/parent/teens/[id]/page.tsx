@@ -1,8 +1,10 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { notFound, redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { StatHero, NivCoach } from "@/components/brand"
 import {
   ArrowLeft,
   Coins,
@@ -59,10 +61,10 @@ export default async function ParentTeenDetailPage({
   }
 
   const xpForNext = ((teen.level || 1) + 1) * 100
-  const progressPct = Math.min(((teen.total_xp || 0) / xpForNext) * 100, 100)
+  const progressRatio = Math.min((teen.total_xp || 0) / xpForNext, 1)
 
   return (
-    <div className="min-h-screen bg-background text-ink">
+    <div className="min-h-screen bg-paper text-ink">
       <div className="container mx-auto px-6 py-32 max-w-5xl">
         <Button asChild variant="ghost" className="mb-6 text-mute hover:text-ink">
           <Link href="/parent/teens">
@@ -71,113 +73,114 @@ export default async function ParentTeenDetailPage({
           </Link>
         </Button>
 
-        <div className="flex flex-col md:flex-row md:items-center gap-6 mb-10">
-          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-black text-3xl">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8">
+          <div className="h-20 w-20 shrink-0 rounded-2xl border-2 border-ink bg-paper-2 flex items-center justify-center font-display text-3xl font-extrabold text-ink">
             {teen.teen_name?.charAt(0) || "?"}
           </div>
           <div>
-            <h1 className="text-3xl font-black">{teen.teen_name}</h1>
-            <p className="text-mute flex items-center gap-2 mt-1">
-              <span>{teen.title_icon} {teen.title}</span>
-              <span className="text-mute">•</span>
-              <span className="text-lime">Niveau {teen.level}</span>
+            <p className="eyebrow tracking-[0.16em] text-teal">
+              Niveau {teen.level} · {teen.title_icon} {teen.title}
             </p>
+            <h1 className="mt-1 font-display text-4xl font-extrabold">{teen.teen_name}</h1>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-card border-ink">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gold/15 flex items-center justify-center">
-                  <Coins className="h-5 w-5 text-gold" />
-                </div>
-                <div>
-                  <p className="text-xs text-mute">Coins</p>
-                  <p className="text-xl font-black text-gold">{teen.total_coins ?? 0}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-ink">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-teal/15 flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-teal" />
-                </div>
-                <div>
-                  <p className="text-xs text-mute">XP</p>
-                  <p className="text-xl font-black text-teal">{teen.total_xp ?? 0}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-ink">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-pink/15 flex items-center justify-center">
-                  <Trophy className="h-5 w-5 text-pink" />
-                </div>
-                <div>
-                  <p className="text-xs text-mute">Badges</p>
-                  <p className="text-xl font-black text-pink">{teen.badges_count ?? 0}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-ink">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-lime/15 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-lime" />
-                </div>
-                <div>
-                  <p className="text-xs text-mute">Niveau</p>
-                  <p className="text-xl font-black text-lime">{teen.level ?? 1}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Solde Coins — hero */}
+        <div className="grid gap-6 lg:grid-cols-2 mb-8">
+          <StatHero
+            eyebrow="Solde coins"
+            value={teen.total_coins ?? 0}
+            tone="coral"
+            size="lg"
+            icon={<Coins className="h-6 w-6" aria-hidden="true" />}
+            meta={
+              <span className="font-mono">
+                <span className="text-coral">⊙</span> disponibles pour {teen.teen_name}
+              </span>
+            }
+          />
+          <NivCoach
+            mood="proud"
+            message={`${teen.teen_name} est niveau ${teen.level} avec ${teen.total_xp ?? 0} XP — encore ${Math.max(xpForNext - (teen.total_xp ?? 0), 0)} XP avant le niveau ${(teen.level || 1) + 1}. Beau parcours !`}
+          />
         </div>
 
-        <Card className="bg-card border-ink mb-8">
-          <CardHeader>
-            <CardTitle className="text-base text-ink">Progression vers niveau {(teen.level || 1) + 1}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between text-xs text-mute mb-2">
-              <span>{teen.total_xp ?? 0} XP</span>
-              <span>{xpForNext} XP requis</span>
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow tracking-[0.14em] text-mute">Coins</p>
+              <Coins className="h-5 w-5 text-coral" aria-hidden="true" />
             </div>
-            <div className="h-2 bg-card rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-lime to-teal rounded-full transition-all"
-                style={{ width: `${progressPct}%` }}
-              />
+            <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-coral">
+              <span className="mr-0.5 align-baseline font-mono text-base">⊙</span>
+              {teen.total_coins ?? 0}
+            </p>
+          </StickerCard>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow tracking-[0.14em] text-mute">XP</p>
+              <Sparkles className="h-5 w-5 text-gold" aria-hidden="true" />
             </div>
-          </CardContent>
-        </Card>
+            <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-gold">
+              {teen.total_xp ?? 0}
+            </p>
+          </StickerCard>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow tracking-[0.14em] text-mute">Badges</p>
+              <Trophy className="h-5 w-5 text-pink" aria-hidden="true" />
+            </div>
+            <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-pink">
+              {teen.badges_count ?? 0}
+            </p>
+          </StickerCard>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow tracking-[0.14em] text-mute">Niveau</p>
+              <TrendingUp className="h-5 w-5 text-teal" aria-hidden="true" />
+            </div>
+            <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-teal">
+              {teen.level ?? 1}
+            </p>
+          </StickerCard>
+        </div>
 
+        {/* Progression */}
+        <StickerCard className="p-6 mb-8">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-display text-base font-extrabold text-ink">
+              Progression vers niveau {(teen.level || 1) + 1}
+            </h2>
+            <span className="font-mono text-xs font-bold uppercase tracking-wide text-gold">
+              {teen.total_xp ?? 0} / {xpForNext} XP
+            </span>
+          </div>
+          <SegmentedProgress steps={10} current={Math.round(progressRatio * 10)} />
+        </StickerCard>
+
+        {/* Actions */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <Button asChild variant="outline" className="border-ink hover:border-teal/50 hover:text-teal justify-start">
+          <Button asChild className="justify-start">
             <Link href={`/parent/topup?teen=${teen.teen_id}`}>
               <CreditCard className="h-4 w-4 mr-2" />
               Recharger les coins
             </Link>
           </Button>
-          <Button asChild variant="outline" className="border-ink hover:border-pink/50 hover:text-pink justify-start">
+          <Button asChild variant="outline" className="justify-start">
             <Link href={`/parent/budget?teen=${teen.teen_id}`}>
               <Shield className="h-4 w-4 mr-2" />
               Limites &amp; budget
             </Link>
           </Button>
-          <Button asChild variant="outline" className="border-ink hover:border-lime/50 hover:text-lime justify-start">
+          <Button asChild variant="outline" className="justify-start">
             <Link href={`/parent/allowances?teen=${teen.teen_id}`}>
               <Coins className="h-4 w-4 mr-2" />
               Allowances
             </Link>
           </Button>
-          <Button asChild variant="outline" className="border-ink hover:border-gold/50 hover:text-gold justify-start">
+          <Button asChild variant="outline" className="justify-start">
             <Link href={`/parent/chores?teen=${teen.teen_id}`}>
               <Trophy className="h-4 w-4 mr-2" />
               Chores

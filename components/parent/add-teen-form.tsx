@@ -2,16 +2,16 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
+import { FieldInput } from "@/components/ui/field-input"
+import { CheckRound } from "@/components/ui/check-round"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
 import {
   Loader2,
   Search,
   UserCheck,
   AlertCircle,
-  Check,
   UserPlus,
   Sparkles,
   Calendar,
@@ -19,7 +19,6 @@ import {
   Upload,
   Camera,
   X,
-  GraduationCap,
   Heart,
   Phone,
   Shield,
@@ -527,9 +526,9 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     <div className="space-y-6">
       {/* Search Input */}
       <div className="space-y-2">
-        <Label className="text-ink-2">Email ou Code du Teen</Label>
+        <Label className="eyebrow tracking-[0.16em]">Email ou code du teen</Label>
         <div className="flex gap-2">
-          <Input
+          <FieldInput
             type="text"
             value={searchQuery}
             onChange={(e) => {
@@ -538,13 +537,13 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               setFoundTeen(null)
             }}
             placeholder="exemple@email.com ou CODE123"
-            className="bg-card border-ink text-ink placeholder:text-mute"
+            containerClassName="flex-1"
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <Button
+            variant="pink"
             onClick={handleSearch}
             disabled={searchLoading}
-            className="bg-lime hover:bg-lime text-ink"
           >
             {searchLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -554,7 +553,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           </Button>
         </div>
         <p className="text-xs text-mute">
-          Le teen peut trouver son code dans ses paramètres de compte
+          Le teen trouve son code dans les paramètres de son compte.
         </p>
       </div>
 
@@ -568,29 +567,30 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
       {/* Found Teen */}
       {foundTeen && (
-        <div className="p-6 bg-card border border-lime/30 rounded-xl">
+        <div className="rounded-2xl border-2 border-ink bg-white p-6 shadow-stkr-sm">
           <div className="flex items-center gap-4 mb-4">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-black text-2xl">
+            <div className="h-16 w-16 rounded-2xl border-2 border-ink bg-paper-2 flex items-center justify-center font-display text-2xl font-extrabold text-ink">
               {foundTeen.avatar || foundTeen.full_name?.charAt(0) || "?"}
             </div>
             <div>
-              <h3 className="text-xl font-bold text-ink">{foundTeen.full_name}</h3>
+              <h3 className="font-display text-xl font-extrabold text-ink">{foundTeen.full_name}</h3>
               <p className="text-sm text-mute">{foundTeen.email}</p>
               {foundTeen.username && (
-                <p className="text-xs text-lime">@{foundTeen.username}</p>
+                <p className="font-mono text-xs text-lime">@{foundTeen.username}</p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2 p-3 bg-lime/10 rounded-lg mb-4">
+          <div className="flex items-center gap-2 rounded-xl border-2 border-lime bg-lime/15 p-3 mb-4">
             <UserCheck className="h-5 w-5 text-lime" />
-            <span className="text-sm text-lime">Compte Teen vérifié</span>
+            <span className="text-sm font-medium text-ink-2">Compte teen vérifié</span>
           </div>
 
           <Button
+            variant="pink"
             onClick={handleLink}
             disabled={loading}
-            className="w-full bg-lime hover:bg-lime text-ink"
+            className="w-full"
           >
             {loading ? (
               <>
@@ -606,7 +606,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           </Button>
 
           <p className="text-xs text-mute text-center mt-3">
-            Le teen devra accepter cette demande depuis son compte
+            Le teen devra accepter cette demande depuis son compte.
           </p>
         </div>
       )}
@@ -614,38 +614,40 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
       {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-ink" />
+          <div className="w-full border-t-2 border-line" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-mute">ou créer un nouveau compte</span>
+        <div className="relative flex justify-center">
+          <span className="bg-white px-2 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-mute">
+            ou créer un nouveau compte
+          </span>
         </div>
       </div>
 
       {/* Create New Teen Account */}
       {!showCreateForm ? (
-        <div className="p-4 bg-card rounded-xl border border-ink">
+        <div className="rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm">
           <p className="text-sm text-mute mb-3">
-            Votre teen n'a pas encore de compte ? Créez-en un pour lui.
+            Ton ado n'a pas encore de compte ? Crées-en un pour lui.
           </p>
           <Button
             variant="outline"
-            className="w-full border-lime/50 text-lime hover:bg-lime/10"
+            className="w-full"
             onClick={() => setShowCreateForm(true)}
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            Créer un compte Teen
+            Créer un compte teen
           </Button>
         </div>
       ) : (
-        <form onSubmit={handleCreateTeen} className="space-y-6 p-6 bg-card rounded-xl border border-ink">
+        <form onSubmit={handleCreateTeen} className="space-y-6 rounded-2xl border-2 border-ink bg-white p-6 shadow-stkr-sm">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-5 w-5 text-lime" />
-            <h3 className="text-lg font-bold text-ink">Nouveau compte Teen</h3>
+            <h3 className="font-display text-lg font-extrabold text-ink">Nouveau compte teen</h3>
           </div>
 
           {/* Photo Upload */}
           <div className="space-y-3">
-            <Label className="text-ink-2 flex items-center gap-2">
+            <Label className="eyebrow tracking-[0.16em] flex items-center gap-2">
               <Camera className="h-4 w-4" />
               Photo de profil
             </Label>
@@ -653,7 +655,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               {/* Preview */}
               <div className="relative">
                 {newTeen.avatarUrl ? (
-                  <div className="relative h-20 w-20 rounded-full overflow-hidden">
+                  <div className="relative h-20 w-20 rounded-2xl border-2 border-ink overflow-hidden">
                     <Image
                       src={newTeen.avatarUrl}
                       alt="Avatar preview"
@@ -663,13 +665,13 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                     <button
                       type="button"
                       onClick={removeAvatar}
-                      className="absolute -top-1 -right-1 h-6 w-6 bg-destructive rounded-full flex items-center justify-center"
+                      className="absolute -top-1 -right-1 h-6 w-6 bg-destructive rounded-full flex items-center justify-center border-2 border-ink"
                     >
                       <X className="h-3 w-3 text-ink" />
                     </button>
                   </div>
                 ) : (
-                  <div className="h-20 w-20 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-3xl">
+                  <div className="h-20 w-20 rounded-2xl border-2 border-ink bg-paper-2 flex items-center justify-center text-3xl">
                     {newTeen.avatar}
                   </div>
                 )}
@@ -689,7 +691,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingAvatar}
-                  className="w-full border-ink text-ink-2"
+                  className="w-full"
                 >
                   {uploadingAvatar ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -706,17 +708,17 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           {/* Avatar Emoji Selection (shown if no photo) */}
           {!newTeen.avatarUrl && (
             <div className="space-y-2">
-              <Label className="text-ink-2">Ou choisir un avatar</Label>
+              <Label className="eyebrow tracking-[0.16em]">Ou choisir un avatar</Label>
               <div className="grid grid-cols-8 gap-2">
                 {avatarOptions.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => updateNewTeen("avatar", emoji)}
-                    className={`h-10 w-10 rounded-lg text-xl flex items-center justify-center transition-all ${
+                    className={`h-10 w-10 rounded-lg text-xl flex items-center justify-center border-2 transition-all ${
                       newTeen.avatar === emoji
-                        ? "bg-lime/30 border-2 border-lime scale-110"
-                        : "bg-muted border border-ink hover:border-line"
+                        ? "bg-lime/20 border-ink"
+                        : "bg-paper-2 border-line hover:border-ink"
                     }`}
                   >
                     {emoji}
@@ -728,134 +730,92 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
           {/* First Name & Last Name */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-ink-2">Prénom *</Label>
-              <Input
-                value={newTeen.firstName}
-                onChange={(e) => updateNewTeen("firstName", e.target.value)}
-                placeholder="Prénom"
-                className="bg-card border-ink text-ink placeholder:text-mute"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-ink-2">Nom *</Label>
-              <Input
-                value={newTeen.lastName}
-                onChange={(e) => updateNewTeen("lastName", e.target.value)}
-                placeholder="Nom"
-                className="bg-card border-ink text-ink placeholder:text-mute"
-                required
-              />
-            </div>
+            <FieldInput
+              label="Prénom *"
+              value={newTeen.firstName}
+              onChange={(e) => updateNewTeen("firstName", e.target.value)}
+              placeholder="Prénom"
+              required
+            />
+            <FieldInput
+              label="Nom *"
+              value={newTeen.lastName}
+              onChange={(e) => updateNewTeen("lastName", e.target.value)}
+              placeholder="Nom"
+              required
+            />
           </div>
 
           {/* Pseudo with async validation */}
-          <div className="space-y-2">
-            <Label className="text-ink-2">Pseudo (public) *</Label>
-            <div className="relative">
-              <Input
-                value={newTeen.pseudo}
-                onChange={(e) => updateNewTeen("pseudo", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-                placeholder="ex: gamer2010, sportif_casa"
-                className="bg-card border-ink text-ink placeholder:text-mute pr-10"
-                minLength={3}
-                maxLength={20}
-                required
-              />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                {checkingPseudo && <Loader2 className="h-4 w-4 animate-spin text-mute" />}
-                {!checkingPseudo && pseudoAvailable === true && (
-                  <Check className="h-4 w-4 text-lime" />
-                )}
-                {!checkingPseudo && pseudoAvailable === false && (
-                  <AlertCircle className="h-4 w-4 text-destructive" />
-                )}
-              </div>
-            </div>
-            {pseudoAvailable === true && (
-              <p className="text-xs text-lime flex items-center gap-1">
-                <Check className="h-3 w-3" /> Pseudo disponible
-              </p>
+          <div className="relative">
+            <FieldInput
+              label="Pseudo (public) *"
+              value={newTeen.pseudo}
+              onChange={(e) => updateNewTeen("pseudo", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+              placeholder="ex: gamer2010, sportif_casa"
+              minLength={3}
+              maxLength={20}
+              required
+              success={!checkingPseudo && pseudoAvailable === true}
+              error={
+                !checkingPseudo && pseudoAvailable === false
+                  ? "Pseudo déjà pris"
+                  : undefined
+              }
+              hint={
+                checkingPseudo
+                  ? "Vérification en cours…"
+                  : pseudoAvailable === true
+                    ? "Pseudo disponible"
+                    : "3-20 caractères, lettres, chiffres et underscore uniquement"
+              }
+            />
+            {checkingPseudo && (
+              <Loader2 className="absolute right-3 top-9 h-4 w-4 animate-spin text-mute" />
             )}
-            {pseudoAvailable === false && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" /> Pseudo déjà pris
-              </p>
-            )}
-            <p className="text-xs text-mute">
-              3-20 caractères, lettres, chiffres et underscore uniquement
-            </p>
           </div>
 
           {/* #48 — Teen login identity: email and/or phone (at least one). */}
-          <div className="space-y-2">
-            <Label className="text-ink-2">Email du teen</Label>
-            <Input
-              type="email"
-              inputMode="email"
-              autoComplete="off"
-              value={newTeen.teenEmail}
-              onChange={(e) => updateNewTeen("teenEmail", e.target.value)}
-              placeholder="ex: amine@email.com"
-              className="bg-card border-ink text-ink placeholder:text-mute"
-            />
-          </div>
+          <FieldInput
+            label="Email du teen"
+            type="email"
+            inputMode="email"
+            autoComplete="off"
+            value={newTeen.teenEmail}
+            onChange={(e) => updateNewTeen("teenEmail", e.target.value)}
+            placeholder="ex: amine@email.com"
+          />
 
-          <div className="space-y-2">
-            <Label className="text-ink-2">Téléphone du teen</Label>
-            <Input
-              type="tel"
-              inputMode="tel"
-              autoComplete="off"
-              value={newTeen.teenPhone}
-              onChange={(e) => updateNewTeen("teenPhone", e.target.value)}
-              placeholder="ex: 0612345678 ou +212612345678"
-              className="bg-card border-ink text-ink placeholder:text-mute"
-            />
-            <p className="text-xs text-mute">
-              Email ou téléphone requis (au moins l'un des deux). Le numéro est converti au format
-              international (+212…) automatiquement.
-            </p>
-          </div>
+          <FieldInput
+            label="Téléphone du teen"
+            type="tel"
+            inputMode="tel"
+            autoComplete="off"
+            value={newTeen.teenPhone}
+            onChange={(e) => updateNewTeen("teenPhone", e.target.value)}
+            placeholder="ex: 0612345678 ou +212612345678"
+            hint="Email ou téléphone requis (au moins l'un des deux). Le numéro est converti au format international (+212…) automatiquement."
+          />
 
           {/* Date of Birth */}
-          <div className="space-y-2">
-            <Label className="text-ink-2">Date de naissance *</Label>
-            <div className="relative">
-              <Input
-                type="date"
-                value={newTeen.dateOfBirth}
-                onChange={(e) => updateNewTeen("dateOfBirth", e.target.value)}
-                className="bg-card border-ink text-ink"
-                max={new Date(new Date().setFullYear(new Date().getFullYear() - 10)).toISOString().split("T")[0]}
-                min={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
-                required
-              />
-            </div>
-            {age !== null && (
-              <p className={`text-xs ${isAgeValid ? "text-lime" : "text-destructive"}`}>
-                {isAgeValid ? (
-                  <span className="flex items-center gap-1">
-                    <Check className="h-3 w-3" /> {age} ans
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" /> L'âge doit être entre 10 et 18 ans
-                  </span>
-                )}
-              </p>
-            )}
-          </div>
+          <FieldInput
+            label="Date de naissance *"
+            type="date"
+            value={newTeen.dateOfBirth}
+            onChange={(e) => updateNewTeen("dateOfBirth", e.target.value)}
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 10)).toISOString().split("T")[0]}
+            min={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
+            required
+            success={age !== null && isAgeValid}
+            error={age !== null && !isAgeValid ? "L'âge doit être entre 10 et 18 ans" : undefined}
+            hint={age !== null && isAgeValid ? `${age} ans` : undefined}
+          />
 
           {/* School Selector with Search */}
-          <div className="space-y-2">
-            <Label className="text-ink-2 flex items-center gap-2">
-              <GraduationCap className="h-4 w-4" />
-              École
-            </Label>
+          <div className="space-y-3">
             <div className="relative">
-              <Input
+              <FieldInput
+                label="École"
                 value={schoolSearch || newTeen.school}
                 onChange={(e) => {
                   setSchoolSearch(e.target.value)
@@ -863,12 +823,12 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                 }}
                 onFocus={() => setShowSchoolDropdown(true)}
                 placeholder="Rechercher une école..."
-                className="bg-card border-ink text-ink placeholder:text-mute pr-10"
+                className="pr-10"
               />
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-mute" />
+              <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-mute" />
 
               {showSchoolDropdown && filteredSchools.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-card border border-ink rounded-lg shadow-lg max-h-48 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white border-2 border-ink rounded-xl shadow-stkr-sm max-h-48 overflow-auto">
                   {filteredSchools.slice(0, 10).map((school) => (
                     <button
                       key={school.id}
@@ -878,7 +838,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                         setSchoolSearch("")
                         setShowSchoolDropdown(false)
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-ink hover:bg-muted flex items-center justify-between"
+                      className="w-full px-4 py-2 text-left text-sm text-ink hover:bg-ink hover:text-paper flex items-center justify-between"
                     >
                       <span>{school.name}</span>
                       {school.city && <span className="text-xs text-mute">{school.city}</span>}
@@ -889,25 +849,25 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             </div>
 
             {/* Grade Level */}
-            <select
-              value={newTeen.gradeLevel}
-              onChange={(e) => updateNewTeen("gradeLevel", e.target.value)}
-              className="w-full bg-card border border-ink text-ink rounded-lg px-3 py-2 text-sm mt-2"
+            <SelectSticker
+              label="Niveau scolaire"
+              placeholder="Niveau scolaire"
+              value={newTeen.gradeLevel || undefined}
+              onValueChange={(value) => updateNewTeen("gradeLevel", value)}
             >
-              <option value="">Niveau scolaire</option>
-              <option value="6eme">6ème</option>
-              <option value="5eme">5ème</option>
-              <option value="4eme">4ème</option>
-              <option value="3eme">3ème</option>
-              <option value="2nde">2nde</option>
-              <option value="1ere">1ère</option>
-              <option value="Terminale">Terminale</option>
-            </select>
+              <SelectStickerItem value="6eme">6ème</SelectStickerItem>
+              <SelectStickerItem value="5eme">5ème</SelectStickerItem>
+              <SelectStickerItem value="4eme">4ème</SelectStickerItem>
+              <SelectStickerItem value="3eme">3ème</SelectStickerItem>
+              <SelectStickerItem value="2nde">2nde</SelectStickerItem>
+              <SelectStickerItem value="1ere">1ère</SelectStickerItem>
+              <SelectStickerItem value="Terminale">Terminale</SelectStickerItem>
+            </SelectSticker>
           </div>
 
           {/* Profiles Multi-select (max 2) */}
           <div className="space-y-2">
-            <Label className="text-ink-2 flex items-center gap-2">
+            <Label className="eyebrow tracking-[0.16em] flex items-center gap-2">
               <Star className="h-4 w-4" />
               Profils (max 2)
             </Label>
@@ -917,14 +877,14 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   key={profile.id}
                   type="button"
                   onClick={() => toggleProfile(profile.id)}
-                  className={`p-3 rounded-lg border text-center transition-all ${
+                  className={`p-3 rounded-xl border-2 text-center transition-all ${
                     newTeen.profiles.includes(profile.id)
-                      ? "bg-lime/20 border-lime text-lime"
-                      : "bg-card border-ink text-ink-2 hover:border-ink"
+                      ? "bg-lime/20 border-ink text-ink shadow-stkr-sm"
+                      : "bg-white border-line text-ink-2 hover:border-ink"
                   }`}
                 >
                   <span className="text-2xl block mb-1">{profile.icon}</span>
-                  <span className="text-sm font-medium">{profile.label}</span>
+                  <span className="text-sm font-semibold">{profile.label}</span>
                   <span className="text-xs block text-mute">{profile.description}</span>
                 </button>
               ))}
@@ -933,7 +893,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
           {/* Interests Multi-select */}
           <div className="space-y-2">
-            <Label className="text-ink-2 flex items-center gap-2">
+            <Label className="eyebrow tracking-[0.16em] flex items-center gap-2">
               <Heart className="h-4 w-4" />
               Centres d'intérêt
             </Label>
@@ -946,17 +906,17 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               <div className="space-y-3">
                 {Object.entries(interestsByCategory).map(([category, categoryInterests]) => (
                   <div key={category}>
-                    <p className="text-xs text-mute mb-2">{category}</p>
+                    <p className="font-mono text-[11px] font-bold uppercase tracking-wide text-mute mb-2">{category}</p>
                     <div className="flex flex-wrap gap-2">
                       {categoryInterests.map((interest) => (
                         <button
                           key={interest.id}
                           type="button"
                           onClick={() => toggleInterest(interest.id)}
-                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                          className={`px-3 py-1.5 rounded-full text-sm border-2 transition-all ${
                             newTeen.interests.includes(interest.id)
-                              ? "bg-lime/20 border border-lime text-lime"
-                              : "bg-muted border border-ink text-ink-2 hover:border-line"
+                              ? "bg-lime/20 border-ink text-ink"
+                              : "bg-white border-line text-ink-2 hover:border-ink"
                           }`}
                         >
                           {interest.icon && <span className="mr-1">{interest.icon}</span>}
@@ -972,26 +932,23 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             )}
           </div>
 
-          {/* Photo Consent Switch */}
-          <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-ink">
-            <div className="flex items-start gap-3">
-              <Camera className="h-5 w-5 text-mute mt-0.5" />
-              <div>
-                <Label className="text-ink font-medium">Consentement photo</Label>
-                <p className="text-xs text-mute mt-0.5">
-                  J'autorise la prise de photos de mon enfant lors des événements
-                </p>
-              </div>
-            </div>
-            <Switch
-              checked={newTeen.photoConsent}
-              onCheckedChange={(checked) => updateNewTeen("photoConsent", checked)}
-            />
-          </div>
+          {/* Photo Consent */}
+          <CheckRound
+            checked={newTeen.photoConsent}
+            onCheckedChange={(checked) => updateNewTeen("photoConsent", checked === true)}
+            label={
+              <span>
+                <span className="block font-semibold text-ink">Consentement photo</span>
+                <span className="block text-xs text-mute mt-0.5">
+                  J'autorise la prise de photos de mon enfant lors des événements.
+                </span>
+              </span>
+            }
+          />
 
           {/* Exit Permission Rules */}
           <div className="space-y-2">
-            <Label className="text-ink-2 flex items-center gap-2">
+            <Label className="eyebrow tracking-[0.16em] flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Règles de sortie
             </Label>
@@ -999,78 +956,69 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               value={newTeen.exitRules}
               onChange={(e) => updateNewTeen("exitRules", e.target.value)}
               placeholder="Ex: Peut partir seul(e) après 18h / Doit être accompagné(e) par un adulte..."
-              className="bg-card border-ink text-ink placeholder:text-mute min-h-[80px]"
+              className="bg-card border-2 border-input text-ink placeholder:text-mute min-h-[80px] focus-visible:border-ink focus-visible:ring-0"
               maxLength={500}
             />
             <p className="text-xs text-mute">
-              Instructions spéciales pour la sortie de l'enfant
+              Instructions spéciales pour la sortie de l'enfant.
             </p>
           </div>
 
           {/* Emergency Contact */}
-          <div className="space-y-4 p-4 bg-card rounded-lg border border-ink">
+          <div className="space-y-4 rounded-xl border-2 border-line bg-paper-2 p-4">
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-gold" />
-              <Label className="text-ink font-medium">Contact d'urgence (optionnel)</Label>
+              <Label className="font-display text-sm font-extrabold text-ink">Contact d'urgence (optionnel)</Label>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-mute text-sm">Nom</Label>
-                <Input
-                  value={newTeen.emergencyContactName}
-                  onChange={(e) => updateNewTeen("emergencyContactName", e.target.value)}
-                  placeholder="Nom du contact"
-                  className="bg-card border-ink text-ink placeholder:text-mute"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-mute text-sm">Relation</Label>
-                <select
-                  value={newTeen.emergencyContactRelation}
-                  onChange={(e) => updateNewTeen("emergencyContactRelation", e.target.value)}
-                  className="w-full bg-card border border-ink text-ink rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value="">Sélectionner...</option>
-                  {relationOptions.map((relation) => (
-                    <option key={relation} value={relation}>{relation}</option>
-                  ))}
-                </select>
-              </div>
+              <FieldInput
+                label="Nom"
+                value={newTeen.emergencyContactName}
+                onChange={(e) => updateNewTeen("emergencyContactName", e.target.value)}
+                placeholder="Nom du contact"
+              />
+              <SelectSticker
+                label="Relation"
+                placeholder="Sélectionner..."
+                value={newTeen.emergencyContactRelation || undefined}
+                onValueChange={(value) => updateNewTeen("emergencyContactRelation", value)}
+              >
+                {relationOptions.map((relation) => (
+                  <SelectStickerItem key={relation} value={relation}>{relation}</SelectStickerItem>
+                ))}
+              </SelectSticker>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-mute text-sm">Téléphone</Label>
-              <Input
-                value={newTeen.emergencyContactPhone}
-                onChange={(e) => updateNewTeen("emergencyContactPhone", e.target.value)}
-                placeholder="0612345678"
-                className="bg-card border-ink text-ink placeholder:text-mute"
-              />
-              <p className="text-xs text-mute">Format: 0612345678 ou +212612345678</p>
-            </div>
+            <FieldInput
+              label="Téléphone"
+              value={newTeen.emergencyContactPhone}
+              onChange={(e) => updateNewTeen("emergencyContactPhone", e.target.value)}
+              placeholder="0612345678"
+              hint="Format: 0612345678 ou +212612345678"
+            />
           </div>
 
           {/* Allergies */}
           <div className="space-y-2">
-            <Label className="text-ink-2">Allergies ou informations médicales</Label>
+            <Label className="eyebrow tracking-[0.16em]">Allergies ou informations médicales</Label>
             <Textarea
               value={newTeen.allergies}
               onChange={(e) => updateNewTeen("allergies", e.target.value)}
-              placeholder="Mentionnez les allergies alimentaires, médicamenteuses ou autres informations importantes..."
-              className="bg-card border-ink text-ink placeholder:text-mute min-h-[60px]"
+              placeholder="Mentionne les allergies alimentaires, médicamenteuses ou autres informations importantes..."
+              className="bg-card border-2 border-input text-ink placeholder:text-mute min-h-[60px] focus-visible:border-ink focus-visible:ring-0"
               maxLength={500}
             />
           </div>
 
           {/* Preview Card */}
           {(newTeen.pseudo || newTeen.firstName) && (
-            <div className="p-4 bg-gradient-to-br from-lime/20 to-teal/20 border border-lime/30 rounded-xl">
-              <p className="text-xs text-mute mb-3 flex items-center gap-1">
-                <Star className="h-3 w-3" /> Aperçu de la carte Teen
+            <div className="rounded-2xl border-2 border-ink bg-paper-2 p-4 shadow-stkr-sm">
+              <p className="eyebrow tracking-[0.14em] text-mute mb-3 flex items-center gap-1">
+                <Star className="h-3 w-3" /> Aperçu de la carte teen
               </p>
               <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-2xl overflow-hidden">
+                <div className="h-14 w-14 rounded-2xl border-2 border-ink bg-white flex items-center justify-center text-2xl overflow-hidden">
                   {newTeen.avatarUrl ? (
                     <Image
                       src={newTeen.avatarUrl}
@@ -1084,10 +1032,10 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   )}
                 </div>
                 <div>
-                  <p className="font-bold text-ink">
+                  <p className="font-display font-extrabold text-ink">
                     {newTeen.firstName || "Prénom"} {newTeen.lastName || "Nom"}
                   </p>
-                  <p className="text-sm text-lime">
+                  <p className="font-mono text-sm text-lime">
                     @{newTeen.pseudo || "pseudo"}
                   </p>
                   {age && isAgeValid && (
@@ -1099,17 +1047,17 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="px-2 py-1 bg-lime/20 text-lime text-xs rounded-full">
+                <span className="px-2 py-1 border border-line text-teal text-xs font-mono rounded-full">
                   Niveau 1
                 </span>
-                <span className="px-2 py-1 bg-muted text-ink-2 text-xs rounded-full">
+                <span className="px-2 py-1 border border-line text-gold text-xs font-mono rounded-full">
                   0 XP
                 </span>
-                <span className="px-2 py-1 bg-gold/20 text-gold text-xs rounded-full">
-                  0 Coins
+                <span className="px-2 py-1 border border-line text-coral text-xs font-mono rounded-full">
+                  ⊙ 0 Coins
                 </span>
                 {newTeen.profiles.map((p) => (
-                  <span key={p} className="px-2 py-1 bg-teal/20 text-teal text-xs rounded-full">
+                  <span key={p} className="px-2 py-1 border border-line text-ink-2 text-xs font-mono rounded-full">
                     {profileTypes.find(pt => pt.id === p)?.icon} {p}
                   </span>
                 ))}
@@ -1122,15 +1070,16 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             <Button
               type="button"
               variant="outline"
-              className="flex-1 border-ink text-ink-2"
+              className="flex-1"
               onClick={() => setShowCreateForm(false)}
             >
               Annuler
             </Button>
             <Button
               type="submit"
+              variant="pink"
               disabled={createLoading || !isCreateFormValid}
-              className="flex-1 bg-lime hover:bg-lime text-ink disabled:opacity-50"
+              className="flex-1 disabled:opacity-50"
             >
               {createLoading ? (
                 <>

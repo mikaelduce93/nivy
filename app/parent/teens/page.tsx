@@ -1,24 +1,22 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { DarkSurface, NivCoach, NivEmpty } from "@/components/brand"
 import {
   Users,
   Plus,
   ArrowLeft,
-  Crown,
   Coins,
   Calendar,
   TrendingUp,
-  MoreVertical,
-  Settings,
   CreditCard,
   Eye,
   Shield
 } from "lucide-react"
 import Link from "next/link"
-import { EmptyState } from "@/components/ui/states/empty-state"
 
 async function getLinkedTeens(parentId: string) {
   const supabase = await createClient()
@@ -91,9 +89,19 @@ export default async function ParentTeensPage() {
   const teenIds = teens.map((t: any) => t.teen_id)
   const stats = await getTeenStats(teenIds)
 
+  const totalCoins = teens.reduce((sum: number, t: any) => sum + (t.total_coins || 0), 0)
+  const totalUpcoming = Object.values(stats).reduce(
+    (sum: number, s: any) => sum + (s.upcomingEvents || 0),
+    0,
+  )
+  const avgLevel =
+    teens.length > 0
+      ? Math.round(teens.reduce((sum: number, t: any) => sum + (t.level || 1), 0) / teens.length)
+      : 0
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
+    <div className="min-h-screen bg-paper">
+      <div className="container mx-auto px-6 py-32 max-w-5xl">
         {/* Back button */}
         <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
@@ -103,209 +111,183 @@ export default async function ParentTeensPage() {
         </Button>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black text-ink">Mes Teens</h1>
-            <p className="text-mute">Gérez les comptes de vos adolescents</p>
+            <p className="eyebrow tracking-[0.16em] text-mute">Ton crew</p>
+            <h1 className="mt-1 font-display text-4xl font-extrabold text-ink">
+              Mes <em className="font-semibold italic text-pink">teens</em>
+            </h1>
+            <p className="mt-1 text-mute">Gère les comptes de tes ados au même endroit</p>
           </div>
-          <Button asChild className="bg-lime hover:bg-lime text-ink">
+          <Button asChild variant="pink">
             <Link href="/parent/teens/add">
               <Plus className="h-4 w-4 mr-2" />
-              Ajouter un Teen
+              Ajouter un teen
             </Link>
           </Button>
         </div>
 
+        {/* Niv coach */}
+        <NivCoach
+          mood="happy"
+          className="mb-8"
+          message="Salut ! Ici tu gardes un œil sur le crew : coins, niveaux et events à venir. Choisis un ado pour entrer dans le détail."
+        />
+
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-lime font-medium">Total Teens</p>
-                  <p className="text-3xl font-black text-ink">{teens.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-lime" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow tracking-[0.14em] text-mute">Total teens</p>
+              <Users className="h-5 w-5 text-lime" aria-hidden="true" />
+            </div>
+            <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-lime">
+              {teens.length}
+            </p>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gold font-medium">Total Coins</p>
-                  <p className="text-3xl font-black text-ink">
-                    {teens.reduce((sum: number, t: any) => sum + (t.total_coins || 0), 0)}
-                  </p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <Coins className="h-6 w-6 text-gold" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow tracking-[0.14em] text-mute">Total coins</p>
+              <Coins className="h-5 w-5 text-coral" aria-hidden="true" />
+            </div>
+            <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-coral">
+              <span className="mr-0.5 align-baseline font-mono text-xl">⊙</span>
+              {totalCoins}
+            </p>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-pink font-medium">Events à venir</p>
-                  <p className="text-3xl font-black text-ink">
-                    {Object.values(stats).reduce((sum: number, s: any) => sum + (s.upcomingEvents || 0), 0)}
-                  </p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-pink" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow tracking-[0.14em] text-mute">Events à venir</p>
+              <Calendar className="h-5 w-5 text-pink" aria-hidden="true" />
+            </div>
+            <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-pink">
+              {totalUpcoming}
+            </p>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-teal/20 to-lime/20 border-teal/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-teal font-medium">Niveau moyen</p>
-                  <p className="text-3xl font-black text-ink">
-                    {teens.length > 0
-                      ? Math.round(teens.reduce((sum: number, t: any) => sum + (t.level || 1), 0) / teens.length)
-                      : 0}
-                  </p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-teal" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow tracking-[0.14em] text-mute">Niveau moyen</p>
+              <TrendingUp className="h-5 w-5 text-teal" aria-hidden="true" />
+            </div>
+            <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-teal">
+              {avgLevel}
+            </p>
+          </StickerCard>
         </div>
 
         {/* Teens List */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <Users className="h-5 w-5 text-lime" />
-              Liste des Teens ({teens.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {teens.length > 0 ? (
-              <div className="space-y-4">
-                {teens.map((teen: any) => {
-                  const teenStats = stats[teen.teen_id] || {}
-                  return (
-                    <div
-                      key={teen.teen_id}
-                      className="p-6 rounded-2xl bg-card border border-ink hover:border-lime/30 transition-all"
-                    >
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        {/* Teen Info */}
-                        <div className="flex items-center gap-4">
-                          <div className="h-16 w-16 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-black text-2xl">
-                            {teen.teen_name?.charAt(0) || "?"}
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-ink">{teen.teen_name}</h3>
-                            <div className="flex items-center gap-2 text-sm text-mute">
-                              <span>{teen.title_icon} {teen.title}</span>
-                              <span className="text-mute">•</span>
-                              <span className="text-lime">Niveau {teen.level}</span>
-                            </div>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-mute">
-                              <span>{teen.total_xp || 0} XP</span>
-                              <span>•</span>
-                              <span>{teen.badges_count || 0} badges</span>
-                            </div>
-                          </div>
-                        </div>
+        <div className="mb-4 flex items-center gap-2">
+          <Users className="h-5 w-5 text-lime" aria-hidden="true" />
+          <h2 className="font-display text-xl font-extrabold text-ink">
+            Liste des teens ({teens.length})
+          </h2>
+        </div>
 
-                        {/* Stats */}
-                        <div className="flex items-center gap-6">
-                          <div className="text-center">
-                            <p className="text-2xl font-black text-gold">{teen.total_coins || 0}</p>
-                            <p className="text-xs text-mute">Coins</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-2xl font-black text-pink">{teenStats.upcomingEvents || 0}</p>
-                            <p className="text-xs text-mute">Events</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-2xl font-black text-teal">{teenStats.monthlySpending || 0} DH</p>
-                            <p className="text-xs text-mute">Ce mois</p>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-ink text-ink-2 hover:border-lime/50 hover:text-lime"
-                            asChild
-                          >
-                            <Link href={`/parent/teens/${teen.teen_id}`}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              Détails
-                            </Link>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-ink text-ink-2 hover:border-teal/50 hover:text-teal"
-                            asChild
-                          >
-                            <Link href={`/parent/topup?teen=${teen.teen_id}`}>
-                              <CreditCard className="h-4 w-4 mr-2" />
-                              Top-up
-                            </Link>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-ink text-ink-2 hover:border-pink/50 hover:text-pink"
-                            asChild
-                          >
-                            <Link href={`/parent/budget?teen=${teen.teen_id}`}>
-                              <Shield className="h-4 w-4 mr-2" />
-                              Limites
-                            </Link>
-                          </Button>
-                        </div>
+        {teens.length > 0 ? (
+          <div className="space-y-4">
+            {teens.map((teen: any) => {
+              const level = teen.level || 1
+              const xpForNext = (level + 1) * 100
+              const currentXp = teen.total_xp || 0
+              const progressRatio = Math.min(currentXp / xpForNext, 1)
+              return (
+                <StickerCard key={teen.teen_id} className="p-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    {/* Teen Info */}
+                    <div className="flex items-center gap-4">
+                      <div className="h-16 w-16 shrink-0 rounded-2xl border-2 border-ink bg-paper-2 flex items-center justify-center font-display text-2xl font-extrabold text-ink">
+                        {teen.teen_name?.charAt(0) || "?"}
                       </div>
-
-                      {/* Progress Bar */}
-                      <div className="mt-4 pt-4 border-t border-ink">
-                        <div className="flex items-center justify-between text-xs text-mute mb-2">
-                          <span>Progression vers niveau {(teen.level || 1) + 1}</span>
-                          <span>{teen.total_xp || 0} / {((teen.level || 1) + 1) * 100} XP</span>
+                      <div>
+                        <h3 className="font-display text-xl font-extrabold text-ink">
+                          {teen.teen_name}
+                        </h3>
+                        <div className="mt-0.5 flex items-center gap-2 text-sm">
+                          <span className="text-mute">{teen.title_icon} {teen.title}</span>
+                          <span className="text-mute">•</span>
+                          <span className="font-mono text-xs font-bold uppercase tracking-wide text-teal">
+                            Niveau {teen.level}
+                          </span>
                         </div>
-                        <div className="h-2 bg-card rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-lime to-teal rounded-full transition-all"
-                            style={{
-                              width: `${Math.min(((teen.total_xp || 0) / (((teen.level || 1) + 1) * 100)) * 100, 100)}%`
-                            }}
-                          />
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <span className="rounded-full border border-line px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wide text-gold">
+                            {currentXp} XP
+                          </span>
+                          <span className="rounded-full border border-line px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wide text-mute">
+                            {teen.badges_count || 0} badges
+                          </span>
                         </div>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <EmptyState
-                icon={Users}
-                size="large"
-                title="Aucun teen lié"
-                description="Ajoutez votre premier teen pour commencer à gérer son compte"
-                action={{ label: "Ajouter un Teen", href: "/parent/teens/add" }}
-              />
-            )}
-          </CardContent>
-        </Card>
+
+                    {/* Coins solde — mini surface sombre */}
+                    <DarkSurface tone="coral" className="px-5 py-3 text-center">
+                      <p className="eyebrow tracking-[0.14em] text-paper/60">Coins</p>
+                      <p className="mt-0.5 font-display text-2xl font-extrabold tabular-nums text-coral">
+                        <span className="mr-0.5 align-baseline font-mono text-base">⊙</span>
+                        {teen.total_coins || 0}
+                      </p>
+                    </DarkSurface>
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button size="sm" asChild>
+                        <Link href={`/parent/teens/${teen.teen_id}`}>
+                          <Eye className="h-4 w-4 mr-2" />
+                          Détails
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/parent/topup?teen=${teen.teen_id}`}>
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          Top-up
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/parent/budget?teen=${teen.teen_id}`}>
+                          <Shield className="h-4 w-4 mr-2" />
+                          Limites
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Progress */}
+                  <div className="mt-4 pt-4 border-t-2 border-line">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-teal">
+                        Vers niveau {level + 1}
+                      </span>
+                      <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-gold">
+                        {currentXp} / {xpForNext} XP
+                      </span>
+                    </div>
+                    <SegmentedProgress
+                      steps={10}
+                      current={Math.round(progressRatio * 10)}
+                    />
+                  </div>
+                </StickerCard>
+              )
+            })}
+          </div>
+        ) : (
+          <NivEmpty
+            title="Aucun teen lié"
+            description="Ajoute ton premier ado pour commencer à gérer son compte."
+            action={
+              <Button asChild variant="pink">
+                <Link href="/parent/teens/add">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter un teen
+                </Link>
+              </Button>
+            }
+          />
+        )}
       </div>
     </div>
   )
