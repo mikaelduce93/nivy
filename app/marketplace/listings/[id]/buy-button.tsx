@@ -2,6 +2,16 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { School, Store, AlertTriangle } from "lucide-react"
+
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Button } from "@/components/ui/button"
+import { NivCoach } from "@/components/brand"
+
+const MEET_OPTIONS = [
+  { value: "school", label: "À l'école", icon: School },
+  { value: "venue_partner", label: "Partenaire Nivy", icon: Store },
+] as const
 
 export function BuyButton({ listingId }: { listingId: string }) {
   const router = useRouter()
@@ -30,21 +40,60 @@ export function BuyButton({ listingId }: { listingId: string }) {
     router.push("/marketplace/orders")
   }
 
+  const isApproval = msg === "Demande envoyée à ton parent pour approbation."
+
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium">Lieu de rendez-vous (sécurité teen)</label>
-      <select
-        value={meetMethod}
-        onChange={(e) => setMeetMethod(e.target.value as "school" | "venue_partner")}
-        className="w-full border rounded px-3 py-2"
-      >
-        <option value="school">À l&apos;école</option>
-        <option value="venue_partner">Partenaire Nivy</option>
-      </select>
-      <button onClick={buy} disabled={busy} className="rounded bg-teal text-ink px-4 py-2 disabled:opacity-50">
+    <StickerCard className="gap-4 p-5">
+      <div>
+        <span className="eyebrow tracking-[0.16em] text-mute">Lieu de rendez-vous</span>
+        <p className="mt-1 text-sm text-mute">On choisit un endroit sûr pour l&apos;échange.</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {MEET_OPTIONS.map((opt) => {
+          const Icon = opt.icon
+          const active = meetMethod === opt.value
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setMeetMethod(opt.value)}
+              aria-pressed={active}
+              className={`flex min-h-touch flex-col items-center gap-2 rounded-xl border-2 border-ink px-3 py-4 font-mono text-[12px] font-bold uppercase tracking-[0.1em] transition-all ${
+                active
+                  ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                  : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
+              }`}
+            >
+              <Icon className="size-5" aria-hidden="true" />
+              {opt.label}
+            </button>
+          )
+        })}
+      </div>
+
+      <NivCoach
+        tone="paper"
+        mood="calm"
+        message="On organise toujours l'échange dans un lieu encadré. Jamais de coordonnées privées."
+      />
+
+      <Button onClick={buy} disabled={busy} variant="pink" size="lg" className="w-full shadow-stkr-md">
         {busy ? "Achat en cours…" : "Acheter"}
-      </button>
-      {msg && <p className="text-sm">{msg}</p>}
-    </div>
+      </Button>
+
+      {msg ? (
+        isApproval ? (
+          <div className="rounded-2xl border-2 border-ink bg-teal/15 p-4 shadow-stkr-sm">
+            <p className="text-sm font-medium text-ink">{msg}</p>
+          </div>
+        ) : (
+          <div className="flex items-start gap-3 rounded-2xl border-2 border-ink bg-coral/15 p-4 shadow-stkr-sm">
+            <AlertTriangle className="mt-0.5 size-5 shrink-0 text-coral" aria-hidden="true" />
+            <p className="text-sm font-medium text-ink">{msg}</p>
+          </div>
+        )
+      ) : null}
+    </StickerCard>
   )
 }
