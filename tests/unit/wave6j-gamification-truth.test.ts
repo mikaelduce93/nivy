@@ -31,7 +31,12 @@ describe("Wave 6J — quest complete idempotency (no double XP on replay)", () =
 
   it("uses an `alreadyCompleted` flag to gate the XP grant", () => {
     expect(src).toMatch(/let\s+alreadyCompleted\s*=\s*false/)
-    expect(src).toMatch(/!\s*alreadyCompleted[\s\S]{0,300}rpc\(['"]add_xp_to_user['"]/)
+    // The grant is wrapped by `if (xpReward > 0 && !alreadyCompleted)`. #41
+    // inserts the anti-abuse daily-cap logic between the guard and the RPC, so
+    // the window is wide — but it stays inside this exact guarded block.
+    expect(src).toMatch(
+      /if\s*\(\s*xpReward\s*>\s*0\s*&&\s*!\s*alreadyCompleted\s*\)[\s\S]{0,1500}rpc\(['"]add_xp_to_user['"]/,
+    )
   })
 
   it("daily_challenges branch also pre-checks status='completed'", () => {
