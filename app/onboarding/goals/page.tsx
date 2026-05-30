@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { GoalsForm } from "@/components/onboarding/goals-form"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
 export const dynamic = "force-dynamic"
 
@@ -40,8 +41,11 @@ export default async function OnboardingGoalsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-pink/5 p-4 sm:p-6 lg:p-10">
-      <GoalsForm initial={initial} nextHref="/onboarding/learning-style" />
+    <main className="relative min-h-screen overflow-hidden bg-paper p-4 sm:p-6 lg:p-10">
+      <MeshBackground />
+      <div className="relative z-10">
+        <GoalsForm initial={initial} nextHref="/onboarding/learning-style" />
+      </div>
     </main>
   )
 }
