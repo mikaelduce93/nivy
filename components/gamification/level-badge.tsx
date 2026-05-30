@@ -48,7 +48,7 @@ const TIERS: readonly LevelTier[] = [
     name: "Sprout",
     emoji: "🌱",
     icon: Sprout,
-    gradient: "from-green-400 to-emerald-500",
+    gradient: "from-lime to-lime",
     minLevel: 1,
   },
   {
@@ -56,7 +56,7 @@ const TIERS: readonly LevelTier[] = [
     name: "Rocket",
     emoji: "🚀",
     icon: Rocket,
-    gradient: "from-cyan-400 to-blue-500",
+    gradient: "from-teal to-teal",
     minLevel: 6,
   },
   {
@@ -64,7 +64,7 @@ const TIERS: readonly LevelTier[] = [
     name: "Crown",
     emoji: "👑",
     icon: Crown,
-    gradient: "from-yellow-400 to-amber-500",
+    gradient: "from-gold to-gold",
     minLevel: 16,
   },
   {
@@ -72,7 +72,7 @@ const TIERS: readonly LevelTier[] = [
     name: "Legend",
     emoji: "⚡",
     icon: Zap,
-    gradient: "from-purple-400 via-fuchsia-500 to-pink-500",
+    gradient: "from-pink via-pink to-pink",
     minLevel: 26,
   },
   {
@@ -80,7 +80,7 @@ const TIERS: readonly LevelTier[] = [
     name: "Cosmic",
     emoji: "🌌",
     icon: Sparkles,
-    gradient: "from-cyan-400 via-purple-500 to-pink-500",
+    gradient: "from-teal via-pink to-pink",
     minLevel: 36,
   },
 ] as const
@@ -176,7 +176,7 @@ export function LevelBadge({
           whileHover={animate ? { scale: 1.1, rotate: 5 } : {}}
         >
           <motion.div
-            className="absolute inset-0 bg-white/20"
+            className="absolute inset-0 bg-paper-2"
             animate={{
               background: [
                 "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)",
@@ -187,7 +187,7 @@ export function LevelBadge({
             transition={{ duration: 3, repeat: Infinity }}
           />
 
-          <Icon className={cn("text-white relative z-10", sizing.icon)} aria-hidden="true" />
+          <Icon className={cn("text-ink relative z-10", sizing.icon)} aria-hidden="true" />
 
           {/* Shimmer */}
           <motion.div
@@ -205,12 +205,12 @@ export function LevelBadge({
 
         {/* Level number chip */}
         <motion.div
-          className="absolute -bottom-1 -right-1 bg-zinc-900 border-2 border-zinc-800 rounded-full min-w-6 h-6 flex items-center justify-center px-1"
+          className="absolute -bottom-1 -right-1 bg-card border-2 border-ink rounded-full min-w-6 h-6 flex items-center justify-center px-1"
           initial={animate ? { scale: 0 } : {}}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring" }}
         >
-          <span className={cn("font-bold text-white tabular-nums", sizing.text)}>{level}</span>
+          <span className={cn("font-bold text-ink tabular-nums", sizing.text)}>{level}</span>
         </motion.div>
 
         {/* Glow */}
@@ -225,7 +225,7 @@ export function LevelBadge({
 
       {showLabel && (
         <motion.span
-          className={cn("font-semibold text-zinc-300 inline-flex items-center gap-1", sizing.label)}
+          className={cn("font-semibold text-ink-2 inline-flex items-center gap-1", sizing.label)}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -253,7 +253,7 @@ export function LevelUpAnimation({ fromLevel, toLevel, onComplete }: LevelUpAnim
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 "
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -274,7 +274,7 @@ export function LevelUpAnimation({ fromLevel, toLevel, onComplete }: LevelUpAnim
           transition={{ delay: 0.2 }}
         >
           <motion.h2
-            className="text-6xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent"
+            className="text-6xl font-black bg-gradient-to-r from-gold via-coral to-destructive bg-clip-text text-transparent"
             animate={{
               scale: [1, 1.1, 1],
               textShadow: [
@@ -304,7 +304,7 @@ export function LevelUpAnimation({ fromLevel, toLevel, onComplete }: LevelUpAnim
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <span className="text-zinc-500">{fromLevel}</span>
+          <span className="text-mute">{fromLevel}</span>
           <motion.span
             animate={{ x: [0, 10, 0] }}
             transition={{ duration: 0.5, repeat: Infinity }}
@@ -318,16 +318,16 @@ export function LevelUpAnimation({ fromLevel, toLevel, onComplete }: LevelUpAnim
         </motion.div>
 
         <motion.p
-          className="mt-4 text-xl text-zinc-300"
+          className="mt-4 text-xl text-ink-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          Tu es maintenant <span className="font-bold text-white">{newTier.emoji} {newTier.name}</span> !
+          Tu es maintenant <span className="font-bold text-ink">{newTier.emoji} {newTier.name}</span> !
         </motion.p>
 
         <motion.button
-          className="mt-8 px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl font-bold text-white"
+          className="mt-8 px-8 py-3 bg-gradient-to-r from-teal to-teal rounded-xl font-bold text-ink"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1 }}
@@ -417,7 +417,7 @@ export function LevelProgressRing({
           fill="transparent"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-zinc-800"
+          className="text-ink"
         />
 
         <motion.circle
@@ -445,10 +445,10 @@ export function LevelProgressRing({
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${tier.gradient} flex items-center justify-center mb-1`}>
-          <Icon className="w-5 h-5 text-white" aria-hidden="true" />
+          <Icon className="w-5 h-5 text-ink" aria-hidden="true" />
         </div>
-        <span className="text-2xl font-black text-white tabular-nums">{level}</span>
-        <span className="text-xs text-zinc-500 tabular-nums">{xpInCurrentLevel}/{100} XP</span>
+        <span className="text-2xl font-black text-ink tabular-nums">{level}</span>
+        <span className="text-xs text-mute tabular-nums">{xpInCurrentLevel}/{100} XP</span>
       </div>
     </div>
   )
@@ -483,8 +483,8 @@ export function LevelMilestones({ currentLevel, className }: LevelMilestonesProp
                 className={cn(
                   "absolute top-1/2 left-full w-3 h-0.5 -translate-y-1/2",
                   isReached
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-500"
-                    : "bg-zinc-800",
+                    ? "bg-gradient-to-r from-teal to-teal"
+                    : "bg-card",
                 )}
               />
             )}
@@ -494,18 +494,18 @@ export function LevelMilestones({ currentLevel, className }: LevelMilestonesProp
                 "w-8 h-8 rounded-full flex items-center justify-center",
                 isReached
                   ? `bg-gradient-to-br ${tier.gradient}`
-                  : "bg-zinc-800 border border-zinc-700",
+                  : "bg-card border border-ink",
               )}
               whileHover={{ scale: 1.2 }}
               title={`${tier.name} (Lv ${tier.minLevel}+)`}
             >
               <Icon
-                className={cn("w-4 h-4", isReached ? "text-white" : "text-zinc-600")}
+                className={cn("w-4 h-4", isReached ? "text-ink" : "text-mute")}
                 aria-hidden="true"
               />
             </motion.div>
 
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-zinc-500 whitespace-nowrap tabular-nums">
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-mute whitespace-nowrap tabular-nums">
               {tier.minLevel}
             </div>
           </motion.div>

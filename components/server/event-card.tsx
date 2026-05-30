@@ -124,7 +124,7 @@ export function EventCard({
     return (
       <article
         className={cn(
-          'group relative rounded-3xl overflow-hidden border border-border/50',
+          'group relative rounded-2xl overflow-hidden border border-border/50',
           'bg-card hover:shadow-xl hover:shadow-primary/10 transition-all duration-300',
           'hover:-translate-y-1',
           className
@@ -161,7 +161,7 @@ export function EventCard({
 
           {/* Price overlay - Gen-Z pill */}
           <div className="absolute bottom-4 right-4">
-            <span className="px-4 py-2 rounded-2xl bg-card/90 backdrop-blur-xl text-sm font-bold shadow-lg border border-border/50">
+            <span className="px-4 py-2 rounded-2xl bg-card/90  text-sm font-bold shadow-lg border border-border/50">
               {formatPrice(event.price)}
             </span>
           </div>
@@ -253,7 +253,7 @@ export function EventCard({
         
         {/* Price tag */}
         <div className="absolute top-3 right-3">
-          <span className="px-3 py-1 rounded-xl bg-card/80 backdrop-blur-sm text-xs font-bold shadow-md">
+          <span className="px-3 py-1 rounded-xl bg-card/80  text-xs font-bold shadow-md">
             {formatPrice(event.price)}
           </span>
         </div>

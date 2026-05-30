@@ -360,14 +360,14 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
     <div className="space-y-6">
       {/* Event Selection */}
       {events.length > 0 && (
-        <Card className="p-6 bg-zinc-900 border-zinc-800">
+        <Card className="p-6 bg-card border-ink">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <label className="block text-sm font-semibold text-white mb-2">
+              <label className="block text-sm font-semibold text-ink mb-2">
                 Evenement actif
               </label>
               <Select value={selectedEvent} onValueChange={setSelectedEvent}>
-                <SelectTrigger className="bg-zinc-950 border-zinc-800 w-full max-w-md">
+                <SelectTrigger className="bg-background border-ink w-full max-w-md">
                   <SelectValue placeholder="Selectionner un evenement" />
                 </SelectTrigger>
                 <SelectContent>
@@ -386,7 +386,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
                   size="sm"
                   onClick={() => handleExport("csv")}
                   disabled={isExporting}
-                  className="border-zinc-700"
+                  className="border-ink"
                 >
                   {isExporting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -414,50 +414,50 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       {/* Real-time Stats */}
       {selectedEvent && stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30">
+          <Card className="p-4 bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-blue-500/30 flex items-center justify-center">
-                <Users className="h-5 w-5 text-blue-400" />
+              <div className="h-10 w-10 rounded-lg bg-teal/30 flex items-center justify-center">
+                <Users className="h-5 w-5 text-teal" />
               </div>
               <div>
-                <p className="text-xs text-blue-400">Reservations</p>
-                <p className="text-2xl font-black text-white">{stats.stats.totalBookings}</p>
+                <p className="text-xs text-teal">Reservations</p>
+                <p className="text-2xl font-black text-ink">{stats.stats.totalBookings}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/30">
+          <Card className="p-4 bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-500/30 flex items-center justify-center">
-                <LogIn className="h-5 w-5 text-green-400" />
+              <div className="h-10 w-10 rounded-lg bg-lime/30 flex items-center justify-center">
+                <LogIn className="h-5 w-5 text-lime" />
               </div>
               <div>
-                <p className="text-xs text-green-400">A l'interieur</p>
-                <p className="text-2xl font-black text-white">{stats.stats.currentlyInside}</p>
+                <p className="text-xs text-lime">A l'interieur</p>
+                <p className="text-2xl font-black text-ink">{stats.stats.currentlyInside}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30">
+          <Card className="p-4 bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-purple-500/30 flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-purple-400" />
+              <div className="h-10 w-10 rounded-lg bg-pink/30 flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-pink" />
               </div>
               <div>
-                <p className="text-xs text-purple-400">Total entrees</p>
-                <p className="text-2xl font-black text-white">{stats.stats.totalCheckedIn}</p>
+                <p className="text-xs text-pink">Total entrees</p>
+                <p className="text-2xl font-black text-ink">{stats.stats.totalCheckedIn}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 border-orange-500/30">
+          <Card className="p-4 bg-gradient-to-br from-coral/20 to-destructive/20 border-coral/30">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-orange-500/30 flex items-center justify-center">
-                <LogOut className="h-5 w-5 text-orange-400" />
+              <div className="h-10 w-10 rounded-lg bg-coral/30 flex items-center justify-center">
+                <LogOut className="h-5 w-5 text-coral" />
               </div>
               <div>
-                <p className="text-xs text-orange-400">Sorties</p>
-                <p className="text-2xl font-black text-white">{stats.stats.checkedOut}</p>
+                <p className="text-xs text-coral">Sorties</p>
+                <p className="text-2xl font-black text-ink">{stats.stats.checkedOut}</p>
               </div>
             </div>
           </Card>
@@ -466,28 +466,28 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
       {/* Capacity Bar */}
       {stats && stats.event.capacity > 0 && (
-        <Card className="p-4 bg-zinc-900 border-zinc-800">
+        <Card className="p-4 bg-card border-ink">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-zinc-400">Capacite</span>
-            <span className="text-sm font-semibold text-white">
+            <span className="text-sm text-mute">Capacite</span>
+            <span className="text-sm font-semibold text-ink">
               {stats.stats.currentlyInside} / {stats.event.capacity}
             </span>
           </div>
-          <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-3 bg-card rounded-full overflow-hidden">
             <div
               className={cn(
                 "h-full transition-all duration-500",
                 stats.stats.capacityPercentage > 90
-                  ? "bg-red-500"
+                  ? "bg-destructive"
                   : stats.stats.capacityPercentage > 70
-                    ? "bg-orange-500"
-                    : "bg-green-500"
+                    ? "bg-coral"
+                    : "bg-lime"
               )}
               style={{ width: `${Math.min(stats.stats.capacityPercentage, 100)}%` }}
             />
           </div>
           {stats.stats.capacityPercentage > 90 && (
-            <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
+            <p className="text-xs text-destructive mt-2 flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" />
               Capacite presque atteinte
             </p>
@@ -499,18 +499,18 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       {!checkInMode && selectedEvent && (
         <div className="grid lg:grid-cols-3 gap-6">
           <Card
-            className="p-8 bg-zinc-900 border-zinc-800 hover:border-green-500/50 transition-all cursor-pointer group"
+            className="p-8 bg-card border-ink hover:border-lime/50 transition-all cursor-pointer group"
             onClick={() => setCheckInMode("in")}
           >
             <div className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <QrCode className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-lime to-lime flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                <QrCode className="w-10 h-10 text-ink" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-3">Entree</h2>
-              <p className="text-zinc-400 text-sm mb-5">
+              <h2 className="text-xl font-bold text-ink mb-3">Entree</h2>
+              <p className="text-mute text-sm mb-5">
                 Scannez le QR code du billet pour enregistrer l'arrivee
               </p>
-              <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+              <Button className="w-full bg-gradient-to-r from-lime to-lime hover:from-lime hover:to-lime">
                 <Camera className="w-4 h-4 mr-2" />
                 Scanner entree
               </Button>
@@ -518,18 +518,18 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
           </Card>
 
           <Card
-            className="p-8 bg-zinc-900 border-zinc-800 hover:border-orange-500/50 transition-all cursor-pointer group"
+            className="p-8 bg-card border-ink hover:border-coral/50 transition-all cursor-pointer group"
             onClick={() => setCheckInMode("out")}
           >
             <div className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <QrCode className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-coral to-destructive flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                <QrCode className="w-10 h-10 text-ink" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-3">Sortie</h2>
-              <p className="text-zinc-400 text-sm mb-5">
+              <h2 className="text-xl font-bold text-ink mb-3">Sortie</h2>
+              <p className="text-mute text-sm mb-5">
                 Scannez le QR code et verifiez l'autorisation parentale
               </p>
-              <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
+              <Button className="w-full bg-gradient-to-r from-coral to-destructive hover:from-coral hover:to-destructive">
                 <Camera className="w-4 h-4 mr-2" />
                 Scanner sortie
               </Button>
@@ -537,18 +537,18 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
           </Card>
 
           <Card
-            className="p-8 bg-zinc-900 border-zinc-800 hover:border-purple-500/50 transition-all cursor-pointer group"
+            className="p-8 bg-card border-ink hover:border-pink/50 transition-all cursor-pointer group"
             onClick={() => setCheckInMode("vip")}
           >
             <div className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Crown className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-pink to-pink flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                <Crown className="w-10 h-10 text-ink" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-3">Pass VIP</h2>
-              <p className="text-zinc-400 text-sm mb-5">
+              <h2 className="text-xl font-bold text-ink mb-3">Pass VIP</h2>
+              <p className="text-mute text-sm mb-5">
                 Verifiez un pass VIP et ses avantages
               </p>
-              <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+              <Button className="w-full bg-gradient-to-r from-pink to-pink hover:from-pink hover:to-pink">
                 <Crown className="w-4 h-4 mr-2" />
                 Verifier Pass
               </Button>
@@ -563,10 +563,10 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
           <div className={cn(
             "p-4 rounded-lg text-center font-semibold",
             checkInMode === "in"
-              ? "bg-green-500/20 text-green-400 border border-green-500/30"
+              ? "bg-lime/20 text-lime border border-lime/30"
               : checkInMode === "out"
-                ? "bg-orange-500/20 text-orange-400 border border-orange-500/30"
-                : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                ? "bg-coral/20 text-coral border border-coral/30"
+                : "bg-pink/20 text-pink border border-pink/30"
           )}>
             {checkInMode === "in" ? "Mode ENTREE" : checkInMode === "out" ? "Mode SORTIE" : "Mode PASS VIP"}
           </div>
@@ -580,7 +580,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
           <Button
             variant="outline"
             onClick={() => setCheckInMode(null)}
-            className="w-full border-zinc-700"
+            className="w-full border-ink"
           >
             Annuler
           </Button>
@@ -588,17 +588,17 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       )}
 
       {/* Manual Search */}
-      <Card className="p-6 bg-zinc-900 border-zinc-800">
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <Search className="h-5 w-5 text-cyan-400" />
+      <Card className="p-6 bg-card border-ink">
+        <h3 className="text-xl font-bold text-ink mb-4 flex items-center gap-2">
+          <Search className="h-5 w-5 text-teal" />
           Recherche manuelle
         </h3>
         <div className="flex gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
             <Input
               placeholder="Reference QR ou nom..."
-              className="pl-10 bg-zinc-950 border-zinc-800"
+              className="pl-10 bg-background border-ink"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleManualSearch()}
@@ -606,7 +606,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
           </div>
           <Button
             variant="outline"
-            className="bg-transparent border-cyan-500 text-cyan-400"
+            className="bg-transparent border-teal text-teal"
             onClick={handleManualSearch}
             disabled={isProcessing}
           >
@@ -617,7 +617,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
       {/* Scanned Result */}
       {scannedData && (
-        <Card className="p-6 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-cyan-500/30">
+        <Card className="p-6 bg-gradient-to-br from-teal/10 to-teal/10 border-teal/30">
           <div className="flex items-start gap-4">
             {scannedData.childPhoto ? (
               <Image
@@ -628,62 +628,62 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
                 className="w-20 h-20 rounded-xl object-cover"
               />
             ) : (
-              <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                <User className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center flex-shrink-0">
+                <User className="w-10 h-10 text-ink" />
               </div>
             )}
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-white mb-2">
+              <h3 className="text-xl font-bold text-ink mb-2">
                 {scannedData.childName}
               </h3>
               <div className="grid md:grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-zinc-400">Age</p>
-                  <p className="text-white font-semibold">{scannedData.age} ans</p>
+                  <p className="text-mute">Age</p>
+                  <p className="text-ink font-semibold">{scannedData.age} ans</p>
                 </div>
                 <div>
-                  <p className="text-zinc-400">Type de billet</p>
-                  <p className="text-white font-semibold uppercase">{scannedData.ticketType}</p>
+                  <p className="text-mute">Type de billet</p>
+                  <p className="text-ink font-semibold uppercase">{scannedData.ticketType}</p>
                 </div>
                 <div>
-                  <p className="text-zinc-400">Parent</p>
-                  <p className="text-white font-semibold">{scannedData.parentName}</p>
+                  <p className="text-mute">Parent</p>
+                  <p className="text-ink font-semibold">{scannedData.parentName}</p>
                 </div>
                 <div>
-                  <p className="text-zinc-400">Telephone</p>
-                  <p className="text-white font-semibold">{scannedData.parentPhone}</p>
+                  <p className="text-mute">Telephone</p>
+                  <p className="text-ink font-semibold">{scannedData.parentPhone}</p>
                 </div>
               </div>
 
               {/* Status badges */}
               <div className="flex flex-wrap gap-2 mt-4">
                 {scannedData.checkedIn && (
-                  <div className="bg-green-500/20 border border-green-500/30 rounded-lg px-3 py-1 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-green-400 text-sm">Entree a {formatTime(scannedData.checkedInAt)}</span>
+                  <div className="bg-lime/20 border border-lime/30 rounded-lg px-3 py-1 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-lime" />
+                    <span className="text-lime text-sm">Entree a {formatTime(scannedData.checkedInAt)}</span>
                   </div>
                 )}
                 {scannedData.checkedOut && (
-                  <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg px-3 py-1 flex items-center gap-2">
-                    <LogOut className="w-4 h-4 text-orange-400" />
-                    <span className="text-orange-400 text-sm">Sorti a {formatTime(scannedData.checkedOutAt)}</span>
+                  <div className="bg-coral/20 border border-coral/30 rounded-lg px-3 py-1 flex items-center gap-2">
+                    <LogOut className="w-4 h-4 text-coral" />
+                    <span className="text-coral text-sm">Sorti a {formatTime(scannedData.checkedOutAt)}</span>
                   </div>
                 )}
                 {scannedData.photoConsent === false && (
-                  <div className="bg-red-500/20 border border-red-500/30 rounded-lg px-3 py-1 flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-red-400" />
-                    <span className="text-red-400 text-sm">NO-PHOTO</span>
+                  <div className="bg-destructive/20 border border-destructive/30 rounded-lg px-3 py-1 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-destructive" />
+                    <span className="text-destructive text-sm">NO-PHOTO</span>
                   </div>
                 )}
                 {scannedData.age < 16 && (
-                  <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg px-3 py-1">
-                    <span className="text-amber-400 text-sm font-semibold">{"<"}16 ANS</span>
+                  <div className="bg-gold/20 border border-gold/30 rounded-lg px-3 py-1">
+                    <span className="text-gold text-sm font-semibold">{"<"}16 ANS</span>
                   </div>
                 )}
                 {scannedData.hasAuthorization && (
-                  <div className="bg-purple-500/20 border border-purple-500/30 rounded-lg px-3 py-1 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-purple-400" />
-                    <span className="text-purple-400 text-sm">
+                  <div className="bg-pink/20 border border-pink/30 rounded-lg px-3 py-1 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-pink" />
+                    <span className="text-pink text-sm">
                       Autorise: {scannedData.authorizedPerson}
                     </span>
                   </div>
@@ -697,7 +697,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
                     <Button
                       onClick={() => handleManualCheckIn("in")}
                       disabled={isProcessing}
-                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                      className="bg-gradient-to-r from-lime to-lime"
                     >
                       <LogIn className="w-4 h-4 mr-2" />
                       Valider entree
@@ -707,7 +707,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
                     <Button
                       onClick={() => handleManualCheckIn("out")}
                       disabled={isProcessing}
-                      className="bg-gradient-to-r from-orange-500 to-red-500"
+                      className="bg-gradient-to-r from-coral to-destructive"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       Valider sortie
@@ -725,29 +725,29 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
         <Card className={cn(
           "p-6 border",
           vipPassData.isValid
-            ? "bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30"
-            : "bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/30"
+            ? "bg-gradient-to-br from-pink/10 to-pink/10 border-pink/30"
+            : "bg-gradient-to-br from-destructive/10 to-coral/10 border-destructive/30"
         )}>
           <div className="flex items-start gap-4">
             <div className={cn(
               "w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0",
               vipPassData.isValid
-                ? "bg-gradient-to-br from-purple-500 to-pink-500"
-                : "bg-gradient-to-br from-red-500 to-orange-500"
+                ? "bg-gradient-to-br from-pink to-pink"
+                : "bg-gradient-to-br from-destructive to-coral"
             )}>
-              <Crown className="w-10 h-10 text-white" />
+              <Crown className="w-10 h-10 text-ink" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-ink">
                   {vipPassData.holder?.name || "Pass VIP"}
                 </h3>
                 {vipPassData.isValid ? (
-                  <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-semibold">
+                  <span className="bg-lime/20 text-lime px-2 py-1 rounded-full text-xs font-semibold">
                     VALIDE
                   </span>
                 ) : (
-                  <span className="bg-red-500/20 text-red-400 px-2 py-1 rounded-full text-xs font-semibold">
+                  <span className="bg-destructive/20 text-destructive px-2 py-1 rounded-full text-xs font-semibold">
                     INVALIDE
                   </span>
                 )}
@@ -756,20 +756,20 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
               {vipPassData.type === "vip_pass" && vipPassData.pass && (
                 <div className="grid md:grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-zinc-400">Numero de carte</p>
-                    <p className="text-white font-semibold font-mono">{vipPassData.pass.cardNumber}</p>
+                    <p className="text-mute">Numero de carte</p>
+                    <p className="text-ink font-semibold font-mono">{vipPassData.pass.cardNumber}</p>
                   </div>
                   <div>
-                    <p className="text-zinc-400">Tier</p>
-                    <p className="text-white font-semibold">{vipPassData.pass.tier}</p>
+                    <p className="text-mute">Tier</p>
+                    <p className="text-ink font-semibold">{vipPassData.pass.tier}</p>
                   </div>
                   <div>
-                    <p className="text-zinc-400">Age</p>
-                    <p className="text-white font-semibold">{vipPassData.holder?.age} ans</p>
+                    <p className="text-mute">Age</p>
+                    <p className="text-ink font-semibold">{vipPassData.holder?.age} ans</p>
                   </div>
                   <div>
-                    <p className="text-zinc-400">Expire le</p>
-                    <p className="text-white font-semibold">
+                    <p className="text-mute">Expire le</p>
+                    <p className="text-ink font-semibold">
                       {new Date(vipPassData.pass.endDate).toLocaleDateString("fr-FR")}
                     </p>
                   </div>
@@ -778,10 +778,10 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
               {/* Discount display */}
               {vipPassData.applicableDiscount > 0 && (
-                <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
+                <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-pink/20 to-pink/20 border border-pink/30">
                   <div className="flex items-center gap-2">
-                    <Percent className="w-5 h-5 text-purple-400" />
-                    <span className="text-purple-300 font-semibold">
+                    <Percent className="w-5 h-5 text-pink" />
+                    <span className="text-pink font-semibold">
                       Reduction applicable: {vipPassData.applicableDiscount}%
                     </span>
                   </div>
@@ -791,12 +791,12 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
               {/* Benefits */}
               {vipPassData.pass?.benefits && vipPassData.pass.benefits.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-zinc-400 text-xs mb-2">Avantages</p>
+                  <p className="text-mute text-xs mb-2">Avantages</p>
                   <div className="flex flex-wrap gap-2">
                     {vipPassData.pass.benefits.map((benefit: string, index: number) => (
                       <span
                         key={index}
-                        className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full text-xs"
+                        className="bg-pink/20 text-pink px-2 py-1 rounded-full text-xs"
                       >
                         {benefit}
                       </span>
@@ -807,15 +807,15 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
               {/* Error message */}
               {!vipPassData.isValid && vipPassData.error && (
-                <div className="mt-4 p-3 rounded-lg bg-red-500/20 border border-red-500/30">
-                  <p className="text-red-400 text-sm">{vipPassData.error}</p>
+                <div className="mt-4 p-3 rounded-lg bg-destructive/20 border border-destructive/30">
+                  <p className="text-destructive text-sm">{vipPassData.error}</p>
                 </div>
               )}
 
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-4 border-zinc-700"
+                className="mt-4 border-ink"
                 onClick={() => setVipPassData(null)}
               >
                 Fermer
@@ -827,29 +827,29 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
       {/* Recent Check-ins */}
       {stats && stats.recentCheckIns.length > 0 && (
-        <Card className="p-6 bg-zinc-900 border-zinc-800">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-zinc-400" />
+        <Card className="p-6 bg-card border-ink">
+          <h3 className="text-lg font-bold text-ink mb-4 flex items-center gap-2">
+            <Clock className="h-5 w-5 text-mute" />
             Derniers check-ins
           </h3>
           <div className="space-y-2">
             {stats.recentCheckIns.map((checkIn) => (
               <div
                 key={checkIn.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-zinc-950"
+                className="flex items-center justify-between p-3 rounded-lg bg-background"
               >
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "h-8 w-8 rounded-full flex items-center justify-center",
                     checkIn.status === "in"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-orange-500/20 text-orange-400"
+                      ? "bg-lime/20 text-lime"
+                      : "bg-coral/20 text-coral"
                   )}>
                     {checkIn.status === "in" ? <LogIn className="h-4 w-4" /> : <LogOut className="h-4 w-4" />}
                   </div>
-                  <span className="text-white font-medium">{checkIn.teenName}</span>
+                  <span className="text-ink font-medium">{checkIn.teenName}</span>
                 </div>
-                <span className="text-sm text-zinc-500">
+                <span className="text-sm text-mute">
                   {formatTime(checkIn.status === "out" ? checkIn.checkedOutAt! : checkIn.checkedInAt)}
                 </span>
               </div>
@@ -859,12 +859,12 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       )}
 
       {/* Exit Procedure */}
-      <Card className="p-6 bg-cyan-500/10 border-cyan-500/30">
-        <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
-          <ShieldAlert className="h-5 w-5 text-cyan-400" />
+      <Card className="p-6 bg-teal/10 border-teal/30">
+        <h4 className="text-ink font-semibold mb-3 flex items-center gap-2">
+          <ShieldAlert className="h-5 w-5 text-teal" />
           Procedure de sortie
         </h4>
-        <ol className="text-sm text-zinc-300 space-y-2 list-decimal list-inside">
+        <ol className="text-sm text-ink-2 space-y-2 list-decimal list-inside">
           <li>Scanner le QR code du billet ou entrer la reference</li>
           <li>Verifier l'identite de la personne qui recupere l'enfant</li>
           <li>Si ce n'est pas le parent, verifier l'autorisation parentale</li>

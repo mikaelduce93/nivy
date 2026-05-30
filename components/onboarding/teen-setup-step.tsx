@@ -280,8 +280,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
         )}
         className="text-center"
       >
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mb-4" aria-hidden="true">
-          <Heart className="w-8 h-8 text-white" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-pink to-pink mb-4" aria-hidden="true">
+          <Heart className="w-8 h-8 text-ink" />
         </div>
         <h2 className="text-3xl sm:text-4xl font-black mb-3 text-balance">Crée ton compte Ado</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
@@ -309,13 +309,13 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                       placeholder="Ton prénom…"
                       aria-invalid={!!errors.teenFirstName}
                       aria-describedby={errors.teenFirstName ? "teenFirstName-error" : undefined}
-                      className={`pl-10 ${errors.teenFirstName ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                      className={`pl-10 ${errors.teenFirstName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                       value={formData.teenFirstName}
                       onChange={(e) => handleInputChange('teenFirstName', e.target.value)}
                     />
                   </div>
                   {errors.teenFirstName && (
-                    <p id="teenFirstName-error" className="text-xs text-red-500" role="alert">{errors.teenFirstName}</p>
+                    <p id="teenFirstName-error" className="text-xs text-destructive" role="alert">{errors.teenFirstName}</p>
                   )}
                 </div>
 
@@ -330,13 +330,13 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                       placeholder="Ton nom…"
                       aria-invalid={!!errors.teenLastName}
                       aria-describedby={errors.teenLastName ? "teenLastName-error" : undefined}
-                      className={`pl-10 ${errors.teenLastName ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                      className={`pl-10 ${errors.teenLastName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                       value={formData.teenLastName}
                       onChange={(e) => handleInputChange('teenLastName', e.target.value)}
                     />
                   </div>
                   {errors.teenLastName && (
-                    <p id="teenLastName-error" className="text-xs text-red-500" role="alert">{errors.teenLastName}</p>
+                    <p id="teenLastName-error" className="text-xs text-destructive" role="alert">{errors.teenLastName}</p>
                   )}
                 </div>
               </div>
@@ -352,17 +352,17 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                     autoComplete="bday"
                     aria-invalid={!!errors.dateOfBirth}
                     aria-describedby={errors.dateOfBirth ? "dateOfBirth-error" : "dateOfBirth-hint"}
-                    className={`pl-10 ${errors.dateOfBirth ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                    className={`pl-10 ${errors.dateOfBirth ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                     value={formData.dateOfBirth}
                     onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
                     max={new Date().toISOString().split('T')[0]}
                   />
                 </div>
                 {errors.dateOfBirth && (
-                  <p id="dateOfBirth-error" className="text-xs text-red-500" role="alert">{errors.dateOfBirth}</p>
+                  <p id="dateOfBirth-error" className="text-xs text-destructive" role="alert">{errors.dateOfBirth}</p>
                 )}
                 {formData.dateOfBirth && !errors.dateOfBirth && (
-                  <p id="dateOfBirth-hint" className="text-xs text-green-600" aria-live="polite">
+                  <p id="dateOfBirth-hint" className="text-xs text-lime" aria-live="polite">
                     Tu as {calculateAge(formData.dateOfBirth)}&nbsp;ans
                   </p>
                 )}
@@ -387,13 +387,13 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                     placeholder="parent@email.com"
                     aria-invalid={!!errors.parentEmail}
                     aria-describedby={errors.parentEmail ? "parentEmail-error" : undefined}
-                    className={`pl-10 ${errors.parentEmail ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                    className={`pl-10 ${errors.parentEmail ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                     value={formData.parentEmail}
                     onChange={(e) => handleInputChange('parentEmail', e.target.value)}
                   />
                 </div>
                 {errors.parentEmail && (
-                  <p id="parentEmail-error" className="text-xs text-red-500" role="alert">{errors.parentEmail}</p>
+                  <p id="parentEmail-error" className="text-xs text-destructive" role="alert">{errors.parentEmail}</p>
                 )}
               </div>
 
@@ -410,13 +410,13 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                     placeholder="0612345678"
                     aria-invalid={!!errors.parentPhone}
                     aria-describedby={errors.parentPhone ? "parentPhone-error" : undefined}
-                    className={`pl-10 ${errors.parentPhone ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                    className={`pl-10 ${errors.parentPhone ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                     value={formData.parentPhone}
                     onChange={(e) => handleInputChange('parentPhone', e.target.value)}
                   />
                 </div>
                 {errors.parentPhone && (
-                  <p id="parentPhone-error" className="text-xs text-red-500" role="alert">{errors.parentPhone}</p>
+                  <p id="parentPhone-error" className="text-xs text-destructive" role="alert">{errors.parentPhone}</p>
                 )}
               </div>
             </div>
@@ -427,8 +427,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 the full 50-tag selector after parent approval + sign-in. */}
             <div className="space-y-3 pt-4 border-t">
               <div className="flex items-center gap-2">
-                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 ring-1 ring-cyan-500/30">
-                  <Sparkles className="w-4 h-4 text-cyan-500" aria-hidden="true" />
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-teal/20 to-lime/20 ring-1 ring-teal/30">
+                  <Sparkles className="w-4 h-4 text-teal" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-bold text-base leading-tight">Qu'est-ce qui te fait vibrer&nbsp;?</h3>
@@ -454,9 +454,9 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                       className={cn(
                         "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-medium",
                         "border transition-all duration-150 active:scale-95 select-none",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                         isOn
-                          ? "bg-gradient-to-r from-cyan-500 to-emerald-500 text-white border-transparent shadow-sm shadow-cyan-500/30"
+                          ? "bg-gradient-to-r from-teal to-lime text-ink border-transparent shadow-sm shadow-teal/30"
                           : "bg-background hover:bg-muted/60 border-border/80 text-foreground"
                       )}
                     >
@@ -471,7 +471,7 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 <span
                   className={cn(
                     "tabular-nums font-semibold",
-                    previewSelected.size > 0 ? "text-cyan-600 dark:text-cyan-400" : "text-muted-foreground"
+                    previewSelected.size > 0 ? "text-teal dark:text-teal" : "text-muted-foreground"
                   )}
                   aria-live="polite"
                 >
@@ -489,8 +489,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 /api/onboarding/profile to write to teens.learning_style. */}
             <div className="space-y-3 pt-4 border-t">
               <div className="flex items-center gap-2">
-                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 ring-1 ring-violet-500/30">
-                  <Brain className="w-4 h-4 text-violet-500" aria-hidden="true" />
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-pink/20 to-pink/20 ring-1 ring-pink/30">
+                  <Brain className="w-4 h-4 text-pink" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-bold text-base leading-tight">Comment tu apprends le mieux&nbsp;?</h3>
@@ -517,9 +517,9 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                       className={cn(
                         "flex items-start gap-2.5 p-3 rounded-2xl text-left",
                         "border transition-all duration-150 active:scale-[0.98] select-none",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                         isOn
-                          ? "bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 border-violet-500/60 shadow-sm"
+                          ? "bg-gradient-to-br from-pink/15 to-pink/15 border-pink/60 shadow-sm"
                           : "bg-background hover:bg-muted/60 border-border/80"
                       )}
                     >
@@ -539,8 +539,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 content-type bias in the recommender. Single-pick, optional. */}
             <div className="space-y-3 pt-4 border-t">
               <div className="flex items-center gap-2">
-                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 ring-1 ring-amber-500/30">
-                  <Compass className="w-4 h-4 text-amber-500" aria-hidden="true" />
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-gold/20 to-coral/20 ring-1 ring-gold/30">
+                  <Compass className="w-4 h-4 text-gold" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-bold text-base leading-tight">Tu te reconnais dans quel profil&nbsp;?</h3>
@@ -567,9 +567,9 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                       className={cn(
                         "flex items-start gap-2.5 p-3 rounded-2xl text-left",
                         "border transition-all duration-150 active:scale-[0.98] select-none",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                         isOn
-                          ? "bg-gradient-to-br from-amber-500/15 to-orange-500/15 border-amber-500/60 shadow-sm"
+                          ? "bg-gradient-to-br from-gold/15 to-coral/15 border-gold/60 shadow-sm"
                           : "bg-background hover:bg-muted/60 border-border/80"
                       )}
                     >
@@ -585,9 +585,9 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
             </div>
 
             {/* Info Note */}
-            <div className="flex items-start gap-3 p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl">
-              <Info className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-purple-600 dark:text-purple-400">
+            <div className="flex items-start gap-3 p-4 bg-pink/10 border border-pink/20 rounded-2xl">
+              <Info className="w-5 h-5 text-pink flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-pink dark:text-pink">
                 <p className="font-medium mb-1">Pourquoi ces informations&nbsp;?</p>
                 <p className="text-xs opacity-90">
                   Pour ta sécurité, tes parents doivent valider ton inscription. Ils recevront un email
@@ -615,7 +615,7 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
           onClick={handleSubmit}
           disabled={loading}
           aria-busy={loading}
-          className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="gap-2 bg-gradient-to-r from-pink to-pink hover:opacity-90 text-ink focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           {loading ? (
             <>

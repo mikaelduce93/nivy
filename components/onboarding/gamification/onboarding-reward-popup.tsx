@@ -113,25 +113,25 @@ function XPPopup({ reward, onClose }: { reward: XPReward; onClose: () => void })
       exit={{ opacity: 0, x: 100, scale: 0.8 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
     >
-      <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-xl border border-cyan-500/30 rounded-2xl px-5 py-4 shadow-2xl shadow-cyan-500/20">
+      <div className="bg-gradient-to-r from-teal/20 to-teal/20  border border-teal/30 rounded-2xl px-5 py-4 shadow-2xl shadow-teal/20">
         <div className="flex items-center gap-4">
           <motion.div
-            className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center"
+            className="w-12 h-12 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center"
             animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
             transition={{ duration: 0.5, repeat: 2 }}
           >
-            <Zap className="w-6 h-6 text-white" />
+            <Zap className="w-6 h-6 text-ink" />
           </motion.div>
           <div>
             <motion.p
-              className="text-cyan-400 font-bold text-2xl"
+              className="text-teal font-bold text-2xl"
               initial={{ scale: 0.5 }}
               animate={{ scale: [0.5, 1.2, 1] }}
               transition={{ duration: 0.4 }}
             >
               +{reward.amount} XP
             </motion.p>
-            {reward.reason && <p className="text-zinc-400 text-sm">{reward.reason}</p>}
+            {reward.reason && <p className="text-mute text-sm">{reward.reason}</p>}
           </div>
         </div>
       </div>
@@ -152,25 +152,25 @@ function CoinsPopup({ reward, onClose }: { reward: CoinsReward; onClose: () => v
       exit={{ opacity: 0, x: 100, scale: 0.8 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
     >
-      <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-xl border border-yellow-500/30 rounded-2xl px-5 py-4 shadow-2xl shadow-yellow-500/20">
+      <div className="bg-gradient-to-r from-gold/20 to-coral/20  border border-gold/30 rounded-2xl px-5 py-4 shadow-2xl shadow-gold/20">
         <div className="flex items-center gap-4">
           <motion.div
-            className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center"
+            className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center"
             animate={{ rotate: [0, 360] }}
             transition={{ duration: 1, ease: 'easeOut' }}
           >
-            <Coins className="w-6 h-6 text-white" />
+            <Coins className="w-6 h-6 text-ink" />
           </motion.div>
           <div>
             <motion.p
-              className="text-yellow-400 font-bold text-2xl"
+              className="text-gold font-bold text-2xl"
               initial={{ scale: 0.5 }}
               animate={{ scale: [0.5, 1.2, 1] }}
               transition={{ duration: 0.4 }}
             >
               +{reward.amount} Coins
             </motion.p>
-            <p className="text-zinc-400 text-sm">Bonus de bienvenue</p>
+            <p className="text-mute text-sm">Bonus de bienvenue</p>
           </div>
         </div>
       </div>
@@ -191,15 +191,15 @@ function BadgeModal({ reward, onClose }: { reward: BadgeReward; onClose: () => v
   }
 
   const rarityColors: Record<string, string> = {
-    common: 'from-zinc-400 to-zinc-500',
-    rare: 'from-blue-400 to-cyan-500',
-    epic: 'from-purple-400 to-pink-500',
-    legendary: 'from-yellow-400 to-orange-500',
+    common: 'from-paper-2 to-card',
+    rare: 'from-teal to-teal',
+    epic: 'from-pink to-pink',
+    legendary: 'from-gold to-coral',
   }
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 "
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -209,7 +209,7 @@ function BadgeModal({ reward, onClose }: { reward: BadgeReward; onClose: () => v
         {Array.from({ length: 12 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute top-1/2 left-1/2 h-[200%] w-2 bg-gradient-to-t from-transparent via-cyan-500/20 to-transparent origin-bottom"
+            className="absolute top-1/2 left-1/2 h-[200%] w-2 bg-gradient-to-t from-transparent via-teal/20 to-transparent origin-bottom"
             style={{ rotate: `${i * 30}deg` }}
             animate={{ rotate: [`${i * 30}deg`, `${i * 30 + 360}deg`] }}
             transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
@@ -218,7 +218,7 @@ function BadgeModal({ reward, onClose }: { reward: BadgeReward; onClose: () => v
       </div>
 
       <motion.div
-        className="relative bg-gradient-to-br from-zinc-900 to-zinc-800 border border-zinc-700 rounded-3xl p-8 max-w-sm mx-4 text-center"
+        className="relative bg-gradient-to-br from-paper-2 to-card border border-ink rounded-2xl p-8 max-w-sm mx-4 text-center"
         initial={{ scale: 0.5, rotate: -10 }}
         animate={{ scale: 1, rotate: 0 }}
         exit={{ scale: 0.5, opacity: 0 }}
@@ -227,7 +227,7 @@ function BadgeModal({ reward, onClose }: { reward: BadgeReward; onClose: () => v
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-mute hover:text-ink transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -241,7 +241,7 @@ function BadgeModal({ reward, onClose }: { reward: BadgeReward; onClose: () => v
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <Award className="w-12 h-12 text-white" />
+          <Award className="w-12 h-12 text-ink" />
 
           {/* Sparkles */}
           {Array.from({ length: 6 }).map((_, i) => (
@@ -262,14 +262,14 @@ function BadgeModal({ reward, onClose }: { reward: BadgeReward; onClose: () => v
                 delay: i * 0.2,
               }}
             >
-              <Sparkles className="w-4 h-4 text-yellow-400" />
+              <Sparkles className="w-4 h-4 text-gold" />
             </motion.div>
           ))}
         </motion.div>
 
         {/* Badge title */}
         <motion.h2
-          className="text-2xl font-bold text-white mb-2"
+          className="text-2xl font-bold text-ink mb-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -279,7 +279,7 @@ function BadgeModal({ reward, onClose }: { reward: BadgeReward; onClose: () => v
 
         {/* Description */}
         <motion.p
-          className="text-zinc-400 mb-6"
+          className="text-mute mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -295,7 +295,7 @@ function BadgeModal({ reward, onClose }: { reward: BadgeReward; onClose: () => v
         >
           <Button
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+            className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal"
           >
             Continuer
           </Button>
@@ -326,20 +326,20 @@ function CompletionModal({
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/90 "
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="relative bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border border-cyan-500/30 rounded-3xl p-8 max-w-md mx-4 text-center overflow-hidden"
+        className="relative bg-gradient-to-br from-paper-2 via-paper-2 to-card border border-teal/30 rounded-2xl p-8 max-w-md mx-4 text-center overflow-hidden"
         initial={{ scale: 0.5, y: 100 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.5, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
       >
         {/* Background glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-purple-500/10 to-pink-500/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-teal/10 via-pink/10 to-pink/10" />
 
         {/* Content */}
         <div className="relative">
@@ -349,10 +349,10 @@ function CompletionModal({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-teal via-pink to-pink bg-clip-text text-transparent mb-2">
               Bienvenue!
             </h1>
-            <p className="text-zinc-400 mb-8">Tu fais maintenant partie de la famille</p>
+            <p className="text-mute mb-8">Tu fais maintenant partie de la famille</p>
           </motion.div>
 
           {/* Stats */}
@@ -363,24 +363,24 @@ function CompletionModal({
             transition={{ delay: 0.4 }}
           >
             {/* XP */}
-            <div className="bg-zinc-800/50 rounded-xl p-4">
-              <Zap className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{reward.totalXP}</p>
-              <p className="text-xs text-zinc-500">XP gagnés</p>
+            <div className="bg-card rounded-xl p-4">
+              <Zap className="w-6 h-6 text-teal mx-auto mb-2" />
+              <p className="text-2xl font-bold text-ink">{reward.totalXP}</p>
+              <p className="text-xs text-mute">XP gagnés</p>
             </div>
 
             {/* Badges */}
-            <div className="bg-zinc-800/50 rounded-xl p-4">
-              <Award className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{reward.badges.length}</p>
-              <p className="text-xs text-zinc-500">Badges</p>
+            <div className="bg-card rounded-xl p-4">
+              <Award className="w-6 h-6 text-pink mx-auto mb-2" />
+              <p className="text-2xl font-bold text-ink">{reward.badges.length}</p>
+              <p className="text-xs text-mute">Badges</p>
             </div>
 
             {/* Coins */}
-            <div className="bg-zinc-800/50 rounded-xl p-4">
-              <Coins className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{reward.coins}</p>
-              <p className="text-xs text-zinc-500">Coins</p>
+            <div className="bg-card rounded-xl p-4">
+              <Coins className="w-6 h-6 text-gold mx-auto mb-2" />
+              <p className="text-2xl font-bold text-ink">{reward.coins}</p>
+              <p className="text-xs text-mute">Coins</p>
             </div>
           </motion.div>
 
@@ -392,19 +392,19 @@ function CompletionModal({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <p className="text-sm text-zinc-500 mb-3">Badges débloqués</p>
+              <p className="text-sm text-mute mb-3">Badges débloqués</p>
               <div className="flex justify-center gap-3">
                 {reward.badges.map((badge, i) => {
                   const info = BADGE_DISPLAY_INFO[badge]
                   return (
                     <motion.div
                       key={badge}
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center"
+                      className="w-12 h-12 rounded-full bg-gradient-to-br from-teal to-pink flex items-center justify-center"
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ delay: 0.8 + i * 0.2, type: 'spring' }}
                     >
-                      <Award className="w-6 h-6 text-white" />
+                      <Award className="w-6 h-6 text-ink" />
                     </motion.div>
                   )
                 })}
@@ -421,7 +421,7 @@ function CompletionModal({
             <Button
               onClick={onClose}
               size="lg"
-              className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-lg"
+              className="w-full bg-gradient-to-r from-teal to-pink hover:from-teal hover:to-pink text-lg"
             >
               Découvre ton dashboard
             </Button>

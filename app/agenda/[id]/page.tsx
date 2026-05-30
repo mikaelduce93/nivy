@@ -175,7 +175,7 @@ export default function EventDetailPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-ink/50 text-ink hover:bg-ink/70"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-ink/50 text-paper hover:bg-ink/70"
                   onClick={prevGalleryImage}
                   aria-label="Image précédente"
                 >
@@ -184,7 +184,7 @@ export default function EventDetailPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-ink/50 text-ink hover:bg-ink/70"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-ink/50 text-paper hover:bg-ink/70"
                   onClick={nextGalleryImage}
                   aria-label="Image suivante"
                 >

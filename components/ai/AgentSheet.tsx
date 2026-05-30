@@ -131,11 +131,11 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
 
   // Agent configuration per role
   const agentConfig = {
-    teen: { name: "Kai", color: "text-cyan-600", bg: "bg-cyan-50", icon: Sparkles },
-    parent: { name: "Aura", color: "text-indigo-600", bg: "bg-indigo-50", icon: Shield },
-    partner: { name: "Biz", color: "text-emerald-600", bg: "bg-emerald-50", icon: TrendingUp },
-    ambassador: { name: "Hype", color: "text-amber-600", bg: "bg-amber-50", icon: Zap },
-    admin: { name: "Ops", color: "text-slate-600", bg: "bg-slate-50", icon: Terminal },
+    teen: { name: "Kai", color: "text-teal", bg: "bg-teal", icon: Sparkles },
+    parent: { name: "Aura", color: "text-pink", bg: "bg-pink", icon: Shield },
+    partner: { name: "Biz", color: "text-lime", bg: "bg-lime", icon: TrendingUp },
+    ambassador: { name: "Hype", color: "text-gold", bg: "bg-gold", icon: Zap },
+    admin: { name: "Ops", color: "text-mute", bg: "bg-paper-2", icon: Terminal },
   }
 
   const config = agentConfig[role] || agentConfig.teen
@@ -229,15 +229,15 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
                           )}
 
                           {/* GENERIC FEEDBACK */}
-                          <div className="mt-2 text-xs text-green-600 flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                          <div className="mt-2 text-xs text-lime flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-lime animate-pulse" />
                             {result?.message || "Action effectuée"}
                           </div>
                         </div>
                        )
                     } 
                     return (
-                        <div key={toolCallId} className="mt-2 p-2 bg-yellow-50 text-yellow-700 rounded text-xs border border-yellow-200">
+                        <div key={toolCallId} className="mt-2 p-2 bg-gold text-gold rounded text-xs border border-gold">
                           ⏳ {config.name} travaille sur : {toolName}...
                         </div>
                     )
@@ -247,17 +247,17 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
               
               {isLoading && (
                 <div className="mr-auto text-xs text-muted-foreground animate-pulse flex items-center gap-2">
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75" />
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150" />
+                  <div className="w-2 h-2 bg-muted rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-muted rounded-full animate-bounce delay-75" />
+                  <div className="w-2 h-2 bg-muted rounded-full animate-bounce delay-150" />
                 </div>
               )}
 
               {error && (
-                <div className="p-3 bg-red-50 text-red-500 rounded-lg text-sm">
+                <div className="p-3 bg-destructive text-destructive rounded-lg text-sm">
                   Oups, une erreur est survenue: {error.message}
                   <br/>
-                  <span className="text-xs text-red-400">Vérifiez que la clé API est configurée.</span>
+                  <span className="text-xs text-destructive">Vérifiez que la clé API est configurée.</span>
                 </div>
               )}
             </div>
@@ -269,7 +269,7 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
                 type="button"
                 variant="outline"
                 size="icon"
-                className={cn(listening && "bg-red-50 text-red-500 border-red-200 animate-pulse")}
+                className={cn(listening && "bg-destructive text-destructive border-destructive animate-pulse")}
                 onClick={toggleListening}
                 disabled={!isMounted || !browserSupportsSpeechRecognition}
                 aria-label={listening ? "Arrêter la dictée vocale" : "Démarrer la dictée vocale"}

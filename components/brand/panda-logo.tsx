@@ -63,7 +63,7 @@ export function PandaLogo({
           className={cn(
             'font-black tracking-tight leading-none',
             s.text,
-            'bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400',
+            'bg-clip-text text-transparent bg-gradient-to-r from-pink via-pink to-teal',
           )}
         >
           NIVY

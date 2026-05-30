@@ -131,11 +131,11 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
   if (success) {
     return (
       <div className="py-12 text-center">
-        <div className="h-20 w-20 mx-auto rounded-full bg-emerald-500/20 flex items-center justify-center mb-4">
-          <CheckCircle className="h-10 w-10 text-emerald-400" />
+        <div className="h-20 w-20 mx-auto rounded-full bg-lime/20 flex items-center justify-center mb-4">
+          <CheckCircle className="h-10 w-10 text-lime" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">Recharge réussie !</h3>
-        <p className="text-zinc-400">
+        <h3 className="text-xl font-bold text-ink mb-2">Recharge réussie !</h3>
+        <p className="text-mute">
           Coins ajoutés au compte de {selectedTeen?.teen_name}
         </p>
       </div>
@@ -145,7 +145,7 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
   return (
     <div className="space-y-6">
       {!PSP_AUTO_TOPUP_ENABLED && (
-        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+        <div className="rounded-xl border border-gold/40 bg-gold/10 p-4 text-sm text-gold">
           <strong>Mode manuel uniquement —</strong> la recharge automatique
           (CMI / Stripe) sera activée prochainement. Pour recharger maintenant,
           utilisez le formulaire de virement bancaire.
@@ -154,21 +154,21 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
 
       {/* Teen Selection */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Sélectionner un Teen</Label>
+        <Label className="text-ink-2">Sélectionner un Teen</Label>
         <Select value={teenId} onValueChange={setTeenId}>
-          <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+          <SelectTrigger className="bg-card border-ink text-ink">
             <SelectValue placeholder="Choisir un teen" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700">
+          <SelectContent className="bg-card border-ink">
             {teens.map((teen) => (
               <SelectItem
                 key={teen.teen_id}
                 value={teen.teen_id}
-                className="text-white hover:bg-zinc-700 focus:bg-zinc-700"
+                className="text-ink hover:bg-muted focus:bg-muted"
               >
                 <div className="flex items-center gap-2">
                   <span>{teen.teen_name}</span>
-                  <span className="text-xs text-yellow-400">
+                  <span className="text-xs text-gold">
                     ({teen.total_coins || 0} coins)
                   </span>
                 </div>
@@ -180,13 +180,13 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
 
       {/* Package Selection — disabled when auto top-up is off (F5). */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Choisir un pack</Label>
+        <Label className="text-ink-2">Choisir un pack</Label>
         <Select
           value={packageId}
           onValueChange={setPackageId}
           disabled={!PSP_AUTO_TOPUP_ENABLED}
         >
-          <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+          <SelectTrigger className="bg-card border-ink text-ink">
             <SelectValue
               placeholder={
                 PSP_AUTO_TOPUP_ENABLED
@@ -195,24 +195,24 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
               }
             />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700">
+          <SelectContent className="bg-card border-ink">
             {packages.map((pack) => (
               <SelectItem
                 key={pack.id}
                 value={pack.id}
-                className="text-white hover:bg-zinc-700 focus:bg-zinc-700"
+                className="text-ink hover:bg-muted focus:bg-muted"
               >
                 <div className="flex items-center gap-3">
-                  <Coins className="h-4 w-4 text-yellow-400" />
+                  <Coins className="h-4 w-4 text-gold" />
                   <span>{pack.coins} coins</span>
                   {pack.bonus > 0 && (
-                    <span className="text-xs text-emerald-400">
+                    <span className="text-xs text-lime">
                       +{pack.bonus} bonus
                     </span>
                   )}
-                  <span className="text-zinc-400">- {pack.price} DH</span>
+                  <span className="text-mute">- {pack.price} DH</span>
                   {pack.popular && (
-                    <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">
+                    <span className="text-xs bg-lime/20 text-lime px-2 py-0.5 rounded">
                       Populaire
                     </span>
                   )}
@@ -225,33 +225,33 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
 
       {/* Summary */}
       {selectedPackage && selectedTeen && (
-        <div className="p-4 bg-zinc-800 rounded-xl border border-zinc-700">
-          <h4 className="font-semibold text-white mb-3">Résumé</h4>
+        <div className="p-4 bg-card rounded-xl border border-ink">
+          <h4 className="font-semibold text-ink mb-3">Résumé</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-zinc-400">Bénéficiaire</span>
-              <span className="text-white">{selectedTeen.teen_name}</span>
+              <span className="text-mute">Bénéficiaire</span>
+              <span className="text-ink">{selectedTeen.teen_name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-zinc-400">Coins de base</span>
-              <span className="text-white">{selectedPackage.coins}</span>
+              <span className="text-mute">Coins de base</span>
+              <span className="text-ink">{selectedPackage.coins}</span>
             </div>
             {selectedPackage.bonus > 0 && (
               <div className="flex justify-between">
-                <span className="text-zinc-400">Bonus</span>
-                <span className="text-emerald-400">+{selectedPackage.bonus}</span>
+                <span className="text-mute">Bonus</span>
+                <span className="text-lime">+{selectedPackage.bonus}</span>
               </div>
             )}
-            <div className="border-t border-zinc-700 pt-2 mt-2">
+            <div className="border-t border-ink pt-2 mt-2">
               <div className="flex justify-between">
-                <span className="text-zinc-400">Total coins</span>
-                <span className="text-yellow-400 font-bold">
+                <span className="text-mute">Total coins</span>
+                <span className="text-gold font-bold">
                   {selectedPackage.coins + selectedPackage.bonus}
                 </span>
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-zinc-400">Prix</span>
-                <span className="text-emerald-400 font-bold">
+                <span className="text-mute">Prix</span>
+                <span className="text-lime font-bold">
                   {selectedPackage.price} DH
                 </span>
               </div>
@@ -264,7 +264,7 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
       <Button
         onClick={handleSubmit}
         disabled={loading || !teenId || !packageId || !PSP_AUTO_TOPUP_ENABLED}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-12"
+        className="w-full bg-lime hover:bg-lime text-ink h-12"
       >
         {loading ? (
           <>
@@ -279,7 +279,7 @@ export function TopupForm({ teens, packages, selectedTeenId }: TopupFormProps) {
         )}
       </Button>
 
-      <p className="text-xs text-zinc-500 text-center">
+      <p className="text-xs text-mute text-center">
         Le paiement sera traité de manière sécurisée. Les coins seront crédités
         instantanément.
       </p>

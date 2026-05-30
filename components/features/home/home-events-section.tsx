@@ -53,7 +53,7 @@ export function HomeEventsSection({ events, clubs }: HomeEventsSectionProps) {
                       className="object-cover group-hover:scale-105 transition-transform"
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
-                    <div className="absolute top-3 right-3 bg-primary text-white font-bold text-center rounded-lg overflow-hidden">
+                    <div className="absolute top-3 right-3 bg-primary text-ink font-bold text-center rounded-lg overflow-hidden">
                       <div className="px-3 py-1 text-2xl">{eventDate.getDate()}</div>
                       <div className="px-3 py-0.5 text-xs bg-primary/80">
                         {eventDate.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase()}
@@ -89,7 +89,7 @@ export function HomeEventsSection({ events, clubs }: HomeEventsSectionProps) {
 
         <div className="mb-16">
           <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-purple-500" />
+            <Trophy className="w-6 h-6 text-pink" />
             Clubs en vedette
           </h3>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -121,13 +121,13 @@ export function HomeEventsSection({ events, clubs }: HomeEventsSectionProps) {
 
         <div>
           <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <Star className="w-6 h-6 text-yellow-400" />
+            <Star className="w-6 h-6 text-gold" />
             Témoignage du mois
           </h3>
           <Card className="p-8 bg-gradient-to-br from-primary/10 to-accent/10">
             <div className="flex gap-1 mb-4">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                <Star key={i} className="w-5 h-5 text-gold fill-current" />
               ))}
             </div>
             <p className="text-lg mb-6 leading-relaxed">

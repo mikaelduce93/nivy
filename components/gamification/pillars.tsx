@@ -53,10 +53,10 @@ export const PILLAR_CONFIGS: PillarConfig[] = [
     name: "Ecole",
     nameAr: "المدرسة",
     icon: GraduationCap,
-    color: "text-blue-400",
-    gradientFrom: "from-blue-500",
-    gradientTo: "to-indigo-600",
-    bgColor: "bg-blue-500/10",
+    color: "text-teal",
+    gradientFrom: "from-teal",
+    gradientTo: "to-pink",
+    bgColor: "bg-teal/10",
     description: "Notes, Quiz, Tutoriels educatifs",
   },
   {
@@ -64,10 +64,10 @@ export const PILLAR_CONFIGS: PillarConfig[] = [
     name: "Sport",
     nameAr: "الرياضة",
     icon: Dumbbell,
-    color: "text-green-400",
-    gradientFrom: "from-green-500",
-    gradientTo: "to-emerald-600",
-    bgColor: "bg-green-500/10",
+    color: "text-lime",
+    gradientFrom: "from-lime",
+    gradientTo: "to-lime",
+    bgColor: "bg-lime/10",
     description: "Presence clubs, Defis physiques, Records",
   },
   {
@@ -75,19 +75,19 @@ export const PILLAR_CONFIGS: PillarConfig[] = [
     name: "Creativite",
     nameAr: "الإبداع",
     icon: Palette,
-    color: "text-purple-400",
-    gradientFrom: "from-purple-500",
-    gradientTo: "to-pink-600",
-    bgColor: "bg-purple-500/10",
+    color: "text-pink",
+    gradientFrom: "from-pink",
+    gradientTo: "to-pink",
+    bgColor: "bg-pink/10",
     description: "Tutoriels passion, Creations, Likes",
   },
 ]
 
 export const BALANCE_TIERS = {
-  none: { min: 0, xpBonus: 0, multiplier: 1.0, color: "text-zinc-400", label: "Non equilibre" },
-  silver: { min: 50, xpBonus: 500, multiplier: 1.1, color: "text-zinc-300", label: "Equilibre" },
-  gold: { min: 70, xpBonus: 1000, multiplier: 1.25, color: "text-yellow-400", label: "Bien equilibre" },
-  legendary: { min: 85, xpBonus: 2000, multiplier: 1.5, color: "text-purple-400", label: "Parfaitement equilibre" },
+  none: { min: 0, xpBonus: 0, multiplier: 1.0, color: "text-mute", label: "Non equilibre" },
+  silver: { min: 50, xpBonus: 500, multiplier: 1.1, color: "text-ink-2", label: "Equilibre" },
+  gold: { min: 70, xpBonus: 1000, multiplier: 1.25, color: "text-gold", label: "Bien equilibre" },
+  legendary: { min: 85, xpBonus: 2000, multiplier: 1.5, color: "text-pink", label: "Parfaitement equilibre" },
 }
 
 /* ==========================================================================
@@ -137,10 +137,10 @@ export function PillarScoreCard({
   }, [score])
 
   const scoreLevel =
-    score >= 85 ? { label: "Maitrise", color: "text-purple-400" } :
-    score >= 70 ? { label: "Avance", color: "text-yellow-400" } :
-    score >= 50 ? { label: "Bon", color: "text-zinc-300" } :
-                  { label: "A travailler", color: "text-zinc-500" }
+    score >= 85 ? { label: "Maitrise", color: "text-pink" } :
+    score >= 70 ? { label: "Avance", color: "text-gold" } :
+    score >= 50 ? { label: "Bon", color: "text-ink-2" } :
+                  { label: "A travailler", color: "text-mute" }
 
   return (
     <motion.div
@@ -153,7 +153,7 @@ export function PillarScoreCard({
       whileTap={onClick ? { scale: 0.98 } : undefined}
       onClick={onClick}
     >
-      <Card variant="glass" className="p-6 h-full border-white/5">
+      <Card variant="glass" className="p-6 h-full border-ink">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -165,11 +165,11 @@ export function PillarScoreCard({
               whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
               transition={{ duration: 0.5 }}
             >
-              <Icon className="w-8 h-8 text-white" />
+              <Icon className="w-8 h-8 text-ink" />
             </motion.div>
             <div>
-              <h3 className="font-black text-xl text-white tracking-tight">{pillar.name}</h3>
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{pillar.id}</p>
+              <h3 className="font-black text-xl text-ink tracking-tight">{pillar.name}</h3>
+              <p className="text-[10px] font-bold text-mute uppercase tracking-widest">{pillar.id}</p>
             </div>
           </div>
 
@@ -178,7 +178,7 @@ export function PillarScoreCard({
             <motion.div
               className={cn(
                 "flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black tracking-tighter shadow-lg",
-                trend > 0 ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                trend > 0 ? "bg-lime/20 text-lime" : "bg-destructive/20 text-destructive"
               )}
               initial={{ opacity: 0, scale: 0.8, x: 20 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -204,20 +204,20 @@ export function PillarScoreCard({
               >
                 {displayScore}
               </motion.span>
-              <span className="text-[10px] font-black text-zinc-500 uppercase tracking-tighter">SCORE</span>
+              <span className="text-[10px] font-black text-mute uppercase tracking-tighter">SCORE</span>
             </div>
           </EnergyOrb>
         </div>
 
         {/* Score level label */}
         <div className="text-center space-y-4">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10">
+          <div className="inline-block px-4 py-1.5 rounded-full bg-paper-2 border border-ink">
             <span className={cn("text-xs font-black uppercase tracking-widest", scoreLevel.color)}>
               {scoreLevel.label}
             </span>
           </div>
           
-          <p className="text-sm text-zinc-400 font-medium px-4 line-clamp-2">
+          <p className="text-sm text-mute font-medium px-4 line-clamp-2">
             {pillar.description}
           </p>
         </div>
@@ -225,7 +225,7 @@ export function PillarScoreCard({
         {/* Details link */}
         {showDetails && onClick && (
           <motion.div
-            className="mt-6 pt-6 border-t border-white/5 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 group"
+            className="mt-6 pt-6 border-t border-ink flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest text-mute group"
             whileHover={{ color: "#fff" }}
           >
             <span>Analytics</span>
@@ -264,22 +264,22 @@ export function PillarBalanceWidget({ scores, className }: PillarBalanceWidgetPr
 
   return (
     <Card className={cn(
-      "p-6 bg-gradient-to-br from-zinc-900 to-zinc-800 border-zinc-700",
+      "p-6 bg-gradient-to-br from-paper-2 to-card border-ink",
       className
     )}>
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className="text-lg font-bold text-white mb-1">Equilibre des Piliers</h3>
-          <p className="text-sm text-zinc-500">Maintiens tes 3 piliers equilibres pour des bonus XP !</p>
+          <h3 className="text-lg font-bold text-ink mb-1">Equilibre des Piliers</h3>
+          <p className="text-sm text-mute">Maintiens tes 3 piliers equilibres pour des bonus XP !</p>
         </div>
         <motion.div
           className={cn(
             "px-3 py-1.5 rounded-full font-medium text-sm",
-            currentTier === BALANCE_TIERS.legendary ? "bg-purple-500/20" :
-            currentTier === BALANCE_TIERS.gold ? "bg-yellow-500/20" :
-            currentTier === BALANCE_TIERS.silver ? "bg-zinc-500/20" :
-            "bg-zinc-800"
+            currentTier === BALANCE_TIERS.legendary ? "bg-pink/20" :
+            currentTier === BALANCE_TIERS.gold ? "bg-gold/20" :
+            currentTier === BALANCE_TIERS.silver ? "bg-muted" :
+            "bg-card"
           )}
           animate={currentTier !== BALANCE_TIERS.none ? { scale: [1, 1.05, 1] } : {}}
           transition={{ duration: 2, repeat: Infinity }}
@@ -306,13 +306,13 @@ export function PillarBalanceWidget({ scores, className }: PillarBalanceWidgetPr
                   )}>
                     <Icon className={cn("w-3.5 h-3.5", pillar.color)} />
                   </div>
-                  <span className="text-sm text-zinc-300">{pillar.name}</span>
+                  <span className="text-sm text-ink-2">{pillar.name}</span>
                 </div>
                 <span className={cn("text-sm font-bold", pillar.color)}>{score}</span>
               </div>
 
               {/* Progress bar */}
-              <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+              <div className="h-2 bg-card rounded-full overflow-hidden">
                 <motion.div
                   className={cn(
                     "h-full rounded-full",
@@ -331,7 +331,7 @@ export function PillarBalanceWidget({ scores, className }: PillarBalanceWidgetPr
                     key={threshold}
                     className={cn(
                       "absolute top-0 w-0.5 h-1 -mt-3",
-                      score >= threshold ? pillar.color.replace("text-", "bg-") : "bg-zinc-700"
+                      score >= threshold ? pillar.color.replace("text-", "bg-") : "bg-muted"
                     )}
                     style={{ left: `${threshold}%` }}
                   />
@@ -345,23 +345,23 @@ export function PillarBalanceWidget({ scores, className }: PillarBalanceWidgetPr
       {/* Current bonus */}
       {currentTier !== BALANCE_TIERS.none && (
         <motion.div
-          className="p-4 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 mb-4"
+          className="p-4 rounded-xl bg-gradient-to-r from-teal/10 to-pink/10 border border-teal/20 mb-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal to-pink flex items-center justify-center">
+              <Zap className="w-5 h-5 text-ink" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-white font-medium">Bonus actif</p>
-              <p className="text-xs text-zinc-400">
+              <p className="text-sm text-ink font-medium">Bonus actif</p>
+              <p className="text-xs text-mute">
                 Multiplicateur XP: x{currentTier.multiplier.toFixed(2)}
               </p>
             </div>
             <div className="text-right">
               <p className={cn("font-bold", currentTier.color)}>+{currentTier.xpBonus}</p>
-              <p className="text-xs text-zinc-500">XP/mois</p>
+              <p className="text-xs text-mute">XP/mois</p>
             </div>
           </div>
         </motion.div>
@@ -369,12 +369,12 @@ export function PillarBalanceWidget({ scores, className }: PillarBalanceWidgetPr
 
       {/* Next tier info */}
       {nextTier && (
-        <div className="p-3 rounded-xl bg-zinc-800/50 border border-zinc-700">
+        <div className="p-3 rounded-xl bg-card border border-ink">
           <div className="flex items-center gap-2 mb-2">
-            <Star className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm text-zinc-300">Prochain palier</span>
+            <Star className="w-4 h-4 text-gold" />
+            <span className="text-sm text-ink-2">Prochain palier</span>
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-mute">
             Atteins {nextTier.min}/100 sur tous les piliers pour debloquer le bonus{" "}
             <span className={nextTier.color}>{nextTier.label}</span> (+{nextTier.xpBonus} XP/mois)
           </p>
@@ -441,8 +441,8 @@ export function PillarDashboard({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-white mb-1">Mes Piliers</h2>
-          <p className="text-zinc-500">Equilibre Ecole, Sport et Creativite pour progresser</p>
+          <h2 className="text-2xl font-black text-ink mb-1">Mes Piliers</h2>
+          <p className="text-mute">Equilibre Ecole, Sport et Creativite pour progresser</p>
         </div>
         <PillarMiniWidget scores={scores} />
       </div>
@@ -476,19 +476,19 @@ export function PillarDashboard({
       </div>
 
       {/* Average Score */}
-      <Card className="p-4 bg-gradient-to-br from-zinc-900 to-zinc-800 border-zinc-700">
+      <Card className="p-4 bg-gradient-to-br from-paper-2 to-card border-ink">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal to-pink flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-ink" />
             </div>
             <div>
-              <p className="font-medium text-white">Score moyen</p>
-              <p className="text-xs text-zinc-500">Moyenne de tes 3 piliers</p>
+              <p className="font-medium text-ink">Score moyen</p>
+              <p className="text-xs text-mute">Moyenne de tes 3 piliers</p>
             </div>
           </div>
           <motion.div
-            className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-purple-400 text-transparent bg-clip-text"
+            className="text-3xl font-black bg-gradient-to-r from-teal to-pink text-transparent bg-clip-text"
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
           >
@@ -498,12 +498,12 @@ export function PillarDashboard({
       </Card>
 
       {/* Tips */}
-      <div className="p-4 rounded-xl bg-zinc-800/50 border border-zinc-700">
+      <div className="p-4 rounded-xl bg-card border border-ink">
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+          <Info className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-white mb-1">Conseil</p>
-            <p className="text-xs text-zinc-400">
+            <p className="text-sm font-medium text-ink mb-1">Conseil</p>
+            <p className="text-xs text-mute">
               {scores.school_score < 50 ?
                 "Ameliore ton score Ecole en completant des quiz et tutoriels educatifs !" :
                 scores.sport_score < 50 ?
@@ -527,11 +527,11 @@ export function PillarDashboard({
 export function PillarDashboardSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <div className="h-8 bg-zinc-800 rounded w-1/3" />
-      <div className="h-64 bg-zinc-800 rounded-2xl" />
+      <div className="h-8 bg-card rounded w-1/3" />
+      <div className="h-64 bg-card rounded-2xl" />
       <div className="grid md:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-48 bg-zinc-800 rounded-2xl" />
+          <div key={i} className="h-48 bg-card rounded-2xl" />
         ))}
       </div>
     </div>

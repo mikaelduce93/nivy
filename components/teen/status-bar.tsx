@@ -36,27 +36,27 @@ export function StatusBar({ teenId, initialData }: StatusBarProps) {
     >
       {/* Glass container */}
       <div className="relative mx-auto max-w-[1600px] px-4">
-        <div className="flex items-center justify-between gap-4 py-3 px-4 rounded-b-2xl bg-black/60 backdrop-blur-xl border-x border-b border-white/10">
+        <div className="flex items-center justify-between gap-4 py-3 px-4 rounded-b-2xl bg-ink/60  border-x border-b border-ink">
           
           {/* Level & XP Progress */}
           <div className="flex items-center gap-3">
             <div className="relative">
               <motion.div
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center font-black text-black text-sm shadow-lg"
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center font-black text-ink text-sm shadow-lg"
                 whileHover={{ scale: 1.1, rotate: 5 }}
               >
                 {level}
               </motion.div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-success-soft flex items-center justify-center">
-                <TrendingUp className="w-2.5 h-2.5 text-black" />
+                <TrendingUp className="w-2.5 h-2.5 text-ink" />
               </div>
             </div>
             
             <div className="hidden sm:flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-mute uppercase tracking-wider">
                 Level {level}
               </span>
-              <div className="w-24 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div className="w-24 h-1.5 bg-card rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-gradient-to-r from-brand-soft to-info-soft rounded-full"
                   initial={{ width: 0 }}
@@ -74,20 +74,20 @@ export function StatusBar({ teenId, initialData }: StatusBarProps) {
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all",
                 currentStreak > 0 
-                  ? "bg-orange-500/10 border border-orange-500/20" 
-                  : "bg-zinc-800/50"
+                  ? "bg-coral/10 border border-coral/20" 
+                  : "bg-card"
               )}
               whileHover={{ scale: 1.05 }}
             >
               <Flame 
                 className={cn(
                   "w-4 h-4",
-                  currentStreak > 0 ? "text-orange-500" : "text-zinc-500"
+                  currentStreak > 0 ? "text-coral" : "text-mute"
                 )} 
               />
               <span className={cn(
                 "font-black text-sm",
-                currentStreak > 0 ? "text-orange-500" : "text-zinc-500"
+                currentStreak > 0 ? "text-coral" : "text-mute"
               )}>
                 {currentStreak}
               </span>
@@ -106,11 +106,11 @@ export function StatusBar({ teenId, initialData }: StatusBarProps) {
 
             {/* Coins */}
             <motion.div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gold/10 border border-gold/20"
               whileHover={{ scale: 1.05 }}
             >
-              <Coins className="w-4 h-4 text-yellow-500" />
-              <span className="font-black text-sm text-yellow-500">
+              <Coins className="w-4 h-4 text-gold" />
+              <span className="font-black text-sm text-gold">
                 {coins.toLocaleString()}
               </span>
             </motion.div>

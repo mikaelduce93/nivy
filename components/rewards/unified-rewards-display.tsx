@@ -55,11 +55,11 @@ interface UnifiedRewardsDisplayProps {
 }
 
 const TIER_COLORS = {
-  bronze: "from-orange-600 to-orange-800",
-  silver: "from-zinc-400 to-zinc-600",
-  gold: "from-yellow-500 to-amber-600",
-  platinum: "from-purple-500 to-pink-600",
-  free: "from-zinc-600 to-zinc-800",
+  bronze: "from-coral to-coral",
+  silver: "from-paper-2 to-card",
+  gold: "from-gold to-gold",
+  platinum: "from-pink to-pink",
+  free: "from-paper-2 to-card",
 }
 
 const TIER_LABELS = {
@@ -87,10 +87,10 @@ export function UnifiedRewardsDisplay({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30">
-                  <Zap className="h-4 w-4 text-purple-400" />
-                  <span className="text-sm font-bold text-purple-400">{xp.total.toLocaleString()}</span>
-                  <Badge variant="outline" className="text-xs px-1.5 py-0 border-purple-500/50 text-purple-300">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink/20 border border-pink/30">
+                  <Zap className="h-4 w-4 text-pink" />
+                  <span className="text-sm font-bold text-pink">{xp.total.toLocaleString()}</span>
+                  <Badge variant="outline" className="text-xs px-1.5 py-0 border-pink/50 text-pink">
                     Nv.{xp.level}
                   </Badge>
                 </div>
@@ -108,9 +108,9 @@ export function UnifiedRewardsDisplay({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/20 border border-yellow-500/30">
-                  <Coins className="h-4 w-4 text-yellow-400" />
-                  <span className="text-sm font-bold text-yellow-400">{coins.toLocaleString()}</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/30">
+                  <Coins className="h-4 w-4 text-gold" />
+                  <span className="text-sm font-bold text-gold">{coins.toLocaleString()}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
@@ -126,10 +126,10 @@ export function UnifiedRewardsDisplay({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-                  <Star className="h-4 w-4 text-emerald-400" />
-                  <span className="text-sm font-bold text-emerald-400">{points.total.toLocaleString()}</span>
-                  <Badge variant="outline" className="text-xs px-1.5 py-0 border-emerald-500/50 text-emerald-300">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-lime/20 border border-lime/30">
+                  <Star className="h-4 w-4 text-lime" />
+                  <span className="text-sm font-bold text-lime">{points.total.toLocaleString()}</span>
+                  <Badge variant="outline" className="text-xs px-1.5 py-0 border-lime/50 text-lime">
                     {TIER_LABELS[points.tier]}
                   </Badge>
                 </div>
@@ -150,23 +150,23 @@ export function UnifiedRewardsDisplay({
     <div className={cn("space-y-6", className)}>
       {/* Header with explanation */}
       {showExplanation && (
-        <Card className="bg-gradient-to-br from-cyan-500/10 to-purple-500/10 border-cyan-500/30">
+        <Card className="bg-gradient-to-br from-teal/10 to-pink/10 border-teal/30">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+              <Info className="h-5 w-5 text-teal mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-semibold text-white mb-1">Comment ça marche ?</h4>
-                <p className="text-sm text-zinc-300">
-                  Tu as <strong className="text-purple-400">2 types de récompenses</strong> chez Teens Party :
+                <h4 className="font-semibold text-ink mb-1">Comment ça marche ?</h4>
+                <p className="text-sm text-ink-2">
+                  Tu as <strong className="text-pink">2 types de récompenses</strong> chez Teens Party :
                 </p>
-                <ul className="mt-2 space-y-1 text-sm text-zinc-400">
+                <ul className="mt-2 space-y-1 text-sm text-mute">
                   <li className="flex items-center gap-2">
-                    <Zap className="h-3 w-3 text-purple-400" />
-                    <span><strong className="text-purple-400">XP</strong> : Gagne en jouant, missions, défis → Monte de niveau</span>
+                    <Zap className="h-3 w-3 text-pink" />
+                    <span><strong className="text-pink">XP</strong> : Gagne en jouant, missions, défis → Monte de niveau</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Star className="h-3 w-3 text-emerald-400" />
-                    <span><strong className="text-emerald-400">Points</strong> : Gagne en achetant → Réductions et cadeaux</span>
+                    <Star className="h-3 w-3 text-lime" />
+                    <span><strong className="text-lime">Points</strong> : Gagne en achetant → Réductions et cadeaux</span>
                   </li>
                 </ul>
               </div>
@@ -178,61 +178,61 @@ export function UnifiedRewardsDisplay({
       <div className="grid md:grid-cols-2 gap-4">
         {/* XP Card - Gamification */}
         {xp && (
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30">
+          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-purple-400">
+                <div className="flex items-center gap-2 text-pink">
                   <Zap className="h-5 w-5" />
                   XP Gamification
                 </div>
-                <Badge className="bg-purple-500/30 text-purple-300 border-purple-500/50">
+                <Badge className="bg-pink/30 text-pink border-pink/50">
                   Niveau {xp.level}
                 </Badge>
               </CardTitle>
-              <CardDescription className="text-purple-300/70">
+              <CardDescription className="text-pink/70">
                 Gagne de l'XP en jouant et complétant des défis
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
-                <p className="text-4xl font-black text-white">{xp.total.toLocaleString()}</p>
-                <p className="text-sm text-purple-300">XP Total</p>
+                <p className="text-4xl font-black text-ink">{xp.total.toLocaleString()}</p>
+                <p className="text-sm text-pink">XP Total</p>
               </div>
 
               {/* Level Progress */}
               <div className="space-y-2">
-                <div className="flex justify-between text-xs text-purple-300">
+                <div className="flex justify-between text-xs text-pink">
                   <span>Niveau {xp.level}</span>
                   <span>Niveau {xp.level + 1}</span>
                 </div>
                 <Progress
                   value={((1000 - xp.toNextLevel) / 1000) * 100}
-                  className="h-2 bg-purple-950"
+                  className="h-2 bg-pink"
                 />
-                <p className="text-xs text-center text-purple-400">
+                <p className="text-xs text-center text-pink">
                   {xp.toNextLevel} XP restants
                 </p>
               </div>
 
               {/* Streak */}
               {xp.streak !== undefined && (
-                <div className="flex items-center justify-center gap-2 p-2 rounded-lg bg-purple-500/10">
-                  <TrendingUp className="h-4 w-4 text-orange-400" />
-                  <span className="text-sm text-white">
-                    Série de <strong className="text-orange-400">{xp.streak}</strong> jours
+                <div className="flex items-center justify-center gap-2 p-2 rounded-lg bg-pink/10">
+                  <TrendingUp className="h-4 w-4 text-coral" />
+                  <span className="text-sm text-ink">
+                    Série de <strong className="text-coral">{xp.streak}</strong> jours
                   </span>
                 </div>
               )}
 
               {/* Actions */}
               <div className="flex gap-2">
-                <Button asChild size="sm" className="flex-1 bg-purple-500 hover:bg-purple-600">
+                <Button asChild size="sm" className="flex-1 bg-pink hover:bg-pink">
                   <Link href="/teen/quests">
                     <Target className="h-4 w-4 mr-1" />
                     Missions
                   </Link>
                 </Button>
-                <Button asChild size="sm" variant="outline" className="flex-1 border-purple-500/50 text-purple-300">
+                <Button asChild size="sm" variant="outline" className="flex-1 border-pink/50 text-pink">
                   <Link href="/teen/leaderboard">
                     <Trophy className="h-4 w-4 mr-1" />
                     Classement
@@ -245,45 +245,45 @@ export function UnifiedRewardsDisplay({
 
         {/* Points Card - Loyalty */}
         {points && (
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30">
+          <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-emerald-400">
+                <div className="flex items-center gap-2 text-lime">
                   <Star className="h-5 w-5" />
                   Points Fidélité
                 </div>
                 <Badge className={cn(
                   "border",
-                  points.tier === "platinum" && "bg-purple-500/30 text-purple-300 border-purple-500/50",
-                  points.tier === "gold" && "bg-yellow-500/30 text-yellow-300 border-yellow-500/50",
-                  points.tier === "silver" && "bg-zinc-500/30 text-zinc-300 border-zinc-500/50",
-                  points.tier === "bronze" && "bg-orange-500/30 text-orange-300 border-orange-500/50"
+                  points.tier === "platinum" && "bg-pink/30 text-pink border-pink/50",
+                  points.tier === "gold" && "bg-gold/30 text-gold border-gold/50",
+                  points.tier === "silver" && "bg-muted text-ink-2 border-line",
+                  points.tier === "bronze" && "bg-coral/30 text-coral border-coral/50"
                 )}>
                   {TIER_LABELS[points.tier]}
                 </Badge>
               </CardTitle>
-              <CardDescription className="text-emerald-300/70">
+              <CardDescription className="text-lime/70">
                 Gagne des points à chaque achat
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
-                <p className="text-4xl font-black text-white">{points.total.toLocaleString()}</p>
-                <p className="text-sm text-emerald-300">Points</p>
+                <p className="text-4xl font-black text-ink">{points.total.toLocaleString()}</p>
+                <p className="text-sm text-lime">Points</p>
               </div>
 
               {/* Tier Progress */}
               <div className="space-y-2">
-                <div className="flex justify-between text-xs text-emerald-300">
+                <div className="flex justify-between text-xs text-lime">
                   <span>{TIER_LABELS[points.tier]}</span>
                   <span>{points.tier !== "platinum" ? "Tier suivant" : "Max"}</span>
                 </div>
                 <Progress
                   value={points.tier === "platinum" ? 100 : ((500 - points.toNextTier) / 500) * 100}
-                  className="h-2 bg-emerald-950"
+                  className="h-2 bg-lime"
                 />
                 {points.tier !== "platinum" && (
-                  <p className="text-xs text-center text-emerald-400">
+                  <p className="text-xs text-center text-lime">
                     {points.toNextTier} pts pour {
                       points.tier === "bronze" ? "Silver" :
                       points.tier === "silver" ? "Gold" : "Platinum"
@@ -299,11 +299,11 @@ export function UnifiedRewardsDisplay({
                   `bg-gradient-to-r ${TIER_COLORS[vipCard.tier]} bg-opacity-20`
                 )}>
                   <div className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-white" />
-                    <span className="text-sm text-white">Carte VIP {TIER_LABELS[vipCard.tier]}</span>
+                    <CreditCard className="h-4 w-4 text-ink" />
+                    <span className="text-sm text-ink">Carte VIP {TIER_LABELS[vipCard.tier]}</span>
                   </div>
                   {vipCard.expiresAt && (
-                    <span className="text-xs text-white/70">
+                    <span className="text-xs text-ink/70">
                       Expire: {new Date(vipCard.expiresAt).toLocaleDateString("fr-FR")}
                     </span>
                   )}
@@ -312,13 +312,13 @@ export function UnifiedRewardsDisplay({
 
               {/* Actions */}
               <div className="flex gap-2">
-                <Button asChild size="sm" className="flex-1 bg-emerald-500 hover:bg-emerald-600">
+                <Button asChild size="sm" className="flex-1 bg-lime hover:bg-lime">
                   <Link href="/carte-vip/recompenses">
                     <Gift className="h-4 w-4 mr-1" />
                     Récompenses
                   </Link>
                 </Button>
-                <Button asChild size="sm" variant="outline" className="flex-1 border-emerald-500/50 text-emerald-300">
+                <Button asChild size="sm" variant="outline" className="flex-1 border-lime/50 text-lime">
                   <Link href="/carte-vip">
                     <Sparkles className="h-4 w-4 mr-1" />
                     Carte VIP
@@ -332,19 +332,19 @@ export function UnifiedRewardsDisplay({
 
       {/* Coins Section */}
       {coins !== undefined && (
-        <Card className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-500/30">
+        <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-yellow-500/30 flex items-center justify-center">
-                  <Coins className="h-6 w-6 text-yellow-400" />
+                <div className="w-12 h-12 rounded-full bg-gold/30 flex items-center justify-center">
+                  <Coins className="h-6 w-6 text-gold" />
                 </div>
                 <div>
-                  <p className="text-2xl font-black text-white">{coins.toLocaleString()}</p>
-                  <p className="text-sm text-yellow-300">Coins Boutique</p>
+                  <p className="text-2xl font-black text-ink">{coins.toLocaleString()}</p>
+                  <p className="text-sm text-gold">Coins Boutique</p>
                 </div>
               </div>
-              <Button asChild className="bg-yellow-500 hover:bg-yellow-600 text-black">
+              <Button asChild className="bg-gold hover:bg-gold text-ink">
                 <Link href="/teen/wallet?tab=shop">
                   <ShoppingBag className="h-4 w-4 mr-2" />
                   Boutique
@@ -352,7 +352,7 @@ export function UnifiedRewardsDisplay({
                 </Link>
               </Button>
             </div>
-            <p className="mt-3 text-xs text-yellow-300/70">
+            <p className="mt-3 text-xs text-gold/70">
               Les coins s'obtiennent en montant de niveau, en complétant des achievements, et lors d'événements spéciaux.
             </p>
           </CardContent>

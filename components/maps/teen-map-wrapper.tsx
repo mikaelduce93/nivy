@@ -23,8 +23,8 @@ export function TeenMapWrapper() {
 
   if (error) {
     return (
-      <Card className="w-full h-[300px] bg-zinc-900 rounded-3xl flex items-center justify-center border-zinc-800">
-        <div className="text-center text-zinc-500">
+      <Card className="w-full h-[300px] bg-card rounded-2xl flex items-center justify-center border-ink">
+        <div className="text-center text-mute">
           <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <p>{error}</p>
         </div>
@@ -34,8 +34,8 @@ export function TeenMapWrapper() {
 
   if (!MapComponent) {
     return (
-      <Card className="w-full h-[300px] bg-zinc-900 rounded-3xl flex items-center justify-center border-zinc-800 animate-pulse">
-        <div className="text-center text-zinc-500">
+      <Card className="w-full h-[300px] bg-card rounded-2xl flex items-center justify-center border-ink animate-pulse">
+        <div className="text-center text-mute">
           <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin" />
           <p>Chargement de la carte...</p>
         </div>

@@ -37,7 +37,7 @@ export function CountdownClient({ targetDate }: CountdownClientProps) {
   }, [targetDate])
 
   return (
-    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 backdrop-blur-sm">
+    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 ">
       <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
       <span className="text-sm font-medium text-primary">
         Prochaine soirée dans {countdown.days} jours

@@ -152,22 +152,22 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
   const canSubmit = answeredCount === totalQuestions
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-white">{quiz.title}</h1>
-            <p className="text-sm text-zinc-500">{quiz.subject}</p>
+            <h1 className="text-xl font-bold text-ink">{quiz.title}</h1>
+            <p className="text-sm text-mute">{quiz.subject}</p>
           </div>
           <div className="flex items-center gap-4">
             {/* Timer */}
             <motion.div
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-xl font-mono",
-                timeLeft <= 60 ? "bg-red-500/20 text-red-400" :
-                timeLeft <= 180 ? "bg-yellow-500/20 text-yellow-400" :
-                "bg-zinc-800 text-white"
+                timeLeft <= 60 ? "bg-destructive/20 text-destructive" :
+                timeLeft <= 180 ? "bg-gold/20 text-gold" :
+                "bg-card text-ink"
               )}
               animate={timeLeft <= 60 ? { scale: [1, 1.05, 1] } : {}}
               transition={{ duration: 0.5, repeat: Infinity }}
@@ -181,7 +181,7 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
               variant="ghost"
               size="sm"
               onClick={() => setShowConfirmExit(true)}
-              className="text-zinc-400"
+              className="text-mute"
             >
               Quitter
             </Button>
@@ -191,16 +191,16 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
         {/* Progress bar */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-zinc-500">
+            <span className="text-sm text-mute">
               Question {currentQuestion + 1} / {totalQuestions}
             </span>
-            <span className="text-sm text-zinc-500">
+            <span className="text-sm text-mute">
               {answeredCount} repondue(s)
             </span>
           </div>
-          <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-2 bg-card rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+              className="h-full bg-gradient-to-r from-teal to-teal"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.3 }}
@@ -217,8 +217,8 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
-            <Card className="p-6 bg-zinc-900 border-zinc-800">
-              <h2 className="text-lg font-medium text-white mb-6">
+            <Card className="p-6 bg-card border-ink">
+              <h2 className="text-lg font-medium text-ink mb-6">
                 {currentQ.question}
               </h2>
 
@@ -233,8 +233,8 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
                         "w-full p-4 rounded-xl text-left transition-all",
                         "border-2",
                         isSelected
-                          ? "border-cyan-500 bg-cyan-500/10 text-white"
-                          : "border-zinc-700 bg-zinc-800/50 text-zinc-300 hover:border-zinc-600"
+                          ? "border-teal bg-teal/10 text-ink"
+                          : "border-ink bg-card text-ink-2 hover:border-ink"
                       )}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
@@ -246,8 +246,8 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
                             "w-8 h-8 rounded-full flex items-center justify-center",
                             "border-2 transition-all",
                             isSelected
-                              ? "border-cyan-500 bg-cyan-500 text-white"
-                              : "border-zinc-600 text-zinc-400"
+                              ? "border-teal bg-teal text-ink"
+                              : "border-ink text-mute"
                           )}
                         >
                           {String.fromCharCode(65 + index)}
@@ -281,10 +281,10 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
                 className={cn(
                   "w-8 h-8 rounded-full text-sm font-medium transition-all",
                   index === currentQuestion
-                    ? "bg-cyan-500 text-white"
+                    ? "bg-teal text-ink"
                     : answers[index] !== null
-                    ? "bg-green-500/20 text-green-400"
-                    : "bg-zinc-800 text-zinc-500"
+                    ? "bg-lime/20 text-lime"
+                    : "bg-card text-mute"
                 )}
                 onClick={() => setCurrentQuestion(index)}
               >
@@ -297,7 +297,7 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
             <Button
               onClick={handleSubmit}
               disabled={!canSubmit || isSubmitting}
-              className="gap-2 bg-gradient-to-r from-cyan-500 to-blue-500"
+              className="gap-2 bg-gradient-to-r from-teal to-teal"
             >
               {isSubmitting ? "Envoi..." : "Terminer"}
               <CheckCircle2 className="w-4 h-4" />
@@ -314,22 +314,22 @@ export function QuizPlayer({ quiz, teenId, onComplete, onExit }: QuizPlayerProps
         <AnimatePresence>
           {showConfirmExit && (
             <motion.div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <motion.div
-                className="bg-zinc-900 rounded-2xl p-6 max-w-md mx-4 border border-zinc-800"
+                className="bg-card rounded-2xl p-6 max-w-md mx-4 border border-ink"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <AlertCircle className="w-6 h-6 text-yellow-500" />
-                  <h3 className="text-lg font-bold text-white">Quitter le quiz ?</h3>
+                  <AlertCircle className="w-6 h-6 text-gold" />
+                  <h3 className="text-lg font-bold text-ink">Quitter le quiz ?</h3>
                 </div>
-                <p className="text-zinc-400 mb-6">
+                <p className="text-mute mb-6">
                   Ta progression sera perdue. Es-tu sur de vouloir quitter ?
                 </p>
                 <div className="flex gap-3">
@@ -372,7 +372,7 @@ export function QuizResult({ quiz, result, onRetry, onExit }: QuizResultProps) {
   const [showDetails, setShowDetails] = useState(false)
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
         {/* Result header */}
         <motion.div
@@ -384,24 +384,24 @@ export function QuizResult({ quiz, result, onRetry, onExit }: QuizResultProps) {
             className={cn(
               "w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center",
               result.passed
-                ? "bg-gradient-to-br from-green-500 to-emerald-600"
-                : "bg-gradient-to-br from-red-500 to-orange-600"
+                ? "bg-gradient-to-br from-lime to-lime"
+                : "bg-gradient-to-br from-destructive to-coral"
             )}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", delay: 0.2 }}
           >
             {result.passed ? (
-              <Trophy className="w-12 h-12 text-white" />
+              <Trophy className="w-12 h-12 text-ink" />
             ) : (
-              <XCircle className="w-12 h-12 text-white" />
+              <XCircle className="w-12 h-12 text-ink" />
             )}
           </motion.div>
 
-          <h1 className="text-3xl font-black text-white mb-2">
+          <h1 className="text-3xl font-black text-ink mb-2">
             {result.passed ? "Bravo !" : "Dommage !"}
           </h1>
-          <p className="text-zinc-400">
+          <p className="text-mute">
             {result.passed
               ? "Tu as reussi ce quiz !"
               : "Continue a t'entrainer, tu vas y arriver !"}
@@ -414,28 +414,28 @@ export function QuizResult({ quiz, result, onRetry, onExit }: QuizResultProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="p-6 bg-zinc-900 border-zinc-800 mb-6">
+          <Card className="p-6 bg-card border-ink mb-6">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <div className={cn(
                   "text-4xl font-black mb-1",
-                  result.passed ? "text-green-400" : "text-red-400"
+                  result.passed ? "text-lime" : "text-destructive"
                 )}>
                   {result.score}%
                 </div>
-                <div className="text-sm text-zinc-500">Score</div>
+                <div className="text-sm text-mute">Score</div>
               </div>
               <div>
-                <div className="text-4xl font-black text-white mb-1">
+                <div className="text-4xl font-black text-ink mb-1">
                   {result.correctCount}/{result.totalQuestions}
                 </div>
-                <div className="text-sm text-zinc-500">Bonnes reponses</div>
+                <div className="text-sm text-mute">Bonnes reponses</div>
               </div>
               <div>
-                <div className="text-4xl font-black text-cyan-400 mb-1">
+                <div className="text-4xl font-black text-teal mb-1">
                   +{result.xpEarned}
                 </div>
-                <div className="text-sm text-zinc-500">XP gagnes</div>
+                <div className="text-sm text-mute">XP gagnes</div>
               </div>
             </div>
           </Card>
@@ -457,7 +457,7 @@ export function QuizResult({ quiz, result, onRetry, onExit }: QuizResultProps) {
           </Button>
           {!result.passed && (
             <Button
-              className="flex-1 gap-2 bg-gradient-to-r from-cyan-500 to-blue-500"
+              className="flex-1 gap-2 bg-gradient-to-r from-teal to-teal"
               onClick={onRetry}
             >
               <RotateCcw className="w-4 h-4" />
@@ -485,31 +485,31 @@ export function QuizResult({ quiz, result, onRetry, onExit }: QuizResultProps) {
                   className={cn(
                     "p-4 border",
                     r.isCorrect
-                      ? "bg-green-500/5 border-green-500/20"
-                      : "bg-red-500/5 border-red-500/20"
+                      ? "bg-lime/5 border-lime/20"
+                      : "bg-destructive/5 border-destructive/20"
                   )}
                 >
                   <div className="flex items-start gap-3">
                     <div className={cn(
                       "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
-                      r.isCorrect ? "bg-green-500" : "bg-red-500"
+                      r.isCorrect ? "bg-lime" : "bg-destructive"
                     )}>
                       {r.isCorrect ? (
-                        <CheckCircle2 className="w-4 h-4 text-white" />
+                        <CheckCircle2 className="w-4 h-4 text-ink" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-white" />
+                        <XCircle className="w-4 h-4 text-ink" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-white font-medium mb-2">
+                      <p className="text-ink font-medium mb-2">
                         {index + 1}. {r.question}
                       </p>
                       {!r.isCorrect && (
                         <div className="text-sm">
-                          <p className="text-red-400">
+                          <p className="text-destructive">
                             Ta reponse: {quiz.questions[index].options[r.userAnswer] || "Non repondu"}
                           </p>
-                          <p className="text-green-400">
+                          <p className="text-lime">
                             Bonne reponse: {quiz.questions[index].options[r.correctAnswer]}
                           </p>
                         </div>
@@ -542,10 +542,10 @@ interface QuizCardProps {
 
 export function QuizCard({ quiz, onClick }: QuizCardProps) {
   const difficultyColors = {
-    easy: "text-green-400 bg-green-500/10",
-    normal: "text-yellow-400 bg-yellow-500/10",
-    hard: "text-orange-400 bg-orange-500/10",
-    expert: "text-red-400 bg-red-500/10",
+    easy: "text-lime bg-lime/10",
+    normal: "text-gold bg-gold/10",
+    hard: "text-coral bg-coral/10",
+    expert: "text-destructive bg-destructive/10",
   }
 
   return (
@@ -555,14 +555,14 @@ export function QuizCard({ quiz, onClick }: QuizCardProps) {
       onClick={onClick}
       className="cursor-pointer"
     >
-      <Card className="p-4 bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+      <Card className="p-4 bg-card border-ink hover:border-ink transition-colors">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="font-bold text-white">{quiz.title}</h3>
-            <p className="text-sm text-zinc-500">{quiz.description}</p>
+            <h3 className="font-bold text-ink">{quiz.title}</h3>
+            <p className="text-sm text-mute">{quiz.description}</p>
           </div>
           {quiz.passed && (
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-lime flex-shrink-0" />
           )}
         </div>
 
@@ -573,26 +573,26 @@ export function QuizCard({ quiz, onClick }: QuizCardProps) {
           )}>
             {quiz.difficulty}
           </span>
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-400">
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-card text-mute">
             {quiz.questions.length} questions
           </span>
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-400">
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-card text-mute">
             <Clock className="w-3 h-3 inline mr-1" />
             {quiz.time_limit_minutes} min
           </span>
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-400">
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-teal/10 text-teal">
             <Zap className="w-3 h-3 inline mr-1" />
             +{quiz.xp_reward} XP
           </span>
         </div>
 
         {quiz.best_score !== null && (
-          <div className="mt-3 pt-3 border-t border-zinc-800 text-sm">
-            <span className="text-zinc-500">Meilleur score: </span>
-            <span className={quiz.passed ? "text-green-400" : "text-yellow-400"}>
+          <div className="mt-3 pt-3 border-t border-ink text-sm">
+            <span className="text-mute">Meilleur score: </span>
+            <span className={quiz.passed ? "text-lime" : "text-gold"}>
               {quiz.best_score}%
             </span>
-            <span className="text-zinc-600 ml-2">
+            <span className="text-mute ml-2">
               ({quiz.attempts_count} tentative{(quiz.attempts_count || 0) > 1 ? "s" : ""})
             </span>
           </div>

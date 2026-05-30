@@ -66,7 +66,7 @@ export function LevelUpModal({
         >
           {/* Backdrop */}
           <motion.div 
-            className="absolute inset-0 bg-black/90 backdrop-blur-md"
+            className="absolute inset-0 bg-ink/90 "
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -162,13 +162,13 @@ export function LevelUpModal({
             />
 
             {/* Card */}
-            <div className="relative bg-card border border-border/50 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative bg-card border border-border/50 rounded-2xl overflow-hidden shadow-2xl">
               {/* Close button */}
               <button 
                 onClick={onClose}
-                className="absolute top-4 right-4 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                className="absolute top-4 right-4 z-20 p-2 rounded-full bg-paper-2 hover:bg-paper-2 transition-colors"
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-5 h-5 text-ink" />
               </button>
 
               {/* Header section - Gen-Z styled */}
@@ -176,8 +176,8 @@ export function LevelUpModal({
                 {/* Background pattern - Gen-Z gradient */}
                 <div className="absolute inset-0 bg-gradient-to-b from-brand-soft/20 via-accent-soft/10 to-transparent" />
                 <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-4 left-4 w-20 h-20 border-2 border-white rounded-full" />
-                  <div className="absolute bottom-8 right-8 w-16 h-16 border-2 border-white rounded-full" />
+                  <div className="absolute top-4 left-4 w-20 h-20 border-2 border-ink rounded-full" />
+                  <div className="absolute bottom-8 right-8 w-16 h-16 border-2 border-ink rounded-full" />
                 </div>
 
                 {/* Level badge */}
@@ -197,14 +197,14 @@ export function LevelUpModal({
                     
                     {/* Badge - Gen-Z holographic */}
                     <motion.div 
-                      className="relative w-36 h-36 mx-auto flex items-center justify-center rounded-full bg-gradient-to-br from-brand-soft via-accent-soft to-gen-z-lime border-4 border-white/30 shadow-2xl"
+                      className="relative w-36 h-36 mx-auto flex items-center justify-center rounded-full bg-gradient-to-br from-brand-soft via-accent-soft to-gen-z-lime border-4 border-ink shadow-2xl"
                       animate={{ 
                         rotate: [0, 5, -5, 0],
                         scale: [1, 1.02, 1]
                       }}
                       transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                     >
-                      <span className="text-6xl font-black text-white drop-shadow-lg">
+                      <span className="text-6xl font-black text-ink drop-shadow-lg">
                         {newLevel}
                       </span>
                       {/* Holographic shimmer */}

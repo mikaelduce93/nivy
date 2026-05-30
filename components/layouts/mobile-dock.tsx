@@ -396,7 +396,7 @@ export function MobileDock() {
               <motion.div
                 className={cn(
                   "relative flex flex-col items-center gap-0.5 rounded-xl py-2.5 min-h-touch",
-                  !isActive && "hover:bg-white/5"
+                  !isActive && "hover:bg-paper-2"
                 )}
                 // Tap feedback: 1 -> 0.92 -> 1 over ~80ms (TICKET-019).
                 whileTap={

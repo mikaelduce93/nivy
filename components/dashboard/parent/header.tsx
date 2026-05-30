@@ -52,20 +52,20 @@ export function ParentHeader({ userInfo }: ParentHeaderProps) {
           <SheetContent side="left" className="w-64 p-0">
             <div className="py-4">
               <div className="px-4 mb-4">
-                <h2 className="text-lg font-bold text-blue-600">Teen Club</h2>
-                <p className="text-sm text-gray-500">Espace Parent</p>
+                <h2 className="text-lg font-bold text-teal">Teen Club</h2>
+                <p className="text-sm text-mute">Espace Parent</p>
               </div>
               <nav className="space-y-1 px-2">
-                <Link href="/parent" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-gray-50">
+                <Link href="/parent" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-paper-2">
                   Dashboard
                 </Link>
-                <Link href="/parent/teens" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-gray-50">
+                <Link href="/parent/teens" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-paper-2">
                   Mes Teens
                 </Link>
-                <Link href="/parent/topup" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-gray-50">
+                <Link href="/parent/topup" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-paper-2">
                   Top-up Crédits
                 </Link>
-                <Link href="/parent/approvals" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-gray-50">
+                <Link href="/parent/approvals" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-paper-2">
                   Approbations
                 </Link>
               </nav>
@@ -77,22 +77,22 @@ export function ParentHeader({ userInfo }: ParentHeaderProps) {
         <Link href="/parent" className="flex items-center gap-2">
           <span className="text-2xl">👨‍👩‍👧‍👦</span>
           <div className="hidden sm:block">
-            <span className="font-bold text-xl text-blue-600">Teen Club</span>
-            <span className="text-sm text-gray-500 ml-2">Espace Parent</span>
+            <span className="font-bold text-xl text-teal">Teen Club</span>
+            <span className="text-sm text-mute ml-2">Espace Parent</span>
           </div>
         </Link>
 
         {/* Stats bar */}
         <div className="hidden md:flex items-center gap-4">
           {/* Subscription tier */}
-          <div className="flex items-center gap-2 bg-blue-50 rounded-full px-3 py-1.5">
-            <Crown className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-700 capitalize">{tier}</span>
+          <div className="flex items-center gap-2 bg-teal rounded-full px-3 py-1.5">
+            <Crown className="h-4 w-4 text-teal" />
+            <span className="text-sm font-medium text-teal capitalize">{tier}</span>
           </div>
 
           {/* Teen count */}
-          <div className="flex items-center gap-2 bg-green-50 rounded-full px-3 py-1.5">
-            <span className="text-sm font-medium text-green-700">
+          <div className="flex items-center gap-2 bg-lime rounded-full px-3 py-1.5">
+            <span className="text-sm font-medium text-lime">
               {teenCount} teen{teenCount > 1 ? "s" : ""} lié{teenCount > 1 ? "s" : ""}
             </span>
           </div>
@@ -106,8 +106,8 @@ export function ParentHeader({ userInfo }: ParentHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="Menu utilisateur">
-                <Avatar className="h-10 w-10 border-2 border-blue-200">
-                  <AvatarFallback className="bg-blue-600 text-white font-bold">
+                <Avatar className="h-10 w-10 border-2 border-teal">
+                  <AvatarFallback className="bg-teal text-ink font-bold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -119,8 +119,8 @@ export function ParentHeader({ userInfo }: ParentHeaderProps) {
                   <p className="text-sm font-medium">{userInfo.fullName}</p>
                   <p className="text-xs text-muted-foreground">{userInfo.email}</p>
                   <div className="flex items-center gap-1 mt-1">
-                    <Crown className="h-3 w-3 text-blue-600" />
-                    <span className="text-xs text-blue-600 font-medium capitalize">
+                    <Crown className="h-3 w-3 text-teal" />
+                    <span className="text-xs text-teal font-medium capitalize">
                       Abonnement {tier}
                     </span>
                   </div>
@@ -146,7 +146,7 @@ export function ParentHeader({ userInfo }: ParentHeaderProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 Déconnexion
               </DropdownMenuItem>

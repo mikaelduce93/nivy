@@ -116,7 +116,7 @@ export function Skeleton({
         'relative overflow-hidden',
         premium ? 'bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-white/[0.08]' : 'bg-white/5',
         variantClasses[variant],
-        glow && 'shadow-[0_0_20px_-5px_var(--glow-color)]',
+        glow && '',
         className
       )}
       style={{

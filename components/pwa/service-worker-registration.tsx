@@ -190,23 +190,23 @@ function SWUpdatePrompt({ isUpdating, onUpdate, onDismiss }: SWUpdatePromptProps
       exit={{ y: 100, opacity: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="bg-gradient-to-r from-purple-900/90 to-pink-900/90 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-purple-500/20">
+      <div className="bg-gradient-to-r from-pink/90 to-pink/90  rounded-2xl p-4 shadow-xl border border-pink/20">
         <div className="flex items-start gap-4">
           {/* Icon */}
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink to-pink flex items-center justify-center flex-shrink-0">
             {isUpdating ? (
-              <RefreshCw className="w-6 h-6 text-white animate-spin" />
+              <RefreshCw className="w-6 h-6 text-ink animate-spin" />
             ) : (
-              <Download className="w-6 h-6 text-white" />
+              <Download className="w-6 h-6 text-ink" />
             )}
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-white font-bold mb-1">
+            <h3 className="text-ink font-bold mb-1">
               {isUpdating ? "Mise à jour..." : "Nouvelle version disponible"}
             </h3>
-            <p className="text-purple-200 text-sm mb-3">
+            <p className="text-pink text-sm mb-3">
               {isUpdating
                 ? "Installation en cours, ne ferme pas l'app"
                 : "Une mise à jour est prête à être installée"
@@ -217,7 +217,7 @@ function SWUpdatePrompt({ isUpdating, onUpdate, onDismiss }: SWUpdatePromptProps
             {!isUpdating && (
               <div className="flex gap-2">
                 <motion.button
-                  className="flex-1 py-2 px-4 bg-white text-purple-900 rounded-xl font-medium text-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-2 px-4 bg-white text-pink rounded-xl font-medium text-sm flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={onUpdate}
@@ -227,7 +227,7 @@ function SWUpdatePrompt({ isUpdating, onUpdate, onDismiss }: SWUpdatePromptProps
                 </motion.button>
 
                 <motion.button
-                  className="py-2 px-4 bg-purple-800 hover:bg-purple-700 rounded-xl text-white text-sm transition-colors"
+                  className="py-2 px-4 bg-pink hover:bg-pink rounded-xl text-ink text-sm transition-colors"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={onDismiss}
@@ -241,7 +241,7 @@ function SWUpdatePrompt({ isUpdating, onUpdate, onDismiss }: SWUpdatePromptProps
           {/* Close */}
           {!isUpdating && (
             <button
-              className="text-purple-300 hover:text-white transition-colors"
+              className="text-pink hover:text-ink transition-colors"
               onClick={onDismiss}
             >
               <X className="w-5 h-5" />
@@ -271,25 +271,25 @@ export function PWAInstallSuccess({ onClose }: { onClose: () => void }) {
       exit={{ y: 100, opacity: 0, scale: 0.9 }}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
     >
-      <div className="bg-gradient-to-r from-green-900/90 to-emerald-900/90 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-green-500/20">
+      <div className="bg-gradient-to-r from-lime/90 to-lime/90  rounded-2xl p-4 shadow-xl border border-lime/20">
         <div className="flex items-center gap-4">
           <motion.div
-            className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center flex-shrink-0"
+            className="w-12 h-12 rounded-xl bg-gradient-to-br from-lime to-lime flex items-center justify-center flex-shrink-0"
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 0.5 }}
           >
-            <CheckCircle className="w-6 h-6 text-white" />
+            <CheckCircle className="w-6 h-6 text-ink" />
           </motion.div>
 
           <div className="flex-1">
-            <h3 className="text-white font-bold">App installée !</h3>
-            <p className="text-green-200 text-sm">
+            <h3 className="text-ink font-bold">App installée !</h3>
+            <p className="text-lime text-sm">
               Tu peux maintenant lancer Teens Party depuis ton écran d'accueil
             </p>
           </div>
 
           <button
-            className="text-green-300 hover:text-white transition-colors"
+            className="text-lime hover:text-ink transition-colors"
             onClick={onClose}
           >
             <X className="w-5 h-5" />

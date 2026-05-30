@@ -37,9 +37,9 @@ interface QuickAccessItem {
 
 // Badge styles
 const badgeStyles = {
-  hot: "bg-gradient-to-r from-orange-500 to-red-500 animate-pulse",
+  hot: "bg-gradient-to-r from-coral to-destructive animate-pulse",
   new: "bg-gradient-to-r from-brand-soft to-gen-z-grape",
-  live: "bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse",
+  live: "bg-gradient-to-r from-lime to-lime animate-pulse",
 }
 
 /* ==========================================================================
@@ -94,7 +94,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
     <CursorHoverArea variant="pointer" magnetic={0.4} magneticDistance={120}>
       <Link 
         href={item.href} 
-        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded-3xl" 
+        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded-2xl" 
         onClick={handleClick}
         aria-label={`${item.label}: ${item.description}${item.notificationCount ? `, ${item.notificationCount} notifications` : ''}${item.badge ? `, ${item.badge}` : ''}`}
       >
@@ -122,7 +122,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
         >
           {/* Dynamic depth shadow */}
           <motion.div
-            className="absolute inset-0 rounded-3xl -z-10"
+            className="absolute inset-0 rounded-2xl -z-10"
             style={{
               x: shadowX,
               y: shadowY,
@@ -144,7 +144,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
         >
           <div
             className={cn(
-              "relative h-full min-h-[120px] sm:min-h-[140px] overflow-hidden rounded-3xl p-3 sm:p-4",
+              "relative h-full min-h-[120px] sm:min-h-[140px] overflow-hidden rounded-2xl p-3 sm:p-4",
               "bg-gradient-to-br", item.gradient,
               "shadow-lg transition-all duration-300 group",
               "flex flex-col justify-between"
@@ -153,7 +153,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
           >
             {/* Floating particles on hover */}
             {isHovered && (
-              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
                 <FloatingParticles
                   count={8}
                   colors={item.particleColor}
@@ -177,7 +177,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
             
             {/* Shimmer effect on hover */}
             <motion.div 
-              className="absolute inset-0 pointer-events-none rounded-3xl"
+              className="absolute inset-0 pointer-events-none rounded-2xl"
               style={{
                 background: 'linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)',
                 backgroundSize: '200% 100%',
@@ -199,7 +199,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
             >
               <motion.div 
                 className={cn(
-                  "w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20"
+                  "w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-paper-2  flex items-center justify-center border border-ink"
                 )}
                 animate={isHovered ? {
                   scale: [1, 1.1, 1],
@@ -212,7 +212,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
                   intensity={isHovered ? 'medium' : 'subtle'} 
                   speed="medium"
                 >
-                  <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-ink" />
                 </GlowPulse>
               </motion.div>
               
@@ -220,7 +220,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
               {item.badge && (
                 <motion.span 
                   className={cn(
-                    "px-2 py-0.5 text-[8px] sm:text-[9px] font-black rounded-full text-white uppercase tracking-wider shadow-lg",
+                    "px-2 py-0.5 text-[8px] sm:text-[9px] font-black rounded-full text-ink uppercase tracking-wider shadow-lg",
                     badgeStyles[item.badgeType || 'new']
                   )}
                   initial={{ scale: 0, rotate: -10 }}
@@ -234,7 +234,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
               
               {item.notificationCount && item.notificationCount > 0 && (
                 <motion.span 
-                  className="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold rounded-full bg-red-500 text-white shadow-lg"
+                  className="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold rounded-full bg-destructive text-ink shadow-lg"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 500 }}
@@ -253,7 +253,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
               style={{ transform: 'translateZ(20px)' }}
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-black text-white text-sm sm:text-base tracking-tight leading-tight">
+                <h3 className="font-black text-ink text-sm sm:text-base tracking-tight leading-tight">
                   <span className="sm:hidden">{item.shortLabel}</span>
                   <span className="hidden sm:inline">{item.label}</span>
                 </h3>
@@ -261,10 +261,10 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
                   animate={isHovered ? { x: 5, scale: 1.2 } : { x: 0, scale: 1 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 >
-                  <ArrowRight className="w-4 h-4 text-white/70 group-hover:text-white transition-colors duration-300" />
+                  <ArrowRight className="w-4 h-4 text-ink/70 group-hover:text-ink transition-colors duration-300" />
                 </motion.div>
               </div>
-              <p className="text-white/70 text-[10px] sm:text-xs font-medium line-clamp-1 hidden sm:block">
+              <p className="text-ink/70 text-[10px] sm:text-xs font-medium line-clamp-1 hidden sm:block">
                 {item.description}
               </p>
             </div>
@@ -275,7 +275,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
         <AnimatePresence>
           {clickEffect && (
             <motion.div
-              className="absolute inset-0 rounded-3xl pointer-events-none"
+              className="absolute inset-0 rounded-2xl pointer-events-none"
               initial={{ opacity: 0.8, scale: 0.8 }}
               animate={{ opacity: 0, scale: 1.2 }}
               exit={{ opacity: 0 }}
@@ -333,7 +333,7 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       description: "Missions quotidiennes et défis",
       href: "/teen/quests",
       icon: Target,
-      gradient: "from-accent-soft to-rose-600",
+      gradient: "from-accent-soft to-pink",
       iconBg: "bg-accent-soft/20",
       notificationCount: notificationCounts.quests,
       particleColor: PALETTES.coral,
@@ -345,7 +345,7 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       description: "Rejoins des communautés et gagne des XP",
       href: "/teen/circles",
       icon: Crown,
-      gradient: "from-gen-z-yellow to-amber-500",
+      gradient: "from-gen-z-yellow to-gold",
       iconBg: "bg-gen-z-yellow/20",
       badge: "HOT",
       badgeType: 'hot',
@@ -358,7 +358,7 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       description: "Défie d'autres crews et grimpe le classement",
       href: "/teen/circles",
       icon: Swords,
-      gradient: "from-success-soft to-teal-600",
+      gradient: "from-success-soft to-teal",
       iconBg: "bg-success-soft/20",
       badge: "LIVE",
       badgeType: 'live',
@@ -392,7 +392,7 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
             <Zap className="w-4 h-4 sm:w-6 sm:h-6 text-brand-soft relative z-10" />
           </motion.div>
           <div>
-            <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-black text-ink tracking-tight flex items-center gap-2">
               Quick Access
               <motion.span
                 animate={{ rotate: [0, 10, -10, 0] }}
@@ -401,7 +401,7 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-brand-soft" />
               </motion.span>
             </h2>
-            <p className="text-[10px] sm:text-xs text-white/50 font-medium hidden sm:block">Tes raccourcis favoris</p>
+            <p className="text-[10px] sm:text-xs text-ink/50 font-medium hidden sm:block">Tes raccourcis favoris</p>
           </div>
         </div>
         

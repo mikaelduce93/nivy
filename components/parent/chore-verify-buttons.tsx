@@ -76,7 +76,7 @@ export function ChoreVerifyButtons({
           size="sm"
           onClick={() => send(true)}
           disabled={loading !== null}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="bg-lime hover:bg-lime text-ink"
         >
           {loading === "approve" ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -92,7 +92,7 @@ export function ChoreVerifyButtons({
           variant="outline"
           onClick={() => setRejectOpen(true)}
           disabled={loading !== null}
-          className="border-red-500/40 text-red-400 hover:bg-red-500/10"
+          className="border-destructive/40 text-destructive hover:bg-destructive/10"
         >
           {loading === "reject" ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -135,7 +135,7 @@ export function ChoreVerifyButtons({
             <Button
               onClick={() => send(false)}
               disabled={loading !== null}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive text-ink"
             >
               {loading === "reject" ? (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden />

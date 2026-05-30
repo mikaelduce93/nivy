@@ -16,7 +16,7 @@ export default function BackButton({ href, label = 'Retour', variant = 'outline'
 
   if (href) {
     return (
-      <Button asChild variant={variant} className="bg-transparent border-zinc-700 text-zinc-300 mb-4">
+      <Button asChild variant={variant} className="bg-transparent border-ink text-ink-2 mb-4">
         <Link href={href}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           {label}
@@ -29,7 +29,7 @@ export default function BackButton({ href, label = 'Retour', variant = 'outline'
     <Button
       onClick={() => router.back()}
       variant={variant}
-      className="bg-transparent border-zinc-700 text-zinc-300 mb-4"
+      className="bg-transparent border-ink text-ink-2 mb-4"
     >
       <ArrowLeft className="w-4 h-4 mr-2" />
       {label}

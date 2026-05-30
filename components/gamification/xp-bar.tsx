@@ -85,7 +85,7 @@ export function XPBar({
                 animate={isAnimating ? { scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] } : {}}
                 transition={{ duration: 0.4 }}
               >
-                <span className="text-white font-black text-sm">{level}</span>
+                <span className="text-ink font-black text-sm">{level}</span>
               </motion.div>
               {/* Gen-Z Glow effect */}
               <div className="absolute inset-0 rounded-xl bg-brand-soft/40 blur-lg -z-10" />
@@ -192,7 +192,7 @@ export function XPGainPopup({ amount, reason, onComplete }: XPGainPopupProps) {
       exit={{ opacity: 0, y: -20, scale: 0.8 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <div className="relative overflow-hidden bg-gradient-to-r from-brand-soft/20 to-gen-z-grape/20 backdrop-blur-xl border border-brand-soft/30 rounded-2xl px-5 py-4 shadow-xl">
+      <div className="relative overflow-hidden bg-gradient-to-r from-brand-soft/20 to-gen-z-grape/20  border border-brand-soft/30 rounded-2xl px-5 py-4 shadow-xl">
         {/* Animated background shimmer */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
@@ -209,7 +209,7 @@ export function XPGainPopup({ amount, reason, onComplete }: XPGainPopupProps) {
             }}
             transition={{ duration: 0.6, repeat: 1 }}
           >
-            <Zap className="w-6 h-6 text-white" />
+            <Zap className="w-6 h-6 text-ink" />
           </motion.div>
           <div>
             <motion.p
@@ -250,7 +250,7 @@ export function XPMiniBar({ currentXP, level, className }: XPMiniBarProps) {
         className="w-7 h-7 rounded-xl bg-gradient-to-br from-brand-soft to-gen-z-grape flex items-center justify-center shadow-md"
         whileHover={{ scale: 1.1, rotate: 5 }}
       >
-        <span className="text-white font-black text-xs">{level}</span>
+        <span className="text-ink font-black text-xs">{level}</span>
       </motion.div>
       <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
         <motion.div

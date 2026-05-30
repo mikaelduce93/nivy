@@ -122,11 +122,11 @@ function FriendCard({
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+    <Card className="p-4 bg-card border-ink hover:border-ink transition-colors">
       <div className="flex items-center gap-4">
         {/* Avatar */}
         <div className="relative">
-          <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+          <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center overflow-hidden">
             {friend.avatar_url ? (
               <Image
                 src={friend.avatar_url}
@@ -137,14 +137,14 @@ function FriendCard({
                 unoptimized
               />
             ) : (
-              <span className="text-xl text-white font-bold">
+              <span className="text-xl text-ink font-bold">
                 {friend.first_name[0]}
               </span>
             )}
           </div>
           {/* Friendship level badge */}
           {friend.friendship.level > 1 && (
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-[10px] font-bold text-white border-2 border-zinc-900">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center text-[10px] font-bold text-ink border-2 border-ink">
               {friend.friendship.level}
             </div>
           )}
@@ -153,18 +153,18 @@ function FriendCard({
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-white truncate">{displayName}</h3>
+            <h3 className="font-bold text-ink truncate">{displayName}</h3>
             {friend.friendship.is_best_friend && (
-              <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
+              <Heart className="w-4 h-4 text-pink fill-pink" />
             )}
             {friend.friendship.is_favorite && (
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+              <Star className="w-4 h-4 text-gold fill-gold" />
             )}
           </div>
           {friend.friendship.nickname && (
-            <p className="text-sm text-zinc-500">{friend.first_name}</p>
+            <p className="text-sm text-mute">{friend.first_name}</p>
           )}
-          <p className="text-xs text-zinc-600">
+          <p className="text-xs text-mute">
             Ami depuis {new Date(friend.friendship.accepted_at).toLocaleDateString("fr-FR", {
               month: "short",
               year: "numeric",
@@ -178,7 +178,7 @@ function FriendCard({
             onClick={onMessage}
             size="sm"
             variant="outline"
-            className="border-zinc-700"
+            className="border-ink"
           >
             <MessageCircle className="w-4 h-4" />
           </Button>
@@ -198,18 +198,18 @@ function FriendCard({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-1 w-48 bg-zinc-800 rounded-xl border border-zinc-700 overflow-hidden z-10"
+                  className="absolute right-0 top-full mt-1 w-48 bg-card rounded-xl border border-ink overflow-hidden z-10"
                 >
                   <button
                     onClick={() => {
                       onToggleBestFriend()
                       setShowMenu(false)
                     }}
-                    className="w-full px-4 py-2.5 text-left text-sm text-zinc-300 hover:bg-zinc-700 flex items-center gap-2"
+                    className="w-full px-4 py-2.5 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
                   >
                     <Heart className={cn(
                       "w-4 h-4",
-                      friend.friendship.is_best_friend && "text-pink-500 fill-pink-500"
+                      friend.friendship.is_best_friend && "text-pink fill-pink"
                     )} />
                     {friend.friendship.is_best_friend ? "Retirer meilleur ami" : "Meilleur ami"}
                   </button>
@@ -218,11 +218,11 @@ function FriendCard({
                       onToggleFavorite()
                       setShowMenu(false)
                     }}
-                    className="w-full px-4 py-2.5 text-left text-sm text-zinc-300 hover:bg-zinc-700 flex items-center gap-2"
+                    className="w-full px-4 py-2.5 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
                   >
                     <Star className={cn(
                       "w-4 h-4",
-                      friend.friendship.is_favorite && "text-yellow-500 fill-yellow-500"
+                      friend.friendship.is_favorite && "text-gold fill-gold"
                     )} />
                     {friend.friendship.is_favorite ? "Retirer favori" : "Ajouter favori"}
                   </button>
@@ -231,18 +231,18 @@ function FriendCard({
                       setShowNicknameInput(true)
                       setShowMenu(false)
                     }}
-                    className="w-full px-4 py-2.5 text-left text-sm text-zinc-300 hover:bg-zinc-700 flex items-center gap-2"
+                    className="w-full px-4 py-2.5 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
                   >
                     <Edit3 className="w-4 h-4" />
                     Modifier surnom
                   </button>
-                  <div className="border-t border-zinc-700" />
+                  <div className="border-t border-ink" />
                   <button
                     onClick={() => {
                       onRemove()
                       setShowMenu(false)
                     }}
-                    className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-zinc-700 flex items-center gap-2"
+                    className="w-full px-4 py-2.5 text-left text-sm text-destructive hover:bg-muted flex items-center gap-2"
                   >
                     <UserMinus className="w-4 h-4" />
                     Supprimer ami
@@ -252,7 +252,7 @@ function FriendCard({
                       onBlock()
                       setShowMenu(false)
                     }}
-                    className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-zinc-700 flex items-center gap-2"
+                    className="w-full px-4 py-2.5 text-left text-sm text-destructive hover:bg-muted flex items-center gap-2"
                   >
                     <Ban className="w-4 h-4" />
                     Bloquer
@@ -273,23 +273,23 @@ function FriendCard({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="flex gap-2 mt-4 pt-4 border-t border-zinc-800">
+            <div className="flex gap-2 mt-4 pt-4 border-t border-ink">
               <input
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="Surnom personnalise"
                 maxLength={20}
-                className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
+                className="flex-1 bg-card border border-ink rounded-lg px-3 py-2 text-sm text-ink"
               />
-              <Button onClick={handleSaveNickname} size="sm" className="bg-cyan-500">
+              <Button onClick={handleSaveNickname} size="sm" className="bg-teal">
                 <Check className="w-4 h-4" />
               </Button>
               <Button
                 onClick={() => setShowNicknameInput(false)}
                 size="sm"
                 variant="outline"
-                className="border-zinc-700"
+                className="border-ink"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -326,9 +326,9 @@ function RequestCard({ request, type, onAccept, onDecline, onCancel }: RequestCa
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center gap-4">
-        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center overflow-hidden">
           {person?.avatar_url ? (
             <Image
               src={person.avatar_url}
@@ -339,20 +339,20 @@ function RequestCard({ request, type, onAccept, onDecline, onCancel }: RequestCa
               unoptimized
             />
           ) : (
-            <span className="text-lg text-white font-bold">{person?.first_name?.[0]}</span>
+            <span className="text-lg text-ink font-bold">{person?.first_name?.[0]}</span>
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-white truncate">
+          <h4 className="font-medium text-ink truncate">
             {person?.first_name} {person?.last_name}
           </h4>
           {request.mutual_friends_count !== undefined && request.mutual_friends_count > 0 && (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               {request.mutual_friends_count} ami{request.mutual_friends_count > 1 ? "s" : ""} en commun
             </p>
           )}
-          <p className="text-xs text-zinc-600">{timeAgo(request.created_at)}</p>
+          <p className="text-xs text-mute">{timeAgo(request.created_at)}</p>
         </div>
 
         {type === "received" ? (
@@ -360,7 +360,7 @@ function RequestCard({ request, type, onAccept, onDecline, onCancel }: RequestCa
             <Button
               onClick={onAccept}
               size="sm"
-              className="bg-gradient-to-r from-cyan-500 to-blue-500"
+              className="bg-gradient-to-r from-teal to-teal"
             >
               <Check className="w-4 h-4 mr-1" />
               Accepter
@@ -369,7 +369,7 @@ function RequestCard({ request, type, onAccept, onDecline, onCancel }: RequestCa
               onClick={onDecline}
               size="sm"
               variant="outline"
-              className="border-zinc-700"
+              className="border-ink"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -379,7 +379,7 @@ function RequestCard({ request, type, onAccept, onDecline, onCancel }: RequestCa
             onClick={onCancel}
             size="sm"
             variant="outline"
-            className="border-zinc-700 text-zinc-400"
+            className="border-ink text-mute"
           >
             Annuler
           </Button>
@@ -387,8 +387,8 @@ function RequestCard({ request, type, onAccept, onDecline, onCancel }: RequestCa
       </div>
 
       {request.message && (
-        <div className="mt-3 p-3 bg-zinc-800/50 rounded-lg">
-          <p className="text-sm text-zinc-400 italic">"{request.message}"</p>
+        <div className="mt-3 p-3 bg-card rounded-lg">
+          <p className="text-sm text-mute italic">"{request.message}"</p>
         </div>
       )}
     </Card>
@@ -416,9 +416,9 @@ function SuggestionCard({ suggestion, onAdd, onDismiss }: SuggestionCardProps) {
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+    <Card className="p-4 bg-card border-ink hover:border-ink transition-colors">
       <div className="flex items-center gap-4">
-        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center overflow-hidden">
+        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-pink to-pink flex items-center justify-center overflow-hidden">
           {person?.avatar_url ? (
             <Image
               src={person.avatar_url}
@@ -429,19 +429,19 @@ function SuggestionCard({ suggestion, onAdd, onDismiss }: SuggestionCardProps) {
               unoptimized
             />
           ) : (
-            <span className="text-lg text-white font-bold">{person?.first_name?.[0]}</span>
+            <span className="text-lg text-ink font-bold">{person?.first_name?.[0]}</span>
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-white truncate">
+          <h4 className="font-medium text-ink truncate">
             {person?.first_name} {person?.last_name}
           </h4>
-          <p className="text-xs text-purple-400">
+          <p className="text-xs text-pink">
             {reasonLabels[suggestion.reason] || suggestion.reason}
           </p>
           {suggestion.mutual_friends_count !== undefined && suggestion.mutual_friends_count > 0 && (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               {suggestion.mutual_friends_count} ami{suggestion.mutual_friends_count > 1 ? "s" : ""} en commun
             </p>
           )}
@@ -451,7 +451,7 @@ function SuggestionCard({ suggestion, onAdd, onDismiss }: SuggestionCardProps) {
           <Button
             onClick={onAdd}
             size="sm"
-            className="bg-gradient-to-r from-purple-500 to-pink-500"
+            className="bg-gradient-to-r from-pink to-pink"
           >
             <UserPlus className="w-4 h-4" />
           </Button>
@@ -459,7 +459,7 @@ function SuggestionCard({ suggestion, onAdd, onDismiss }: SuggestionCardProps) {
             onClick={onDismiss}
             size="sm"
             variant="ghost"
-            className="text-zinc-500"
+            className="text-mute"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -494,9 +494,9 @@ interface SearchResultCardProps {
 
 function SearchResultCard({ result, onSendRequest, onCancelRequest }: SearchResultCardProps) {
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center gap-4">
-        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center overflow-hidden">
           {result.avatar_url ? (
             <Image
               src={result.avatar_url}
@@ -507,23 +507,23 @@ function SearchResultCard({ result, onSendRequest, onCancelRequest }: SearchResu
               unoptimized
             />
           ) : (
-            <span className="text-lg text-white font-bold">{result.first_name[0]}</span>
+            <span className="text-lg text-ink font-bold">{result.first_name[0]}</span>
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-white truncate">
+          <h4 className="font-medium text-ink truncate">
             {result.first_name} {result.last_name}
           </h4>
           {result.mutual_friends_count > 0 && (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               {result.mutual_friends_count} ami{result.mutual_friends_count > 1 ? "s" : ""} en commun
             </p>
           )}
         </div>
 
         {result.is_friend ? (
-          <span className="text-sm text-green-400 flex items-center gap-1">
+          <span className="text-sm text-lime flex items-center gap-1">
             <Check className="w-4 h-4" />
             Ami
           </span>
@@ -532,7 +532,7 @@ function SearchResultCard({ result, onSendRequest, onCancelRequest }: SearchResu
             onClick={onCancelRequest}
             size="sm"
             variant="outline"
-            className="border-zinc-700 text-zinc-400"
+            className="border-ink text-mute"
           >
             <Clock className="w-4 h-4 mr-1" />
             En attente
@@ -541,7 +541,7 @@ function SearchResultCard({ result, onSendRequest, onCancelRequest }: SearchResu
           <Button
             onClick={onSendRequest}
             size="sm"
-            className="bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="bg-gradient-to-r from-teal to-teal"
           >
             <UserPlus className="w-4 h-4 mr-1" />
             Ajouter
@@ -682,7 +682,7 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
     return (
       <div className="space-y-4 animate-pulse">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-20 bg-zinc-800 rounded-2xl" />
+          <div key={i} className="h-20 bg-card rounded-2xl" />
         ))}
       </div>
     )
@@ -693,12 +693,12 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Amis</h2>
+          <h2 className="text-xl font-bold text-ink">Amis</h2>
           {stats && (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-mute">
               {stats.total_friends} ami{stats.total_friends > 1 ? "s" : ""}
               {stats.pending_requests > 0 && (
-                <span className="text-cyan-400"> • {stats.pending_requests} demande{stats.pending_requests > 1 ? "s" : ""}</span>
+                <span className="text-teal"> • {stats.pending_requests} demande{stats.pending_requests > 1 ? "s" : ""}</span>
               )}
             </p>
           )}
@@ -719,14 +719,14 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all",
               activeTab === tab.id
-                ? "bg-cyan-500 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                ? "bg-teal text-ink"
+                : "bg-card text-mute hover:bg-muted"
             )}
           >
             <tab.icon className="w-4 h-4" />
             {tab.label}
             {tab.badge !== undefined && tab.badge > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full text-xs bg-red-500 text-white">
+              <span className="px-1.5 py-0.5 rounded-full text-xs bg-destructive text-ink">
                 {tab.badge}
               </span>
             )}
@@ -737,13 +737,13 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
       {/* Search input */}
       {(activeTab === "friends" || activeTab === "search") && (
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={activeTab === "search" ? "Rechercher des utilisateurs..." : "Filtrer mes amis..."}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-3 text-white"
+            className="w-full bg-card border border-ink rounded-xl pl-12 pr-4 py-3 text-ink"
           />
         </div>
       )}
@@ -755,7 +755,7 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
             onClick={() => setFilterFavorites(false)}
             className={cn(
               "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
-              !filterFavorites ? "bg-cyan-500 text-white" : "bg-zinc-800 text-zinc-400"
+              !filterFavorites ? "bg-teal text-ink" : "bg-card text-mute"
             )}
           >
             Tous
@@ -764,7 +764,7 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
             onClick={() => setFilterFavorites(true)}
             className={cn(
               "px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1",
-              filterFavorites ? "bg-yellow-500 text-white" : "bg-zinc-800 text-zinc-400"
+              filterFavorites ? "bg-gold text-ink" : "bg-card text-mute"
             )}
           >
             <Star className="w-3 h-3" />
@@ -791,12 +791,12 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
               />
             ))}
             {filteredFriends.length === 0 && (
-              <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-                <Users className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-white mb-2">
+              <Card className="p-8 bg-card border-ink text-center">
+                <Users className="w-12 h-12 text-mute mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-ink mb-2">
                   {filterFavorites ? "Aucun favori" : "Aucun ami"}
                 </h3>
-                <p className="text-zinc-400">
+                <p className="text-mute">
                   {filterFavorites
                     ? "Ajoute des amis en favoris pour les retrouver ici"
                     : "Recherche des utilisateurs pour les ajouter en ami !"}
@@ -811,7 +811,7 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
           <>
             {requests.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-zinc-400">Demandes recues</h3>
+                <h3 className="text-sm font-medium text-mute">Demandes recues</h3>
                 {requests.map((req) => (
                   <RequestCard
                     key={req.id}
@@ -826,7 +826,7 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
 
             {sentRequests.length > 0 && (
               <div className="space-y-3 mt-6">
-                <h3 className="text-sm font-medium text-zinc-400">Demandes envoyees</h3>
+                <h3 className="text-sm font-medium text-mute">Demandes envoyees</h3>
                 {sentRequests.map((req) => (
                   <RequestCard
                     key={req.id}
@@ -839,10 +839,10 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
             )}
 
             {requests.length === 0 && sentRequests.length === 0 && (
-              <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-                <Bell className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-white mb-2">Aucune demande</h3>
-                <p className="text-zinc-400">Tu n'as pas de demande d'ami en attente</p>
+              <Card className="p-8 bg-card border-ink text-center">
+                <Bell className="w-12 h-12 text-mute mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-ink mb-2">Aucune demande</h3>
+                <p className="text-mute">Tu n'as pas de demande d'ami en attente</p>
               </Card>
             )}
           </>
@@ -860,10 +860,10 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
               />
             ))}
             {suggestions.length === 0 && (
-              <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-                <Sparkles className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-white mb-2">Pas de suggestions</h3>
-                <p className="text-zinc-400">Ajoute plus d'amis pour recevoir des suggestions</p>
+              <Card className="p-8 bg-card border-ink text-center">
+                <Sparkles className="w-12 h-12 text-mute mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-ink mb-2">Pas de suggestions</h3>
+                <p className="text-mute">Ajoute plus d'amis pour recevoir des suggestions</p>
               </Card>
             )}
           </>
@@ -881,16 +881,16 @@ export function FriendsList({ teenId, onMessage }: FriendsListProps) {
               />
             ))}
             {searchQuery.length >= 2 && searchResults.length === 0 && (
-              <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-                <Search className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-white mb-2">Aucun resultat</h3>
-                <p className="text-zinc-400">Aucun utilisateur trouve pour "{searchQuery}"</p>
+              <Card className="p-8 bg-card border-ink text-center">
+                <Search className="w-12 h-12 text-mute mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-ink mb-2">Aucun resultat</h3>
+                <p className="text-mute">Aucun utilisateur trouve pour "{searchQuery}"</p>
               </Card>
             )}
             {searchQuery.length < 2 && (
-              <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-                <Search className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                <p className="text-zinc-400">Entre au moins 2 caracteres pour rechercher</p>
+              <Card className="p-8 bg-card border-ink text-center">
+                <Search className="w-12 h-12 text-mute mx-auto mb-4" />
+                <p className="text-mute">Entre au moins 2 caracteres pour rechercher</p>
               </Card>
             )}
           </>
@@ -946,26 +946,26 @@ export function FriendsWidget({ teenId, limit = 5, onSeeAll }: FriendsWidgetProp
     return (
       <div className="space-y-3 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-12 bg-zinc-800 rounded-xl" />
+          <div key={i} className="h-12 bg-card rounded-xl" />
         ))}
       </div>
     )
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-white flex items-center gap-2">
-          <Users className="w-4 h-4 text-cyan-400" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Users className="w-4 h-4 text-teal" />
           Amis
           {pendingCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-xs bg-red-500 text-white">
+            <span className="px-1.5 py-0.5 rounded-full text-xs bg-destructive text-ink">
               {pendingCount}
             </span>
           )}
         </h3>
         {onSeeAll && (
-          <button onClick={onSeeAll} className="text-sm text-cyan-400 hover:underline">
+          <button onClick={onSeeAll} className="text-sm text-teal hover:underline">
             Voir tout
           </button>
         )}
@@ -978,7 +978,7 @@ export function FriendsWidget({ teenId, limit = 5, onSeeAll }: FriendsWidgetProp
             className="relative"
             title={friend.friendship.nickname || friend.first_name}
           >
-            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center overflow-hidden">
               {friend.avatar_url ? (
                 <Image
                   src={friend.avatar_url}
@@ -989,16 +989,16 @@ export function FriendsWidget({ teenId, limit = 5, onSeeAll }: FriendsWidgetProp
                   unoptimized
                 />
               ) : (
-                <span className="text-sm text-white font-bold">{friend.first_name[0]}</span>
+                <span className="text-sm text-ink font-bold">{friend.first_name[0]}</span>
               )}
             </div>
             {friend.friendship.is_best_friend && (
-              <Heart className="absolute -bottom-0.5 -right-0.5 w-4 h-4 text-pink-500 fill-pink-500" />
+              <Heart className="absolute -bottom-0.5 -right-0.5 w-4 h-4 text-pink fill-pink" />
             )}
           </div>
         ))}
         {friends.length === 0 && (
-          <p className="text-sm text-zinc-500">Aucun ami pour le moment</p>
+          <p className="text-sm text-mute">Aucun ami pour le moment</p>
         )}
       </div>
     </Card>

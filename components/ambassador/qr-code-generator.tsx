@@ -122,12 +122,12 @@ export function QRCodeGenerator({ referralLink, referralCode }: QRCodeGeneratorP
           className="w-[200px] h-[200px]"
         />
       </div>
-      <p className="text-xs text-zinc-400 text-center">
+      <p className="text-xs text-mute text-center">
         Scannez ce QR code pour accéder à votre lien de parrainage
       </p>
       <Button
         onClick={handleDownload}
-        className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        className="bg-lime hover:bg-lime text-ink"
       >
         <Download className="h-4 w-4 mr-2" />
         Télécharger le QR Code

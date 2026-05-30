@@ -27,7 +27,7 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
       icon: Users,
       title: "Je suis Parent",
       subtitle: "J'inscris mon/mes enfant(s)",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-teal to-teal",
       features: [
         {
           icon: Shield,
@@ -54,7 +54,7 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
       icon: User,
       title: "Je suis Ado",
       subtitle: "J'ai 11-17 ans",
-      color: "from-purple-500 to-pink-500",
+      color: "from-pink to-pink",
       features: [
         {
           icon: Trophy,
@@ -127,7 +127,7 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
                     animate={{ scale: 1 }}
                     className="absolute top-4 right-4 w-8 h-8 rounded-full bg-primary flex items-center justify-center z-10"
                   >
-                    <Check className="w-5 h-5 text-white" />
+                    <Check className="w-5 h-5 text-ink" />
                   </motion.div>
                 )}
 
@@ -137,7 +137,7 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
                     whileHover={prefersReducedMotion ? {} : { scale: 1.1, rotate: 5 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <Icon className="w-16 h-16 text-white" />
+                    <Icon className="w-16 h-16 text-ink" />
                   </motion.div>
                 </div>
 
@@ -153,7 +153,7 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
                       return (
                         <div key={idx} className="flex items-center gap-3">
                           <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${profile.color} flex items-center justify-center flex-shrink-0`}>
-                            <FeatureIcon className="w-4 h-4 text-white" />
+                            <FeatureIcon className="w-4 h-4 text-ink" />
                           </div>
                           <span className="text-sm font-medium">{feature.text}</span>
                         </div>
@@ -189,9 +189,9 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="text-center p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg"
+        className="text-center p-4 bg-teal/10 border border-teal/20 rounded-lg"
       >
-        <p className="text-sm text-blue-600 dark:text-blue-400">
+        <p className="text-sm text-teal dark:text-teal">
           {selectedType === 'parent' ? (
             <>
               <Shield className="w-4 h-4 inline-block mr-2" />
@@ -222,7 +222,7 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
         <Button
           onClick={onNext}
           disabled={!selectedType}
-          className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white disabled:opacity-50"
+          className="gap-2 bg-gradient-to-r from-primary to-pink hover:opacity-90 text-ink disabled:opacity-50"
         >
           Continuer
           <ChevronRight className="w-4 h-4" />

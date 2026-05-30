@@ -50,8 +50,8 @@ export function AnalyticsChart({
   return (
     <Card className="p-6">
       <div className="mb-6">
-        <h3 className="text-lg font-bold text-white mb-1">{title}</h3>
-        {description && <p className="text-sm text-zinc-400">{description}</p>}
+        <h3 className="text-lg font-bold text-ink mb-1">{title}</h3>
+        {description && <p className="text-sm text-mute">{description}</p>}
       </div>
 
       <ChartContainer config={chartConfig} className="h-[300px] w-full">

@@ -33,8 +33,8 @@ export function PaymentCartResumeBanner() {
   const minutesAgo = Math.max(1, Math.round((Date.now() - cart.savedAt) / 60000))
 
   return (
-    <Card className="mb-6 p-4 border-orange-500/40 bg-orange-500/10 flex items-start gap-3">
-      <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5 shrink-0" />
+    <Card className="mb-6 p-4 border-coral/40 bg-coral/10 flex items-start gap-3">
+      <AlertTriangle className="w-5 h-5 text-coral mt-0.5 shrink-0" />
       <div className="flex-1">
         <p className="font-semibold text-sm text-foreground">
           Réservation en attente de paiement

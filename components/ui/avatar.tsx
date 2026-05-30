@@ -26,11 +26,11 @@ const avatarVariants = cva(
         primary: 'ring-2 ring-primary ring-offset-2 ring-offset-background',
         gradient: 'ring-2 ring-brand-soft ring-offset-2 ring-offset-background',
         // Neon rings for gamification
-        party: 'ring-2 ring-neon-party ring-offset-2 ring-offset-background shadow-[0_0_10px_var(--neon-party)]',
-        vitality: 'ring-2 ring-neon-vitality ring-offset-2 ring-offset-background shadow-[0_0_10px_var(--neon-vitality)]',
-        intellect: 'ring-2 ring-neon-intellect ring-offset-2 ring-offset-background shadow-[0_0_10px_var(--neon-intellect)]',
-        creativity: 'ring-2 ring-neon-creativity ring-offset-2 ring-offset-background shadow-[0_0_10px_var(--neon-creativity)]',
-        prestige: 'ring-2 ring-neon-prestige ring-offset-2 ring-offset-background shadow-[0_0_10px_var(--neon-prestige)]',
+        party: 'ring-2 ring-neon-party ring-offset-2 ring-offset-background ',
+        vitality: 'ring-2 ring-neon-vitality ring-offset-2 ring-offset-background ',
+        intellect: 'ring-2 ring-neon-intellect ring-offset-2 ring-offset-background ',
+        creativity: 'ring-2 ring-neon-creativity ring-offset-2 ring-offset-background ',
+        prestige: 'ring-2 ring-neon-prestige ring-offset-2 ring-offset-background ',
       }
     },
     defaultVariants: {

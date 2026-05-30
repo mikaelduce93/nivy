@@ -24,45 +24,45 @@ export interface QuestCardProps {
 const typeConfig: Record<QuestType, { icon: typeof Zap, color: string, bgColor: string, neonClass: string }> = {
   quiz: { 
     icon: Zap, 
-    color: 'text-yellow-400', 
-    bgColor: 'bg-yellow-500/20',
-    neonClass: 'hover:shadow-[0_0_30px_rgba(250,204,21,0.3)]'
+    color: 'text-gold', 
+    bgColor: 'bg-gold/20',
+    neonClass: ''
   },
   sport: { 
     icon: Flame, 
-    color: 'text-orange-400', 
-    bgColor: 'bg-orange-500/20',
-    neonClass: 'hover:shadow-[0_0_30px_rgba(251,146,60,0.3)]'
+    color: 'text-coral', 
+    bgColor: 'bg-coral/20',
+    neonClass: ''
   },
   creative: { 
     icon: Palette, 
-    color: 'text-purple-400', 
-    bgColor: 'bg-purple-500/20',
-    neonClass: 'hover:shadow-[0_0_30px_rgba(192,132,252,0.3)]'
+    color: 'text-pink', 
+    bgColor: 'bg-pink/20',
+    neonClass: ''
   },
   social: { 
     icon: Users, 
-    color: 'text-cyan-400', 
-    bgColor: 'bg-cyan-500/20',
-    neonClass: 'hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]'
+    color: 'text-teal', 
+    bgColor: 'bg-teal/20',
+    neonClass: ''
   },
   academic: { 
     icon: BookOpen, 
-    color: 'text-blue-400', 
-    bgColor: 'bg-blue-500/20',
-    neonClass: 'hover:shadow-[0_0_30px_rgba(96,165,250,0.3)]'
+    color: 'text-teal', 
+    bgColor: 'bg-teal/20',
+    neonClass: ''
   },
   event: { 
     icon: Star, 
-    color: 'text-pink-400', 
-    bgColor: 'bg-pink-500/20',
-    neonClass: 'hover:shadow-[0_0_30px_rgba(244,114,182,0.3)]'
+    color: 'text-pink', 
+    bgColor: 'bg-pink/20',
+    neonClass: ''
   },
   daily: { 
     icon: Trophy, 
-    color: 'text-emerald-400', 
-    bgColor: 'bg-emerald-500/20',
-    neonClass: 'hover:shadow-[0_0_30px_rgba(52,211,153,0.3)]'
+    color: 'text-lime', 
+    bgColor: 'bg-lime/20',
+    neonClass: ''
   },
 }
 
@@ -107,7 +107,7 @@ export function QuestCard({
           sizeClasses[size],
           'relative overflow-hidden cursor-pointer transition-all duration-300',
           isLocked && 'opacity-50 cursor-not-allowed',
-          isCompleted && 'border-green-500/30 bg-green-900/10',
+          isCompleted && 'border-lime/30 bg-lime/10',
           isActive && config.neonClass,
           isActive && 'border-l-4',
           isActive && type === 'quiz' && 'border-l-yellow-400',
@@ -130,15 +130,15 @@ export function QuestCard({
 
         {/* Completed overlay */}
         {isCompleted && (
-          <div className="absolute inset-0 bg-green-500/5 flex items-center justify-center">
+          <div className="absolute inset-0 bg-lime/5 flex items-center justify-center">
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
               className="absolute top-2 right-2"
             >
-              <div className="bg-green-500 rounded-full p-1">
-                <Trophy className="w-3 h-3 text-white" />
+              <div className="bg-lime rounded-full p-1">
+                <Trophy className="w-3 h-3 text-ink" />
               </div>
             </motion.div>
           </div>
@@ -160,7 +160,7 @@ export function QuestCard({
               ease: "easeInOut"
             }}
           >
-            <Icon className={cn("w-6 h-6", config.color, isCompleted && "text-green-400")} />
+            <Icon className={cn("w-6 h-6", config.color, isCompleted && "text-lime")} />
           </motion.div>
 
           {/* Content */}
@@ -168,16 +168,16 @@ export function QuestCard({
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h3 className={cn(
-                  "font-bold text-white truncate",
+                  "font-bold text-ink truncate",
                   size === 'sm' && 'text-sm',
                   size === 'lg' && 'text-lg',
-                  isCompleted && 'line-through text-zinc-400'
+                  isCompleted && 'line-through text-mute'
                 )}>
                   {title}
                 </h3>
                 {description && (
                   <p className={cn(
-                    "text-zinc-400 mt-1 line-clamp-2",
+                    "text-mute mt-1 line-clamp-2",
                     size === 'sm' && 'text-xs',
                     size === 'md' && 'text-sm'
                   )}>
@@ -187,18 +187,18 @@ export function QuestCard({
               </div>
               
               {!isLocked && !isCompleted && (
-                <ChevronRight className="w-5 h-5 text-zinc-600 shrink-0" />
+                <ChevronRight className="w-5 h-5 text-mute shrink-0" />
               )}
             </div>
 
             {/* Progress bar */}
             {progress > 0 && progress < 100 && (
               <div className="mt-3">
-                <div className="flex justify-between text-xs text-zinc-500 mb-1">
+                <div className="flex justify-between text-xs text-mute mb-1">
                   <span>Progression</span>
                   <span>{progress}%</span>
                 </div>
-                <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-2 bg-card rounded-full overflow-hidden">
                   <motion.div 
                     className={cn("h-full rounded-full", config.bgColor.replace('/20', ''))}
                     initial={{ width: 0 }}
@@ -217,7 +217,7 @@ export function QuestCard({
               {/* XP Reward */}
               <div className={cn(
                 "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold",
-                isCompleted ? "bg-green-500/20 text-green-400" : "bg-zinc-800 text-white"
+                isCompleted ? "bg-lime/20 text-lime" : "bg-card text-ink"
               )}>
                 <Zap className="w-3 h-3" />
                 +{xpReward} XP
@@ -226,7 +226,7 @@ export function QuestCard({
               {/* Streak Bonus */}
               {streakBonus && streakBonus > 1 && (
                 <motion.div 
-                  className="flex items-center gap-1 px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs font-bold"
+                  className="flex items-center gap-1 px-2 py-1 rounded-full bg-coral/20 text-coral text-xs font-bold"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 >
@@ -237,7 +237,7 @@ export function QuestCard({
 
               {/* Time Left */}
               {timeLeft && (
-                <div className="flex items-center gap-1 text-xs text-zinc-500">
+                <div className="flex items-center gap-1 text-xs text-mute">
                   <Clock className="w-3 h-3" />
                   {timeLeft}
                 </div>
@@ -267,8 +267,8 @@ export function QuestCardCompact({
       whileHover={{ x: 4 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800 cursor-pointer transition-all",
-        "hover:bg-zinc-900 hover:border-zinc-700",
+        "flex items-center gap-3 p-3 rounded-xl bg-card border border-ink cursor-pointer transition-all",
+        "hover:bg-card hover:border-ink",
         isCompleted && "opacity-60"
       )}
       onClick={onClick}
@@ -277,12 +277,12 @@ export function QuestCardCompact({
         <Icon className={cn("w-4 h-4", config.color)} />
       </div>
       <span className={cn(
-        "flex-1 font-medium text-white text-sm truncate",
-        isCompleted && "line-through text-zinc-500"
+        "flex-1 font-medium text-ink text-sm truncate",
+        isCompleted && "line-through text-mute"
       )}>
         {title}
       </span>
-      <span className="text-xs font-bold text-emerald-400">+{xpReward}</span>
+      <span className="text-xs font-bold text-lime">+{xpReward}</span>
     </motion.div>
   )
 }

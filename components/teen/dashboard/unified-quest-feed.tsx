@@ -14,10 +14,10 @@ export function UnifiedQuestFeed({ quests }: UnifiedQuestFeedProps) {
   if (!quests || quests.length === 0) {
     return (
       <div className="py-12 sm:py-16 md:py-20 text-center space-y-4 sm:space-y-6">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto border border-white/10">
-          <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-zinc-600" />
+        <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-paper-2 rounded-full flex items-center justify-center mx-auto border border-ink">
+          <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-mute" />
         </div>
-        <p className="text-zinc-500 font-bold uppercase tracking-wider sm:tracking-widest text-xs sm:text-sm px-4">No active quests found in thy area.</p>
+        <p className="text-mute font-bold uppercase tracking-wider sm:tracking-widest text-xs sm:text-sm px-4">No active quests found in thy area.</p>
       </div>
     )
   }
@@ -34,13 +34,13 @@ export function UnifiedQuestFeed({ quests }: UnifiedQuestFeedProps) {
               <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-brand-soft" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tighter uppercase italic">The Feed</h2>
-              <p className="text-zinc-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em]">Latest neighborhood quêtes</p>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-ink tracking-tighter uppercase italic">The Feed</h2>
+              <p className="text-mute text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em]">Latest neighborhood quêtes</p>
             </div>
           </div>
           
           <div className="flex gap-2">
-            <span className="px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest">
+            <span className="px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-paper-2 border border-ink text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest">
               {quests.length} Active
             </span>
           </div>

@@ -96,7 +96,7 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Amount */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Montant à retirer</Label>
+        <Label className="text-ink-2">Montant à retirer</Label>
         <div className="relative">
           <Input
             type="number"
@@ -105,11 +105,11 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
             placeholder={`Min. ${minimumWithdrawal} DH`}
             min={minimumWithdrawal}
             max={availableBalance}
-            className="bg-zinc-800 border-zinc-700 text-white pr-16 focus:border-emerald-500"
+            className="bg-card border-ink text-ink pr-16 focus:border-lime"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">DH</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-mute font-medium">DH</span>
         </div>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-mute">
           Disponible: {availableBalance.toLocaleString()} DH
         </p>
       </div>
@@ -123,7 +123,7 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
             variant="outline"
             size="sm"
             onClick={() => setAmount(value.toString())}
-            className={`border-zinc-700 ${amount === value.toString() ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'text-zinc-400 hover:text-white'}`}
+            className={`border-ink ${amount === value.toString() ? 'bg-lime/20 border-lime text-lime' : 'text-mute hover:text-ink'}`}
           >
             {value} DH
           </Button>
@@ -133,7 +133,7 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
           variant="outline"
           size="sm"
           onClick={() => setAmount(availableBalance.toString())}
-          className={`border-zinc-700 ${amount === availableBalance.toString() ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'text-zinc-400 hover:text-white'}`}
+          className={`border-ink ${amount === availableBalance.toString() ? 'bg-lime/20 border-lime text-lime' : 'text-mute hover:text-ink'}`}
         >
           Tout
         </Button>
@@ -141,19 +141,19 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
 
       {/* Payment Method */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Méthode de paiement</Label>
+        <Label className="text-ink-2">Méthode de paiement</Label>
         <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-          <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+          <SelectTrigger className="bg-card border-ink text-ink">
             <SelectValue placeholder="Sélectionner une méthode" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700">
-            <SelectItem value="bank" className="text-white hover:bg-zinc-700">
+          <SelectContent className="bg-card border-ink">
+            <SelectItem value="bank" className="text-ink hover:bg-muted">
               Virement bancaire
             </SelectItem>
-            <SelectItem value="cashplus" className="text-white hover:bg-zinc-700">
+            <SelectItem value="cashplus" className="text-ink hover:bg-muted">
               Cash Plus
             </SelectItem>
-            <SelectItem value="mobile_wallet" className="text-white hover:bg-zinc-700">
+            <SelectItem value="mobile_wallet" className="text-ink hover:bg-muted">
               Portefeuille mobile
             </SelectItem>
           </SelectContent>
@@ -163,7 +163,7 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
       {/* Payment Details */}
       {paymentMethod && (
         <div className="space-y-2">
-          <Label className="text-zinc-300">
+          <Label className="text-ink-2">
             {paymentMethod === "bank" ? "RIB bancaire" : "Numéro de téléphone"}
           </Label>
           <Input
@@ -171,7 +171,7 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
             value={paymentDetails}
             onChange={(e) => setPaymentDetails(e.target.value)}
             placeholder={getPlaceholder()}
-            className="bg-zinc-800 border-zinc-700 text-white focus:border-emerald-500"
+            className="bg-card border-ink text-ink focus:border-lime"
           />
         </div>
       )}
@@ -180,7 +180,7 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
       <Button
         type="submit"
         disabled={loading || !amount || !paymentMethod || !paymentDetails}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-6"
+        className="w-full bg-lime hover:bg-lime text-ink py-6"
       >
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin mr-2" />
@@ -191,7 +191,7 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
       </Button>
 
       {/* Info */}
-      <p className="text-xs text-zinc-500 text-center">
+      <p className="text-xs text-mute text-center">
         Les retraits sont traités sous 24-72h selon la méthode choisie.
         Vous serez notifié par email.
       </p>

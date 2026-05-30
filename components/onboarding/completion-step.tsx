@@ -54,19 +54,19 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
       icon: Users,
       title: "Ajouter un profil enfant",
       description: "Créez le profil de votre premier enfant",
-      color: "from-blue-500 to-cyan-500"
+      color: "from-teal to-teal"
     },
     {
       icon: Calendar,
       title: "Explorer les événements",
       description: "Découvrez les activités disponibles",
-      color: "from-purple-500 to-pink-500"
+      color: "from-pink to-pink"
     },
     {
       icon: Crown,
       title: "Découvrir les Pass VIP",
       description: "Économisez avec un abonnement",
-      color: "from-yellow-500 to-orange-500"
+      color: "from-gold to-coral"
     }
   ]
 
@@ -75,19 +75,19 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
       icon: Star,
       title: "Personnalise ton profil",
       description: "Choisis ton avatar et ton pseudo unique",
-      color: "from-purple-500 to-pink-500"
+      color: "from-pink to-pink"
     },
     {
       icon: Calendar,
       title: "Découvre les events",
       description: "Trouve des activités qui te plaisent",
-      color: "from-blue-500 to-cyan-500"
+      color: "from-teal to-teal"
     },
     {
       icon: Trophy,
       title: "Relève des défis",
       description: "Gagne des badges et monte en niveau",
-      color: "from-yellow-500 to-orange-500"
+      color: "from-gold to-coral"
     }
   ]
 
@@ -113,10 +113,10 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
             repeat: Infinity,
             repeatDelay: 1
           }}
-          className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-primary via-purple-500 to-pink-500 mb-6 shadow-2xl"
+          className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-primary via-pink to-pink mb-6 shadow-2xl"
           aria-hidden="true"
         >
-          <PartyPopper className="w-16 h-16 text-white" />
+          <PartyPopper className="w-16 h-16 text-ink" />
         </motion.div>
 
         {/* Title */}
@@ -130,7 +130,7 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
               <>
                 Bienvenue dans
                 <br />
-                <span className="text-gradient bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="text-gradient bg-gradient-to-r from-primary via-pink to-pink bg-clip-text text-transparent">
                   la famille Teen Club !
                 </span>
               </>
@@ -138,7 +138,7 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
               <>
                 C'est parti pour
                 <br />
-                <span className="text-gradient bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="text-gradient bg-gradient-to-r from-primary via-pink to-pink bg-clip-text text-transparent">
                   l'aventure !
                 </span>
               </>
@@ -158,7 +158,7 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, type: "spring" }}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold shadow-lg mt-8"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-gold to-coral text-ink font-bold shadow-lg mt-8"
         >
           <Trophy className="w-5 h-5" />
           {userType === 'parent' ? 'Membre Teen Club' : 'Futur Teen Club Star'}
@@ -174,58 +174,58 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
           transition={{ delay: 0.8 }}
           className="max-w-2xl mx-auto"
         >
-          <Card className="p-6 bg-gradient-to-br from-zinc-900/50 to-zinc-800/50 border-cyan-500/20">
-            <h3 className="text-lg font-bold text-center mb-4 text-white">
+          <Card className="p-6 bg-gradient-to-br from-paper-2 to-card border-teal/20">
+            <h3 className="text-lg font-bold text-center mb-4 text-ink">
               Récompenses gagnées
             </h3>
 
             <div className="grid grid-cols-3 gap-4 mb-4">
               {/* XP */}
               <motion.div
-                className="text-center bg-zinc-800/50 rounded-xl p-4"
+                className="text-center bg-card rounded-xl p-4"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.9, type: "spring" }}
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mx-auto mb-2">
-                  <Zap className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center mx-auto mb-2">
+                  <Zap className="w-5 h-5 text-ink" />
                 </div>
-                <p className="text-2xl font-bold text-cyan-400 tabular-nums">{xp}</p>
-                <p className="text-xs text-zinc-500">XP gagnés</p>
+                <p className="text-2xl font-bold text-teal tabular-nums">{xp}</p>
+                <p className="text-xs text-mute">XP gagnés</p>
               </motion.div>
 
               {/* Badges */}
               <motion.div
-                className="text-center bg-zinc-800/50 rounded-xl p-4"
+                className="text-center bg-card rounded-xl p-4"
                 initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={prefersReducedMotion ? { delay: 0.1 } : { delay: 1, type: "spring" }}
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mx-auto mb-2" aria-hidden="true">
-                  <Award className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink to-pink flex items-center justify-center mx-auto mb-2" aria-hidden="true">
+                  <Award className="w-5 h-5 text-ink" />
                 </div>
-                <p className="text-2xl font-bold text-purple-400 tabular-nums">{badges.length}</p>
-                <p className="text-xs text-zinc-500">Badges</p>
+                <p className="text-2xl font-bold text-pink tabular-nums">{badges.length}</p>
+                <p className="text-xs text-mute">Badges</p>
               </motion.div>
 
               {/* Coins */}
               <motion.div
-                className="text-center bg-zinc-800/50 rounded-xl p-4"
+                className="text-center bg-card rounded-xl p-4"
                 initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={prefersReducedMotion ? { delay: 0.2 } : { delay: 1.1, type: "spring" }}
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center mx-auto mb-2" aria-hidden="true">
-                  <Coins className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center mx-auto mb-2" aria-hidden="true">
+                  <Coins className="w-5 h-5 text-ink" />
                 </div>
-                <p className="text-2xl font-bold text-yellow-400 tabular-nums">{coins}</p>
-                <p className="text-xs text-zinc-500">Coins bonus</p>
+                <p className="text-2xl font-bold text-gold tabular-nums">{coins}</p>
+                <p className="text-xs text-mute">Coins bonus</p>
               </motion.div>
             </div>
 
             {/* Badge names */}
             {badges.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2 pt-2 border-t border-zinc-700">
+              <div className="flex flex-wrap justify-center gap-2 pt-2 border-t border-ink">
                 {badges.map((badge, i) => {
                   const info = BADGE_DISPLAY_INFO[badge]
                   return (
@@ -234,7 +234,7 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 1.2 + i * 0.1 }}
-                      className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs font-medium"
+                      className="px-3 py-1 rounded-full bg-pink/20 text-pink text-xs font-medium"
                     >
                       {info?.name || badge}
                     </motion.span>
@@ -267,7 +267,7 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
               >
                 <Card className="p-6 hover:shadow-lg transition-all hover:scale-105 cursor-pointer border-2 hover:border-primary/50 h-full">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4`}>
-                    <Icon className="w-6 h-6 text-white" />
+                    <Icon className="w-6 h-6 text-ink" />
                   </div>
                   <h3 className="font-bold text-lg mb-2">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.description}</p>
@@ -289,7 +289,7 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
           <Button
             size="lg"
             onClick={onNext}
-            className="bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white px-8 py-6 text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+            className="bg-gradient-to-r from-primary to-pink hover:opacity-90 text-ink px-8 py-6 text-lg font-bold shadow-lg hover:shadow-xl transition-all"
           >
             Accéder à mon tableau de bord
             <motion.div
@@ -301,14 +301,14 @@ export function CompletionStep({ userType, onNext, gamificationData }: Completio
           </Button>
         ) : (
           <div className="space-y-4">
-            <Card className="p-6 bg-blue-500/10 border-blue-500/20 max-w-2xl mx-auto">
+            <Card className="p-6 bg-teal/10 border-teal/20 max-w-2xl mx-auto">
               <div className="flex items-start gap-3">
-                <Heart className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" />
+                <Heart className="w-6 h-6 text-teal flex-shrink-0 mt-1" />
                 <div className="text-left">
-                  <p className="font-bold text-blue-600 dark:text-blue-400 mb-2">
+                  <p className="font-bold text-teal dark:text-teal mb-2">
                     Un email a été envoyé à tes parents
                   </p>
-                  <p className="text-sm text-blue-600/80 dark:text-blue-400/80">
+                  <p className="text-sm text-teal/80 dark:text-teal/80">
                     Ils vont recevoir un lien pour créer leur compte et valider ton inscription.
                     Tu recevras une notification dès que c'est fait !
                   </p>

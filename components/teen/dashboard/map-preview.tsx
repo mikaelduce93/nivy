@@ -42,9 +42,9 @@ interface MapPreviewProps {
 
 // Event type colors
 const EVENT_COLORS: Record<string, { bg: string; text: string; glow: string }> = {
-  meetup: { bg: 'bg-emerald-500/90', text: 'text-white', glow: 'rgba(16, 185, 129, 0.5)' },
-  challenge: { bg: 'bg-orange-500/90', text: 'text-white', glow: 'rgba(249, 115, 22, 0.5)' },
-  party: { bg: 'bg-accent-soft/90', text: 'text-white', glow: 'rgba(244, 63, 94, 0.5)' },
+  meetup: { bg: 'bg-lime/90', text: 'text-ink', glow: 'rgba(16, 185, 129, 0.5)' },
+  challenge: { bg: 'bg-coral/90', text: 'text-ink', glow: 'rgba(249, 115, 22, 0.5)' },
+  party: { bg: 'bg-accent-soft/90', text: 'text-ink', glow: 'rgba(244, 63, 94, 0.5)' },
 }
 
 export function MapPreview({ userId, className }: MapPreviewProps) {
@@ -164,7 +164,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
           className={cn(
-            "relative h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-zinc-900/80 border border-white/10 group cursor-pointer",
+            "relative h-full rounded-2xl sm:rounded-2xl overflow-hidden bg-card border border-ink group cursor-pointer",
             className
           )}
         >
@@ -261,13 +261,13 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                 >
                   <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-brand-soft shadow-lg">
                     <AvatarImage src={friend.avatar_url} />
-                    <AvatarFallback className="bg-brand-soft text-white text-xs font-bold">
+                    <AvatarFallback className="bg-brand-soft text-ink text-xs font-bold">
                       {friend.name[0]}
                     </AvatarFallback>
                   </Avatar>
                   
                   {/* Online indicator */}
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-zinc-900" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-lime border-2 border-ink" />
                 </motion.div>
                 
                 {/* Distance label (on hover) */}
@@ -279,7 +279,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                       exit={{ opacity: 0, y: 5 }}
                       className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap"
                     >
-                      <span className="text-[10px] font-bold text-white bg-black/60 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] font-bold text-ink bg-ink/60 px-1.5 py-0.5 rounded">
                         {friend.distance}
                       </span>
                     </motion.div>
@@ -310,7 +310,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                     <GlowPulse color={colors.glow} intensity="medium" speed="medium">
                       <div 
                         className={cn(
-                          "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl backdrop-blur-md border border-white/20 shadow-xl",
+                          "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl  border border-ink shadow-xl",
                           colors.bg
                         )}
                       >
@@ -329,7 +329,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
           {/* Header badge with glass effect */}
           <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
             <motion.div 
-              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-black/40 backdrop-blur-xl border border-white/20 shadow-2xl"
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-ink/40  border border-ink shadow-2xl"
               whileHover={{ scale: 1.05 }}
             >
               <motion.div
@@ -339,9 +339,9 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
               >
                 <Compass className="w-4 h-4 sm:w-5 sm:h-5 text-success-soft" />
               </motion.div>
-              <span className="text-xs sm:text-sm font-black text-white tracking-tight">Discovery Map</span>
+              <span className="text-xs sm:text-sm font-black text-ink tracking-tight">Discovery Map</span>
               <motion.div
-                className="w-1.5 h-1.5 rounded-full bg-emerald-400"
+                className="w-1.5 h-1.5 rounded-full bg-lime"
                 animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
@@ -357,7 +357,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                   whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-xl border border-white/20"
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-ink/40  border border-ink"
                 >
                   <motion.div
                     animate={{ scale: [1, 1.2, 1] }}
@@ -365,7 +365,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                   >
                     <Users className="w-3.5 h-3.5 text-brand-soft" />
                   </motion.div>
-                  <span className="text-[10px] sm:text-xs font-bold text-white">
+                  <span className="text-[10px] sm:text-xs font-bold text-ink">
                     {nearbyFriends.length} amis
                   </span>
                 </motion.div>
@@ -376,7 +376,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
                     whileHover={{ scale: 1.05 }}
-                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-xl border border-white/20"
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-ink/40  border border-ink"
                   >
                     <motion.div
                       animate={{ rotate: [0, 10, -10, 0] }}
@@ -384,7 +384,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                     >
                       <Sparkles className="w-3.5 h-3.5 text-accent-soft" />
                     </motion.div>
-                    <span className="text-xs font-bold text-white">{nearbyEvents.length} events</span>
+                    <span className="text-xs font-bold text-ink">{nearbyEvents.length} events</span>
                   </motion.div>
                 )}
               </div>
@@ -393,7 +393,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
               <motion.div
                 whileHover={{ scale: 1.08, x: 3 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-brand-soft text-white shadow-lg font-bold text-[10px] sm:text-xs"
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-brand-soft text-ink shadow-lg font-bold text-[10px] sm:text-xs"
                 style={{ boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)' }}
               >
                 <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -409,8 +409,8 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
           </div>
 
           {/* Bottom gradient fade */}
-          <div className="absolute bottom-0 inset-x-0 h-24 sm:h-28 bg-gradient-to-t from-zinc-900 via-zinc-900/70 to-transparent pointer-events-none z-10" />
-          <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-zinc-900/50 to-transparent pointer-events-none z-10" />
+          <div className="absolute bottom-0 inset-x-0 h-24 sm:h-28 bg-gradient-to-t from-paper-2 via-paper-2 to-transparent pointer-events-none z-10" />
+          <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-paper-2 to-transparent pointer-events-none z-10" />
 
           {/* Hover overlay */}
           <motion.div

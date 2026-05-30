@@ -21,7 +21,7 @@ export function MentorSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-20 bg-zinc-900 border-r border-zinc-800">
+    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-20 bg-card border-r border-ink">
       <div className="flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
         <nav className="flex-1 px-3 space-y-1">
           {navigation.map((item) => {
@@ -33,14 +33,14 @@ export function MentorSidebar() {
                 className={cn(
                   "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
                   isActive
-                    ? "bg-gradient-to-r from-purple-500/20 to-fuchsia-500/20 text-purple-300 border border-purple-500/30"
-                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                    ? "bg-gradient-to-r from-pink/20 to-pink/20 text-pink border border-pink/30"
+                    : "text-mute hover:bg-card hover:text-ink"
                 )}
               >
                 <item.icon
                   className={cn(
                     "mr-3 h-5 w-5 flex-shrink-0",
-                    isActive ? "text-purple-300" : "text-zinc-500 group-hover:text-zinc-300"
+                    isActive ? "text-pink" : "text-mute group-hover:text-ink-2"
                   )}
                 />
                 {item.name}

@@ -36,33 +36,33 @@ export function CelebrationOverlay({
   const config = {
     'level-up': {
       icon: Crown,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-500/20',
-      borderColor: 'border-amber-500/50',
+      color: 'text-gold',
+      bgColor: 'bg-gold/20',
+      borderColor: 'border-gold/50',
       neonColor: 'var(--neon-prestige)',
       sound: '/sounds/level-up.wav'
     },
     'badge-unlocked': {
       icon: Trophy,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/20',
-      borderColor: 'border-purple-500/50',
+      color: 'text-pink',
+      bgColor: 'bg-pink/20',
+      borderColor: 'border-pink/50',
       neonColor: 'var(--neon-party)',
       sound: '/sounds/badge-unlock.wav'
     },
     'mission-complete': {
       icon: Star,
-      color: 'text-emerald-400',
-      bgColor: 'bg-emerald-500/20',
-      borderColor: 'border-emerald-500/50',
+      color: 'text-lime',
+      bgColor: 'bg-lime/20',
+      borderColor: 'border-lime/50',
       neonColor: 'var(--neon-vitality)',
       sound: '/sounds/success.wav'
     },
     'streak-milestone': {
       icon: Sparkles,
-      color: 'text-orange-400',
-      bgColor: 'bg-orange-500/20',
-      borderColor: 'border-orange-500/50',
+      color: 'text-coral',
+      bgColor: 'bg-coral/20',
+      borderColor: 'border-coral/50',
       neonColor: 'var(--neon-prestige)',
       sound: '/sounds/streak.wav'
     }
@@ -119,7 +119,7 @@ export function CelebrationOverlay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-ink/80 "
           onClick={onClose}
         >
           <motion.div
@@ -127,14 +127,14 @@ export function CelebrationOverlay({
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.8, y: 50, opacity: 0 }}
             transition={{ type: "spring", damping: 15, stiffness: 300 }}
-            className={`relative w-full max-w-sm p-8 rounded-3xl border-2 ${currentConfig.bgColor} ${currentConfig.borderColor} backdrop-blur-xl shadow-[0_0_50px_-10px_var(--neon-glow)] text-center overflow-hidden`}
+            className={`relative w-full max-w-sm p-8 rounded-2xl border-2 ${currentConfig.bgColor} ${currentConfig.borderColor}   text-center overflow-hidden`}
             style={{ '--neon-glow': currentConfig.neonColor } as any}
             onClick={(e) => e.stopPropagation()}
           >
              {/* Background Effects */}
              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-             <div className="absolute -top-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-             <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+             <div className="absolute -top-20 -left-20 w-40 h-40 bg-paper-2 rounded-full blur-3xl" />
+             <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-paper-2 rounded-full blur-3xl" />
 
              {/* Content */}
              <div className="relative z-10 flex flex-col items-center">
@@ -142,7 +142,7 @@ export function CelebrationOverlay({
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: 0.2, type: "spring" }}
-                  className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 border-4 ${currentConfig.borderColor} bg-black/30 shadow-[0_0_30px_-5px_var(--neon-glow)]`}
+                  className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 border-4 ${currentConfig.borderColor} bg-ink/30 `}
                 >
                   {image ? (
                     <Image src={image} alt={title} width={64} height={64} className="w-16 h-16 object-contain" />
@@ -155,7 +155,7 @@ export function CelebrationOverlay({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-3xl font-black text-white mb-2 tracking-tight uppercase italic"
+                  className="text-3xl font-black text-ink mb-2 tracking-tight uppercase italic"
                   style={{ textShadow: `0 0 20px ${currentConfig.neonColor}` }}
                 >
                   {title}
@@ -166,7 +166,7 @@ export function CelebrationOverlay({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="text-zinc-300 mb-6 font-medium"
+                    className="text-ink-2 mb-6 font-medium"
                   >
                     {subtitle}
                   </motion.p>
@@ -179,10 +179,10 @@ export function CelebrationOverlay({
                     transition={{ delay: 0.5, type: "spring" }}
                     className="mb-8 flex flex-col items-center"
                   >
-                    <span className={`text-4xl font-black ${currentConfig.color} drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]`}>
+                    <span className={`text-4xl font-black ${currentConfig.color} drop-`}>
                       +{xpEarned} XP
                     </span>
-                    <span className="text-xs text-white/50 font-bold uppercase tracking-widest mt-1">
+                    <span className="text-xs text-ink/50 font-bold uppercase tracking-widest mt-1">
                       Récompense
                     </span>
                   </motion.div>
@@ -196,7 +196,7 @@ export function CelebrationOverlay({
                 >
                   <Button 
                     onClick={onClose}
-                    className={`w-full py-6 text-lg font-bold rounded-xl shadow-[0_0_20px_-5px_var(--neon-glow)] hover:scale-105 transition-transform bg-white text-black hover:bg-zinc-200 border-none`}
+                    className={`w-full py-6 text-lg font-bold rounded-xl  hover:scale-105 transition-transform bg-white text-ink hover:bg-paper-2 border-none`}
                   >
                     C'EST PARTI ! 🚀
                   </Button>
@@ -206,7 +206,7 @@ export function CelebrationOverlay({
              {/* Close Button */}
              <button 
                onClick={onClose}
-               className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+               className="absolute top-4 right-4 p-2 rounded-full hover:bg-paper-2 text-ink/50 hover:text-ink transition-colors"
              >
                <X className="w-6 h-6" />
              </button>

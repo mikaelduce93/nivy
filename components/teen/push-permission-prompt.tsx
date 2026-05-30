@@ -180,15 +180,15 @@ export function PushPermissionPrompt({
       role="dialog"
       aria-live="polite"
       aria-label="Activer les notifications"
-      className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-2xl border border-white/10 bg-slate-900/95 p-4 text-white shadow-xl backdrop-blur md:inset-x-auto md:right-6 md:bottom-6"
+      className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-2xl border border-ink bg-card p-4 text-ink shadow-xl  md:inset-x-auto md:right-6 md:bottom-6"
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-lime/20 text-lime">
           <Bell className="h-5 w-5" aria-hidden />
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold">Active tes rappels</p>
-          <p className="mt-1 text-xs text-slate-300">
+          <p className="mt-1 text-xs text-ink-2">
             Reçois un ping pour tes prochains quizz et tâches — rien de
             spammy, jamais entre 22h et 7h.
           </p>
@@ -197,7 +197,7 @@ export function PushPermissionPrompt({
               type="button"
               onClick={handleEnable}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-400 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-lime px-3 py-1.5 text-xs font-medium text-ink hover:bg-lime disabled:opacity-60"
             >
               {loading ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -210,7 +210,7 @@ export function PushPermissionPrompt({
               type="button"
               onClick={handleDismiss}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/10 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-paper-2 px-3 py-1.5 text-xs font-medium text-ink-2 hover:bg-paper-2 disabled:opacity-60"
             >
               <BellOff className="h-3.5 w-3.5" aria-hidden />
               Plus tard
@@ -221,7 +221,7 @@ export function PushPermissionPrompt({
           type="button"
           onClick={handleDismiss}
           aria-label="Fermer"
-          className="-mr-1 -mt-1 rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white"
+          className="-mr-1 -mt-1 rounded-md p-1 text-mute hover:bg-paper-2 hover:text-ink"
         >
           <X className="h-4 w-4" aria-hidden />
         </button>

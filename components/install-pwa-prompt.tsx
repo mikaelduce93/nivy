@@ -49,22 +49,22 @@ export function InstallPWAPrompt() {
   if (!showPrompt) return null
 
   return (
-    <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 right-4 md:left-auto md:right-4 md:w-96 bg-gradient-to-br from-zinc-900 to-zinc-950 border border-cyan-500/30 rounded-2xl p-6 shadow-2xl z-50 animate-in slide-in-from-bottom-5">
+    <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 right-4 md:left-auto md:right-4 md:w-96 bg-gradient-to-br from-paper-2 to-card border border-teal/30 rounded-2xl p-6 shadow-2xl z-50 animate-in slide-in-from-bottom-5">
       <button
         onClick={handleDismiss}
-        className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"
+        className="absolute top-4 right-4 text-mute hover:text-ink transition-colors"
       >
         <X className="w-5 h-5" />
       </button>
 
       <div className="mb-4">
-        <h3 className="text-lg font-bold text-white mb-2">Installer l'application</h3>
-        <p className="text-sm text-zinc-400">
+        <h3 className="text-lg font-bold text-ink mb-2">Installer l'application</h3>
+        <p className="text-sm text-mute">
           Installez Teens Party sur votre appareil pour un accès rapide et une meilleure expérience.
         </p>
       </div>
 
-      <Button onClick={handleInstall} className="w-full bg-cyan-500 hover:bg-cyan-600 text-white border-0">
+      <Button onClick={handleInstall} className="w-full bg-teal hover:bg-teal text-ink border-0">
         <Download className="w-4 h-4 mr-2" />
         Installer maintenant
       </Button>

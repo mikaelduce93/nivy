@@ -42,10 +42,10 @@ export function SignaturePad({ onSave, label = "Signature du parent" }: Signatur
   }
 
   return (
-    <Card className="p-6 bg-zinc-900 border-zinc-800">
-      <label className="block text-sm font-semibold text-white mb-3">{label}</label>
+    <Card className="p-6 bg-card border-ink">
+      <label className="block text-sm font-semibold text-ink mb-3">{label}</label>
       
-      <div className="border-2 border-dashed border-zinc-700 rounded-lg overflow-hidden bg-white mb-4">
+      <div className="border-2 border-dashed border-ink rounded-lg overflow-hidden bg-white mb-4">
         <SignatureCanvas
           ref={sigPadRef}
           onEnd={handleEnd}
@@ -57,7 +57,7 @@ export function SignaturePad({ onSave, label = "Signature du parent" }: Signatur
         />
       </div>
 
-      <p className="text-xs text-zinc-400 mb-4">
+      <p className="text-xs text-mute mb-4">
         Signez avec votre doigt ou souris dans le cadre ci-dessus
       </p>
 
@@ -67,7 +67,7 @@ export function SignaturePad({ onSave, label = "Signature du parent" }: Signatur
           variant="outline"
           onClick={clear}
           disabled={isEmpty || isSaving}
-          className="flex-1 border-zinc-700 hover:bg-zinc-800"
+          className="flex-1 border-ink hover:bg-card"
         >
           <RotateCcw className="w-4 h-4 mr-2" />
           Effacer
@@ -76,7 +76,7 @@ export function SignaturePad({ onSave, label = "Signature du parent" }: Signatur
           type="button"
           onClick={save}
           disabled={isEmpty || isSaving}
-          className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+          className="flex-1 bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal"
         >
           {isSaving ? (
             <>

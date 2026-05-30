@@ -86,7 +86,7 @@ function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="absolute bottom-full mb-2 right-0 bg-zinc-800 rounded-xl p-2 border border-zinc-700 z-10"
+      className="absolute bottom-full mb-2 right-0 bg-card rounded-xl p-2 border border-ink z-10"
     >
       <div className="flex gap-1">
         {COMMON_EMOJIS.map((emoji) => (
@@ -96,7 +96,7 @@ function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
               onSelect(emoji)
               onClose()
             }}
-            className="w-8 h-8 flex items-center justify-center hover:bg-zinc-700 rounded-lg transition-colors"
+            className="w-8 h-8 flex items-center justify-center hover:bg-muted rounded-lg transition-colors"
           >
             {emoji}
           </button>
@@ -148,7 +148,7 @@ function MessageBubble({
   if (message.message_type === "system") {
     return (
       <div className="flex justify-center my-4">
-        <span className="text-xs text-zinc-500 bg-zinc-800/50 px-3 py-1 rounded-full">
+        <span className="text-xs text-mute bg-card px-3 py-1 rounded-full">
           {message.sender?.first_name} {message.content}
         </span>
       </div>
@@ -176,7 +176,7 @@ function MessageBubble({
       {!isOwn && (
         <div className="flex-shrink-0">
           {showSender ? (
-            <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+            <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center overflow-hidden">
               {message.sender?.avatar_url ? (
                 <NextImage
                   src={message.sender.avatar_url}
@@ -186,7 +186,7 @@ function MessageBubble({
                   className="object-cover"
                 />
               ) : (
-                <span className="text-xs text-white font-bold">
+                <span className="text-xs text-ink font-bold">
                   {message.sender?.first_name?.[0] || "?"}
                 </span>
               )}
@@ -201,7 +201,7 @@ function MessageBubble({
       <div className={cn("max-w-[75%] relative", isOwn && "items-end")}>
         {/* Sender name */}
         {showSender && !isOwn && (
-          <p className="text-xs text-zinc-500 mb-1 ml-1">
+          <p className="text-xs text-mute mb-1 ml-1">
             {message.sender?.first_name}
           </p>
         )}
@@ -209,10 +209,10 @@ function MessageBubble({
         {/* Reply preview */}
         {message.reply_to && (
           <div className={cn(
-            "text-xs text-zinc-500 px-3 py-1.5 rounded-t-xl border-l-2 mb-0.5",
+            "text-xs text-mute px-3 py-1.5 rounded-t-xl border-l-2 mb-0.5",
             isOwn
-              ? "bg-zinc-700/50 border-cyan-400"
-              : "bg-zinc-800/50 border-zinc-600"
+              ? "bg-muted border-teal"
+              : "bg-card border-ink"
           )}>
             <span className="font-medium">{message.reply_to.sender?.first_name}</span>
             <p className="truncate">{message.reply_to.content}</p>
@@ -224,8 +224,8 @@ function MessageBubble({
           className={cn(
             "relative px-4 py-2 rounded-2xl",
             isOwn
-              ? `bg-gradient-to-r from-${themeColor}-500 to-${themeColor}-600 text-white`
-              : "bg-zinc-800 text-white",
+              ? `bg-gradient-to-r from-${themeColor}-500 to-${themeColor}-600 text-ink`
+              : "bg-card text-ink",
             message.reply_to && "rounded-tl-md"
           )}
           style={isOwn ? {
@@ -254,14 +254,14 @@ function MessageBubble({
           )}>
             <span className={cn(
               "text-[10px]",
-              isOwn ? "text-white/60" : "text-zinc-500"
+              isOwn ? "text-ink/60" : "text-mute"
             )}>
               {formatTime(message.created_at)}
             </span>
             {message.is_edited && (
               <span className={cn(
                 "text-[10px]",
-                isOwn ? "text-white/60" : "text-zinc-500"
+                isOwn ? "text-ink/60" : "text-mute"
               )}>
                 (modifie)
               </span>
@@ -269,7 +269,7 @@ function MessageBubble({
             {message.is_pinned && (
               <Pin className={cn(
                 "w-3 h-3",
-                isOwn ? "text-white/60" : "text-zinc-500"
+                isOwn ? "text-ink/60" : "text-mute"
               )} />
             )}
           </div>
@@ -281,19 +281,19 @@ function MessageBubble({
           )}>
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white"
+              className="p-1.5 rounded-full bg-card hover:bg-muted text-mute hover:text-ink"
             >
               <Smile className="w-4 h-4" />
             </button>
             <button
               onClick={onReply}
-              className="p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white"
+              className="p-1.5 rounded-full bg-card hover:bg-muted text-mute hover:text-ink"
             >
               <Reply className="w-4 h-4" />
             </button>
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white"
+              className="p-1.5 rounded-full bg-card hover:bg-muted text-mute hover:text-ink"
             >
               <MoreVertical className="w-4 h-4" />
             </button>
@@ -317,7 +317,7 @@ function MessageBubble({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 className={cn(
-                  "absolute top-full mt-1 w-36 bg-zinc-800 rounded-xl border border-zinc-700 overflow-hidden z-10",
+                  "absolute top-full mt-1 w-36 bg-card rounded-xl border border-ink overflow-hidden z-10",
                   isOwn ? "right-0" : "left-0"
                 )}
               >
@@ -326,7 +326,7 @@ function MessageBubble({
                     onReply()
                     setShowMenu(false)
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700 flex items-center gap-2"
+                  className="w-full px-4 py-2 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
                 >
                   <Reply className="w-4 h-4" />
                   Repondre
@@ -337,7 +337,7 @@ function MessageBubble({
                       onPin()
                       setShowMenu(false)
                     }}
-                    className="w-full px-4 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700 flex items-center gap-2"
+                    className="w-full px-4 py-2 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
                   >
                     <Pin className="w-4 h-4" />
                     {message.is_pinned ? "Desepingler" : "Epingler"}
@@ -349,7 +349,7 @@ function MessageBubble({
                       onDelete()
                       setShowMenu(false)
                     }}
-                    className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-zinc-700 flex items-center gap-2"
+                    className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-muted flex items-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
                     Supprimer
@@ -373,8 +373,8 @@ function MessageBubble({
                 className={cn(
                   "px-2 py-0.5 rounded-full text-xs flex items-center gap-1 transition-colors",
                   hasReacted
-                    ? "bg-cyan-500/20 text-cyan-400"
-                    : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                    ? "bg-teal/20 text-teal"
+                    : "bg-card text-mute hover:bg-muted"
                 )}
               >
                 <span>{emoji}</span>
@@ -634,54 +634,54 @@ export function CircleChat({
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-cyan-500 border-t-transparent" />
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-teal border-t-transparent" />
       </div>
     )
   }
 
   return (
-    <div className="h-full flex flex-col bg-zinc-950">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-zinc-800 bg-zinc-900">
+      <div className="flex items-center gap-3 p-4 border-b border-ink bg-card">
         <button
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-zinc-800 transition-colors"
+          className="p-2 rounded-xl hover:bg-card transition-colors"
         >
-          <ChevronLeft className="w-5 h-5 text-zinc-400" />
+          <ChevronLeft className="w-5 h-5 text-mute" />
         </button>
 
         <div
           className={cn(
             "w-10 h-10 rounded-xl flex items-center justify-center text-lg",
-            "bg-gradient-to-br from-cyan-500 to-blue-500"
+            "bg-gradient-to-br from-teal to-teal"
           )}
         >
-          {circleInfo.emoji || <Users className="w-5 h-5 text-white" />}
+          {circleInfo.emoji || <Users className="w-5 h-5 text-ink" />}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h2 className="font-bold text-white truncate">{circleInfo.name}</h2>
-          <p className="text-xs text-zinc-500">{circleInfo.member_count} membres</p>
+          <h2 className="font-bold text-ink truncate">{circleInfo.name}</h2>
+          <p className="text-xs text-mute">{circleInfo.member_count} membres</p>
         </div>
 
         <button
           onClick={onOpenMembers}
-          className="p-2 rounded-xl hover:bg-zinc-800 transition-colors"
+          className="p-2 rounded-xl hover:bg-card transition-colors"
         >
-          <Users className="w-5 h-5 text-zinc-400" />
+          <Users className="w-5 h-5 text-mute" />
         </button>
         <button
           onClick={onOpenSettings}
-          className="p-2 rounded-xl hover:bg-zinc-800 transition-colors"
+          className="p-2 rounded-xl hover:bg-card transition-colors"
         >
-          <Settings className="w-5 h-5 text-zinc-400" />
+          <Settings className="w-5 h-5 text-mute" />
         </button>
       </div>
 
       {/* Pinned messages */}
       {pinnedMessages.length > 0 && (
-        <div className="p-2 bg-yellow-500/10 border-b border-yellow-500/20">
-          <div className="flex items-center gap-2 text-yellow-400 text-sm">
+        <div className="p-2 bg-gold/10 border-b border-gold/20">
+          <div className="flex items-center gap-2 text-gold text-sm">
             <Pin className="w-4 h-4" />
             <span className="font-medium">
               {pinnedMessages.length} message{pinnedMessages.length > 1 ? "s" : ""} epingle{pinnedMessages.length > 1 ? "s" : ""}
@@ -704,7 +704,7 @@ export function CircleChat({
               disabled={loadingMore}
               variant="outline"
               size="sm"
-              className="border-zinc-700"
+              className="border-ink"
             >
               {loadingMore ? "Chargement..." : "Charger plus"}
             </Button>
@@ -716,9 +716,9 @@ export function CircleChat({
           <div key={group.date}>
             {/* Date separator */}
             <div className="flex items-center gap-4 my-4">
-              <div className="flex-1 h-px bg-zinc-800" />
-              <span className="text-xs text-zinc-500 capitalize">{group.date}</span>
-              <div className="flex-1 h-px bg-zinc-800" />
+              <div className="flex-1 h-px bg-card" />
+              <span className="text-xs text-mute capitalize">{group.date}</span>
+              <div className="flex-1 h-px bg-card" />
             </div>
 
             {/* Messages */}
@@ -754,9 +754,9 @@ export function CircleChat({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })}
-            className="absolute bottom-24 right-4 p-3 rounded-full bg-zinc-800 border border-zinc-700 shadow-lg"
+            className="absolute bottom-24 right-4 p-3 rounded-full bg-card border border-ink shadow-lg"
           >
-            <ArrowDown className="w-5 h-5 text-zinc-400" />
+            <ArrowDown className="w-5 h-5 text-mute" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -768,19 +768,19 @@ export function CircleChat({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="px-4 pt-2 bg-zinc-900 border-t border-zinc-800"
+            className="px-4 pt-2 bg-card border-t border-ink"
           >
-            <div className="flex items-center gap-2 p-2 bg-zinc-800 rounded-lg">
-              <Reply className="w-4 h-4 text-cyan-400" />
+            <div className="flex items-center gap-2 p-2 bg-card rounded-lg">
+              <Reply className="w-4 h-4 text-teal" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-cyan-400">{replyTo.sender?.first_name}</p>
-                <p className="text-sm text-zinc-400 truncate">{replyTo.content}</p>
+                <p className="text-xs text-teal">{replyTo.sender?.first_name}</p>
+                <p className="text-sm text-mute truncate">{replyTo.content}</p>
               </div>
               <button
                 onClick={() => setReplyTo(null)}
-                className="p-1 hover:bg-zinc-700 rounded"
+                className="p-1 hover:bg-muted rounded"
               >
-                <X className="w-4 h-4 text-zinc-500" />
+                <X className="w-4 h-4 text-mute" />
               </button>
             </div>
           </motion.div>
@@ -788,10 +788,10 @@ export function CircleChat({
       </AnimatePresence>
 
       {/* Input */}
-      <div className="p-4 bg-zinc-900 border-t border-zinc-800">
+      <div className="p-4 bg-card border-t border-ink">
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-xl hover:bg-zinc-800 transition-colors">
-            <ImageIcon className="w-5 h-5 text-zinc-400" />
+          <button className="p-2 rounded-xl hover:bg-card transition-colors">
+            <ImageIcon className="w-5 h-5 text-mute" />
           </button>
 
           <div className="flex-1 relative">
@@ -802,17 +802,17 @@ export function CircleChat({
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Message..."
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-white pr-12"
+              className="w-full bg-card border border-ink rounded-xl px-4 py-2.5 text-ink pr-12"
             />
             <button className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Smile className="w-5 h-5 text-zinc-500" />
+              <Smile className="w-5 h-5 text-mute" />
             </button>
           </div>
 
           <Button
             onClick={sendMessage}
             disabled={!inputValue.trim()}
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 p-2.5"
+            className="bg-gradient-to-r from-teal to-teal p-2.5"
           >
             <Send className="w-5 h-5" />
           </Button>

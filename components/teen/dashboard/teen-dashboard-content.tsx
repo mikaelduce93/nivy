@@ -88,7 +88,7 @@ export function TeenDashboardContent({
 
   // Wrap content with elite providers on desktop
   const content = (
-    <div className="relative min-h-screen bg-[#020203] text-white selection:bg-brand-soft/30 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#020203] text-ink selection:bg-brand-soft/30 overflow-x-hidden">
       {/* 1. BACKGROUND - Reduced on mobile for performance */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <MeshGradient className="opacity-20" />
@@ -158,7 +158,7 @@ export function TeenDashboardContent({
             rows={2}
             variant="glass"
             tiltIntensity={mobile ? 0 : 5}
-            className="col-span-full sm:col-span-6 md:col-span-3 p-0 border-white/5 order-2"
+            className="col-span-full sm:col-span-6 md:col-span-3 p-0 border-ink order-2"
           >
             <Suspense fallback={<QuickAccessSkeleton />}>
               <QuickAccessGrid userId={teenId} />
@@ -171,7 +171,7 @@ export function TeenDashboardContent({
             rows={1}
             variant="glass"
             tiltIntensity={mobile ? 0 : 5}
-            className="col-span-full sm:col-span-6 md:col-span-3 bg-white/[0.02] border-white/5 order-3"
+            className="col-span-full sm:col-span-6 md:col-span-3 bg-white/[0.02] border-ink order-3"
           >
             <Suspense fallback={<CardSkeleton />}>
               <OnlineFriends userId={teenId} />
@@ -189,7 +189,7 @@ export function TeenDashboardContent({
             tiltIntensity={mobile ? 0 : 3}
           >
             <Suspense fallback={<MapSkeleton />}>
-              <ClientErrorBoundary fallback={<div className="h-full flex items-center justify-center text-zinc-400 font-black uppercase tracking-widest bg-zinc-900/50">Map Offline</div>}>
+              <ClientErrorBoundary fallback={<div className="h-full flex items-center justify-center text-mute font-black uppercase tracking-widest bg-card">Map Offline</div>}>
                 <MapPreview userId={teenId} />
               </ClientErrorBoundary>
             </Suspense>
@@ -201,7 +201,7 @@ export function TeenDashboardContent({
             rows={2}
             variant="accent"
             tiltIntensity={mobile ? 0 : 4}
-            className="col-span-full md:col-span-7 bg-indigo-950/20 border-indigo-500/20 order-5"
+            className="col-span-full md:col-span-7 bg-pink/20 border-pink/20 order-5"
           >
             <Suspense fallback={<CardSkeleton className="h-full" />}>
               <CrewHub />
@@ -227,7 +227,7 @@ export function TeenDashboardContent({
             rows={1}
             variant="default"
             tiltIntensity={mobile ? 0 : 6}
-            className="col-span-full sm:col-span-6 md:col-span-4 bg-zinc-900/40 border-white/5 order-7"
+            className="col-span-full sm:col-span-6 md:col-span-4 bg-card border-ink order-7"
           >
             <Suspense fallback={<CardSkeleton />}>
               <ProfileQuest />
@@ -240,11 +240,11 @@ export function TeenDashboardContent({
             rows={2} 
             variant="glass" 
             tiltIntensity={mobile ? 0 : 3}
-            className="col-span-full md:col-span-8 flex flex-col border-white/5 bg-white/[0.01] order-8"
+            className="col-span-full md:col-span-8 flex flex-col border-ink bg-white/[0.01] order-8"
             aria-label="Fil d'activité en direct"
           >
             <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8 px-4 pt-4 sm:px-6 sm:pt-6">
-              <h2 className="text-base sm:text-lg md:text-xl font-black text-white tracking-tighter flex items-center gap-2 sm:gap-3 italic">
+              <h2 className="text-base sm:text-lg md:text-xl font-black text-ink tracking-tighter flex items-center gap-2 sm:gap-3 italic">
                 <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-accent-soft/10 flex items-center justify-center text-accent-soft border border-accent-soft/20 shadow-inner text-sm sm:text-base">🎉</span>
                 LIVE FEED
               </h2>
@@ -254,7 +254,7 @@ export function TeenDashboardContent({
               </div>
             </div>
             <div className="flex-1 overflow-hidden">
-              <ClientErrorBoundary fallback={<div className="text-sm text-zinc-700 font-black uppercase tracking-[0.3em] p-12 text-center">Syncing...</div>}>
+              <ClientErrorBoundary fallback={<div className="text-sm text-ink font-black uppercase tracking-[0.3em] p-12 text-center">Syncing...</div>}>
                 <LazySocialFeed initialActivities={socialFeed} />
               </ClientErrorBoundary>
             </div>

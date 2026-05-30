@@ -52,12 +52,12 @@ const ACCOUNTS: Record<Role, DemoAccount[]> = {
 }
 
 const ROLE_META: Record<Role, { title: string; emoji: string; ring: string }> = {
-  parent: { title: "Parents", emoji: "👨‍👩‍👧", ring: "ring-blue-500/40" },
-  teen: { title: "Teens", emoji: "🧑", ring: "ring-cyan-500/40" },
-  admin: { title: "Admins", emoji: "🛡️", ring: "ring-amber-500/40" },
-  partner: { title: "Partners", emoji: "🏪", ring: "ring-fuchsia-500/40" },
-  ambassador: { title: "Ambassadors", emoji: "🎯", ring: "ring-emerald-500/40" },
-  mentor: { title: "Mentors", emoji: "🧭", ring: "ring-violet-500/40" },
+  parent: { title: "Parents", emoji: "👨‍👩‍👧", ring: "ring-teal/40" },
+  teen: { title: "Teens", emoji: "🧑", ring: "ring-teal/40" },
+  admin: { title: "Admins", emoji: "🛡️", ring: "ring-gold/40" },
+  partner: { title: "Partners", emoji: "🏪", ring: "ring-pink/40" },
+  ambassador: { title: "Ambassadors", emoji: "🎯", ring: "ring-lime/40" },
+  mentor: { title: "Mentors", emoji: "🧭", ring: "ring-pink/40" },
 }
 
 export function DemoAccountSwitcher() {
@@ -86,11 +86,11 @@ export function DemoAccountSwitcher() {
   }
 
   return (
-    <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-3 text-left">
+    <div className="mb-4 rounded-2xl border border-gold/30 bg-gold/5 p-3 text-left">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-2 text-amber-200 hover:text-amber-100"
+        className="flex w-full items-center justify-between gap-2 text-gold hover:text-gold"
         aria-expanded={open}
         aria-controls="demo-accounts-panel"
       >
@@ -106,8 +106,8 @@ export function DemoAccountSwitcher() {
 
       {open && (
         <div id="demo-accounts-panel" className="mt-3 space-y-3">
-          <p className="text-xs text-amber-200/80">
-            Mot de passe universel : <code className="rounded bg-amber-500/20 px-1 py-0.5 font-mono">{PASSWORD}</code>{" "}
+          <p className="text-xs text-gold/80">
+            Mot de passe universel : <code className="rounded bg-gold/20 px-1 py-0.5 font-mono">{PASSWORD}</code>{" "}
             · Click un compte = connexion auto.
           </p>
 
@@ -116,7 +116,7 @@ export function DemoAccountSwitcher() {
             const list = ACCOUNTS[role]
             return (
               <div key={role}>
-                <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-mute">
                   <span className="mr-1">{meta.emoji}</span>
                   {meta.title}
                 </div>
@@ -129,9 +129,9 @@ export function DemoAccountSwitcher() {
                         type="button"
                         onClick={() => signInAs(acc.email)}
                         disabled={busyEmail !== null}
-                        className={`group relative flex flex-col items-start rounded-lg border border-zinc-700/60 bg-zinc-800/40 px-2.5 py-1.5 text-left text-xs transition hover:border-zinc-500 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 ${meta.ring} disabled:opacity-50`}
+                        className={`group relative flex flex-col items-start rounded-lg border border-ink bg-card px-2.5 py-1.5 text-left text-xs transition hover:border-line hover:bg-card focus-visible:outline-none focus-visible:ring-2 ${meta.ring} disabled:opacity-50`}
                       >
-                        <span className="font-semibold text-zinc-100">
+                        <span className="font-semibold text-ink-2">
                           {busy ? (
                             <span className="inline-flex items-center gap-1.5">
                               <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
@@ -142,9 +142,9 @@ export function DemoAccountSwitcher() {
                           )}
                         </span>
                         {acc.hint && !busy && (
-                          <span className="text-[10px] text-zinc-400">{acc.hint}</span>
+                          <span className="text-[10px] text-mute">{acc.hint}</span>
                         )}
-                        <span className="mt-0.5 truncate text-[10px] text-zinc-500" title={acc.email}>
+                        <span className="mt-0.5 truncate text-[10px] text-mute" title={acc.email}>
                           {acc.email.split("@")[0]}
                         </span>
                       </button>
@@ -156,12 +156,12 @@ export function DemoAccountSwitcher() {
           })}
 
           {error && (
-            <div role="alert" className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+            <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
               {error}
             </div>
           )}
 
-          <p className="text-[10px] text-zinc-500">
+          <p className="text-[10px] text-mute">
             Visible uniquement en développement. Reseed : <code>npx tsx scripts/seed-all-test-accounts.ts</code>
           </p>
         </div>

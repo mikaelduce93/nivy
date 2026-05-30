@@ -119,7 +119,7 @@ export function PartnerSidebar({ partnerType = null, partnerStatus = null }: Sid
   const navigation = partnerStatus !== "active" ? PENDING_NAV : buildActiveNav(partnerType)
 
   return (
-    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-20 bg-zinc-900 border-r border-zinc-800">
+    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-20 bg-card border-r border-ink">
       <div className="flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
         <nav className="flex-1 px-3 space-y-1">
           {navigation.map((item) => {
@@ -131,14 +131,14 @@ export function PartnerSidebar({ partnerType = null, partnerStatus = null }: Sid
                 className={cn(
                   "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
                   isActive
-                    ? "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30"
-                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white",
+                    ? "bg-gradient-to-r from-lime/20 to-teal/20 text-lime border border-lime/30"
+                    : "text-mute hover:bg-card hover:text-ink",
                 )}
               >
                 <item.icon
                   className={cn(
                     "mr-3 h-5 w-5 flex-shrink-0",
-                    isActive ? "text-emerald-400" : "text-zinc-500 group-hover:text-zinc-300",
+                    isActive ? "text-lime" : "text-mute group-hover:text-ink-2",
                   )}
                 />
                 {item.name}
@@ -147,7 +147,7 @@ export function PartnerSidebar({ partnerType = null, partnerStatus = null }: Sid
           })}
         </nav>
         {partnerStatus && partnerStatus !== "active" ? (
-          <div className="px-3 py-2 mx-3 mt-4 text-xs text-amber-300 border border-amber-500/30 rounded-lg bg-amber-500/10">
+          <div className="px-3 py-2 mx-3 mt-4 text-xs text-gold border border-gold/30 rounded-lg bg-gold/10">
             Compte en attente d&apos;activation. Outils complets après approbation.
           </div>
         ) : null}

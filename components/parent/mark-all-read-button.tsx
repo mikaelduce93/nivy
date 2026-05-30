@@ -46,7 +46,7 @@ export function MarkAllReadButton({ unreadCount }: { unreadCount: number }) {
       size="sm"
       onClick={onClick}
       disabled={busy}
-      className="border-zinc-700 text-zinc-200 hover:border-emerald-500/50 hover:text-emerald-400"
+      className="border-ink text-ink-2 hover:border-lime/50 hover:text-lime"
     >
       <CheckCheck className="w-4 h-4 mr-2" aria-hidden="true" />
       {busy ? "Marquage…" : "Tout marquer lu"}

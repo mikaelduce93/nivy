@@ -14,11 +14,11 @@ interface AgentFloatingButtonProps {
 export function AgentFloatingButton({ role, context }: AgentFloatingButtonProps) {
   // Agent configuration per role
   const agentConfig = {
-    teen: { name: "Kai", color: "bg-cyan-500", icon: Sparkles },
-    parent: { name: "Aura", color: "bg-indigo-500", icon: Shield },
-    partner: { name: "Biz", color: "bg-emerald-500", icon: TrendingUp },
-    ambassador: { name: "Hype", color: "bg-amber-500", icon: Zap },
-    admin: { name: "Ops", color: "bg-slate-800", icon: Terminal },
+    teen: { name: "Kai", color: "bg-teal", icon: Sparkles },
+    parent: { name: "Aura", color: "bg-pink", icon: Shield },
+    partner: { name: "Biz", color: "bg-lime", icon: TrendingUp },
+    ambassador: { name: "Hype", color: "bg-gold", icon: Zap },
+    admin: { name: "Ops", color: "bg-card", icon: Terminal },
   }
 
   const config = agentConfig[role as keyof typeof agentConfig] || agentConfig.teen
@@ -31,7 +31,7 @@ export function AgentFloatingButton({ role, context }: AgentFloatingButtonProps)
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className={cn(
-            "w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white transition-colors",
+            "w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-ink transition-colors",
             config.color
           )}
         >

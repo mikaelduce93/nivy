@@ -56,7 +56,7 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
           rotateY,
           transformStyle: "preserve-3d"
         }}
-        className="relative w-[340px] h-[500px] rounded-[2.5rem] bg-zinc-900 border border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.5)] overflow-hidden group cursor-pointer"
+        className="relative w-[340px] h-[500px] rounded-[2.5rem] bg-card border border-ink shadow-[0_50px_100px_rgba(0,0,0,0.5)] overflow-hidden group cursor-pointer"
       >
         {/* Holographic Shimmer Background */}
         <motion.div
@@ -71,7 +71,7 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
         <div className="relative z-10 h-full flex flex-col p-8 items-center text-center justify-between" style={{ transform: "translateZ(50px)" }}>
           {/* Header */}
           <div className="flex justify-between w-full">
-            <div className="w-10 h-10 rounded-xl bg-brand-soft/20 flex items-center justify-center border border-white/10">
+            <div className="w-10 h-10 rounded-xl bg-brand-soft/20 flex items-center justify-center border border-ink">
               <Shield className="w-5 h-5 text-brand-soft" />
             </div>
             <HolographicBadge rarity={user.level > 10 ? "legendary" : "rare"}>
@@ -82,7 +82,7 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
           {/* Avatar & Info */}
           <div className="space-y-4">
             <div className="relative mx-auto">
-              <div className="relative w-32 h-32 rounded-full border-4 border-zinc-800 bg-zinc-900 overflow-hidden shadow-2xl">
+              <div className="relative w-32 h-32 rounded-full border-4 border-ink bg-card overflow-hidden shadow-2xl">
                 {user.avatarUrl ? (
                   <Image
                     src={user.avatarUrl}
@@ -93,33 +93,33 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
                     unoptimized
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-zinc-800">
-                    <Camera className="w-10 h-10 text-zinc-600" />
+                  <div className="w-full h-full flex items-center justify-center bg-card">
+                    <Camera className="w-10 h-10 text-mute" />
                   </div>
                 )}
               </div>
               <motion.div
                 animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center border-4 border-zinc-900 shadow-xl"
+                className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center border-4 border-ink shadow-xl"
               >
-                <Crown className="w-5 h-5 text-white" />
+                <Crown className="w-5 h-5 text-ink" />
               </motion.div>
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-2xl font-black text-white tracking-tighter uppercase">{user.fullName}</h3>
-              <p className="text-zinc-500 font-bold text-xs uppercase tracking-[0.3em]">@{user.pseudo || "noteen"}</p>
+              <h3 className="text-2xl font-black text-ink tracking-tighter uppercase">{user.fullName}</h3>
+              <p className="text-mute font-bold text-xs uppercase tracking-[0.3em]">@{user.pseudo || "noteen"}</p>
             </div>
           </div>
 
           {/* XP & Stats Bar */}
           <div className="w-full space-y-2 px-4">
-            <div className="flex justify-between text-[10px] font-black uppercase text-zinc-500 tracking-[0.2em]">
+            <div className="flex justify-between text-[10px] font-black uppercase text-mute tracking-[0.2em]">
               <span>Level {user.level}</span>
               <span>{xpData.total} XP</span>
             </div>
-            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+            <div className="h-2 w-full bg-paper-2 rounded-full overflow-hidden border border-ink">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${xpData.progressPercent}%` }}
@@ -130,11 +130,11 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
 
           {/* QR Code Section */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-white/10 blur-xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500 opacity-0 group-hover:opacity-50" />
-            <div className="relative p-4 rounded-3xl bg-white border border-white shadow-2xl flex items-center justify-center">
-              <QrCode className="w-20 h-20 text-black" />
+            <div className="absolute inset-0 bg-paper-2 blur-xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500 opacity-0 group-hover:opacity-50" />
+            <div className="relative p-4 rounded-2xl bg-white border border-ink shadow-2xl flex items-center justify-center">
+              <QrCode className="w-20 h-20 text-ink" />
             </div>
-            <p className="mt-4 text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Scan to Link</p>
+            <p className="mt-4 text-[10px] font-black uppercase tracking-[0.4em] text-mute">Scan to Link</p>
           </div>
         </div>
 
@@ -146,14 +146,14 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
       <div className="flex gap-4">
         <Button 
           onClick={handleShare}
-          className="h-14 px-8 rounded-2xl bg-white/[0.05] border border-white/10 hover:bg-white/10 text-white font-bold flex items-center gap-3 shadow-xl backdrop-blur-xl transition-all"
+          className="h-14 px-8 rounded-2xl bg-white/[0.05] border border-ink hover:bg-paper-2 text-ink font-bold flex items-center gap-3 shadow-xl  transition-all"
         >
           <Share2 className="w-5 h-5 text-brand-soft" />
           SHARE STORY
         </Button>
         <Button 
           variant="outline"
-          className="h-14 w-14 rounded-2xl border-white/10 bg-white/[0.05] flex items-center justify-center hover:bg-white/10"
+          className="h-14 w-14 rounded-2xl border-ink bg-white/[0.05] flex items-center justify-center hover:bg-paper-2"
         >
           <Zap className="w-6 h-6 text-gen-z-yellow" />
         </Button>

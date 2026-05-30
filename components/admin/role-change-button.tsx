@@ -91,7 +91,7 @@ export function RoleChangeButton({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-zinc-400 hover:text-white"
+            className="h-8 w-8 p-0 text-mute hover:text-ink"
           >
             <Settings className="h-4 w-4" />
           </Button>
@@ -99,53 +99,53 @@ export function RoleChangeButton({
           <Button
             variant="outline"
             size="sm"
-            className="border-zinc-700 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400"
+            className="border-ink text-ink-2 hover:border-lime/50 hover:text-lime"
           >
             <Settings className="h-4 w-4 mr-2" />
             Modifier
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="bg-zinc-900 border-zinc-800">
+      <DialogContent className="bg-card border-ink">
         <DialogHeader>
-          <DialogTitle className="text-white">Modifier le rôle</DialogTitle>
-          <DialogDescription className="text-zinc-400">
+          <DialogTitle className="text-ink">Modifier le rôle</DialogTitle>
+          <DialogDescription className="text-mute">
             Changez le rôle de {userName}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
           <div className="space-y-2">
-            <label className="text-sm text-zinc-300">Nouveau rôle</label>
+            <label className="text-sm text-ink-2">Nouveau rôle</label>
             <Select value={selectedRole} onValueChange={setSelectedRole}>
-              <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+              <SelectTrigger className="bg-card border-ink text-ink">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-zinc-800 border-zinc-700">
+              <SelectContent className="bg-card border-ink">
                 {roleOptions.map((role) => (
                   <SelectItem
                     key={role.value}
                     value={role.value}
-                    className="text-white hover:bg-zinc-700 focus:bg-zinc-700"
+                    className="text-ink hover:bg-muted focus:bg-muted"
                   >
                     <div className="flex items-center gap-2">
                       <span>{role.label}</span>
                       {role.value === currentRole && (
-                        <span className="text-xs text-emerald-400">(actuel)</span>
+                        <span className="text-xs text-lime">(actuel)</span>
                       )}
                     </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               {roleOptions.find(r => r.value === selectedRole)?.description}
             </p>
           </div>
 
           {selectedRole !== currentRole && (
-            <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-              <p className="text-sm text-amber-400">
+            <div className="p-4 bg-gold/10 border border-gold/20 rounded-xl">
+              <p className="text-sm text-gold">
                 Attention: Changer le rôle affectera immédiatement les accès de cet utilisateur.
               </p>
             </div>
@@ -155,14 +155,14 @@ export function RoleChangeButton({
             <Button
               variant="outline"
               onClick={() => setOpen(false)}
-              className="flex-1 border-zinc-700 text-zinc-300"
+              className="flex-1 border-ink text-ink-2"
             >
               Annuler
             </Button>
             <Button
               onClick={handleSave}
               disabled={loading || selectedRole === currentRole}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white"
+              className="flex-1 bg-lime hover:bg-lime text-ink"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />

@@ -27,7 +27,7 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
       title: "Fête ton anniversaire comme jamais",
       description: "Des anniversaires inoubliables avec tes amis, des activités folles et des souvenirs à vie",
       image: "/images/onboarding/birthday.jpg",
-      color: "from-pink-500 to-rose-500",
+      color: "from-pink to-pink",
       stats: [
         { label: "Formules", value: "3+" },
         { label: "Activités", value: "10+" },
@@ -46,7 +46,7 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
       title: "Développe tes talents",
       description: "Rejoins nos clubs créatifs, sportifs et technologiques. Apprends en t'amusant !",
       image: "/images/onboarding/clubs.jpg",
-      color: "from-purple-500 to-indigo-500",
+      color: "from-pink to-pink",
       stats: [
         { label: "Clubs", value: "12+" },
         { label: "Catégories", value: "3" },
@@ -65,7 +65,7 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
       title: "Des événements chaque semaine",
       description: "Sorties au ciné, gaming parties, workshops… Il se passe toujours quelque chose !",
       image: "/images/onboarding/events.jpg",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-teal to-teal",
       stats: [
         { label: "Events/mois", value: "50+" },
         { label: "Ados", value: "500+" },
@@ -130,13 +130,13 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
             {/* Image Section */}
             <div className={`relative h-64 sm:h-80 bg-gradient-to-br ${currentShowcase.color} flex items-center justify-center`}>
               {/* Placeholder for actual images */}
-              <div className="absolute inset-0 bg-black/20" />
-              <div className="relative z-10 text-center text-white" aria-hidden="true">
+              <div className="absolute inset-0 bg-ink/20" />
+              <div className="relative z-10 text-center text-ink" aria-hidden="true">
                 <motion.div
                   initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={prefersReducedMotion ? { duration: 0.15 } : { delay: 0.2, type: "spring" }}
-                  className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm mb-4"
+                  className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-paper-2  mb-4"
                 >
                   <Icon className="w-10 h-10" />
                 </motion.div>
@@ -154,7 +154,7 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
                     initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: prefersReducedMotion ? 0 : 0.3 + index * 0.1 }}
-                    className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-center"
+                    className="flex-1 bg-paper-2  rounded-lg p-3 text-center"
                   >
                     <p className="text-2xl font-black text-primary tabular-nums">{stat.value}</p>
                     <p className="text-xs text-muted-foreground">{stat.label}</p>
@@ -214,7 +214,7 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
 
         <Button
           onClick={handleNext}
-          className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white"
+          className="gap-2 bg-gradient-to-r from-primary to-pink hover:opacity-90 text-ink"
         >
           {currentSlide < showcases.length - 1 ? 'Suivant' : 'Continuer'}
           <ChevronRight className="w-4 h-4" />

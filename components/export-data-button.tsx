@@ -35,7 +35,7 @@ export function ExportDataButton({ data, filename, label = "Exporter" }: ExportD
   }
 
   return (
-    <Button onClick={handleExport} variant="outline" className="bg-transparent border-zinc-800">
+    <Button onClick={handleExport} variant="outline" className="bg-transparent border-ink">
       <Download className="w-4 h-4 mr-2" />
       {label}
     </Button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Niv } from '@/components/brand/niv'
 import { useAIChat } from './use-ai-chat'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 import { 
@@ -62,10 +63,10 @@ const typeColors = {
 
 const agentConfig = {
   teen: { name: 'Kai', gradient: 'from-brand-soft to-info-soft', icon: Sparkles },
-  parent: { name: 'Aura', gradient: 'from-indigo-500 to-purple-600', icon: Brain },
-  partner: { name: 'Biz', gradient: 'from-emerald-500 to-teal-600', icon: Zap },
-  ambassador: { name: 'Hype', gradient: 'from-amber-500 to-orange-600', icon: Zap },
-  admin: { name: 'Ops', gradient: 'from-slate-600 to-slate-800', icon: Brain },
+  parent: { name: 'Aura', gradient: 'from-pink to-pink', icon: Brain },
+  partner: { name: 'Biz', gradient: 'from-lime to-teal', icon: Zap },
+  ambassador: { name: 'Hype', gradient: 'from-gold to-coral', icon: Zap },
+  admin: { name: 'Ops', gradient: 'from-paper-2 to-card', icon: Brain },
 }
 
 /**
@@ -261,33 +262,29 @@ export function EliteAICompanion({
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
           className={cn(
-            "relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br shadow-[0_0_30px_rgba(139,92,246,0.5)]",
-            "flex items-center justify-center border border-white/20 group overflow-hidden",
-            config.gradient
+            "relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-ink",
+            "flex items-center justify-center border-2 border-ink group overflow-hidden",
           )}
-          aria-label={`Ouvrir ${config.name} AI`}
+          aria-label={`Ouvrir ${config.name} — coach Niv`}
         >
           <motion.div
-            animate={{ 
-              scale: [1, 1.2, 1],
-              rotate: [0, 10, -10, 0]
-            }}
+            animate={{ scale: [1, 1.08, 1] }}
             transition={{ duration: 4, repeat: Infinity }}
           >
-            <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+            <Niv size={42} mood="happy" />
           </motion.div>
           
           {/* Notification dot */}
           {recommendations.length > 0 && (
-            <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-accent-soft border-2 border-zinc-950 animate-pulse" />
+            <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-accent-soft border-2 border-ink animate-pulse" />
           )}
           
-          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 bg-paper-2 opacity-0 group-hover:opacity-100 transition-opacity" />
         </motion.button>
         
         {/* Keyboard hint */}
-        <div className="hidden sm:flex absolute -top-8 left-1/2 -translate-x-1/2 items-center gap-1 px-2 py-1 rounded-lg bg-zinc-900/80 border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
-          <kbd className="text-[10px] font-mono text-zinc-400">⌘K</kbd>
+        <div className="hidden sm:flex absolute -top-8 left-1/2 -translate-x-1/2 items-center gap-1 px-2 py-1 rounded-lg bg-card border border-ink opacity-0 group-hover:opacity-100 transition-opacity">
+          <kbd className="text-[10px] font-mono text-mute">⌘K</kbd>
         </div>
       </div>
 
@@ -301,7 +298,7 @@ export function EliteAICompanion({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99] sm:hidden"
+              className="fixed inset-0 bg-ink/60  z-[99] sm:hidden"
             />
             
             <motion.div
@@ -317,7 +314,7 @@ export function EliteAICompanion({
               )}
             >
               <div className={cn(
-                "relative overflow-hidden bg-zinc-950 border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.8)] flex flex-col",
+                "relative overflow-hidden bg-background border border-ink shadow-[0_30px_100px_rgba(0,0,0,0.8)] flex flex-col",
                 // Mobile: rounded top
                 "rounded-t-[2rem] max-h-[85vh]",
                 // Desktop: fully rounded
@@ -331,22 +328,22 @@ export function EliteAICompanion({
 
                 {/* Drag indicator (mobile) */}
                 <div className="sm:hidden flex justify-center pt-2 pb-1">
-                  <div className="w-10 h-1 rounded-full bg-white/20" />
+                  <div className="w-10 h-1 rounded-full bg-paper-2" />
                 </div>
 
                 {/* Header */}
-                <div className="relative z-10 px-4 sm:px-6 py-4 border-b border-white/5">
+                <div className="relative z-10 px-4 sm:px-6 py-4 border-b border-ink">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={cn(
-                        "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center border border-white/10",
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center border border-ink",
                         "bg-gradient-to-br", config.gradient
                       )}>
-                        <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                        <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-ink" />
                       </div>
                       <div>
-                        <h3 className="font-black text-white text-lg sm:text-xl tracking-tight">{config.name}</h3>
-                        <p className="text-zinc-500 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">AI Companion</p>
+                        <h3 className="font-black text-ink text-lg sm:text-xl tracking-tight">{config.name}</h3>
+                        <p className="text-mute text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">AI Companion</p>
                       </div>
                     </div>
                     
@@ -356,7 +353,7 @@ export function EliteAICompanion({
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsTTSActive(!isTTSActive)}
-                        className="rounded-full text-zinc-500 hover:text-white w-9 h-9"
+                        className="rounded-full text-mute hover:text-ink w-9 h-9"
                         aria-label={isTTSActive ? "Désactiver la voix" : "Activer la voix"}
                         aria-pressed={isTTSActive}
                       >
@@ -368,7 +365,7 @@ export function EliteAICompanion({
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsOpen(false)}
-                        className="rounded-full text-zinc-500 hover:text-white w-9 h-9"
+                        className="rounded-full text-mute hover:text-ink w-9 h-9"
                         aria-label="Fermer le compagnon AI"
                       >
                         <X className="w-5 h-5" aria-hidden="true" />
@@ -396,8 +393,8 @@ export function EliteAICompanion({
                       <div className={cn(
                         "max-w-[85%] rounded-2xl px-4 py-3",
                         message.role === 'user' 
-                          ? "bg-brand-soft text-black rounded-br-md" 
-                          : "bg-white/5 border border-white/10 text-white rounded-bl-md"
+                          ? "bg-brand-soft text-ink rounded-br-md" 
+                          : "bg-paper-2 border border-ink text-ink rounded-bl-md"
                       )}>
                         <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
                           {message.content}
@@ -405,7 +402,7 @@ export function EliteAICompanion({
                         
                         {/* Generative UI Widgets */}
                         {message.toolInvocations?.map((tool: any) => (
-                          <div key={tool.toolCallId} className="mt-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                          <div key={tool.toolCallId} className="mt-3 p-3 rounded-xl bg-paper-2 border border-ink">
                             {tool.state === 'result' ? (
                               <div className="flex items-center gap-2 text-xs text-success-soft">
                                 <span className="w-2 h-2 rounded-full bg-success-soft animate-pulse" />
@@ -430,10 +427,10 @@ export function EliteAICompanion({
                       animate={{ opacity: 1 }}
                       className="flex justify-start"
                     >
-                      <div className="bg-white/5 border border-white/10 rounded-2xl rounded-bl-md px-4 py-3">
+                      <div className="bg-paper-2 border border-ink rounded-2xl rounded-bl-md px-4 py-3">
                         <div className="flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-brand-soft" />
-                          <span className="text-sm text-zinc-400">{config.name} réfléchit...</span>
+                          <span className="text-sm text-mute">{config.name} réfléchit...</span>
                         </div>
                       </div>
                     </motion.div>
@@ -467,7 +464,7 @@ export function EliteAICompanion({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleFeedback('positive')}
-                      className="h-7 px-2 text-zinc-500 hover:text-success"
+                      className="h-7 px-2 text-mute hover:text-success"
                     >
                       <ThumbsUp className="w-3.5 h-3.5" />
                     </Button>
@@ -475,7 +472,7 @@ export function EliteAICompanion({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleFeedback('negative')}
-                      className="h-7 px-2 text-zinc-500 hover:text-destructive"
+                      className="h-7 px-2 text-mute hover:text-destructive"
                     >
                       <ThumbsDown className="w-3.5 h-3.5" />
                     </Button>
@@ -485,7 +482,7 @@ export function EliteAICompanion({
                 {/* Quick Suggestions */}
                 {recommendations.length > 0 && messages.length <= 2 && (
                   <div className="relative z-10 px-4 sm:px-6 pb-4 space-y-3">
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Suggestions</p>
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-mute">Suggestions</p>
                     <div className="space-y-2">
                       {recommendations.map((rec) => {
                         const RecIcon = typeIcons[rec.type] || Target
@@ -494,7 +491,7 @@ export function EliteAICompanion({
                             key={rec.id}
                             whileHover={{ x: 3 }}
                             onClick={() => handleQuickAction(`Parle-moi de: ${rec.title}`)}
-                            className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 cursor-pointer group transition-all hover:bg-white/10"
+                            className="w-full flex items-center justify-between p-3 rounded-xl bg-paper-2 border border-ink cursor-pointer group transition-all hover:bg-paper-2"
                           >
                             <div className="flex items-center gap-3">
                               <div 
@@ -504,11 +501,11 @@ export function EliteAICompanion({
                                 <RecIcon className="w-4 h-4" />
                               </div>
                               <div className="text-left">
-                                <h4 className="text-sm font-bold text-white tracking-tight">{rec.title}</h4>
-                                <p className="text-[10px] font-black text-zinc-500 uppercase">+{rec.xp} XP</p>
+                                <h4 className="text-sm font-bold text-ink tracking-tight">{rec.title}</h4>
+                                <p className="text-[10px] font-black text-mute uppercase">+{rec.xp} XP</p>
                               </div>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
+                            <ChevronRight className="w-4 h-4 text-mute group-hover:text-ink transition-colors" />
                           </motion.button>
                         )
                       })}
@@ -520,7 +517,7 @@ export function EliteAICompanion({
                 <form 
                   id="elite-ai-chat-form"
                   onSubmit={handleSubmit}
-                  className="relative z-10 p-4 border-t border-white/5 bg-zinc-950/50 backdrop-blur-sm"
+                  className="relative z-10 p-4 border-t border-ink bg-background "
                 >
                   <div className="flex items-center gap-2">
                     {/* Voice input toggle */}
@@ -533,8 +530,8 @@ export function EliteAICompanion({
                         className={cn(
                           "rounded-xl h-11 w-11 flex-shrink-0",
                           listening
-                            ? "bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse"
-                            : "text-zinc-500 hover:text-white"
+                            ? "bg-destructive/20 text-destructive border border-destructive/30 animate-pulse"
+                            : "text-mute hover:text-ink"
                         )}
                         aria-label={listening ? "Arrêter la dictée vocale" : "Démarrer la dictée vocale"}
                         aria-pressed={listening}
@@ -548,7 +545,7 @@ export function EliteAICompanion({
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder={listening ? "Je t'écoute..." : "Écris ton message..."}
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-brand-soft/50 transition-colors"
+                      className="flex-1 bg-paper-2 border border-ink rounded-xl px-4 py-3 text-sm text-ink placeholder:text-mute focus:outline-none focus:border-brand-soft/50 transition-colors"
                       disabled={isLoading}
                     />
                     
@@ -556,7 +553,7 @@ export function EliteAICompanion({
                       type="submit"
                       disabled={isLoading || !input.trim()}
                       className={cn(
-                        "h-11 w-11 rounded-xl text-white hover:scale-105 transition-transform disabled:opacity-50",
+                        "h-11 w-11 rounded-xl text-ink hover:scale-105 transition-transform disabled:opacity-50",
                         "bg-gradient-to-br", config.gradient
                       )}
                     >

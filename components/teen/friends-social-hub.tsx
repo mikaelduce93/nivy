@@ -58,8 +58,8 @@ function OnlineStatusDot({ isOnline }: { isOnline: boolean }) {
   return (
     <motion.div 
       className={cn(
-        "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-zinc-900",
-        isOnline ? "bg-emerald-500" : "bg-zinc-600"
+        "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-ink",
+        isOnline ? "bg-lime" : "bg-muted"
       )}
       animate={isOnline ? { scale: [1, 1.2, 1] } : {}}
       transition={{ repeat: Infinity, duration: 2 }}
@@ -78,7 +78,7 @@ function FriendAvatar({ friend, size = 'md' }: { friend: Friend, size?: 'sm' | '
     <div className="relative">
       <motion.div
         className={cn(
-          "relative overflow-hidden rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold",
+          "relative overflow-hidden rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-bold",
           sizeClasses[size]
         )}
         whileHover={{ scale: 1.1 }}
@@ -113,12 +113,12 @@ function FriendCard({ friend, onChallenge, onMessage }: { friend: Friend, onChal
         variant="hover"
         className={cn(
           "p-4 relative overflow-hidden",
-          friend.isOnline && "border-emerald-500/30"
+          friend.isOnline && "border-lime/30"
         )}
       >
         {/* Online glow */}
         {friend.isOnline && (
-          <div className="absolute inset-0 bg-emerald-500/5" />
+          <div className="absolute inset-0 bg-lime/5" />
         )}
 
         <div className="relative flex items-center gap-4">
@@ -126,15 +126,15 @@ function FriendCard({ friend, onChallenge, onMessage }: { friend: Friend, onChal
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-white truncate">{friend.pseudo}</span>
+              <span className="font-bold text-ink truncate">{friend.pseudo}</span>
               {friend.streak && friend.streak >= 7 && (
-                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/20">
-                  <Flame className="w-3 h-3 text-orange-400" />
-                  <span className="text-[10px] font-bold text-orange-400">{friend.streak}</span>
+                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-coral/20">
+                  <Flame className="w-3 h-3 text-coral" />
+                  <span className="text-[10px] font-bold text-coral">{friend.streak}</span>
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-3 text-xs text-zinc-400 mt-1">
+            <div className="flex items-center gap-3 text-xs text-mute mt-1">
               <span className="flex items-center gap-1">
                 <Trophy className="w-3 h-3" />
                 Niv. {friend.level}
@@ -152,7 +152,7 @@ function FriendCard({ friend, onChallenge, onMessage }: { friend: Friend, onChal
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={onChallenge}
-              className="p-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors"
+              className="p-2 rounded-lg bg-pink/20 text-pink hover:bg-pink/30 transition-colors"
               title="Défier"
             >
               <Swords className="w-4 h-4" />
@@ -161,7 +161,7 @@ function FriendCard({ friend, onChallenge, onMessage }: { friend: Friend, onChal
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={onMessage}
-              className="p-2 rounded-lg bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition-colors"
+              className="p-2 rounded-lg bg-teal/20 text-teal hover:bg-teal/30 transition-colors"
               title="Message"
             >
               <MessageCircle className="w-4 h-4" />
@@ -176,23 +176,23 @@ function FriendCard({ friend, onChallenge, onMessage }: { friend: Friend, onChal
 function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
   const getActivityIcon = (type: ActivityItem['type']) => {
     switch (type) {
-      case 'level_up': return { icon: Star, color: 'text-yellow-400', bg: 'bg-yellow-500/20' }
-      case 'achievement': return { icon: Trophy, color: 'text-purple-400', bg: 'bg-purple-500/20' }
-      case 'challenge_complete': return { icon: Target, color: 'text-emerald-400', bg: 'bg-emerald-500/20' }
-      case 'streak': return { icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/20' }
-      case 'event': return { icon: Users, color: 'text-cyan-400', bg: 'bg-cyan-500/20' }
-      default: return { icon: Activity, color: 'text-zinc-400', bg: 'bg-zinc-500/20' }
+      case 'level_up': return { icon: Star, color: 'text-gold', bg: 'bg-gold/20' }
+      case 'achievement': return { icon: Trophy, color: 'text-pink', bg: 'bg-pink/20' }
+      case 'challenge_complete': return { icon: Target, color: 'text-lime', bg: 'bg-lime/20' }
+      case 'streak': return { icon: Flame, color: 'text-coral', bg: 'bg-coral/20' }
+      case 'event': return { icon: Users, color: 'text-teal', bg: 'bg-teal/20' }
+      default: return { icon: Activity, color: 'text-mute', bg: 'bg-muted' }
     }
   }
 
   return (
     <GlassCard className="p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-white flex items-center gap-2">
-          <Activity className="w-5 h-5 text-cyan-400" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Activity className="w-5 h-5 text-teal" />
           Activité récente
         </h3>
-        <span className="text-xs text-zinc-500">Dernières 24h</span>
+        <span className="text-xs text-mute">Dernières 24h</span>
       </div>
 
       <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-hide">
@@ -206,27 +206,27 @@ function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="flex items-start gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800"
+              className="flex items-start gap-3 p-3 rounded-xl bg-card border border-ink"
             >
               <div className={cn("p-2 rounded-lg shrink-0", config.bg)}>
                 <Icon className={cn("w-4 h-4", config.color)} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white">
+                <p className="text-sm text-ink">
                   <span className="font-bold">{activity.userName}</span>{' '}
-                  <span className="text-zinc-400">{activity.description}</span>
+                  <span className="text-mute">{activity.description}</span>
                 </p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs text-zinc-600">{activity.timestamp}</span>
+                  <span className="text-xs text-mute">{activity.timestamp}</span>
                   {activity.xpEarned && (
-                    <span className="text-xs font-bold text-emerald-400">+{activity.xpEarned} XP</span>
+                    <span className="text-xs font-bold text-lime">+{activity.xpEarned} XP</span>
                   )}
                 </div>
               </div>
             </motion.div>
           )
         }) : (
-          <div className="text-center py-8 text-zinc-500">
+          <div className="text-center py-8 text-mute">
             <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Aucune activité récente</p>
           </div>
@@ -242,12 +242,12 @@ function QuickChallengeWidget({ friends }: { friends: Friend[] }) {
   return (
     <GlassCard neon="party" className="p-5">
       <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 rounded-xl bg-purple-500/20">
-          <Swords className="w-5 h-5 text-purple-400" />
+        <div className="p-2 rounded-xl bg-pink/20">
+          <Swords className="w-5 h-5 text-pink" />
         </div>
         <div>
-          <h3 className="font-bold text-white">Défi Rapide</h3>
-          <p className="text-xs text-zinc-500">{onlineFriends.length} ami{onlineFriends.length !== 1 ? 's' : ''} en ligne</p>
+          <h3 className="font-bold text-ink">Défi Rapide</h3>
+          <p className="text-xs text-mute">{onlineFriends.length} ami{onlineFriends.length !== 1 ? 's' : ''} en ligne</p>
         </div>
       </div>
 
@@ -262,20 +262,20 @@ function QuickChallengeWidget({ friends }: { friends: Friend[] }) {
                 transition={{ delay: idx * 0.1 }}
                 className="relative"
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 border-2 border-zinc-900 flex items-center justify-center text-white font-bold text-sm">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lime to-teal border-2 border-ink flex items-center justify-center text-ink font-bold text-sm">
                   {friend.pseudo?.charAt(0)}
                 </div>
               </motion.div>
             ))}
             {onlineFriends.length > 5 && (
-              <div className="w-10 h-10 rounded-full bg-zinc-800 border-2 border-zinc-900 flex items-center justify-center text-white text-xs font-bold">
+              <div className="w-10 h-10 rounded-full bg-card border-2 border-ink flex items-center justify-center text-ink text-xs font-bold">
                 +{onlineFriends.length - 5}
               </div>
             )}
           </div>
         </div>
       ) : (
-        <p className="text-sm text-zinc-500 mb-4">Aucun ami en ligne</p>
+        <p className="text-sm text-mute mb-4">Aucun ami en ligne</p>
       )}
 
       <NeonButton variant="party" size="sm" className="w-full" disabled={onlineFriends.length === 0}>
@@ -296,8 +296,8 @@ function FriendsBenefits() {
 
   return (
     <GlassCard neon="intellect" className="p-5">
-      <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-        <Star className="w-5 h-5 text-yellow-400" />
+      <h3 className="font-bold text-ink mb-4 flex items-center gap-2">
+        <Star className="w-5 h-5 text-gold" />
         Avantages Amis
       </h3>
       <div className="grid grid-cols-2 gap-3">
@@ -309,11 +309,11 @@ function FriendsBenefits() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
-              className="p-3 rounded-xl bg-zinc-900/50 border border-zinc-800"
+              className="p-3 rounded-xl bg-card border border-ink"
             >
               <Icon className={cn("w-5 h-5 mb-2", `text-${benefit.color}-400`)} />
-              <p className="font-bold text-white text-sm">{benefit.title}</p>
-              <p className="text-[10px] text-zinc-500">{benefit.desc}</p>
+              <p className="font-bold text-ink text-sm">{benefit.title}</p>
+              <p className="text-[10px] text-mute">{benefit.desc}</p>
             </motion.div>
           )
         })}
@@ -349,17 +349,17 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
         <CrewPulse currentXP={4200} targetXP={5000} />
         <GlassCard className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-emerald-500/20">
-              <Users className="w-5 h-5 text-emerald-400" />
+            <div className="p-2 rounded-lg bg-lime/20">
+              <Users className="w-5 h-5 text-lime" />
             </div>
             <div>
-              <span className="text-2xl font-black text-white">{friends.length}</span>
-              <span className="text-zinc-500 text-sm ml-2">amis</span>
+              <span className="text-2xl font-black text-ink">{friends.length}</span>
+              <span className="text-mute text-sm ml-2">amis</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-sm text-emerald-400 font-medium">{onlineFriendsCount} en ligne</span>
+            <span className="w-2 h-2 rounded-full bg-lime animate-pulse" />
+            <span className="text-sm text-lime font-medium">{onlineFriendsCount} en ligne</span>
           </div>
         </GlassCard>
       </div>
@@ -367,13 +367,13 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
           <input
             type="text"
             placeholder="Rechercher un ami..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/50 transition-colors"
+            className="w-full pl-10 pr-4 py-3 rounded-xl bg-card border border-ink text-ink placeholder:text-mute focus:outline-none focus:border-teal/50 transition-colors"
           />
         </div>
         <div className="flex gap-2">
@@ -381,7 +381,7 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
             onClick={() => setFilter('all')}
             className={cn(
               "px-4 py-2 rounded-xl text-sm font-medium transition-colors",
-              filter === 'all' ? "bg-white text-black" : "bg-zinc-900 text-zinc-400 hover:text-white"
+              filter === 'all' ? "bg-white text-ink" : "bg-card text-mute hover:text-ink"
             )}
           >
             Tous ({friends.length})
@@ -390,10 +390,10 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
             onClick={() => setFilter('online')}
             className={cn(
               "px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2",
-              filter === 'online' ? "bg-emerald-500 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"
+              filter === 'online' ? "bg-lime text-ink" : "bg-card text-mute hover:text-ink"
             )}
           >
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="w-2 h-2 rounded-full bg-lime" />
             En ligne ({onlineFriendsCount})
           </button>
         </div>
@@ -407,11 +407,11 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
           {pendingRequests.length > 0 && (
             <GlassCard neon="creativity" className="p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-white flex items-center gap-2">
-                  <Bell className="w-4 h-4 text-orange-400" />
+                <h3 className="font-bold text-ink flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-coral" />
                   Demandes en attente
                 </h3>
-                <span className="px-2 py-0.5 rounded-full bg-orange-500 text-white text-xs font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-coral text-ink text-xs font-bold">
                   {pendingRequests.length}
                 </span>
               </div>
@@ -422,18 +422,18 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="flex-shrink-0 p-3 rounded-xl bg-zinc-900/50 border border-orange-500/20 text-center"
+                    className="flex-shrink-0 p-3 rounded-xl bg-card border border-coral/20 text-center"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center text-white font-bold mx-auto mb-2">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-coral to-gold flex items-center justify-center text-ink font-bold mx-auto mb-2">
                       {req.requester.pseudo?.charAt(0)}
                     </div>
-                    <p className="font-medium text-white text-sm">{req.requester.pseudo}</p>
-                    <p className="text-[10px] text-zinc-500 mb-2">Niv. {req.requester.level}</p>
+                    <p className="font-medium text-ink text-sm">{req.requester.pseudo}</p>
+                    <p className="text-[10px] text-mute mb-2">Niv. {req.requester.level}</p>
                     <div className="flex gap-1">
-                      <Button size="sm" className="h-7 text-xs bg-emerald-500 hover:bg-emerald-600">
+                      <Button size="sm" className="h-7 text-xs bg-lime hover:bg-lime">
                         Accepter
                       </Button>
-                      <Button size="sm" variant="ghost" className="h-7 text-xs text-zinc-400">
+                      <Button size="sm" variant="ghost" className="h-7 text-xs text-mute">
                         Refuser
                       </Button>
                     </div>
@@ -459,8 +459,8 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
 
           {filteredFriends.length === 0 && (
             <div className="text-center py-12">
-              <Users className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-              <p className="text-zinc-500">
+              <Users className="w-12 h-12 text-ink mx-auto mb-4" />
+              <p className="text-mute">
                 {searchQuery ? 'Aucun ami trouvé' : 'Aucun ami pour le moment'}
               </p>
             </div>

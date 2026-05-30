@@ -120,7 +120,7 @@ export function AvatarCoachClient({
     <section
       aria-label={`Message de ${coachName}`}
       className={cn(
-        "relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md",
+        "relative w-full overflow-hidden rounded-2xl border border-ink bg-white/[0.02] ",
         "transition-all duration-300",
         compact ? "p-3 sm:p-4" : "p-4 sm:p-5 md:p-6",
         className,
@@ -151,7 +151,7 @@ export function AvatarCoachClient({
         {/* Message + CTA */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-white/60">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-ink/60">
               {coachName}
             </span>
             <span
@@ -159,14 +159,14 @@ export function AvatarCoachClient({
               style={{ background: color }}
               aria-hidden
             />
-            <span className="text-[10px] sm:text-xs font-medium text-white/40 capitalize">
+            <span className="text-[10px] sm:text-xs font-medium text-ink/40 capitalize">
               {mood}
             </span>
           </div>
 
           <p
             className={cn(
-              "mt-1 text-white",
+              "mt-1 text-ink",
               compact ? "text-sm leading-snug" : "text-base sm:text-lg leading-snug font-medium",
             )}
           >
@@ -178,7 +178,7 @@ export function AvatarCoachClient({
               href={cta.href}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs sm:text-sm font-bold",
-                "bg-white text-black hover:bg-white/90 transition-colors",
+                "bg-white text-ink hover:bg-paper-2 transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
               )}
             >
@@ -193,7 +193,7 @@ export function AvatarCoachClient({
                 disabled={dismissing}
                 className={cn(
                   "rounded-full px-3 py-2 text-xs font-semibold",
-                  "text-white/60 hover:text-white hover:bg-white/5 transition-colors",
+                  "text-ink/60 hover:text-ink hover:bg-paper-2 transition-colors",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                 )}
               >
@@ -217,7 +217,7 @@ export function AvatarCoachClient({
                 className={cn(
                   "inline-flex max-w-full items-center gap-1.5 rounded-full px-3 py-1.5",
                   "text-[11px] sm:text-xs font-semibold",
-                  "border border-white/15 bg-white/5 text-white/90 hover:bg-white/10 hover:text-white",
+                  "border border-ink bg-paper-2 text-ink/90 hover:bg-paper-2 hover:text-ink",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors",
                 )}
               >
@@ -434,7 +434,7 @@ function AvatarCoachChat({
         : `${state.remaining} restantes`
 
   return (
-    <div className="mt-3 border-t border-white/10 pt-3" data-testid="avatar-coach-chat">
+    <div className="mt-3 border-t border-ink pt-3" data-testid="avatar-coach-chat">
       <button
         type="button"
         onClick={handleToggle}
@@ -443,14 +443,14 @@ function AvatarCoachChat({
         className={cn(
           "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5",
           "text-[11px] sm:text-xs font-semibold",
-          "border border-white/15 bg-white/5 text-white/90 hover:bg-white/10 hover:text-white",
+          "border border-ink bg-paper-2 text-ink/90 hover:bg-paper-2 hover:text-ink",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors",
         )}
       >
         <span aria-hidden>💬</span>
         <span>{state.open ? `Fermer la discussion` : `Demander à ${coachName}`}</span>
-        <span aria-hidden className="text-white/40">·</span>
-        <span className="text-white/50">{remainingLabel}</span>
+        <span aria-hidden className="text-ink/40">·</span>
+        <span className="text-ink/50">{remainingLabel}</span>
       </button>
 
       {state.open ? (
@@ -459,7 +459,7 @@ function AvatarCoachChat({
           role="region"
           aria-label={`Discussion avec ${coachName}`}
           className={cn(
-            "mt-3 rounded-xl border border-white/10 bg-black/30 backdrop-blur-sm",
+            "mt-3 rounded-xl border border-ink bg-ink/30 ",
             compact ? "p-2" : "p-3",
           )}
         >
@@ -472,9 +472,9 @@ function AvatarCoachChat({
             )}
           >
             {state.loadingHistory ? (
-              <p className="text-xs text-white/50">Chargement...</p>
+              <p className="text-xs text-ink/50">Chargement...</p>
             ) : state.turns.length === 0 ? (
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-ink/50">
                 Pose une question à {coachName}. Pour les sujets sensibles
                 (santé, famille, argent), parles-en plutôt à ton parent ou à
                 ton mentor.
@@ -505,9 +505,9 @@ function AvatarCoachChat({
               disabled={state.sending || state.remaining === 0}
               aria-label={`Message pour ${coachName}`}
               className={cn(
-                "min-w-0 flex-1 rounded-full bg-white/5 px-3 py-2 text-sm text-white",
-                "placeholder:text-white/30 outline-none",
-                "border border-white/10 focus:border-white/30 focus:bg-white/10",
+                "min-w-0 flex-1 rounded-full bg-paper-2 px-3 py-2 text-sm text-ink",
+                "placeholder:text-ink/30 outline-none",
+                "border border-ink focus:border-ink focus:bg-paper-2",
                 "disabled:opacity-50 transition-colors",
               )}
             />
@@ -521,7 +521,7 @@ function AvatarCoachChat({
               }
               className={cn(
                 "rounded-full px-3 py-2 text-xs font-bold",
-                "bg-white text-black hover:bg-white/90 transition-colors",
+                "bg-white text-ink hover:bg-paper-2 transition-colors",
                 "disabled:opacity-40 disabled:cursor-not-allowed",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
               )}
@@ -531,11 +531,11 @@ function AvatarCoachChat({
           </div>
 
           {state.error ? (
-            <p className="mt-2 text-[11px] text-rose-300/90" role="alert">
+            <p className="mt-2 text-[11px] text-pink/90" role="alert">
               {state.error}
             </p>
           ) : null}
-          <p className="mt-1 text-[10px] text-white/30">
+          <p className="mt-1 text-[10px] text-ink/30">
             {state.draft.length}/{MAX_INPUT_CHARS_CLIENT}
           </p>
         </div>
@@ -561,8 +561,8 @@ function ChatBubble({
       className={cn(
         "max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-snug",
         isUser
-          ? "self-end bg-white text-black"
-          : "self-start text-white border border-white/10",
+          ? "self-end bg-white text-ink"
+          : "self-start text-ink border border-ink",
       )}
       style={
         !isUser

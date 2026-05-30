@@ -45,24 +45,24 @@ export function HybridCheckout({
   const finalAmount = totalAmount - discountAmount
 
   return (
-    <Card className="p-6 bg-zinc-900 border-zinc-800">
-      <h3 className="text-lg font-bold text-white mb-4">Paiement</h3>
+    <Card className="p-6 bg-card border-ink">
+      <h3 className="text-lg font-bold text-ink mb-4">Paiement</h3>
       
       <div className="flex justify-between items-center mb-6">
-        <span className="text-zinc-400">Total à payer</span>
-        <span className="text-2xl font-black text-white">{totalAmount.toFixed(2)} DH</span>
+        <span className="text-mute">Total à payer</span>
+        <span className="text-2xl font-black text-ink">{totalAmount.toFixed(2)} DH</span>
       </div>
 
       <div className="space-y-6">
         {/* Toggle XP Payment */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-lime/10 to-teal/10 border border-lime/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <Coins className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 rounded-full bg-lime/20 flex items-center justify-center">
+              <Coins className="w-5 h-5 text-lime" />
             </div>
             <div>
-              <p className="font-bold text-white">Payer avec mes XP</p>
-              <p className="text-xs text-emerald-400">Solde : {userXP.toLocaleString()} XP</p>
+              <p className="font-bold text-ink">Payer avec mes XP</p>
+              <p className="text-xs text-lime">Solde : {userXP.toLocaleString()} XP</p>
             </div>
           </div>
           <Switch 
@@ -76,8 +76,8 @@ export function HybridCheckout({
         {useXP && (
           <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Utiliser</span>
-              <span className="font-bold text-emerald-400">{xpToUse.toLocaleString()} XP</span>
+              <span className="text-mute">Utiliser</span>
+              <span className="font-bold text-lime">{xpToUse.toLocaleString()} XP</span>
             </div>
             
             <Slider
@@ -88,14 +88,14 @@ export function HybridCheckout({
               className="py-2"
             />
             
-            <div className="flex justify-between text-xs text-zinc-500">
+            <div className="flex justify-between text-xs text-mute">
               <span>0 XP</span>
               <span>Max: {maxXPAvailable.toLocaleString()} XP</span>
             </div>
 
-            <div className="flex justify-between items-center pt-2 border-t border-zinc-800">
-              <span className="text-sm text-emerald-400">Économie réalisée</span>
-              <span className="font-bold text-emerald-400">
+            <div className="flex justify-between items-center pt-2 border-t border-ink">
+              <span className="text-sm text-lime">Économie réalisée</span>
+              <span className="font-bold text-lime">
                 -<AnimatedCounter value={discountAmount} suffix=" DH" />
               </span>
             </div>
@@ -103,9 +103,9 @@ export function HybridCheckout({
         )}
 
         {/* Final Summary */}
-        <div className="pt-4 border-t border-zinc-700">
+        <div className="pt-4 border-t border-ink">
           <div className="flex justify-between items-end mb-6">
-            <div className="text-zinc-400">
+            <div className="text-mute">
               <p className="text-sm">Reste à payer</p>
               <div className="flex items-center gap-1 text-xs mt-1">
                 <CreditCard className="w-3 h-3" />
@@ -113,17 +113,17 @@ export function HybridCheckout({
               </div>
             </div>
             <div className="text-right">
-              <span className="text-3xl font-black text-white">
+              <span className="text-3xl font-black text-ink">
                 <AnimatedCounter value={finalAmount} suffix=" DH" />
               </span>
               {useXP && (
-                <p className="text-xs text-zinc-500 line-through">{totalAmount.toFixed(2)} DH</p>
+                <p className="text-xs text-mute line-through">{totalAmount.toFixed(2)} DH</p>
               )}
             </div>
           </div>
 
           <Button 
-            className="w-full h-12 text-lg font-bold bg-white text-black hover:bg-zinc-200"
+            className="w-full h-12 text-lg font-bold bg-white text-ink hover:bg-paper-2"
             onClick={() => onConfirm(xpToUse, finalAmount)}
           >
             Confirmer le paiement

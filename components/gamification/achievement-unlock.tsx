@@ -32,28 +32,28 @@ const ACHIEVEMENT_ICONS = {
 
 const RARITY_CONFIG = {
   common: {
-    gradient: "from-zinc-400 to-zinc-500",
+    gradient: "from-paper-2 to-card",
     glow: "shadow-zinc-500/30",
     label: "Commun",
-    border: "border-zinc-500/30",
+    border: "border-line",
   },
   rare: {
-    gradient: "from-blue-400 to-cyan-500",
-    glow: "shadow-blue-500/30",
+    gradient: "from-teal to-teal",
+    glow: "shadow-teal/30",
     label: "Rare",
-    border: "border-blue-500/30",
+    border: "border-teal/30",
   },
   epic: {
-    gradient: "from-purple-400 to-pink-500",
-    glow: "shadow-purple-500/30",
+    gradient: "from-pink to-pink",
+    glow: "shadow-pink/30",
     label: "Épique",
-    border: "border-purple-500/30",
+    border: "border-pink/30",
   },
   legendary: {
-    gradient: "from-yellow-400 via-orange-500 to-red-500",
-    glow: "shadow-yellow-500/30",
+    gradient: "from-gold via-coral to-destructive",
+    glow: "shadow-gold/30",
     label: "Légendaire",
-    border: "border-yellow-500/30",
+    border: "border-gold/30",
   },
 }
 
@@ -84,7 +84,7 @@ export function AchievementUnlockModal({
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 "
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -116,7 +116,7 @@ export function AchievementUnlockModal({
 
       <motion.div
         className={cn(
-          "relative bg-zinc-900/90 backdrop-blur-xl rounded-3xl p-8 max-w-sm mx-4",
+          "relative bg-card  rounded-2xl p-8 max-w-sm mx-4",
           "border-2",
           rarityConfig.border
         )}
@@ -128,7 +128,7 @@ export function AchievementUnlockModal({
       >
         {/* Bouton fermer */}
         <button
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-mute hover:text-ink transition-colors"
           onClick={onClose}
         >
           <X className="w-5 h-5" />
@@ -151,7 +151,7 @@ export function AchievementUnlockModal({
           >
             Achievement Débloqué !
           </motion.p>
-          <p className="text-xs text-zinc-500">{rarityConfig.label}</p>
+          <p className="text-xs text-mute">{rarityConfig.label}</p>
         </motion.div>
 
         {/* Badge Achievement */}
@@ -202,7 +202,7 @@ export function AchievementUnlockModal({
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <Icon className="w-12 h-12 text-white" />
+            <Icon className="w-12 h-12 text-ink" />
           </motion.div>
 
           {/* Glow */}
@@ -221,8 +221,8 @@ export function AchievementUnlockModal({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <h3 className="text-2xl font-black text-white mb-2">{achievement.name}</h3>
-          <p className="text-zinc-400">{achievement.description}</p>
+          <h3 className="text-2xl font-black text-ink mb-2">{achievement.name}</h3>
+          <p className="text-mute">{achievement.description}</p>
         </motion.div>
 
         {/* Points gagnés */}
@@ -232,8 +232,8 @@ export function AchievementUnlockModal({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <Zap className="w-5 h-5 text-cyan-400" />
-          <span className="text-xl font-bold text-cyan-400">+{achievement.points} XP</span>
+          <Zap className="w-5 h-5 text-teal" />
+          <span className="text-xl font-bold text-teal">+{achievement.points} XP</span>
         </motion.div>
 
         {/* Actions */}
@@ -244,7 +244,7 @@ export function AchievementUnlockModal({
           transition={{ delay: 0.7 }}
         >
           <button
-            className="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl font-medium text-white transition-colors"
+            className="flex-1 py-3 bg-card hover:bg-muted rounded-xl font-medium text-ink transition-colors"
             onClick={onClose}
           >
             Fermer
@@ -252,7 +252,7 @@ export function AchievementUnlockModal({
           {onShare && (
             <button
               className={cn(
-                "flex-1 py-3 rounded-xl font-medium text-white flex items-center justify-center gap-2",
+                "flex-1 py-3 rounded-xl font-medium text-ink flex items-center justify-center gap-2",
                 `bg-gradient-to-r ${rarityConfig.gradient}`
               )}
               onClick={onShare}
@@ -331,8 +331,8 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
     >
       <div
         className={cn(
-          "flex items-center gap-4 p-4 rounded-2xl backdrop-blur-lg border",
-          "bg-zinc-900/90",
+          "flex items-center gap-4 p-4 rounded-2xl  border",
+          "bg-card",
           rarityConfig.border
         )}
       >
@@ -345,21 +345,21 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
           animate={{ rotate: [0, 10, -10, 0] }}
           transition={{ duration: 0.5, repeat: 2 }}
         >
-          <Icon className="w-7 h-7 text-white" />
+          <Icon className="w-7 h-7 text-ink" />
         </motion.div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-0.5">
+          <p className="text-xs text-mute uppercase tracking-wider mb-0.5">
             Achievement débloqué
           </p>
-          <p className="text-white font-bold truncate">{achievement.name}</p>
-          <p className="text-cyan-400 text-sm font-medium">+{achievement.points} XP</p>
+          <p className="text-ink font-bold truncate">{achievement.name}</p>
+          <p className="text-teal text-sm font-medium">+{achievement.points} XP</p>
         </div>
 
         {/* Close */}
         <button
-          className="text-zinc-500 hover:text-white transition-colors"
+          className="text-mute hover:text-ink transition-colors"
           onClick={onClose}
         >
           <X className="w-5 h-5" />
@@ -394,8 +394,8 @@ export function AchievementCard({ achievement, onClick, className }: Achievement
       className={cn(
         "relative p-4 rounded-2xl cursor-pointer transition-all",
         isUnlocked
-          ? cn("bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 border", rarityConfig.border)
-          : "bg-zinc-900 border border-zinc-800 opacity-60",
+          ? cn("bg-gradient-to-br from-paper-2 to-card border", rarityConfig.border)
+          : "bg-card border border-ink opacity-60",
         className
       )}
       whileHover={{ scale: 1.02, y: -2 }}
@@ -409,34 +409,34 @@ export function AchievementCard({ achievement, onClick, className }: Achievement
             "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0",
             isUnlocked
               ? `bg-gradient-to-br ${rarityConfig.gradient}`
-              : "bg-zinc-800"
+              : "bg-card"
           )}
           animate={isUnlocked ? { scale: [1, 1.05, 1] } : {}}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <Icon className={cn("w-6 h-6", isUnlocked ? "text-white" : "text-zinc-600")} />
+          <Icon className={cn("w-6 h-6", isUnlocked ? "text-ink" : "text-mute")} />
         </motion.div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="text-white font-bold truncate">{achievement.name}</h4>
+            <h4 className="text-ink font-bold truncate">{achievement.name}</h4>
             {isUnlocked && (
               <span className={cn(
                 "text-xs px-2 py-0.5 rounded-full font-medium",
-                `bg-gradient-to-r ${rarityConfig.gradient} text-white`
+                `bg-gradient-to-r ${rarityConfig.gradient} text-ink`
               )}>
                 {rarityConfig.label}
               </span>
             )}
           </div>
 
-          <p className="text-zinc-400 text-sm mb-2 line-clamp-2">{achievement.description}</p>
+          <p className="text-mute text-sm mb-2 line-clamp-2">{achievement.description}</p>
 
           {/* Progress bar pour non-débloqués */}
           {!isUnlocked && percentage > 0 && (
             <div className="mb-2">
-              <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-card rounded-full overflow-hidden">
                 <motion.div
                   className={cn("h-full rounded-full", `bg-gradient-to-r ${rarityConfig.gradient}`)}
                   initial={{ width: 0 }}
@@ -444,19 +444,19 @@ export function AchievementCard({ achievement, onClick, className }: Achievement
                   transition={{ duration: 0.5 }}
                 />
               </div>
-              <p className="text-xs text-zinc-500 mt-1">{progress} / {requirement}</p>
+              <p className="text-xs text-mute mt-1">{progress} / {requirement}</p>
             </div>
           )}
 
           {/* Points */}
           <div className="flex items-center gap-2">
-            <Zap className={cn("w-4 h-4", isUnlocked ? "text-cyan-400" : "text-zinc-600")} />
-            <span className={cn("font-bold text-sm", isUnlocked ? "text-cyan-400" : "text-zinc-600")}>
+            <Zap className={cn("w-4 h-4", isUnlocked ? "text-teal" : "text-mute")} />
+            <span className={cn("font-bold text-sm", isUnlocked ? "text-teal" : "text-mute")}>
               {isUnlocked ? "+" : ""}{achievement.points} points
             </span>
 
             {isUnlocked && achievement.unlocked_at && (
-              <span className="text-zinc-500 text-xs ml-auto">
+              <span className="text-mute text-xs ml-auto">
                 {new Date(achievement.unlocked_at).toLocaleDateString("fr-FR")}
               </span>
             )}
@@ -495,22 +495,22 @@ export function AchievementProgressOverview({
   const percentage = total > 0 ? (unlocked / total) * 100 : 0
 
   return (
-    <div className={cn("bg-zinc-900 rounded-2xl p-6", className)}>
+    <div className={cn("bg-card rounded-2xl p-6", className)}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-white">Progression</h3>
-        <span className="text-cyan-400 font-bold">{unlocked} / {total}</span>
+        <h3 className="text-lg font-bold text-ink">Progression</h3>
+        <span className="text-teal font-bold">{unlocked} / {total}</span>
       </div>
 
-      <div className="h-3 bg-zinc-800 rounded-full overflow-hidden mb-4">
+      <div className="h-3 bg-card rounded-full overflow-hidden mb-4">
         <motion.div
-          className="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full"
+          className="h-full bg-gradient-to-r from-teal via-pink to-pink rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 1, ease: "easeOut" }}
         />
       </div>
 
-      <div className="flex justify-between text-sm text-zinc-500">
+      <div className="flex justify-between text-sm text-mute">
         <span>{Math.round(percentage)}% complété</span>
         <span>{total - unlocked} restants</span>
       </div>

@@ -63,12 +63,12 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
   return (
     <GlassCard neon="intellect" className="p-8 flex flex-col items-center justify-center relative overflow-hidden max-w-md mx-auto w-full">
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-teal/5 to-teal/5 pointer-events-none" />
       
       <div className="relative z-10 flex flex-col items-center w-full">
         <div className="flex items-center gap-2 mb-6">
-          <Brain className="w-6 h-6 text-cyan-400" />
-          <h2 className="text-xl font-bold text-white neon-text-intellect">Focus Mode</h2>
+          <Brain className="w-6 h-6 text-teal" />
+          <h2 className="text-xl font-bold text-ink neon-text-intellect">Focus Mode</h2>
         </div>
 
         {/* Timer Circle */}
@@ -82,7 +82,7 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
               stroke="currentColor"
               strokeWidth="8"
               fill="transparent"
-              className="text-zinc-800"
+              className="text-ink"
             />
             <motion.circle
               cx="128"
@@ -91,7 +91,7 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
               stroke="currentColor"
               strokeWidth="8"
               fill="transparent"
-              className="text-cyan-500 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+              className="text-teal drop-"
               strokeDasharray={circumference}
               strokeDashoffset={circumference - (progress / 100) * circumference}
               strokeLinecap="round"
@@ -111,9 +111,9 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
                   exit={{ scale: 0, opacity: 0 }}
                   className="flex flex-col items-center"
                 >
-                  <CheckCircle className="w-16 h-16 text-green-400 mb-2 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
-                  <span className="text-white font-bold text-lg">Terminé !</span>
-                  <span className="text-cyan-400 text-sm mt-1">+50 XP</span>
+                  <CheckCircle className="w-16 h-16 text-lime mb-2 drop-" />
+                  <span className="text-ink font-bold text-lg">Terminé !</span>
+                  <span className="text-teal text-sm mt-1">+50 XP</span>
                 </motion.div>
               ) : (
                 <motion.div
@@ -122,10 +122,10 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
                   exit={{ opacity: 0 }}
                   className="text-center"
                 >
-                  <span className="text-6xl font-black text-white font-mono tracking-wider">
+                  <span className="text-6xl font-black text-ink font-mono tracking-wider">
                     {formatTime(timeLeft)}
                   </span>
-                  <p className="text-zinc-400 text-sm mt-2 font-medium uppercase tracking-widest">
+                  <p className="text-mute text-sm mt-2 font-medium uppercase tracking-widest">
                     {isActive ? "Focus en cours..." : "Prêt ?"}
                   </p>
                 </motion.div>
@@ -142,7 +142,7 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
                 variant="outline"
                 size="icon"
                 onClick={resetTimer}
-                className="border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 rounded-full w-14 h-14"
+                className="border-ink text-mute hover:text-ink hover:border-line rounded-full w-14 h-14"
               >
                 <RefreshCw className="w-5 h-5" />
               </NeonButton>
@@ -178,8 +178,8 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
                 className={cn(
                   "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border",
                   duration === d
-                    ? "bg-cyan-500/20 border-cyan-500 text-cyan-400 shadow-[0_0_10px_-2px_rgba(6,182,212,0.3)]"
-                    : "bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600"
+                    ? "bg-teal/20 border-teal text-teal "
+                    : "bg-card border-ink text-mute hover:text-ink hover:border-ink"
                 )}
               >
                 {d} min

@@ -101,7 +101,7 @@ export function ProfileQuest(_props: ProfileQuestProps) {
         <div 
           className={cn(
             "h-full overflow-hidden transition-all duration-500",
-            "bg-gradient-to-br from-zinc-900/95 via-zinc-900/90 to-zinc-950/95 backdrop-blur-xl rounded-[28px]"
+            "bg-gradient-to-br from-paper-2 via-paper-2 to-card  rounded-[28px]"
           )}
         >
           {/* Ambient particles */}
@@ -128,28 +128,28 @@ export function ProfileQuest(_props: ProfileQuestProps) {
               <div className="flex items-center justify-between mb-3 sm:mb-4 relative z-10">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <motion.div 
-                    className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-500/20 flex items-center justify-center"
+                    className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal/20 flex items-center justify-center"
                     whileHover={{ scale: 1.1, rotate: 5 }}
                   >
                     <motion.div
-                      className="absolute inset-0 rounded-lg sm:rounded-xl bg-blue-500/30"
+                      className="absolute inset-0 rounded-lg sm:rounded-xl bg-teal/30"
                       animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.2, 0.5] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     />
-                    <User className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 relative z-10" />
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 text-teal relative z-10" />
                   </motion.div>
                   <div>
-                    <h3 className="font-black text-white tracking-tight text-sm sm:text-base flex items-center gap-1.5">
+                    <h3 className="font-black text-ink tracking-tight text-sm sm:text-base flex items-center gap-1.5">
                       Complete Profile
-                      <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400" />
+                      <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal" />
                     </h3>
-                    <p className="text-zinc-500 text-[10px] sm:text-xs font-bold uppercase tracking-tighter">Level Up Opportunity</p>
+                    <p className="text-mute text-[10px] sm:text-xs font-bold uppercase tracking-tighter">Level Up Opportunity</p>
                   </div>
                 </div>
                 
                 {/* XP Badge with glow */}
                 <motion.div 
-                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-teal/10 border border-teal/20"
                   animate={{ 
                     scale: [1, 1.05, 1],
                     boxShadow: [
@@ -160,17 +160,17 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                   }}
                   transition={{ repeat: Infinity, duration: 2 }}
                 >
-                  <Zap className="w-3 h-3 text-blue-400" />
-                  <span className="text-[10px] sm:text-xs font-black text-blue-400">+{totalXPEarnable} XP</span>
+                  <Zap className="w-3 h-3 text-teal" />
+                  <span className="text-[10px] sm:text-xs font-black text-teal">+{totalXPEarnable} XP</span>
                 </motion.div>
               </div>
               
               {/* Progress section */}
               <div className="space-y-2 relative z-10">
-                <div className="flex items-center justify-between text-[10px] sm:text-xs font-black uppercase tracking-widest text-zinc-500">
+                <div className="flex items-center justify-between text-[10px] sm:text-xs font-black uppercase tracking-widest text-mute">
                   <span>Progression</span>
                   <motion.span 
-                    className="text-blue-400"
+                    className="text-teal"
                     animate={{ opacity: [0.7, 1, 0.7] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
@@ -179,9 +179,9 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                 </div>
                 <div className="flex items-center gap-3 sm:gap-4">
                   {/* Premium progress bar */}
-                  <div className="relative h-2 sm:h-2.5 bg-white/10 flex-1 rounded-full overflow-hidden border border-white/5">
+                  <div className="relative h-2 sm:h-2.5 bg-paper-2 flex-1 rounded-full overflow-hidden border border-ink">
                     <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400"
+                      className="h-full rounded-full bg-gradient-to-r from-teal via-teal to-teal"
                       initial={{ width: 0 }}
                       animate={{ width: `${progress}%` }}
                       transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
@@ -212,9 +212,9 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                   <motion.div 
                     animate={{ rotate: isExpanded ? 90 : 0 }}
                     whileHover={{ scale: 1.1 }}
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:border-blue-500/30 transition-colors"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-paper-2 flex items-center justify-center border border-ink hover:border-teal/30 transition-colors"
                   >
-                    <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                    <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ink" />
                   </motion.div>
                 </div>
               </div>
@@ -242,8 +242,8 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                       className={cn(
                         "relative flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-300",
                         step.completed 
-                          ? 'bg-zinc-900/50 border-white/5 opacity-50' 
-                          : 'bg-white/5 border-white/10 hover:bg-white/10 cursor-pointer group'
+                          ? 'bg-card border-ink opacity-50' 
+                          : 'bg-paper-2 border-ink hover:bg-paper-2 cursor-pointer group'
                       )}
                       style={!step.completed ? { 
                         '--hover-border': `${step.color}40`,
@@ -266,7 +266,7 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                         <motion.div 
                           className={cn(
                             "w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300",
-                            step.completed ? 'bg-zinc-800 text-zinc-500' : 'shadow-lg'
+                            step.completed ? 'bg-card text-mute' : 'shadow-lg'
                           )}
                           style={!step.completed ? { 
                             background: `${step.color}20`,
@@ -282,7 +282,7 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                         </motion.div>
                         <span className={cn(
                           "font-bold text-xs sm:text-sm tracking-tight",
-                          step.completed ? 'text-zinc-500 line-through' : 'text-white'
+                          step.completed ? 'text-mute line-through' : 'text-ink'
                         )}>
                           {step.label}
                         </span>
@@ -323,7 +323,7 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-xs sm:text-sm hover:bg-blue-500/20 transition-colors cursor-pointer"
+                      className="flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-xl bg-teal/10 border border-teal/20 text-teal font-bold text-xs sm:text-sm hover:bg-teal/20 transition-colors cursor-pointer"
                     >
                       <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       Éditer mon profil

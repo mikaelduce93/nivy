@@ -33,16 +33,16 @@ const typeIcons = {
 }
 
 const typeStyles = {
-  warning: "bg-red-500/10 border-red-500/20 text-red-200",
-  info: "bg-blue-500/10 border-blue-500/20 text-blue-200",
-  success: "bg-emerald-500/10 border-emerald-500/20 text-emerald-200",
+  warning: "bg-destructive/10 border-destructive/20 text-destructive",
+  info: "bg-teal/10 border-teal/20 text-teal",
+  success: "bg-lime/10 border-lime/20 text-lime",
   ai: "bg-brand-soft/10 border-brand-soft/20 text-brand-soft",
 }
 
 const iconStyles = {
-  warning: "text-red-400",
-  info: "text-blue-400",
-  success: "text-emerald-400",
+  warning: "text-destructive",
+  info: "text-teal",
+  success: "text-lime",
   ai: "text-brand-soft",
 }
 
@@ -100,7 +100,7 @@ export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsPro
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-mute" />
       </div>
     )
   }
@@ -112,8 +112,8 @@ export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsPro
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col items-center justify-center py-8 text-center"
       >
-        <CheckCircle className="h-8 w-8 text-emerald-500 mb-2" />
-        <p className="text-sm text-zinc-400">Tout va bien ! Aucune alerte pour le moment.</p>
+        <CheckCircle className="h-8 w-8 text-lime mb-2" />
+        <p className="text-sm text-mute">Tout va bien ! Aucune alerte pour le moment.</p>
       </motion.div>
     )
   }
@@ -122,7 +122,7 @@ export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsPro
     <div className="space-y-4">
       {/* Header with refresh */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+        <h3 className="text-sm font-bold text-mute uppercase tracking-wider flex items-center gap-2">
           <Brain className="h-4 w-4 text-brand-soft" />
           Insights Intelligents
         </h3>
@@ -131,7 +131,7 @@ export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsPro
           size="sm"
           onClick={() => fetchInsights(true)}
           disabled={refreshing}
-          className="h-7 px-2 text-zinc-500 hover:text-white"
+          className="h-7 px-2 text-mute hover:text-ink"
         >
           <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin")} />
         </Button>
@@ -139,7 +139,7 @@ export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsPro
 
       {/* Error state */}
       {error && (
-        <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+        <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
           {error}
         </div>
       )}
@@ -194,11 +194,11 @@ export function SmartInsights({ parentId, initialAlerts = [] }: SmartInsightsPro
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="pt-3 border-t border-white/5"
+          className="pt-3 border-t border-ink"
         >
           <Link
             href="/parent/ai-assistant"
-            className="flex items-center gap-2 text-xs text-zinc-500 hover:text-brand-soft transition-colors group"
+            className="flex items-center gap-2 text-xs text-mute hover:text-brand-soft transition-colors group"
           >
             <Brain className="h-3.5 w-3.5 group-hover:animate-pulse" />
             <span>Demander des conseils à l'assistant IA</span>

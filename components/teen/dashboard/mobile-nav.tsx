@@ -114,7 +114,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
         <Icon
           className={cn(
             'w-6 h-6 transition-colors relative z-10',
-            isActive ? item.activeColor || 'text-brand-soft' : 'text-zinc-400'
+            isActive ? item.activeColor || 'text-brand-soft' : 'text-mute'
           )}
           strokeWidth={isActive ? 2.5 : 2}
         />
@@ -124,7 +124,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center"
+            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-ink text-[10px] font-bold flex items-center justify-center"
           >
             {item.badge > 9 ? '9+' : item.badge}
           </motion.span>
@@ -134,7 +134,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
       <span
         className={cn(
           'text-[10px] font-semibold mt-1 transition-colors',
-          isActive ? 'text-white' : 'text-zinc-500'
+          isActive ? 'text-ink' : 'text-mute'
         )}
       >
         {item.label}
@@ -210,7 +210,7 @@ export function MobileBottomNav({
           aria-label="Navigation principale mobile"
         >
           {/* Glass background */}
-          <div className="absolute inset-0 bg-zinc-900/95 backdrop-blur-xl border-t border-white/10" />
+          <div className="absolute inset-0 bg-card  border-t border-ink" />
           
           {/* Nav items */}
           <div className="relative flex items-center justify-around py-1 px-2">

@@ -15,8 +15,8 @@ interface PDFViewerProps {
 export default function PDFViewer({ url, className }: PDFViewerProps) {
   if (!url) {
     return (
-      <div className={`flex items-center justify-center p-8 bg-zinc-800 rounded-lg ${className || ""}`}>
-        <p className="text-zinc-500">Aucun document à afficher</p>
+      <div className={`flex items-center justify-center p-8 bg-card rounded-lg ${className || ""}`}>
+        <p className="text-mute">Aucun document à afficher</p>
       </div>
     )
   }
@@ -25,7 +25,7 @@ export default function PDFViewer({ url, className }: PDFViewerProps) {
     <div className={`w-full ${className || ""}`}>
       <iframe
         src={url}
-        className="w-full h-[600px] rounded-lg border border-zinc-700"
+        className="w-full h-[600px] rounded-lg border border-ink"
         title="PDF Viewer"
       />
     </div>

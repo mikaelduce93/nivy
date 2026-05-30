@@ -300,7 +300,7 @@ export function Hero({
                   <div
                     className={cn(
                       'px-3 py-1 rounded-full flex items-center gap-2 text-sm font-bold',
-                      'border backdrop-blur-sm',
+                      'border ',
                     )}
                     style={{
                       background: `${tierPalette.primary[0]}20`,
@@ -364,9 +364,9 @@ export function Hero({
                 <Sparkles className="w-4 h-4" style={{ color: tierPalette.accent }} />
                 <Text size="sm" color="tertiary">Niveau {xpData.level}</Text>
               </HStack>
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20">
-                <Flame className="w-4 h-4 text-orange-400" />
-                <span className="text-sm font-bold text-orange-400">{currentStreak}</span>
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-coral/20">
+                <Flame className="w-4 h-4 text-coral" />
+                <span className="text-sm font-bold text-coral">{currentStreak}</span>
               </div>
             </HStack>
           </div>
@@ -423,7 +423,7 @@ function HeroAvatar({
         animate={showEffects ? { rotate: 360 } : undefined}
         transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
       >
-        <Avatar className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 border-3 border-zinc-900">
+        <Avatar className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 border-3 border-ink">
           <AvatarImage src={src || undefined} />
           <AvatarFallback
             className="text-xl sm:text-2xl md:text-3xl font-black"
@@ -445,7 +445,7 @@ function HeroAvatar({
         transition={{ delay: 0.4, type: 'spring', stiffness: 500, damping: 15 }}
       >
         <div
-          className="px-2.5 py-1 rounded-lg text-xs sm:text-sm font-black text-white border border-white/20"
+          className="px-2.5 py-1 rounded-lg text-xs sm:text-sm font-black text-ink border border-ink"
           style={{
             background: `linear-gradient(135deg, ${palette.primary.join(', ')})`,
             boxShadow: `0 4px 15px ${palette.glow}`,
@@ -466,7 +466,7 @@ interface HeroStreakCounterProps {
 function HeroStreakCounter({ streak, showAnimation }: HeroStreakCounterProps) {
   return (
     <div
-      className="relative p-3 sm:p-4 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400/20 to-red-500/20 border border-orange-400/30"
+      className="relative p-3 sm:p-4 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-coral/20 to-destructive/20 border border-coral/30"
     >
       <HStack gap="sm" align="center">
         {showAnimation ? (
@@ -476,14 +476,14 @@ function HeroStreakCounter({ streak, showAnimation }: HeroStreakCounterProps) {
             }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-orange-400" />
+            <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-coral" />
           </motion.div>
         ) : (
-          <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-orange-400" />
+          <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-coral" />
         )}
         <VStack gap="none">
-          <span className="text-lg sm:text-2xl font-black text-white">{streak}</span>
-          <span className="text-[10px] sm:text-xs text-orange-400/80 font-medium">jours</span>
+          <span className="text-lg sm:text-2xl font-black text-ink">{streak}</span>
+          <span className="text-[10px] sm:text-xs text-coral/80 font-medium">jours</span>
         </VStack>
       </HStack>
     </div>
@@ -517,7 +517,7 @@ function HeroXPBadge({ xp, palette, showAnimation }: HeroXPBadgeProps) {
           <Zap className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: palette.accent }} />
         )}
         <VStack gap="none">
-          <span className="text-lg sm:text-xl font-black text-white">{xp.toLocaleString()}</span>
+          <span className="text-lg sm:text-xl font-black text-ink">{xp.toLocaleString()}</span>
           <span className="text-[10px] sm:text-xs font-medium" style={{ color: palette.accent }}>XP</span>
         </VStack>
       </HStack>
@@ -580,7 +580,7 @@ function HeroXPBar({
       </HStack>
       
       {/* Progress bar */}
-      <div className="relative h-3 sm:h-4 rounded-full overflow-hidden bg-white/5 border border-white/10">
+      <div className="relative h-3 sm:h-4 rounded-full overflow-hidden bg-paper-2 border border-ink">
         {/* Animated fill */}
         <motion.div
           className="absolute inset-y-0 left-0 rounded-full"
@@ -628,7 +628,7 @@ function HeroXPBar({
             key={milestone}
             className={cn(
               'absolute top-0 bottom-0 w-px transition-colors',
-              xpProgress >= milestone ? 'bg-white/40' : 'bg-white/10'
+              xpProgress >= milestone ? 'bg-paper-2' : 'bg-paper-2'
             )}
             style={{ left: `${milestone}%` }}
           />

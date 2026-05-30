@@ -41,12 +41,12 @@ const categoryNeon: Record<string, "vitality" | "creativity" | "intellect" | "pa
 }
 
 const categoryTextColors: Record<string, string> = {
-  vitality: "text-green-400",
-  creativity: "text-orange-400",
-  intellect: "text-cyan-400",
-  party: "text-purple-400",
-  prestige: "text-yellow-400",
-  none: "text-zinc-400",
+  vitality: "text-lime",
+  creativity: "text-coral",
+  intellect: "text-teal",
+  party: "text-pink",
+  prestige: "text-gold",
+  none: "text-mute",
 }
 
 interface Club {
@@ -74,7 +74,7 @@ interface ClubsListClientProps {
 function ClubCard({ club }: { club: Club }) {
   const Icon = categoryIcons[club.category] || Calendar
   const neonType = categoryNeon[club.category] || "none"
-  const textColor = categoryTextColors[neonType] || "text-zinc-400"
+  const textColor = categoryTextColors[neonType] || "text-mute"
   const cityName = club.city?.name || "Casablanca"
 
   return (
@@ -93,14 +93,14 @@ function ClubCard({ club }: { club: Club }) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+          <div className="w-full h-full bg-card flex items-center justify-center">
             <Icon className={`w-16 h-16 ${textColor} opacity-50`} />
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
         <div className="absolute top-4 left-4">
-          <div className={`glass px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-md border-white/10 ${textColor}`}>
+          <div className={`glass px-3 py-1.5 rounded-full flex items-center gap-1.5  border-ink ${textColor}`}>
             <Icon className="w-3.5 h-3.5" />
             <span className="text-xs font-bold uppercase tracking-wider">{categoryLabels[club.category] || "Autre"}</span>
           </div>
@@ -108,39 +108,39 @@ function ClubCard({ club }: { club: Club }) {
       </div>
 
       <div className="p-6 flex flex-col flex-1">
-        <h3 className="text-2xl font-black mb-2 text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-zinc-400 transition-all">
+        <h3 className="text-2xl font-black mb-2 text-ink group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-card transition-all">
           {club.name}
         </h3>
 
         {club.description && (
-          <p className="text-zinc-400 text-sm mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-mute text-sm mb-4 line-clamp-2 leading-relaxed">
             {club.description}
           </p>
         )}
 
         <div className="space-y-3 mb-6 flex-1">
-          <div className="flex items-center gap-2 text-zinc-300 text-sm">
+          <div className="flex items-center gap-2 text-ink-2 text-sm">
             <MapPin className={`w-4 h-4 ${textColor}`} />
             <span>{cityName}</span>
           </div>
           {club.schedule && (
-            <div className="flex items-center gap-2 text-zinc-300 text-sm">
+            <div className="flex items-center gap-2 text-ink-2 text-sm">
               <Clock className={`w-4 h-4 ${textColor}`} />
               <span>{club.schedule}</span>
             </div>
           )}
           {(club.age_min || club.age_max) && (
-            <div className="flex items-center gap-2 text-zinc-300 text-sm">
+            <div className="flex items-center gap-2 text-ink-2 text-sm">
               <Users className={`w-4 h-4 ${textColor}`} />
               <span>{club.age_min || 13}-{club.age_max || 17} ans</span>
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+        <div className="flex items-center justify-between mt-auto pt-4 border-t border-ink">
           {club.price_per_session ? (
             <div>
-              <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">À partir de</p>
+              <p className="text-mute text-[10px] uppercase tracking-widest font-bold">À partir de</p>
               <p className={`text-xl font-black ${textColor}`}>
                 {club.price_per_session} DH
               </p>
@@ -208,15 +208,15 @@ export function ClubsListClient({ initialClubs }: ClubsListClientProps) {
       {/* Search Bar */}
       <div className="max-w-2xl mx-auto mb-12">
         <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-emerald-500/20 rounded-xl blur opacity-25 group-hover:opacity-75 transition duration-1000" />
+          <div className="absolute -inset-1 bg-gradient-to-r from-teal/20 via-pink/20 to-lime/20 rounded-xl blur opacity-25 group-hover:opacity-75 transition duration-1000" />
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
             <Input
               type="text"
               placeholder="Rechercher un club..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-14 bg-zinc-900/80 border-white/10 text-white placeholder:text-zinc-500 rounded-xl focus:ring-2 focus:ring-cyan-500/50 transition-all"
+              className="pl-12 h-14 bg-card border-ink text-ink placeholder:text-mute rounded-xl focus:ring-2 focus:ring-teal/50 transition-all"
             />
           </div>
         </div>
@@ -227,7 +227,7 @@ export function ClubsListClient({ initialClubs }: ClubsListClientProps) {
         <Button
           variant={selectedCategory === "all" ? "default" : "outline"}
           onClick={() => setSelectedCategory("all")}
-          className={`rounded-full px-6 transition-all ${selectedCategory === 'all' ? 'bg-white text-black hover:bg-white/90' : 'border-white/10 text-zinc-400 hover:text-white hover:bg-white/5'}`}
+          className={`rounded-full px-6 transition-all ${selectedCategory === 'all' ? 'bg-white text-ink hover:bg-paper-2' : 'border-ink text-mute hover:text-ink hover:bg-paper-2'}`}
         >
           Tous
         </Button>
@@ -238,14 +238,14 @@ export function ClubsListClient({ initialClubs }: ClubsListClientProps) {
           
           let activeClass = ""
           if (isActive) {
-            if (neonType === 'vitality') activeClass = "bg-emerald-600 text-white border-transparent"
-            else if (neonType === 'creativity') activeClass = "bg-orange-600 text-white border-transparent"
-            else if (neonType === 'intellect') activeClass = "bg-cyan-600 text-white border-transparent"
-            else if (neonType === 'party') activeClass = "bg-purple-600 text-white border-transparent"
-            else if (neonType === 'prestige') activeClass = "bg-yellow-600 text-white border-transparent"
-            else activeClass = "bg-zinc-600 text-white border-transparent"
+            if (neonType === 'vitality') activeClass = "bg-lime text-ink border-transparent"
+            else if (neonType === 'creativity') activeClass = "bg-coral text-ink border-transparent"
+            else if (neonType === 'intellect') activeClass = "bg-teal text-ink border-transparent"
+            else if (neonType === 'party') activeClass = "bg-pink text-ink border-transparent"
+            else if (neonType === 'prestige') activeClass = "bg-gold text-ink border-transparent"
+            else activeClass = "bg-muted text-ink border-transparent"
           } else {
-            activeClass = "border-white/10 text-zinc-400 hover:text-white hover:bg-white/5 bg-transparent"
+            activeClass = "border-ink text-mute hover:text-ink hover:bg-paper-2 bg-transparent"
           }
 
           return (
@@ -265,12 +265,12 @@ export function ClubsListClient({ initialClubs }: ClubsListClientProps) {
       {/* City Filter */}
       {cities.length > 1 && (
         <div className="flex flex-wrap justify-center gap-2 mb-12">
-          <span className="text-zinc-500 text-sm self-center mr-2 uppercase tracking-widest font-bold text-[10px]">Ville</span>
+          <span className="text-mute text-sm self-center mr-2 uppercase tracking-widest font-bold text-[10px]">Ville</span>
           <Button
             variant={selectedCity === "all" ? "secondary" : "ghost"}
             size="sm"
             onClick={() => setSelectedCity("all")}
-            className={`rounded-lg text-xs ${selectedCity === "all" ? "bg-white/10 text-white" : "text-zinc-500 hover:text-white hover:bg-white/5"}`}
+            className={`rounded-lg text-xs ${selectedCity === "all" ? "bg-paper-2 text-ink" : "text-mute hover:text-ink hover:bg-paper-2"}`}
           >
             TOUTES
           </Button>
@@ -280,7 +280,7 @@ export function ClubsListClient({ initialClubs }: ClubsListClientProps) {
               variant={selectedCity === city ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setSelectedCity(city)}
-              className={`rounded-lg text-xs ${selectedCity === city ? "bg-white/10 text-white" : "text-zinc-500 hover:text-white hover:bg-white/5"}`}
+              className={`rounded-lg text-xs ${selectedCity === city ? "bg-paper-2 text-ink" : "text-mute hover:text-ink hover:bg-paper-2"}`}
             >
               {city.toUpperCase()}
             </Button>
@@ -297,11 +297,11 @@ export function ClubsListClient({ initialClubs }: ClubsListClientProps) {
         </div>
       ) : (
         <div className="text-center py-20">
-          <div className="w-24 h-24 bg-zinc-900/50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Search className="w-10 h-10 text-zinc-600" />
+          <div className="w-24 h-24 bg-card rounded-full flex items-center justify-center mx-auto mb-6">
+            <Search className="w-10 h-10 text-mute" />
           </div>
-          <h3 className="text-2xl font-bold mb-2 text-white">Aucun club trouvé</h3>
-          <p className="text-zinc-500 mb-8 max-w-md mx-auto">
+          <h3 className="text-2xl font-bold mb-2 text-ink">Aucun club trouvé</h3>
+          <p className="text-mute mb-8 max-w-md mx-auto">
             Nous n'avons pas trouvé de club correspondant à vos critères. Essayez une autre catégorie ou ville.
           </p>
           <Button 
@@ -310,7 +310,7 @@ export function ClubsListClient({ initialClubs }: ClubsListClientProps) {
               setSelectedCategory("all")
               setSelectedCity("all")
             }}
-            className="bg-white text-black hover:bg-white/90 rounded-full px-8"
+            className="bg-white text-ink hover:bg-paper-2 rounded-full px-8"
           >
             Réinitialiser les filtres
           </Button>
@@ -319,7 +319,7 @@ export function ClubsListClient({ initialClubs }: ClubsListClientProps) {
 
       {/* Results count */}
       {filteredClubs.length > 0 && (
-        <div className="text-center mt-12 text-sm text-zinc-500">
+        <div className="text-center mt-12 text-sm text-mute">
           {filteredClubs.length} club{filteredClubs.length > 1 ? "s" : ""} trouvé{filteredClubs.length > 1 ? "s" : ""}
         </div>
       )}

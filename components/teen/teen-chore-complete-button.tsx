@@ -132,7 +132,7 @@ export function TeenChoreCompleteButton({
       <Button
         onClick={handleClick}
         disabled={loading || isSubmitted}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+        className="w-full bg-lime hover:bg-lime text-ink"
       >
         {isSubmitted && !loading ? (
           <>

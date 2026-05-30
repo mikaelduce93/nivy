@@ -82,16 +82,16 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
           className="relative h-full"
         >
           <div className={cn(
-            "relative h-full overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6",
-            "bg-gradient-to-br from-zinc-900/90 via-zinc-900/80 to-zinc-950/90",
+            "relative h-full overflow-hidden rounded-2xl sm:rounded-2xl p-4 sm:p-6",
+            "bg-gradient-to-br from-paper-2 via-paper-2 to-card",
             "border transition-all duration-300",
             canAfford 
-              ? "border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.15)]" 
-              : "border-white/10"
+              ? "border-lime/30 " 
+              : "border-ink"
           )}>
             {/* Ambient particles */}
             {isHovered && (
-              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
                 <FloatingParticles
                   count={10}
                   colors={canAfford ? PALETTES.mint : PALETTES.lavender}
@@ -140,7 +140,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                 >
                   <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
                 </motion.div>
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-zinc-400">
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-mute">
                   Prochain Objectif
                 </span>
               </div>
@@ -152,15 +152,15 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
                     exit={{ scale: 0, rotate: 180 }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-lime/20 border border-lime/30"
                   >
                     <motion.div
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ duration: 1, repeat: Infinity }}
                     >
-                      <Unlock className="w-3 h-3 text-emerald-400" />
+                      <Unlock className="w-3 h-3 text-lime" />
                     </motion.div>
-                    <span className="text-[10px] sm:text-xs font-bold text-emerald-400">DÉBLOQUÉ</span>
+                    <span className="text-[10px] sm:text-xs font-bold text-lime">DÉBLOQUÉ</span>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -168,10 +168,10 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-paper-2 border border-ink"
                   >
-                    <Lock className="w-3 h-3 text-zinc-500" />
-                    <span className="text-[10px] sm:text-xs font-bold text-zinc-400">
+                    <Lock className="w-3 h-3 text-mute" />
+                    <span className="text-[10px] sm:text-xs font-bold text-mute">
                       <CountUpText value={remaining} duration={1} /> XP
                     </span>
                   </motion.div>
@@ -189,7 +189,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                 className={cn(
                   "relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center border",
                   canAfford 
-                    ? "bg-emerald-500/20 border-emerald-500/30" 
+                    ? "bg-lime/20 border-lime/30" 
                     : "bg-brand-soft/20 border-brand-soft/30"
                 )}
                 whileHover={{ scale: 1.08, rotate: 5 }}
@@ -218,7 +218,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                   ) : (
                     <Ticket className={cn(
                       "w-6 h-6 sm:w-7 sm:h-7",
-                      canAfford ? "text-emerald-400" : "text-brand-soft"
+                      canAfford ? "text-lime" : "text-brand-soft"
                     )} />
                   )}
                 </GlowPulse>
@@ -230,7 +230,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                     animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
                     transition={{ duration: 3, repeat: Infinity }}
                   >
-                    <Sparkles className="w-4 h-4 text-yellow-400" />
+                    <Sparkles className="w-4 h-4 text-gold" />
                   </motion.div>
                 )}
               </motion.div>
@@ -238,7 +238,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
               {/* Reward Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline mb-2">
-                  <h3 className="text-sm sm:text-base font-black text-white truncate pr-2">
+                  <h3 className="text-sm sm:text-base font-black text-ink truncate pr-2">
                     {nextReward.name}
                   </h3>
                   <div className="flex items-center gap-1 flex-shrink-0">
@@ -256,13 +256,13 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                 
                 {/* Premium Progress Bar */}
                 <div className="relative">
-                  <div className="h-2.5 sm:h-3 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                  <div className="h-2.5 sm:h-3 bg-paper-2 rounded-full overflow-hidden border border-ink">
                     <motion.div
                       className={cn(
                         "h-full rounded-full",
                         canAfford 
-                          ? "bg-gradient-to-r from-emerald-500 to-emerald-400" 
-                          : "bg-gradient-to-r from-brand-soft via-purple-500 to-pink-500"
+                          ? "bg-gradient-to-r from-lime to-lime" 
+                          : "bg-gradient-to-r from-brand-soft via-pink to-pink"
                       )}
                       style={{
                         boxShadow: canAfford 
@@ -303,13 +303,13 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                   
                   {/* Progress label */}
                   <div className="flex justify-between mt-1.5">
-                    <span className="text-[10px] text-zinc-500 font-medium">
+                    <span className="text-[10px] text-mute font-medium">
                       <CountUpText value={currentXP} duration={1} /> XP
                     </span>
                     <motion.span 
                       className={cn(
                         "text-[10px] font-bold flex items-center gap-1",
-                        canAfford ? "text-emerald-400" : "text-zinc-400"
+                        canAfford ? "text-lime" : "text-mute"
                       )}
                       animate={canAfford ? { scale: [1, 1.05, 1] } : {}}
                       transition={{ duration: 1.5, repeat: Infinity }}
@@ -327,7 +327,7 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                 animate={isHovered ? { x: 5 } : { x: 0 }}
                 transition={{ type: 'spring', stiffness: 400 }}
               >
-                <ChevronRight className="w-5 h-5 text-zinc-600" />
+                <ChevronRight className="w-5 h-5 text-mute" />
               </motion.div>
             </div>
           </div>

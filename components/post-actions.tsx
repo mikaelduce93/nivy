@@ -46,11 +46,11 @@ export default function PostActions({ postId, initialLikes, initialComments, isL
   }
 
   return (
-    <div className="flex items-center gap-6 pt-4 border-t border-zinc-800">
+    <div className="flex items-center gap-6 pt-4 border-t border-ink">
       <Button
         variant="ghost"
         size="sm"
-        className={`text-zinc-400 hover:text-cyan-400 ${isLiked ? "text-cyan-400" : ""}`}
+        className={`text-mute hover:text-teal ${isLiked ? "text-teal" : ""}`}
         onClick={handleLike}
         disabled={!isLoggedIn}
       >
@@ -58,12 +58,12 @@ export default function PostActions({ postId, initialLikes, initialComments, isL
         {likes}
       </Button>
 
-      <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-cyan-400">
+      <Button variant="ghost" size="sm" className="text-mute hover:text-teal">
         <MessageSquare className="w-5 h-5 mr-2" />
         {initialComments}
       </Button>
 
-      <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-cyan-400">
+      <Button variant="ghost" size="sm" className="text-mute hover:text-teal">
         <Share2 className="w-5 h-5 mr-2" />
         Partager
       </Button>

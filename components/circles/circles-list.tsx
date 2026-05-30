@@ -75,14 +75,14 @@ interface CircleStats {
    ========================================================================== */
 
 const colorConfig: Record<string, { bg: string; text: string; gradient: string }> = {
-  cyan: { bg: "bg-cyan-500/10", text: "text-cyan-400", gradient: "from-cyan-500 to-blue-500" },
-  blue: { bg: "bg-blue-500/10", text: "text-blue-400", gradient: "from-blue-500 to-indigo-500" },
-  purple: { bg: "bg-purple-500/10", text: "text-purple-400", gradient: "from-purple-500 to-pink-500" },
-  pink: { bg: "bg-pink-500/10", text: "text-pink-400", gradient: "from-pink-500 to-rose-500" },
-  red: { bg: "bg-red-500/10", text: "text-red-400", gradient: "from-red-500 to-orange-500" },
-  orange: { bg: "bg-orange-500/10", text: "text-orange-400", gradient: "from-orange-500 to-yellow-500" },
-  yellow: { bg: "bg-yellow-500/10", text: "text-yellow-400", gradient: "from-yellow-500 to-amber-500" },
-  green: { bg: "bg-green-500/10", text: "text-green-400", gradient: "from-green-500 to-emerald-500" },
+  cyan: { bg: "bg-teal/10", text: "text-teal", gradient: "from-teal to-teal" },
+  blue: { bg: "bg-teal/10", text: "text-teal", gradient: "from-teal to-pink" },
+  purple: { bg: "bg-pink/10", text: "text-pink", gradient: "from-pink to-pink" },
+  pink: { bg: "bg-pink/10", text: "text-pink", gradient: "from-pink to-pink" },
+  red: { bg: "bg-destructive/10", text: "text-destructive", gradient: "from-destructive to-coral" },
+  orange: { bg: "bg-coral/10", text: "text-coral", gradient: "from-coral to-gold" },
+  yellow: { bg: "bg-gold/10", text: "text-gold", gradient: "from-gold to-gold" },
+  green: { bg: "bg-lime/10", text: "text-lime", gradient: "from-lime to-lime" },
 }
 
 /* ==========================================================================
@@ -122,7 +122,7 @@ function CircleCard({ circle, onClick }: CircleCardProps) {
       onClick={onClick}
       className="cursor-pointer"
     >
-      <Card className="p-4 bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+      <Card className="p-4 bg-card border-ink hover:border-ink transition-colors">
         <div className="flex items-center gap-4">
           {/* Avatar */}
           <div className={cn(
@@ -140,38 +140,38 @@ function CircleCard({ circle, onClick }: CircleCardProps) {
             ) : circle.emoji ? (
               <span className="text-2xl">{circle.emoji}</span>
             ) : (
-              <Users className="w-7 h-7 text-white" />
+              <Users className="w-7 h-7 text-ink" />
             )}
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <h3 className="font-bold text-white truncate">{circle.name}</h3>
+              <h3 className="font-bold text-ink truncate">{circle.name}</h3>
               {React.createElement(typeIcon, {
-                className: "w-3.5 h-3.5 text-zinc-500 flex-shrink-0"
+                className: "w-3.5 h-3.5 text-mute flex-shrink-0"
               })}
             </div>
 
             {/* Last message preview */}
             {circle.last_message ? (
-              <p className="text-sm text-zinc-500 truncate">
-                <span className="text-zinc-400">
+              <p className="text-sm text-mute truncate">
+                <span className="text-mute">
                   {circle.last_message.sender?.first_name || "Quelqu'un"}:
                 </span>{" "}
                 {circle.last_message.content}
               </p>
             ) : (
-              <p className="text-sm text-zinc-600 italic">Aucun message</p>
+              <p className="text-sm text-mute italic">Aucun message</p>
             )}
 
             {/* Stats */}
             <div className="flex items-center gap-3 mt-1">
-              <span className="text-xs text-zinc-600 flex items-center gap-1">
+              <span className="text-xs text-mute flex items-center gap-1">
                 <Users className="w-3 h-3" />
                 {circle.stats.member_count}
               </span>
-              <span className="text-xs text-zinc-600">
+              <span className="text-xs text-mute">
                 {formatLastActivity(circle.last_activity_at)}
               </span>
             </div>
@@ -182,17 +182,17 @@ function CircleCard({ circle, onClick }: CircleCardProps) {
             {circle.stats.unread_count > 0 && (
               <span className={cn(
                 "px-2 py-0.5 rounded-full text-xs font-bold",
-                `bg-gradient-to-r ${colors.gradient} text-white`
+                `bg-gradient-to-r ${colors.gradient} text-ink`
               )}>
                 {circle.stats.unread_count > 99 ? "99+" : circle.stats.unread_count}
               </span>
             )}
             {circle.membership.is_muted && (
-              <BellOff className="w-4 h-4 text-zinc-600" />
+              <BellOff className="w-4 h-4 text-mute" />
             )}
           </div>
 
-          <ChevronRight className="w-5 h-5 text-zinc-600" />
+          <ChevronRight className="w-5 h-5 text-mute" />
         </div>
       </Card>
     </motion.div>
@@ -248,53 +248,53 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/80"
+        className="absolute inset-0 bg-ink/80"
         onClick={onClose}
       />
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="relative bg-zinc-900 rounded-2xl p-6 max-w-md w-full border border-zinc-800"
+        className="relative bg-card rounded-2xl p-6 max-w-md w-full border border-ink"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white"
+          className="absolute top-4 right-4 text-mute hover:text-ink"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-xl font-bold text-white mb-6">Creer un cercle</h3>
+        <h3 className="text-xl font-bold text-ink mb-6">Creer un cercle</h3>
 
         <div className="space-y-4">
           {/* Name */}
           <div>
-            <label className="text-sm text-zinc-400 mb-2 block">Nom du cercle *</label>
+            <label className="text-sm text-mute mb-2 block">Nom du cercle *</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Les gamers"
               maxLength={50}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white"
+              className="w-full bg-card border border-ink rounded-xl px-4 py-3 text-ink"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="text-sm text-zinc-400 mb-2 block">Description</label>
+            <label className="text-sm text-mute mb-2 block">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="De quoi parle ce cercle ?"
               rows={2}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white resize-none"
+              className="w-full bg-card border border-ink rounded-xl px-4 py-3 text-ink resize-none"
             />
           </div>
 
           {/* Type */}
           <div>
-            <label className="text-sm text-zinc-400 mb-2 block">Type de cercle</label>
+            <label className="text-sm text-mute mb-2 block">Type de cercle</label>
             <div className="grid grid-cols-3 gap-2">
               {[
                 { id: "private", icon: Lock, label: "Prive" },
@@ -307,17 +307,17 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
                   className={cn(
                     "p-3 rounded-xl flex flex-col items-center gap-1 transition-all",
                     circleType === type.id
-                      ? "bg-cyan-500/20 border-2 border-cyan-500"
-                      : "bg-zinc-800 border-2 border-transparent hover:border-zinc-700"
+                      ? "bg-teal/20 border-2 border-teal"
+                      : "bg-card border-2 border-transparent hover:border-ink"
                   )}
                 >
                   <type.icon className={cn(
                     "w-5 h-5",
-                    circleType === type.id ? "text-cyan-400" : "text-zinc-400"
+                    circleType === type.id ? "text-teal" : "text-mute"
                   )} />
                   <span className={cn(
                     "text-xs",
-                    circleType === type.id ? "text-cyan-400" : "text-zinc-400"
+                    circleType === type.id ? "text-teal" : "text-mute"
                   )}>
                     {type.label}
                   </span>
@@ -328,7 +328,7 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
 
           {/* Theme color */}
           <div>
-            <label className="text-sm text-zinc-400 mb-2 block">Couleur</label>
+            <label className="text-sm text-mute mb-2 block">Couleur</label>
             <div className="flex gap-2 flex-wrap">
               {Object.keys(colorConfig).map((color) => (
                 <button
@@ -346,13 +346,13 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
 
           {/* Emoji */}
           <div>
-            <label className="text-sm text-zinc-400 mb-2 block">Emoji (optionnel)</label>
+            <label className="text-sm text-mute mb-2 block">Emoji (optionnel)</label>
             <input
               type="text"
               value={emoji}
               onChange={(e) => setEmoji(e.target.value.slice(0, 2))}
               placeholder="Ex: 🎮"
-              className="w-24 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-center text-xl"
+              className="w-24 bg-card border border-ink rounded-xl px-4 py-3 text-ink text-center text-xl"
             />
           </div>
         </div>
@@ -361,7 +361,7 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
           <Button
             onClick={onClose}
             variant="outline"
-            className="flex-1 border-zinc-700"
+            className="flex-1 border-ink"
           >
             Annuler
           </Button>
@@ -370,7 +370,7 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
             disabled={!name.trim()}
             className={cn(
               "flex-1 bg-gradient-to-r",
-              colorConfig[themeColor]?.gradient || "from-cyan-500 to-blue-500"
+              colorConfig[themeColor]?.gradient || "from-teal to-teal"
             )}
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -483,7 +483,7 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
     return (
       <div className="space-y-4 animate-pulse">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-20 bg-zinc-800 rounded-2xl" />
+          <div key={i} className="h-20 bg-card rounded-2xl" />
         ))}
       </div>
     )
@@ -494,19 +494,19 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Mes cercles</h2>
+          <h2 className="text-xl font-bold text-ink">Mes cercles</h2>
           {stats && (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-mute">
               {stats.total_circles} cercle{stats.total_circles > 1 ? "s" : ""}
               {stats.total_unread > 0 && (
-                <span className="text-cyan-400"> • {stats.total_unread} non lu{stats.total_unread > 1 ? "s" : ""}</span>
+                <span className="text-teal"> • {stats.total_unread} non lu{stats.total_unread > 1 ? "s" : ""}</span>
               )}
             </p>
           )}
         </div>
         <Button
           onClick={() => setShowCreateModal(true)}
-          className="bg-gradient-to-r from-cyan-500 to-blue-500"
+          className="bg-gradient-to-r from-teal to-teal"
         >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau
@@ -515,32 +515,32 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Rechercher un cercle..."
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-3 text-white"
+          className="w-full bg-card border border-ink rounded-xl pl-12 pr-4 py-3 text-ink"
         />
       </div>
 
       {/* Pending invitations */}
       {stats && stats.pending_invitations > 0 && (
-        <Card className="p-4 bg-cyan-500/10 border-cyan-500/30">
+        <Card className="p-4 bg-teal/10 border-teal/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-cyan-400" />
+              <div className="w-10 h-10 rounded-xl bg-teal/20 flex items-center justify-center">
+                <Bell className="w-5 h-5 text-teal" />
               </div>
               <div>
-                <p className="font-medium text-white">
+                <p className="font-medium text-ink">
                   {stats.pending_invitations} invitation{stats.pending_invitations > 1 ? "s" : ""}
                 </p>
-                <p className="text-sm text-cyan-400/70">En attente de reponse</p>
+                <p className="text-sm text-teal/70">En attente de reponse</p>
               </div>
             </div>
-            <Button size="sm" variant="outline" className="border-cyan-500/30 text-cyan-400">
+            <Button size="sm" variant="outline" className="border-teal/30 text-teal">
               Voir
             </Button>
           </div>
@@ -560,16 +560,16 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
 
       {/* Empty state */}
       {circles.length === 0 && (
-        <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-          <Users className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">Aucun cercle</h3>
-          <p className="text-zinc-400 mb-4">
+        <Card className="p-8 bg-card border-ink text-center">
+          <Users className="w-12 h-12 text-mute mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-ink mb-2">Aucun cercle</h3>
+          <p className="text-mute mb-4">
             Cree ton premier cercle ou rejoins-en un public !
           </p>
           <div className="flex gap-3 justify-center">
             <Button
               onClick={() => setShowCreateModal(true)}
-              className="bg-gradient-to-r from-cyan-500 to-blue-500"
+              className="bg-gradient-to-r from-teal to-teal"
             >
               <Plus className="w-4 h-4 mr-2" />
               Creer
@@ -577,7 +577,7 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
             <Button
               onClick={() => setShowPublic(true)}
               variant="outline"
-              className="border-zinc-700"
+              className="border-ink"
             >
               <Globe className="w-4 h-4 mr-2" />
               Decouvrir
@@ -589,32 +589,32 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
       {/* Public circles section */}
       {(showPublic || circles.length > 0) && publicCircles.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+          <h3 className="text-sm font-medium text-mute flex items-center gap-2">
             <Globe className="w-4 h-4" />
             Cercles publics a decouvrir
           </h3>
           {publicCircles.slice(0, 3).map((circle) => (
             <Card
               key={circle.id}
-              className="p-4 bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors"
+              className="p-4 bg-card border-ink hover:border-ink transition-colors"
             >
               <div className="flex items-center gap-4">
                 <div className={cn(
                   "w-12 h-12 rounded-xl flex items-center justify-center",
                   `bg-gradient-to-br ${colorConfig[circle.theme_color]?.gradient || colorConfig.cyan.gradient}`
                 )}>
-                  {circle.emoji || <Users className="w-6 h-6 text-white" />}
+                  {circle.emoji || <Users className="w-6 h-6 text-ink" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-white truncate">{circle.name}</h4>
-                  <p className="text-sm text-zinc-500">
+                  <h4 className="font-medium text-ink truncate">{circle.name}</h4>
+                  <p className="text-sm text-mute">
                     {(circle as unknown as { member_count: number }).member_count} membres
                   </p>
                 </div>
                 <Button
                   onClick={() => handleJoinPublic(circle.id)}
                   size="sm"
-                  className="bg-gradient-to-r from-cyan-500 to-blue-500"
+                  className="bg-gradient-to-r from-teal to-teal"
                 >
                   Rejoindre
                 </Button>
@@ -671,7 +671,7 @@ export function CirclesWidget({ teenId, limit = 3, onSeeAll, onSelectCircle }: C
     return (
       <div className="space-y-3 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-14 bg-zinc-800 rounded-xl" />
+          <div key={i} className="h-14 bg-card rounded-xl" />
         ))}
       </div>
     )
@@ -682,16 +682,16 @@ export function CirclesWidget({ teenId, limit = 3, onSeeAll, onSelectCircle }: C
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-white flex items-center gap-2">
-          <Users className="w-4 h-4 text-cyan-400" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Users className="w-4 h-4 text-teal" />
           Mes cercles
         </h3>
         {onSeeAll && (
           <button
             onClick={onSeeAll}
-            className="text-sm text-cyan-400 hover:underline"
+            className="text-sm text-teal hover:underline"
           >
             Voir tout
           </button>
@@ -705,24 +705,24 @@ export function CirclesWidget({ teenId, limit = 3, onSeeAll, onSelectCircle }: C
             <div
               key={circle.id}
               onClick={() => onSelectCircle?.(circle.id)}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-800/50 cursor-pointer transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-card cursor-pointer transition-colors"
             >
               <div className={cn(
                 "w-10 h-10 rounded-xl flex items-center justify-center text-lg",
                 `bg-gradient-to-br ${colors.gradient}`
               )}>
-                {circle.emoji || <Users className="w-5 h-5 text-white" />}
+                {circle.emoji || <Users className="w-5 h-5 text-ink" />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white font-medium truncate">{circle.name}</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-sm text-ink font-medium truncate">{circle.name}</p>
+                <p className="text-xs text-mute">
                   {circle.stats.member_count} membres
                 </p>
               </div>
               {circle.stats.unread_count > 0 && (
                 <span className={cn(
                   "px-2 py-0.5 rounded-full text-xs font-bold",
-                  `bg-gradient-to-r ${colors.gradient} text-white`
+                  `bg-gradient-to-r ${colors.gradient} text-ink`
                 )}>
                   {circle.stats.unread_count}
                 </span>

@@ -164,7 +164,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
               <motion.div
                 className={cn(
                   "relative flex flex-col items-center gap-0.5 py-2 rounded-xl",
-                  isActive ? "" : "hover:bg-white/5"
+                  isActive ? "" : "hover:bg-paper-2"
                 )}
                 // Tap feedback: 1 -> 0.92 -> 1 over ~80ms (TICKET-019).
                 whileTap={

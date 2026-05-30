@@ -48,32 +48,32 @@ export function GamificationIntro({ onComplete, onSkip }: GamificationIntroProps
   const slides: Slide[] = [
     {
       id: 'xp',
-      icon: <Zap className="w-8 h-8 text-white" />,
-      iconBg: 'from-cyan-500 to-blue-600',
+      icon: <Zap className="w-8 h-8 text-ink" />,
+      iconBg: 'from-teal to-teal',
       title: 'Gagne de l\'XP à chaque action!',
       description: 'Chaque participation, défi complété ou événement te rapporte de l\'XP pour monter de niveau.',
       content: <XPSlideContent />,
     },
     {
       id: 'badges',
-      icon: <Award className="w-8 h-8 text-white" />,
-      iconBg: 'from-purple-500 to-pink-600',
+      icon: <Award className="w-8 h-8 text-ink" />,
+      iconBg: 'from-pink to-pink',
       title: 'Débloque des badges exclusifs!',
       description: 'Collectionne plus de 50 badges uniques en accomplissant des défis spéciaux.',
       content: <BadgesSlideContent />,
     },
     {
       id: 'streaks',
-      icon: <Flame className="w-8 h-8 text-white" />,
-      iconBg: 'from-orange-500 to-red-600',
+      icon: <Flame className="w-8 h-8 text-ink" />,
+      iconBg: 'from-coral to-destructive',
       title: 'Maintiens ta flamme!',
       description: 'Reviens chaque jour pour augmenter ton streak et multiplier tes gains.',
       content: <StreaksSlideContent />,
     },
     {
       id: 'leaderboard',
-      icon: <Trophy className="w-8 h-8 text-white" />,
-      iconBg: 'from-yellow-500 to-orange-600',
+      icon: <Trophy className="w-8 h-8 text-ink" />,
+      iconBg: 'from-gold to-coral',
       title: 'Grimpe le classement!',
       description: 'Défie tes amis et deviens le numéro 1 du leaderboard.',
       content: <LeaderboardSlideContent />,
@@ -115,16 +115,16 @@ export function GamificationIntro({ onComplete, onSkip }: GamificationIntroProps
 
   return (
     <motion.div
-      className="bg-gradient-to-br from-zinc-900 to-zinc-800 border border-zinc-700 rounded-3xl p-6 max-w-lg mx-auto"
+      className="bg-gradient-to-br from-paper-2 to-card border border-ink rounded-2xl p-6 max-w-lg mx-auto"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
       {/* Header with skip button */}
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-sm font-medium text-zinc-400">Découvre la gamification</h3>
+        <h3 className="text-sm font-medium text-mute">Découvre la gamification</h3>
         <button
           onClick={onSkip}
-          className="text-zinc-500 hover:text-white transition-colors flex items-center gap-1 text-sm"
+          className="text-mute hover:text-ink transition-colors flex items-center gap-1 text-sm"
         >
           Passer <X className="w-4 h-4" />
         </button>
@@ -156,13 +156,13 @@ export function GamificationIntro({ onComplete, onSkip }: GamificationIntroProps
             </motion.div>
 
             {/* Title */}
-            <h2 className="text-xl font-bold text-white mb-2">{slide.title}</h2>
+            <h2 className="text-xl font-bold text-ink mb-2">{slide.title}</h2>
 
             {/* Description */}
-            <p className="text-zinc-400 text-sm mb-6">{slide.description}</p>
+            <p className="text-mute text-sm mb-6">{slide.description}</p>
 
             {/* Interactive content */}
-            <div className="bg-zinc-800/50 rounded-2xl p-4">{slide.content}</div>
+            <div className="bg-card rounded-2xl p-4">{slide.content}</div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -179,8 +179,8 @@ export function GamificationIntro({ onComplete, onSkip }: GamificationIntroProps
             className={cn(
               'w-2 h-2 rounded-full transition-all',
               index === currentSlide
-                ? 'w-6 bg-cyan-500'
-                : 'bg-zinc-600 hover:bg-zinc-500'
+                ? 'w-6 bg-teal'
+                : 'bg-muted hover:bg-muted'
             )}
           />
         ))}
@@ -197,7 +197,7 @@ export function GamificationIntro({ onComplete, onSkip }: GamificationIntroProps
         <Button
           onClick={goNext}
           className={cn(
-            'flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700',
+            'flex-1 bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal',
             currentSlide === 0 && 'w-full'
           )}
         >
@@ -218,19 +218,19 @@ function XPSlideContent() {
     <div className="space-y-3">
       {/* Mini XP bar animation */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-          <span className="text-white font-bold text-sm">5</span>
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+          <span className="text-ink font-bold text-sm">5</span>
         </div>
         <div className="flex-1">
-          <div className="h-3 bg-zinc-700 rounded-full overflow-hidden">
+          <div className="h-3 bg-muted rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+              className="h-full bg-gradient-to-r from-teal to-teal rounded-full"
               initial={{ width: '20%' }}
               animate={{ width: '75%' }}
               transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
             />
           </div>
-          <div className="flex justify-between text-xs text-zinc-500 mt-1">
+          <div className="flex justify-between text-xs text-mute mt-1">
             <span>75 / 100 XP</span>
             <span>Niveau 6</span>
           </div>
@@ -244,9 +244,9 @@ function XPSlideContent() {
           { label: 'Défi', xp: '+50' },
           { label: 'Check-in', xp: '+25' },
         ].map((item) => (
-          <div key={item.label} className="bg-zinc-700/50 rounded-lg p-2">
-            <p className="text-cyan-400 font-bold text-sm">{item.xp}</p>
-            <p className="text-zinc-500 text-xs">{item.label}</p>
+          <div key={item.label} className="bg-muted rounded-lg p-2">
+            <p className="text-teal font-bold text-sm">{item.xp}</p>
+            <p className="text-mute text-xs">{item.label}</p>
           </div>
         ))}
       </div>
@@ -256,9 +256,9 @@ function XPSlideContent() {
 
 function BadgesSlideContent() {
   const badges = [
-    { name: 'VIP', color: 'from-yellow-400 to-orange-500', unlocked: true },
-    { name: 'Legend', color: 'from-purple-400 to-pink-500', unlocked: true },
-    { name: '???', color: 'from-zinc-600 to-zinc-700', unlocked: false },
+    { name: 'VIP', color: 'from-gold to-coral', unlocked: true },
+    { name: 'Legend', color: 'from-pink to-pink', unlocked: true },
+    { name: '???', color: 'from-paper-2 to-card', unlocked: false },
   ]
 
   return (
@@ -276,9 +276,9 @@ function BadgesSlideContent() {
           transition={{ delay: i * 0.2, type: 'spring' }}
         >
           {badge.unlocked ? (
-            <Award className="w-8 h-8 text-white" />
+            <Award className="w-8 h-8 text-ink" />
           ) : (
-            <span className="text-white text-lg">?</span>
+            <span className="text-ink text-lg">?</span>
           )}
         </motion.div>
       ))}
@@ -297,10 +297,10 @@ function StreaksSlideContent() {
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 0.5, repeat: Infinity }}
         >
-          <Flame className="w-8 h-8 text-orange-500" />
+          <Flame className="w-8 h-8 text-coral" />
         </motion.div>
-        <span className="text-3xl font-bold text-white">7</span>
-        <span className="text-zinc-400">jours</span>
+        <span className="text-3xl font-bold text-ink">7</span>
+        <span className="text-mute">jours</span>
       </div>
 
       {/* Week calendar */}
@@ -311,8 +311,8 @@ function StreaksSlideContent() {
             className={cn(
               'w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium',
               i < 5
-                ? 'bg-gradient-to-br from-orange-500 to-red-600 text-white'
-                : 'bg-zinc-700 text-zinc-400'
+                ? 'bg-gradient-to-br from-coral to-destructive text-ink'
+                : 'bg-muted text-mute'
             )}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -325,8 +325,8 @@ function StreaksSlideContent() {
 
       {/* Multiplier */}
       <div className="flex items-center justify-center gap-1 text-sm">
-        <TrendingUp className="w-4 h-4 text-green-500" />
-        <span className="text-green-400">x1.5 XP bonus</span>
+        <TrendingUp className="w-4 h-4 text-lime" />
+        <span className="text-lime">x1.5 XP bonus</span>
       </div>
     </div>
   )
@@ -347,8 +347,8 @@ function LeaderboardSlideContent() {
           className={cn(
             'flex items-center gap-3 p-2 rounded-lg',
             player.you
-              ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30'
-              : 'bg-zinc-700/30'
+              ? 'bg-gradient-to-r from-teal/20 to-teal/20 border border-teal/30'
+              : 'bg-muted'
           )}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -359,23 +359,23 @@ function LeaderboardSlideContent() {
             className={cn(
               'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold',
               player.rank === 1
-                ? 'bg-yellow-500 text-black'
+                ? 'bg-gold text-ink'
                 : player.rank === 2
-                  ? 'bg-zinc-400 text-black'
-                  : 'bg-orange-700 text-white'
+                  ? 'bg-muted text-ink'
+                  : 'bg-coral text-ink'
             )}
           >
             {player.rank}
           </div>
 
           {/* Name */}
-          <span className={cn('flex-1 font-medium', player.you ? 'text-cyan-400' : 'text-white')}>
+          <span className={cn('flex-1 font-medium', player.you ? 'text-teal' : 'text-ink')}>
             {player.name}
-            {player.you && <Star className="w-3 h-3 inline ml-1 text-yellow-400" />}
+            {player.you && <Star className="w-3 h-3 inline ml-1 text-gold" />}
           </span>
 
           {/* XP */}
-          <span className="text-zinc-400 text-sm">{player.xp.toLocaleString()} XP</span>
+          <span className="text-mute text-sm">{player.xp.toLocaleString()} XP</span>
         </motion.div>
       ))}
     </div>

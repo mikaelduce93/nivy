@@ -135,12 +135,12 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
   const visibilityOption = VISIBILITY_OPTIONS.find((v) => v.key === visibility)
 
   return (
-    <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
+    <div className="bg-card rounded-xl border border-ink overflow-hidden">
       <div className="p-4">
         {/* Input area */}
         <div className="flex gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600
-            flex items-center justify-center text-white font-bold flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal to-teal
+            flex items-center justify-center text-ink font-bold flex-shrink-0">
             M
           </div>
 
@@ -155,7 +155,7 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                   ? `Partager avec ${circleName}...`
                   : "Quoi de neuf ?"
               }
-              className="w-full bg-transparent text-white placeholder:text-zinc-500
+              className="w-full bg-transparent text-ink placeholder:text-mute
                 resize-none focus:outline-none min-h-[60px]"
               rows={isFocused ? 3 : 1}
             />
@@ -168,7 +168,7 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                 "grid-cols-2"
               }`}>
                 {mediaPreviews.map((preview, idx) => (
-                  <div key={idx} className="relative aspect-video bg-zinc-800 rounded-lg overflow-hidden">
+                  <div key={idx} className="relative aspect-video bg-card rounded-lg overflow-hidden">
                     <Image
                       src={preview}
                       alt=""
@@ -179,10 +179,10 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                     />
                     <button
                       onClick={() => removeMedia(idx)}
-                      className="absolute top-2 right-2 p-1 bg-black/50 rounded-full
-                        hover:bg-black/70 transition-colors"
+                      className="absolute top-2 right-2 p-1 bg-ink/50 rounded-full
+                        hover:bg-ink/70 transition-colors"
                     >
-                      <X className="w-4 h-4 text-white" />
+                      <X className="w-4 h-4 text-ink" />
                     </button>
                   </div>
                 ))}
@@ -198,7 +198,7 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="mt-4 pt-4 border-t border-zinc-800"
+              className="mt-4 pt-4 border-t border-ink"
             >
               <div className="flex items-center justify-between">
                 {/* Media buttons */}
@@ -213,16 +213,16 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400
-                      hover:text-cyan-400"
+                    className="p-2 hover:bg-card rounded-lg transition-colors text-mute
+                      hover:text-teal"
                     title="Ajouter une image"
                   >
                     <ImageIcon className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400
-                      hover:text-purple-400"
+                    className="p-2 hover:bg-card rounded-lg transition-colors text-mute
+                      hover:text-pink"
                     title="Ajouter une vidéo"
                   >
                     <Video className="w-5 h-5" />
@@ -232,8 +232,8 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                   <div className="relative">
                     <button
                       onClick={() => setShowEmojis(!showEmojis)}
-                      className="p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400
-                        hover:text-yellow-400"
+                      className="p-2 hover:bg-card rounded-lg transition-colors text-mute
+                        hover:text-gold"
                       title="Ajouter un emoji"
                     >
                       <Smile className="w-5 h-5" />
@@ -245,14 +245,14 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className="absolute left-0 bottom-full mb-2 p-2 bg-zinc-800 rounded-lg
-                            border border-zinc-700 shadow-xl grid grid-cols-8 gap-1 z-10"
+                          className="absolute left-0 bottom-full mb-2 p-2 bg-card rounded-lg
+                            border border-ink shadow-xl grid grid-cols-8 gap-1 z-10"
                         >
                           {EMOJIS.map((emoji) => (
                             <button
                               key={emoji}
                               onClick={() => insertEmoji(emoji)}
-                              className="p-1.5 text-lg hover:bg-zinc-700 rounded transition-colors"
+                              className="p-1.5 text-lg hover:bg-muted rounded transition-colors"
                             >
                               {emoji}
                             </button>
@@ -262,23 +262,23 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                     </AnimatePresence>
                   </div>
 
-                  <div className="w-px h-6 bg-zinc-700 mx-2" />
+                  <div className="w-px h-6 bg-muted mx-2" />
 
                   {/* Visibility selector */}
                   {!circleId && (
                     <div className="relative">
                       <button
                         onClick={() => setShowVisibility(!showVisibility)}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 rounded-lg
-                          hover:bg-zinc-700 transition-colors text-sm"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-card rounded-lg
+                          hover:bg-muted transition-colors text-sm"
                       >
                         {visibilityOption && (
                           <>
-                            <visibilityOption.icon className="w-4 h-4 text-zinc-400" />
-                            <span className="text-zinc-300">{visibilityOption.label}</span>
+                            <visibilityOption.icon className="w-4 h-4 text-mute" />
+                            <span className="text-ink-2">{visibilityOption.label}</span>
                           </>
                         )}
-                        <ChevronDown className="w-4 h-4 text-zinc-500" />
+                        <ChevronDown className="w-4 h-4 text-mute" />
                       </button>
 
                       <AnimatePresence>
@@ -287,8 +287,8 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="absolute left-0 top-full mt-1 w-48 bg-zinc-800 rounded-lg
-                              border border-zinc-700 shadow-xl py-1 z-10"
+                            className="absolute left-0 top-full mt-1 w-48 bg-card rounded-lg
+                              border border-ink shadow-xl py-1 z-10"
                           >
                             {VISIBILITY_OPTIONS.map((option) => (
                               <button
@@ -297,15 +297,15 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                                   setVisibility(option.key)
                                   setShowVisibility(false)
                                 }}
-                                className={`w-full px-3 py-2 flex items-center gap-3 hover:bg-zinc-700
+                                className={`w-full px-3 py-2 flex items-center gap-3 hover:bg-muted
                                   transition-colors ${
-                                    visibility === option.key ? "bg-zinc-700" : ""
+                                    visibility === option.key ? "bg-muted" : ""
                                   }`}
                               >
-                                <option.icon className="w-4 h-4 text-zinc-400" />
+                                <option.icon className="w-4 h-4 text-mute" />
                                 <div className="text-left">
-                                  <p className="text-sm text-white">{option.label}</p>
-                                  <p className="text-xs text-zinc-500">{option.description}</p>
+                                  <p className="text-sm text-ink">{option.label}</p>
+                                  <p className="text-xs text-mute">{option.description}</p>
                                 </div>
                               </button>
                             ))}
@@ -316,8 +316,8 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                   )}
 
                   {circleId && circleName && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 rounded-lg
-                      text-sm text-cyan-400">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-teal/10 rounded-lg
+                      text-sm text-teal">
                       <Users className="w-4 h-4" />
                       <span>{circleName}</span>
                     </div>
@@ -328,8 +328,8 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
                 <button
                   onClick={handlePost}
                   disabled={isPosting || (!content.trim() && mediaFiles.length === 0)}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white
-                    rounded-lg font-medium hover:from-cyan-600 hover:to-blue-600
+                  className="px-4 py-2 bg-gradient-to-r from-teal to-teal text-ink
+                    rounded-lg font-medium hover:from-teal hover:to-teal
                     disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2
                     transition-all"
                 >
@@ -345,7 +345,7 @@ export function PostComposer({ onPost, circleId, circleName }: PostComposerProps
               {/* Character count */}
               <div className="mt-2 flex justify-end">
                 <span className={`text-xs ${
-                  content.length > 500 ? "text-red-400" : "text-zinc-500"
+                  content.length > 500 ? "text-destructive" : "text-mute"
                 }`}>
                   {content.length}/500
                 </span>
@@ -385,16 +385,16 @@ export function TrendingHashtags() {
 
   if (loading) {
     return (
-      <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+      <div className="bg-card rounded-xl border border-ink p-4">
         <div className="flex items-center gap-2 mb-4">
-          <Hash className="w-5 h-5 text-cyan-400" />
-          <h3 className="font-semibold text-white">Tendances</h3>
+          <Hash className="w-5 h-5 text-teal" />
+          <h3 className="font-semibold text-ink">Tendances</h3>
         </div>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="animate-pulse">
-              <div className="h-4 bg-zinc-800 rounded w-2/3 mb-1" />
-              <div className="h-3 bg-zinc-800 rounded w-1/3" />
+              <div className="h-4 bg-card rounded w-2/3 mb-1" />
+              <div className="h-3 bg-card rounded w-1/3" />
             </div>
           ))}
         </div>
@@ -407,10 +407,10 @@ export function TrendingHashtags() {
   }
 
   return (
-    <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+    <div className="bg-card rounded-xl border border-ink p-4">
       <div className="flex items-center gap-2 mb-4">
-        <Hash className="w-5 h-5 text-cyan-400" />
-        <h3 className="font-semibold text-white">Tendances</h3>
+        <Hash className="w-5 h-5 text-teal" />
+        <h3 className="font-semibold text-ink">Tendances</h3>
       </div>
 
       <div className="space-y-3">
@@ -418,19 +418,19 @@ export function TrendingHashtags() {
           <a
             key={hashtag.hashtag_id}
             href={`/feed?hashtag=${hashtag.tag}`}
-            className="block hover:bg-zinc-800/50 rounded-lg p-2 -mx-2 transition-colors"
+            className="block hover:bg-card rounded-lg p-2 -mx-2 transition-colors"
           >
             <div className="flex items-start gap-3">
-              <span className="text-zinc-500 text-sm font-medium">{idx + 1}</span>
+              <span className="text-mute text-sm font-medium">{idx + 1}</span>
               <div className="flex-1">
-                <p className="text-white font-medium">#{hashtag.tag}</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-ink font-medium">#{hashtag.tag}</p>
+                <p className="text-xs text-mute">
                   {hashtag.posts_count} post{hashtag.posts_count > 1 ? "s" : ""}
                 </p>
               </div>
               {idx < 3 && (
-                <span className="text-orange-400 text-xs flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
+                <span className="text-coral text-xs flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-coral rounded-full animate-pulse" />
                   Hot
                 </span>
               )}
@@ -441,7 +441,7 @@ export function TrendingHashtags() {
 
       <a
         href="/explore/hashtags"
-        className="block mt-4 text-center text-sm text-cyan-400 hover:underline"
+        className="block mt-4 text-center text-sm text-teal hover:underline"
       >
         Voir plus
       </a>

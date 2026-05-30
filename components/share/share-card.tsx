@@ -41,43 +41,43 @@ const CARD_THEMES = [
   {
     id: "neon",
     name: "Néon",
-    gradient: "from-cyan-500 via-blue-500 to-purple-500",
-    textColor: "text-white",
+    gradient: "from-teal via-teal to-pink",
+    textColor: "text-ink",
     accentColor: "cyan",
   },
   {
     id: "sunset",
     name: "Coucher de soleil",
-    gradient: "from-orange-500 via-pink-500 to-purple-500",
-    textColor: "text-white",
+    gradient: "from-coral via-pink to-pink",
+    textColor: "text-ink",
     accentColor: "orange",
   },
   {
     id: "forest",
     name: "Forêt",
-    gradient: "from-green-500 via-emerald-500 to-teal-500",
-    textColor: "text-white",
+    gradient: "from-lime via-lime to-teal",
+    textColor: "text-ink",
     accentColor: "green",
   },
   {
     id: "midnight",
     name: "Minuit",
-    gradient: "from-indigo-900 via-purple-900 to-pink-900",
-    textColor: "text-white",
+    gradient: "from-pink via-pink to-pink",
+    textColor: "text-ink",
     accentColor: "purple",
   },
   {
     id: "gold",
     name: "Or",
-    gradient: "from-yellow-500 via-amber-500 to-orange-500",
-    textColor: "text-black",
+    gradient: "from-gold via-gold to-coral",
+    textColor: "text-ink",
     accentColor: "yellow",
   },
   {
     id: "ice",
     name: "Glace",
-    gradient: "from-cyan-400 via-blue-300 to-white",
-    textColor: "text-zinc-900",
+    gradient: "from-teal via-teal to-white",
+    textColor: "text-ink",
     accentColor: "cyan",
   },
 ]
@@ -122,7 +122,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
         return (
           <>
             <div className="flex items-center justify-center mb-4">
-              <div className={`p-4 rounded-full bg-white/20`}>{getTypeIcon(type)}</div>
+              <div className={`p-4 rounded-full bg-paper-2`}>{getTypeIcon(type)}</div>
             </div>
             <h2 className="text-2xl font-bold text-center mb-2">
               Badge Débloqué!
@@ -134,7 +134,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
               {(data as { description?: string }).description}
             </p>
             <div className="mt-4 flex justify-center">
-              <div className="px-4 py-2 bg-white/20 rounded-full text-lg font-bold">
+              <div className="px-4 py-2 bg-paper-2 rounded-full text-lg font-bold">
                 +{(data as { xp?: number }).xp || 100} XP
               </div>
             </div>
@@ -146,9 +146,9 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
           <>
             <div className="flex items-center justify-center mb-4">
               <div className="relative">
-                <div className={`p-4 rounded-full bg-white/20`}>{getTypeIcon(type)}</div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full
-                  flex items-center justify-center text-black font-bold">
+                <div className={`p-4 rounded-full bg-paper-2`}>{getTypeIcon(type)}</div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-gold rounded-full
+                  flex items-center justify-center text-ink font-bold">
                   {(data as { new_level?: number }).new_level}
                 </div>
               </div>
@@ -164,7 +164,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
                 <p className="text-2xl font-bold">{(data as { total_xp?: number }).total_xp}</p>
                 <p className="text-sm opacity-70">XP Total</p>
               </div>
-              <div className="w-px bg-white/30" />
+              <div className="w-px bg-paper-2" />
               <div className="text-center">
                 <p className="text-2xl font-bold">{(data as { badges_count?: number }).badges_count || 0}</p>
                 <p className="text-sm opacity-70">Badges</p>
@@ -177,7 +177,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
         return (
           <>
             <div className="flex items-center justify-center mb-4">
-              <div className={`p-4 rounded-full bg-white/20`}>{getTypeIcon(type)}</div>
+              <div className={`p-4 rounded-full bg-paper-2`}>{getTypeIcon(type)}</div>
             </div>
             <h2 className="text-2xl font-bold text-center mb-2">
               Défi Complété!
@@ -189,11 +189,11 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
               {(data as { category?: string }).category}
             </p>
             <div className="mt-4 flex justify-center gap-4">
-              <div className="px-4 py-2 bg-white/20 rounded-full">
+              <div className="px-4 py-2 bg-paper-2 rounded-full">
                 +{(data as { xp?: number }).xp || 50} XP
               </div>
               {(data as { time?: string }).time && (
-                <div className="px-4 py-2 bg-white/20 rounded-full">
+                <div className="px-4 py-2 bg-paper-2 rounded-full">
                   {(data as { time?: string }).time}
                 </div>
               )}
@@ -205,7 +205,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
         return (
           <>
             <div className="flex items-center justify-center mb-4">
-              <div className={`p-4 rounded-full bg-white/20 animate-pulse`}>
+              <div className={`p-4 rounded-full bg-paper-2 animate-pulse`}>
                 {getTypeIcon(type)}
               </div>
             </div>
@@ -229,7 +229,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
         return (
           <>
             <div className="flex items-center justify-center mb-4">
-              <div className={`p-4 rounded-full bg-white/20`}>{getTypeIcon(type)}</div>
+              <div className={`p-4 rounded-full bg-paper-2`}>{getTypeIcon(type)}</div>
             </div>
             <h2 className="text-2xl font-bold text-center mb-2">
               Nouveau Record!
@@ -242,7 +242,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
               <span className="text-lg ml-2 opacity-70">{(data as { unit?: string }).unit}</span>
             </p>
             {(data as { improvement?: string }).improvement && (
-              <p className="text-center text-green-300">
+              <p className="text-center text-lime">
                 +{(data as { improvement?: string }).improvement}% d'amélioration
               </p>
             )}
@@ -258,11 +258,11 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
                 alt=""
                 width={96}
                 height={96}
-                className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white/30"
+                className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-ink"
               />
             ) : (
-              <div className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white/30
-                bg-white/20 flex items-center justify-center text-3xl font-bold">
+              <div className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-ink
+                bg-paper-2 flex items-center justify-center text-3xl font-bold">
                 {((data as { display_name?: string }).display_name || "U").charAt(0)}
               </div>
             )}
@@ -296,7 +296,7 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
     <div className="space-y-4">
       {/* Theme selector */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
-        <span className="text-sm text-zinc-400 flex-shrink-0">Thème:</span>
+        <span className="text-sm text-mute flex-shrink-0">Thème:</span>
         {CARD_THEMES.map((theme) => (
           <button
             key={theme.id}
@@ -342,8 +342,8 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
         <button
           onClick={handleDownload}
           disabled={isGenerating}
-          className="flex-1 py-3 bg-zinc-800 rounded-xl hover:bg-zinc-700 transition-colors
-            flex items-center justify-center gap-2 text-white font-medium"
+          className="flex-1 py-3 bg-card rounded-xl hover:bg-muted transition-colors
+            flex items-center justify-center gap-2 text-ink font-medium"
         >
           {isGenerating ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -355,9 +355,9 @@ export function ShareCard({ type, data, onShare }: ShareCardProps) {
 
         <button
           onClick={onShare}
-          className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl
-            hover:from-cyan-600 hover:to-blue-600 transition-colors
-            flex items-center justify-center gap-2 text-white font-medium"
+          className="flex-1 py-3 bg-gradient-to-r from-teal to-teal rounded-xl
+            hover:from-teal hover:to-teal transition-colors
+            flex items-center justify-center gap-2 text-ink font-medium"
         >
           <Share2 className="w-5 h-5" />
           <span>Partager</span>
@@ -400,12 +400,12 @@ export function ShareStats() {
 
   if (loading) {
     return (
-      <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
+      <div className="bg-card rounded-xl border border-ink p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-zinc-800 rounded w-1/3" />
+          <div className="h-6 bg-card rounded w-1/3" />
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-zinc-800 rounded-lg" />
+              <div key={i} className="h-20 bg-card rounded-lg" />
             ))}
           </div>
         </div>
@@ -426,40 +426,40 @@ export function ShareStats() {
   }
 
   return (
-    <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
-      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-        <Share2 className="w-5 h-5 text-cyan-400" />
+    <div className="bg-card rounded-xl border border-ink p-6">
+      <h3 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+        <Share2 className="w-5 h-5 text-teal" />
         Statistiques de partage
       </h3>
 
       {/* Main stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-zinc-800/50 rounded-xl p-4 text-center">
-          <p className="text-3xl font-bold text-white">{stats.total_shares}</p>
-          <p className="text-sm text-zinc-400">Partages</p>
+        <div className="bg-card rounded-xl p-4 text-center">
+          <p className="text-3xl font-bold text-ink">{stats.total_shares}</p>
+          <p className="text-sm text-mute">Partages</p>
         </div>
-        <div className="bg-zinc-800/50 rounded-xl p-4 text-center">
-          <p className="text-3xl font-bold text-cyan-400">{stats.total_clicks}</p>
-          <p className="text-sm text-zinc-400">Clics</p>
+        <div className="bg-card rounded-xl p-4 text-center">
+          <p className="text-3xl font-bold text-teal">{stats.total_clicks}</p>
+          <p className="text-sm text-mute">Clics</p>
         </div>
-        <div className="bg-zinc-800/50 rounded-xl p-4 text-center">
-          <p className="text-3xl font-bold text-yellow-400">{stats.total_xp_earned}</p>
-          <p className="text-sm text-zinc-400">XP gagnés</p>
+        <div className="bg-card rounded-xl p-4 text-center">
+          <p className="text-3xl font-bold text-gold">{stats.total_xp_earned}</p>
+          <p className="text-sm text-mute">XP gagnés</p>
         </div>
       </div>
 
       {/* Platform breakdown */}
       {Object.keys(stats.shares_by_platform).length > 0 && (
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-zinc-400 mb-3">Par plateforme</h4>
+          <h4 className="text-sm font-medium text-mute mb-3">Par plateforme</h4>
           <div className="flex flex-wrap gap-2">
             {Object.entries(stats.shares_by_platform).map(([platform, count]) => (
               <div
                 key={platform}
-                className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 rounded-full"
+                className="flex items-center gap-2 px-3 py-1.5 bg-card rounded-full"
               >
                 <span>{platformIcons[platform] || "📤"}</span>
-                <span className="text-sm text-zinc-300">{count}</span>
+                <span className="text-sm text-ink-2">{count}</span>
               </div>
             ))}
           </div>
@@ -469,19 +469,19 @@ export function ShareStats() {
       {/* Top shares */}
       {stats.top_shares && stats.top_shares.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-zinc-400 mb-3">Meilleurs partages</h4>
+          <h4 className="text-sm font-medium text-mute mb-3">Meilleurs partages</h4>
           <div className="space-y-2">
             {stats.top_shares.map((share, idx) => (
               <div
                 key={share.id}
-                className="flex items-center gap-3 p-2 bg-zinc-800/50 rounded-lg"
+                className="flex items-center gap-3 p-2 bg-card rounded-lg"
               >
                 <span className="text-lg">{platformIcons[share.platform] || "📤"}</span>
                 <div className="flex-1">
-                  <p className="text-sm text-white capitalize">{share.content_type.replace("_", " ")}</p>
+                  <p className="text-sm text-ink capitalize">{share.content_type.replace("_", " ")}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-cyan-400">{share.click_count} clics</p>
+                  <p className="text-sm font-medium text-teal">{share.click_count} clics</p>
                 </div>
               </div>
             ))}
@@ -514,13 +514,13 @@ export function ShareWidget() {
   }, [])
 
   return (
-    <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+    <div className="bg-card rounded-xl border border-ink p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-white flex items-center gap-2">
-          <Share2 className="w-5 h-5 text-cyan-400" />
+        <h3 className="font-semibold text-ink flex items-center gap-2">
+          <Share2 className="w-5 h-5 text-teal" />
           Partages
         </h3>
-        <a href="/share" className="text-sm text-cyan-400 hover:underline">
+        <a href="/share" className="text-sm text-teal hover:underline">
           Voir tout
         </a>
       </div>
@@ -528,23 +528,23 @@ export function ShareWidget() {
       {stats ? (
         <div className="flex items-center justify-around">
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">{stats.total_shares}</p>
-            <p className="text-xs text-zinc-500">Total</p>
+            <p className="text-2xl font-bold text-ink">{stats.total_shares}</p>
+            <p className="text-xs text-mute">Total</p>
           </div>
-          <div className="w-px h-8 bg-zinc-700" />
+          <div className="w-px h-8 bg-muted" />
           <div className="text-center">
-            <p className="text-2xl font-bold text-cyan-400">{stats.total_clicks}</p>
-            <p className="text-xs text-zinc-500">Clics</p>
+            <p className="text-2xl font-bold text-teal">{stats.total_clicks}</p>
+            <p className="text-xs text-mute">Clics</p>
           </div>
-          <div className="w-px h-8 bg-zinc-700" />
+          <div className="w-px h-8 bg-muted" />
           <div className="text-center">
-            <p className="text-2xl font-bold text-yellow-400">{stats.daily_shares}/5</p>
-            <p className="text-xs text-zinc-500">Aujourd'hui</p>
+            <p className="text-2xl font-bold text-gold">{stats.daily_shares}/5</p>
+            <p className="text-xs text-mute">Aujourd'hui</p>
           </div>
         </div>
       ) : (
         <div className="text-center py-4">
-          <p className="text-sm text-zinc-500">Partage pour gagner des XP!</p>
+          <p className="text-sm text-mute">Partage pour gagner des XP!</p>
         </div>
       )}
     </div>

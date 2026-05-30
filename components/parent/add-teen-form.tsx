@@ -527,7 +527,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     <div className="space-y-6">
       {/* Search Input */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Email ou Code du Teen</Label>
+        <Label className="text-ink-2">Email ou Code du Teen</Label>
         <div className="flex gap-2">
           <Input
             type="text"
@@ -538,13 +538,13 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               setFoundTeen(null)
             }}
             placeholder="exemple@email.com ou CODE123"
-            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            className="bg-card border-ink text-ink placeholder:text-mute"
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <Button
             onClick={handleSearch}
             disabled={searchLoading}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="bg-lime hover:bg-lime text-ink"
           >
             {searchLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -553,44 +553,44 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             )}
           </Button>
         </div>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-mute">
           Le teen peut trouver son code dans ses paramètres de compte
         </p>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {/* Found Teen */}
       {foundTeen && (
-        <div className="p-6 bg-zinc-800 border border-emerald-500/30 rounded-xl">
+        <div className="p-6 bg-card border border-lime/30 rounded-xl">
           <div className="flex items-center gap-4 mb-4">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-black text-2xl">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-black text-2xl">
               {foundTeen.avatar || foundTeen.full_name?.charAt(0) || "?"}
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">{foundTeen.full_name}</h3>
-              <p className="text-sm text-zinc-400">{foundTeen.email}</p>
+              <h3 className="text-xl font-bold text-ink">{foundTeen.full_name}</h3>
+              <p className="text-sm text-mute">{foundTeen.email}</p>
               {foundTeen.username && (
-                <p className="text-xs text-emerald-400">@{foundTeen.username}</p>
+                <p className="text-xs text-lime">@{foundTeen.username}</p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2 p-3 bg-emerald-500/10 rounded-lg mb-4">
-            <UserCheck className="h-5 w-5 text-emerald-400" />
-            <span className="text-sm text-emerald-400">Compte Teen vérifié</span>
+          <div className="flex items-center gap-2 p-3 bg-lime/10 rounded-lg mb-4">
+            <UserCheck className="h-5 w-5 text-lime" />
+            <span className="text-sm text-lime">Compte Teen vérifié</span>
           </div>
 
           <Button
             onClick={handleLink}
             disabled={loading}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="w-full bg-lime hover:bg-lime text-ink"
           >
             {loading ? (
               <>
@@ -605,7 +605,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             )}
           </Button>
 
-          <p className="text-xs text-zinc-500 text-center mt-3">
+          <p className="text-xs text-mute text-center mt-3">
             Le teen devra accepter cette demande depuis son compte
           </p>
         </div>
@@ -614,22 +614,22 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
       {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-zinc-800" />
+          <div className="w-full border-t border-ink" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-zinc-900 px-2 text-zinc-500">ou créer un nouveau compte</span>
+          <span className="bg-card px-2 text-mute">ou créer un nouveau compte</span>
         </div>
       </div>
 
       {/* Create New Teen Account */}
       {!showCreateForm ? (
-        <div className="p-4 bg-zinc-800/50 rounded-xl border border-zinc-700">
-          <p className="text-sm text-zinc-400 mb-3">
+        <div className="p-4 bg-card rounded-xl border border-ink">
+          <p className="text-sm text-mute mb-3">
             Votre teen n'a pas encore de compte ? Créez-en un pour lui.
           </p>
           <Button
             variant="outline"
-            className="w-full border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
+            className="w-full border-lime/50 text-lime hover:bg-lime/10"
             onClick={() => setShowCreateForm(true)}
           >
             <UserPlus className="h-4 w-4 mr-2" />
@@ -637,15 +637,15 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           </Button>
         </div>
       ) : (
-        <form onSubmit={handleCreateTeen} className="space-y-6 p-6 bg-zinc-800/50 rounded-xl border border-zinc-700">
+        <form onSubmit={handleCreateTeen} className="space-y-6 p-6 bg-card rounded-xl border border-ink">
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-5 w-5 text-emerald-400" />
-            <h3 className="text-lg font-bold text-white">Nouveau compte Teen</h3>
+            <Sparkles className="h-5 w-5 text-lime" />
+            <h3 className="text-lg font-bold text-ink">Nouveau compte Teen</h3>
           </div>
 
           {/* Photo Upload */}
           <div className="space-y-3">
-            <Label className="text-zinc-300 flex items-center gap-2">
+            <Label className="text-ink-2 flex items-center gap-2">
               <Camera className="h-4 w-4" />
               Photo de profil
             </Label>
@@ -663,13 +663,13 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                     <button
                       type="button"
                       onClick={removeAvatar}
-                      className="absolute -top-1 -right-1 h-6 w-6 bg-red-500 rounded-full flex items-center justify-center"
+                      className="absolute -top-1 -right-1 h-6 w-6 bg-destructive rounded-full flex items-center justify-center"
                     >
-                      <X className="h-3 w-3 text-white" />
+                      <X className="h-3 w-3 text-ink" />
                     </button>
                   </div>
                 ) : (
-                  <div className="h-20 w-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-3xl">
+                  <div className="h-20 w-20 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-3xl">
                     {newTeen.avatar}
                   </div>
                 )}
@@ -689,7 +689,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingAvatar}
-                  className="w-full border-zinc-600 text-zinc-300"
+                  className="w-full border-ink text-ink-2"
                 >
                   {uploadingAvatar ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -698,7 +698,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   )}
                   {newTeen.avatarUrl ? "Changer la photo" : "Télécharger une photo"}
                 </Button>
-                <p className="text-xs text-zinc-500 mt-1">JPG, PNG. Max 5MB. Optionnel.</p>
+                <p className="text-xs text-mute mt-1">JPG, PNG. Max 5MB. Optionnel.</p>
               </div>
             </div>
           </div>
@@ -706,7 +706,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           {/* Avatar Emoji Selection (shown if no photo) */}
           {!newTeen.avatarUrl && (
             <div className="space-y-2">
-              <Label className="text-zinc-300">Ou choisir un avatar</Label>
+              <Label className="text-ink-2">Ou choisir un avatar</Label>
               <div className="grid grid-cols-8 gap-2">
                 {avatarOptions.map((emoji) => (
                   <button
@@ -715,8 +715,8 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                     onClick={() => updateNewTeen("avatar", emoji)}
                     className={`h-10 w-10 rounded-lg text-xl flex items-center justify-center transition-all ${
                       newTeen.avatar === emoji
-                        ? "bg-emerald-500/30 border-2 border-emerald-500 scale-110"
-                        : "bg-zinc-700 border border-zinc-600 hover:border-zinc-500"
+                        ? "bg-lime/30 border-2 border-lime scale-110"
+                        : "bg-muted border border-ink hover:border-line"
                     }`}
                   >
                     {emoji}
@@ -729,22 +729,22 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           {/* First Name & Last Name */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-zinc-300">Prénom *</Label>
+              <Label className="text-ink-2">Prénom *</Label>
               <Input
                 value={newTeen.firstName}
                 onChange={(e) => updateNewTeen("firstName", e.target.value)}
                 placeholder="Prénom"
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                className="bg-card border-ink text-ink placeholder:text-mute"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-zinc-300">Nom *</Label>
+              <Label className="text-ink-2">Nom *</Label>
               <Input
                 value={newTeen.lastName}
                 onChange={(e) => updateNewTeen("lastName", e.target.value)}
                 placeholder="Nom"
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                className="bg-card border-ink text-ink placeholder:text-mute"
                 required
               />
             </div>
@@ -752,45 +752,45 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
           {/* Pseudo with async validation */}
           <div className="space-y-2">
-            <Label className="text-zinc-300">Pseudo (public) *</Label>
+            <Label className="text-ink-2">Pseudo (public) *</Label>
             <div className="relative">
               <Input
                 value={newTeen.pseudo}
                 onChange={(e) => updateNewTeen("pseudo", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
                 placeholder="ex: gamer2010, sportif_casa"
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
+                className="bg-card border-ink text-ink placeholder:text-mute pr-10"
                 minLength={3}
                 maxLength={20}
                 required
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                {checkingPseudo && <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />}
+                {checkingPseudo && <Loader2 className="h-4 w-4 animate-spin text-mute" />}
                 {!checkingPseudo && pseudoAvailable === true && (
-                  <Check className="h-4 w-4 text-emerald-400" />
+                  <Check className="h-4 w-4 text-lime" />
                 )}
                 {!checkingPseudo && pseudoAvailable === false && (
-                  <AlertCircle className="h-4 w-4 text-red-400" />
+                  <AlertCircle className="h-4 w-4 text-destructive" />
                 )}
               </div>
             </div>
             {pseudoAvailable === true && (
-              <p className="text-xs text-emerald-400 flex items-center gap-1">
+              <p className="text-xs text-lime flex items-center gap-1">
                 <Check className="h-3 w-3" /> Pseudo disponible
               </p>
             )}
             {pseudoAvailable === false && (
-              <p className="text-xs text-red-400 flex items-center gap-1">
+              <p className="text-xs text-destructive flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" /> Pseudo déjà pris
               </p>
             )}
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               3-20 caractères, lettres, chiffres et underscore uniquement
             </p>
           </div>
 
           {/* #48 — Teen login identity: email and/or phone (at least one). */}
           <div className="space-y-2">
-            <Label className="text-zinc-300">Email du teen</Label>
+            <Label className="text-ink-2">Email du teen</Label>
             <Input
               type="email"
               inputMode="email"
@@ -798,12 +798,12 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               value={newTeen.teenEmail}
               onChange={(e) => updateNewTeen("teenEmail", e.target.value)}
               placeholder="ex: amine@email.com"
-              className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+              className="bg-card border-ink text-ink placeholder:text-mute"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-zinc-300">Téléphone du teen</Label>
+            <Label className="text-ink-2">Téléphone du teen</Label>
             <Input
               type="tel"
               inputMode="tel"
@@ -811,9 +811,9 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               value={newTeen.teenPhone}
               onChange={(e) => updateNewTeen("teenPhone", e.target.value)}
               placeholder="ex: 0612345678 ou +212612345678"
-              className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+              className="bg-card border-ink text-ink placeholder:text-mute"
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               Email ou téléphone requis (au moins l'un des deux). Le numéro est converti au format
               international (+212…) automatiquement.
             </p>
@@ -821,20 +821,20 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
           {/* Date of Birth */}
           <div className="space-y-2">
-            <Label className="text-zinc-300">Date de naissance *</Label>
+            <Label className="text-ink-2">Date de naissance *</Label>
             <div className="relative">
               <Input
                 type="date"
                 value={newTeen.dateOfBirth}
                 onChange={(e) => updateNewTeen("dateOfBirth", e.target.value)}
-                className="bg-zinc-800 border-zinc-700 text-white"
+                className="bg-card border-ink text-ink"
                 max={new Date(new Date().setFullYear(new Date().getFullYear() - 10)).toISOString().split("T")[0]}
                 min={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
                 required
               />
             </div>
             {age !== null && (
-              <p className={`text-xs ${isAgeValid ? "text-emerald-400" : "text-red-400"}`}>
+              <p className={`text-xs ${isAgeValid ? "text-lime" : "text-destructive"}`}>
                 {isAgeValid ? (
                   <span className="flex items-center gap-1">
                     <Check className="h-3 w-3" /> {age} ans
@@ -850,7 +850,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
           {/* School Selector with Search */}
           <div className="space-y-2">
-            <Label className="text-zinc-300 flex items-center gap-2">
+            <Label className="text-ink-2 flex items-center gap-2">
               <GraduationCap className="h-4 w-4" />
               École
             </Label>
@@ -863,12 +863,12 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                 }}
                 onFocus={() => setShowSchoolDropdown(true)}
                 placeholder="Rechercher une école..."
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
+                className="bg-card border-ink text-ink placeholder:text-mute pr-10"
               />
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-mute" />
 
               {showSchoolDropdown && filteredSchools.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg max-h-48 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-card border border-ink rounded-lg shadow-lg max-h-48 overflow-auto">
                   {filteredSchools.slice(0, 10).map((school) => (
                     <button
                       key={school.id}
@@ -878,10 +878,10 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                         setSchoolSearch("")
                         setShowSchoolDropdown(false)
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-zinc-700 flex items-center justify-between"
+                      className="w-full px-4 py-2 text-left text-sm text-ink hover:bg-muted flex items-center justify-between"
                     >
                       <span>{school.name}</span>
-                      {school.city && <span className="text-xs text-zinc-500">{school.city}</span>}
+                      {school.city && <span className="text-xs text-mute">{school.city}</span>}
                     </button>
                   ))}
                 </div>
@@ -892,7 +892,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             <select
               value={newTeen.gradeLevel}
               onChange={(e) => updateNewTeen("gradeLevel", e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm mt-2"
+              className="w-full bg-card border border-ink text-ink rounded-lg px-3 py-2 text-sm mt-2"
             >
               <option value="">Niveau scolaire</option>
               <option value="6eme">6ème</option>
@@ -907,7 +907,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
           {/* Profiles Multi-select (max 2) */}
           <div className="space-y-2">
-            <Label className="text-zinc-300 flex items-center gap-2">
+            <Label className="text-ink-2 flex items-center gap-2">
               <Star className="h-4 w-4" />
               Profils (max 2)
             </Label>
@@ -919,13 +919,13 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   onClick={() => toggleProfile(profile.id)}
                   className={`p-3 rounded-lg border text-center transition-all ${
                     newTeen.profiles.includes(profile.id)
-                      ? "bg-emerald-500/20 border-emerald-500 text-emerald-400"
-                      : "bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-zinc-600"
+                      ? "bg-lime/20 border-lime text-lime"
+                      : "bg-card border-ink text-ink-2 hover:border-ink"
                   }`}
                 >
                   <span className="text-2xl block mb-1">{profile.icon}</span>
                   <span className="text-sm font-medium">{profile.label}</span>
-                  <span className="text-xs block text-zinc-500">{profile.description}</span>
+                  <span className="text-xs block text-mute">{profile.description}</span>
                 </button>
               ))}
             </div>
@@ -933,12 +933,12 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
           {/* Interests Multi-select */}
           <div className="space-y-2">
-            <Label className="text-zinc-300 flex items-center gap-2">
+            <Label className="text-ink-2 flex items-center gap-2">
               <Heart className="h-4 w-4" />
               Centres d'intérêt
             </Label>
             {loadingReferentials ? (
-              <div className="flex items-center gap-2 text-zinc-500">
+              <div className="flex items-center gap-2 text-mute">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-sm">Chargement...</span>
               </div>
@@ -946,7 +946,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               <div className="space-y-3">
                 {Object.entries(interestsByCategory).map(([category, categoryInterests]) => (
                   <div key={category}>
-                    <p className="text-xs text-zinc-500 mb-2">{category}</p>
+                    <p className="text-xs text-mute mb-2">{category}</p>
                     <div className="flex flex-wrap gap-2">
                       {categoryInterests.map((interest) => (
                         <button
@@ -955,8 +955,8 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                           onClick={() => toggleInterest(interest.id)}
                           className={`px-3 py-1.5 rounded-full text-sm transition-all ${
                             newTeen.interests.includes(interest.id)
-                              ? "bg-emerald-500/20 border border-emerald-500 text-emerald-400"
-                              : "bg-zinc-700 border border-zinc-600 text-zinc-300 hover:border-zinc-500"
+                              ? "bg-lime/20 border border-lime text-lime"
+                              : "bg-muted border border-ink text-ink-2 hover:border-line"
                           }`}
                         >
                           {interest.icon && <span className="mr-1">{interest.icon}</span>}
@@ -968,17 +968,17 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-zinc-500">Aucun centre d'intérêt disponible</p>
+              <p className="text-sm text-mute">Aucun centre d'intérêt disponible</p>
             )}
           </div>
 
           {/* Photo Consent Switch */}
-          <div className="flex items-center justify-between p-4 bg-zinc-800 rounded-lg border border-zinc-700">
+          <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-ink">
             <div className="flex items-start gap-3">
-              <Camera className="h-5 w-5 text-zinc-400 mt-0.5" />
+              <Camera className="h-5 w-5 text-mute mt-0.5" />
               <div>
-                <Label className="text-white font-medium">Consentement photo</Label>
-                <p className="text-xs text-zinc-500 mt-0.5">
+                <Label className="text-ink font-medium">Consentement photo</Label>
+                <p className="text-xs text-mute mt-0.5">
                   J'autorise la prise de photos de mon enfant lors des événements
                 </p>
               </div>
@@ -991,7 +991,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
           {/* Exit Permission Rules */}
           <div className="space-y-2">
-            <Label className="text-zinc-300 flex items-center gap-2">
+            <Label className="text-ink-2 flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Règles de sortie
             </Label>
@@ -999,37 +999,37 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               value={newTeen.exitRules}
               onChange={(e) => updateNewTeen("exitRules", e.target.value)}
               placeholder="Ex: Peut partir seul(e) après 18h / Doit être accompagné(e) par un adulte..."
-              className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[80px]"
+              className="bg-card border-ink text-ink placeholder:text-mute min-h-[80px]"
               maxLength={500}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               Instructions spéciales pour la sortie de l'enfant
             </p>
           </div>
 
           {/* Emergency Contact */}
-          <div className="space-y-4 p-4 bg-zinc-800/50 rounded-lg border border-zinc-700">
+          <div className="space-y-4 p-4 bg-card rounded-lg border border-ink">
             <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-amber-400" />
-              <Label className="text-white font-medium">Contact d'urgence (optionnel)</Label>
+              <Phone className="h-4 w-4 text-gold" />
+              <Label className="text-ink font-medium">Contact d'urgence (optionnel)</Label>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-zinc-400 text-sm">Nom</Label>
+                <Label className="text-mute text-sm">Nom</Label>
                 <Input
                   value={newTeen.emergencyContactName}
                   onChange={(e) => updateNewTeen("emergencyContactName", e.target.value)}
                   placeholder="Nom du contact"
-                  className="bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-500"
+                  className="bg-card border-ink text-ink placeholder:text-mute"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-zinc-400 text-sm">Relation</Label>
+                <Label className="text-mute text-sm">Relation</Label>
                 <select
                   value={newTeen.emergencyContactRelation}
                   onChange={(e) => updateNewTeen("emergencyContactRelation", e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm"
+                  className="w-full bg-card border border-ink text-ink rounded-lg px-3 py-2 text-sm"
                 >
                   <option value="">Sélectionner...</option>
                   {relationOptions.map((relation) => (
@@ -1040,37 +1040,37 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-zinc-400 text-sm">Téléphone</Label>
+              <Label className="text-mute text-sm">Téléphone</Label>
               <Input
                 value={newTeen.emergencyContactPhone}
                 onChange={(e) => updateNewTeen("emergencyContactPhone", e.target.value)}
                 placeholder="0612345678"
-                className="bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-500"
+                className="bg-card border-ink text-ink placeholder:text-mute"
               />
-              <p className="text-xs text-zinc-500">Format: 0612345678 ou +212612345678</p>
+              <p className="text-xs text-mute">Format: 0612345678 ou +212612345678</p>
             </div>
           </div>
 
           {/* Allergies */}
           <div className="space-y-2">
-            <Label className="text-zinc-300">Allergies ou informations médicales</Label>
+            <Label className="text-ink-2">Allergies ou informations médicales</Label>
             <Textarea
               value={newTeen.allergies}
               onChange={(e) => updateNewTeen("allergies", e.target.value)}
               placeholder="Mentionnez les allergies alimentaires, médicamenteuses ou autres informations importantes..."
-              className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[60px]"
+              className="bg-card border-ink text-ink placeholder:text-mute min-h-[60px]"
               maxLength={500}
             />
           </div>
 
           {/* Preview Card */}
           {(newTeen.pseudo || newTeen.firstName) && (
-            <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 rounded-xl">
-              <p className="text-xs text-zinc-400 mb-3 flex items-center gap-1">
+            <div className="p-4 bg-gradient-to-br from-lime/20 to-teal/20 border border-lime/30 rounded-xl">
+              <p className="text-xs text-mute mb-3 flex items-center gap-1">
                 <Star className="h-3 w-3" /> Aperçu de la carte Teen
               </p>
               <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl overflow-hidden">
+                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-2xl overflow-hidden">
                   {newTeen.avatarUrl ? (
                     <Image
                       src={newTeen.avatarUrl}
@@ -1084,14 +1084,14 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   )}
                 </div>
                 <div>
-                  <p className="font-bold text-white">
+                  <p className="font-bold text-ink">
                     {newTeen.firstName || "Prénom"} {newTeen.lastName || "Nom"}
                   </p>
-                  <p className="text-sm text-emerald-400">
+                  <p className="text-sm text-lime">
                     @{newTeen.pseudo || "pseudo"}
                   </p>
                   {age && isAgeValid && (
-                    <p className="text-xs text-zinc-400 flex items-center gap-1">
+                    <p className="text-xs text-mute flex items-center gap-1">
                       <Calendar className="h-3 w-3" /> {age} ans
                       {newTeen.school && <span> • {newTeen.school}</span>}
                     </p>
@@ -1099,17 +1099,17 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full">
+                <span className="px-2 py-1 bg-lime/20 text-lime text-xs rounded-full">
                   Niveau 1
                 </span>
-                <span className="px-2 py-1 bg-zinc-700 text-zinc-300 text-xs rounded-full">
+                <span className="px-2 py-1 bg-muted text-ink-2 text-xs rounded-full">
                   0 XP
                 </span>
-                <span className="px-2 py-1 bg-amber-500/20 text-amber-400 text-xs rounded-full">
+                <span className="px-2 py-1 bg-gold/20 text-gold text-xs rounded-full">
                   0 Coins
                 </span>
                 {newTeen.profiles.map((p) => (
-                  <span key={p} className="px-2 py-1 bg-teal-500/20 text-teal-400 text-xs rounded-full">
+                  <span key={p} className="px-2 py-1 bg-teal/20 text-teal text-xs rounded-full">
                     {profileTypes.find(pt => pt.id === p)?.icon} {p}
                   </span>
                 ))}
@@ -1122,7 +1122,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             <Button
               type="button"
               variant="outline"
-              className="flex-1 border-zinc-700 text-zinc-300"
+              className="flex-1 border-ink text-ink-2"
               onClick={() => setShowCreateForm(false)}
             >
               Annuler
@@ -1130,7 +1130,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             <Button
               type="submit"
               disabled={createLoading || !isCreateFormValid}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50"
+              className="flex-1 bg-lime hover:bg-lime text-ink disabled:opacity-50"
             >
               {createLoading ? (
                 <>

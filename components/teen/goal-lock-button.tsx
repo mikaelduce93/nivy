@@ -131,7 +131,7 @@ export function GoalLockButton({
       <>
         {celebrateNode}
         <div className="flex gap-2 items-center">
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-lime">
             <Loader2 className="w-3 h-3 animate-spin" />
             Verrouillage de {optimisticLock.amount} coins…
           </span>

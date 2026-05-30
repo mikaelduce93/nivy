@@ -9,9 +9,9 @@ interface VIPPricePreviewProps {
 }
 
 const VIP_LEVELS = [
-  { type: 'silver', name: 'Silver', discount: 10, color: 'text-gray-300', bgColor: 'bg-gray-500/20', borderColor: 'border-gray-500/30' },
-  { type: 'gold', name: 'Gold', discount: 20, color: 'text-yellow-400', bgColor: 'bg-yellow-500/20', borderColor: 'border-yellow-500/30' },
-  { type: 'platinum', name: 'Platinum', discount: 30, color: 'text-purple-400', bgColor: 'bg-purple-500/20', borderColor: 'border-purple-500/30' },
+  { type: 'silver', name: 'Silver', discount: 10, color: 'text-ink-2', bgColor: 'bg-muted', borderColor: 'border-line' },
+  { type: 'gold', name: 'Gold', discount: 20, color: 'text-gold', bgColor: 'bg-gold/20', borderColor: 'border-gold/30' },
+  { type: 'platinum', name: 'Platinum', discount: 30, color: 'text-pink', bgColor: 'bg-pink/20', borderColor: 'border-pink/30' },
 ]
 
 export default function VIPPricePreview({ basePrice, currency = 'DH' }: VIPPricePreviewProps) {
@@ -22,24 +22,24 @@ export default function VIPPricePreview({ basePrice, currency = 'DH' }: VIPPrice
   }
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800">
+    <Card className="bg-card border-ink">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
+        <CardTitle className="text-ink flex items-center gap-2">
           <DollarSign className="w-5 h-5" />
           Aperçu de la tarification
         </CardTitle>
-        <CardDescription className="text-zinc-400">
+        <CardDescription className="text-mute">
           Prix calculés automatiquement selon le niveau VIP
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Prix Standard */}
-        <div className="flex justify-between items-center p-3 bg-zinc-950 rounded-lg">
-          <span className="text-zinc-300 flex items-center gap-2">
-            <Award className="w-4 h-4 text-blue-400" />
+        <div className="flex justify-between items-center p-3 bg-background rounded-lg">
+          <span className="text-ink-2 flex items-center gap-2">
+            <Award className="w-4 h-4 text-teal" />
             Standard (sans carte VIP)
           </span>
-          <span className="font-bold text-white">
+          <span className="font-bold text-ink">
             {price.toFixed(2)} {currency}
           </span>
         </div>
@@ -69,8 +69,8 @@ export default function VIPPricePreview({ basePrice, currency = 'DH' }: VIPPrice
         })}
 
         {/* Note sur les codes promo */}
-        <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
-          <p className="text-xs text-cyan-400">
+        <div className="mt-4 p-3 bg-teal/10 border border-teal/30 rounded-lg">
+          <p className="text-xs text-teal">
             💡 Les codes promo ambassadeur s'appliquent en plus de la réduction VIP
           </p>
         </div>

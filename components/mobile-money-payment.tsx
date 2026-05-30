@@ -142,7 +142,7 @@ export function MobileMoneyPayment({
               className={`p-4 cursor-pointer transition-all ${
                 selectedOperator === op.id
                   ? "ring-2 ring-offset-2 ring-offset-background"
-                  : "border-zinc-800 hover:border-zinc-700"
+                  : "border-ink hover:border-ink"
               }`}
               style={{
                 borderColor: selectedOperator === op.id ? op.color : undefined,
@@ -176,19 +176,19 @@ export function MobileMoneyPayment({
           placeholder="06XXXXXXXX"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="bg-zinc-900 border-zinc-800"
+          className="bg-card border-ink"
           maxLength={10}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-mute">
           Numéro associé à votre compte {selectedOperator ? OPERATORS.find(o => o.id === selectedOperator)?.name : "Mobile Money"}
         </p>
       </div>
 
       {/* Amount Display */}
-      <Card className="p-4 bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+      <Card className="p-4 bg-gradient-to-br from-paper-2 to-card border-ink">
         <div className="flex justify-between items-center">
-          <span className="text-zinc-400">Montant à payer</span>
-          <span className="text-2xl font-bold text-white">{amount} DH</span>
+          <span className="text-mute">Montant à payer</span>
+          <span className="text-2xl font-bold text-ink">{amount} DH</span>
         </div>
       </Card>
 
@@ -196,7 +196,7 @@ export function MobileMoneyPayment({
       <Button
         onClick={handleInitiate}
         disabled={!selectedOperator || !phone || isProcessing}
-        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+        className="w-full bg-gradient-to-r from-pink to-pink hover:from-pink hover:to-pink"
         size="lg"
       >
         {isProcessing ? (
@@ -214,7 +214,7 @@ export function MobileMoneyPayment({
 
       {/* Instructions Dialog */}
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 max-w-md">
+        <DialogContent className="bg-card border-ink max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Smartphone className="w-5 h-5" style={{ color: paymentData?.operator.color }} />
@@ -227,8 +227,8 @@ export function MobileMoneyPayment({
 
           <div className="space-y-4 py-4">
             {/* Payment Code */}
-            <div className="p-4 rounded-lg bg-zinc-800 text-center">
-              <p className="text-xs text-zinc-500 uppercase mb-2">Code de paiement</p>
+            <div className="p-4 rounded-lg bg-card text-center">
+              <p className="text-xs text-mute uppercase mb-2">Code de paiement</p>
               <div className="flex items-center justify-center gap-3">
                 <span className="text-3xl font-mono font-bold tracking-wider">
                   {paymentData?.code}
@@ -241,7 +241,7 @@ export function MobileMoneyPayment({
 
             {/* Expiry */}
             {paymentData?.expiresAt && (
-              <div className="flex items-center justify-center gap-2 text-sm text-yellow-500">
+              <div className="flex items-center justify-center gap-2 text-sm text-gold">
                 <Clock className="w-4 h-4" />
                 <span>
                   Expire dans 30 minutes
@@ -250,10 +250,10 @@ export function MobileMoneyPayment({
             )}
 
             {/* Instructions */}
-            <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-800">
+            <div className="p-4 rounded-lg bg-background border border-ink">
               <div className="prose prose-sm prose-invert max-w-none">
                 {paymentData?.instructions.split('\n').map((line, i) => (
-                  <p key={i} className="text-sm text-zinc-300 mb-1">
+                  <p key={i} className="text-sm text-ink-2 mb-1">
                     {line}
                   </p>
                 ))}
@@ -261,9 +261,9 @@ export function MobileMoneyPayment({
             </div>
 
             {/* Important Note */}
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-              <AlertCircle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-yellow-300">
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-gold/10 border border-gold/30">
+              <AlertCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-gold">
                 Conservez ce code. Vous recevrez un SMS de confirmation une fois le paiement effectué.
               </p>
             </div>

@@ -108,7 +108,7 @@ export function VideoProofUploader({ challengeId, onUploadComplete }: VideoProof
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center hover:border-purple-500 transition-colors bg-zinc-900/50 cursor-pointer"
+            className="border-2 border-dashed border-ink rounded-2xl p-8 text-center hover:border-pink transition-colors bg-card cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
           >
             <input
@@ -119,17 +119,17 @@ export function VideoProofUploader({ challengeId, onUploadComplete }: VideoProof
               onChange={handleFileSelect}
               capture="environment" // Prefer rear camera on mobile
             />
-            <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
+            <div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mx-auto mb-4 text-pink">
               <Camera className="w-8 h-8" />
             </div>
-            <h3 className="text-white font-bold mb-1">Prouve ton exploit !</h3>
-            <p className="text-zinc-400 text-sm">Enregistre ou upload une vidéo (Max 10s)</p>
+            <h3 className="text-ink font-bold mb-1">Prouve ton exploit !</h3>
+            <p className="text-mute text-sm">Enregistre ou upload une vidéo (Max 10s)</p>
           </motion.div>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative rounded-2xl overflow-hidden bg-black border border-zinc-800"
+            className="relative rounded-2xl overflow-hidden bg-ink border border-ink"
           >
             <video 
               src={previewUrl} 
@@ -143,7 +143,7 @@ export function VideoProofUploader({ challengeId, onUploadComplete }: VideoProof
             {!isUploading && (
               <button
                 onClick={clearFile}
-                className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-red-500/80 transition-colors backdrop-blur-md"
+                className="absolute top-4 right-4 p-2 bg-ink/50 text-paper rounded-full hover:bg-destructive/80 transition-colors "
               >
                 <X className="w-5 h-5" />
               </button>
@@ -152,16 +152,16 @@ export function VideoProofUploader({ challengeId, onUploadComplete }: VideoProof
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
               {isUploading ? (
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-white font-medium">
+                  <div className="flex justify-between text-xs text-ink font-medium">
                     <span>Envoi en cours...</span>
                     <span>{progress}%</span>
                   </div>
-                  <Progress value={progress} className="h-2 bg-zinc-700" />
+                  <Progress value={progress} className="h-2 bg-muted" />
                 </div>
               ) : (
                 <Button 
                   onClick={handleUpload}
-                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-6 rounded-xl shadow-lg shadow-purple-500/20"
+                  className="w-full bg-pink hover:bg-pink text-ink font-bold py-6 rounded-xl shadow-lg shadow-pink/20"
                 >
                   <Upload className="w-5 h-5 mr-2" />
                   Envoyer la preuve

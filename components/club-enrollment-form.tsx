@@ -114,7 +114,7 @@ export default function ClubEnrollmentForm({
   if (!isLoggedIn) {
     return (
       <Button
-        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 text-lg py-6"
+        className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0 text-lg py-6"
         onClick={() => router.push(`/auth/login?redirect=/clubs/${clubSlug}`)}
       >
         <UserPlus className="w-5 h-5 mr-2" />
@@ -127,19 +127,19 @@ export default function ClubEnrollmentForm({
     <form onSubmit={handleSubmit}>
       <div className="space-y-4 mb-6">
         <div>
-          <Label htmlFor="child" className="text-white mb-2 block">
+          <Label htmlFor="child" className="text-ink mb-2 block">
             Inscrire un enfant
           </Label>
-          <p className="text-xs text-zinc-500 mb-2">
+          <p className="text-xs text-mute mb-2">
             Vous pouvez inscrire plusieurs enfants en remplissant ce formulaire plusieurs fois
           </p>
           <Select value={selectedChild} onValueChange={setSelectedChild}>
-            <SelectTrigger id="child" className="bg-zinc-900 border-zinc-800 text-white">
+            <SelectTrigger id="child" className="bg-card border-ink text-ink">
               <SelectValue placeholder="Sélectionner un enfant" />
             </SelectTrigger>
             <SelectContent>
               {children.length === 0 ? (
-                <div className="p-4 text-center text-sm text-zinc-400">Aucun enfant ajouté</div>
+                <div className="p-4 text-center text-sm text-mute">Aucun enfant ajouté</div>
               ) : (
                 children.map((child) => {
                   const age = Math.floor(
@@ -155,11 +155,11 @@ export default function ClubEnrollmentForm({
             </SelectContent>
           </Select>
           {children.length === 0 && (
-            <p className="text-xs text-zinc-500 mt-2">
+            <p className="text-xs text-mute mt-2">
               <Button
                 type="button"
                 variant="link"
-                className="text-cyan-400 p-0 h-auto"
+                className="text-teal p-0 h-auto"
                 onClick={() => router.push("/profile/enfants/ajouter")}
               >
                 Ajouter un enfant
@@ -169,22 +169,22 @@ export default function ClubEnrollmentForm({
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <p className="text-red-400 text-sm">{error}</p>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+            <p className="text-destructive text-sm">{error}</p>
           </div>
         )}
       </div>
 
       <Button
         type="submit"
-        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 text-lg py-6"
+        className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0 text-lg py-6"
         disabled={isProcessing || !selectedChild}
       >
         <UserPlus className="w-5 h-5 mr-2" />
         {isProcessing ? "Inscription..." : `S'inscrire - ${monthlyPrice} DH/mois`}
       </Button>
 
-      <p className="text-center text-xs text-zinc-500 mt-4">Sans engagement • Résiliation possible à tout moment</p>
+      <p className="text-center text-xs text-mute mt-4">Sans engagement • Résiliation possible à tout moment</p>
     </form>
   )
 }

@@ -20,25 +20,25 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
       icon: Calendar,
       title: "Events Inoubliables",
       description: "Anniversaires, clubs, sorties… Des moments magiques chaque semaine",
-      color: "from-pink-500 to-rose-500"
+      color: "from-pink to-pink"
     },
     {
       icon: Users,
       title: "Rencontre tes Amis",
       description: "Retrouve tes potes et fais de nouvelles rencontres",
-      color: "from-purple-500 to-indigo-500"
+      color: "from-pink to-pink"
     },
     {
       icon: Trophy,
       title: "Gagne des Badges",
       description: "Complète des défis et deviens une légende",
-      color: "from-yellow-500 to-orange-500"
+      color: "from-gold to-coral"
     },
     {
       icon: Crown,
       title: "Avantages VIP",
       description: "Réductions exclusives et accès prioritaire",
-      color: "from-blue-500 to-cyan-500"
+      color: "from-teal to-teal"
     }
   ]
 
@@ -60,10 +60,10 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
       {/* Hero Animation */}
       <motion.div
         {...heroAnimation}
-        className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary to-purple-500 mb-4"
+        className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary to-pink mb-4"
         aria-hidden="true"
       >
-        <Sparkles className="w-12 h-12 text-white" aria-hidden="true" />
+        <Sparkles className="w-12 h-12 text-ink" aria-hidden="true" />
       </motion.div>
 
       {/* Title */}
@@ -71,7 +71,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 leading-tight text-balance">
           Bienvenue sur
           <br />
-          <span className="text-gradient bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <span className="text-gradient bg-gradient-to-r from-primary via-pink to-pink bg-clip-text text-transparent">
             Teen&nbsp;Club
           </span>
         </h1>
@@ -100,7 +100,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
                   className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}
                   aria-hidden="true"
                 >
-                  <Icon className="w-6 h-6 text-white" aria-hidden="true" />
+                  <Icon className="w-6 h-6 text-ink" aria-hidden="true" />
                 </div>
                 <h3 className="font-bold text-lg mb-2 text-left">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground text-left">{feature.description}</p>
@@ -130,7 +130,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
         <div className="text-center">
           <p className="text-3xl font-black text-primary tabular-nums">4.9</p>
           <p className="text-sm text-muted-foreground">
-            <Star className="w-4 h-4 inline-block text-yellow-500 fill-yellow-500" aria-hidden="true" />
+            <Star className="w-4 h-4 inline-block text-gold fill-gold" aria-hidden="true" />
             <span className="sr-only">Note moyenne :</span> Note
           </p>
         </div>
@@ -144,7 +144,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
         <Button
           size="lg"
           onClick={onNext}
-          className="bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white px-8 py-6 text-lg font-bold shadow-lg hover:shadow-xl transition-shadow duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="bg-gradient-to-r from-primary to-pink hover:opacity-90 text-ink px-8 py-6 text-lg font-bold shadow-lg hover:shadow-xl transition-shadow duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           Commencer l'aventure
           <motion.span

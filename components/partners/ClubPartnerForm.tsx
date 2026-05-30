@@ -231,20 +231,20 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
               <div className="flex flex-col items-center flex-1">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
                   currentStep >= step.id
-                    ? 'bg-green-600 border-green-600 text-white'
-                    : 'bg-zinc-800 border-zinc-700 text-zinc-400'
+                    ? 'bg-lime border-lime text-ink'
+                    : 'bg-card border-ink text-mute'
                 }`}>
                   <step.icon className="w-6 h-6" />
                 </div>
                 <span className={`text-xs mt-2 text-center ${
-                  currentStep >= step.id ? 'text-green-400' : 'text-zinc-500'
+                  currentStep >= step.id ? 'text-lime' : 'text-mute'
                 }`}>
                   {step.title}
                 </span>
               </div>
               {index < STEPS.length - 1 && (
                 <div className={`h-0.5 flex-1 mx-2 transition-all ${
-                  currentStep > step.id ? 'bg-green-600' : 'bg-zinc-800'
+                  currentStep > step.id ? 'bg-lime' : 'bg-card'
                 }`} />
               )}
             </div>
@@ -263,13 +263,13 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
 
         {/* Step 1: Club Information */}
         {currentStep === 1 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-green-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-lime" />
                 Informations sur votre club
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Informations générales sur votre établissement
               </CardDescription>
             </CardHeader>
@@ -278,23 +278,23 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
               {/* Company Details */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="companyName" className="text-zinc-300">
+                  <Label htmlFor="companyName" className="text-ink-2">
                     Nom du club *
                   </Label>
                   <Input
                     id="companyName"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="FitLife Gym"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="clubType" className="text-zinc-300">
+                  <Label htmlFor="clubType" className="text-ink-2">
                     Type de club *
                   </Label>
                   <Select value={clubType} onValueChange={setClubType}>
-                    <SelectTrigger className="bg-zinc-950 border-zinc-800 text-white mt-1">
+                    <SelectTrigger className="bg-background border-ink text-ink mt-1">
                       <SelectValue placeholder="Sélectionnez" />
                     </SelectTrigger>
                     <SelectContent>
@@ -308,31 +308,31 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="registrationNumber" className="text-zinc-300">
+                  <Label htmlFor="registrationNumber" className="text-ink-2">
                     N° d'enregistrement
                   </Label>
                   <Input
                     id="registrationNumber"
                     value={registrationNumber}
                     onChange={(e) => setRegistrationNumber(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="RC-123456"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="taxId" className="text-zinc-300">
+                  <Label htmlFor="taxId" className="text-ink-2">
                     Identifiant fiscal
                   </Label>
                   <Input
                     id="taxId"
                     value={taxId}
                     onChange={(e) => setTaxId(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="12345678"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="website" className="text-zinc-300">
+                  <Label htmlFor="website" className="text-ink-2">
                     Site web
                   </Label>
                   <Input
@@ -340,7 +340,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                     type="url"
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="https://www.club.ma"
                   />
                 </div>
@@ -349,38 +349,38 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
               {/* Address */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <Label htmlFor="address" className="text-zinc-300">
+                  <Label htmlFor="address" className="text-ink-2">
                     Adresse *
                   </Label>
                   <Input
                     id="address"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="123 Avenue Hassan II"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="city" className="text-zinc-300">
+                  <Label htmlFor="city" className="text-ink-2">
                     Ville *
                   </Label>
                   <Input
                     id="city"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="Rabat"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="postalCode" className="text-zinc-300">
+                  <Label htmlFor="postalCode" className="text-ink-2">
                     Code postal
                   </Label>
                   <Input
                     id="postalCode"
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="10000"
                   />
                 </div>
@@ -389,33 +389,33 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
               {/* Contact */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email" className="text-zinc-300">
+                  <Label htmlFor="email" className="text-ink-2">
                     Email professionnel *
                   </Label>
                   <div className="relative mt-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute" />
                     <Input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white pl-10"
+                      className="bg-background border-ink text-ink pl-10"
                       placeholder="contact@club.ma"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-zinc-300">
+                  <Label htmlFor="phone" className="text-ink-2">
                     Téléphone *
                   </Label>
                   <div className="relative mt-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute" />
                     <Input
                       id="phone"
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white pl-10"
+                      className="bg-background border-ink text-ink pl-10"
                       placeholder="+212 5XX-XXXXXX"
                     />
                   </div>
@@ -424,48 +424,48 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
 
               {/* Description */}
               <div>
-                <Label htmlFor="description" className="text-zinc-300">
+                <Label htmlFor="description" className="text-ink-2">
                   Description
                 </Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1 min-h-24"
+                  className="bg-background border-ink text-ink mt-1 min-h-24"
                   placeholder="Décrivez votre club, vos activités, votre philosophie..."
                 />
               </div>
 
               {/* Contact Person */}
-              <div className="border-t border-zinc-800 pt-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Personne de contact</h3>
+              <div className="border-t border-ink pt-6">
+                <h3 className="text-lg font-semibold text-ink mb-4">Personne de contact</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="contactPersonName" className="text-zinc-300">
+                    <Label htmlFor="contactPersonName" className="text-ink-2">
                       Nom complet *
                     </Label>
                     <Input
                       id="contactPersonName"
                       value={contactPersonName}
                       onChange={(e) => setContactPersonName(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="Fatima Zahra"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonRole" className="text-zinc-300">
+                    <Label htmlFor="contactPersonRole" className="text-ink-2">
                       Poste / Fonction
                     </Label>
                     <Input
                       id="contactPersonRole"
                       value={contactPersonRole}
                       onChange={(e) => setContactPersonRole(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="Directrice"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonPhone" className="text-zinc-300">
+                    <Label htmlFor="contactPersonPhone" className="text-ink-2">
                       Téléphone
                     </Label>
                     <Input
@@ -473,12 +473,12 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                       type="tel"
                       value={contactPersonPhone}
                       onChange={(e) => setContactPersonPhone(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="+212 6XX-XXXXXX"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonEmail" className="text-zinc-300">
+                    <Label htmlFor="contactPersonEmail" className="text-ink-2">
                       Email
                     </Label>
                     <Input
@@ -486,7 +486,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                       type="email"
                       value={contactPersonEmail}
                       onChange={(e) => setContactPersonEmail(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="fatima@club.ma"
                     />
                   </div>
@@ -506,37 +506,37 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
 
         {/* Step 2: Club Details */}
         {currentStep === 2 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Dumbbell className="w-5 h-5 text-green-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <Dumbbell className="w-5 h-5 text-lime" />
                 Installations & Services
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Détails sur vos installations et spécialités
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
               <div>
-                <Label htmlFor="specialties" className="text-zinc-300">
+                <Label htmlFor="specialties" className="text-ink-2">
                   Spécialités (séparées par des virgules)
                 </Label>
                 <Input
                   id="specialties"
                   value={specialties}
                   onChange={(e) => setSpecialties(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                  className="bg-background border-ink text-ink mt-1"
                   placeholder="Yoga, Pilates, Musculation, Cardio"
                 />
-                <p className="text-xs text-zinc-500 mt-1">
+                <p className="text-xs text-mute mt-1">
                   Exemple: Yoga, Pilates, Musculation, Cardio
                 </p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="minAge" className="text-zinc-300">
+                  <Label htmlFor="minAge" className="text-ink-2">
                     Âge minimum
                   </Label>
                   <Input
@@ -544,12 +544,12 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                     type="number"
                     value={minAge}
                     onChange={(e) => setMinAge(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="12"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="maxAge" className="text-zinc-300">
+                  <Label htmlFor="maxAge" className="text-ink-2">
                     Âge maximum (optionnel)
                   </Label>
                   <Input
@@ -557,40 +557,40 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                     type="number"
                     value={maxAge}
                     onChange={(e) => setMaxAge(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="18"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="instructorQualifications" className="text-zinc-300">
+                <Label htmlFor="instructorQualifications" className="text-ink-2">
                   Qualifications des instructeurs
                 </Label>
                 <Textarea
                   id="instructorQualifications"
                   value={instructorQualifications}
                   onChange={(e) => setInstructorQualifications(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                  className="bg-background border-ink text-ink mt-1"
                   placeholder="Tous nos instructeurs sont certifiés et ont plus de 5 ans d'expérience..."
                   rows={3}
                 />
               </div>
 
-              <div className="p-4 bg-zinc-950 rounded-lg">
+              <div className="p-4 bg-background rounded-lg">
                 <div className="flex items-center space-x-3 mb-3">
                   <Checkbox
                     id="offersTrialSession"
                     checked={offersTrialSession}
                     onCheckedChange={(checked) => setOffersTrialSession(checked as boolean)}
                   />
-                  <label htmlFor="offersTrialSession" className="text-white font-medium cursor-pointer">
+                  <label htmlFor="offersTrialSession" className="text-ink font-medium cursor-pointer">
                     Proposer une séance d'essai
                   </label>
                 </div>
                 {offersTrialSession && (
                   <div>
-                    <Label htmlFor="trialSessionPrice" className="text-zinc-300">
+                    <Label htmlFor="trialSessionPrice" className="text-ink-2">
                       Prix de la séance d'essai (DH)
                     </Label>
                     <Input
@@ -598,7 +598,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                       type="number"
                       value={trialSessionPrice}
                       onChange={(e) => setTrialSessionPrice(e.target.value)}
-                      className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                      className="bg-card border-ink text-ink mt-1"
                       placeholder="50.00"
                     />
                   </div>
@@ -611,22 +611,22 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
 
         {/* Step 3: Offerings */}
         {currentStep === 3 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-green-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-lime" />
                 Offres & Tarifs
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Abonnements, cours et packages proposés
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
               {offerings.map((offering, index) => (
-                <div key={offering.id} className="p-4 bg-zinc-950 rounded-lg border border-zinc-800">
+                <div key={offering.id} className="p-4 bg-background rounded-lg border border-ink">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-white font-medium">
+                    <h4 className="text-ink font-medium">
                       Offre {index + 1}
                     </h4>
                     {offerings.length > 1 && (
@@ -635,7 +635,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeOffering(offering.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -645,21 +645,21 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-zinc-300">Nom de l'offre *</Label>
+                        <Label className="text-ink-2">Nom de l'offre *</Label>
                         <Input
                           value={offering.offeringName}
                           onChange={(e) => updateOffering(offering.id, 'offeringName', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder="Abonnement Mensuel Illimité"
                         />
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Type d'offre</Label>
+                        <Label className="text-ink-2">Type d'offre</Label>
                         <Select
                           value={offering.offeringType}
                           onValueChange={(value: any) => updateOffering(offering.id, 'offeringType', value)}
                         >
-                          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white mt-1">
+                          <SelectTrigger className="bg-card border-ink text-ink mt-1">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -672,11 +672,11 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                     </div>
 
                     <div>
-                      <Label className="text-zinc-300">Description</Label>
+                      <Label className="text-ink-2">Description</Label>
                       <Textarea
                         value={offering.description}
                         onChange={(e) => updateOffering(offering.id, 'description', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="Détails de l'offre, ce qui est inclus..."
                         rows={2}
                       />
@@ -684,22 +684,22 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
 
                     <div className="grid md:grid-cols-3 gap-4">
                       <div>
-                        <Label className="text-zinc-300">Prix de base (DH) *</Label>
+                        <Label className="text-ink-2">Prix de base (DH) *</Label>
                         <Input
                           type="number"
                           value={offering.basePrice}
                           onChange={(e) => updateOffering(offering.id, 'basePrice', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder="299.00"
                         />
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Cycle de facturation</Label>
+                        <Label className="text-ink-2">Cycle de facturation</Label>
                         <Select
                           value={offering.billingCycle}
                           onValueChange={(value) => updateOffering(offering.id, 'billingCycle', value)}
                         >
-                          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white mt-1">
+                          <SelectTrigger className="bg-card border-ink text-ink mt-1">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -710,12 +710,12 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                         </Select>
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Niveau</Label>
+                        <Label className="text-ink-2">Niveau</Label>
                         <Select
                           value={offering.skillLevel}
                           onValueChange={(value) => updateOffering(offering.id, 'skillLevel', value)}
                         >
-                          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white mt-1">
+                          <SelectTrigger className="bg-card border-ink text-ink mt-1">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -728,15 +728,15 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                     </div>
 
                     <div>
-                      <Label className="text-zinc-300">Max. participants (optionnel)</Label>
+                      <Label className="text-ink-2">Max. participants (optionnel)</Label>
                       <Input
                         type="number"
                         value={offering.maxParticipants}
                         onChange={(e) => updateOffering(offering.id, 'maxParticipants', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="20"
                       />
-                      <p className="text-xs text-zinc-500 mt-1">
+                      <p className="text-xs text-mute mt-1">
                         Laissez vide pour illimité
                       </p>
                     </div>
@@ -748,7 +748,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
                 type="button"
                 variant="outline"
                 onClick={addOffering}
-                className="w-full border-green-500/50 text-green-400 hover:bg-green-500/10"
+                className="w-full border-lime/50 text-lime hover:bg-lime/10"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Ajouter une offre
@@ -760,37 +760,37 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
 
         {/* Step 4: Confirmation */}
         {currentStep === 4 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-lime" />
                 Confirmation
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Vérifiez les informations avant de soumettre
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
-              <div className="p-4 bg-zinc-950 rounded-lg">
-                <h4 className="text-white font-semibold mb-3">Club</h4>
+              <div className="p-4 bg-background rounded-lg">
+                <h4 className="text-ink font-semibold mb-3">Club</h4>
                 <div className="space-y-2 text-sm">
-                  <p className="text-zinc-300"><span className="text-zinc-500">Nom:</span> {companyName}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Type:</span> {clubType}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Adresse:</span> {address}, {city}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Email:</span> {email}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Téléphone:</span> {phone}</p>
+                  <p className="text-ink-2"><span className="text-mute">Nom:</span> {companyName}</p>
+                  <p className="text-ink-2"><span className="text-mute">Type:</span> {clubType}</p>
+                  <p className="text-ink-2"><span className="text-mute">Adresse:</span> {address}, {city}</p>
+                  <p className="text-ink-2"><span className="text-mute">Email:</span> {email}</p>
+                  <p className="text-ink-2"><span className="text-mute">Téléphone:</span> {phone}</p>
                   {specialties && (
-                    <p className="text-zinc-300"><span className="text-zinc-500">Spécialités:</span> {specialties}</p>
+                    <p className="text-ink-2"><span className="text-mute">Spécialités:</span> {specialties}</p>
                   )}
                 </div>
               </div>
 
-              <div className="p-4 bg-zinc-950 rounded-lg">
-                <h4 className="text-white font-semibold mb-3">Offres ({offerings.length})</h4>
+              <div className="p-4 bg-background rounded-lg">
+                <h4 className="text-ink font-semibold mb-3">Offres ({offerings.length})</h4>
                 <div className="space-y-1">
                   {offerings.map((off, idx) => (
-                    <p key={off.id} className="text-sm text-zinc-300">
+                    <p key={off.id} className="text-sm text-ink-2">
                       {idx + 1}. {off.offeringName || 'Sans nom'} - {off.basePrice} DH
                       {off.billingCycle !== 'one_time' && ` (${BILLING_CYCLES.find(c => c.value === off.billingCycle)?.label})`}
                     </p>
@@ -799,17 +799,17 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
               </div>
 
               {offersTrialSession && (
-                <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-                  <p className="text-sm text-green-400">
+                <div className="p-4 bg-lime/10 border border-lime/30 rounded-lg">
+                  <p className="text-sm text-lime">
                     ✓ Séance d'essai disponible à {trialSessionPrice} DH
                   </p>
                 </div>
               )}
 
-              <div className="p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
+              <div className="p-4 bg-teal/10 border border-teal/30 rounded-lg">
                 <div className="flex items-start gap-3">
                   <Checkbox id="terms" />
-                  <label htmlFor="terms" className="text-sm text-zinc-300 cursor-pointer">
+                  <label htmlFor="terms" className="text-sm text-ink-2 cursor-pointer">
                     J'accepte les conditions générales du programme partenaire et je confirme que toutes les informations sont exactes.
                   </label>
                 </div>
@@ -827,7 +827,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
           type="button"
           variant="outline"
           onClick={handleBack}
-          className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+          className="border-ink text-ink-2 hover:bg-card"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           {currentStep === 1 ? 'Retour' : 'Précédent'}
@@ -838,7 +838,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
             type="button"
             onClick={handleNext}
             disabled={!validateStep(currentStep)}
-            className="bg-green-600 hover:bg-green-700 text-white"
+            className="bg-lime hover:bg-lime text-ink"
           >
             Suivant
             <ArrowRight className="w-4 h-4 ml-2" />
@@ -848,7 +848,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="bg-green-600 hover:bg-green-700 text-white"
+            className="bg-lime hover:bg-lime text-ink"
           >
             {isSubmitting ? 'Envoi en cours...' : 'Soumettre la demande'}
             <CheckCircle className="w-4 h-4 ml-2" />

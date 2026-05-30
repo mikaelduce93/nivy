@@ -92,15 +92,15 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Avatar Selection */}
       <div className="space-y-3">
-        <Label className="text-zinc-300">Avatar</Label>
+        <Label className="text-ink-2">Avatar</Label>
         <div className="flex items-center gap-4">
-          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-3xl font-black">
+          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink text-3xl font-black">
             {formData.avatarEmoji || initialData.fullName?.charAt(0) || "?"}
           </div>
           <Button
             type="button"
             variant="outline"
-            className="border-zinc-700 text-zinc-300"
+            className="border-ink text-ink-2"
             onClick={() => setShowAvatarPicker(!showAvatarPicker)}
           >
             <Camera className="h-4 w-4 mr-2" />
@@ -109,8 +109,8 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
         </div>
 
         {showAvatarPicker && (
-          <div className="p-4 bg-zinc-800 rounded-xl border border-zinc-700">
-            <p className="text-sm text-zinc-400 mb-3">Choisis un emoji comme avatar</p>
+          <div className="p-4 bg-card rounded-xl border border-ink">
+            <p className="text-sm text-mute mb-3">Choisis un emoji comme avatar</p>
             <div className="grid grid-cols-6 gap-2">
               {avatarOptions.map((emoji) => (
                 <button
@@ -122,8 +122,8 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
                   }}
                   className={`h-12 w-12 rounded-xl text-2xl flex items-center justify-center transition-all ${
                     formData.avatarEmoji === emoji
-                      ? "bg-emerald-500/20 border-2 border-emerald-500"
-                      : "bg-zinc-700 hover:bg-zinc-600 border-2 border-transparent"
+                      ? "bg-lime/20 border-2 border-lime"
+                      : "bg-muted hover:bg-muted border-2 border-transparent"
                   }`}
                 >
                   {emoji}
@@ -136,7 +136,7 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
 
       {/* Full Name */}
       <div className="space-y-2">
-        <Label className="text-zinc-300 flex items-center gap-2">
+        <Label className="text-ink-2 flex items-center gap-2">
           <User className="h-4 w-4" />
           Nom complet
         </Label>
@@ -145,14 +145,14 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
           value={formData.fullName}
           onChange={(e) => handleChange("fullName", e.target.value)}
           placeholder="Ton nom"
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+          className="bg-card border-ink text-ink placeholder:text-mute"
           maxLength={50}
         />
       </div>
 
       {/* Username */}
       <div className="space-y-2">
-        <Label className="text-zinc-300 flex items-center gap-2">
+        <Label className="text-ink-2 flex items-center gap-2">
           <AtSign className="h-4 w-4" />
           Pseudo (optionnel)
         </Label>
@@ -161,17 +161,17 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
           value={formData.username}
           onChange={(e) => handleChange("username", e.target.value.toLowerCase())}
           placeholder="ton_pseudo"
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+          className="bg-card border-ink text-ink placeholder:text-mute"
           maxLength={20}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-mute">
           Lettres, chiffres et underscores uniquement
         </p>
       </div>
 
       {/* Bio */}
       <div className="space-y-2">
-        <Label className="text-zinc-300 flex items-center gap-2">
+        <Label className="text-ink-2 flex items-center gap-2">
           <FileText className="h-4 w-4" />
           Bio
         </Label>
@@ -179,10 +179,10 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
           value={formData.bio}
           onChange={(e) => handleChange("bio", e.target.value)}
           placeholder="Parle un peu de toi..."
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[100px] resize-none"
+          className="bg-card border-ink text-ink placeholder:text-mute min-h-[100px] resize-none"
           maxLength={200}
         />
-        <p className="text-xs text-zinc-500 text-right">
+        <p className="text-xs text-mute text-right">
           {formData.bio.length}/200 caractères
         </p>
       </div>
@@ -192,7 +192,7 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
         <Button
           type="button"
           variant="outline"
-          className="flex-1 border-zinc-700 text-zinc-300"
+          className="flex-1 border-ink text-ink-2"
           onClick={() => router.back()}
         >
           Annuler
@@ -200,7 +200,7 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
         <Button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="flex-1 bg-lime hover:bg-lime text-ink"
         >
           {loading ? (
             <>

@@ -51,7 +51,7 @@ export function FriendRequestButtons({ connectionId, teenId }: FriendRequestButt
 
   if (handled) {
     return (
-      <span className="text-xs text-zinc-500 px-3 py-1 bg-zinc-800 rounded-full">
+      <span className="text-xs text-mute px-3 py-1 bg-card rounded-full">
         Traité
       </span>
     )
@@ -63,7 +63,7 @@ export function FriendRequestButtons({ connectionId, teenId }: FriendRequestButt
         size="sm"
         onClick={handleAccept}
         disabled={loading !== null}
-        className="h-8 w-8 p-0 bg-emerald-500 hover:bg-emerald-600 text-white"
+        className="h-8 w-8 p-0 bg-lime hover:bg-lime text-ink"
       >
         {loading === "accept" ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -76,7 +76,7 @@ export function FriendRequestButtons({ connectionId, teenId }: FriendRequestButt
         variant="outline"
         onClick={handleReject}
         disabled={loading !== null}
-        className="h-8 w-8 p-0 border-zinc-700 text-zinc-400 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/10"
+        className="h-8 w-8 p-0 border-ink text-mute hover:text-destructive hover:border-destructive/30 hover:bg-destructive/10"
       >
         {loading === "reject" ? (
           <Loader2 className="h-4 w-4 animate-spin" />

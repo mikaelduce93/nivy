@@ -174,7 +174,7 @@ export function ProgressIndicator({
       {/* Progress Bar */}
       <div className="relative h-2 bg-secondary/30 rounded-full overflow-hidden mb-6">
         <motion.div
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-purple-500 to-pink-500"
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-pink to-pink"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -204,7 +204,7 @@ export function ProgressIndicator({
               <motion.div
                 className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
                   isCompleted
-                    ? 'bg-primary border-primary text-white'
+                    ? 'bg-primary border-primary text-ink'
                     : isCurrent
                     ? 'bg-background border-primary text-primary'
                     : 'bg-background border-muted text-muted-foreground'
@@ -291,7 +291,7 @@ export function ResumePrompt({ currentStep, onContinue, onStartOver }: ResumePro
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 "
     >
       <Card className="w-full max-w-md p-6 shadow-2xl border-2">
         <div className="text-center space-y-4">
@@ -332,7 +332,7 @@ export function ResumePrompt({ currentStep, onContinue, onStartOver }: ResumePro
             </Button>
             <Button
               onClick={onContinue}
-              className="flex-1 gap-2 bg-gradient-to-r from-primary to-purple-500 text-white"
+              className="flex-1 gap-2 bg-gradient-to-r from-primary to-pink text-ink"
             >
               Continuer
               <ChevronRight className="w-4 h-4" />
@@ -422,7 +422,7 @@ export function StepNavigation({
       <Button
         onClick={onNext}
         disabled={!canGoNext || isLoading}
-        className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white disabled:opacity-50"
+        className="gap-2 bg-gradient-to-r from-primary to-pink hover:opacity-90 text-ink disabled:opacity-50"
       >
         {isLoading ? (
           <>

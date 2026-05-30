@@ -29,7 +29,7 @@ export function AmbassadorSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-16 bg-white/80 backdrop-blur-sm border-r border-amber-100">
+    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-16 bg-paper-2  border-r border-gold">
       <div className="flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
         <nav className="flex-1 px-3 space-y-1">
           {navigation.map((item) => {
@@ -41,14 +41,14 @@ export function AmbassadorSidebar() {
                 className={cn(
                   "group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
                   isActive
-                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
-                    : "text-gray-600 hover:bg-amber-50 hover:text-amber-700"
+                    ? "bg-gradient-to-r from-gold to-coral text-ink shadow-lg shadow-gold/25"
+                    : "text-mute hover:bg-gold hover:text-gold"
                 )}
               >
                 <item.icon
                   className={cn(
                     "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
-                    isActive ? "text-white" : "text-gray-400 group-hover:text-amber-500"
+                    isActive ? "text-ink" : "text-mute group-hover:text-gold"
                   )}
                 />
                 {item.name}

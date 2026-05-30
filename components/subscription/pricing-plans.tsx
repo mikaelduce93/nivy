@@ -114,15 +114,15 @@ function PlanCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative bg-zinc-900/50 rounded-2xl border overflow-hidden
-        ${plan.is_featured ? "border-2" : "border-zinc-800"}
-        ${isCurrentPlan ? "ring-2 ring-green-500" : ""}`}
+      className={`relative bg-card rounded-2xl border overflow-hidden
+        ${plan.is_featured ? "border-2" : "border-ink"}
+        ${isCurrentPlan ? "ring-2 ring-lime" : ""}`}
       style={{ borderColor: plan.is_featured ? plan.color : undefined }}
     >
       {/* Badge */}
       {plan.badge_label && (
         <div
-          className="absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white rounded-bl-lg"
+          className="absolute top-0 right-0 px-3 py-1 text-xs font-bold text-ink rounded-bl-lg"
           style={{ backgroundColor: plan.color }}
         >
           {plan.badge_label}
@@ -130,7 +130,7 @@ function PlanCard({
       )}
 
       {isCurrentPlan && (
-        <div className="absolute top-0 left-0 px-3 py-1 text-xs font-bold text-white bg-green-500 rounded-br-lg">
+        <div className="absolute top-0 left-0 px-3 py-1 text-xs font-bold text-ink bg-lime rounded-br-lg">
           ACTUEL
         </div>
       )}
@@ -145,36 +145,36 @@ function PlanCard({
             {getPlanIcon(plan.plan_type)}
           </div>
           <div>
-            <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-            <p className="text-sm text-zinc-500">{plan.description}</p>
+            <h3 className="text-xl font-bold text-ink">{plan.name}</h3>
+            <p className="text-sm text-mute">{plan.description}</p>
           </div>
         </div>
 
         {/* Price */}
         <div className="mb-6">
           {plan.plan_type === "free" ? (
-            <div className="text-3xl font-bold text-white">Gratuit</div>
+            <div className="text-3xl font-bold text-ink">Gratuit</div>
           ) : (
             <>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-white">
+                <span className="text-4xl font-bold text-ink">
                   {price.toFixed(0)}
                 </span>
-                <span className="text-zinc-400">{plan.currency}</span>
-                <span className="text-sm text-zinc-500">
+                <span className="text-mute">{plan.currency}</span>
+                <span className="text-sm text-mute">
                   /{cycle === "monthly" ? "mois" : cycle === "quarterly" ? "3 mois" : "an"}
                 </span>
               </div>
               {cycle !== "monthly" && (
-                <p className="text-sm text-zinc-500 mt-1">
+                <p className="text-sm text-mute mt-1">
                   soit {monthlyEquivalent.toFixed(0)} {plan.currency}/mois
                   {discount > 0 && (
-                    <span className="text-green-400 ml-2">-{discount}%</span>
+                    <span className="text-lime ml-2">-{discount}%</span>
                   )}
                 </p>
               )}
               {plan.trial_days > 0 && (
-                <p className="text-sm text-cyan-400 mt-2 flex items-center gap-1">
+                <p className="text-sm text-teal mt-2 flex items-center gap-1">
                   <Gift className="w-4 h-4" />
                   {plan.trial_days} jours d'essai gratuit
                 </p>
@@ -187,19 +187,19 @@ function PlanCard({
         <ul className="space-y-3 mb-6">
           {features.map(([key, value]) => (
             <li key={key} className="flex items-center gap-3 text-sm">
-              <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
-              <span className="text-zinc-300">
+              <Check className="w-4 h-4 text-lime flex-shrink-0" />
+              <span className="text-ink-2">
                 {FEATURE_LABELS[key] || key}
                 {typeof value === "number" && value !== -1 && (
-                  <span className="text-zinc-500 ml-1">
+                  <span className="text-mute ml-1">
                     ({value === -1 ? "Illimité" : value.toString()})
                   </span>
                 )}
                 {typeof value === "number" && value === -1 && (
-                  <span className="text-cyan-400 ml-1">(Illimité)</span>
+                  <span className="text-teal ml-1">(Illimité)</span>
                 )}
                 {key === "xp_multiplier" && typeof value === "number" && (
-                  <span className="text-yellow-400 ml-1">×{value}</span>
+                  <span className="text-gold ml-1">×{value}</span>
                 )}
               </span>
             </li>
@@ -212,10 +212,10 @@ function PlanCard({
           disabled={isCurrentPlan}
           className={`w-full py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2
             ${isCurrentPlan
-              ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+              ? "bg-card text-mute cursor-not-allowed"
               : plan.is_featured
-              ? "text-white hover:opacity-90"
-              : "bg-zinc-800 text-white hover:bg-zinc-700"
+              ? "text-ink hover:opacity-90"
+              : "bg-card text-ink hover:bg-muted"
             }`}
           style={{
             backgroundColor: !isCurrentPlan && plan.is_featured ? plan.color : undefined,
@@ -267,7 +267,7 @@ export function PricingPlans({ onSelectPlan, currentPlanCode }: PricingPlansProp
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-teal animate-spin" />
       </div>
     )
   }
@@ -276,28 +276,28 @@ export function PricingPlans({ onSelectPlan, currentPlanCode }: PricingPlansProp
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-2">
+        <h2 className="text-3xl font-bold text-ink mb-2">
           Choisis ton forfait
         </h2>
-        <p className="text-zinc-400">
+        <p className="text-mute">
           Débloquez toutes les fonctionnalités premium
         </p>
       </div>
 
       {/* Cycle Toggle */}
       <div className="flex justify-center">
-        <div className="inline-flex bg-zinc-800 rounded-xl p-1">
+        <div className="inline-flex bg-card rounded-xl p-1">
           {(["monthly", "quarterly", "yearly"] as const).map((c) => (
             <button
               key={c}
               onClick={() => setCycle(c)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all relative
-                ${cycle === c ? "bg-cyan-500 text-white" : "text-zinc-400 hover:text-white"}`}
+                ${cycle === c ? "bg-teal text-ink" : "text-mute hover:text-ink"}`}
             >
               {c === "monthly" ? "Mensuel" : c === "quarterly" ? "Trimestriel" : "Annuel"}
               {c === "yearly" && (
-                <span className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-green-500 text-[10px]
-                  font-bold rounded-full text-white">
+                <span className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-lime text-[10px]
+                  font-bold rounded-full text-ink">
                   -17%
                 </span>
               )}
@@ -326,22 +326,22 @@ export function PricingPlans({ onSelectPlan, currentPlanCode }: PricingPlansProp
       </div>
 
       {/* Payment methods */}
-      <div className="text-center pt-8 border-t border-zinc-800">
-        <p className="text-sm text-zinc-500 mb-4">Moyens de paiement acceptés</p>
+      <div className="text-center pt-8 border-t border-ink">
+        <p className="text-sm text-mute mb-4">Moyens de paiement acceptés</p>
         <div className="flex justify-center gap-6 flex-wrap">
-          <div className="flex items-center gap-2 text-zinc-400">
+          <div className="flex items-center gap-2 text-mute">
             <CreditCard className="w-5 h-5" />
             <span className="text-sm">Carte bancaire</span>
           </div>
-          <div className="flex items-center gap-2 text-zinc-400">
+          <div className="flex items-center gap-2 text-mute">
             <Wallet className="w-5 h-5" />
             <span className="text-sm">Espèces</span>
           </div>
-          <div className="flex items-center gap-2 text-zinc-400">
+          <div className="flex items-center gap-2 text-mute">
             <Smartphone className="w-5 h-5" />
             <span className="text-sm">Mobile Money</span>
           </div>
-          <div className="flex items-center gap-2 text-zinc-400">
+          <div className="flex items-center gap-2 text-mute">
             <Building2 className="w-5 h-5" />
             <span className="text-sm">Via école</span>
           </div>
@@ -350,7 +350,7 @@ export function PricingPlans({ onSelectPlan, currentPlanCode }: PricingPlansProp
 
       {/* FAQ hint */}
       <div className="text-center">
-        <a href="/aide/faq" className="text-sm text-cyan-400 hover:underline flex items-center justify-center gap-1">
+        <a href="/aide/faq" className="text-sm text-teal hover:underline flex items-center justify-center gap-1">
           <Info className="w-4 h-4" />
           Questions fréquentes sur les forfaits
         </a>
@@ -384,8 +384,8 @@ export function PremiumBadge() {
     return (
       <a
         href="/premium"
-        className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-500
-          rounded-full text-white text-sm font-medium hover:opacity-90 transition-opacity"
+        className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-teal to-teal
+          rounded-full text-ink text-sm font-medium hover:opacity-90 transition-opacity"
       >
         <Crown className="w-4 h-4" />
         <span>Passer Premium</span>
@@ -394,8 +394,8 @@ export function PremiumBadge() {
   }
 
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500
-      rounded-full text-black text-sm font-medium">
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-gold to-coral
+      rounded-full text-ink text-sm font-medium">
       <Crown className="w-4 h-4" />
       <span>{plan.plan_name}</span>
     </div>

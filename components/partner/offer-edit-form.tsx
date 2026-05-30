@@ -128,7 +128,7 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Offer Type */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Type d'offre</Label>
+        <Label className="text-ink-2">Type d'offre</Label>
         <div className="grid grid-cols-3 gap-3">
           {offerTypes.map((type) => (
             <button
@@ -137,14 +137,14 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
               onClick={() => handleChange("offerType", type.id)}
               className={`p-3 rounded-xl border text-center transition-all ${
                 formData.offerType === type.id
-                  ? "bg-emerald-500/20 border-emerald-500/50"
-                  : "bg-zinc-800 border-zinc-700 hover:border-zinc-600"
+                  ? "bg-lime/20 border-lime/50"
+                  : "bg-card border-ink hover:border-ink"
               }`}
             >
               <type.icon className={`h-6 w-6 mx-auto mb-1 ${
-                formData.offerType === type.id ? "text-emerald-400" : "text-zinc-400"
+                formData.offerType === type.id ? "text-lime" : "text-mute"
               }`} />
-              <p className="text-sm font-medium text-white">{type.name}</p>
+              <p className="text-sm font-medium text-ink">{type.name}</p>
             </button>
           ))}
         </div>
@@ -152,24 +152,24 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
 
       {/* Title */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Nom de l'offre</Label>
+        <Label className="text-ink-2">Nom de l'offre</Label>
         <Input
           value={formData.title}
           onChange={(e) => handleChange("title", e.target.value)}
           placeholder="Ex: -15% sur tout le magasin"
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+          className="bg-card border-ink text-ink placeholder:text-mute"
           maxLength={100}
         />
       </div>
 
       {/* Description */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Description</Label>
+        <Label className="text-ink-2">Description</Label>
         <Textarea
           value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
           placeholder="Décrivez votre offre en détail..."
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[100px]"
+          className="bg-card border-ink text-ink placeholder:text-mute min-h-[100px]"
           maxLength={500}
         />
       </div>
@@ -177,7 +177,7 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
       {/* Value & Min Purchase */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-zinc-300">
+          <Label className="text-ink-2">
             {formData.offerType === "reduction" ? "Valeur (%)" : "Valeur (DH)"}
           </Label>
           <Input
@@ -185,18 +185,18 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
             value={formData.discountValue}
             onChange={(e) => handleChange("discountValue", parseFloat(e.target.value) || 0)}
             placeholder="15"
-            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            className="bg-card border-ink text-ink placeholder:text-mute"
             min={0}
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-zinc-300">Achat minimum (DH)</Label>
+          <Label className="text-ink-2">Achat minimum (DH)</Label>
           <Input
             type="number"
             value={formData.minPurchaseAmount}
             onChange={(e) => handleChange("minPurchaseAmount", parseFloat(e.target.value) || 0)}
             placeholder="0"
-            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            className="bg-card border-ink text-ink placeholder:text-mute"
             min={0}
           />
         </div>
@@ -205,24 +205,24 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
       {/* Usage Limits */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-zinc-300">Max par utilisateur (optionnel)</Label>
+          <Label className="text-ink-2">Max par utilisateur (optionnel)</Label>
           <Input
             type="number"
             value={formData.maxUsesPerUser}
             onChange={(e) => handleChange("maxUsesPerUser", e.target.value)}
             placeholder="Illimité"
-            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            className="bg-card border-ink text-ink placeholder:text-mute"
             min={1}
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-zinc-300">Max total (optionnel)</Label>
+          <Label className="text-ink-2">Max total (optionnel)</Label>
           <Input
             type="number"
             value={formData.maxTotalUses}
             onChange={(e) => handleChange("maxTotalUses", e.target.value)}
             placeholder="Illimité"
-            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+            className="bg-card border-ink text-ink placeholder:text-mute"
             min={1}
           />
         </div>
@@ -231,51 +231,51 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
       {/* Validity Period */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-zinc-300">Valide à partir du</Label>
+          <Label className="text-ink-2">Valide à partir du</Label>
           <Input
             type="date"
             value={formData.validFrom}
             onChange={(e) => handleChange("validFrom", e.target.value)}
-            className="bg-zinc-800 border-zinc-700 text-white"
+            className="bg-card border-ink text-ink"
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-zinc-300">Valide jusqu'au</Label>
+          <Label className="text-ink-2">Valide jusqu'au</Label>
           <Input
             type="date"
             value={formData.validUntil}
             onChange={(e) => handleChange("validUntil", e.target.value)}
-            className="bg-zinc-800 border-zinc-700 text-white"
+            className="bg-card border-ink text-ink"
           />
         </div>
       </div>
 
       {/* Status */}
       <div className="space-y-2">
-        <Label className="text-zinc-300">Statut</Label>
+        <Label className="text-ink-2">Statut</Label>
         <Select value={formData.status} onValueChange={(v) => handleChange("status", v)}>
-          <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+          <SelectTrigger className="bg-card border-ink text-ink">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700">
+          <SelectContent className="bg-card border-ink">
             {STATUS_OPTIONS.map((s) => (
-              <SelectItem key={s.id} value={s.id} className="text-white hover:bg-zinc-700">
+              <SelectItem key={s.id} value={s.id} className="text-ink hover:bg-muted">
                 {s.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-mute">
           La mise en ligne d'une offre est validée par l'équipe de modération.
         </p>
       </div>
 
       {/* VIP Settings */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between p-4 bg-zinc-800 rounded-xl">
+        <div className="flex items-center justify-between p-4 bg-card rounded-xl">
           <div>
-            <p className="font-medium text-white">Réservé aux membres VIP</p>
-            <p className="text-xs text-zinc-400">
+            <p className="font-medium text-ink">Réservé aux membres VIP</p>
+            <p className="text-xs text-mute">
               Seuls les détenteurs de carte VIP pourront utiliser cette offre
             </p>
           </div>
@@ -287,7 +287,7 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
 
         {formData.requiresVip && (
           <div className="space-y-2">
-            <Label className="text-zinc-300">Niveau VIP minimum</Label>
+            <Label className="text-ink-2">Niveau VIP minimum</Label>
             <div className="flex gap-2">
               {vipLevels.map((level) => (
                 <Button
@@ -298,8 +298,8 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
                   onClick={() => handleChange("minVipLevel", level)}
                   className={`capitalize ${
                     formData.minVipLevel === level
-                      ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                      : "border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                      ? "bg-lime/20 border-lime/50 text-lime"
+                      : "border-ink text-ink-2 hover:bg-card"
                   }`}
                 >
                   {level}
@@ -315,7 +315,7 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
         <Button
           type="button"
           variant="outline"
-          className="flex-1 border-zinc-700 text-zinc-300"
+          className="flex-1 border-ink text-ink-2"
           onClick={() => router.back()}
         >
           Annuler
@@ -323,7 +323,7 @@ export function OfferEditForm({ offerId, partnerId, initialData }: OfferEditForm
         <Button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="flex-1 bg-lime hover:bg-lime text-ink"
         >
           {loading ? (
             <>

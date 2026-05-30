@@ -76,16 +76,16 @@ export function BudgetLimitForm({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-full border-zinc-700 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400"
+          className="w-full border-ink text-ink-2 hover:border-lime/50 hover:text-lime"
         >
           <Settings className="h-4 w-4 mr-2" />
           Modifier les limites
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-zinc-900 border-zinc-800">
+      <DialogContent className="bg-card border-ink">
         <DialogHeader>
-          <DialogTitle className="text-white">Limites de budget pour {teenName}</DialogTitle>
-          <DialogDescription className="text-zinc-400">
+          <DialogTitle className="text-ink">Limites de budget pour {teenName}</DialogTitle>
+          <DialogDescription className="text-mute">
             Définissez les limites de dépenses mensuelles
           </DialogDescription>
         </DialogHeader>
@@ -93,7 +93,7 @@ export function BudgetLimitForm({
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           {/* Monthly Limit */}
           <div className="space-y-2">
-            <Label className="text-zinc-300">Limite mensuelle (DH)</Label>
+            <Label className="text-ink-2">Limite mensuelle (DH)</Label>
             <div className="relative">
               <Input
                 type="number"
@@ -101,13 +101,13 @@ export function BudgetLimitForm({
                 onChange={(e) => setMonthlyLimit(e.target.value)}
                 placeholder="Ex: 500"
                 min={0}
-                className="bg-zinc-800 border-zinc-700 text-white pr-16 focus:border-emerald-500"
+                className="bg-card border-ink text-ink pr-16 focus:border-lime"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-mute font-medium">
                 DH/mois
               </span>
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               0 = pas de limite
             </p>
           </div>
@@ -121,10 +121,10 @@ export function BudgetLimitForm({
                 variant="outline"
                 size="sm"
                 onClick={() => setMonthlyLimit(value.toString())}
-                className={`border-zinc-700 ${
+                className={`border-ink ${
                   monthlyLimit === value.toString()
-                    ? "bg-emerald-500/20 border-emerald-500 text-emerald-400"
-                    : "text-zinc-400 hover:text-white"
+                    ? "bg-lime/20 border-lime text-lime"
+                    : "text-mute hover:text-ink"
                 }`}
               >
                 {value} DH
@@ -134,7 +134,7 @@ export function BudgetLimitForm({
 
           {/* Per Event Limit */}
           <div className="space-y-2">
-            <Label className="text-zinc-300">Limite par event (DH)</Label>
+            <Label className="text-ink-2">Limite par event (DH)</Label>
             <div className="relative">
               <Input
                 type="number"
@@ -142,29 +142,29 @@ export function BudgetLimitForm({
                 onChange={(e) => setPerEventLimit(e.target.value)}
                 placeholder="Ex: 200"
                 min={0}
-                className="bg-zinc-800 border-zinc-700 text-white pr-16 focus:border-emerald-500"
+                className="bg-card border-ink text-ink pr-16 focus:border-lime"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-mute font-medium">
                 DH/event
               </span>
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-mute">
               Les events au-dessus de cette limite nécessiteront votre approbation
             </p>
           </div>
 
           {/* Requires Approval */}
-          <div className="flex items-center justify-between p-4 bg-zinc-800 rounded-xl">
+          <div className="flex items-center justify-between p-4 bg-card rounded-xl">
             <div>
-              <Label className="text-white font-medium">Approbation requise</Label>
-              <p className="text-xs text-zinc-400 mt-1">
+              <Label className="text-ink font-medium">Approbation requise</Label>
+              <p className="text-xs text-mute mt-1">
                 Approuver manuellement chaque réservation
               </p>
             </div>
             <Switch
               checked={requiresApproval}
               onCheckedChange={setRequiresApproval}
-              className="data-[state=checked]:bg-emerald-500"
+              className="data-[state=checked]:bg-lime"
             />
           </div>
 
@@ -172,7 +172,7 @@ export function BudgetLimitForm({
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="w-full bg-lime hover:bg-lime text-ink"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />

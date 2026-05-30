@@ -46,7 +46,7 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-amber-100">
+    <header className="sticky top-0 z-50 bg-paper-2  border-b border-gold">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         {/* Mobile menu */}
         <Sheet>
@@ -58,8 +58,8 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
           <SheetContent side="left" className="w-64 p-0">
             <div className="py-4">
               <div className="px-4 mb-4">
-                <h2 className="text-lg font-bold text-amber-600">Teen Club</h2>
-                <p className="text-sm text-gray-500">Espace Ambassadeur</p>
+                <h2 className="text-lg font-bold text-gold">Teen Club</h2>
+                <p className="text-sm text-mute">Espace Ambassadeur</p>
               </div>
             </div>
           </SheetContent>
@@ -69,8 +69,8 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
         <Link href="/ambassador" className="flex items-center gap-2">
           <span className="text-2xl">🌟</span>
           <div className="hidden sm:block">
-            <span className="font-bold text-xl text-amber-600">Teen Club</span>
-            <span className="text-sm text-gray-500 ml-2">Ambassador</span>
+            <span className="font-bold text-xl text-gold">Teen Club</span>
+            <span className="text-sm text-mute ml-2">Ambassador</span>
           </div>
         </Link>
 
@@ -80,13 +80,13 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
             variant="outline"
             size="sm"
             onClick={copyReferralLink}
-            className="border-amber-200 hover:bg-amber-50"
+            className="border-gold hover:bg-gold"
           >
             <Copy className="h-4 w-4 mr-2" />
             Copier mon lien
           </Button>
-          <div className="flex items-center gap-2 bg-green-50 rounded-full px-3 py-1.5">
-            <span className="text-sm font-medium text-green-700">
+          <div className="flex items-center gap-2 bg-lime rounded-full px-3 py-1.5">
+            <span className="text-sm font-medium text-lime">
               {commissionRate}% commission
             </span>
           </div>
@@ -100,8 +100,8 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="Menu utilisateur">
-                <Avatar className="h-10 w-10 border-2 border-amber-200">
-                  <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-500 text-white font-bold">
+                <Avatar className="h-10 w-10 border-2 border-gold">
+                  <AvatarFallback className="bg-gradient-to-br from-gold to-coral text-ink font-bold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -112,7 +112,7 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">{userInfo.fullName}</p>
                   <p className="text-xs text-muted-foreground">{userInfo.email}</p>
-                  <p className="text-xs text-amber-600 font-medium mt-1">
+                  <p className="text-xs text-gold font-medium mt-1">
                     🌟 Ambassadeur • {commissionRate}%
                   </p>
                 </div>
@@ -131,7 +131,7 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 Déconnexion
               </DropdownMenuItem>

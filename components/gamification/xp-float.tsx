@@ -17,7 +17,7 @@ export const useXPFloat = () => {
   const showFloat = useCallback((x: number, y: number, amount: number, type: 'xp' | 'coins' = 'xp') => {
     const id = Date.now()
     const text = type === 'xp' ? `+${amount} XP` : `+${amount} 💰`
-    const color = type === 'xp' ? 'text-emerald-400' : 'text-yellow-400'
+    const color = type === 'xp' ? 'text-lime' : 'text-gold'
     
     setFloats(prev => [...prev, { id, x, y, text, color }])
 

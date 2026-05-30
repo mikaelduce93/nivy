@@ -43,7 +43,7 @@ export function InvoiceButton({ transactionId, transactionType }: InvoiceButtonP
             size="icon"
             onClick={handleClick}
             disabled={isLoading}
-            className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            className="h-9 w-9 text-mute hover:text-ink hover:bg-card"
             aria-label={isLoading ? "Chargement de la facture…" : "Télécharger la facture"}
           >
             {isLoading ? (

@@ -48,7 +48,7 @@ export function GoalWithdrawButton({
       onClick={handleClick}
       disabled={pending}
       size="sm"
-      className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold"
+      className="w-full bg-lime hover:bg-lime text-ink font-bold"
     >
       {pending ? (
         <Loader2 className="h-4 w-4 mr-2 animate-spin" />

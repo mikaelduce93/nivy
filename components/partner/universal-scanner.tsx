@@ -22,7 +22,7 @@ export function UniversalScanner() {
     <Button
       asChild
       size="lg"
-      className="w-full h-24 text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-500/20 rounded-2xl flex flex-col gap-2"
+      className="w-full h-24 text-xl font-bold bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal shadow-xl shadow-teal/20 rounded-2xl flex flex-col gap-2"
     >
       <Link href="/partner/scanner">
         <QrCode className="w-8 h-8" />

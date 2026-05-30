@@ -74,7 +74,7 @@ export function OnboardingXPDisplay({
 
       {/* Main XP Bar */}
       <motion.div
-        className="bg-zinc-900/90 backdrop-blur-lg border border-zinc-800 rounded-2xl p-4 shadow-xl"
+        className="bg-card  border border-ink rounded-2xl p-4 shadow-xl"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
@@ -83,13 +83,13 @@ export function OnboardingXPDisplay({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <motion.div
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center"
+              className="w-8 h-8 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center"
               animate={isAnimating ? { scale: [1, 1.15, 1] } : {}}
               transition={{ duration: 0.3 }}
             >
-              <Zap className="w-4 h-4 text-white" />
+              <Zap className="w-4 h-4 text-ink" />
             </motion.div>
-            <span className="text-zinc-400 text-sm font-medium">XP Onboarding</span>
+            <span className="text-mute text-sm font-medium">XP Onboarding</span>
           </div>
 
           <motion.div
@@ -98,15 +98,15 @@ export function OnboardingXPDisplay({
             initial={{ scale: 1 }}
             animate={isAnimating ? { scale: [1, 1.1, 1] } : {}}
           >
-            <span className="text-cyan-400 font-bold text-lg">{displayXP}</span>
-            <span className="text-zinc-500 text-sm">/ {TOTAL_ONBOARDING_XP}</span>
+            <span className="text-teal font-bold text-lg">{displayXP}</span>
+            <span className="text-mute text-sm">/ {TOTAL_ONBOARDING_XP}</span>
           </motion.div>
         </div>
 
         {/* Progress Bar */}
-        <div className="relative h-3 bg-zinc-800 rounded-full overflow-hidden">
+        <div className="relative h-3 bg-card rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full relative"
+            className="h-full bg-gradient-to-r from-teal via-teal to-pink rounded-full relative"
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -123,20 +123,20 @@ export function OnboardingXPDisplay({
           {[25, 50, 75].map((mark) => (
             <div
               key={mark}
-              className="absolute top-0 bottom-0 w-px bg-zinc-700/50"
+              className="absolute top-0 bottom-0 w-px bg-muted"
               style={{ left: `${mark}%` }}
             />
           ))}
         </div>
 
         {/* Rewards Preview */}
-        <div className="flex items-center justify-between mt-3 text-xs text-zinc-500">
+        <div className="flex items-center justify-between mt-3 text-xs text-mute">
           <div className="flex items-center gap-1">
-            <Star className="w-3 h-3 text-yellow-500" />
+            <Star className="w-3 h-3 text-gold" />
             <span>2 badges à débloquer</span>
           </div>
           <div className="flex items-center gap-1">
-            <Gift className="w-3 h-3 text-purple-500" />
+            <Gift className="w-3 h-3 text-pink" />
             <span>+50 coins bonus</span>
           </div>
         </div>
@@ -163,25 +163,25 @@ function XPGainPopup({ amount, reason }: XPGainPopupProps) {
       exit={{ opacity: 0, y: -80, scale: 0.8 }}
       transition={{ type: 'spring', stiffness: 400, damping: 20 }}
     >
-      <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-lg border border-cyan-500/40 rounded-xl px-4 py-2 shadow-lg shadow-cyan-500/20">
+      <div className="bg-gradient-to-r from-teal/20 to-teal/20  border border-teal/40 rounded-xl px-4 py-2 shadow-lg shadow-teal/20">
         <div className="flex items-center gap-2">
           <motion.div
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center"
+            className="w-8 h-8 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center"
             animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
             transition={{ duration: 0.5 }}
           >
-            <Zap className="w-4 h-4 text-white" />
+            <Zap className="w-4 h-4 text-ink" />
           </motion.div>
           <div>
             <motion.p
-              className="text-cyan-400 font-bold text-lg"
+              className="text-teal font-bold text-lg"
               initial={{ scale: 0.5 }}
               animate={{ scale: [0.5, 1.3, 1] }}
               transition={{ duration: 0.4 }}
             >
               +{amount} XP
             </motion.p>
-            {reason && <p className="text-zinc-400 text-xs">{reason}</p>}
+            {reason && <p className="text-mute text-xs">{reason}</p>}
           </div>
         </div>
       </div>
@@ -204,24 +204,24 @@ export function OnboardingXPCompact({ currentXP, className }: OnboardingXPCompac
   return (
     <motion.div
       className={cn(
-        'flex items-center gap-2 bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-full px-3 py-1.5',
+        'flex items-center gap-2 bg-card  border border-ink rounded-full px-3 py-1.5',
         className
       )}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
     >
-      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-        <Zap className="w-3 h-3 text-white" />
+      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+        <Zap className="w-3 h-3 text-ink" />
       </div>
-      <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="w-16 h-1.5 bg-card rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+          className="h-full bg-gradient-to-r from-teal to-teal rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.5 }}
         />
       </div>
-      <span className="text-cyan-400 text-xs font-medium">{currentXP} XP</span>
+      <span className="text-teal text-xs font-medium">{currentXP} XP</span>
     </motion.div>
   )
 }

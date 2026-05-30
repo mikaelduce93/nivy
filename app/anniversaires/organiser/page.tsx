@@ -172,7 +172,7 @@ export default function OrganizeBirthdayPage() {
               animate={{ scale: 1, opacity: 1 }} 
               className="text-center space-y-12 py-10"
             >
-              <div className="w-40 h-40 bg-success-soft/20 rounded-full flex items-center justify-center mx-auto shadow-[0_0_100px_rgba(45,212,191,0.3)] border border-success-soft/30">
+              <div className="w-40 h-40 bg-success-soft/20 rounded-full flex items-center justify-center mx-auto  border border-success-soft/30">
                 <ShieldCheck className="w-20 h-20 text-success-soft" />
               </div>
               <div className="space-y-6">

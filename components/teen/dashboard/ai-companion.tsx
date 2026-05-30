@@ -141,7 +141,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
           whileHover={{ scale: 1.1, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-brand-soft to-info-soft shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center justify-center border border-white/20 group overflow-hidden"
+          className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-brand-soft to-info-soft  flex items-center justify-center border border-ink group overflow-hidden"
         >
           <motion.div
             animate={{ 
@@ -150,15 +150,15 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
             }}
             transition={{ duration: 4, repeat: Infinity }}
           >
-            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-ink" />
           </motion.div>
           
           {/* Notification dot if there are recommendations */}
           {recommendations.length > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 sm:top-0 sm:right-0 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-accent-soft border-2 border-zinc-950 animate-pulse" />
+            <span className="absolute -top-0.5 -right-0.5 sm:top-0 sm:right-0 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-accent-soft border-2 border-ink animate-pulse" />
           )}
           
-          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 bg-paper-2 opacity-0 group-hover:opacity-100 transition-opacity" />
         </motion.button>
       </div>
 
@@ -171,7 +171,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
             exit={{ opacity: 0, y: 100, scale: 0.9, x: 100 }}
             className="fixed bottom-32 sm:bottom-28 right-2 sm:right-8 z-[100] w-[calc(100vw-1rem)] sm:w-[400px] max-w-[calc(100vw-1rem)]"
           >
-            <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] bg-zinc-950 border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.8)] max-h-[60vh] sm:max-h-[70vh] flex flex-col">
+            <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] bg-background border border-ink shadow-[0_30px_100px_rgba(0,0,0,0.8)] max-h-[60vh] sm:max-h-[70vh] flex flex-col">
               {/* Animated Background */}
               <div className="absolute inset-0 z-0 pointer-events-none">
                 <GlowBlob color="var(--brand-soft)" size={300} className="-top-20 -right-20 opacity-20" blur={60} />
@@ -179,22 +179,22 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
               </div>
 
               {/* Header */}
-              <div className="relative z-10 p-4 sm:p-6 pb-3 sm:pb-4 border-b border-white/5">
+              <div className="relative z-10 p-4 sm:p-6 pb-3 sm:pb-4 border-b border-ink">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-soft/20 flex items-center justify-center border border-brand-soft/30">
                       <Brain className="w-4 h-4 sm:w-6 sm:h-6 text-brand-soft" />
                     </div>
                     <div>
-                      <h3 className="font-black text-white text-base sm:text-lg tracking-tight">KAI</h3>
-                      <p className="text-zinc-500 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em]">AI Companion</p>
+                      <h3 className="font-black text-ink text-base sm:text-lg tracking-tight">KAI</h3>
+                      <p className="text-mute text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em]">AI Companion</p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsOpen(false)}
-                    className="rounded-full text-zinc-500 hover:text-white h-8 w-8 sm:h-10 sm:w-10"
+                    className="rounded-full text-mute hover:text-ink h-8 w-8 sm:h-10 sm:w-10"
                     aria-label="Fermer KAI"
                   >
                     <X className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
@@ -221,8 +221,8 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                     <div className={cn(
                       "max-w-[85%] rounded-2xl px-4 py-3",
                       message.role === 'user' 
-                        ? "bg-brand-soft text-black rounded-br-md" 
-                        : "bg-white/5 border border-white/10 text-white rounded-bl-md"
+                        ? "bg-brand-soft text-ink rounded-br-md" 
+                        : "bg-paper-2 border border-ink text-ink rounded-bl-md"
                     )}>
                       <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
                         {message.content}
@@ -238,10 +238,10 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                     animate={{ opacity: 1 }}
                     className="flex justify-start"
                   >
-                    <div className="bg-white/5 border border-white/10 rounded-2xl rounded-bl-md px-4 py-3">
+                    <div className="bg-paper-2 border border-ink rounded-2xl rounded-bl-md px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Loader2 className="w-4 h-4 animate-spin text-brand-soft" />
-                        <span className="text-sm text-zinc-400">Kai réfléchit...</span>
+                        <span className="text-sm text-mute">Kai réfléchit...</span>
                       </div>
                     </div>
                   </motion.div>
@@ -275,7 +275,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleFeedback('positive')}
-                    className="h-7 px-2 text-zinc-500 hover:text-success"
+                    className="h-7 px-2 text-mute hover:text-success"
                   >
                     <ThumbsUp className="w-3.5 h-3.5" />
                   </Button>
@@ -283,7 +283,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleFeedback('negative')}
-                    className="h-7 px-2 text-zinc-500 hover:text-destructive"
+                    className="h-7 px-2 text-mute hover:text-destructive"
                   >
                     <ThumbsDown className="w-3.5 h-3.5" />
                   </Button>
@@ -293,7 +293,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
               {/* Quick Suggestions */}
               {recommendations.length > 0 && messages.length <= 2 && (
                 <div className="relative z-10 px-6 pb-4 space-y-3">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Suggestions</p>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-mute">Suggestions</p>
                   <div className="space-y-2">
                     {recommendations.map((rec) => {
                       const Icon = typeIcons[rec.type] || Target
@@ -302,7 +302,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                           key={rec.id}
                           whileHover={{ x: 3 }}
                           onClick={() => handleQuickAction(`Parle-moi de: ${rec.title}`)}
-                          className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 cursor-pointer group transition-all hover:bg-white/10"
+                          className="w-full flex items-center justify-between p-3 rounded-xl bg-paper-2 border border-ink cursor-pointer group transition-all hover:bg-paper-2"
                         >
                           <div className="flex items-center gap-3">
                             <div 
@@ -312,11 +312,11 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                               <Icon className="w-4 h-4" />
                             </div>
                             <div className="text-left">
-                              <h4 className="text-sm font-bold text-white tracking-tight">{rec.title}</h4>
-                              <p className="text-[10px] font-black text-zinc-500 uppercase">+{rec.xp} XP</p>
+                              <h4 className="text-sm font-bold text-ink tracking-tight">{rec.title}</h4>
+                              <p className="text-[10px] font-black text-mute uppercase">+{rec.xp} XP</p>
                             </div>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
+                          <ChevronRight className="w-4 h-4 text-mute group-hover:text-ink transition-colors" />
                         </motion.button>
                       )
                     })}
@@ -328,7 +328,7 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
               <form 
                 id="ai-chat-form"
                 onSubmit={handleSubmit}
-                className="relative z-10 p-4 border-t border-white/5"
+                className="relative z-10 p-4 border-t border-ink"
               >
                 <div className="flex items-center gap-2">
                   <input
@@ -336,13 +336,13 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
                     value={safeInput}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Écris ton message..."
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-brand-soft/50 transition-colors"
+                    className="flex-1 bg-paper-2 border border-ink rounded-xl px-4 py-3 text-sm text-ink placeholder:text-mute focus:outline-none focus:border-brand-soft/50 transition-colors"
                     disabled={isLoading}
                   />
                   <Button
                     type="submit"
                     disabled={isLoading || !safeInput.trim()}
-                    className="h-11 w-11 rounded-xl bg-brand-soft text-black hover:scale-105 transition-transform disabled:opacity-50"
+                    className="h-11 w-11 rounded-xl bg-brand-soft text-ink hover:scale-105 transition-transform disabled:opacity-50"
                   >
                     {isLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin" />

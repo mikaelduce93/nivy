@@ -35,8 +35,8 @@ export default function TeenMap() {
     return (
       <div className="w-full h-full bg-[#020203] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <MapIcon className="w-12 h-12 text-zinc-800 animate-pulse" />
-          <p className="text-zinc-600 font-black uppercase tracking-[0.3em] text-[10px]">Initializing Map Engine...</p>
+          <MapIcon className="w-12 h-12 text-ink animate-pulse" />
+          <p className="text-mute font-black uppercase tracking-[0.3em] text-[10px]">Initializing Map Engine...</p>
         </div>
       </div>
     )
@@ -83,22 +83,22 @@ export default function TeenMap() {
       {/* Selected Location Card */}
       {selectedLocation && (
         <div className="absolute bottom-10 left-6 right-6 z-[1000]">
-          <Card className="bg-black/60 backdrop-blur-2xl border-white/10 p-6 rounded-[2rem] shadow-2xl overflow-hidden relative group">
+          <Card className="bg-ink/60  border-ink p-6 rounded-[2rem] shadow-2xl overflow-hidden relative group">
             <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
             <div className="relative z-10 flex justify-between items-center">
               <div className="space-y-1">
                 <span className={cn(
                   "text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full",
-                  selectedLocation.type === 'event' ? 'bg-purple-500/20 text-purple-400' :
-                  selectedLocation.type === 'partner' ? 'bg-blue-500/20 text-blue-400' :
-                  'bg-orange-500/20 text-orange-400'
+                  selectedLocation.type === 'event' ? 'bg-pink/20 text-pink' :
+                  selectedLocation.type === 'partner' ? 'bg-teal/20 text-teal' :
+                  'bg-coral/20 text-coral'
                 )}>
                   {selectedLocation.type}
                 </span>
-                <h3 className="text-xl font-black text-white uppercase italic">{selectedLocation.name}</h3>
-                <p className="text-zinc-400 text-xs font-medium">{selectedLocation.description}</p>
+                <h3 className="text-xl font-black text-ink uppercase italic">{selectedLocation.name}</h3>
+                <p className="text-mute text-xs font-medium">{selectedLocation.description}</p>
               </div>
-              <Button size="lg" className="rounded-2xl bg-white text-black hover:bg-zinc-200 font-black shadow-xl">
+              <Button size="lg" className="rounded-2xl bg-white text-ink hover:bg-paper-2 font-black shadow-xl">
                 <Navigation className="w-5 h-5 mr-2" /> GO
               </Button>
             </div>

@@ -55,7 +55,7 @@ export function ShareButtons({ referralCode, referralLink }: ShareButtonsProps) 
   return (
     <>
       <Button
-        className="bg-white text-amber-600 hover:bg-white/90 font-semibold"
+        className="bg-white text-gold hover:bg-paper-2 font-semibold"
         onClick={handleCopy}
       >
         {copied ? (
@@ -72,7 +72,7 @@ export function ShareButtons({ referralCode, referralLink }: ShareButtonsProps) 
       </Button>
       <Button
         variant="outline"
-        className="border-white/30 text-white hover:bg-white/20"
+        className="border-ink text-ink hover:bg-paper-2"
         onClick={handleShare}
       >
         <Share2 className="h-4 w-4 mr-2" />

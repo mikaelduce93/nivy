@@ -200,7 +200,7 @@ export function EvidenceUpload({
       />
 
       {phase === "done" && storedPath ? (
-        <div className="flex items-center gap-3 p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
+        <div className="flex items-center gap-3 p-3 rounded-2xl border border-lime/30 bg-lime/10">
           {thumbUrl ? (
             <Image
               src={thumbUrl}
@@ -208,21 +208,21 @@ export function EvidenceUpload({
               width={56}
               height={56}
               sizes="56px"
-              className="w-14 h-14 rounded-xl object-cover border border-white/10"
+              className="w-14 h-14 rounded-xl object-cover border border-ink"
             />
           ) : (
-            <div className="w-14 h-14 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+            <div className="w-14 h-14 rounded-xl bg-lime/20 flex items-center justify-center">
+              <CheckCircle2 className="w-6 h-6 text-lime" />
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-emerald-300">Preuve envoyée</p>
-            <p className="text-[11px] text-zinc-500 truncate font-mono">{storedPath}</p>
+            <p className="text-sm font-bold text-lime">Preuve envoyée</p>
+            <p className="text-[11px] text-mute truncate font-mono">{storedPath}</p>
           </div>
           <button
             type="button"
             onClick={reset}
-            className="p-1.5 rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white"
+            className="p-1.5 rounded-lg hover:bg-paper-2 text-mute hover:text-ink"
             aria-label="Renvoyer une autre preuve"
           >
             <X className="w-4 h-4" />
@@ -235,8 +235,8 @@ export function EvidenceUpload({
           disabled={isWorking}
           className={cn(
             "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl",
-            "bg-zinc-900/60 border border-white/10 text-sm font-bold",
-            "hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-colors",
+            "bg-card border border-ink text-sm font-bold",
+            "hover:border-lime/40 hover:bg-lime/5 transition-colors",
             "disabled:opacity-60 disabled:cursor-not-allowed"
           )}
         >
@@ -255,8 +255,8 @@ export function EvidenceUpload({
             </>
           ) : phase === "error" ? (
             <>
-              <Upload className="w-4 h-4 text-red-400" />
-              <span className="text-red-300">{errorMsg || "Réessayer"}</span>
+              <Upload className="w-4 h-4 text-destructive" />
+              <span className="text-destructive">{errorMsg || "Réessayer"}</span>
             </>
           ) : (
             <>
@@ -268,7 +268,7 @@ export function EvidenceUpload({
       )}
 
       {phase !== "done" && (
-        <p className="mt-2 text-[10px] text-zinc-500">
+        <p className="mt-2 text-[10px] text-mute">
           Max {maxSizeMB} MB · Formats : {acceptMimeTypes.map((m) => m.split("/")[1]).join(", ")}.
           Stocké de façon privée — seuls toi et tes parents peuvent le voir.
         </p>

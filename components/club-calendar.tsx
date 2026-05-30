@@ -123,7 +123,7 @@ export function ClubCalendar({ sessions, clubName, venueName, city }: ClubCalend
                   ? ""
                   : session
                     ? session.attended
-                      ? "bg-green-500/20 border-2 border-green-500 text-green-400 font-bold cursor-pointer hover:bg-green-500/30"
+                      ? "bg-lime/20 border-2 border-lime text-lime font-bold cursor-pointer hover:bg-lime/30"
                       : session.status === "scheduled"
                         ? "bg-primary/20 border-2 border-primary text-primary font-bold cursor-pointer hover:bg-primary/30"
                         : "bg-muted border border-border text-muted-foreground"
@@ -145,7 +145,7 @@ export function ClubCalendar({ sessions, clubName, venueName, city }: ClubCalend
           <span className="text-muted-foreground">Session programmée</span>
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <div className="w-4 h-4 rounded bg-green-500/20 border-2 border-green-500" />
+          <div className="w-4 h-4 rounded bg-lime/20 border-2 border-lime" />
           <span className="text-muted-foreground">Session complétée</span>
         </div>
         <div className="flex items-center gap-3 text-sm">

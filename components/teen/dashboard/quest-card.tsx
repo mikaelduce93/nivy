@@ -93,7 +93,7 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
       whileHover={{ y: -8, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "relative group overflow-hidden rounded-[2.5rem] bg-zinc-900/40 backdrop-blur-xl border p-1 transition-all duration-500",
+        "relative group overflow-hidden rounded-[2.5rem] bg-card  border p-1 transition-all duration-500",
         config.border
       )}
     >
@@ -103,7 +103,7 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
         style={{ backgroundColor: config.color }}
       />
 
-      <div className="relative z-10 h-full flex flex-col justify-between p-4 sm:p-6 md:p-8 bg-zinc-950/40 rounded-[1.8rem] sm:rounded-[2rem] md:rounded-[2.3rem]">
+      <div className="relative z-10 h-full flex flex-col justify-between p-4 sm:p-6 md:p-8 bg-background rounded-[1.8rem] sm:rounded-[2rem] md:rounded-[2.3rem]">
         <div className="space-y-3 sm:space-y-4 md:space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between flex-wrap gap-2">
@@ -112,7 +112,7 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-gen-z-yellow fill-current" />
-              <span className="font-black text-white text-xs sm:text-sm md:text-base">+{quest.xp_reward} XP</span>
+              <span className="font-black text-ink text-xs sm:text-sm md:text-base">+{quest.xp_reward} XP</span>
             </div>
           </div>
 
@@ -122,10 +122,10 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
               <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8" style={{ color: config.color }} />
             </div>
             <div className="space-y-0.5 sm:space-y-1 min-w-0">
-              <h3 className="text-base sm:text-lg md:text-2xl font-black text-white tracking-tight leading-tight sm:leading-none group-hover:text-brand-soft transition-colors line-clamp-2">
+              <h3 className="text-base sm:text-lg md:text-2xl font-black text-ink tracking-tight leading-tight sm:leading-none group-hover:text-brand-soft transition-colors line-clamp-2">
                 {quest.title}
               </h3>
-              <p className="text-zinc-500 text-xs sm:text-sm font-medium line-clamp-2">
+              <p className="text-mute text-xs sm:text-sm font-medium line-clamp-2">
                 {quest.description}
               </p>
             </div>
@@ -144,7 +144,7 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
                 <Play className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">IN PROGRESS</span><span className="sm:hidden">ACTIVE</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 sm:gap-2 text-zinc-500 font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-mute font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4" /> AVAILABLE
               </div>
             )}
@@ -156,10 +156,10 @@ export function QuestCard({ quest, onStart }: QuestCardProps) {
             className={cn(
               "rounded-xl sm:rounded-2xl px-3 sm:px-4 md:px-6 h-9 sm:h-10 md:h-12 font-black text-xs sm:text-sm transition-all group/btn",
               isCompleted 
-                ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                ? "bg-card text-mute cursor-not-allowed"
                 : isInProgress
-                  ? "bg-brand-soft text-black hover:scale-105"
-                  : "bg-white text-black hover:scale-105"
+                  ? "bg-brand-soft text-ink hover:scale-105"
+                  : "bg-white text-ink hover:scale-105"
             )}
           >
             {isStarting ? (

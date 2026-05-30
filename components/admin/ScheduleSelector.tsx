@@ -67,14 +67,14 @@ export default function ScheduleSelector({ schedules, onChange }: ScheduleSelect
   return (
     <div className="space-y-4">
       {schedules.length === 0 && (
-        <div className="text-center py-8 bg-zinc-950 rounded-lg border border-zinc-800 border-dashed">
-          <CalendarIcon className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-          <p className="text-zinc-400 mb-4">Aucune séance planifiée</p>
+        <div className="text-center py-8 bg-background rounded-lg border border-ink border-dashed">
+          <CalendarIcon className="w-12 h-12 text-mute mx-auto mb-3" />
+          <p className="text-mute mb-4">Aucune séance planifiée</p>
           <Button
             type="button"
             onClick={addSchedule}
             variant="outline"
-            className="bg-transparent border-zinc-700 text-zinc-300"
+            className="bg-transparent border-ink text-ink-2"
           >
             <Plus className="w-4 h-4 mr-2" />
             Ajouter une séance
@@ -91,45 +91,45 @@ export default function ScheduleSelector({ schedules, onChange }: ScheduleSelect
         )
 
         return (
-          <Card key={index} className="bg-zinc-950 border-zinc-800">
+          <Card key={index} className="bg-background border-ink">
             <CardContent className="pt-6">
               <div className="flex items-start gap-4">
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-zinc-300">
-                      Date <span className="text-red-400">*</span>
+                    <Label className="text-ink-2">
+                      Date <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       type="date"
                       value={schedule.date}
                       onChange={(e) => updateSchedule(originalIndex, 'date', e.target.value)}
-                      className="bg-zinc-900 border-zinc-700 text-white"
+                      className="bg-card border-ink text-ink"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-zinc-300">
-                      Heure de début <span className="text-red-400">*</span>
+                    <Label className="text-ink-2">
+                      Heure de début <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       type="time"
                       value={schedule.start_time}
                       onChange={(e) => updateSchedule(originalIndex, 'start_time', e.target.value)}
-                      className="bg-zinc-900 border-zinc-700 text-white"
+                      className="bg-card border-ink text-ink"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-zinc-300">
-                      Heure de fin <span className="text-red-400">*</span>
+                    <Label className="text-ink-2">
+                      Heure de fin <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       type="time"
                       value={schedule.end_time}
                       onChange={(e) => updateSchedule(originalIndex, 'end_time', e.target.value)}
-                      className="bg-zinc-900 border-zinc-700 text-white"
+                      className="bg-card border-ink text-ink"
                       required
                     />
                   </div>
@@ -140,7 +140,7 @@ export default function ScheduleSelector({ schedules, onChange }: ScheduleSelect
                   onClick={() => removeSchedule(originalIndex)}
                   variant="ghost"
                   size="icon"
-                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 mt-8"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 mt-8"
                   aria-label="Supprimer ce créneau"
                 >
                   <Trash2 className="w-4 h-4" aria-hidden="true" />
@@ -148,8 +148,8 @@ export default function ScheduleSelector({ schedules, onChange }: ScheduleSelect
               </div>
 
               {/* Afficher un résumé de la séance */}
-              <div className="mt-3 pt-3 border-t border-zinc-800">
-                <p className="text-sm text-zinc-400">
+              <div className="mt-3 pt-3 border-t border-ink">
+                <p className="text-sm text-mute">
                   <Clock className="w-4 h-4 inline mr-1" />
                   {formatDateFr(schedule.date)} de {schedule.start_time} à {schedule.end_time}
                 </p>
@@ -164,7 +164,7 @@ export default function ScheduleSelector({ schedules, onChange }: ScheduleSelect
           type="button"
           onClick={addSchedule}
           variant="outline"
-          className="w-full bg-transparent border-zinc-700 text-zinc-300 border-dashed"
+          className="w-full bg-transparent border-ink text-ink-2 border-dashed"
         >
           <Plus className="w-4 h-4 mr-2" />
           Ajouter une autre séance
@@ -173,13 +173,13 @@ export default function ScheduleSelector({ schedules, onChange }: ScheduleSelect
 
       {/* Résumé complet */}
       {schedules.length > 0 && (
-        <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-          <p className="text-sm font-semibold text-cyan-400 mb-2">
+        <div className="bg-teal/10 border border-teal/30 rounded-lg p-4">
+          <p className="text-sm font-semibold text-teal mb-2">
             Résumé : {schedules.length} séance{schedules.length > 1 ? 's' : ''} planifiée{schedules.length > 1 ? 's' : ''}
           </p>
           <ul className="space-y-1 max-h-48 overflow-y-auto">
             {sortedSchedules.map((schedule, index) => (
-              <li key={index} className="text-sm text-cyan-300/80">
+              <li key={index} className="text-sm text-teal/80">
                 • {formatDateFr(schedule.date)} : {schedule.start_time} - {schedule.end_time}
               </li>
             ))}

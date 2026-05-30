@@ -51,7 +51,7 @@ export function StreakCounter({
           "flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all",
           isCritical 
             ? "bg-destructive/10 border-destructive/50 animate-pulse" 
-            : "bg-card/80 backdrop-blur-sm border-border/50 shadow-sm"
+            : "bg-card/80  border-border/50 shadow-sm"
         )}
         whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.98 }}
@@ -96,14 +96,14 @@ export function StreakCounter({
         {/* Background glow */}
         <motion.div 
           className={cn(
-            "absolute inset-0 rounded-3xl blur-3xl opacity-30",
+            "absolute inset-0 rounded-2xl blur-3xl opacity-30",
             `bg-gradient-to-r ${colors.from} ${colors.to}`
           )}
           animate={{ opacity: [0.2, 0.4, 0.2] }}
           transition={{ repeat: Infinity, duration: 2 }}
         />
 
-        <div className="relative bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 text-center">
+        <div className="relative bg-card  border border-ink rounded-2xl p-8 text-center">
           {/* Animated Flame */}
           <div className="relative mx-auto w-32 h-32 mb-4">
             {/* Outer glow ring */}
@@ -132,9 +132,9 @@ export function StreakCounter({
               <Flame 
                 className={cn(
                   "w-20 h-20",
-                  flameIntensity === 'legendary' ? 'text-cyan-400' :
-                  flameIntensity === 'epic' ? 'text-purple-400' :
-                  flameIntensity === 'rare' ? 'text-red-400' : 'text-orange-400'
+                  flameIntensity === 'legendary' ? 'text-teal' :
+                  flameIntensity === 'epic' ? 'text-pink' :
+                  flameIntensity === 'rare' ? 'text-destructive' : 'text-coral'
                 )} 
                 style={{ filter: `drop-shadow(0 0 20px ${colors.glow})` }}
               />
@@ -187,7 +187,7 @@ export function StreakCounter({
             )}>
               {currentStreak}
             </span>
-            <span className="block text-lg text-zinc-400 font-medium mt-1">
+            <span className="block text-lg text-mute font-medium mt-1">
               jour{currentStreak > 1 ? 's' : ''} de série
             </span>
           </motion.div>
@@ -195,18 +195,18 @@ export function StreakCounter({
           {/* Multiplier Badge */}
           {multiplier > 1 && (
             <motion.div 
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/20 border border-yellow-500/30"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30"
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
-              <Zap className="w-4 h-4 text-yellow-400" />
-              <span className="font-bold text-yellow-400">Bonus XP x{multiplier}</span>
+              <Zap className="w-4 h-4 text-gold" />
+              <span className="font-bold text-gold">Bonus XP x{multiplier}</span>
             </motion.div>
           )}
 
           {/* Protected indicator */}
           {isProtected && (
-            <div className="mt-3 flex items-center justify-center gap-2 text-sm text-cyan-400">
+            <div className="mt-3 flex items-center justify-center gap-2 text-sm text-teal">
               <Shield className="w-4 h-4" />
               <span>Série protégée</span>
             </div>
@@ -214,17 +214,17 @@ export function StreakCounter({
 
           {/* Next milestone */}
           {nextMilestone && (
-            <div className="mt-4 text-sm text-zinc-500">
+            <div className="mt-4 text-sm text-mute">
               <span>Prochaine récompense dans </span>
-              <span className="text-white font-bold">{nextMilestone} jour{nextMilestone > 1 ? 's' : ''}</span>
-              <Gift className="w-4 h-4 inline ml-1 text-emerald-400" />
+              <span className="text-ink font-bold">{nextMilestone} jour{nextMilestone > 1 ? 's' : ''}</span>
+              <Gift className="w-4 h-4 inline ml-1 text-lime" />
             </div>
           )}
 
           {/* Max streak indicator */}
           {maxStreak && currentStreak >= maxStreak && (
             <motion.div 
-              className="mt-4 text-sm text-cyan-400 font-bold"
+              className="mt-4 text-sm text-teal font-bold"
               animate={{ opacity: [0.7, 1, 0.7] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
@@ -240,7 +240,7 @@ export function StreakCounter({
   return (
     <motion.div 
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/50 backdrop-blur-md",
+        "relative overflow-hidden rounded-2xl border border-ink bg-card ",
         size === 'sm' && 'p-3',
         size === 'md' && 'p-4',
         size === 'lg' && 'p-6'
@@ -270,9 +270,9 @@ export function StreakCounter({
           <Flame 
             className={cn(
               size === 'sm' ? 'w-5 h-5' : size === 'lg' ? 'w-8 h-8' : 'w-6 h-6',
-              flameIntensity === 'legendary' ? 'text-cyan-400' :
-              flameIntensity === 'epic' ? 'text-purple-400' :
-              flameIntensity === 'rare' ? 'text-red-400' : 'text-orange-400'
+              flameIntensity === 'legendary' ? 'text-teal' :
+              flameIntensity === 'epic' ? 'text-pink' :
+              flameIntensity === 'rare' ? 'text-destructive' : 'text-coral'
             )} 
           />
         </motion.div>
@@ -287,7 +287,7 @@ export function StreakCounter({
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
                 className={cn(
-                  "font-black text-white",
+                  "font-black text-ink",
                   size === 'sm' && 'text-2xl',
                   size === 'md' && 'text-3xl',
                   size === 'lg' && 'text-4xl'
@@ -296,17 +296,17 @@ export function StreakCounter({
                 {currentStreak}
               </motion.span>
             </AnimatePresence>
-            <span className="text-zinc-400 text-sm">jour{currentStreak > 1 ? 's' : ''}</span>
+            <span className="text-mute text-sm">jour{currentStreak > 1 ? 's' : ''}</span>
             
             {isProtected && (
-              <Shield className="w-4 h-4 text-cyan-400 ml-1" />
+              <Shield className="w-4 h-4 text-teal ml-1" />
             )}
           </div>
           
           <div className="flex items-center gap-3 mt-1">
             {multiplier > 1 && (
               <motion.span 
-                className="text-xs font-bold text-yellow-400 flex items-center gap-1"
+                className="text-xs font-bold text-gold flex items-center gap-1"
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ repeat: Infinity, duration: 1.5 }}
               >
@@ -316,7 +316,7 @@ export function StreakCounter({
             )}
             
             {nextMilestone && (
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-mute">
                 Récompense dans {nextMilestone}j
               </span>
             )}
@@ -326,11 +326,11 @@ export function StreakCounter({
         {/* Intensity badge */}
         <div className={cn(
           "px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold",
-          flameIntensity === 'legendary' && 'bg-cyan-500/20 text-cyan-400',
-          flameIntensity === 'epic' && 'bg-purple-500/20 text-purple-400',
-          flameIntensity === 'rare' && 'bg-red-500/20 text-red-400',
-          flameIntensity === 'common' && 'bg-orange-500/20 text-orange-400',
-          flameIntensity === 'starting' && 'bg-yellow-500/20 text-yellow-400',
+          flameIntensity === 'legendary' && 'bg-teal/20 text-teal',
+          flameIntensity === 'epic' && 'bg-pink/20 text-pink',
+          flameIntensity === 'rare' && 'bg-destructive/20 text-destructive',
+          flameIntensity === 'common' && 'bg-coral/20 text-coral',
+          flameIntensity === 'starting' && 'bg-gold/20 text-gold',
         )}>
           {flameIntensity === 'legendary' ? '🔥 Légendaire' :
            flameIntensity === 'epic' ? '⚡ Épique' :

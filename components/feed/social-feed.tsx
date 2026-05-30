@@ -90,11 +90,11 @@ const fallbackActivities: FeedActivity[] = [
 
 // Activity type colors
 const activityTypeColors: Record<string, { bg: string; border: string; glow: string }> = {
-  achievement: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', glow: 'rgba(245, 158, 11, 0.3)' },
+  achievement: { bg: 'bg-gold/10', border: 'border-gold/20', glow: 'rgba(245, 158, 11, 0.3)' },
   event: { bg: 'bg-accent-soft/10', border: 'border-accent-soft/20', glow: 'rgba(244, 63, 94, 0.3)' },
   xp: { bg: 'bg-brand-soft/10', border: 'border-brand-soft/20', glow: 'rgba(139, 92, 246, 0.3)' },
-  presence: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', glow: 'rgba(16, 185, 129, 0.3)' },
-  default: { bg: 'bg-white/5', border: 'border-white/10', glow: 'rgba(255, 255, 255, 0.1)' },
+  presence: { bg: 'bg-lime/10', border: 'border-lime/20', glow: 'rgba(16, 185, 129, 0.3)' },
+  default: { bg: 'bg-paper-2', border: 'border-ink', glow: 'rgba(255, 255, 255, 0.1)' },
 }
 
 // Presence event configs
@@ -377,8 +377,8 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
         "relative rounded-xl sm:rounded-2xl p-3 sm:p-4 transition-all duration-300 cursor-pointer",
         colors.bg,
         "border",
-        isHovered ? 'border-white/20' : colors.border,
-        "backdrop-blur-sm"
+        isHovered ? 'border-ink' : colors.border,
+        ""
       )}
     >
       {/* Glow effect on hover */}
@@ -415,19 +415,19 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               />
             )}
             <Avatar 
-              className="h-9 w-9 sm:h-10 sm:w-10 border border-white/10"
+              className="h-9 w-9 sm:h-10 sm:w-10 border border-ink"
               showStatus={isPresence}
               presenceStatus={isPresence ? 'online' : undefined}
             >
               <AvatarImage src={activity.user?.avatar_url} />
-              <AvatarFallback className="bg-zinc-800 text-white font-bold text-sm">
+              <AvatarFallback className="bg-card text-ink font-bold text-sm">
                 {username[0]}
               </AvatarFallback>
             </Avatar>
           </motion.div>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-white">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-ink">
               <span className="truncate">{username}</span>
               {activity.activity_type?.emoji && (
                 <motion.span
@@ -439,7 +439,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               )}
               {isPresence && (
                 <motion.span 
-                  className="ml-1 text-[8px] sm:text-[10px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 uppercase tracking-wider"
+                  className="ml-1 text-[8px] sm:text-[10px] font-black px-1.5 py-0.5 rounded-full bg-lime/20 text-lime uppercase tracking-wider"
                   animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
@@ -447,12 +447,12 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
                 </motion.span>
               )}
             </div>
-            <div className="text-[10px] sm:text-xs text-zinc-500">{timeLabel}</div>
+            <div className="text-[10px] sm:text-xs text-mute">{timeLabel}</div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-white/90 font-medium">{title}</div>
+        <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-ink/90 font-medium">{title}</div>
 
         {/* Interaction buttons */}
         {!isPresence && (
@@ -465,8 +465,8 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
                 className={cn(
                   "flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all",
                   isLiked 
-                    ? "bg-red-500/20 text-red-400 border border-red-500/30" 
-                    : "bg-white/5 text-zinc-400 border border-white/10 hover:text-red-400 hover:border-red-500/30"
+                    ? "bg-destructive/20 text-destructive border border-destructive/30" 
+                    : "bg-paper-2 text-mute border border-ink hover:text-destructive hover:border-destructive/30"
                 )}
               >
                 <motion.div
@@ -483,7 +483,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 border border-white/10 text-[10px] sm:text-xs font-bold hover:text-brand-soft hover:border-brand-soft/30 transition-all"
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-paper-2 text-mute border border-ink text-[10px] sm:text-xs font-bold hover:text-brand-soft hover:border-brand-soft/30 transition-all"
               >
                 <MessageCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {activity.comments_count ?? 0}
@@ -494,7 +494,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 border border-white/10 text-[10px] sm:text-xs font-bold hover:text-success-soft hover:border-success-soft/30 transition-all"
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-paper-2 text-mute border border-ink text-[10px] sm:text-xs font-bold hover:text-success-soft hover:border-success-soft/30 transition-all"
               >
                 <Share2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {activity.shares_count ?? 0}

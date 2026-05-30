@@ -131,8 +131,8 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
                 step >= s
-                  ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
-                  : "bg-zinc-800 text-zinc-500"
+                  ? "bg-gradient-to-r from-teal to-teal text-ink"
+                  : "bg-card text-mute"
               }`}
             >
               {step > s ? <Check className="w-5 h-5" /> : s}
@@ -140,7 +140,7 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
             {s < 3 && (
               <div
                 className={`h-1 flex-1 mx-2 ${
-                  step > s ? "bg-gradient-to-r from-cyan-500 to-blue-500" : "bg-zinc-800"
+                  step > s ? "bg-gradient-to-r from-teal to-teal" : "bg-card"
                 }`}
               />
             )}
@@ -149,29 +149,29 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
       </div>
 
       {step === 1 && (
-        <Card className="p-6 bg-zinc-900 border-zinc-800">
-          <h3 className="text-xl font-bold text-white mb-6">Informations parentales</h3>
+        <Card className="p-6 bg-card border-ink">
+          <h3 className="text-xl font-bold text-ink mb-6">Informations parentales</h3>
           
           <div className="space-y-4">
             <div>
-              <Label htmlFor="parentName" className="text-white">Nom complet du parent *</Label>
+              <Label htmlFor="parentName" className="text-ink">Nom complet du parent *</Label>
               <Input
                 id="parentName"
                 value={formData.parentFullName}
                 onChange={(e) => setFormData({ ...formData, parentFullName: e.target.value })}
                 placeholder="Prénom et nom comme sur la CIN"
-                className="bg-zinc-950 border-zinc-800 mt-2"
+                className="bg-background border-ink mt-2"
               />
             </div>
 
             <div>
-              <Label htmlFor="cin" className="text-white">Numéro CIN *</Label>
+              <Label htmlFor="cin" className="text-ink">Numéro CIN *</Label>
               <Input
                 id="cin"
                 value={formData.parentCin}
                 onChange={(e) => setFormData({ ...formData, parentCin: e.target.value })}
                 placeholder="AB123456"
-                className="bg-zinc-950 border-zinc-800 mt-2"
+                className="bg-background border-ink mt-2"
               />
             </div>
 
@@ -184,7 +184,7 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
                     setFormData({ ...formData, photoConsent: checked as boolean })
                   }
                 />
-                <label htmlFor="photoConsent" className="text-sm text-zinc-300 cursor-pointer">
+                <label htmlFor="photoConsent" className="text-sm text-ink-2 cursor-pointer">
                   J'autorise la prise de photos de mon enfant lors de l'événement
                 </label>
               </div>
@@ -197,7 +197,7 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
                     setFormData({ ...formData, medicalConsent: checked as boolean })
                   }
                 />
-                <label htmlFor="medicalConsent" className="text-sm text-zinc-300 cursor-pointer">
+                <label htmlFor="medicalConsent" className="text-sm text-ink-2 cursor-pointer">
                   J'autorise les premiers soins d'urgence si nécessaire
                 </label>
               </div>
@@ -206,7 +206,7 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
 
           <Button
             onClick={() => setStep(2)}
-            className="w-full mt-6 bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="w-full mt-6 bg-gradient-to-r from-teal to-teal"
             disabled={!formData.parentFullName || !formData.parentCin}
           >
             Suivant
@@ -215,13 +215,13 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
       )}
 
       {step === 2 && (
-        <Card className="p-6 bg-zinc-900 border-zinc-800">
-          <h3 className="text-xl font-bold text-white mb-6">Upload CIN</h3>
+        <Card className="p-6 bg-card border-ink">
+          <h3 className="text-xl font-bold text-ink mb-6">Upload CIN</h3>
           
           <div className="space-y-6">
             <div>
-              <Label className="text-white mb-3 block">CIN Recto *</Label>
-              <div className="border-2 border-dashed border-zinc-700 rounded-lg p-6 hover:border-cyan-500/50 transition-colors">
+              <Label className="text-ink mb-3 block">CIN Recto *</Label>
+              <div className="border-2 border-dashed border-ink rounded-lg p-6 hover:border-teal/50 transition-colors">
                 <input
                   type="file"
                   accept="image/*"
@@ -230,18 +230,18 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
                   id="cin-front"
                 />
                 <label htmlFor="cin-front" className="cursor-pointer flex flex-col items-center">
-                  <Upload className="w-12 h-12 text-zinc-500 mb-3" />
-                  <p className="text-white font-semibold mb-1">
+                  <Upload className="w-12 h-12 text-mute mb-3" />
+                  <p className="text-ink font-semibold mb-1">
                     {cinFrontFile ? cinFrontFile.name : "Cliquez pour télécharger"}
                   </p>
-                  <p className="text-zinc-500 text-sm">JPEG, PNG - Max 5 Mo</p>
+                  <p className="text-mute text-sm">JPEG, PNG - Max 5 Mo</p>
                 </label>
               </div>
             </div>
 
             <div>
-              <Label className="text-white mb-3 block">CIN Verso *</Label>
-              <div className="border-2 border-dashed border-zinc-700 rounded-lg p-6 hover:border-cyan-500/50 transition-colors">
+              <Label className="text-ink mb-3 block">CIN Verso *</Label>
+              <div className="border-2 border-dashed border-ink rounded-lg p-6 hover:border-teal/50 transition-colors">
                 <input
                   type="file"
                   accept="image/*"
@@ -250,11 +250,11 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
                   id="cin-back"
                 />
                 <label htmlFor="cin-back" className="cursor-pointer flex flex-col items-center">
-                  <Upload className="w-12 h-12 text-zinc-500 mb-3" />
-                  <p className="text-white font-semibold mb-1">
+                  <Upload className="w-12 h-12 text-mute mb-3" />
+                  <p className="text-ink font-semibold mb-1">
                     {cinBackFile ? cinBackFile.name : "Cliquez pour télécharger"}
                   </p>
-                  <p className="text-zinc-500 text-sm">JPEG, PNG - Max 5 Mo</p>
+                  <p className="text-mute text-sm">JPEG, PNG - Max 5 Mo</p>
                 </label>
               </div>
             </div>
@@ -264,13 +264,13 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
             <Button
               onClick={() => setStep(1)}
               variant="outline"
-              className="flex-1 border-zinc-700"
+              className="flex-1 border-ink"
             >
               Retour
             </Button>
             <Button
               onClick={() => setStep(3)}
-              className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500"
+              className="flex-1 bg-gradient-to-r from-teal to-teal"
               disabled={!cinFrontFile || !cinBackFile}
             >
               Suivant
@@ -280,10 +280,10 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
       )}
 
       {step === 3 && (
-        <Card className="p-6 bg-zinc-900 border-zinc-800">
-          <h3 className="text-xl font-bold text-white mb-6">Signature électronique</h3>
+        <Card className="p-6 bg-card border-ink">
+          <h3 className="text-xl font-bold text-ink mb-6">Signature électronique</h3>
           
-          <div className="bg-zinc-950 rounded-lg p-4 mb-4">
+          <div className="bg-background rounded-lg p-4 mb-4">
             <SignatureCanvas
               ref={signatureRef}
               canvasProps={{
@@ -299,16 +299,16 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
             onClick={clearSignature}
             variant="outline"
             size="sm"
-            className="mb-6 border-zinc-700"
+            className="mb-6 border-ink"
           >
             Effacer
           </Button>
 
-          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4 mb-6">
+          <div className="bg-teal/10 border border-teal/30 rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
-              <FileText className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-zinc-300 space-y-2">
-                <p>Je soussigné(e) <strong className="text-white">{formData.parentFullName}</strong>, titulaire de la CIN n° <strong className="text-white">{formData.parentCin}</strong>, autorise mon enfant à participer à l'événement organisé par Teens Party Morocco.</p>
+              <FileText className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-ink-2 space-y-2">
+                <p>Je soussigné(e) <strong className="text-ink">{formData.parentFullName}</strong>, titulaire de la CIN n° <strong className="text-ink">{formData.parentCin}</strong>, autorise mon enfant à participer à l'événement organisé par Teens Party Morocco.</p>
                 <p>Je certifie l'exactitude des informations fournies et accepte les conditions générales.</p>
               </div>
             </div>
@@ -322,14 +322,14 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
                 setFormData({ ...formData, termsAccepted: checked as boolean })
               }
             />
-            <label htmlFor="terms" className="text-sm text-zinc-300 cursor-pointer">
-              J'accepte les <a href="/legal/conditions" className="text-cyan-400 hover:underline">conditions générales</a> et la <a href="/legal/confidentialite" className="text-cyan-400 hover:underline">politique de confidentialité</a> *
+            <label htmlFor="terms" className="text-sm text-ink-2 cursor-pointer">
+              J'accepte les <a href="/legal/conditions" className="text-teal hover:underline">conditions générales</a> et la <a href="/legal/confidentialite" className="text-teal hover:underline">politique de confidentialité</a> *
             </label>
           </div>
 
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-300">
+          <div className="bg-gold/10 border border-gold/30 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-gold">
               Cette signature électronique a la même valeur juridique qu'une signature manuscrite. Les documents seront automatiquement supprimés après 30 jours conformément au RGPD/CNDP.
             </p>
           </div>
@@ -338,13 +338,13 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
             <Button
               onClick={() => setStep(2)}
               variant="outline"
-              className="flex-1 border-zinc-700"
+              className="flex-1 border-ink"
             >
               Retour
             </Button>
             <Button
               onClick={handleSubmit}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500"
+              className="flex-1 bg-gradient-to-r from-lime to-lime"
               disabled={loading || !formData.termsAccepted}
             >
               {loading ? "Enregistrement..." : "Valider et signer"}

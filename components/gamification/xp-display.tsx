@@ -31,8 +31,8 @@ export function XPValueDisplay({
 
   if (variant === 'minimal') {
     return (
-      <span className={cn("font-mono text-emerald-400", sizeClasses[size], className)}>
-        <AnimatedCounter value={xp} suffix=" XP" /> <span className="text-zinc-500">≈ <AnimatedCounter value={valueInDh} suffix=" DH" /></span>
+      <span className={cn("font-mono text-lime", sizeClasses[size], className)}>
+        <AnimatedCounter value={xp} suffix=" XP" /> <span className="text-mute">≈ <AnimatedCounter value={valueInDh} suffix=" DH" /></span>
       </span>
     )
   }
@@ -40,14 +40,14 @@ export function XPValueDisplay({
   if (variant === 'badge') {
     return (
       <div className={cn(
-        "inline-flex items-center gap-2 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20",
+        "inline-flex items-center gap-2 px-2 py-1 rounded-full bg-lime/10 border border-lime/20",
         className
       )}>
-        <span className={cn("font-bold text-emerald-400", sizeClasses[size])}>
+        <span className={cn("font-bold text-lime", sizeClasses[size])}>
           <AnimatedCounter value={xp} suffix=" XP" />
         </span>
-        <span className="w-px h-3 bg-emerald-500/20" />
-        <span className={cn("font-bold text-yellow-400 flex items-center gap-1", sizeClasses[size])}>
+        <span className="w-px h-3 bg-lime/20" />
+        <span className={cn("font-bold text-gold flex items-center gap-1", sizeClasses[size])}>
           <AnimatedCounter value={valueInDh} suffix=" DH" />
         </span>
       </div>
@@ -57,12 +57,12 @@ export function XPValueDisplay({
   return (
     <div className={cn("flex flex-col", className)}>
       <div className="flex items-center gap-1.5">
-        {showIcon && <Zap className="w-4 h-4 text-emerald-400" />}
-        <span className={cn("font-black text-white", sizeClasses[size])}>
+        {showIcon && <Zap className="w-4 h-4 text-lime" />}
+        <span className={cn("font-black text-ink", sizeClasses[size])}>
           <AnimatedCounter value={xp} suffix=" XP" />
         </span>
       </div>
-      <div className="flex items-center gap-1 text-xs text-yellow-400/80 font-medium">
+      <div className="flex items-center gap-1 text-xs text-gold/80 font-medium">
         <Coins className="w-3 h-3" />
         <span>Valeur : <AnimatedCounter value={valueInDh} suffix=" MAD" /></span>
       </div>

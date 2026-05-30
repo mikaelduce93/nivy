@@ -178,7 +178,7 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
             <SlidersHorizontal className="w-4 h-4 mr-2" />
             Filtres
             {activeFiltersCount > 0 && (
-              <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-primary text-white">
+              <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-primary text-ink">
                 {activeFiltersCount}
               </Badge>
             )}
@@ -300,7 +300,7 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
                 className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
               />
               <span className="text-sm font-medium">Uniquement profil AEFE</span>
-              <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/30">
+              <Badge variant="outline" className="bg-teal/10 text-teal border-teal/30">
                 -20%
               </Badge>
             </label>
@@ -336,7 +336,7 @@ export function EventsClient({ initialEvents, initialCities, initialThemes }: Ev
             </Badge>
           )}
           {showAEFEOnly && (
-            <Badge variant="secondary" className="gap-2 bg-blue-500/10 text-blue-500">
+            <Badge variant="secondary" className="gap-2 bg-teal/10 text-teal">
               Profil AEFE
               <X className="w-3 h-3 cursor-pointer" onClick={() => setShowAEFEOnly(false)} />
             </Badge>
@@ -449,32 +449,32 @@ function EventCardGrid({ event, onAddToCalendar }: { event: Event; onAddToCalend
 
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {isNew && (
-            <Badge className="bg-green-500 text-white gap-1">
+            <Badge className="bg-lime text-ink gap-1">
               <Sparkles className="w-3 h-3" />
               Nouveau
             </Badge>
           )}
           {isPopular && (
-            <Badge className="bg-purple-500 text-white gap-1">
+            <Badge className="bg-pink text-ink gap-1">
               <TrendingUp className="w-3 h-3" />
               Populaire
             </Badge>
           )}
           {event.has_aefe_discount && (
-            <Badge className="bg-blue-500 text-white">AEFE -20%</Badge>
+            <Badge className="bg-teal text-ink">AEFE -20%</Badge>
           )}
           {isAlmostFull && (
-            <Badge className="bg-orange-500 text-white gap-1">
+            <Badge className="bg-coral text-ink gap-1">
               <Flame className="w-3 h-3" />
               Presque complet
             </Badge>
           )}
           {isFull && (
-            <Badge className="bg-red-500 text-white">COMPLET</Badge>
+            <Badge className="bg-destructive text-ink">COMPLET</Badge>
           )}
         </div>
 
-        <div className="absolute top-3 right-3 bg-primary text-white font-bold text-center rounded-lg overflow-hidden shadow-lg">
+        <div className="absolute top-3 right-3 bg-primary text-ink font-bold text-center rounded-lg overflow-hidden shadow-lg">
           <div className="px-3 py-1 text-2xl">{eventDate.getDate()}</div>
           <div className="px-3 py-0.5 text-xs bg-primary/80">
             {eventDate.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase()}
@@ -551,28 +551,28 @@ function EventCardList({ event, onAddToCalendar }: { event: Event; onAddToCalend
           />
           <div className="absolute top-3 left-3 flex flex-wrap gap-2">
             {isNew && (
-              <Badge className="bg-green-500 text-white gap-1 text-xs">
+              <Badge className="bg-lime text-ink gap-1 text-xs">
                 <Sparkles className="w-3 h-3" />
                 Nouveau
               </Badge>
             )}
             {isPopular && (
-              <Badge className="bg-purple-500 text-white gap-1 text-xs">
+              <Badge className="bg-pink text-ink gap-1 text-xs">
                 <TrendingUp className="w-3 h-3" />
                 Populaire
               </Badge>
             )}
             {event.has_aefe_discount && (
-              <Badge className="bg-blue-500 text-white text-xs">AEFE -20%</Badge>
+              <Badge className="bg-teal text-ink text-xs">AEFE -20%</Badge>
             )}
             {isAlmostFull && (
-              <Badge className="bg-orange-500 text-white gap-1 text-xs">
+              <Badge className="bg-coral text-ink gap-1 text-xs">
                 <Flame className="w-3 h-3" />
                 Presque complet
               </Badge>
             )}
             {isFull && (
-              <Badge className="bg-red-500 text-white text-xs">COMPLET</Badge>
+              <Badge className="bg-destructive text-ink text-xs">COMPLET</Badge>
             )}
           </div>
         </div>

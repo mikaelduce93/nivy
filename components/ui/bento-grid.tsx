@@ -157,7 +157,7 @@ export function BentoCard({
   const variantClasses = {
     default: "bg-card/80 backdrop-blur-xl border border-border/50 shadow-xl",
     glass: "bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl",
-    glow: "bg-card/90 backdrop-blur-xl border border-primary/20 shadow-[0_0_40px_-10px_var(--primary-glow)]",
+    glow: "bg-card/90 backdrop-blur-xl border border-primary/20 ",
     accent: "bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-xl border border-primary/30",
     premium: "bg-gradient-to-br from-zinc-900/95 via-zinc-900/90 to-zinc-950/95 backdrop-blur-xl border border-white/10 shadow-2xl",
   }
@@ -211,7 +211,7 @@ export function BentoCard({
           className={cn(
             "relative h-full w-full overflow-hidden rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-6 transition-all duration-300",
             variantClasses[variant],
-            isHovered && borderGlow && "shadow-[0_0_30px_-5px_var(--glow-color)]",
+            isHovered && borderGlow && "",
             className
           )}
           style={{

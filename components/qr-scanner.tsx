@@ -161,10 +161,10 @@ export function QRScanner({
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800 overflow-hidden">
+    <Card className="p-4 bg-card border-ink overflow-hidden">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <Camera className="h-5 w-5 text-emerald-400" />
+        <h3 className="text-lg font-bold text-ink flex items-center gap-2">
+          <Camera className="h-5 w-5 text-lime" />
           Scanner QR Code
         </h3>
         <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export function QRScanner({
               variant="ghost"
               size="icon"
               onClick={switchCamera}
-              className="h-8 w-8 text-zinc-400 hover:text-white"
+              className="h-8 w-8 text-mute hover:text-ink"
             >
               <FlipHorizontal className="w-4 h-4" />
             </Button>
@@ -195,11 +195,11 @@ export function QRScanner({
       </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="mb-4 p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-red-400 font-semibold text-sm">Erreur d'acces camera</p>
-            <p className="text-red-300 text-xs mt-1">{error}</p>
+            <p className="text-destructive font-semibold text-sm">Erreur d'acces camera</p>
+            <p className="text-destructive text-xs mt-1">{error}</p>
           </div>
         </div>
       )}
@@ -209,8 +209,8 @@ export function QRScanner({
         <div
           id={elementId}
           className={cn(
-            "rounded-lg overflow-hidden bg-zinc-950 min-h-[300px]",
-            isScanning && "border-2 border-emerald-500/50"
+            "rounded-lg overflow-hidden bg-background min-h-[300px]",
+            isScanning && "border-2 border-lime/50"
           )}
         />
 
@@ -218,20 +218,20 @@ export function QRScanner({
         {isScanning && (
           <div className="absolute inset-0 pointer-events-none">
             {/* Corner markers */}
-            <div className="absolute top-[10%] left-[10%] w-8 h-8 border-t-2 border-l-2 border-emerald-400" />
-            <div className="absolute top-[10%] right-[10%] w-8 h-8 border-t-2 border-r-2 border-emerald-400" />
-            <div className="absolute bottom-[10%] left-[10%] w-8 h-8 border-b-2 border-l-2 border-emerald-400" />
-            <div className="absolute bottom-[10%] right-[10%] w-8 h-8 border-b-2 border-r-2 border-emerald-400" />
+            <div className="absolute top-[10%] left-[10%] w-8 h-8 border-t-2 border-l-2 border-lime" />
+            <div className="absolute top-[10%] right-[10%] w-8 h-8 border-t-2 border-r-2 border-lime" />
+            <div className="absolute bottom-[10%] left-[10%] w-8 h-8 border-b-2 border-l-2 border-lime" />
+            <div className="absolute bottom-[10%] right-[10%] w-8 h-8 border-b-2 border-r-2 border-lime" />
 
             {/* Scanning line animation */}
-            <div className="absolute top-[10%] left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-scan" />
+            <div className="absolute top-[10%] left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-transparent via-lime to-transparent animate-scan" />
           </div>
         )}
 
         {/* Loading overlay */}
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/80">
-            <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center bg-background">
+            <Loader2 className="w-8 h-8 text-lime animate-spin" />
           </div>
         )}
       </div>
@@ -240,7 +240,7 @@ export function QRScanner({
       {!isScanning && !isLoading && (
         <Button
           onClick={startScanning}
-          className="w-full mt-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+          className="w-full mt-4 bg-gradient-to-r from-lime to-lime hover:from-lime hover:to-lime"
         >
           <Camera className="w-4 h-4 mr-2" />
           Activer la camera
@@ -249,8 +249,8 @@ export function QRScanner({
 
       {/* Status indicator */}
       {isScanning && (
-        <div className="mt-4 flex items-center justify-center gap-2 text-sm text-zinc-400">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="mt-4 flex items-center justify-center gap-2 text-sm text-mute">
+          <div className="w-2 h-2 rounded-full bg-lime animate-pulse" />
           <span>Camera active - Placez le QR code dans le cadre</span>
         </div>
       )}
@@ -260,7 +260,7 @@ export function QRScanner({
         <Button
           variant="outline"
           onClick={stopScanner}
-          className="w-full mt-4 border-zinc-700"
+          className="w-full mt-4 border-ink"
         >
           Arreter le scan
         </Button>

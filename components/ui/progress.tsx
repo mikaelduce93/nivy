@@ -52,8 +52,8 @@ const indicatorVariants = cva(
       },
       glow: {
         none: '',
-        subtle: 'shadow-[0_0_8px_var(--primary)]',
-        strong: 'shadow-[0_0_16px_var(--primary)]',
+        subtle: '',
+        strong: '',
       }
     },
     defaultVariants: {

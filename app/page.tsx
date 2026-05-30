@@ -126,7 +126,7 @@ export default function HomePage() {
 
               {/* Live badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-card/60  border border-border/50 shadow-lg" role="status" aria-live="polite">
-                <div className="w-2.5 h-2.5 rounded-full bg-gen-z-lime animate-pulse shadow-[0_0_12px_var(--gen-z-lime)]" aria-hidden="true" />
+                <div className="w-2.5 h-2.5 rounded-full bg-gen-z-lime animate-pulse " aria-hidden="true" />
                 <span className="text-sm font-bold text-gen-z-lime tabular-nums">{t("hero.live", { days: countdown.days, hours: countdown.hours })}</span>
               </div>
 
@@ -256,7 +256,7 @@ export default function HomePage() {
                 <h3 className="text-2xl font-black text-ink mb-2 group-hover:text-coral transition-colors">Self-Express</h3>
                 <p className="text-mute text-sm mb-6">Arts, musique, danse, théâtre. Exprime ton talent.</p>
                 <Link href="/clubs?category=art">
-                  <NeonButton variant="default" size="sm" className="w-full bg-coral hover:bg-coral border border-coral/50 shadow-[0_0_15px_-5px_orange]">Explorer Arts</NeonButton>
+                  <NeonButton variant="default" size="sm" className="w-full bg-coral hover:bg-coral border border-coral/50 ">Explorer Arts</NeonButton>
                 </Link>
               </GlassCard>
 

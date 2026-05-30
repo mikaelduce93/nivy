@@ -26,7 +26,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Shield,
       title: "Dashboard Parental",
       description: "Gérez tous les profils de vos enfants depuis un seul endroit",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-teal to-teal",
       details: [
         "Vue d'ensemble des activités",
         "Suivi en temps réel",
@@ -39,7 +39,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Calendar,
       title: "Réservations Faciles",
       description: "Réservez et payez en quelques clics",
-      color: "from-green-500 to-emerald-500",
+      color: "from-lime to-lime",
       details: [
         "Calendrier interactif",
         "Paiement sécurisé",
@@ -52,7 +52,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Crown,
       title: "Pass VIP",
       description: "Économisez avec les abonnements mensuels",
-      color: "from-yellow-500 to-orange-500",
+      color: "from-gold to-coral",
       details: [
         "Jusqu'à 30% de réduction",
         "Events inclus",
@@ -65,7 +65,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Heart,
       title: "Sécurité & Suivi",
       description: "Vos enfants en sécurité, vous en tranquillité",
-      color: "from-pink-500 to-rose-500",
+      color: "from-pink to-pink",
       details: [
         "Photos des événements",
         "Encadrement professionnel",
@@ -81,7 +81,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Trophy,
       title: "Système de Badges",
       description: "Complète des défis et deviens une légende",
-      color: "from-yellow-500 to-orange-500",
+      color: "from-gold to-coral",
       details: [
         "Défis quotidiens",
         "Badges exclusifs",
@@ -94,7 +94,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Users,
       title: "Retrouve tes Amis",
       description: "Vois qui participe aux events et rejoins-les",
-      color: "from-purple-500 to-pink-500",
+      color: "from-pink to-pink",
       details: [
         "Liste d'amis",
         "Voir les participants",
@@ -107,7 +107,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Star,
       title: "Ton Profil Unique",
       description: "Personnalise ton avatar et montre ta personnalité",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-teal to-teal",
       details: [
         "Avatar personnalisé",
         "Pseudo unique",
@@ -120,7 +120,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Zap,
       title: "Events Exclusifs",
       description: "Accède à des événements réservés aux membres",
-      color: "from-green-500 to-emerald-500",
+      color: "from-lime to-lime",
       details: [
         "Events VIP",
         "Réservation prioritaire",
@@ -181,15 +181,15 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 mb-4">
-            <Zap className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm font-medium text-cyan-400">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-teal/20 to-pink/20 border border-teal/30 mb-4">
+            <Zap className="w-4 h-4 text-teal" />
+            <span className="text-sm font-medium text-teal">
               Bonus: Système de Gamification
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black mb-3">
             Découvre ton{' '}
-            <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-teal to-pink bg-clip-text text-transparent">
               Pouvoir XP
             </span>
           </h2>
@@ -240,7 +240,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
         >
           <Card className="overflow-hidden border-2 max-w-2xl mx-auto">
             {/* Header with gradient */}
-            <div className={`relative h-48 bg-gradient-to-br ${currentFeatureData.color} flex flex-col items-center justify-center text-white`}>
+            <div className={`relative h-48 bg-gradient-to-br ${currentFeatureData.color} flex flex-col items-center justify-center text-ink`}>
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
@@ -277,7 +277,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
                     className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
                   >
                     <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${currentFeatureData.color} flex items-center justify-center flex-shrink-0`}>
-                      <CheckCircle2 className="w-4 h-4 text-white" />
+                      <CheckCircle2 className="w-4 h-4 text-ink" />
                     </div>
                     <span className="text-sm font-medium">{detail}</span>
                   </motion.div>
@@ -314,7 +314,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
 
         <Button
           onClick={handleNext}
-          className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white"
+          className="gap-2 bg-gradient-to-r from-primary to-pink hover:opacity-90 text-ink"
         >
           {currentFeature < features.length - 1 ? 'Suivant' : 'Terminer'}
           <ChevronRight className="w-4 h-4" />

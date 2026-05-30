@@ -15,7 +15,7 @@ export function ProgressRing({
   target,
   className,
   size = 92,
-  strokeClassName = "stroke-emerald-400",
+  strokeClassName = "stroke-lime",
 }: ProgressRingProps) {
   const safeTarget = target > 0 ? target : 1
   const percentage = Math.min(100, Math.round((current / safeTarget) * 100))
@@ -35,7 +35,7 @@ export function ProgressRing({
             fill="transparent"
             stroke="currentColor"
             strokeWidth={strokeWidth}
-            className="text-zinc-800"
+            className="text-ink"
           />
           <circle
             cx={size / 2}
@@ -50,13 +50,13 @@ export function ProgressRing({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-bold text-white">{percentage}%</span>
-          <span className="text-[10px] text-zinc-500">
+          <span className="text-lg font-bold text-ink">{percentage}%</span>
+          <span className="text-[10px] text-mute">
             {current}/{target}
           </span>
         </div>
       </div>
-      <span className="text-xs text-zinc-400 text-center">{label}</span>
+      <span className="text-xs text-mute text-center">{label}</span>
     </div>
   )
 }

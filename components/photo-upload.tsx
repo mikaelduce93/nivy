@@ -93,7 +93,7 @@ export function PhotoUpload({
 
       <div className="flex items-center gap-4">
         {previewUrl ? (
-          <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-zinc-700">
+          <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-ink">
             <Image
               src={previewUrl || "/placeholder.svg"}
               alt="Aperçu"
@@ -104,15 +104,15 @@ export function PhotoUpload({
             <button
               type="button"
               onClick={handleRemovePhoto}
-              className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+              className="absolute top-0 right-0 bg-destructive text-ink rounded-full p-1 hover:bg-destructive transition-colors"
               disabled={uploading}
             >
               <X className="w-3 h-3" />
             </button>
           </div>
         ) : (
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-            <Camera className="w-10 h-10 text-white" />
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+            <Camera className="w-10 h-10 text-ink" />
           </div>
         )}
 
@@ -132,7 +132,7 @@ export function PhotoUpload({
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 bg-transparent"
+            className="border-teal text-teal hover:bg-teal/10 bg-transparent"
           >
             {uploading ? (
               <>
@@ -146,15 +146,15 @@ export function PhotoUpload({
               </>
             )}
           </Button>
-          <p className="text-xs text-zinc-500 mt-2">
+          <p className="text-xs text-mute mt-2">
             JPG, PNG, WebP. Max 10 Mo. Compression automatique à 1 Mo.
           </p>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3">
+          <p className="text-destructive text-sm">{error}</p>
         </div>
       )}
     </div>

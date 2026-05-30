@@ -58,57 +58,57 @@ const PLATFORMS: Platform[] = [
     id: "whatsapp",
     name: "WhatsApp",
     icon: <MessageCircle className="w-6 h-6" />,
-    color: "text-green-500",
-    bgColor: "bg-green-500/10 hover:bg-green-500/20",
+    color: "text-lime",
+    bgColor: "bg-lime/10 hover:bg-lime/20",
   },
   {
     id: "facebook",
     name: "Facebook",
     icon: <Facebook className="w-6 h-6" />,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10 hover:bg-blue-500/20",
+    color: "text-teal",
+    bgColor: "bg-teal/10 hover:bg-teal/20",
   },
   {
     id: "twitter",
     name: "Twitter/X",
     icon: <Twitter className="w-6 h-6" />,
-    color: "text-sky-400",
-    bgColor: "bg-sky-400/10 hover:bg-sky-400/20",
+    color: "text-teal",
+    bgColor: "bg-teal/10 hover:bg-teal/20",
   },
   {
     id: "instagram",
     name: "Instagram",
     icon: <Instagram className="w-6 h-6" />,
-    color: "text-pink-500",
-    bgColor: "bg-pink-500/10 hover:bg-pink-500/20",
+    color: "text-pink",
+    bgColor: "bg-pink/10 hover:bg-pink/20",
   },
   {
     id: "telegram",
     name: "Telegram",
     icon: <Send className="w-6 h-6" />,
-    color: "text-blue-400",
-    bgColor: "bg-blue-400/10 hover:bg-blue-400/20",
+    color: "text-teal",
+    bgColor: "bg-teal/10 hover:bg-teal/20",
   },
   {
     id: "linkedin",
     name: "LinkedIn",
     icon: <Linkedin className="w-6 h-6" />,
-    color: "text-blue-600",
-    bgColor: "bg-blue-600/10 hover:bg-blue-600/20",
+    color: "text-teal",
+    bgColor: "bg-teal/10 hover:bg-teal/20",
   },
   {
     id: "email",
     name: "Email",
     icon: <Mail className="w-6 h-6" />,
-    color: "text-orange-400",
-    bgColor: "bg-orange-400/10 hover:bg-orange-400/20",
+    color: "text-coral",
+    bgColor: "bg-coral/10 hover:bg-coral/20",
   },
   {
     id: "copy_link",
     name: "Copier le lien",
     icon: <Link2 className="w-6 h-6" />,
-    color: "text-zinc-400",
-    bgColor: "bg-zinc-400/10 hover:bg-zinc-400/20",
+    color: "text-mute",
+    bgColor: "bg-muted hover:bg-muted",
   },
 ]
 
@@ -302,7 +302,7 @@ export function ShareModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/70"
         onClick={onClose}
       >
         <motion.div
@@ -310,25 +310,25 @@ export function ShareModal({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-md bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden"
+          className="w-full max-w-md bg-card rounded-2xl border border-ink overflow-hidden"
         >
           {/* Header */}
-          <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+          <div className="p-4 border-b border-ink flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full
+              <div className="w-10 h-10 bg-gradient-to-br from-teal to-teal rounded-full
                 flex items-center justify-center">
-                <Share2 className="w-5 h-5 text-white" />
+                <Share2 className="w-5 h-5 text-ink" />
               </div>
               <div>
-                <h2 className="font-semibold text-white">Partager</h2>
-                <p className="text-xs text-zinc-500">Gagne des XP en partageant!</p>
+                <h2 className="font-semibold text-ink">Partager</h2>
+                <p className="text-xs text-mute">Gagne des XP en partageant!</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-zinc-800 rounded-full transition-colors"
+              className="p-2 hover:bg-card rounded-full transition-colors"
             >
-              <X className="w-5 h-5 text-zinc-400" />
+              <X className="w-5 h-5 text-mute" />
             </button>
           </div>
 
@@ -336,14 +336,14 @@ export function ShareModal({
           <div className="p-4">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-8">
-                <Loader2 className="w-8 h-8 text-cyan-500 animate-spin mb-4" />
-                <p className="text-zinc-400">Préparation du partage...</p>
+                <Loader2 className="w-8 h-8 text-teal animate-spin mb-4" />
+                <p className="text-mute">Préparation du partage...</p>
               </div>
             ) : (
               <>
                 {/* Preview Card */}
                 {shareData && (
-                  <div className="bg-zinc-800 rounded-xl p-4 mb-4">
+                  <div className="bg-card rounded-xl p-4 mb-4">
                     <div className="flex gap-3">
                       {shareData.image && (
                         <Image
@@ -355,16 +355,16 @@ export function ShareModal({
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-white line-clamp-2">
+                        <h3 className="font-semibold text-ink line-clamp-2">
                           {shareData.title}
                         </h3>
                         {shareData.description && (
-                          <p className="text-sm text-zinc-400 mt-1 line-clamp-2">
+                          <p className="text-sm text-mute mt-1 line-clamp-2">
                             {shareData.description}
                           </p>
                         )}
                         {shareData.hashtags && shareData.hashtags.length > 0 && (
-                          <p className="text-xs text-cyan-400 mt-2">
+                          <p className="text-xs text-teal mt-2">
                             {shareData.hashtags.map((h) => `#${h}`).join(" ")}
                           </p>
                         )}
@@ -380,18 +380,18 @@ export function ShareModal({
                       type="text"
                       value={shareLink}
                       readOnly
-                      className="flex-1 bg-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-300
-                        border border-zinc-700 focus:outline-none"
+                      className="flex-1 bg-card rounded-lg px-3 py-2 text-sm text-ink-2
+                        border border-ink focus:outline-none"
                     />
                     <button
                       onClick={() => handleShare(PLATFORMS.find((p) => p.id === "copy_link")!)}
-                      className="px-3 py-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors
+                      className="px-3 py-2 bg-card rounded-lg hover:bg-muted transition-colors
                         flex items-center gap-2"
                     >
                       {copied ? (
-                        <Check className="w-4 h-4 text-green-400" />
+                        <Check className="w-4 h-4 text-lime" />
                       ) : (
-                        <Copy className="w-4 h-4 text-zinc-400" />
+                        <Copy className="w-4 h-4 text-mute" />
                       )}
                     </button>
                   </div>
@@ -415,7 +415,7 @@ export function ShareModal({
                       ) : (
                         platform.icon
                       )}
-                      <span className="text-xs text-zinc-400">{platform.name}</span>
+                      <span className="text-xs text-mute">{platform.name}</span>
                     </button>
                   ))}
                 </div>
@@ -424,8 +424,8 @@ export function ShareModal({
                 {shareData?.image && (
                   <button
                     onClick={handleDownload}
-                    className="w-full mt-4 py-3 bg-zinc-800 rounded-xl hover:bg-zinc-700
-                      transition-colors flex items-center justify-center gap-2 text-zinc-300"
+                    className="w-full mt-4 py-3 bg-card rounded-xl hover:bg-muted
+                      transition-colors flex items-center justify-center gap-2 text-ink-2"
                   >
                     <Download className="w-5 h-5" />
                     <span>Télécharger l'image</span>
@@ -439,22 +439,22 @@ export function ShareModal({
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
-                      className="mt-4 p-3 bg-gradient-to-r from-cyan-500/10 to-blue-500/10
-                        rounded-xl border border-cyan-500/20"
+                      className="mt-4 p-3 bg-gradient-to-r from-teal/10 to-teal/10
+                        rounded-xl border border-teal/20"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center">
-                          <Gift className="w-5 h-5 text-cyan-400" />
+                        <div className="w-10 h-10 bg-teal/20 rounded-full flex items-center justify-center">
+                          <Gift className="w-5 h-5 text-teal" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-semibold text-cyan-400">
+                          <p className="font-semibold text-teal">
                             +{reward.xp} XP gagnés!
                           </p>
-                          <p className="text-xs text-zinc-400">
+                          <p className="text-xs text-mute">
                             {reward.daily_shares}/{reward.daily_limit} partages aujourd'hui
                           </p>
                         </div>
-                        <Sparkles className="w-5 h-5 text-yellow-400" />
+                        <Sparkles className="w-5 h-5 text-gold" />
                       </div>
                     </motion.div>
                   )}

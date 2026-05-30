@@ -218,9 +218,9 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       <FormField name="teenIds" error={touched.teenIds ? errors.teenIds : undefined}>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-zinc-300">
+            <Label className="text-ink-2">
               Teens concernés
-              <span className="text-zinc-500 font-normal ml-1">
+              <span className="text-mute font-normal ml-1">
                 ({teenIds.length}/{teens.length})
               </span>
             </Label>
@@ -228,31 +228,31 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
               <button
                 type="button"
                 onClick={() => toggleAll(!allSelected)}
-                className="text-xs text-emerald-400 hover:text-emerald-300"
+                className="text-xs text-lime hover:text-lime"
               >
                 {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
               </button>
             )}
           </div>
-          <div className="space-y-2 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3">
+          <div className="space-y-2 rounded-lg border border-ink bg-card p-3">
             {teens.map((t) => {
               const checked = teenIds.includes(t.teen_id)
               return (
                 <label
                   key={t.teen_id}
-                  className="flex items-center gap-3 cursor-pointer rounded px-2 py-1.5 hover:bg-zinc-800"
+                  className="flex items-center gap-3 cursor-pointer rounded px-2 py-1.5 hover:bg-card"
                 >
                   <Checkbox
                     checked={checked}
                     onCheckedChange={(v) => toggleTeen(t.teen_id, v === true)}
-                    className="border-zinc-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                    className="border-ink data-[state=checked]:bg-lime data-[state=checked]:border-lime"
                   />
-                  <span className="text-sm text-white">{t.teen_name}</span>
+                  <span className="text-sm text-ink">{t.teen_name}</span>
                 </label>
               )
             })}
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-mute">
             La corvée sera assignée indépendamment à chaque teen sélectionné
             (chacun la complète et est récompensé séparément).
           </p>
@@ -261,7 +261,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       </FormField>
 
       <FormField name="title" required error={touched.title ? errors.title : undefined}>
-        <FormLabel className="text-zinc-300">Titre</FormLabel>
+        <FormLabel className="text-ink-2">Titre</FormLabel>
         <Input
           ref={titleRef}
           name="title"
@@ -269,7 +269,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
           onChange={(e) => setTitle(e.target.value)}
           onBlur={() => markTouched("title")}
           placeholder="Ex. Faire la vaisselle 5 fois"
-          className="bg-zinc-800 border-zinc-700 text-white"
+          className="bg-card border-ink text-ink"
           maxLength={120}
           aria-invalid={!!(touched.title && errors.title)}
           required
@@ -278,13 +278,13 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       </FormField>
 
       <FormField name="description">
-        <FormLabel className="text-zinc-300">Description (optionnelle)</FormLabel>
+        <FormLabel className="text-ink-2">Description (optionnelle)</FormLabel>
         <Textarea
           name="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Détails / consignes..."
-          className="bg-zinc-800 border-zinc-700 text-white"
+          className="bg-card border-ink text-ink"
           rows={3}
         />
       </FormField>
@@ -294,7 +294,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
           name="rewardDh"
           error={touched.rewardDh ? errors.rewardDh : undefined}
         >
-          <FormLabel className="text-zinc-300">Récompense DH</FormLabel>
+          <FormLabel className="text-ink-2">Récompense DH</FormLabel>
           <Input
             type="number"
             name="rewardDh"
@@ -303,10 +303,10 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
             value={rewardDh}
             onChange={(e) => setRewardDh(e.target.value)}
             onBlur={() => markTouched("rewardDh")}
-            className="bg-zinc-800 border-zinc-700 text-white"
+            className="bg-card border-ink text-ink"
             aria-invalid={!!(touched.rewardDh && errors.rewardDh)}
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-mute">
             1 DH = 100 coins. Versé après vérification.
           </p>
           <FormError />
@@ -315,7 +315,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
           name="rewardXp"
           error={touched.rewardXp ? errors.rewardXp : undefined}
         >
-          <FormLabel className="text-zinc-300">Récompense XP</FormLabel>
+          <FormLabel className="text-ink-2">Récompense XP</FormLabel>
           <Input
             type="number"
             name="rewardXp"
@@ -324,7 +324,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
             value={rewardXp}
             onChange={(e) => setRewardXp(e.target.value)}
             onBlur={() => markTouched("rewardXp")}
-            className="bg-zinc-800 border-zinc-700 text-white"
+            className="bg-card border-ink text-ink"
             aria-invalid={!!(touched.rewardXp && errors.rewardXp)}
           />
           <FormError />
@@ -333,17 +333,17 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-zinc-300">Récurrence</Label>
+          <Label className="text-ink-2">Récurrence</Label>
           <Select value={recurrence} onValueChange={setRecurrence}>
-            <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+            <SelectTrigger className="bg-card border-ink text-ink">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-800 border-zinc-700">
+            <SelectContent className="bg-card border-ink">
               {RECURRENCE_OPTIONS.map((o) => (
                 <SelectItem
                   key={o.value}
                   value={o.value}
-                  className="text-white hover:bg-zinc-700 focus:bg-zinc-700"
+                  className="text-ink hover:bg-muted focus:bg-muted"
                 >
                   {o.label}
                 </SelectItem>
@@ -357,7 +357,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
             touched.requiredCompletions ? errors.requiredCompletions : undefined
           }
         >
-          <FormLabel className="text-zinc-300">Nombre requis</FormLabel>
+          <FormLabel className="text-ink-2">Nombre requis</FormLabel>
           <Input
             type="number"
             name="requiredCompletions"
@@ -366,22 +366,22 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
             value={requiredCompletions}
             onChange={(e) => setRequiredCompletions(e.target.value)}
             onBlur={() => markTouched("requiredCompletions")}
-            className="bg-zinc-800 border-zinc-700 text-white"
+            className="bg-card border-ink text-ink"
             aria-invalid={
               !!(touched.requiredCompletions && errors.requiredCompletions)
             }
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-mute">
             Combien de fois pour déclencher la récompense.
           </p>
           <FormError />
         </FormField>
       </div>
 
-      <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-800 border border-zinc-700">
+      <div className="flex items-center justify-between p-3 rounded-lg bg-card border border-ink">
         <div>
-          <Label className="text-zinc-200">Preuve photo requise</Label>
-          <p className="text-xs text-zinc-500 mt-1">
+          <Label className="text-ink-2">Preuve photo requise</Label>
+          <p className="text-xs text-mute mt-1">
             Le teen devra uploader une photo à chaque complétion.
           </p>
         </div>
@@ -392,7 +392,7 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
         type="submit"
         disabled={loading || success || teenIds.length === 0}
         aria-busy={loading}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-12"
+        className="w-full bg-lime hover:bg-lime text-ink h-12"
       >
         {success ? (
           <>

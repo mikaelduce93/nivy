@@ -56,15 +56,15 @@ export function PartnerActiveOffersFeed({
           offers.map((offer) => (
             <div
               key={offer.id}
-              className="group relative p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-accent-soft/30 hover:bg-white/[0.05] transition-all duration-500 cursor-default"
+              className="group relative p-6 rounded-[2rem] bg-white/[0.03] border border-ink hover:border-accent-soft/30 hover:bg-white/[0.05] transition-all duration-500 cursor-default"
             >
               <div className="flex items-center justify-between relative z-10">
                 <div className="space-y-1">
-                  <p className="font-black text-white text-lg group-hover:text-accent-soft transition-colors">
+                  <p className="font-black text-ink text-lg group-hover:text-accent-soft transition-colors">
                     {offer.discount_name}
                   </p>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">
+                    <span className="text-xs font-black text-mute uppercase tracking-widest">
                       {offer.discount_type === 'percentage'
                         ? `${offer.discount_value}% RÉDUCTION`
                         : `-${offer.discount_value} DH`}
@@ -72,10 +72,10 @@ export function PartnerActiveOffersFeed({
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-black text-white tabular-nums">
+                  <p className="text-3xl font-black text-ink tabular-nums">
                     {offer.current_total_uses || 0}
                   </p>
-                  <p className="text-xs font-bold text-zinc-600 uppercase tracking-tighter">
+                  <p className="text-xs font-bold text-mute uppercase tracking-tighter">
                     UTILISATIONS
                   </p>
                 </div>
@@ -83,7 +83,7 @@ export function PartnerActiveOffersFeed({
             </div>
           ))
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-zinc-700 font-black uppercase tracking-widest py-20">
+          <div className="h-full flex flex-col items-center justify-center text-ink font-black uppercase tracking-widest py-20">
             Aucune campagne active
           </div>
         )}
@@ -121,7 +121,7 @@ export function PartnerLiveTransactionsFeed({
           variant="ghost"
           size="sm"
           asChild
-          className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white"
+          className="text-xs font-black uppercase tracking-widest text-mute hover:text-ink"
         >
           <Link href="/partner/transactions">
             Tout voir <ArrowRight className="h-3 w-3 ml-2" />
@@ -142,23 +142,23 @@ export function PartnerLiveTransactionsFeed({
             return (
               <div
                 key={tx.id}
-                className="flex items-center justify-between p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-info-soft/30 transition-all duration-500"
+                className="flex items-center justify-between p-6 rounded-[2rem] bg-white/[0.03] border border-ink hover:border-info-soft/30 transition-all duration-500"
               >
                 <div className="flex items-center gap-5">
-                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-info-soft via-brand-soft to-accent-soft flex items-center justify-center text-black font-black text-2xl shadow-xl">
+                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-info-soft via-brand-soft to-accent-soft flex items-center justify-center text-ink font-black text-2xl shadow-xl">
                     {customerName.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-black text-white text-lg tracking-tight">
+                    <p className="font-black text-ink text-lg tracking-tight">
                       {customerName}
                     </p>
-                    <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">
+                    <p className="text-xs font-black text-mute uppercase tracking-widest">
                       {timeText} • VALIDÉ
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-black text-white tabular-nums">
+                  <p className="text-xl font-black text-ink tabular-nums">
                     {tx.final_amount} <span className="text-sm">DH</span>
                   </p>
                   <div className="inline-block px-2 py-0.5 rounded-lg bg-gen-z-lime/10 text-gen-z-lime text-xs font-black uppercase tracking-tighter mt-1">
@@ -169,7 +169,7 @@ export function PartnerLiveTransactionsFeed({
             )
           })
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-zinc-700 font-black uppercase tracking-widest py-20">
+          <div className="h-full flex flex-col items-center justify-center text-ink font-black uppercase tracking-widest py-20">
             En attente de transaction
           </div>
         )}

@@ -72,7 +72,7 @@ export function ParentNotificationRow({ notification }: { notification: ParentNo
   return (
     <Card
       className={cn(
-        "bg-zinc-900 border-zinc-800 transition-all cursor-pointer hover:border-zinc-700",
+        "bg-card border-ink transition-all cursor-pointer hover:border-ink",
         !isRead && "border-l-4 border-l-cyan-500",
       )}
       onClick={onActivate}
@@ -88,33 +88,33 @@ export function ParentNotificationRow({ notification }: { notification: ParentNo
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0 text-lg" aria-hidden="true">
+          <div className="w-10 h-10 rounded-full bg-lime/10 flex items-center justify-center flex-shrink-0 text-lg" aria-hidden="true">
             {notification.emoji || "🔔"}
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className={cn("font-bold", isRead ? "text-zinc-400" : "text-white")}>
+              <h3 className={cn("font-bold", isRead ? "text-mute" : "text-ink")}>
                 {notification.title}
               </h3>
               {notification.priority === "high" && (
-                <Badge className="bg-amber-500/20 text-amber-300 text-xs">Important</Badge>
+                <Badge className="bg-gold/20 text-gold text-xs">Important</Badge>
               )}
             </div>
             {notification.body && (
-              <p className={cn("text-sm", isRead ? "text-zinc-500" : "text-zinc-300")}>
+              <p className={cn("text-sm", isRead ? "text-mute" : "text-ink-2")}>
                 {notification.body}
               </p>
             )}
             <div className="flex items-center gap-4 mt-2">
-              <span className="text-xs text-zinc-500 flex items-center gap-1">
+              <span className="text-xs text-mute flex items-center gap-1">
                 <Clock className="w-3 h-3" aria-hidden="true" />
                 {formatRelative(notification.created_at)}
               </span>
               {notification.action_url && (
                 <Link
                   href={notification.action_url}
-                  className="text-xs text-cyan-400 hover:underline"
+                  className="text-xs text-teal hover:underline"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {notification.action_label || "Voir détails"} →

@@ -96,8 +96,8 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Card className="p-6 bg-zinc-900 border-zinc-800">
-        <h2 className="text-xl font-bold text-white mb-4">Informations de base</h2>
+      <Card className="p-6 bg-card border-ink">
+        <h2 className="text-xl font-bold text-ink mb-4">Informations de base</h2>
         
         <div className="space-y-4">
           <div>
@@ -107,7 +107,7 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
               onValueChange={(value) => setFormData(prev => ({ ...prev, childId: value }))}
               required
             >
-              <SelectTrigger id="childId" className="bg-zinc-950 border-zinc-800">
+              <SelectTrigger id="childId" className="bg-background border-ink">
                 <SelectValue placeholder="Sélectionner un enfant" />
               </SelectTrigger>
               <SelectContent>
@@ -127,7 +127,7 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
               onValueChange={(value) => setFormData(prev => ({ ...prev, eventId: value }))}
               required
             >
-              <SelectTrigger id="eventId" className="bg-zinc-950 border-zinc-800">
+              <SelectTrigger id="eventId" className="bg-background border-ink">
                 <SelectValue placeholder="Sélectionner un événement" />
               </SelectTrigger>
               <SelectContent>
@@ -142,8 +142,8 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
         </div>
       </Card>
 
-      <Card className="p-6 bg-zinc-900 border-zinc-800">
-        <h2 className="text-xl font-bold text-white mb-4">Personne autorisée à récupérer l'enfant</h2>
+      <Card className="p-6 bg-card border-ink">
+        <h2 className="text-xl font-bold text-ink mb-4">Personne autorisée à récupérer l'enfant</h2>
         
         <div className="space-y-4">
           <div>
@@ -152,7 +152,7 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
               id="authorizedPersonName"
               value={formData.authorizedPersonName}
               onChange={(e) => setFormData(prev => ({ ...prev, authorizedPersonName: e.target.value }))}
-              className="bg-zinc-950 border-zinc-800"
+              className="bg-background border-ink"
               placeholder="Si différent du parent"
             />
           </div>
@@ -164,7 +164,7 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
               type="tel"
               value={formData.authorizedPersonPhone}
               onChange={(e) => setFormData(prev => ({ ...prev, authorizedPersonPhone: e.target.value }))}
-              className="bg-zinc-950 border-zinc-800"
+              className="bg-background border-ink"
             />
           </div>
 
@@ -174,15 +174,15 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
               id="authorizedPersonRelation"
               value={formData.authorizedPersonRelation}
               onChange={(e) => setFormData(prev => ({ ...prev, authorizedPersonRelation: e.target.value }))}
-              className="bg-zinc-950 border-zinc-800"
+              className="bg-background border-ink"
               placeholder="Ex: Grand-mère, Oncle, Ami de la famille"
             />
           </div>
         </div>
       </Card>
 
-      <Card className="p-6 bg-zinc-900 border-zinc-800">
-        <h2 className="text-xl font-bold text-white mb-4">Consentements *</h2>
+      <Card className="p-6 bg-card border-ink">
+        <h2 className="text-xl font-bold text-ink mb-4">Consentements *</h2>
         
         <div className="space-y-4">
           <div className="flex items-start gap-3">
@@ -232,9 +232,9 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
         </div>
       </Card>
 
-      <Card className="p-6 bg-zinc-900 border-zinc-800">
-        <h2 className="text-xl font-bold text-white mb-4">Copie de la CIN du parent *</h2>
-        <p className="text-sm text-zinc-400 mb-4">
+      <Card className="p-6 bg-card border-ink">
+        <h2 className="text-xl font-bold text-ink mb-4">Copie de la CIN du parent *</h2>
+        <p className="text-sm text-mute mb-4">
           Pour des raisons de sécurité, nous devons vérifier votre identité. Ces documents seront 
           automatiquement supprimés après 30 jours conformément au RGPD/CNDP.
         </p>
@@ -262,16 +262,16 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
       <SignaturePad onSave={handleSignatureSave} />
 
       {!formData.parentSignature && (
-        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-          <p className="text-yellow-400 text-sm">
+        <div className="bg-gold/10 border border-gold/30 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
+          <p className="text-gold text-sm">
             Vous devez signer électroniquement l'autorisation avant de pouvoir la soumettre.
           </p>
         </div>
       )}
 
-      <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-        <p className="text-cyan-400 text-sm">
+      <div className="bg-teal/10 border border-teal/30 rounded-lg p-4">
+        <p className="text-teal text-sm">
           En soumettant ce formulaire, je certifie que les informations fournies sont exactes et 
           j'accepte les conditions générales de Teens Party Morocco. Cette autorisation est valable 
           uniquement pour l'événement sélectionné.
@@ -281,7 +281,7 @@ export function AuthorizationForm({ children, events, parentId }: AuthorizationF
       <Button
         type="submit"
         disabled={loading || !formData.parentSignature || !formData.photoConsent || !formData.medicalConsent}
-        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 py-6 text-lg"
+        className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0 py-6 text-lg"
       >
         {loading ? (
           <>

@@ -95,18 +95,18 @@ interface Comment {
 const getPostTypeIcon = (type: string) => {
   const icons: Record<string, React.ReactNode> = {
     status: null,
-    achievement: <Trophy className="w-4 h-4 text-yellow-400" />,
-    level_up: <Star className="w-4 h-4 text-purple-400" />,
-    challenge_complete: <Target className="w-4 h-4 text-green-400" />,
-    creation: <Palette className="w-4 h-4 text-pink-400" />,
-    record: <Medal className="w-4 h-4 text-orange-400" />,
-    streak: <Flame className="w-4 h-4 text-red-400" />,
-    club_join: <Users className="w-4 h-4 text-blue-400" />,
-    circle_create: <Sparkles className="w-4 h-4 text-cyan-400" />,
-    friendship: <Heart className="w-4 h-4 text-pink-400" />,
-    milestone: <Award className="w-4 h-4 text-yellow-400" />,
-    photo: <ImageIcon className="w-4 h-4 text-blue-400" />,
-    video: <Video className="w-4 h-4 text-purple-400" />,
+    achievement: <Trophy className="w-4 h-4 text-gold" />,
+    level_up: <Star className="w-4 h-4 text-pink" />,
+    challenge_complete: <Target className="w-4 h-4 text-lime" />,
+    creation: <Palette className="w-4 h-4 text-pink" />,
+    record: <Medal className="w-4 h-4 text-coral" />,
+    streak: <Flame className="w-4 h-4 text-destructive" />,
+    club_join: <Users className="w-4 h-4 text-teal" />,
+    circle_create: <Sparkles className="w-4 h-4 text-teal" />,
+    friendship: <Heart className="w-4 h-4 text-pink" />,
+    milestone: <Award className="w-4 h-4 text-gold" />,
+    photo: <ImageIcon className="w-4 h-4 text-teal" />,
+    video: <Video className="w-4 h-4 text-pink" />,
   }
   return icons[type] || null
 }
@@ -164,7 +164,7 @@ function Avatar({
   return (
     <div className="relative">
       {src ? (
-        <div className={`relative ${sizes[size]} rounded-full overflow-hidden border-2 border-zinc-700`}>
+        <div className={`relative ${sizes[size]} rounded-full overflow-hidden border-2 border-ink`}>
           <Image
             src={src}
             alt={name}
@@ -176,16 +176,16 @@ function Avatar({
         </div>
       ) : (
         <div
-          className={`${sizes[size]} rounded-full bg-gradient-to-br from-cyan-500 to-blue-600
-            flex items-center justify-center font-bold text-white border-2 border-zinc-700`}
+          className={`${sizes[size]} rounded-full bg-gradient-to-br from-teal to-teal
+            flex items-center justify-center font-bold text-ink border-2 border-ink`}
         >
           {name.charAt(0).toUpperCase()}
         </div>
       )}
       {level && (
         <div
-          className="absolute -bottom-1 -right-1 bg-zinc-800 rounded-full px-1.5 py-0.5
-          text-[10px] font-bold text-cyan-400 border border-zinc-700"
+          className="absolute -bottom-1 -right-1 bg-card rounded-full px-1.5 py-0.5
+          text-[10px] font-bold text-teal border border-ink"
         >
           {level}
         </div>
@@ -289,7 +289,7 @@ function PostCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden"
+      className="bg-card rounded-xl border border-ink overflow-hidden"
     >
       {/* Header */}
       <div className="p-4 flex items-start gap-3">
@@ -301,22 +301,22 @@ function PostCard({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-white">{post.author_display_name}</span>
-            <span className="text-zinc-500">@{post.author_username}</span>
+            <span className="font-semibold text-ink">{post.author_display_name}</span>
+            <span className="text-mute">@{post.author_username}</span>
             {typeIcon && (
-              <span className="flex items-center gap-1 text-sm text-zinc-400">
+              <span className="flex items-center gap-1 text-sm text-mute">
                 {typeIcon}
                 {typeLabel}
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <div className="flex items-center gap-2 text-xs text-mute">
             <Clock className="w-3 h-3" />
             <span>{timeAgo(post.created_at)}</span>
             {post.circle_name && (
               <>
                 <span>•</span>
-                <span className="text-cyan-400">🔵 {post.circle_name}</span>
+                <span className="text-teal">🔵 {post.circle_name}</span>
               </>
             )}
           </div>
@@ -326,9 +326,9 @@ function PostCard({
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="p-2 hover:bg-zinc-800 rounded-full transition-colors"
+            className="p-2 hover:bg-card rounded-full transition-colors"
           >
-            <MoreHorizontal className="w-5 h-5 text-zinc-400" />
+            <MoreHorizontal className="w-5 h-5 text-mute" />
           </button>
 
           <AnimatePresence>
@@ -337,7 +337,7 @@ function PostCard({
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="absolute right-0 top-full mt-1 w-48 bg-zinc-800 rounded-lg border border-zinc-700
+                className="absolute right-0 top-full mt-1 w-48 bg-card rounded-lg border border-ink
                   shadow-xl z-20 py-1 overflow-hidden"
               >
                 <button
@@ -345,10 +345,10 @@ function PostCard({
                     onBookmark(post.post_id, post.is_bookmarked)
                     setShowMenu(false)
                   }}
-                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-zinc-700 text-left"
+                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-muted text-left"
                 >
                   {post.is_bookmarked ? (
-                    <BookmarkCheck className="w-4 h-4 text-cyan-400" />
+                    <BookmarkCheck className="w-4 h-4 text-teal" />
                   ) : (
                     <Bookmark className="w-4 h-4" />
                   )}
@@ -359,7 +359,7 @@ function PostCard({
                     onHide(post.post_id)
                     setShowMenu(false)
                   }}
-                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-zinc-700 text-left"
+                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-muted text-left"
                 >
                   <EyeOff className="w-4 h-4" />
                   <span>Masquer</span>
@@ -369,15 +369,15 @@ function PostCard({
                     onMute(post.author_id)
                     setShowMenu(false)
                   }}
-                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-zinc-700 text-left"
+                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-muted text-left"
                 >
                   <VolumeX className="w-4 h-4" />
                   <span>Masquer {post.author_display_name}</span>
                 </button>
-                <div className="border-t border-zinc-700 my-1" />
+                <div className="border-t border-ink my-1" />
                 <button
                   onClick={() => setShowMenu(false)}
-                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-zinc-700 text-left text-red-400"
+                  className="w-full px-4 py-2 flex items-center gap-3 hover:bg-muted text-left text-destructive"
                 >
                   <Flag className="w-4 h-4" />
                   <span>Signaler</span>
@@ -388,7 +388,7 @@ function PostCard({
                       onDelete(post.post_id)
                       setShowMenu(false)
                     }}
-                    className="w-full px-4 py-2 flex items-center gap-3 hover:bg-zinc-700 text-left text-red-400"
+                    className="w-full px-4 py-2 flex items-center gap-3 hover:bg-muted text-left text-destructive"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Supprimer</span>
@@ -403,7 +403,7 @@ function PostCard({
       {/* Content */}
       {post.content && (
         <div className="px-4 pb-3">
-          <p className="text-white whitespace-pre-wrap">{post.content}</p>
+          <p className="text-ink whitespace-pre-wrap">{post.content}</p>
         </div>
       )}
 
@@ -419,7 +419,7 @@ function PostCard({
           }`}
         >
           {post.media_urls.slice(0, 4).map((url, idx) => (
-            <div key={idx} className="relative aspect-square bg-zinc-800">
+            <div key={idx} className="relative aspect-square bg-card">
               <Image
                 src={url}
                 alt=""
@@ -429,8 +429,8 @@ function PostCard({
                 unoptimized
               />
               {idx === 3 && post.media_urls.length > 4 && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">
+                <div className="absolute inset-0 bg-ink/60 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-ink">
                     +{post.media_urls.length - 4}
                   </span>
                 </div>
@@ -442,17 +442,17 @@ function PostCard({
 
       {/* Achievement/Special Card */}
       {post.post_type === "achievement" && post.metadata && (
-        <div className="mx-4 mb-3 p-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10
-          rounded-lg border border-yellow-500/20">
+        <div className="mx-4 mb-3 p-3 bg-gradient-to-r from-gold/10 to-coral/10
+          rounded-lg border border-gold/20">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
-              <Trophy className="w-6 h-6 text-yellow-400" />
+            <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center">
+              <Trophy className="w-6 h-6 text-gold" />
             </div>
             <div>
-              <p className="font-semibold text-yellow-400">
+              <p className="font-semibold text-gold">
                 {(post.metadata as { badge_name?: string }).badge_name || "Badge débloqué"}
               </p>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-mute">
                 +{(post.metadata as { xp?: number }).xp || 100} XP
               </p>
             </div>
@@ -461,27 +461,27 @@ function PostCard({
       )}
 
       {post.post_type === "level_up" && post.metadata && (
-        <div className="mx-4 mb-3 p-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10
-          rounded-lg border border-purple-500/20">
+        <div className="mx-4 mb-3 p-3 bg-gradient-to-r from-pink/10 to-pink/10
+          rounded-lg border border-pink/20">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
-              <Zap className="w-6 h-6 text-purple-400" />
+            <div className="w-12 h-12 bg-pink/20 rounded-full flex items-center justify-center">
+              <Zap className="w-6 h-6 text-pink" />
             </div>
             <div>
-              <p className="font-semibold text-purple-400">
+              <p className="font-semibold text-pink">
                 Niveau {(post.metadata as { new_level?: number }).new_level || "?"}
               </p>
-              <p className="text-sm text-zinc-400">Félicitations !</p>
+              <p className="text-sm text-mute">Félicitations !</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Stats */}
-      <div className="px-4 py-2 flex items-center gap-4 text-sm text-zinc-500 border-t border-zinc-800/50">
+      <div className="px-4 py-2 flex items-center gap-4 text-sm text-mute border-t border-ink">
         {post.likes_count > 0 && (
           <span className="flex items-center gap-1">
-            <Heart className="w-4 h-4 text-red-400 fill-current" />
+            <Heart className="w-4 h-4 text-destructive fill-current" />
             {post.likes_count}
           </span>
         )}
@@ -494,7 +494,7 @@ function PostCard({
       </div>
 
       {/* Actions */}
-      <div className="px-2 py-1 flex items-center border-t border-zinc-800">
+      <div className="px-2 py-1 flex items-center border-t border-ink">
         {/* Like button with reactions */}
         <div className="relative flex-1">
           <button
@@ -502,8 +502,8 @@ function PostCard({
             onMouseEnter={() => setShowReactions(true)}
             onMouseLeave={() => setShowReactions(false)}
             className={`w-full py-2 flex items-center justify-center gap-2 rounded-lg
-              hover:bg-zinc-800 transition-colors ${
-                post.user_reaction ? "text-red-400" : "text-zinc-400"
+              hover:bg-card transition-colors ${
+                post.user_reaction ? "text-destructive" : "text-mute"
               }`}
           >
             {currentReaction ? (
@@ -526,7 +526,7 @@ function PostCard({
                 onMouseEnter={() => setShowReactions(true)}
                 onMouseLeave={() => setShowReactions(false)}
                 className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1
-                  bg-zinc-800 rounded-full border border-zinc-700 shadow-xl flex gap-1"
+                  bg-card rounded-full border border-ink shadow-xl flex gap-1"
               >
                 {REACTIONS.map((reaction) => (
                   <button
@@ -549,8 +549,8 @@ function PostCard({
         {/* Comment button */}
         <button
           onClick={handleToggleComments}
-          className="flex-1 py-2 flex items-center justify-center gap-2 text-zinc-400
-            rounded-lg hover:bg-zinc-800 transition-colors"
+          className="flex-1 py-2 flex items-center justify-center gap-2 text-mute
+            rounded-lg hover:bg-card transition-colors"
         >
           <MessageCircle className="w-5 h-5" />
           <span className="hidden sm:inline">Commenter</span>
@@ -559,8 +559,8 @@ function PostCard({
         {/* Share button */}
         <button
           onClick={() => onShare(post.post_id)}
-          className="flex-1 py-2 flex items-center justify-center gap-2 text-zinc-400
-            rounded-lg hover:bg-zinc-800 transition-colors"
+          className="flex-1 py-2 flex items-center justify-center gap-2 text-mute
+            rounded-lg hover:bg-card transition-colors"
         >
           <Share2 className="w-5 h-5" />
           <span className="hidden sm:inline">Partager</span>
@@ -574,13 +574,13 @@ function PostCard({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="border-t border-zinc-800 overflow-hidden"
+            className="border-t border-ink overflow-hidden"
           >
             <div className="p-4 space-y-4">
               {/* Comment input */}
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600
-                  flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal to-teal
+                  flex items-center justify-center text-ink text-sm font-bold flex-shrink-0">
                   M
                 </div>
                 <div className="flex-1 flex gap-2">
@@ -590,15 +590,15 @@ function PostCard({
                     onChange={(e) => setNewComment(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSubmitComment()}
                     placeholder="Écrire un commentaire..."
-                    className="flex-1 bg-zinc-800 rounded-full px-4 py-2 text-sm text-white
-                      placeholder:text-zinc-500 border border-zinc-700 focus:border-cyan-500
+                    className="flex-1 bg-card rounded-full px-4 py-2 text-sm text-ink
+                      placeholder:text-mute border border-ink focus:border-teal
                       focus:outline-none"
                   />
                   <button
                     onClick={handleSubmitComment}
                     disabled={!newComment.trim()}
-                    className="p-2 bg-cyan-500 rounded-full text-white disabled:opacity-50
-                      disabled:cursor-not-allowed hover:bg-cyan-600 transition-colors"
+                    className="p-2 bg-teal rounded-full text-ink disabled:opacity-50
+                      disabled:cursor-not-allowed hover:bg-teal transition-colors"
                   >
                     <Send className="w-4 h-4" />
                   </button>
@@ -608,7 +608,7 @@ function PostCard({
               {/* Comments list */}
               {loadingComments ? (
                 <div className="flex justify-center py-4">
-                  <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-teal border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : comments.length > 0 ? (
                 <div className="space-y-3">
@@ -617,7 +617,7 @@ function PostCard({
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-zinc-500 py-4">
+                <p className="text-center text-mute py-4">
                   Aucun commentaire. Soyez le premier !
                 </p>
               )}
@@ -665,15 +665,15 @@ function CommentItem({ comment }: { comment: Comment }) {
     <div className="flex gap-3">
       <Avatar src={comment.author_avatar_url} name={comment.author_display_name} size="sm" />
       <div className="flex-1">
-        <div className="bg-zinc-800 rounded-2xl px-3 py-2">
-          <p className="font-semibold text-sm text-white">{comment.author_display_name}</p>
-          <p className="text-sm text-zinc-300">{comment.content}</p>
+        <div className="bg-card rounded-2xl px-3 py-2">
+          <p className="font-semibold text-sm text-ink">{comment.author_display_name}</p>
+          <p className="text-sm text-ink-2">{comment.content}</p>
         </div>
-        <div className="flex items-center gap-3 mt-1 px-2 text-xs text-zinc-500">
+        <div className="flex items-center gap-3 mt-1 px-2 text-xs text-mute">
           <span>{timeAgo(comment.created_at)}</span>
           <button
             onClick={handleLike}
-            className={`font-semibold hover:underline ${liked ? "text-red-400" : ""}`}
+            className={`font-semibold hover:underline ${liked ? "text-destructive" : ""}`}
           >
             {liked ? "Aimé" : "J'aime"} {likesCount > 0 && `(${likesCount})`}
           </button>
@@ -829,9 +829,9 @@ export function ActivityFeed() {
     <div className="max-w-2xl mx-auto p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Fil d'actualités</h1>
-        <button className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
-          <TrendingUp className="w-5 h-5 text-cyan-400" />
+        <h1 className="text-2xl font-bold text-ink">Fil d'actualités</h1>
+        <button className="p-2 bg-card rounded-lg hover:bg-muted transition-colors">
+          <TrendingUp className="w-5 h-5 text-teal" />
         </button>
       </div>
 
@@ -843,8 +843,8 @@ export function ActivityFeed() {
             onClick={() => setFilter(f.key)}
             className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
               filter === f.key
-                ? "bg-cyan-500 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                ? "bg-teal text-ink"
+                : "bg-card text-mute hover:bg-muted"
             }`}
           >
             <f.icon className="w-4 h-4" />
@@ -857,15 +857,15 @@ export function ActivityFeed() {
       {loading && posts.length === 0 ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4 animate-pulse">
+            <div key={i} className="bg-card rounded-xl border border-ink p-4 animate-pulse">
               <div className="flex gap-3">
-                <div className="w-10 h-10 bg-zinc-800 rounded-full" />
+                <div className="w-10 h-10 bg-card rounded-full" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-zinc-800 rounded w-1/3" />
-                  <div className="h-3 bg-zinc-800 rounded w-1/4" />
+                  <div className="h-4 bg-card rounded w-1/3" />
+                  <div className="h-3 bg-card rounded w-1/4" />
                 </div>
               </div>
-              <div className="mt-4 h-20 bg-zinc-800 rounded" />
+              <div className="mt-4 h-20 bg-card rounded" />
             </div>
           ))}
         </div>
@@ -887,15 +887,15 @@ export function ActivityFeed() {
           {/* Load more trigger */}
           {hasMore && (
             <div ref={loadMoreRef} className="flex justify-center py-4">
-              <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-teal border-t-transparent rounded-full animate-spin" />
             </div>
           )}
         </div>
       ) : (
         <div className="text-center py-12">
-          <Sparkles className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <p className="text-zinc-400">Aucune activité pour le moment</p>
-          <p className="text-sm text-zinc-500 mt-1">
+          <Sparkles className="w-12 h-12 text-mute mx-auto mb-4" />
+          <p className="text-mute">Aucune activité pour le moment</p>
+          <p className="text-sm text-mute mt-1">
             Ajoutez des amis pour voir leur activité !
           </p>
         </div>
@@ -925,13 +925,13 @@ export function FeedWidget() {
   }, [])
 
   return (
-    <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+    <div className="bg-card rounded-xl border border-ink p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-white flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-cyan-400" />
+        <h3 className="font-semibold text-ink flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-teal" />
           Activité récente
         </h3>
-        <a href="/feed" className="text-sm text-cyan-400 hover:underline">
+        <a href="/feed" className="text-sm text-teal hover:underline">
           Voir tout
         </a>
       </div>
@@ -940,10 +940,10 @@ export function FeedWidget() {
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex gap-3 animate-pulse">
-              <div className="w-8 h-8 bg-zinc-800 rounded-full flex-shrink-0" />
+              <div className="w-8 h-8 bg-card rounded-full flex-shrink-0" />
               <div className="flex-1 space-y-2">
-                <div className="h-3 bg-zinc-800 rounded w-3/4" />
-                <div className="h-3 bg-zinc-800 rounded w-1/2" />
+                <div className="h-3 bg-card rounded w-3/4" />
+                <div className="h-3 bg-card rounded w-1/2" />
               </div>
             </div>
           ))}
@@ -954,14 +954,14 @@ export function FeedWidget() {
             <div key={post.post_id} className="flex gap-3">
               <Avatar src={post.author_avatar_url} name={post.author_display_name} size="sm" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white">
+                <p className="text-sm text-ink">
                   <span className="font-semibold">{post.author_display_name}</span>
                   {getPostTypeLabel(post.post_type) && (
-                    <span className="text-zinc-400"> {getPostTypeLabel(post.post_type)}</span>
+                    <span className="text-mute"> {getPostTypeLabel(post.post_type)}</span>
                   )}
                 </p>
                 {post.content && (
-                  <p className="text-xs text-zinc-500 truncate">{post.content}</p>
+                  <p className="text-xs text-mute truncate">{post.content}</p>
                 )}
               </div>
               {getPostTypeIcon(post.post_type)}
@@ -969,7 +969,7 @@ export function FeedWidget() {
           ))}
         </div>
       ) : (
-        <p className="text-sm text-zinc-500 text-center py-4">Aucune activité récente</p>
+        <p className="text-sm text-mute text-center py-4">Aucune activité récente</p>
       )}
     </div>
   )

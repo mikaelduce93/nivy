@@ -87,10 +87,10 @@ export function ParentSetupStep({ onNext: _onNext, onBack }: ParentSetupStepProp
         className="text-center"
       >
         <div
-          className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-purple-500 mb-4"
+          className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-pink mb-4"
           aria-hidden="true"
         >
-          <Shield className="w-8 h-8 text-white" />
+          <Shield className="w-8 h-8 text-ink" />
         </div>
         <h2 className="text-3xl sm:text-4xl font-black mb-3 text-balance">
           Prêt à créer votre compte parent ?
@@ -158,7 +158,7 @@ export function ParentSetupStep({ onNext: _onNext, onBack }: ParentSetupStepProp
           aria-busy={navigating}
           data-testid="parent-setup-continue"
           data-href={buildSignUpHref(tempUserId)}
-          className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="gap-2 bg-gradient-to-r from-primary to-pink hover:opacity-90 text-ink focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           {navigating ? (
             <>

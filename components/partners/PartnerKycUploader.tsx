@@ -111,24 +111,24 @@ export function PartnerKycUploader() {
   }
 
   return (
-    <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-5 space-y-4">
+    <div className="rounded-2xl border border-teal/30 bg-teal/5 p-5 space-y-4">
       <div>
-        <h3 className="font-semibold text-white flex items-center gap-2">
-          <Upload className="w-5 h-5 text-blue-400" />
+        <h3 className="font-semibold text-ink flex items-center gap-2">
+          <Upload className="w-5 h-5 text-teal" />
           Ajouter un document KYC
         </h3>
-        <p className="text-xs text-zinc-400 mt-1">
+        <p className="text-xs text-mute mt-1">
           Stockage privé · seuls toi et l&apos;équipe Nivy peuvent voir le fichier · 10 MB max ·
           JPEG / PNG / WebP / PDF.
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="kyc-doc-type" className="text-zinc-300">
+        <Label htmlFor="kyc-doc-type" className="text-ink-2">
           Type de document
         </Label>
         <Select value={docType} onValueChange={setDocType}>
-          <SelectTrigger id="kyc-doc-type" className="bg-zinc-950 border-zinc-700 text-white">
+          <SelectTrigger id="kyc-doc-type" className="bg-background border-ink text-ink">
             <SelectValue placeholder="Choisis un type…" />
           </SelectTrigger>
           <SelectContent>
@@ -152,7 +152,7 @@ export function PartnerKycUploader() {
         type="button"
         onClick={() => fileRef.current?.click()}
         disabled={busy || !docType}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full"
+        className="bg-teal hover:bg-teal text-ink font-bold w-full"
       >
         {busy ? (
           <>
@@ -166,8 +166,8 @@ export function PartnerKycUploader() {
           </>
         )}
       </Button>
-      <p className="text-[11px] text-zinc-500 flex items-center gap-1">
-        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+      <p className="text-[11px] text-mute flex items-center gap-1">
+        <CheckCircle2 className="w-3 h-3 text-lime" />
         Bucket privé · jamais d&apos;URL publique · admin lit via lien signé 15 min.
       </p>
     </div>
