@@ -1,23 +1,22 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { Trophy, Flame, Zap, Target, Camera, BookOpen, Dumbbell, Palette, Calendar, Loader2, SkipForward, Check } from 'lucide-react'
+import { toast } from "sonner"
+
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Progress } from "@/components/ui/progress"
-import {
-  Trophy, Flame, Zap, Target, Clock, CheckCircle2, XCircle,
-  Sparkles, Upload, Camera, BookOpen, Dumbbell, Palette,
-  Award, Star, TrendingUp, Calendar, Loader2, ChevronRight,
-  SkipForward
-} from 'lucide-react'
-import { toast } from "sonner"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { CheckRound } from "@/components/ui/check-round"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
+import { NivCoach, NivEmpty, NivCelebration } from "@/components/brand"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
+import { cn } from "@/lib/utils"
 import {
   getTeenGamificationStats,
   getDailyChallenges,
@@ -26,6 +25,12 @@ import {
   type ChallengeCategory
 } from "@/features/gamification"
 import { getMyTeens } from "@/features/teens"
+
+const CATEGORY_LABELS: Record<string, string> = {
+  school: "École",
+  sport: "Sport",
+  crea: "Créa",
+}
 
 export default function DailyChallengesPage() {
   const router = useRouter()
@@ -105,10 +110,10 @@ export default function DailyChallengesPage() {
 
   const getCategoryColor = (category: ChallengeCategory) => {
     switch (category) {
-      case 'school': return 'text-teal bg-teal/10'
-      case 'sport': return 'text-lime bg-lime/10'
-      case 'crea': return 'text-pink bg-pink/10'
-      default: return 'text-mute bg-muted'
+      case 'school': return 'text-teal'
+      case 'sport': return 'text-lime'
+      case 'crea': return 'text-pink'
+      default: return 'text-mute'
     }
   }
 
@@ -171,137 +176,111 @@ export default function DailyChallengesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-paper">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Chargement de tes défis...</p>
+          <Loader2 className="mx-auto mb-4 size-12 animate-spin text-ink" aria-hidden="true" />
+          <p className="text-mute">Chargement de tes défis…</p>
         </div>
       </div>
     )
   }
 
+  const totalXp = stats?.xp?.total_xp || 0
+  const xpToNext = stats?.xp?.xp_to_next_level || 100
+  const xpRatio = Math.min(1, totalXp / xpToNext)
+  const allDone = challenges.length > 0 && completedCount === 3
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative min-h-[30vh] flex items-center justify-center overflow-hidden pt-20 bg-gradient-to-br from-primary/10 via-background to-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center py-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4 ">
-            <Target className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Défis Quotidiens</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 leading-tight">
-            Tes Défis du Jour
-            <br />
-            <span className="text-gradient">@{selectedTeen?.pseudo || 'Champion'}</span>
+      {/* Hero */}
+      <section className="relative overflow-hidden pt-24">
+        <MeshBackground />
+        <div className="relative z-10 container mx-auto px-4 py-10 text-center sm:px-6 lg:px-8">
+          <p className="eyebrow tracking-[0.16em]">Défis du jour</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
+            Tes défis <em className="font-semibold italic text-pink">du jour</em>
+            {selectedTeen?.pseudo && <span className="block text-pink">@{selectedTeen.pseudo}</span>}
           </h1>
 
-          <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Complète tes défis pour gagner XP, monter en niveau et maintenir ton streak 🔥
-          </p>
+          <div className="mx-auto mt-5 max-w-md">
+            <NivCoach
+              mood="hype"
+              message="Complète tes défis pour gagner de l'XP, monter en niveau et garder ton streak 🔥"
+            />
+          </div>
 
-          {/* Teen Selector if multiple */}
           {teens.length > 1 && (
-            <div className="max-w-xs mx-auto">
-              <select
-                className="w-full p-3 rounded-lg border bg-background"
-                value={selectedTeenId}
-                onChange={(e) => setSelectedTeenId(e.target.value)}
-              >
+            <div className="mx-auto mt-5 max-w-xs">
+              <SelectSticker value={selectedTeenId} onValueChange={setSelectedTeenId}>
                 {teens.map((teen: any) => (
-                  <option key={teen.id} value={teen.id}>
+                  <SelectStickerItem key={teen.id} value={teen.id}>
                     {teen.pseudo || `${teen.first_name} ${teen.last_name}`}
-                  </option>
+                  </SelectStickerItem>
                 ))}
-              </select>
+              </SelectSticker>
             </div>
           )}
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-8 border-b">
+      {/* Stats */}
+      <section className="border-b-2 border-ink py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* XP & Level */}
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold to-coral flex items-center justify-center">
-                  <Trophy className="w-6 h-6 text-ink" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Niveau</p>
-                  <p className="text-2xl font-black">{stats?.xp?.level || 1}</p>
-                </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StickerCard className="gap-2 p-5">
+              <div className="flex items-center gap-2">
+                <Trophy className="size-5 text-teal" aria-hidden="true" />
+                <p className="eyebrow">Niveau</p>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">XP</span>
-                  <span className="font-bold">{stats?.xp?.total_xp || 0} / {stats?.xp?.xp_to_next_level || 100}</span>
-                </div>
-                <Progress
-                  value={((stats?.xp?.total_xp || 0) / (stats?.xp?.xp_to_next_level || 100)) * 100}
-                  className="h-2"
-                />
-              </div>
-            </Card>
+              <p className="font-display text-3xl font-extrabold tabular-nums text-teal">{stats?.xp?.level || 1}</p>
+            </StickerCard>
 
-            {/* Streak */}
-            <Card className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-coral to-destructive flex items-center justify-center">
-                  <Flame className="w-6 h-6 text-ink" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Série</p>
-                  <p className="text-2xl font-black">{stats?.streak?.current_streak || 0} jours</p>
-                </div>
+            <StickerCard className="gap-2 p-5">
+              <div className="flex items-center gap-2">
+                <Zap className="size-5 text-gold" aria-hidden="true" />
+                <p className="eyebrow">XP</p>
               </div>
+              <p className="font-display text-3xl font-extrabold tabular-nums text-gold">
+                {totalXp}
+                <span className="ml-1 font-mono text-sm font-medium text-mute">/ {xpToNext}</span>
+              </p>
+              <SegmentedProgress steps={10} current={Math.floor(xpRatio * 10)} />
+            </StickerCard>
+
+            <StickerCard className="gap-2 p-5">
+              <div className="flex items-center gap-2">
+                <Flame className="size-5 text-pink" aria-hidden="true" />
+                <p className="eyebrow">Série</p>
+              </div>
+              <p className="font-display text-3xl font-extrabold tabular-nums text-pink">
+                {stats?.streak?.current_streak || 0}
+                <span className="ml-1 font-mono text-sm font-medium text-mute">jours 🔥</span>
+              </p>
               {stats?.streak?.longest_streak > 0 && (
-                <p className="text-xs text-muted-foreground mt-3">
-                  Record: {stats.streak.longest_streak} jours 🏆
-                </p>
+                <p className="font-mono text-xs text-mute">Record : {stats.streak.longest_streak} jours 🏆</p>
               )}
-            </Card>
+            </StickerCard>
 
-            {/* Total Challenges */}
-            <Card className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-lime to-lime flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-ink" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Défis complétés</p>
-                  <p className="text-2xl font-black">{stats?.total_challenges_completed || 0}</p>
-                </div>
+            <StickerCard className="gap-2 p-5">
+              <div className="flex items-center gap-2">
+                <Calendar className="size-5 text-coral" aria-hidden="true" />
+                <p className="eyebrow">Aujourd'hui</p>
               </div>
-            </Card>
-
-            {/* Today Progress */}
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
-                  <Calendar className="w-6 h-6 text-ink" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Aujourd'hui</p>
-                  <p className="text-2xl font-black">{completedCount}/3</p>
-                </div>
-              </div>
-              <Progress value={(completedCount / 3) * 100} className="h-2" />
-            </Card>
+              <p className="font-display text-3xl font-extrabold tabular-nums">{completedCount}/3</p>
+              <SegmentedProgress steps={3} current={completedCount} />
+            </StickerCard>
           </div>
         </div>
       </section>
 
-      {/* Challenges Section */}
+      {/* Challenges */}
       <section className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-black mb-2">Tes 3 Défis du Jour</h2>
-            <p className="text-muted-foreground">
+        <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 text-center">
+            <h2 className="font-display text-3xl font-extrabold tracking-tight">Tes 3 défis du jour</h2>
+            <p className="mt-1 text-mute">
               {pendingCount === 0 ? "🎉 Tous les défis complétés ! Reviens demain." : `${pendingCount} défi${pendingCount > 1 ? 's' : ''} en attente`}
             </p>
           </div>
@@ -315,57 +294,50 @@ export default function DailyChallengesPage() {
               const isSkipped = userChallenge.status === 'skipped'
 
               return (
-                <Card
+                <StickerCard
                   key={userChallenge.id}
-                  className={`p-6 ${isCompleted ? 'bg-lime/5 border-lime/20' : isSkipped ? 'opacity-50' : ''}`}
+                  className={cn("p-6", isCompleted && "bg-success-soft", isSkipped && "opacity-50")}
                 >
                   <div className="flex items-start gap-4">
-                    {/* Icon */}
-                    <div className={`w-16 h-16 rounded-2xl ${categoryColor} flex items-center justify-center flex-shrink-0`}>
-                      <CategoryIcon className="w-8 h-8" />
-                    </div>
+                    <span className="grid size-16 shrink-0 place-items-center rounded-2xl border-2 border-ink bg-paper-2">
+                      <CategoryIcon className={cn("size-8", categoryColor)} aria-hidden="true" />
+                    </span>
 
-                    {/* Content */}
                     <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="mb-2 flex items-start justify-between gap-3">
                         <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`text-xs font-bold uppercase px-2 py-1 rounded-full ${categoryColor}`}>
-                              {challenge.category}
+                          <div className="mb-1 flex items-center gap-2">
+                            <span className="rounded-full border-2 border-ink bg-white px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+                              {CATEGORY_LABELS[challenge.category] || challenge.category}
                             </span>
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Zap className="w-3 h-3" />
+                            <span className="flex items-center gap-1 font-mono text-xs font-bold text-gold">
+                              <Zap className="size-3" aria-hidden="true" />
                               +{challenge.xp_reward} XP
                             </span>
                           </div>
-                          <h3 className="text-xl font-bold">{challenge.title}</h3>
+                          <h3 className="font-display text-xl font-bold text-ink">{challenge.title}</h3>
                           {challenge.description && (
-                            <p className="text-sm text-muted-foreground mt-1">{challenge.description}</p>
+                            <p className="mt-1 text-sm text-mute">{challenge.description}</p>
                           )}
                         </div>
 
                         {isCompleted && (
-                          <div className="w-10 h-10 rounded-full bg-lime flex items-center justify-center">
-                            <CheckCircle2 className="w-6 h-6 text-ink" />
-                          </div>
-                        )}
-                        {isSkipped && (
-                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                            <XCircle className="w-6 h-6 text-ink" />
-                          </div>
+                          <span className="grid size-10 shrink-0 place-items-center rounded-full border-2 border-ink bg-lime">
+                            <Check className="size-6 text-ink" strokeWidth={3} aria-hidden="true" />
+                          </span>
                         )}
                       </div>
 
                       {/* Validation Form */}
                       {!isCompleted && !isSkipped && (
                         <div className="mt-4 space-y-4">
-                          {/* Timer */}
                           {challenge.validation_type === 'timer' && (
-                            <div className="space-y-2">
-                              <Label>Temps passé (minutes)</Label>
+                            <div className="space-y-1.5">
+                              <span className="eyebrow tracking-[0.16em]">Temps passé (minutes)</span>
                               <Input
                                 type="number"
-                                placeholder="Ex: 30"
+                                placeholder="Ex : 30"
+                                className="border-2 border-ink focus-visible:ring-0"
                                 value={validationData[userChallenge.id]?.duration || ''}
                                 onChange={(e) => setValidationData(prev => ({
                                   ...prev,
@@ -375,13 +347,13 @@ export default function DailyChallengesPage() {
                             </div>
                           )}
 
-                          {/* Self Report */}
                           {challenge.validation_type === 'self_report' && (
-                            <div className="space-y-2">
-                              <Label>Comment ça s'est passé ?</Label>
+                            <div className="space-y-1.5">
+                              <span className="eyebrow tracking-[0.16em]">Comment ça s'est passé ?</span>
                               <Textarea
-                                placeholder="Raconte-nous ce que tu as fait..."
+                                placeholder="Raconte ce que tu as fait…"
                                 rows={3}
+                                className="resize-none rounded-xl border-2 border-line bg-white focus-visible:border-ink focus-visible:ring-0"
                                 value={validationData[userChallenge.id]?.report || ''}
                                 onChange={(e) => setValidationData(prev => ({
                                   ...prev,
@@ -391,14 +363,13 @@ export default function DailyChallengesPage() {
                             </div>
                           )}
 
-                          {/* Upload Photo */}
                           {challenge.validation_type === 'upload_photo' && (
-                            <div className="space-y-2">
-                              <Label>Prends une photo de preuve 📸</Label>
-                              <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
-                                <Camera className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                                <p className="text-sm text-muted-foreground">
-                                  Clique pour uploader une photo
+                            <div className="space-y-1.5">
+                              <span className="eyebrow tracking-[0.16em]">Prends une photo de preuve 📸</span>
+                              <label className="block cursor-pointer rounded-xl border-2 border-ink bg-white p-8 text-center transition-colors hover:bg-paper-2">
+                                <Camera className="mx-auto mb-2 size-12 text-mute" aria-hidden="true" />
+                                <p className="text-sm text-mute">
+                                  {validationData[userChallenge.id]?.photo || "Clique pour uploader une photo"}
                                 </p>
                                 <Input
                                   type="file"
@@ -415,34 +386,31 @@ export default function DailyChallengesPage() {
                                     }
                                   }}
                                 />
-                              </div>
+                              </label>
                             </div>
                           )}
 
-                          {/* Checklist */}
                           {challenge.validation_type === 'checklist' && challenge.validation_data?.checklist && (
                             <div className="space-y-2">
-                              <Label>Coche les étapes complétées</Label>
+                              <span className="eyebrow tracking-[0.16em]">Coche les étapes complétées</span>
                               <div className="space-y-2">
                                 {challenge.validation_data.checklist.map((item: string, idx: number) => (
                                   <div key={idx} className="flex items-center gap-2">
-                                    <input
-                                      type="checkbox"
+                                    <CheckRound
                                       id={`check-${userChallenge.id}-${idx}`}
-                                      className="w-4 h-4 rounded"
                                       checked={validationData[userChallenge.id]?.checklist?.[idx] || false}
-                                      onChange={(e) => {
+                                      onCheckedChange={(checked) => {
                                         const newChecklist = [...(validationData[userChallenge.id]?.checklist || [])]
-                                        newChecklist[idx] = e.target.checked
+                                        newChecklist[idx] = checked === true
                                         setValidationData(prev => ({
                                           ...prev,
                                           [userChallenge.id]: { checklist: newChecklist }
                                         }))
                                       }}
                                     />
-                                    <Label htmlFor={`check-${userChallenge.id}-${idx}`} className="text-sm font-normal">
+                                    <label htmlFor={`check-${userChallenge.id}-${idx}`} className="text-sm text-ink-2">
                                       {item}
-                                    </Label>
+                                    </label>
                                   </div>
                                 ))}
                               </div>
@@ -451,29 +419,21 @@ export default function DailyChallengesPage() {
 
                           {/* Actions */}
                           <div className="flex gap-3">
-                            <Button
-                              onClick={() => handleCompleteChallenge(userChallenge.id)}
-                              disabled={submitting}
-                              className="flex-1"
-                            >
+                            <Button variant="pink" onClick={() => handleCompleteChallenge(userChallenge.id)} disabled={submitting} className="flex-1">
                               {submitting ? (
                                 <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  Validation...
+                                  <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                                  Validation…
                                 </>
                               ) : (
                                 <>
-                                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  <Check className="mr-2 size-4" strokeWidth={3} aria-hidden="true" />
                                   Valider (+{challenge.xp_reward} XP)
                                 </>
                               )}
                             </Button>
-                            <Button
-                              variant="outline"
-                              onClick={() => handleSkipChallenge(userChallenge.id)}
-                              disabled={submitting}
-                            >
-                              <SkipForward className="w-4 h-4 mr-2" />
+                            <Button variant="outline" onClick={() => handleSkipChallenge(userChallenge.id)} disabled={submitting}>
+                              <SkipForward className="mr-2 size-4" aria-hidden="true" />
                               Passer
                             </Button>
                           </div>
@@ -482,52 +442,45 @@ export default function DailyChallengesPage() {
 
                       {/* Completed Info */}
                       {isCompleted && userChallenge.completed_at && (
-                        <div className="mt-4 p-3 bg-lime/10 border border-lime/20 rounded-lg">
-                          <p className="text-sm text-lime dark:text-lime">
+                        <div className="mt-4 rounded-xl border-2 border-lime bg-success-soft p-3">
+                          <p className="font-mono text-sm font-medium text-ink">
                             ✅ Complété {new Date(userChallenge.completed_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} • +{challenge.xp_reward} XP gagné
                           </p>
                         </div>
                       )}
                     </div>
                   </div>
-                </Card>
+                </StickerCard>
               )
             })}
           </div>
 
           {/* Empty State */}
           {challenges.length === 0 && (
-            <Card className="p-12 text-center">
-              <Target className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Aucun défi pour aujourd'hui</h3>
-              <p className="text-muted-foreground mb-6">
-                Les défis sont assignés automatiquement chaque jour
-              </p>
-              <Button onClick={() => window.location.reload()}>
-                Actualiser
-              </Button>
-            </Card>
+            <NivEmpty
+              mood="calm"
+              title="Aucun défi pour aujourd'hui"
+              description="Les défis sont assignés automatiquement chaque jour. Reviens un peu plus tard !"
+              action={<Button variant="pink" onClick={() => window.location.reload()}>Actualiser</Button>}
+            />
           )}
 
-          {/* All Completed State */}
-          {challenges.length > 0 && completedCount === 3 && (
-            <Card className="p-8 mt-8 text-center bg-gradient-to-br from-gold/10 to-coral/10 border-gold/20">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center mx-auto mb-4">
-                <Trophy className="w-10 h-10 text-ink" />
-              </div>
-              <h3 className="text-2xl font-black mb-2">🎉 Tous les défis complétés !</h3>
-              <p className="text-muted-foreground mb-6">
-                Tu as gagné {challenges.reduce((sum, c) => sum + (c.challenge?.xp_reward || 0), 0)} XP aujourd'hui
-              </p>
-              <div className="flex gap-3 justify-center">
-                <Button variant="outline" onClick={() => router.push('/evenements')}>
-                  Voir les événements
-                </Button>
-                <Button onClick={() => router.push('/profile')}>
-                  Mon profil
-                </Button>
-              </div>
-            </Card>
+          {/* All Completed — moment de pic */}
+          {allDone && (
+            <div className="mt-8">
+              <NivCelebration
+                tone="gold"
+                title="Tous les défis complétés !"
+                value={`+${challenges.reduce((sum, c) => sum + (c.challenge?.xp_reward || 0), 0)} XP`}
+                caption="Énorme. Reviens demain pour de nouveaux défis."
+                action={
+                  <div className="flex flex-wrap justify-center gap-3">
+                    <Button variant="outline" onClick={() => router.push('/evenements')}>Voir les événements</Button>
+                    <Button variant="pink" onClick={() => router.push('/profile')}>Mon profil</Button>
+                  </div>
+                }
+              />
+            </div>
           )}
         </div>
       </section>
