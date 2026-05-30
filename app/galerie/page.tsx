@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Camera, Calendar, MapPin, ImageIcon } from 'lucide-react'
+import { Calendar, MapPin, ImageIcon } from "lucide-react"
+
 import { OptimizedImage } from "@/components/optimized-image"
+import { NivEmpty, Niv } from "@/components/brand"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
 export default async function GaleriePage() {
   const supabase = await createClient()
@@ -29,63 +32,57 @@ export default async function GaleriePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <Navbar />
 
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-pink/20 via-background to-pink/20" />
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-pink/30 rounded-full blur-3xl animate-pulse" />
-        </div>
-
-        <div className="relative container mx-auto px-6 py-32">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink/10 text-pink text-sm font-semibold mb-6">
-              <Camera className="w-4 h-4" />
-              Galerie Photos
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6 text-balance">
-              Nos <span className="text-gradient">Meilleurs Moments</span>
+        <MeshBackground />
+        <div className="relative container mx-auto px-6 py-28">
+          <div className="flex flex-col items-center gap-5 text-center">
+            <Niv mood="hype" size={110} float />
+            <p className="eyebrow tracking-[0.16em]">Galerie · Nivy</p>
+            <h1 className="font-display text-5xl font-extrabold leading-[1.02] tracking-tight text-balance md:text-6xl">
+              Nos meilleurs <em className="font-semibold italic text-pink">moments</em>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-              Revivez l'ambiance incroyable de nos événements à travers ces photos
+            <p className="max-w-2xl text-xl text-ink-2 text-balance">
+              Revis l'ambiance de nos events en images.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-20">
+      <div className="container mx-auto px-6 py-16">
         {galleries && galleries.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {galleries.map((gallery) => (
               <a
                 key={gallery.id}
                 href={`/galerie/${gallery.id}`}
-                className="group block relative aspect-square rounded-2xl overflow-hidden"
+                className="group relative block aspect-square overflow-hidden rounded-2xl border-2 border-ink shadow-stkr-sm transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
               >
                 <OptimizedImage
                   src={gallery.cover_photo}
                   alt={gallery.title}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                  <h3 className="text-xl font-bold text-ink mb-2">{gallery.title}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="absolute inset-x-0 bottom-0 translate-y-4 p-6 transition-transform duration-300 group-hover:translate-y-0">
+                  <h3 className="mb-2 font-display text-xl font-bold text-paper">{gallery.title}</h3>
                   {gallery.events && (
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-sm text-ink/80">
-                        <MapPin className="w-4 h-4" />
+                    <div className="space-y-1 font-mono text-xs text-paper/80">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="size-3.5" aria-hidden="true" />
                         <span>{gallery.events.city}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-ink/80">
-                        <Calendar className="w-4 h-4" />
+                      <div className="flex items-center gap-2">
+                        <Calendar className="size-3.5" aria-hidden="true" />
                         <span>{new Date(gallery.events.event_date).toLocaleDateString("fr-FR")}</span>
                       </div>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-sm text-ink/60 mt-3">
-                    <ImageIcon className="w-4 h-4" />
+                  <div className="mt-3 flex items-center gap-2 font-mono text-xs text-paper/60">
+                    <ImageIcon className="size-3.5" aria-hidden="true" />
                     <span>{gallery.photo_count || 0} photos</span>
                   </div>
                 </div>
@@ -93,12 +90,12 @@ export default async function GaleriePage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <Camera className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground mb-2">Aucune galerie disponible pour le moment</p>
-            <p className="text-sm text-muted-foreground">
-              Les photos de nos prochains événements seront bientôt en ligne!
-            </p>
+          <div className="mx-auto max-w-md">
+            <NivEmpty
+              mood="hype"
+              title="Aucune galerie pour le moment"
+              description="Les photos de nos prochains events arrivent bientôt en ligne !"
+            />
           </div>
         )}
       </div>

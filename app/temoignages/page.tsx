@@ -1,8 +1,14 @@
 import { createClient } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Star, Quote, Heart, Video } from 'lucide-react'
+import { Star, Quote, Video } from "lucide-react"
+
 import { OptimizedImage } from "@/components/optimized-image"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty, Niv } from "@/components/brand"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
+
+const ROT = ["-rotate-1", "rotate-1", "-rotate-2"]
 
 export default async function TemoignagesPage() {
   const supabase = await createClient()
@@ -25,95 +31,90 @@ export default async function TemoignagesPage() {
   const hasTestimonials = Boolean(testimonials && testimonials.length > 0)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <Navbar />
 
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gold/20 via-background to-coral/20" />
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-gold/30 rounded-full blur-3xl animate-pulse" />
-        </div>
-
-        <div className="relative container mx-auto px-6 py-32">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 text-gold text-sm font-semibold mb-6">
-              <Heart className="w-4 h-4" />
-              Témoignages
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6 text-balance">
-              Ils nous font <span className="text-gradient">Confiance</span>
+        <MeshBackground />
+        <div className="relative container mx-auto px-6 py-28">
+          <div className="flex flex-col items-center gap-5 text-center">
+            <Niv mood="wink" size={110} float />
+            <p className="eyebrow tracking-[0.16em]">Témoignages</p>
+            <h1 className="font-display text-5xl font-extrabold leading-[1.02] tracking-tight text-balance md:text-6xl">
+              Ils nous font <em className="font-semibold italic text-pink">confiance</em>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-              Découvrez ce que nos familles pensent de Nivy
+            <p className="max-w-2xl text-xl text-ink-2 text-balance">
+              Ce que les familles pensent vraiment de Nivy.
             </p>
           </div>
-
-          {!hasTestimonials && (
-            <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
-              Les premiers retours arrivent — nous publions uniquement des témoignages réels et vérifiés.
-            </p>
-          )}
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-20">
-        {testimonials && testimonials.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="group relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-gold to-coral rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition duration-500" />
-                <div className="relative bg-card rounded-2xl p-6 border border-border">
-                  <Quote className="w-10 h-10 text-gold/20 mb-4" />
+      <div className="container mx-auto px-6 py-16">
+        {hasTestimonials ? (
+          <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {testimonials!.map((testimonial, idx) => (
+              <StickerCard
+                key={testimonial.id}
+                className={`gap-4 p-6 transition-transform hover:rotate-0 ${ROT[idx % 3]}`}
+              >
+                <Quote className="size-9 text-pink" aria-hidden="true" />
 
-                  {testimonial.rating && (
-                    <div className="flex gap-1 mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${i < testimonial.rating ? "fill-gold text-gold" : "text-muted"}`}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  <p className="text-sm text-muted-foreground mb-6 italic">"{testimonial.content}"</p>
-
-                  <div className="flex items-center gap-3">
-                    {testimonial.photo_url ? (
-                      <div className="relative w-12 h-12 rounded-full overflow-hidden">
-                        <OptimizedImage
-                          src={testimonial.photo_url}
-                          alt={testimonial.author_name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center text-ink font-bold">
-                        {testimonial.author_name.charAt(0)}
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-bold text-sm">{testimonial.author_name}</p>
-                      <p className="text-xs text-muted-foreground">{testimonial.author_role || "Parent"}</p>
-                    </div>
+                {testimonial.rating && (
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`size-4 ${i < testimonial.rating ? "fill-gold text-gold" : "text-line"}`}
+                        aria-hidden="true"
+                      />
+                    ))}
                   </div>
+                )}
 
-                  {testimonial.video_url && (
-                    <div className="mt-4 flex items-center gap-2 text-xs text-pink">
-                      <Video className="w-4 h-4" />
-                      <span>Voir la vidéo</span>
+                <p className="font-display text-lg font-semibold leading-snug text-ink">
+                  « {testimonial.content} »
+                </p>
+
+                <div className="flex items-center gap-3 border-t-2 border-dashed border-line pt-4">
+                  {testimonial.photo_url ? (
+                    <div className="relative size-12 overflow-hidden rounded-full border-2 border-ink">
+                      <OptimizedImage
+                        src={testimonial.photo_url}
+                        alt={testimonial.author_name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="grid size-12 place-items-center rounded-full border-2 border-ink bg-ink font-display font-bold text-paper">
+                      {testimonial.author_name.charAt(0)}
                     </div>
                   )}
+                  <div>
+                    <p className="font-display text-sm font-bold">{testimonial.author_name}</p>
+                    <p className="font-mono text-xs uppercase tracking-[0.12em] text-mute">
+                      {testimonial.author_role || "Parent"}
+                    </p>
+                  </div>
                 </div>
-              </div>
+
+                {testimonial.video_url && (
+                  <span className="flex w-fit items-center gap-2 rounded-full border-2 border-ink bg-paper-2 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+                    <Video className="size-3.5 text-pink" aria-hidden="true" />
+                    Voir la vidéo
+                  </span>
+                )}
+              </StickerCard>
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <Heart className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground mb-2">Aucun témoignage pour le moment</p>
-            <p className="text-sm text-muted-foreground">Soyez le premier à partager votre expérience!</p>
+          <div className="mx-auto max-w-md">
+            <NivEmpty
+              mood="calm"
+              title="Aucun témoignage pour le moment"
+              description="Les premiers retours arrivent — on publie uniquement des témoignages réels et vérifiés."
+            />
           </div>
         )}
       </div>
