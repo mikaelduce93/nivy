@@ -1,31 +1,22 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
-  History,
-  CreditCard,
-  TrendingUp,
   ArrowLeft,
-  Users,
-  ShoppingBag,
   Ticket,
   Gift,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Download,
-  Coins,
   ArrowUpRight,
   ArrowDownRight,
-  FileText
+  ShoppingBag,
 } from "lucide-react"
 import Link from "next/link"
 import { TransactionFilters } from "@/components/parent/transaction-filters"
-import { EmptyState } from "@/components/ui/states/empty-state"
 import { ExportButton } from "@/components/parent/export-button"
 import { InvoiceButton } from "@/components/parent/invoice-button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { StatHero, NivEmpty } from "@/components/brand"
 
 async function getTransactionHistory(profileId: string) {
   const supabase = await createClient()
@@ -142,7 +133,7 @@ async function getTransactionHistory(profileId: string) {
       id: b.id,
       type: "booking" as const,
       teenId: b.teen_id,
-      teenName: teenNameMap.get(b.teen_id) || "Unknown",
+      teenName: teenNameMap.get(b.teen_id) || "Teen",
       amount: b.total_price,
       status: b.status,
       paymentStatus: b.payment_status,
@@ -176,7 +167,7 @@ async function getTransactionHistory(profileId: string) {
       id: s.id,
       type: "shop" as const,
       teenId: s.teen_id,
-      teenName: teenNameMap.get(s.teen_id) || "Unknown",
+      teenName: teenNameMap.get(s.teen_id) || "Teen",
       amount: s.price,
       coinsUsed: s.coins_used,
       status: s.status,
@@ -203,32 +194,18 @@ export default async function ParentHistoryPage() {
 
   const { transactions, teens, totalSpent, monthlySpent, totalTopup } = await getTransactionHistory(userInfo.profileId)
 
-  const getStatusIcon = (status: string) => {
+  const getStatusBadge = (status: string): { text: string; variant: StatusVariant } => {
     switch (status) {
       case "confirmed":
+        return { text: "Confirmé", variant: "success" }
       case "completed":
-        return <CheckCircle className="h-4 w-4 text-lime" />
+        return { text: "Terminé", variant: "success" }
       case "pending":
-        return <Clock className="h-4 w-4 text-gold" />
+        return { text: "En attente", variant: "warning" }
       case "cancelled":
-        return <XCircle className="h-4 w-4 text-destructive" />
+        return { text: "Annulé", variant: "danger" }
       default:
-        return <Clock className="h-4 w-4 text-mute" />
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "confirmed":
-        return "Confirmé"
-      case "completed":
-        return "Terminé"
-      case "pending":
-        return "En attente"
-      case "cancelled":
-        return "Annulé"
-      default:
-        return status
+        return { text: status.replace(/_/g, " "), variant: "neutral" }
     }
   }
 
@@ -249,18 +226,18 @@ export default async function ParentHistoryPage() {
     }
   }
 
-  const getTypeBadge = (type: string) => {
+  const getTypeLabel = (type: string) => {
     switch (type) {
       case "booking":
-        return { text: "Réservation", class: "bg-pink/20 text-pink" }
+        return "Réservation"
       case "discount":
-        return { text: "Réduction", class: "bg-lime/20 text-lime" }
+        return "Réduction"
       case "coins":
-        return { text: "Coins", class: "bg-gold/20 text-gold" }
+        return "Coins"
       case "shop":
-        return { text: "Boutique", class: "bg-teal/20 text-teal" }
+        return "Boutique"
       default:
-        return { text: type, class: "bg-muted text-mute" }
+        return type.replace(/_/g, " ")
     }
   }
 
@@ -275,10 +252,25 @@ export default async function ParentHistoryPage() {
     })
   }
 
+  // Regroupement par jour avec séparateurs eyebrow mono.
+  const dayLabel = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })
+  const groups: { label: string; items: any[] }[] = []
+  for (const tx of transactions) {
+    const label = dayLabel(tx.date)
+    const last = groups[groups.length - 1]
+    if (last && last.label === label) last.items.push(tx)
+    else groups.push({ label, items: [tx] })
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
-        {/* Back button */}
+      <div className="container mx-auto px-6 py-10">
         <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -286,154 +278,121 @@ export default async function ParentHistoryPage() {
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Header éditorial */}
+        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black text-ink">Historique</h1>
-            <p className="text-mute">Toutes les transactions de vos teens</p>
+            <p className="eyebrow text-pink">COMPTE · HISTORIQUE</p>
+            <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+              Tout ce que <em className="font-semibold italic text-pink">ta famille</em> a dépensé
+            </h1>
           </div>
           <ExportButton transactions={transactions} />
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-lime/20 to-lime/20 border-lime/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-lime font-medium">Total dépensé</p>
-                  <p className="text-3xl font-black text-ink">{totalSpent.toLocaleString()} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
-                  <CreditCard className="h-6 w-6 text-lime" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-teal font-medium">Ce mois</p>
-                  <p className="text-3xl font-black text-ink">{monthlySpent.toLocaleString()} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-teal" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gold font-medium">Coins rechargés</p>
-                  <p className="text-3xl font-black text-ink">{totalTopup.toLocaleString()}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <Coins className="h-6 w-6 text-gold" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-pink/20 to-pink/20 border-pink/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-pink font-medium">Transactions</p>
-                  <p className="text-3xl font-black text-ink">{transactions.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-pink/20 flex items-center justify-center">
-                  <History className="h-6 w-6 text-pink" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Hiérarchie 1-2-3 : total dépensé en hero sombre + 3 stickers */}
+        <div className="mb-8 grid gap-4 md:grid-cols-2">
+          <StatHero
+            eyebrow="Total dépensé"
+            value={totalSpent.toLocaleString("fr-FR")}
+            unit="DH"
+            tone="lime"
+            size="lg"
+            meta={`${transactions.length} transactions au total`}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <StickerCard className="p-4">
+              <p className="eyebrow text-mute">Ce mois</p>
+              <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-ink">
+                {monthlySpent.toLocaleString("fr-FR")}
+                <span className="ml-1 font-mono text-sm font-medium text-mute">DH</span>
+              </p>
+            </StickerCard>
+            <StickerCard className="p-4">
+              <p className="eyebrow text-mute">Coins rechargés</p>
+              <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-coral">
+                ⊙ {totalTopup.toLocaleString("fr-FR")}
+              </p>
+            </StickerCard>
+          </div>
         </div>
 
         {/* Filters */}
         <TransactionFilters teens={teens} />
 
-        {/* Transaction List */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <History className="h-5 w-5 text-lime" />
-              Toutes les transactions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {transactions.length > 0 ? (
-              <div className="space-y-3">
-                {transactions.map((tx: any) => {
-                  const typeBadge = getTypeBadge(tx.type)
-                  return (
-                    <div
-                      key={`${tx.type}-${tx.id}`}
-                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-lime/30 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-card flex items-center justify-center">
-                          {getTypeIcon(tx.type, tx.coinType)}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-ink">{tx.description}</p>
-                          <div className="flex items-center gap-2 text-xs text-mute mt-1">
-                            <span className={`px-2 py-0.5 rounded-full ${typeBadge.class}`}>
-                              {typeBadge.text}
-                            </span>
-                            <span>•</span>
-                            <span>{tx.teenName}</span>
-                            <span>•</span>
-                            <span>{formatDate(tx.date)}</span>
+        {/* Transaction List groupée par jour */}
+        {transactions.length > 0 ? (
+          <div className="space-y-6">
+            {groups.map((group) => (
+              <section key={group.label} className="space-y-3">
+                <h2 className="eyebrow text-mute first-letter:uppercase">{group.label}</h2>
+                <div className="space-y-3">
+                  {group.items.map((tx: any) => {
+                    const txStatus = getStatusBadge(tx.status)
+                    return (
+                      <StickerCard
+                        key={`${tx.type}-${tx.id}`}
+                        variant="hover"
+                        className="p-4"
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="grid h-12 w-12 place-items-center rounded-xl border-2 border-ink bg-paper">
+                            {getTypeIcon(tx.type, tx.coinType)}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-ink">{tx.description}</p>
+                            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-mute">
+                              <span className="eyebrow text-[10px] text-ink-2">{getTypeLabel(tx.type)}</span>
+                              <span>·</span>
+                              <span>{tx.teenName}</span>
+                              <span>·</span>
+                              <span className="font-mono">{formatDate(tx.date)}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          {tx.type === "coins" ? (
-                            <p className={`font-black ${tx.coinType === "topup" ? "text-lime" : "text-coral"}`}>
-                              {tx.coinType === "topup" ? "+" : "-"}{tx.amount?.toLocaleString()} coins
-                            </p>
-                          ) : (
-                            <p className="font-black text-ink">{tx.amount?.toLocaleString()} DH</p>
-                          )}
-                          {tx.discount && (
-                            <p className="text-xs text-lime">-{tx.discount} DH économisé</p>
-                          )}
-                          {tx.coinsUsed && (
-                            <p className="text-xs text-gold">{tx.coinsUsed} coins utilisés</p>
-                          )}
-                          <div className="flex items-center justify-end gap-1 mt-1">
-                            {getStatusIcon(tx.status)}
-                            <span className="text-xs text-mute">{getStatusText(tx.status)}</span>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            {tx.type === "coins" ? (
+                              <p className={`font-mono text-base font-bold tabular-nums ${tx.coinType === "topup" ? "text-lime" : "text-coral"}`}>
+                                {tx.coinType === "topup" ? "+" : "−"}⊙ {tx.amount?.toLocaleString("fr-FR")}
+                              </p>
+                            ) : (
+                              <p className="font-mono text-base font-bold tabular-nums text-ink">
+                                {tx.amount?.toLocaleString("fr-FR")} DH
+                              </p>
+                            )}
+                            {tx.discount && (
+                              <p className="font-mono text-xs text-lime">−{tx.discount} DH économisé</p>
+                            )}
+                            {tx.coinsUsed && (
+                              <p className="font-mono text-xs text-coral">⊙ {tx.coinsUsed} utilisés</p>
+                            )}
+                            <div className="mt-1 flex justify-end">
+                              <StatusBadge variant={txStatus.variant} label={txStatus.text} size="sm" />
+                            </div>
                           </div>
+                          {((tx.type === "booking" && tx.paymentStatus === "paid") ||
+                            (tx.type === "coins" && tx.coinType === "topup")) && (
+                            <InvoiceButton
+                              transactionId={tx.id}
+                              transactionType={tx.type === "booking" ? "booking" : "topup"}
+                            />
+                          )}
                         </div>
-                        {/* Invoice button for paid bookings and topups */}
-                        {((tx.type === "booking" && tx.paymentStatus === "paid") ||
-                          (tx.type === "coins" && tx.coinType === "topup")) && (
-                          <InvoiceButton
-                            transactionId={tx.id}
-                            transactionType={tx.type === "booking" ? "booking" : "topup"}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <EmptyState
-                icon={History}
-                title="Aucune transaction"
-                description="L'historique des transactions apparaîtra ici"
-              />
-            )}
-          </CardContent>
-        </Card>
+                        </div>
+                      </StickerCard>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <NivEmpty
+            title="Walou pour l'instant"
+            description="Ton crew économise 💪 L'historique des transactions s'affichera ici."
+          />
+        )}
       </div>
     </div>
   )

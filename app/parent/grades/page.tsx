@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,25 +15,21 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  GraduationCap,
   ArrowLeft,
   CheckCircle2,
   XCircle,
-  Clock,
   BookOpen,
   Calendar,
   User,
-  Filter,
   Search,
   AlertCircle,
-  Award,
-  TrendingUp,
-  History,
   Loader2
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { StatHero, NivCoach, NivEmpty } from "@/components/brand"
 
 interface Grade {
   id: string
@@ -285,29 +280,16 @@ export default function ParentGradesPage() {
     return "text-destructive"
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string): { text: string; variant: StatusVariant } => {
     switch (status) {
       case "pending":
-        return (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gold/20 text-gold text-xs">
-            <Clock className="h-3 w-3" />
-            En attente
-          </span>
-        )
+        return { text: "En attente", variant: "warning" }
       case "approved":
-        return (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-lime/20 text-lime text-xs">
-            <CheckCircle2 className="h-3 w-3" />
-            Validée
-          </span>
-        )
+        return { text: "Validée", variant: "success" }
       case "rejected":
-        return (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-destructive/20 text-destructive text-xs">
-            <XCircle className="h-3 w-3" />
-            Rejetée
-          </span>
-        )
+        return { text: "Rejetée", variant: "danger" }
+      default:
+        return { text: status.replace(/_/g, " "), variant: "neutral" }
     }
   }
 
@@ -321,7 +303,7 @@ export default function ParentGradesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
+      <div className="container mx-auto px-6 py-10">
         {/* Back button */}
         <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
@@ -330,20 +312,25 @@ export default function ParentGradesPage() {
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-ink flex items-center gap-3">
-              <GraduationCap className="h-8 w-8 text-lime" />
-              Validation Notes Scolaires
-            </h1>
-            <p className="text-mute">Validez les notes soumises par vos teens</p>
-          </div>
+        {/* Header éditorial */}
+        <div className="mb-6">
+          <p className="eyebrow text-pink">SUIVI · NOTES</p>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            Les notes de <em className="font-semibold italic text-pink">ton crew</em>
+          </h1>
+          <p className="mt-2 text-sm text-mute">Valide les notes soumises par tes teens.</p>
         </div>
+
+        <NivCoach
+          mood="proud"
+          tone="paper"
+          className="mb-8"
+          message="Bravo à ton crew ! Valide leurs notes pour leur débloquer des récompenses."
+        />
 
         {/* Unavailable banner */}
         {unavailable && (
-          <div className="mb-6 p-4 rounded-xl border border-gold/30 bg-gold/10 flex items-start gap-3">
+          <div className="mb-6 flex items-start gap-3 rounded-xl border-2 border-gold/40 bg-gold/10 p-4">
             <AlertCircle className="h-5 w-5 text-gold mt-0.5 shrink-0" />
             <div>
               <p className="text-sm font-semibold text-gold">Bientôt disponible</p>
@@ -354,63 +341,30 @@ export default function ParentGradesPage() {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-gold/20 to-coral/20 border-gold/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gold font-medium">En attente</p>
-                  <p className="text-3xl font-black text-ink">{stats.totalPending}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-gold" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-lime/20 to-teal/20 border-lime/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-lime font-medium">Validées</p>
-                  <p className="text-3xl font-black text-ink">{stats.totalValidated}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-lime/20 flex items-center justify-center">
-                  <CheckCircle2 className="h-6 w-6 text-lime" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-destructive/20 to-pink/20 border-destructive/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-destructive font-medium">Rejetées</p>
-                  <p className="text-3xl font-black text-ink">{stats.totalRejected}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center">
-                  <XCircle className="h-6 w-6 text-destructive" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-teal/20 to-teal/20 border-teal/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-teal font-medium">Moyenne</p>
-                  <p className="text-3xl font-black text-ink">{stats.averageGrade}/20</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-teal" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Hiérarchie 1-2-3 : moyenne en hero sombre + 3 stickers */}
+        <div className="mb-8 grid gap-4 md:grid-cols-2">
+          <StatHero
+            eyebrow="Moyenne validée"
+            value={stats.averageGrade}
+            unit="/20"
+            tone="teal"
+            size="lg"
+            meta={`${stats.totalValidated} note${stats.totalValidated > 1 ? "s" : ""} validée${stats.totalValidated > 1 ? "s" : ""}`}
+          />
+          <div className="grid grid-cols-3 gap-4">
+            <StickerCard className="p-4">
+              <p className="eyebrow text-mute">En attente</p>
+              <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-gold">{stats.totalPending}</p>
+            </StickerCard>
+            <StickerCard className="p-4">
+              <p className="eyebrow text-mute">Validées</p>
+              <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-lime">{stats.totalValidated}</p>
+            </StickerCard>
+            <StickerCard className="p-4">
+              <p className="eyebrow text-mute">Rejetées</p>
+              <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-coral">{stats.totalRejected}</p>
+            </StickerCard>
+          </div>
         </div>
 
         {/* Filters */}
@@ -421,20 +375,16 @@ export default function ParentGradesPage() {
               placeholder="Rechercher par matière, teen..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-card border-ink text-ink"
+              className="pl-10 border-2 border-ink bg-white text-ink"
             />
           </div>
           <div className="flex gap-2">
             {(["pending", "approved", "rejected", "all"] as const).map((f) => (
               <Button
                 key={f}
-                variant={filter === f ? "default" : "outline"}
+                variant={filter === f ? "pink" : "outline"}
                 size="sm"
                 onClick={() => setFilter(f)}
-                className={filter === f
-                  ? "bg-lime hover:bg-lime"
-                  : "border-ink text-ink-2 hover:bg-card"
-                }
               >
                 {f === "pending" && "En attente"}
                 {f === "approved" && "Validées"}
@@ -446,46 +396,39 @@ export default function ParentGradesPage() {
         </div>
 
         {/* Grades List */}
-        <Card className="bg-gradient-to-br from-paper-2 to-card border-ink">
-          <CardHeader>
-            <CardTitle className="text-ink flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-lime" />
-              Notes ({filteredGrades.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {filteredGrades.length > 0 ? (
-              <div className="space-y-3">
-                {filteredGrades.map((grade) => (
-                  <div
-                    key={grade.id}
-                    className="p-4 rounded-xl bg-card border border-ink hover:border-lime/30 transition-all"
-                  >
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <section className="space-y-3">
+          <h2 className="eyebrow text-mute">Notes ({filteredGrades.length})</h2>
+          {filteredGrades.length > 0 ? (
+            <div className="space-y-3">
+              {filteredGrades.map((grade) => {
+                const gradeStatus = getStatusBadge(grade.status)
+                return (
+                  <StickerCard key={grade.id} className="p-4">
+                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                       <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-lime to-teal flex items-center justify-center">
+                        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper">
                           <BookOpen className="h-7 w-7 text-ink" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-bold text-ink">{grade.subject}</h3>
-                            {getStatusBadge(grade.status)}
+                            <h3 className="font-display text-lg font-bold text-ink">{grade.subject}</h3>
+                            <StatusBadge variant={gradeStatus.variant} label={gradeStatus.text} size="sm" />
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-mute mt-1">
+                          <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-mute">
                             <span className="flex items-center gap-1">
                               <User className="h-3 w-3" />
                               {grade.teen_name}
                             </span>
-                            <span>•</span>
+                            <span>·</span>
                             <span>{grade.exam_type}</span>
-                            <span>•</span>
+                            <span>·</span>
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
                               {formatDate(grade.exam_date)}
                             </span>
                           </div>
                           {grade.rejection_reason && (
-                            <p className="text-xs text-mute mt-2 italic">
+                            <p className="mt-2 text-xs italic text-mute">
                               "{grade.rejection_reason}"
                             </p>
                           )}
@@ -494,18 +437,18 @@ export default function ParentGradesPage() {
 
                       <div className="flex items-center gap-4">
                         <div className="text-center">
-                          <p className={`text-3xl font-black ${getGradeColor(grade.grade, grade.max_grade)}`}>
+                          <p className={`font-display text-3xl font-extrabold tabular-nums ${getGradeColor(grade.grade, grade.max_grade)}`}>
                             {grade.grade}/{grade.max_grade}
                           </p>
-                          <p className="text-xs text-mute">Note</p>
+                          <p className="eyebrow text-[10px] text-mute">Note</p>
                         </div>
 
                         {grade.status === "pending" && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"
+                              variant="pink"
                               onClick={() => setSelectedGrade(grade)}
-                              className="bg-lime hover:bg-lime"
                             >
                               <CheckCircle2 className="h-4 w-4 mr-1" />
                               Valider
@@ -517,7 +460,6 @@ export default function ParentGradesPage() {
                                 setSelectedGrade(grade)
                                 setShowRejectDialog(true)
                               }}
-                              className="border-destructive/50 text-destructive hover:bg-destructive/10"
                             >
                               <XCircle className="h-4 w-4 mr-1" />
                               Rejeter
@@ -526,21 +468,19 @@ export default function ParentGradesPage() {
                         )}
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={GraduationCap}
-                size="large"
-                title={filter === "pending" ? "Aucune note en attente" : "Aucune note trouvée"}
-                description={filter === "pending"
-                  ? "Les nouvelles notes soumises par vos teens apparaîtront ici"
-                  : "Modifiez vos filtres pour voir d'autres notes"}
-              />
-            )}
-          </CardContent>
-        </Card>
+                  </StickerCard>
+                )
+              })}
+            </div>
+          ) : (
+            <NivEmpty
+              title={filter === "pending" ? "Aucune note en attente" : "Aucune note trouvée"}
+              description={filter === "pending"
+                ? "Les nouvelles notes soumises par tes teens apparaîtront ici ✏️"
+                : "Modifie tes filtres pour voir d'autres notes"}
+            />
+          )}
+        </section>
 
         {/* Validate Dialog */}
         <Dialog open={!!selectedGrade && !showRejectDialog} onOpenChange={() => setSelectedGrade(null)}>
@@ -557,13 +497,13 @@ export default function ParentGradesPage() {
 
             {selectedGrade && (
               <div className="py-4">
-                <div className="p-4 rounded-xl bg-card mb-4">
+                <div className="mb-4 rounded-xl border-2 border-ink bg-paper p-4">
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-ink font-semibold">{selectedGrade.subject}</p>
                       <p className="text-sm text-mute">{selectedGrade.exam_type} - {formatDate(selectedGrade.exam_date)}</p>
                     </div>
-                    <p className={`text-2xl font-black ${getGradeColor(selectedGrade.grade, selectedGrade.max_grade)}`}>
+                    <p className={`font-display text-2xl font-extrabold tabular-nums ${getGradeColor(selectedGrade.grade, selectedGrade.max_grade)}`}>
                       {selectedGrade.grade}/{selectedGrade.max_grade}
                     </p>
                   </div>
@@ -625,13 +565,13 @@ export default function ParentGradesPage() {
 
             {selectedGrade && (
               <div className="py-4">
-                <div className="p-4 rounded-xl bg-card mb-4">
+                <div className="mb-4 rounded-xl border-2 border-ink bg-paper p-4">
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-ink font-semibold">{selectedGrade.subject}</p>
                       <p className="text-sm text-mute">{selectedGrade.exam_type}</p>
                     </div>
-                    <p className={`text-2xl font-black ${getGradeColor(selectedGrade.grade, selectedGrade.max_grade)}`}>
+                    <p className={`font-display text-2xl font-extrabold tabular-nums ${getGradeColor(selectedGrade.grade, selectedGrade.max_grade)}`}>
                       {selectedGrade.grade}/{selectedGrade.max_grade}
                     </p>
                   </div>
