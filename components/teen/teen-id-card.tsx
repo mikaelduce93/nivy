@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
 import { QrCode, Share2, Crown, Zap, Shield, Camera } from 'lucide-react'
-import { HolographicBadge, GlowBlob } from '@/components/ui/gen-z-effects'
+import { DarkSurface } from '@/components/brand'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
@@ -74,15 +74,20 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
             <div className="w-10 h-10 rounded-xl bg-brand-soft/20 flex items-center justify-center border border-ink">
               <Shield className="w-5 h-5 text-brand-soft" />
             </div>
-            <HolographicBadge rarity={user.level > 10 ? "legendary" : "rare"}>
-              <span className="text-[10px] font-black uppercase tracking-widest px-2">ID Verified</span>
-            </HolographicBadge>
+            <DarkSurface
+              tone={user.level > 10 ? "gold" : "teal"}
+              className="flex items-center px-3 py-2"
+            >
+              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-paper">
+                Identité vérifiée
+              </span>
+            </DarkSurface>
           </div>
 
           {/* Avatar & Info */}
           <div className="space-y-4">
             <div className="relative mx-auto">
-              <div className="relative w-32 h-32 rounded-full border-4 border-ink bg-card overflow-hidden shadow-2xl">
+              <div className="relative w-32 h-32 rounded-full border-4 border-ink bg-card overflow-hidden shadow-stkr-md">
                 {user.avatarUrl ? (
                   <Image
                     src={user.avatarUrl}
@@ -131,7 +136,7 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
           {/* QR Code Section */}
           <div className="relative group">
             <div className="absolute inset-0 bg-paper-2 blur-xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500 opacity-0 group-hover:opacity-50" />
-            <div className="relative p-4 rounded-2xl bg-white border border-ink shadow-2xl flex items-center justify-center">
+            <div className="relative p-4 rounded-2xl bg-white border border-ink shadow-stkr-md flex items-center justify-center">
               <QrCode className="w-20 h-20 text-ink" />
             </div>
             <p className="mt-4 text-[10px] font-black uppercase tracking-[0.4em] text-mute">Scan to Link</p>

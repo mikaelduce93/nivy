@@ -24,7 +24,7 @@ import {
   VolumeX,
   Keyboard
 } from 'lucide-react'
-import { GlowBlob } from '@/components/ui/gen-z-effects'
+import { MeshBackground } from '@/components/ui/effects/mesh-background'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import confetti from 'canvas-confetti'
@@ -320,11 +320,8 @@ export function EliteAICompanion({
                 // Desktop: fully rounded
                 "sm:rounded-[2.5rem] sm:max-h-[70vh]"
               )}>
-                {/* Animated Background */}
-                <div className="absolute inset-0 z-0 pointer-events-none">
-                  <GlowBlob color="var(--brand-soft)" size={300} className="-top-20 -right-20 opacity-20" blur={60} />
-                  <GlowBlob color="var(--info-soft)" size={250} className="-bottom-20 -left-20 opacity-10" blur={60} />
-                </div>
+                {/* Fond mesh charte (sans blur) */}
+                <MeshBackground className="z-0" intensity={0.6} />
 
                 {/* Drag indicator (mobile) */}
                 <div className="sm:hidden flex justify-center pt-2 pb-1">

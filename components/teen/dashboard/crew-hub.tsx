@@ -8,10 +8,8 @@ import { Users, Trophy, Zap, Shield, ChevronRight, Plus, Crown, Star, Swords, Sp
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button, PremiumButton } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { HolographicBadge, AnimatedProgress } from '@/components/ui/gen-z-effects'
 import { getUserCrew } from '@/gamification-system/features/crews/actions'
 import { type UserCrewData, getCrewTier, getTierProgress } from '@/gamification-system/features/crews/schema'
-import { GlowPulse, FloatingParticles, OrbitParticles, RisingSparks, PALETTES } from '@/components/ui/effects/particle-system'
 import { HolographicBorder } from '@/components/ui/effects/animated-border'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 import { CountUpText } from '@/components/ui/effects/text-effects'
@@ -83,15 +81,6 @@ export function CrewHub() {
             transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
           />
           
-          {/* Floating particles in header */}
-          {isHovered && (
-            <div className="absolute inset-0 pointer-events-none">
-              <FloatingParticles count={12} colors={PALETTES.lavender} direction="up" speed="fast" glow />
-            </div>
-          )}
-          
-          {/* Rising sparks */}
-          <RisingSparks count={8} colors={['#8b5cf6', '#a78bfa', '#c4b5fd']} intensity="low" />
         </div>
         
         <div className="p-4 sm:p-6 md:p-8 -mt-12 sm:-mt-14 relative z-10 space-y-4 sm:space-y-6">
@@ -109,7 +98,7 @@ export function CrewHub() {
                   animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
                   transition={{ duration: 3, repeat: Infinity }}
                 />
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-[1.75rem] sm:rounded-[2rem] bg-card border-4 border-ink flex items-center justify-center shadow-2xl overflow-hidden">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-[1.75rem] sm:rounded-[2rem] bg-card border-4 border-ink flex items-center justify-center shadow-stkr-md overflow-hidden">
                   {crew?.avatar_url ? (
                     <Image
                       src={crew.avatar_url}
@@ -132,11 +121,9 @@ export function CrewHub() {
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: 'spring', stiffness: 500 }}
                   >
-                    <GlowPulse color="#fbbf24" intensity="strong" speed="medium">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gold flex items-center justify-center border-2 border-ink">
-                        <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ink" />
-                      </div>
-                    </GlowPulse>
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gold flex items-center justify-center border-2 border-ink">
+                      <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ink" />
+                    </div>
                   </motion.div>
                 )}
               </motion.div>
@@ -186,7 +173,7 @@ export function CrewHub() {
           {/* Stats Grid with animations */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
             {[
-              { icon: Zap, label: 'Total XP', value: crew?.total_xp || 0, color: '#8b5cf6' },
+              { icon: Zap, label: 'XP total', value: crew?.total_xp || 0, color: '#8b5cf6' },
               { icon: Star, label: 'Events', value: crew?.total_events_attended || 0, color: '#f59e0b' },
               { icon: Shield, label: 'Battles', value: crew?.total_challenges_won || 0, color: '#10b981' },
             ].map((stat, i) => (
@@ -261,7 +248,7 @@ export function CrewHub() {
           {/* Members Preview */}
           <div className="space-y-3 sm:space-y-4">
             <div className="flex justify-between items-center">
-              <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-mute">Top Members</p>
+              <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-mute">Meilleurs membres</p>
               <Link href="/teen/circles" aria-label="Voir tous les membres du crew">
                 <motion.span 
                   className="text-[10px] sm:text-xs font-bold text-pink hover:text-pink cursor-pointer focus-visible:outline-none focus-visible:underline"
@@ -278,8 +265,8 @@ export function CrewHub() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + i * 0.1 }}
-                  whileHover={{ x: 4, backgroundColor: 'rgba(255,255,255,0.05)' }}
-                  className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-ink transition-colors cursor-pointer"
+                  whileHover={{ x: 4 }}
+                  className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-paper-2 border border-ink transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="relative">
@@ -369,13 +356,6 @@ function NoCrewState() {
         glowSize={25}
       >
         <div className="relative h-full rounded-[2rem] bg-gradient-to-br from-pink/40 via-paper-2 to-black overflow-hidden">
-          {/* Background effects */}
-          {isHovered && (
-            <div className="absolute inset-0 pointer-events-none">
-              <FloatingParticles count={15} colors={PALETTES.lavender} direction="up" speed="medium" glow />
-            </div>
-          )}
-          
           <div className="relative z-10 p-6 sm:p-8 flex flex-col items-center text-center h-full justify-center space-y-4 sm:space-y-6">
             <motion.div 
               className="relative"

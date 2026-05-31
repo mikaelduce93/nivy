@@ -3,8 +3,7 @@
 import * as React from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, Award, Brain, Users, Heart, Sparkles, Shield, Zap } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { BentoCard } from "@/components/ui/bento-grid"
+import { StickerCard } from "@/components/ui/sticker-card"
 
 interface EvolutionTreeProps {
   teenName: string
@@ -25,7 +24,7 @@ export function EvolutionTree({ teenName, stats }: EvolutionTreeProps) {
   ]
 
   return (
-    <BentoCard cols={12} rows={1} variant="glass" tiltIntensity={3} className="border-ink shadow-2xl">
+    <StickerCard className="p-6">
       <div className="flex flex-col gap-10 p-4">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -34,40 +33,32 @@ export function EvolutionTree({ teenName, stats }: EvolutionTreeProps) {
               <TrendingUp className="h-7 w-7 text-lime" />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-ink tracking-tighter uppercase italic">Evolution Hub : {teenName}</h3>
-              <p className="text-mute text-xs font-bold uppercase tracking-widest">Real-time skill mapping</p>
+              <h3 className="text-2xl font-black text-ink tracking-tighter uppercase italic">Évolution : {teenName}</h3>
+              <p className="text-mute text-xs font-bold uppercase tracking-widest">Cartographie des compétences</p>
             </div>
           </div>
           <div className="hidden md:flex gap-2">
             <div className="px-4 py-2 rounded-xl bg-paper-2 border border-ink text-[10px] font-black uppercase text-mute">
-              Week #4 Analysis
+              Analyse de la semaine
             </div>
           </div>
         </div>
 
         {/* Tree Visualization (Simplified for 2026 aesthetics) */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
-          {/* Connecting lines (Decoration) */}
-          <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent hidden md:block" />
-          
+          {/* Connecting line (decoration) */}
+          <div className="absolute top-1/2 left-0 w-full h-px bg-ink/10 hidden md:block" />
+
           {metrics.map((metric, idx) => (
-            <motion.div 
-              key={metric.label} 
+            <motion.div
+              key={metric.label}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.1 }}
               className="relative group flex flex-col items-center text-center space-y-4"
             >
               <div className="relative">
-                {/* Glow ring */}
-                <motion.div 
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-                  transition={{ duration: 4, repeat: Infinity, delay: idx * 0.5 }}
-                  className="absolute inset-0 rounded-full blur-xl"
-                  style={{ backgroundColor: metric.color }}
-                />
-                
-                <div className="relative w-20 h-20 rounded-full bg-card border-4 border-ink flex items-center justify-center shadow-2xl z-10">
+                <div className="relative w-20 h-20 rounded-full bg-card border-4 border-ink flex items-center justify-center shadow-stkr-sm z-10">
                   <metric.icon className="h-8 w-8" style={{ color: metric.color }} />
                 </div>
                 
@@ -99,21 +90,21 @@ export function EvolutionTree({ teenName, stats }: EvolutionTreeProps) {
           ))}
         </div>
 
-        {/* AI Insight Box */}
-        <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-ink  flex flex-col md:flex-row items-center gap-6">
+        {/* Encadré insight */}
+        <div className="p-6 rounded-[2rem] bg-paper-2 border border-ink flex flex-col md:flex-row items-center gap-6">
           <div className="w-12 h-12 rounded-full bg-brand-soft/20 flex items-center justify-center flex-shrink-0">
             <Sparkles className="w-6 h-6 text-brand-soft" />
           </div>
           <div className="flex-1 text-center md:text-left">
             <p className="text-sm text-ink-2 font-medium leading-relaxed italic">
-              "AI ANALYST: {teenName} a débloqué le succès 'Team Leader' hier. Sa stat Sociale est à son maximum. Suggérez-lui un défi de 'Responsabilité' pour débloquer le prochain palier de top-up."
+              « {teenName} a débloqué le succès « Team Leader » hier. Sa stat Sociale est à son maximum. Suggérez-lui un défi de « Responsabilité » pour débloquer le prochain palier de top-up. »
             </p>
           </div>
-          <button className="px-6 py-3 rounded-xl bg-white text-ink font-black text-xs uppercase tracking-widest hover:scale-105 transition-all">
-            Action: Lancer Défi
+          <button className="px-6 py-3 rounded-xl bg-ink text-paper font-black text-xs uppercase tracking-widest hover:scale-105 transition-all">
+            Lancer un défi
           </button>
         </div>
       </div>
-    </BentoCard>
+    </StickerCard>
   )
 }

@@ -17,7 +17,6 @@ import {
 import { cn } from '@/lib/utils'
 import { useNotificationCounts } from '@/lib/hooks/teen-dashboard'
 import { HolographicBorder } from '@/components/ui/effects/animated-border'
-import { FloatingParticles, GlowPulse, PALETTES, SparkleTrail, OrbitParticles } from '@/components/ui/effects/particle-system'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 
 interface QuickAccessItem {
@@ -31,7 +30,6 @@ interface QuickAccessItem {
   badge?: string
   badgeType?: 'hot' | 'new' | 'live'
   notificationCount?: number
-  particleColor?: string[]
   borderGradient?: 'lavender' | 'coral' | 'gold' | 'mint' | 'holographic'
 }
 
@@ -65,10 +63,6 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
   // Glow position
   const glowX = useSpring(useTransform(mouseX, [-0.5, 0.5], [0, 100]), { stiffness: 200, damping: 20 })
   const glowY = useSpring(useTransform(mouseY, [-0.5, 0.5], [0, 100]), { stiffness: 200, damping: 20 })
-
-  // Depth shadow
-  const shadowX = useTransform(rotateY, [-15, 15], [20, -20])
-  const shadowY = useTransform(rotateX, [15, -15], [-20, 20])
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return
@@ -120,18 +114,6 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
           }}
           className="relative h-full"
         >
-          {/* Dynamic depth shadow */}
-          <motion.div
-            className="absolute inset-0 rounded-2xl -z-10"
-            style={{
-              x: shadowX,
-              y: shadowY,
-              background: 'rgba(0, 0, 0, 0.3)',
-              filter: 'blur(25px)',
-              transform: 'translateZ(-40px)',
-              opacity: isHovered ? 1 : 0.5,
-            }}
-          />
         <HolographicBorder
           gradient={item.borderGradient}
           borderWidth={2}
@@ -151,19 +133,6 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
             )}
             style={{ transformStyle: 'preserve-3d' }}
           >
-            {/* Floating particles on hover */}
-            {isHovered && (
-              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-                <FloatingParticles
-                  count={8}
-                  colors={item.particleColor}
-                  direction="up"
-                  speed="fast"
-                  glow={true}
-                />
-              </div>
-            )}
-            
             {/* Cursor-following glow effect */}
             <motion.div
               className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -207,13 +176,7 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
                 } : {}}
                 transition={{ duration: 0.5 }}
               >
-                <GlowPulse 
-                  color="white" 
-                  intensity={isHovered ? 'medium' : 'subtle'} 
-                  speed="medium"
-                >
-                  <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-ink" />
-                </GlowPulse>
+                <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-ink" />
               </motion.div>
               
               {/* Badge or notification */}
@@ -288,18 +251,6 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
           )}
         </AnimatePresence>
 
-        {/* Orbit particles on hover */}
-        {isHovered && (
-          <div className="absolute inset-0 pointer-events-none overflow-visible">
-            <OrbitParticles
-              count={4}
-              colors={item.particleColor}
-              speed={8}
-              size={3}
-              glow={true}
-            />
-          </div>
-        )}
       </motion.div>
     </Link>
     </CursorHoverArea>
@@ -324,7 +275,6 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       badge: "NEW",
       badgeType: 'new',
       notificationCount: notificationCounts.wallet,
-      particleColor: PALETTES.lavender,
       borderGradient: 'lavender',
     },
     {
@@ -336,7 +286,6 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       gradient: "from-accent-soft to-pink",
       iconBg: "bg-accent-soft/20",
       notificationCount: notificationCounts.quests,
-      particleColor: PALETTES.coral,
       borderGradient: 'coral',
     },
     {
@@ -349,7 +298,6 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       iconBg: "bg-gold/20",
       badge: "HOT",
       badgeType: 'hot',
-      particleColor: PALETTES.gold,
       borderGradient: 'gold',
     },
     {
@@ -363,7 +311,6 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       badge: "LIVE",
       badgeType: 'live',
       notificationCount: notificationCounts.social,
-      particleColor: PALETTES.mint,
       borderGradient: 'mint',
     },
   ], [notificationCounts])
@@ -393,7 +340,7 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
           </motion.div>
           <div>
             <h2 className="text-lg sm:text-xl md:text-2xl font-black text-ink tracking-tight flex items-center gap-2">
-              Quick Access
+              Accès rapide
               <motion.span
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}

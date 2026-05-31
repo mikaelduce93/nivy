@@ -7,7 +7,6 @@ import { MapPin, Users, Calendar, ChevronRight, Sparkles, Navigation, Zap, Compa
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
-import { GlowPulse, FloatingParticles, OrbitParticles, PALETTES } from '@/components/ui/effects/particle-system'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -307,19 +306,17 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                     animate={{ y: [0, -6, 0] }}
                     transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.5 }}
                   >
-                    <GlowPulse color={colors.glow} intensity="medium" speed="medium">
-                      <div 
-                        className={cn(
-                          "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl  border border-ink shadow-xl",
-                          colors.bg
-                        )}
-                      >
-                        <Calendar className={cn("w-3 h-3", colors.text)} />
-                        <span className={cn("text-[10px] sm:text-xs font-bold whitespace-nowrap", colors.text)}>
-                          {event.name}
-                        </span>
-                      </div>
-                    </GlowPulse>
+                    <div
+                      className={cn(
+                        "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-ink shadow-stkr-sm",
+                        colors.bg
+                      )}
+                    >
+                      <Calendar className={cn("w-3 h-3", colors.text)} />
+                      <span className={cn("text-[10px] sm:text-xs font-bold whitespace-nowrap", colors.text)}>
+                        {event.name}
+                      </span>
+                    </div>
                   </motion.div>
                 </motion.div>
               )
@@ -328,8 +325,8 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
 
           {/* Header badge with glass effect */}
           <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
-            <motion.div 
-              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-ink/40  border border-ink shadow-2xl"
+            <motion.div
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-ink/40 border border-ink shadow-stkr-sm"
               whileHover={{ scale: 1.05 }}
             >
               <motion.div
@@ -339,7 +336,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
               >
                 <Compass className="w-4 h-4 sm:w-5 sm:h-5 text-success-soft" />
               </motion.div>
-              <span className="text-xs sm:text-sm font-black text-ink tracking-tight">Discovery Map</span>
+              <span className="text-xs sm:text-sm font-black text-ink tracking-tight">Carte des découvertes</span>
               <motion.div
                 className="w-1.5 h-1.5 rounded-full bg-lime"
                 animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
@@ -384,7 +381,7 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
                     >
                       <Sparkles className="w-3.5 h-3.5 text-accent-soft" />
                     </motion.div>
-                    <span className="text-xs font-bold text-ink">{nearbyEvents.length} events</span>
+                    <span className="text-xs font-bold text-ink">{nearbyEvents.length} events à proximité</span>
                   </motion.div>
                 )}
               </div>

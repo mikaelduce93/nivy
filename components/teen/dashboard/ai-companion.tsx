@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, MessageCircle, Zap, Target, X, ChevronRight, Brain, Send, Loader2, RefreshCw, ThumbsUp, ThumbsDown } from 'lucide-react'
-import { GlowBlob } from '@/components/ui/gen-z-effects'
+import { MeshBackground } from '@/components/ui/effects/mesh-background'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAIChat } from '@/components/ai/use-ai-chat'
@@ -172,11 +172,8 @@ export function AICompanion({ teenName, userId }: AICompanionProps) {
             className="fixed bottom-32 sm:bottom-28 right-2 sm:right-8 z-[100] w-[calc(100vw-1rem)] sm:w-[400px] max-w-[calc(100vw-1rem)]"
           >
             <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] bg-background border border-ink shadow-[0_30px_100px_rgba(0,0,0,0.8)] max-h-[60vh] sm:max-h-[70vh] flex flex-col">
-              {/* Animated Background */}
-              <div className="absolute inset-0 z-0 pointer-events-none">
-                <GlowBlob color="var(--brand-soft)" size={300} className="-top-20 -right-20 opacity-20" blur={60} />
-                <GlowBlob color="var(--info-soft)" size={250} className="-bottom-20 -left-20 opacity-10" blur={60} />
-              </div>
+              {/* Fond mesh charte (sans blur) */}
+              <MeshBackground className="z-0" intensity={0.6} />
 
               {/* Header */}
               <div className="relative z-10 p-4 sm:p-6 pb-3 sm:pb-4 border-b border-ink">

@@ -10,18 +10,6 @@
  * - Confetti celebrations
  */
 
-// Particle System - Floating, burst, trail, orbit particles
-export {
-  FloatingParticles,
-  ParticleBurst,
-  SparkleTrail,
-  OrbitParticles,
-  RisingSparks,
-  GlowPulse,
-  ShimmerWave,
-  PALETTES,
-} from './particle-system'
-
 // Animated Borders - Holographic, glowing, pulsing borders
 export {
   HolographicBorder,

@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { GlowPulse, FloatingParticles, PALETTES, ParticleBurst } from '@/components/ui/effects/particle-system'
+import { Confetti } from '@/components/ui/effects/confetti'
 import { HolographicBorder } from '@/components/ui/effects/animated-border'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 import Link from 'next/link'
@@ -104,13 +104,6 @@ export function ProfileQuest(_props: ProfileQuestProps) {
             "bg-gradient-to-br from-paper-2 via-paper-2 to-card  rounded-[28px]"
           )}
         >
-          {/* Ambient particles */}
-          {isHovered && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[28px]">
-              <FloatingParticles count={8} colors={PALETTES.lavender} direction="up" speed="slow" glow />
-            </div>
-          )}
-          
           {/* Header Section */}
           <CursorHoverArea variant="pointer" magnetic={0.1}>
             <motion.div 
@@ -140,10 +133,10 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                   </motion.div>
                   <div>
                     <h3 className="font-black text-ink tracking-tight text-sm sm:text-base flex items-center gap-1.5">
-                      Complete Profile
+                      Complète ton profil
                       <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal" />
                     </h3>
-                    <p className="text-mute text-[10px] sm:text-xs font-bold uppercase tracking-tighter">Level Up Opportunity</p>
+                    <p className="text-mute text-[10px] sm:text-xs font-bold uppercase tracking-tighter">Gagne des niveaux</p>
                   </div>
                 </div>
                 
@@ -250,18 +243,11 @@ export function ProfileQuest(_props: ProfileQuestProps) {
                       } as React.CSSProperties : {}}
                       onClick={() => !step.completed && handleComplete(step.id)}
                     >
-                      {/* Celebration burst */}
+                      {/* Célébration (reduced-motion safe) */}
                       {celebrateStep === step.id && (
-                        <ParticleBurst
-                          trigger={true}
-                          x={50}
-                          y={50}
-                          count={15}
-                          colors={[step.color, '#fff']}
-                          spread={80}
-                        />
+                        <Confetti trigger palette="reward" />
                       )}
-                      
+
                       <div className="flex items-center gap-3 sm:gap-4">
                         <motion.div 
                           className={cn(

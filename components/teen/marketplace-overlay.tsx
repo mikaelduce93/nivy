@@ -1,7 +1,7 @@
 "use client"
 
 import { Zap, ArrowRight } from "lucide-react"
-import { BentoCard } from "@/components/ui/bento-grid"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Button } from "@/components/ui/button"
 
 export function MarketplaceOverlay() {
@@ -27,13 +27,10 @@ export function MarketplaceOverlay() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {deals.map((deal) => (
-        <BentoCard 
+        <StickerCard
           key={deal.id}
-          cols={1}
-          rows={1}
-          variant="glass"
-          tiltIntensity={10}
-          className="group relative border-ink"
+          variant="hover"
+          className="group relative p-5"
         >
           <div className="flex flex-col h-full justify-between">
             <div className="flex items-start justify-between">
@@ -41,7 +38,7 @@ export function MarketplaceOverlay() {
                 {deal.icon}
               </div>
               <div className="flex flex-col items-end">
-                <span className="text-[10px] font-black text-mute uppercase tracking-widest mb-1">Cost</span>
+                <span className="text-[10px] font-black text-mute uppercase tracking-widest mb-1">Coût</span>
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-paper-2 border border-ink">
                   <Zap className="w-3 h-3 text-gold" />
                   <span className="text-xs font-black text-ink">{deal.cost}</span>
@@ -57,11 +54,11 @@ export function MarketplaceOverlay() {
             </div>
 
             <Button variant="ghost" className="w-full mt-4 rounded-xl bg-paper-2 border border-ink hover:bg-paper-2 hover:border-ink text-[10px] font-black uppercase tracking-widest gap-2 group/btn">
-              Unlock Reward
+              Débloquer la récompense
               <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
             </Button>
           </div>
-        </BentoCard>
+        </StickerCard>
       ))}
     </div>
   )

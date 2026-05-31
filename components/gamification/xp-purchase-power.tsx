@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { Ticket, Lock, Unlock, Zap, Sparkles, Gift, TrendingUp, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { GlowPulse, FloatingParticles, PALETTES } from '@/components/ui/effects/particle-system'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 import { CountUpText } from '@/components/ui/effects/text-effects'
 import Link from 'next/link'
@@ -89,19 +88,6 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
               ? "border-lime/30 " 
               : "border-ink"
           )}>
-            {/* Ambient particles */}
-            {isHovered && (
-              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-                <FloatingParticles
-                  count={10}
-                  colors={canAfford ? PALETTES.mint : PALETTES.lavender}
-                  direction="up"
-                  speed="medium"
-                  glow={true}
-                />
-              </div>
-            )}
-            
             {/* Background glow */}
             <motion.div
               className="absolute -top-1/2 -right-1/4 w-64 h-64 rounded-full pointer-events-none"
@@ -202,26 +188,20 @@ export function PurchasingPower({ currentXP, nextReward }: PurchasingPowerProps)
                 } : {}}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <GlowPulse 
-                  color={canAfford ? '#10b981' : '#8b5cf6'} 
-                  intensity={isHovered ? 'strong' : 'medium'} 
-                  speed="medium"
-                >
-                  {nextReward.image ? (
-                    <Image
-                      src={nextReward.image}
-                      alt={nextReward.name}
-                      width={40}
-                      height={40}
-                      className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
-                    />
-                  ) : (
-                    <Ticket className={cn(
-                      "w-6 h-6 sm:w-7 sm:h-7",
-                      canAfford ? "text-lime" : "text-brand-soft"
-                    )} />
-                  )}
-                </GlowPulse>
+                {nextReward.image ? (
+                  <Image
+                    src={nextReward.image}
+                    alt={nextReward.name}
+                    width={40}
+                    height={40}
+                    className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+                  />
+                ) : (
+                  <Ticket className={cn(
+                    "w-6 h-6 sm:w-7 sm:h-7",
+                    canAfford ? "text-lime" : "text-brand-soft"
+                  )} />
+                )}
                 
                 {/* Sparkles for unlocked */}
                 {canAfford && (

@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { HolographicBorder } from '@/components/ui/effects/animated-border'
-import { FloatingParticles, RisingSparks, GlowPulse, PALETTES, SparkleTrail } from '@/components/ui/effects/particle-system'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 import { useReducedMotion } from '@/components/ui/micro-interactions'
 
@@ -38,7 +37,6 @@ function getMissionStyle(type?: string) {
         icon: '🌟', 
         color: 'lavender',
         borderGradient: 'lavender' as const,
-        particleColors: PALETTES.lavender,
         glowColor: '#8b5cf6'
       }
     case 'weekly':
@@ -47,7 +45,6 @@ function getMissionStyle(type?: string) {
         icon: '🔥', 
         color: 'coral',
         borderGradient: 'coral' as const,
-        particleColors: PALETTES.coral,
         glowColor: '#f43f5e'
       }
     case 'challenge':
@@ -56,7 +53,6 @@ function getMissionStyle(type?: string) {
         icon: '⚡', 
         color: 'lime',
         borderGradient: 'mint' as const,
-        particleColors: PALETTES.mint,
         glowColor: '#10b981'
       }
     case 'special':
@@ -65,7 +61,6 @@ function getMissionStyle(type?: string) {
         icon: '👑', 
         color: 'prestige',
         borderGradient: 'gold' as const,
-        particleColors: PALETTES.gold,
         glowColor: '#f59e0b'
       }
     default:
@@ -74,7 +69,6 @@ function getMissionStyle(type?: string) {
         icon: '🎯', 
         color: 'default',
         borderGradient: 'holographic' as const,
-        particleColors: PALETTES.rainbow,
         glowColor: '#f43f5e'
       }
   }
@@ -178,37 +172,6 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
           )}
           style={prefersReducedMotion ? {} : { transformStyle: 'preserve-3d' }}
         >
-          {/* Floating particles - only on full motion */}
-          {!prefersReducedMotion && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-              <FloatingParticles
-                count={isHovered ? 12 : 6}
-                colors={style.particleColors}
-                direction="up"
-                speed={isHovered ? 'medium' : 'slow'}
-                glow={true}
-              />
-            </div>
-          )}
-          
-          {/* Rising sparks for special missions - only on full motion */}
-          {!prefersReducedMotion && (mission.type === 'special' || mission.type === 'challenge') && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-              <RisingSparks
-                count={isHovered ? 8 : 4}
-                colors={style.particleColors}
-                intensity={isHovered ? 'medium' : 'low'}
-              />
-            </div>
-          )}
-          
-          {/* Decorative elements - static for reduced motion */}
-          <div 
-            className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl -mr-20 -mt-20"
-            style={{ background: `${style.glowColor}20`, opacity: 0.4 }}
-          />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-ink/10 rounded-full blur-2xl -ml-16 -mb-16" />
-          
           {/* Cursor-following glow effect - only on full motion */}
           {!prefersReducedMotion && (
             <motion.div
@@ -246,13 +209,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
             }}
             transition={prefersReducedMotion ? {} : { duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            {prefersReducedMotion ? (
-              <span className="drop-shadow-lg">{style.icon}</span>
-            ) : (
-              <GlowPulse color={style.glowColor} intensity="medium" speed="medium">
-                <span className="drop-shadow-lg">{style.icon}</span>
-              </GlowPulse>
-            )}
+            <span className="drop-shadow-lg">{style.icon}</span>
           </motion.div>
           
           <div 
@@ -353,15 +310,6 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
                   className="bg-white text-ink hover:bg-paper-2 rounded-xl sm:rounded-2xl font-bold shadow-lg px-4 sm:px-6 h-10 sm:h-12 relative overflow-hidden group"
                   onClick={handleGoClick}
                 >
-                  {/* Button glow effect - only on full motion */}
-                  {!prefersReducedMotion && (
-                    <motion.div
-                      className="absolute inset-0 -z-10 rounded-[inherit]"
-                      style={{ background: style.glowColor, filter: 'blur(15px)' }}
-                      animate={{ opacity: [0, 0.3, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                  )}
                   <Sparkles className="w-4 h-4 mr-1 hidden sm:inline" aria-hidden="true" />
                   {mission.progress && mission.progress > 0 ? 'CONTINUER' : 'GO'}
                   {prefersReducedMotion ? (
