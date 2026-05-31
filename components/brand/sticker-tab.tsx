@@ -36,21 +36,42 @@ export function StickerTabs({
   className,
 }: StickerTabsProps) {
   const refs = React.useRef<(HTMLButtonElement | null)[]>([])
-  const idx = Math.max(
+  const selectedIdx = Math.max(
     0,
     tabs.findIndex((t) => t.value === value),
   )
+  // Index ayant le focus clavier (roving). Distinct de la sélection : flèches
+  // déplacent le focus (WAI-ARIA « manual activation »), Enter/Espace activent.
+  const [focusIdx, setFocusIdx] = React.useState(selectedIdx)
+
+  // Le focus roving suit la sélection quand l'onglet actif change depuis l'extérieur.
+  React.useEffect(() => {
+    setFocusIdx(selectedIdx)
+  }, [selectedIdx])
+
+  const moveFocus = (next: number) => {
+    setFocusIdx(next)
+    refs.current[next]?.focus()
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    let next = idx
-    if (e.key === "ArrowRight") next = (idx + 1) % tabs.length
-    else if (e.key === "ArrowLeft") next = (idx - 1 + tabs.length) % tabs.length
-    else if (e.key === "Home") next = 0
-    else if (e.key === "End") next = tabs.length - 1
-    else return
-    e.preventDefault()
-    onValueChange(tabs[next].value)
-    refs.current[next]?.focus()
+    const current = focusIdx
+    if (e.key === "ArrowRight") {
+      e.preventDefault()
+      moveFocus((current + 1) % tabs.length)
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault()
+      moveFocus((current - 1 + tabs.length) % tabs.length)
+    } else if (e.key === "Home") {
+      e.preventDefault()
+      moveFocus(0)
+    } else if (e.key === "End") {
+      e.preventDefault()
+      moveFocus(tabs.length - 1)
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault()
+      onValueChange(tabs[current].value)
+    }
   }
 
   return (
@@ -58,6 +79,10 @@ export function StickerTabs({
       role="tablist"
       aria-orientation="horizontal"
       aria-label={ariaLabel}
+      // Le focus vit sur les onglets (tabindex roving) ; -1 rend le conteneur
+      // focusable programmatiquement sans l'insérer dans l'ordre de tabulation
+      // (satisfait jsx-a11y/interactive-supports-focus pour le role tablist).
+      tabIndex={-1}
       onKeyDown={handleKeyDown}
       className={cn(
         "inline-flex gap-1 overflow-x-auto rounded-2xl border-2 border-ink bg-white p-1.5",
@@ -76,10 +101,11 @@ export function StickerTabs({
             role="tab"
             type="button"
             aria-selected={active}
-            tabIndex={active ? 0 : -1}
+            tabIndex={i === focusIdx ? 0 : -1}
             onClick={() => onValueChange(t.value)}
+            onFocus={() => setFocusIdx(i)}
             className={cn(
-              "inline-flex min-h-touch items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-all",
+              "inline-flex min-h-touch items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-[color,box-shadow,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-white motion-reduce:transition-none",
               active
                 ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
                 : "text-mute hover:text-ink",

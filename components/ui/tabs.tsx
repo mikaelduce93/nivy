@@ -5,6 +5,14 @@ import * as TabsPrimitive from '@radix-ui/react-tabs'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * @deprecated Tabs shadcn/Radix recolorées (hors-charte : `bg-muted`,
+ * `shadow-sm`, `data-[state=active]:bg-background`). Remplacées par la primitive
+ * F6 `@/components/brand/sticker-tab` (`<StickerTabs>` / `<SegmentedSwitcher>`)
+ * — onglet actif = fond ink + texte paper + ombre rose + translate, a11y
+ * tablist + clavier complet. Conservé temporairement (issue #116, suppression
+ * ultérieure) pour les consommateurs non encore migrés.
+ */
 function Tabs({
   className,
   ...props

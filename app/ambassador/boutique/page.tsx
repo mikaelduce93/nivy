@@ -12,7 +12,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { SegmentedSwitcher } from "@/components/brand/sticker-tab"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -100,6 +100,7 @@ export default function AmbassadorBoutiquePage() {
   const [deliveryAddress, setDeliveryAddress] = useState("")
   const [isRedeeming, setIsRedeeming] = useState(false)
   const [activeCategory, setActiveCategory] = useState("all")
+  const [activeTab, setActiveTab] = useState("shop")
 
   useEffect(() => {
     fetchData()
@@ -274,19 +275,19 @@ export default function AmbassadorBoutiquePage() {
       </Card>
 
       {/* Tabs */}
-      <Tabs defaultValue="shop" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="shop" className="flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4" />
-            Boutique
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
-            Mes Commandes
-          </TabsTrigger>
-        </TabsList>
+      <div className="w-full">
+        <SegmentedSwitcher
+          ariaLabel="Sections de la boutique"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          tabs={[
+            { value: "shop", label: "Boutique", icon: <ShoppingBag className="size-4" /> },
+            { value: "history", label: "Mes commandes", icon: <History className="size-4" /> },
+          ]}
+        />
 
-        <TabsContent value="shop" className="space-y-6">
+        {activeTab === "shop" && (
+        <div className="space-y-6 mt-6">
           {/* Category Filter */}
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => {
@@ -381,9 +382,11 @@ export default function AmbassadorBoutiquePage() {
               )
             })}
           </div>
-        </TabsContent>
+        </div>
+        )}
 
-        <TabsContent value="history">
+        {activeTab === "history" && (
+        <div className="mt-6">
           <Card className="bg-white border-gold">
             <CardHeader>
               <CardTitle className="text-ink">Historique des commandes</CardTitle>
@@ -430,8 +433,9 @@ export default function AmbassadorBoutiquePage() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+        )}
+      </div>
 
       {/* Redemption Dialog */}
       <Dialog open={!!selectedReward} onOpenChange={() => setSelectedReward(null)}>

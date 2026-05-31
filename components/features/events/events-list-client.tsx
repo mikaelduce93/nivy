@@ -4,7 +4,7 @@ import { useState, useMemo } from "react"
 import { Calendar, MapPin, Clock, Users, ArrowRight, PartyPopper, Trophy, Palette, Cpu, Sparkles, Search, Filter, X, Crown } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { StickerTabs } from "@/components/brand/sticker-tab"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import Link from "next/link"
@@ -336,40 +336,28 @@ export function EventsListClient({ initialEvents }: EventsListClientProps) {
       </div>
 
       {/* Category Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <TabsList className="flex flex-wrap justify-center w-full bg-transparent h-auto gap-3 mb-12 p-0">
-          <TabsTrigger
-            value="tous"
-            className="data-[state=active]:bg-white data-[state=active]:text-ink text-mute border border-ink rounded-full px-6 h-10 transition-all hover:text-ink hover:bg-paper-2 data-[state=active]:border-transparent"
-          >
-            Tous
-          </TabsTrigger>
-          {Object.entries(categoryLabels).map(([key, label]) => {
-            const Icon = categoryIcons[key as keyof typeof categoryIcons]
-            const count = initialEvents.filter((e) => e.category === key).length
-            const neonType = categoryNeon[key]
-            
-            let activeClass = ""
-            if (neonType === 'vitality') activeClass = "data-[state=active]:bg-lime data-[state=active]:text-ink data-[state=active]:border-lime/50"
-            else if (neonType === 'creativity') activeClass = "data-[state=active]:bg-coral data-[state=active]:text-ink data-[state=active]:border-coral/50"
-            else if (neonType === 'intellect') activeClass = "data-[state=active]:bg-teal data-[state=active]:text-ink data-[state=active]:border-teal/50"
-            else if (neonType === 'party') activeClass = "data-[state=active]:bg-pink data-[state=active]:text-ink data-[state=active]:border-pink/50"
-            else if (neonType === 'prestige') activeClass = "data-[state=active]:bg-gold data-[state=active]:text-ink data-[state=active]:border-gold/50"
-            else activeClass = "data-[state=active]:bg-muted data-[state=active]:text-ink"
-
-            return (
-              <TabsTrigger
-                key={key}
-                value={key}
-                className={`text-mute border border-ink rounded-full px-5 h-10 transition-all hover:text-ink hover:bg-paper-2 gap-2 ${activeClass}`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="hidden md:inline">{label}</span>
-                <span className="text-[10px] opacity-60 bg-ink/20 px-1.5 rounded-full">{count}</span>
-              </TabsTrigger>
-            )
-          })}
-        </TabsList>
+      <div className="w-full">
+        <div className="mb-12 flex justify-center">
+          <StickerTabs
+            ariaLabel="Filtrer par catégorie"
+            value={selectedTab}
+            onValueChange={setSelectedTab}
+            className="max-w-full"
+            tabs={[
+              { value: "tous", label: "Tous" },
+              ...Object.entries(categoryLabels).map(([key, label]) => {
+                const Icon = categoryIcons[key as keyof typeof categoryIcons]
+                const count = initialEvents.filter((e) => e.category === key).length
+                return {
+                  value: key,
+                  label,
+                  icon: <Icon className="size-4" />,
+                  badge: count,
+                }
+              }),
+            ]}
+          />
+        </div>
 
         {filteredEvents.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -402,7 +390,7 @@ export function EventsListClient({ initialEvents }: EventsListClientProps) {
             )}
           </div>
         )}
-      </Tabs>
+      </div>
 
       {/* Results Summary */}
       {filteredEvents.length > 0 && (

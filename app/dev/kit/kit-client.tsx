@@ -18,6 +18,7 @@ import { Marquee } from "@/components/kit/marquee"
 import { PhoneMockup, PhoneScreen } from "@/components/kit/phone-mockup"
 import { PricingSticker } from "@/components/sticker/pricing-sticker"
 import { StickerTabs, SegmentedSwitcher } from "@/components/brand/sticker-tab"
+import { Coins, Sparkles, Trophy } from "lucide-react"
 import {
   Niv,
   DarkSurface,
@@ -134,16 +135,33 @@ export function KitGallery() {
         {/* F6 — StickerTab / SegmentedSwitcher */}
         <Section id="F6" title="StickerTab / SegmentedSwitcher">
           <div className="space-y-4">
+            <p className="eyebrow tracking-[0.16em] text-mute">Avec badge</p>
             <StickerTabs
-              ariaLabel="Démo onglets"
+              ariaLabel="Démo onglets avec badge"
               value={tab}
               onValueChange={setTab}
               tabs={[
                 { value: "xp", label: "XP", badge: 3 },
                 { value: "coins", label: "Coins" },
-                { value: "niveau", label: "Niveau" },
+                { value: "niveau", label: "Niveau", badge: 120 },
               ]}
             />
+
+            <p className="eyebrow tracking-[0.16em] text-mute">Avec icône Lucide</p>
+            <StickerTabs
+              ariaLabel="Démo onglets avec icône"
+              value={tab}
+              onValueChange={setTab}
+              tabs={[
+                { value: "xp", label: "XP", icon: <Sparkles /> },
+                { value: "coins", label: "Coins", icon: <Coins /> },
+                { value: "niveau", label: "Niveau", icon: <Trophy /> },
+              ]}
+            />
+
+            <p className="eyebrow tracking-[0.16em] text-mute">
+              SegmentedSwitcher (uncontrolled, 2-3 options)
+            </p>
             <SegmentedSwitcher
               ariaLabel="Démo switcher"
               defaultValue="solo"
@@ -152,6 +170,15 @@ export function KitGallery() {
                 { value: "duo", label: "Duo" },
               ]}
             />
+
+            <p className="text-sm text-mute">
+              Onglet actif = fond ink + texte paper + ombre sticker rose +
+              translate. A11y : <code className="font-mono">role=&quot;tablist&quot;</code> /{" "}
+              <code className="font-mono">role=&quot;tab&quot;</code> + <code className="font-mono">aria-selected</code>,
+              tabindex roving. Clavier : ←/→/Début/Fin déplacent le focus,
+              Entrée/Espace activent (focus visible : anneau ink). Le translate
+              animé est désactivé sous <code className="font-mono">prefers-reduced-motion</code>.
+            </p>
           </div>
         </Section>
 
