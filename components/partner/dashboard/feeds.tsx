@@ -161,9 +161,11 @@ export function PartnerLiveTransactionsFeed({
                   <p className="text-xl font-black text-ink tabular-nums">
                     {tx.final_amount} <span className="text-sm">DH</span>
                   </p>
-                  <div className="inline-block px-2 py-0.5 rounded-lg bg-lime/10 text-lime text-xs font-black uppercase tracking-tighter mt-1">
-                    -{tx.discount_amount} DH
-                  </div>
+                  {tx.discount_amount ? (
+                    <div className="inline-block px-2 py-0.5 rounded-lg bg-lime/10 text-lime text-xs font-black uppercase tracking-tighter mt-1">
+                      -{tx.discount_amount} DH
+                    </div>
+                  ) : null}
                 </div>
               </div>
             )

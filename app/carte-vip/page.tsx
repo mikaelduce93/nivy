@@ -192,7 +192,7 @@ export default function CarteVIPPage() {
         <div className="container mx-auto">
           <div className="mb-12 text-center">
             <h2 className="font-display text-3xl font-extrabold tracking-tight">Partenaires exclusifs</h2>
-            <p className="mt-2 text-mute">Profite de réductions chez nos partenaires avec ta carte VIP.</p>
+            <p className="mt-2 text-mute">Exemples d'enseignes — l'offre réelle dépend des partenaires actifs près de chez toi.</p>
           </div>
           <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {partners.map((partner, idx) => (

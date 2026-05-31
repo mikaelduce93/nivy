@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button"
 import { FieldInput } from "@/components/ui/field-input"
 import { Textarea } from "@/components/ui/textarea"
 import { NivCoach } from "@/components/brand"
-import { Loader2, Save, Camera } from "lucide-react"
+import { Loader2, Save } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
 
 interface ProfileEditFormProps {
   profileId: string
@@ -20,12 +19,6 @@ interface ProfileEditFormProps {
   }
 }
 
-const avatarOptions = [
-  "🦁", "🐯", "🦊", "🐺", "🐱", "🐶",
-  "🦄", "🐉", "🦅", "🦋", "🐬", "🦈",
-  "🎮", "🎸", "🎨", "🏀", "⚽", "🎯"
-]
-
 export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -33,9 +26,7 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
     fullName: initialData.fullName,
     username: initialData.username,
     bio: initialData.bio,
-    avatarEmoji: ""
   })
-  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -69,7 +60,6 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
           fullName: formData.fullName,
           username: formData.username || null,
           bio: formData.bio || null,
-          avatarEmoji: formData.avatarEmoji || null
         }),
       })
 
@@ -97,48 +87,16 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
         message="Montre qui tu es à ton crew."
       />
 
-      {/* Avatar Selection */}
+      {/* Avatar — emoji picker retiré (pas de colonne avatar_emoji ; aucune
+          persistance/affichage possible). Aperçu en lecture seule. */}
       <div className="space-y-3">
         <span className="eyebrow tracking-[0.16em]">Avatar</span>
         <div className="flex items-center gap-4">
           <div className="h-20 w-20 rounded-2xl border-2 border-ink bg-white flex items-center justify-center text-ink text-3xl font-extrabold">
-            {formData.avatarEmoji || initialData.fullName?.charAt(0) || "?"}
+            {initialData.fullName?.charAt(0) || "?"}
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-          >
-            <Camera className="h-4 w-4 mr-2" />
-            Changer l&apos;avatar
-          </Button>
+          <p className="text-sm text-mute">La personnalisation d&apos;avatar arrive bientôt.</p>
         </div>
-
-        {showAvatarPicker && (
-          <div className="p-4 bg-white rounded-2xl border-2 border-ink shadow-stkr-sm">
-            <p className="text-sm text-mute mb-3">Choisis un emoji comme avatar</p>
-            <div className="grid grid-cols-6 gap-2">
-              {avatarOptions.map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => {
-                    handleChange("avatarEmoji", emoji)
-                    setShowAvatarPicker(false)
-                  }}
-                  className={cn(
-                    "h-12 w-12 rounded-xl text-2xl flex items-center justify-center border-2 transition-all",
-                    formData.avatarEmoji === emoji
-                      ? "bg-pink/20 border-ink"
-                      : "bg-paper border-transparent hover:border-ink"
-                  )}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Full Name */}

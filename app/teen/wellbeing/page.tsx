@@ -31,7 +31,7 @@ export default function TeenWellbeingPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <StickerCard className="gap-2 p-5">
           <div className="flex items-center gap-2 font-bold text-ink"><Moon className="h-4 w-4 text-teal" />Sommeil</div>
-          <p className="text-sm text-mute">Quiet hours 22h–7h activées.</p>
+          <p className="text-sm text-mute">Quiet hours 22h–7h — à venir.</p>
         </StickerCard>
         <StickerCard className="gap-2 p-5">
           <div className="flex items-center gap-2 font-bold text-ink"><Wind className="h-4 w-4 text-lime" />Respiration</div>

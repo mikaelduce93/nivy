@@ -108,11 +108,13 @@ export default async function PartnerStatsPage() {
 
   const maxRevenue = Math.max(1, ...history.map((h) => h.revenue))
 
-  // Active offers count via partner_discounts (canonical surface used elsewhere).
+  // Offer validations only — transactions linked to an offer (offer_id not null),
+  // not every scan. Counting all partner_transactions was misleading.
   const { count: offersUsedCount } = await supabase
     .from("partner_transactions")
     .select("*", { count: "exact", head: true })
     .eq("partner_id", partnerId)
+    .not("offer_id", "is", null)
     .gte("created_at", since.toISOString())
 
   return (
@@ -172,7 +174,7 @@ export default async function PartnerStatsPage() {
           <p className="font-display text-3xl font-extrabold tabular-nums text-ink">
             {offersUsedCount ?? 0}
           </p>
-          <p className="font-mono text-xs text-mute">validations totales</p>
+          <p className="font-mono text-xs text-mute">validations d'offres</p>
         </StickerCard>
       </div>
 

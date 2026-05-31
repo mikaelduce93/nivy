@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default function MentionsLegalesPage() {
-  const { contactEmail, privacyEmail } = getPublicAppConfig()
+  const { contactEmail, privacyEmail, supportPhone } = getPublicAppConfig()
   return (
     <>
       <Navbar />
@@ -34,7 +34,7 @@ export default function MentionsLegalesPage() {
                   <strong>Siège social :</strong> [Adresse complète]
                 </p>
                 <p>
-                  <strong>Téléphone :</strong> +212 5XX-XXXXXX
+                  <strong>Téléphone :</strong> {supportPhone}
                 </p>
                 <p>
                   <strong>Email :</strong> {contactEmail}
@@ -192,7 +192,7 @@ export default function MentionsLegalesPage() {
                     {contactEmail}
                   </a>
                 </p>
-                <p>Téléphone : +212 5XX-XXXXXX</p>
+                <p>Téléphone : {supportPhone}</p>
                 <p>Horaires : Lundi - Vendredi, 9h - 18h</p>
                 <p>Adresse : [Adresse complète du siège social]</p>
               </div>
