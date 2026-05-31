@@ -45,6 +45,7 @@ import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { AIProviderFactory, type AIProviderType } from "@/lib/ai/providers/factory"
 import { resolveModelId } from "@/lib/ai/content-generator"
+import { getCoachMemoryLine } from "@/lib/ai/coach-memory"
 
 // #202 — le 5/jour codé en dur tuait tout usage « coach ». Configurable via env,
 // défaut 20 (le routage Claude + caching de #210 réduit le coût marginal).
@@ -306,6 +307,10 @@ export async function POST(request: Request) {
       // best-effort : pas de contexte si la lecture échoue.
     }
 
+    // #211 — mémoire long terme : résumé durable + objectifs + faits retenus.
+    const memoryLine = await getCoachMemoryLine(supabase, user.id)
+    const contextLine = [profileLine, memoryLine].filter(Boolean).join(" — ") || undefined
+
     // Always persist the teen turn first so the cap counter advances atomically.
     const nowIso = new Date().toISOString()
     await supabase.from("avatar_messages").insert({
@@ -349,7 +354,7 @@ export async function POST(request: Request) {
             : `${teenFirstName}: ${raw}\n\n${coachName}:`
 
           const { content } = await provider.call(
-            buildSystemPrompt(coachName, teenFirstName, profileLine),
+            buildSystemPrompt(coachName, teenFirstName, contextLine),
             userPrompt,
           )
           const candidate = (content || "").trim().slice(0, MAX_REPLY_CHARS)
