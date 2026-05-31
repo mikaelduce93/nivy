@@ -61,21 +61,31 @@ export async function getAnnivPacks(
 
     const { supabase } = await getAuthenticatedUser()
 
-    let query = supabase
+    // Schéma lean réel : anniv_packs(price_dh, capacity) — pas de display_order
+    // ni pack_type. On trie par created_at et on ignore le filtre `type`.
+    const { data, error } = await supabase
       .from('anniv_packs')
       .select('*')
       .eq('is_active', true)
-      .order('display_order')
-
-    if (type) {
-      query = query.eq('pack_type', type)
-    }
-
-    const { data, error } = await query
+      .order('created_at', { ascending: true })
 
     if (error) throw error
 
-    return { success: true, data: data ?? [] }
+    // Adapter le schéma lean au type AnnivPack attendu par l'UI.
+    const packs: AnnivPack[] = (data ?? []).map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      pack_type: (type ?? 'event') as 'event' | 'custom',
+      description: p.description ?? null,
+      includes: [],
+      base_price: Number(p.price_dh ?? 0),
+      included_guests: Number(p.capacity ?? 0),
+      additional_guest_price: 0,
+      display_order: 0,
+      is_active: !!p.is_active,
+    }))
+
+    return { success: true, data: packs }
   } catch (error: any) {
     console.error('[anniversaires/getAnnivPacks] Error:', error)
     return { success: false, error: error.message }
@@ -91,7 +101,7 @@ export async function getAnnivPackById(
   try {
     const { supabase } = await getAuthenticatedUser()
 
-    const { data, error } = await supabase
+    const { data: p, error } = await supabase
       .from('anniv_packs')
       .select('*')
       .eq('id', packId)
@@ -99,7 +109,20 @@ export async function getAnnivPackById(
 
     if (error) throw error
 
-    return { success: true, data }
+    const pack: AnnivPack = {
+      id: p.id,
+      name: p.name,
+      pack_type: 'event',
+      description: p.description ?? null,
+      includes: [],
+      base_price: Number(p.price_dh ?? 0),
+      included_guests: Number(p.capacity ?? 0),
+      additional_guest_price: 0,
+      display_order: 0,
+      is_active: !!p.is_active,
+    }
+
+    return { success: true, data: pack }
   } catch (error: any) {
     console.error('[anniversaires/getAnnivPackById] Error:', error)
     return { success: false, error: error.message }
@@ -113,15 +136,25 @@ export async function getAnnivExtras(): Promise<ActionResult<AnnivExtra[]>> {
   try {
     const { supabase } = await getAuthenticatedUser()
 
+    // Schéma lean réel : anniv_extras(price_dh) — pas de category. Tri par nom.
     const { data, error } = await supabase
       .from('anniv_extras')
       .select('*')
       .eq('is_active', true)
-      .order('category, price')
+      .order('name', { ascending: true })
 
     if (error) throw error
 
-    return { success: true, data: data ?? [] }
+    const extras: AnnivExtra[] = (data ?? []).map((e: any) => ({
+      id: e.id,
+      name: e.name,
+      description: null,
+      category: '',
+      price: Number(e.price_dh ?? 0),
+      is_active: !!e.is_active,
+    }))
+
+    return { success: true, data: extras }
   } catch (error: any) {
     console.error('[anniversaires/getAnnivExtras] Error:', error)
     return { success: false, error: error.message }
@@ -204,24 +237,23 @@ export async function calculateAnnivPrice(
 
     if (packError) throw packError
 
-    // Base price
-    const packPrice = pack.base_price
+    // Prix de base (price_dh). Pas de tarif par invité supplémentaire dans le
+    // schéma lean (capacity est une limite, pas un tarif progressif).
+    const packPrice = Number(pack.price_dh ?? 0)
+    const extraGuests = Math.max(0, guest_count - Number(pack.capacity ?? guest_count))
+    const extraGuestsPrice = 0
 
-    // Extra guests
-    const extraGuests = Math.max(0, guest_count - pack.included_guests)
-    const extraGuestsPrice = extraGuests * pack.additional_guest_price
-
-    // Extras total
+    // Extras (price_dh)
     let extrasTotalPrice = 0
     if (selected_extras && selected_extras.length > 0) {
       const { data: extras, error: extrasError } = await supabase
         .from('anniv_extras')
-        .select('price')
+        .select('price_dh')
         .in('id', selected_extras)
 
       if (extrasError) throw extrasError
 
-      extrasTotalPrice = extras.reduce((sum, extra) => sum + Number(extra.price), 0)
+      extrasTotalPrice = (extras ?? []).reduce((sum, extra: any) => sum + Number(extra.price_dh ?? 0), 0)
     }
 
     // Total
@@ -282,14 +314,19 @@ export async function createAnnivOrder(
       return { success: false, error: 'Erreur calcul prix' }
     }
 
-    const {
-      pack_price,
-      extra_guests_price,
-      extras_total_price,
-      subtotal,
-      discount_amount,
-      total_price,
-    } = priceCalc.data
+    const { total_price } = priceCalc.data
+
+    // Schéma lean réel : anniv_orders(parent_id, teen_id, pack_id, party_date,
+    // guest_count, total_dh, notes, status). Les champs riches (thème, lieu,
+    // extras, allergies, contact…) n'ont pas de colonne — on conserve l'essentiel
+    // dans `notes` pour ne rien perdre côté admin.
+    const notesParts = [
+      validatedInput.theme ? `Thème: ${validatedInput.theme}` : null,
+      validatedInput.special_requests ? `Demandes: ${validatedInput.special_requests}` : null,
+      validatedInput.allergies_notes ? `Allergies: ${validatedInput.allergies_notes}` : null,
+      validatedInput.custom_message_dj ? `Message DJ: ${validatedInput.custom_message_dj}` : null,
+      validatedInput.contact_phone ? `Contact: ${validatedInput.contact_phone}` : null,
+    ].filter(Boolean)
 
     // Create order
     const { data: order, error: orderError } = await supabase
@@ -298,27 +335,11 @@ export async function createAnnivOrder(
         parent_id: user.id,
         teen_id: validatedInput.teen_id,
         pack_id: validatedInput.pack_id,
-        order_type: validatedInput.order_type,
-        event_id: validatedInput.event_id,
-        venue_id: validatedInput.venue_id,
-        celebration_date: validatedInput.celebration_date,
-        celebration_time: validatedInput.celebration_time,
+        party_date: validatedInput.celebration_date,
         guest_count: validatedInput.guest_count,
-        guest_names: validatedInput.guest_names,
-        theme: validatedInput.theme,
-        selected_extras: validatedInput.selected_extras,
-        special_requests: validatedInput.special_requests,
-        allergies_notes: validatedInput.allergies_notes,
-        custom_message_dj: validatedInput.custom_message_dj,
-        contact_phone: validatedInput.contact_phone,
-        pack_price,
-        extra_guests_price,
-        extras_total_price,
-        subtotal,
-        discount_amount,
-        total_price,
+        total_dh: total_price,
+        notes: notesParts.length > 0 ? notesParts.join(' · ') : null,
         status: 'pending',
-        payment_status: 'pending',
       })
       .select()
       .single()
@@ -334,12 +355,11 @@ export async function createAnnivOrder(
 
       if (extrasError) throw extrasError
 
+      // anniv_order_extras lean : (order_id, extra_id, quantity) uniquement.
       const orderExtras = extras.map(extra => ({
         order_id: order.id,
         extra_id: extra.id,
         quantity: 1,
-        unit_price: extra.price,
-        total_price: extra.price,
       }))
 
       const { error: insertExtrasError } = await supabase
@@ -349,15 +369,9 @@ export async function createAnnivOrder(
       if (insertExtrasError) throw insertExtrasError
     }
 
-    // Generate QR code
-    const qrCode = await QRCode.toDataURL(`ANNIV-${order.booking_reference}`)
-
-    const { error: qrError } = await supabase
-      .from('anniv_orders')
-      .update({ qr_code: qrCode })
-      .eq('id', order.id)
-
-    if (qrError) console.warn('[anniversaires] QR code warning:', qrError)
+    // anniv_orders n'a ni qr_code ni booking_reference dans le schéma lean ;
+    // on encode l'id pour le QR du mail/retour, sans persistance DB.
+    const qrCode = await QRCode.toDataURL(`ANNIV-${order.id}`)
 
     // Get pack name for email
     const { data: pack } = await supabase
@@ -416,7 +430,7 @@ export async function createAnnivOrder(
         packageName: pack?.name || 'Formule Anniversaire',
         guestCount: validatedInput.guest_count,
         totalPrice: total_price,
-        bookingReference: order.booking_reference,
+        bookingReference: order.id,
         qrCodeUrl: qrCode,
         extras: extrasNames.length > 0 ? extrasNames : undefined
       })
