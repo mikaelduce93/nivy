@@ -53,7 +53,15 @@ export default function EngageButtons({ submissionId }: { submissionId: string }
       <Button disabled={busy} onClick={() => fire("like")} variant="pink" size="sm">
         {t("teen.feed.like")}
       </Button>
-      <Button disabled={busy} onClick={() => fire("comment")} variant="outline" size="sm">
+      <Button
+        disabled={busy}
+        onClick={() => {
+          document.getElementById("comments")?.scrollIntoView({ behavior: "smooth" })
+          fire("comment")
+        }}
+        variant="outline"
+        size="sm"
+      >
         {t("teen.feed.comment")}
       </Button>
       <Button disabled={busy} onClick={() => fire("share")} variant="outline" size="sm">

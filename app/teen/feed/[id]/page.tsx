@@ -140,7 +140,7 @@ export default async function SubmissionDetailPage({
         )}
       </article>
 
-      <div className="mt-6">
+      <div id="comments" className="mt-6 scroll-mt-24">
         <CommentsThread postId={post.id} currentUserId={user.id} />
       </div>
     </div>

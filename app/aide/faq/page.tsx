@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Search } from "lucide-react"
@@ -13,6 +16,7 @@ import {
 } from "@/components/ui/accordion"
 
 export default function FAQPage() {
+  const [query, setQuery] = useState("")
   const faqCategories = [
     {
       category: "Inscriptions & Compte",
@@ -56,6 +60,18 @@ export default function FAQPage() {
     },
   ]
 
+  const q = query.trim().toLowerCase()
+  const filtered = q
+    ? faqCategories
+        .map((cat) => ({
+          ...cat,
+          questions: cat.questions.filter(
+            (it) => it.q.toLowerCase().includes(q) || it.a.toLowerCase().includes(q),
+          ),
+        }))
+        .filter((cat) => cat.questions.length > 0)
+    : faqCategories
+
   return (
     <>
       <Navbar />
@@ -78,6 +94,8 @@ export default function FAQPage() {
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-mute" aria-hidden="true" />
                 <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                   placeholder="Rechercher une question…"
                   className="h-14 border-2 border-ink pl-12 text-lg focus-visible:ring-0"
                 />
@@ -89,7 +107,10 @@ export default function FAQPage() {
         {/* FAQ Categories */}
         <section className="px-4 py-12">
           <div className="mx-auto max-w-4xl space-y-10">
-            {faqCategories.map((category, idx) => (
+            {filtered.length === 0 && (
+              <p className="text-center text-mute">Aucune question ne correspond à ta recherche.</p>
+            )}
+            {filtered.map((category, idx) => (
               <div key={idx}>
                 <h2 className="mb-5 font-display text-2xl font-extrabold tracking-tight">
                   {category.category}

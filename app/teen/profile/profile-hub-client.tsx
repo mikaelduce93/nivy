@@ -77,13 +77,13 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
                 userInfo.fullName?.charAt(0) || "?"
               )}
             </StickerCard>
-            <button
-              type="button"
+            <Link
+              href="/teen/profile/edit"
               aria-label="Modifier la photo de profil"
               className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl border-2 border-ink bg-white text-ink flex items-center justify-center shadow-stkr-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink transition-transform"
             >
               <Camera className="w-5 h-5" aria-hidden="true" />
-            </button>
+            </Link>
           </div>
 
           {/* Info */}

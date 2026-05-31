@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
-import { Calendar, MapPin, Clock, Users, Shirt, Check, Shield, Music, Gift, ArrowRight, MapPinned, Share2, Heart, Bus, Car, TrendingUp, Sparkles } from 'lucide-react'
+import { Calendar, MapPin, Clock, Users, Shirt, Check, Shield, Music, Gift, ArrowRight, MapPinned, Share2, Bus, Car, TrendingUp, Sparkles } from 'lucide-react'
 import Link from "next/link"
 import Image from 'next/image'
 
@@ -34,7 +34,6 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<any>(null)
   const [similarEvents, setSimilarEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [isFavorite, setIsFavorite] = useState(false)
   const [transportOption, setTransportOption] = useState<string>("")
 
   useEffect(() => {
@@ -344,16 +343,10 @@ export default function EventDetailPage() {
                     </Link>
                   </Button>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" onClick={() => setIsFavorite(!isFavorite)} className="w-full">
-                      <Heart className={`mr-2 size-4 ${isFavorite ? "fill-current text-destructive" : ""}`} aria-hidden="true" />
-                      Favoris
-                    </Button>
-                    <Button variant="outline" onClick={shareEvent} className="w-full">
-                      <Share2 className="mr-2 size-4" aria-hidden="true" />
-                      Partager
-                    </Button>
-                  </div>
+                  <Button variant="outline" onClick={shareEvent} className="w-full">
+                    <Share2 className="mr-2 size-4" aria-hidden="true" />
+                    Partager
+                  </Button>
                 </div>
 
                 <p className="rounded-xl border-2 border-line bg-paper-2 p-3 text-center font-mono text-xs text-mute">

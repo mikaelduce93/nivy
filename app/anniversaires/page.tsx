@@ -661,7 +661,7 @@ export default function AnniversairesPage() {
                         </>
                       ) : (
                         <>
-                          Payer maintenant
+                          Réserver
                           <ArrowRight className="ml-2 size-5" aria-hidden="true" />
                         </>
                       )}

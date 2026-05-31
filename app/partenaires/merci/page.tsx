@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Clock, Mail, Phone, Home, ArrowRight } from 'lucide-react'
+import { CheckCircle2, Clock, Mail, Home, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 // Wave 3B.1 / canon §2.1, D3 — the reference is the persisted partners.id
@@ -139,16 +139,6 @@ function PartnerThankYouInner() {
                     <a href="mailto:partners@example.com">
                       <Mail className="w-4 h-4 mr-2" />
                       partners@example.com
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-pink/50 text-pink hover:bg-pink/10"
-                    asChild
-                  >
-                    <a href="tel:+212XXXXXXXXX">
-                      <Phone className="w-4 h-4 mr-2" />
-                      +212 XXX-XXXXXX
                     </a>
                   </Button>
                 </div>
