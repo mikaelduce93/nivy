@@ -135,7 +135,7 @@ export async function AvatarCoach({
 
   // Resolve display fields with sensible defaults.
   const name = (avatar?.name || "Niv").trim() || "Niv"
-  const color = avatar?.color || "#A78BFA" // gen-z lavender default
+  const color = avatar?.color || "#ff3d80" // Niv pink default (charte)
   const skin = avatar?.skin || "default"
   const mood = (latest?.mood || avatar?.mood || "neutral").toLowerCase()
 
@@ -230,7 +230,7 @@ function ChoreNudgeSection({
           <span aria-hidden>🧹</span>
         </div>
         <div className="min-w-0 flex-1">
-          <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-lime/80">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-lime/80">
             Tâche à finir
           </span>
           <p
