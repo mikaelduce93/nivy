@@ -1,21 +1,20 @@
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Coins, ShoppingBag, Award, Crown, Zap, Flame, TrendingUp, Gift, Star, Lock, Check, ArrowRight, Sparkles, Loader2 } from "lucide-react"
+import Link from "next/link"
+import { Coins, ShoppingBag, Award, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2 } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
-import { Progress } from "@/components/ui/progress"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { SegmentedProgress } from "@/components/ui/progress"
 import { toast } from "sonner"
 import { purchaseReward } from "@/gamification-system/features/shop/actions"
 import { convertXPToDH, formatDH } from "@/lib/payments/xp-converter"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { StickerTabs } from "@/components/brand/sticker-tab"
-import { NivCoach, NivEmpty, DarkSurface } from "@/components/brand"
+import { NivCoach, NivEmpty, DarkSurface, StatHero } from "@/components/brand"
 
 interface ShopReward {
   reward_id: string
@@ -56,9 +55,8 @@ interface WalletHubClientProps {
 
 const WALLET_TABS: HubTab[] = [
   { id: "coins", label: "Coins", icon: Coins },
-  { id: "shop", label: "Shop", icon: ShoppingBag },
+  { id: "shop", label: "Boutique", icon: ShoppingBag },
   { id: "badges", label: "Badges", icon: Award },
-  { id: "vip", label: "VIP", icon: Crown },
 ]
 
 export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
@@ -69,18 +67,12 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
     <div className="space-y-8 pt-6">
       {/* Header */}
       <header className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gold to-gold flex items-center justify-center">
-                <Coins className="w-6 h-6 text-ink" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Wallet</h1>
-                <p className="text-mute text-sm font-medium">Your rewards & achievements</p>
-              </div>
-            </div>
-          </div>
+        <div className="space-y-1">
+          <span className="eyebrow tracking-[0.16em] text-mute">Ton argent</span>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+            Ton <em className="font-semibold italic text-pink">wallet</em>
+          </h1>
+          <p className="text-sm text-mute">Tes coins, tes badges et ta boutique au même endroit.</p>
         </div>
 
         {/*
@@ -112,25 +104,24 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
           </p>
         )}
 
-        {/* Tabs */}
-        <HubTabs tabs={WALLET_TABS} defaultTab="coins" />
+        {/* Tabs (VIP routé vers /teen/vip-card, canon VIP) */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <HubTabs tabs={WALLET_TABS} defaultTab="coins" />
+          <Link href="/teen/vip-card">
+            <Button variant="outline" size="sm">
+              <Crown className="w-4 h-4" />
+              Carte VIP
+            </Button>
+          </Link>
+        </div>
       </header>
 
       {/* Tab Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentTab}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
-          {currentTab === "shop" && <ShopTab walletData={walletData} teenId={teenId} />}
-          {currentTab === "badges" && <BadgesTab teenId={teenId} />}
-          {currentTab === "vip" && <VIPTab />}
-        </motion.div>
-      </AnimatePresence>
+      <div>
+        {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
+        {currentTab === "shop" && <ShopTab walletData={walletData} teenId={teenId} />}
+        {currentTab === "badges" && <BadgesTab teenId={teenId} />}
+      </div>
     </div>
   )
 }
@@ -156,126 +147,135 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
     fetchTransactions()
   }, [teenId])
 
+  // Level progress en jauge segmentée (10 segments = 0→100 %).
+  const levelSegments = 10
+  const levelCurrent = Math.min(
+    levelSegments,
+    Math.round((walletData.xp.progressPercent / 100) * levelSegments),
+  )
+
   return (
     <div className="space-y-8">
-      {/* Balance Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-2xl p-8 border border-gold/20 bg-gradient-to-br from-gold/10 to-gold/5"
-      >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-[100px]" />
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <p className="text-sm text-mute uppercase tracking-wider font-bold">Total Balance</p>
-              <div className="flex items-baseline gap-3 mt-2">
-                <span className="text-6xl font-black text-gold">{walletData.coins.toLocaleString()}</span>
-                <span className="text-xl text-mute">coins</span>
-              </div>
-            </div>
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold to-gold flex items-center justify-center">
-              <Coins className="w-10 h-10 text-ink" />
-            </div>
-          </div>
-
-          {/* Quick Stats — twin-currency gauge: XP + Coins balance + this-week cashback (§5). */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-4 rounded-2xl bg-ink/20 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Zap className="w-4 h-4 text-brand-soft" />
-                <span className="font-black text-xl">{walletData.xp.total.toLocaleString()}</span>
-              </div>
-              <p className="text-[10px] text-mute uppercase tracking-wider">Total XP</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-ink/20 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Sparkles className="w-4 h-4 text-lime" />
-                <span className="font-black text-xl">+{(walletData.cashbackThisWeek ?? 0).toLocaleString()}</span>
-              </div>
-              <p className="text-[10px] text-mute uppercase tracking-wider">Cashback 7j</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-ink/20 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Flame className="w-4 h-4 text-coral" />
-                <span className="font-black text-xl">{walletData.streak}</span>
-              </div>
-              <p className="text-[10px] text-mute uppercase tracking-wider">Day Streak</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-ink/20 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <TrendingUp className="w-4 h-4 text-success-soft" />
-                <span className="font-black text-xl">Lvl {walletData.xp.level}</span>
-              </div>
-              <p className="text-[10px] text-mute uppercase tracking-wider">Level</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Level Progress */}
-      <div className="p-6 rounded-2xl bg-card border border-ink">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold">Level Progress</h3>
-          <span className="text-sm text-brand-soft font-bold">Level {walletData.xp.level + 1}</span>
-        </div>
-        <Progress value={walletData.xp.progressPercent} className="h-3" />
-        <p className="text-sm text-mute mt-2">{walletData.xp.progressPercent}% to next level</p>
+      {/* Solde — surface sombre ponctuelle (F2) + Niv pose proud */}
+      <div className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
+        <StatHero
+          eyebrow="Solde total"
+          tone="coral"
+          size="lg"
+          value={walletData.coins.toLocaleString()}
+          unit="⊙ coins"
+          icon={<Coins className="w-5 h-5" />}
+        />
+        <NivCoach
+          mood="proud"
+          message="Ton solde grossit à chaque quête. Garde le cap, je suis fier de toi !"
+        />
       </div>
 
-      {/* Recent Activity */}
+      {/* Quick-stats — mini-cartes sticker, chaque chiffre son token charte. */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StickerCard variant="panel" className="p-4">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-gold" />
+            <span className="font-display text-xl font-extrabold tabular-nums text-ink">
+              {walletData.xp.total.toLocaleString()}
+            </span>
+          </div>
+          <p className="eyebrow mt-1 tracking-[0.14em] text-mute">XP total</p>
+        </StickerCard>
+        <StickerCard variant="panel" className="p-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-lime" />
+            <span className="font-display text-xl font-extrabold tabular-nums text-ink">
+              +{(walletData.cashbackThisWeek ?? 0).toLocaleString()}
+            </span>
+          </div>
+          <p className="eyebrow mt-1 tracking-[0.14em] text-mute">Cashback 7j</p>
+        </StickerCard>
+        <StickerCard variant="panel" className="p-4">
+          <div className="flex items-center gap-2">
+            <Flame className="w-4 h-4 text-pink" />
+            <span className="font-display text-xl font-extrabold tabular-nums text-ink">
+              {walletData.streak}
+            </span>
+          </div>
+          <p className="eyebrow mt-1 tracking-[0.14em] text-mute">Streak</p>
+        </StickerCard>
+        <StickerCard variant="panel" className="p-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-teal" />
+            <span className="font-display text-xl font-extrabold tabular-nums text-ink">
+              Niv. {walletData.xp.level}
+            </span>
+          </div>
+          <p className="eyebrow mt-1 tracking-[0.14em] text-mute">Niveau</p>
+        </StickerCard>
+      </div>
+
+      {/* Progression niveau — jauge segmentée (F5) */}
+      <StickerCard variant="default" className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display font-bold text-ink">Progression niveau</h3>
+          <span className="font-mono text-sm font-bold tabular-nums text-teal">
+            Niveau {walletData.xp.level + 1}
+          </span>
+        </div>
+        <SegmentedProgress steps={levelSegments} current={levelCurrent} size="md" />
+        <p className="font-mono text-xs tabular-nums text-mute mt-2">
+          {walletData.xp.progressPercent}% vers le prochain niveau
+        </p>
+      </StickerCard>
+
+      {/* Activité récente */}
       <div className="space-y-4">
-        <h3 className="text-lg font-bold">Recent Activity</h3>
+        <h3 className="font-display text-lg font-bold text-ink">Activité récente</h3>
         {loadingTx ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-gold" />
+            <Loader2 className="w-6 h-6 animate-spin text-coral" />
           </div>
         ) : transactions.length === 0 ? (
-          walletData.coins === 0 ? (
-            <EmptyState
-              preset="coins"
-              size="default"
-              action={{ label: "Voir les quêtes", href: "/teen/quests" }}
-            />
-          ) : (
-            <EmptyState
-              preset="coins"
-              size="small"
-              title="Pas encore de transactions"
-              description="Tes prochaines récompenses apparaîtront ici."
-            />
-          )
+          <NivEmpty
+            mood="calm"
+            title={walletData.coins === 0 ? "Pas encore de coins" : "Pas encore de transactions"}
+            description={
+              walletData.coins === 0
+                ? "Lance une quête pour gagner tes premiers coins."
+                : "Tes prochaines récompenses apparaîtront ici."
+            }
+            action={
+              walletData.coins === 0 ? (
+                <Link href="/teen/quests">
+                  <Button variant="pink" size="sm">Voir les quêtes</Button>
+                </Link>
+              ) : undefined
+            }
+          />
         ) : (
           transactions.map((tx, idx) => (
-            <motion.div
-              key={tx.id || idx}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink"
-            >
-              <div className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center",
-                tx.type === "earned" ? "bg-lime/20" : "bg-destructive/20"
-              )}>
-                {tx.type === "earned" ? (
-                  <TrendingUp className="w-5 h-5 text-lime" />
-                ) : (
-                  <ShoppingBag className="w-5 h-5 text-destructive" />
-                )}
+            <StickerCard key={tx.id || idx} variant="panel" className="p-4">
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  "w-10 h-10 rounded-xl border-2 border-ink flex items-center justify-center",
+                  tx.type === "earned" ? "bg-lime/20" : "bg-coral/20"
+                )}>
+                  {tx.type === "earned" ? (
+                    <TrendingUp className="w-5 h-5 text-lime" />
+                  ) : (
+                    <ShoppingBag className="w-5 h-5 text-coral" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-ink truncate">{tx.reason}</p>
+                  <p className="font-mono text-xs text-mute">{tx.time}</p>
+                </div>
+                <span className={cn(
+                  "font-display font-extrabold tabular-nums",
+                  tx.type === "earned" ? "text-lime" : "text-coral"
+                )}>
+                  {tx.type === "earned" ? "+" : ""}{tx.amount}
+                </span>
               </div>
-              <div className="flex-1">
-                <p className="font-medium">{tx.reason}</p>
-                <p className="text-sm text-mute">{tx.time}</p>
-              </div>
-              <span className={cn(
-                "font-black",
-                tx.type === "earned" ? "text-lime" : "text-destructive"
-              )}>
-                {tx.type === "earned" ? "+" : ""}{tx.amount}
-              </span>
-            </motion.div>
+            </StickerCard>
           ))
         )}
       </div>
@@ -523,153 +523,49 @@ function BadgesTab({ teenId }: { teenId?: string }) {
     fetchBadges()
   }, [teenId])
 
-  // Combine unlocked badges with locked placeholder badges
-  const allBadges = [
-    ...badges.map(b => ({ ...b, unlocked: true })),
-    // Placeholder locked badges
-    { id: "locked-1", name: "Social Butterfly", icon: "🦋", unlocked: false, rarity: "epic" },
-    { id: "locked-2", name: "Legend", icon: "👑", unlocked: false, rarity: "legendary" },
-    { id: "locked-3", name: "Event King", icon: "🎉", unlocked: false, rarity: "epic" },
-  ]
-
-  const unlockedCount = badges.length
-  const lockedCount = allBadges.filter(b => !b.unlocked).length
-
-  const rarityColors = {
-    common: "from-paper-2 to-card border-line",
-    rare: "from-teal to-teal border-teal/30",
-    epic: "from-pink to-pink border-pink/30",
-    legendary: "from-gold to-gold border-gold/30",
-  }
+  // Vrais badges débloqués uniquement (les placeholders fictifs ont été retirés).
+  const unlockedBadges = badges
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-soft" />
+        <Loader2 className="w-8 h-8 animate-spin text-coral" />
       </div>
     )
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Stats */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-success-soft/10 border border-success-soft/20">
-          <Check className="w-5 h-5 text-success-soft" />
-          <span className="font-bold">{unlockedCount} Unlocked</span>
-        </div>
-        <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-card border border-ink">
-          <Lock className="w-5 h-5 text-mute" />
-          <span className="font-bold text-mute">{lockedCount} Locked</span>
-        </div>
-      </div>
-
-      {/* Badges Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-        {allBadges.map((badge, idx) => (
-          <motion.div
-            key={badge.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: idx * 0.05 }}
-            className={cn(
-              "relative p-6 rounded-2xl border text-center transition-all",
-              badge.unlocked 
-                ? `bg-gradient-to-br ${rarityColors[badge.rarity as keyof typeof rarityColors] || rarityColors.common}` 
-                : "bg-card border-ink opacity-50"
-            )}
-          >
-            {!badge.unlocked && (
-              <div className="absolute inset-0 flex items-center justify-center bg-ink/50 rounded-2xl">
-                <Lock className="w-8 h-8 text-mute" />
-              </div>
-            )}
-            <div className="text-5xl mb-4">{badge.icon || "🏆"}</div>
-            <h4 className="font-bold text-ink">{badge.name}</h4>
-            <p className="text-xs text-mute uppercase tracking-wider mt-1">{badge.rarity || "common"}</p>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function VIPTab() {
-  const tiers = [
-    { name: "Bronze", xpRequired: 0, current: true, color: "from-gold to-gold", benefits: ["5% bonus XP", "Basic rewards access"] },
-    { name: "Silver", xpRequired: 5000, current: false, color: "from-paper-2 to-card", benefits: ["10% bonus XP", "Priority events", "Exclusive badges"] },
-    { name: "Gold", xpRequired: 15000, current: false, color: "from-gold to-gold", benefits: ["20% bonus XP", "VIP events", "Special rewards", "Extra spins"] },
-    { name: "Platinum", xpRequired: 50000, current: false, color: "from-pink to-pink", benefits: ["30% bonus XP", "All benefits", "Real prizes", "Personal coach"] },
-  ]
+  if (unlockedBadges.length === 0) {
+    return (
+      <NivEmpty
+        mood="calm"
+        title="Pas encore de badge"
+        description="Continue tes quêtes et ton crew t'attend — tes badges débloqués apparaîtront ici."
+      />
+    )
+  }
 
   return (
     <div className="space-y-6">
-      {/* Current Status */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-2xl p-8 border border-gold/30 bg-gradient-to-br from-gold/20 to-gold/10"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-mute uppercase tracking-wider font-bold">Current Tier</p>
-            <h2 className="text-4xl font-black text-gold mt-2">BRONZE</h2>
-            <p className="text-mute mt-2">5,000 XP to Silver</p>
-          </div>
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-gold to-gold flex items-center justify-center">
-            <Crown className="w-12 h-12 text-ink" />
-          </div>
-        </div>
-        <Progress value={30} className="h-3 mt-6" />
-      </motion.div>
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] rounded-full border-2 border-ink bg-lime px-3 py-1 text-on-bright">
+          {unlockedBadges.length} débloqué{unlockedBadges.length > 1 ? "s" : ""}
+        </span>
+      </div>
 
-      {/* All Tiers */}
-      <div className="space-y-4">
-        {tiers.map((tier, idx) => (
-          <motion.div
-            key={tier.name}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={cn(
-              "p-6 rounded-2xl border transition-all",
-              tier.current 
-                ? "bg-gradient-to-r from-gold/20 to-transparent border-gold/30" 
-                : "bg-card border-ink"
-            )}
+      {/* Badges Grid — vrais badges en cartes sticker */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        {unlockedBadges.map((badge, idx) => (
+          <StickerCard
+            key={badge.id || idx}
+            variant="default"
+            className="items-center p-6 text-center"
           >
-            <div className="flex items-center gap-4">
-              <div className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br",
-                tier.color
-              )}>
-                <Crown className="w-7 h-7 text-ink" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
-                  <h4 className="font-black text-lg">{tier.name}</h4>
-                  {tier.current && (
-                    <span className="px-2 py-0.5 rounded-full bg-success-soft/20 text-success-soft text-[10px] font-bold uppercase">
-                      Current
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-mute">{tier.xpRequired.toLocaleString()} XP required</p>
-              </div>
-              <Button variant={tier.current ? "default" : "outline"} size="sm">
-                {tier.current ? "Active" : "View"}
-              </Button>
-            </div>
-            
-            {/* Benefits */}
-            <div className="flex flex-wrap gap-2 mt-4">
-              {tier.benefits.map((benefit, i) => (
-                <span key={i} className="px-3 py-1 rounded-full bg-paper-2 text-xs text-mute">
-                  {benefit}
-                </span>
-              ))}
-            </div>
-          </motion.div>
+            <div className="text-5xl mb-4">{badge.icon || "🏆"}</div>
+            <h4 className="font-display font-bold text-ink">{badge.name}</h4>
+            {badge.rarity && (
+              <p className="eyebrow mt-1 tracking-[0.14em] text-mute">{badge.rarity}</p>
+            )}
+          </StickerCard>
         ))}
       </div>
     </div>

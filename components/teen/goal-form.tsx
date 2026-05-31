@@ -12,10 +12,20 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { PremiumButton } from "@/components/ui/button"
+import { FieldInput } from "@/components/ui/field-input"
 import { FormKeyboardAware } from "@/lib/hooks/use-keyboard-aware"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach } from "@/components/brand"
+import { Confetti } from "@/components/ui/effects/confetti"
+import { cn } from "@/lib/utils"
+
+// Presets visuels — remplacent la saisie d'URL brute (friction mobile ado).
+// La valeur (emoji) est stockée telle quelle dans `image_url` (champ cosmétique).
+const IMAGE_PRESETS = [
+  "🎯", "🎮", "👟", "🎧", "📱", "🚲", "🎸", "📚", "✈️", "🎨", "⚽", "🛹",
+]
 
 const goalSchema = z.object({
   title: z
@@ -24,7 +34,7 @@ const goalSchema = z.object({
     .min(2, "Le titre doit faire au moins 2 caractères")
     .max(120, "Le titre est trop long"),
   description: z.string().max(2000, "Description trop longue").optional().or(z.literal("")),
-  imageUrl: z.string().url("URL invalide").optional().or(z.literal("")),
+  imageUrl: z.string().max(40).optional().or(z.literal("")),
   targetCoins: z
     .number({ invalid_type_error: "Doit être un nombre" })
     .int("Doit être un entier")
@@ -43,6 +53,8 @@ export function GoalForm() {
     register,
     handleSubmit,
     setFocus,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<GoalValues>({
     resolver: zodResolver(goalSchema),
@@ -59,6 +71,14 @@ export function GoalForm() {
   useEffect(() => {
     setFocus("title")
   }, [setFocus])
+
+  const selectedImage = watch("imageUrl")
+  const targetCoins = watch("targetCoins")
+  // Équivalent DH live : canon 1 DH = 100 coins (cf. wallet/allowance).
+  const coinsDH =
+    Number.isFinite(targetCoins) && targetCoins > 0
+      ? (targetCoins / 100).toFixed(2)
+      : null
 
   const onSubmit = async (values: GoalValues) => {
     setGlobalError(null)
@@ -86,96 +106,129 @@ export function GoalForm() {
   }
 
   return (
-    <FormKeyboardAware
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4"
-      autoComplete="off"
-    >
-      <div className="space-y-1">
-        <Label htmlFor="goal-title">Titre</Label>
-        <Input
+    <StickerCard variant="default" className="p-5 sm:p-6">
+      <Confetti trigger={success} palette="reward" />
+      <NivCoach
+        mood="happy"
+        message="Choisis un objectif clair et un montant atteignable — je te suis !"
+        className="mb-6"
+      />
+
+      <FormKeyboardAware
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-5"
+        autoComplete="off"
+      >
+        <FieldInput
           id="goal-title"
-          aria-invalid={!!errors.title}
-          aria-describedby={errors.title ? "goal-title-err" : undefined}
+          label="Titre"
+          error={errors.title?.message}
           {...register("title")}
         />
-        {errors.title && (
-          <p id="goal-title-err" role="alert" className="text-sm text-destructive">
-            {errors.title.message}
-          </p>
-        )}
-      </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="goal-description">Description (optionnel)</Label>
-        <Textarea
-          id="goal-description"
-          aria-invalid={!!errors.description}
-          {...register("description")}
-        />
-        {errors.description && (
-          <p role="alert" className="text-sm text-destructive">
-            {errors.description.message}
-          </p>
-        )}
-      </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="goal-description" className="eyebrow tracking-[0.16em]">
+            Description (optionnel)
+          </label>
+          <Textarea
+            id="goal-description"
+            aria-invalid={!!errors.description}
+            className="rounded-xl border-2 border-ink focus-visible:border-ink focus-visible:ring-0"
+            {...register("description")}
+          />
+          {errors.description && (
+            <p role="alert" className="text-xs font-medium text-coral">
+              {errors.description.message}
+            </p>
+          )}
+        </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="goal-image">URL image (optionnel)</Label>
-        <Input
-          id="goal-image"
-          type="url"
-          aria-invalid={!!errors.imageUrl}
-          {...register("imageUrl")}
-        />
-        {errors.imageUrl && (
-          <p role="alert" className="text-sm text-destructive">
-            {errors.imageUrl.message}
-          </p>
-        )}
-      </div>
+        {/* Presets visuels — remplacent la saisie d'URL brute */}
+        <div className="flex flex-col gap-2">
+          <span className="eyebrow tracking-[0.16em]">Visuel (optionnel)</span>
+          <div className="grid grid-cols-6 gap-2">
+            {IMAGE_PRESETS.map((emoji) => {
+              const active = selectedImage === emoji
+              return (
+                <button
+                  key={emoji}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    setValue("imageUrl", active ? "" : emoji, { shouldValidate: true })
+                  }
+                  className={cn(
+                    "grid aspect-square place-items-center rounded-xl border-2 border-ink text-2xl transition-all",
+                    active
+                      ? "-translate-x-0.5 -translate-y-0.5 bg-pink shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                      : "bg-white hover:bg-paper-2",
+                  )}
+                >
+                  {emoji}
+                </button>
+              )
+            })}
+          </div>
+        </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="goal-coins">Objectif en coins</Label>
-        <Input
-          id="goal-coins"
-          type="number"
-          min={1}
-          inputMode="numeric"
-          aria-invalid={!!errors.targetCoins}
-          {...register("targetCoins", { valueAsNumber: true })}
-        />
-        {errors.targetCoins && (
-          <p role="alert" className="text-sm text-destructive">
-            {errors.targetCoins.message}
-          </p>
-        )}
-      </div>
+        {/* Objectif en coins — suffixe ⊙ corail + équivalent DH live */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="goal-coins" className="eyebrow tracking-[0.16em]">
+            Objectif en coins
+          </label>
+          <div className="relative">
+            <Input
+              id="goal-coins"
+              type="number"
+              min={1}
+              inputMode="numeric"
+              aria-invalid={!!errors.targetCoins}
+              className="pr-10 focus-visible:border-ink focus-visible:ring-0"
+              {...register("targetCoins", { valueAsNumber: true })}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 font-display text-lg font-bold text-coral"
+            >
+              ⊙
+            </span>
+          </div>
+          {errors.targetCoins ? (
+            <p role="alert" className="text-xs font-medium text-coral">
+              {errors.targetCoins.message}
+            </p>
+          ) : coinsDH ? (
+            <p className="font-mono text-xs tabular-nums text-mute">
+              {targetCoins.toLocaleString()} coins ≈ {coinsDH} DH
+            </p>
+          ) : null}
+        </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="goal-date">Date cible (optionnel)</Label>
-        <Input
+        <FieldInput
           id="goal-date"
           type="date"
-          aria-invalid={!!errors.targetDate}
+          label="Date cible (optionnel)"
+          error={errors.targetDate?.message}
           {...register("targetDate")}
         />
-      </div>
 
-      {globalError && (
-        <p role="alert" aria-live="polite" className="text-sm text-destructive">
-          {globalError}
-        </p>
-      )}
+        {globalError && (
+          <p role="alert" aria-live="polite" className="text-sm font-medium text-coral">
+            {globalError}
+          </p>
+        )}
 
-      <PremiumButton
-        type="submit"
-        loading={isSubmitting}
-        success={success}
-        disabled={isSubmitting || success}
-      >
-        {success ? "Créé !" : isSubmitting ? "Création..." : "Créer l'objectif"}
-      </PremiumButton>
-    </FormKeyboardAware>
+        <PremiumButton
+          type="submit"
+          variant="pink"
+          loading={isSubmitting}
+          success={success}
+          disabled={isSubmitting || success}
+          className="w-full"
+        >
+          {success ? "Créé !" : isSubmitting ? "Création..." : "Créer l'objectif"}
+        </PremiumButton>
+      </FormKeyboardAware>
+    </StickerCard>
   )
 }

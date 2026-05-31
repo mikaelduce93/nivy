@@ -9,11 +9,16 @@ export default async function NewGoalPage() {
   if (!userInfo || userInfo.role !== "teen") redirect("/login")
 
   return (
-    <div className="container mx-auto p-4 md:p-8 max-w-xl">
-      <h1 className="text-2xl font-bold mb-2">Nouvel objectif</h1>
-      <p className="text-muted-foreground text-sm mb-6">
-        Donne un nom à ce que tu veux acheter et combien de coins il te faut.
-      </p>
+    <div className="mx-auto max-w-xl p-4 md:p-8">
+      <header className="mb-6 space-y-1">
+        <span className="eyebrow tracking-[0.16em] text-mute">Nouvel objectif</span>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Crée ton <em className="font-semibold italic text-pink">objectif</em>
+        </h1>
+        <p className="text-sm text-mute">
+          Donne un nom à ce que tu veux acheter et combien de coins il te faut.
+        </p>
+      </header>
       <GoalForm />
     </div>
   )
