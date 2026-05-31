@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { DarkSurface, NivEmpty } from "@/components/brand"
+import { getT } from "@/lib/i18n/server"
+import { purchaseStatusLabel } from "@/lib/i18n/status-labels"
 import {
   ShoppingBag,
   ArrowLeft,
@@ -91,6 +93,7 @@ export default async function ShopHistoryPage() {
     redirect("/teen")
   }
 
+  const t = await getT()
   const purchases = await getPurchaseHistory(teenId)
   const stats = await getPurchaseStats(teenId)
 
@@ -103,19 +106,21 @@ export default async function ShopHistoryPage() {
   }
 
   // Pills statut mono UPPERCASE charte (lime ✓ utilisé, gold en cours, coral expiré).
+  // Libellé centralisé via purchaseStatusLabel() ; ici on ne mappe que la couleur.
   const getStatusBadge = (status: string) => {
+    const text = purchaseStatusLabel(status, t)
     switch (status) {
       case "ready":
-        return { text: "Prêt", class: "border-lime bg-lime/15 text-ink" }
+        return { text, class: "border-lime bg-lime/15 text-ink" }
       case "pending":
-        return { text: "En cours", class: "border-gold bg-gold/15 text-ink" }
+        return { text, class: "border-gold bg-gold/15 text-ink" }
       case "used":
       case "claimed":
-        return { text: "Utilisé", class: "border-lime bg-lime/15 text-ink" }
+        return { text, class: "border-lime bg-lime/15 text-ink" }
       case "expired":
-        return { text: "Expiré", class: "border-coral bg-coral/15 text-ink" }
+        return { text, class: "border-coral bg-coral/15 text-ink" }
       default:
-        return { text: status, class: "border-line bg-paper-2 text-mute" }
+        return { text, class: "border-line bg-paper-2 text-mute" }
     }
   }
 

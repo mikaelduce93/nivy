@@ -13,6 +13,8 @@ import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { useT } from "@/lib/i18n"
+import type { Translator } from "@/lib/i18n"
 
 // Lazy load the map component
 const TeenMapWrapper = dynamic(
@@ -48,17 +50,18 @@ interface SocialHubClientProps {
   teenName: string
 }
 
-const SOCIAL_TABS: HubTab[] = [
-  { id: "crew", label: "Crew", icon: Shield },
-  { id: "friends", label: "Potes", icon: Users },
-  { id: "ranking", label: "Classement", icon: Trophy },
-  { id: "map", label: "Carte", icon: Map },
-]
-
 export function SocialHubClient({ teenId, teenName }: SocialHubClientProps) {
+  const t = useT()
   const searchParams = useSearchParams()
   const currentTab = searchParams.get("tab") || "crew"
   const [friendsCount, setFriendsCount] = useState<number | null>(null)
+
+  const SOCIAL_TABS: HubTab[] = [
+    { id: "crew", label: t("teen.social.tabCrew"), icon: Shield },
+    { id: "friends", label: t("teen.social.tabFriends"), icon: Users },
+    { id: "ranking", label: t("teen.social.tabRanking"), icon: Trophy },
+    { id: "map", label: t("teen.social.tabMap"), icon: Map },
+  ]
 
   // Fetch friends count on mount
   useEffect(() => {
@@ -82,38 +85,38 @@ export function SocialHubClient({ teenId, teenName }: SocialHubClientProps) {
       <header className="space-y-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <p className="eyebrow tracking-[0.16em]">Ton crew</p>
+            <p className="eyebrow tracking-[0.16em]">{t("teen.social.eyebrow")}</p>
             <h1 className="font-display text-4xl font-extrabold tracking-tight">
-              Reste <em className="font-semibold italic text-pink">branché</em>
+              {t("teen.social.titleLead")} <em className="font-semibold italic text-pink">{t("teen.social.titleEm")}</em>
             </h1>
-            <p className="text-sm text-mute">Reste branché avec ton crew.</p>
+            <p className="text-sm text-mute">{t("teen.social.subtitle")}</p>
           </div>
 
           {/* Quick Stat */}
           <div className="flex items-center gap-2 self-start rounded-xl border-2 border-ink bg-white px-4 py-2 shadow-stkr-sm">
             <Users className="w-4 h-4 text-teal" />
             <span className="font-mono text-sm font-bold tabular-nums">
-              {friendsCount !== null ? `${friendsCount} potes` : "Chargement…"}
+              {friendsCount !== null ? t("teen.social.friendsCount", { count: friendsCount }) : t("teen.social.loading")}
             </span>
           </div>
         </div>
 
         {/* Tabs */}
-        <HubTabs tabs={SOCIAL_TABS} defaultTab="crew" ariaLabel="Sections sociales" />
+        <HubTabs tabs={SOCIAL_TABS} defaultTab="crew" ariaLabel={t("teen.social.tabsAria")} />
       </header>
 
       {/* Tab Content */}
       <div key={currentTab}>
-        {currentTab === "crew" && <CrewTab teenId={teenId} />}
-        {currentTab === "friends" && <FriendsTab teenId={teenId} />}
-        {currentTab === "ranking" && <RankingTab teenId={teenId} />}
-        {currentTab === "map" && <MapTab />}
+        {currentTab === "crew" && <CrewTab teenId={teenId} t={t} />}
+        {currentTab === "friends" && <FriendsTab teenId={teenId} t={t} />}
+        {currentTab === "ranking" && <RankingTab teenId={teenId} t={t} />}
+        {currentTab === "map" && <MapTab t={t} />}
       </div>
     </div>
   )
 }
 
-function CrewTab({ teenId }: { teenId: string }) {
+function CrewTab({ teenId, t }: { teenId: string; t: Translator }) {
   const [hasCrew, setHasCrew] = useState(true)
   const [crewData, setCrewData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -151,13 +154,13 @@ function CrewTab({ teenId }: { teenId: string }) {
     return (
       <NivEmpty
         mood="hype"
-        title="Pas encore de crew"
-        description="Rassemble tes potes pour les défis d'équipe et gagner du bonus XP."
+        title={t("teen.social.crewEmptyTitle")}
+        description={t("teen.social.crewEmptyDesc")}
         action={
           <Button asChild variant="pink">
             <Link href="/teen/circles">
               <Shield className="w-4 h-4 mr-2" />
-              Créer un crew
+              {t("teen.social.createCrew")}
             </Link>
           </Button>
         }
@@ -171,29 +174,29 @@ function CrewTab({ teenId }: { teenId: string }) {
     <div className="space-y-6">
       {/* Crew hero — surface sombre ponctuelle */}
       <StatHero
-        eyebrow={`${crewData.name || "Mon crew"} · ${crewData.tier || "Bronze"}`}
+        eyebrow={`${crewData.name || t("teen.social.crewDefaultName")} · ${crewData.tier || t("teen.social.crewDefaultTier")}`}
         value={(stats?.totalXp || 0).toLocaleString()}
         unit="XP"
         tone="gold"
         size="lg"
-        meta={`${stats?.memberCount || 0} membres`}
+        meta={t("teen.social.crewMembersMeta", { count: stats?.memberCount || 0 })}
       />
 
       {/* Secondary stats */}
       <div className="grid grid-cols-2 gap-3">
         <StickerCard className="items-center p-4 text-center">
           <p className="font-display text-2xl font-extrabold tabular-nums text-lime">{stats?.battlesWon || 0}</p>
-          <p className="eyebrow mt-1 text-mute">Défis gagnés</p>
+          <p className="eyebrow mt-1 text-mute">{t("teen.social.battlesWon")}</p>
         </StickerCard>
         <StickerCard className="items-center p-4 text-center">
           <p className="font-display text-2xl font-extrabold tabular-nums text-teal">#{stats?.cityRank || "—"}</p>
-          <p className="eyebrow mt-1 text-mute">Rang ville</p>
+          <p className="eyebrow mt-1 text-mute">{t("teen.social.cityRank")}</p>
         </StickerCard>
       </div>
 
       {/* Members */}
       <div>
-        <p className="eyebrow mb-3">Membres</p>
+        <p className="eyebrow mb-3">{t("teen.social.members")}</p>
         <div className="flex items-center gap-3 flex-wrap">
           {(members || []).slice(0, 6).map((member: any, i: number) => (
             <div key={member.id || i} className="relative">
@@ -223,13 +226,13 @@ function CrewTab({ teenId }: { teenId: string }) {
         <Button asChild variant="pink" className="flex-1">
           <Link href="/teen/circles">
             <Shield className="w-4 h-4 mr-2" />
-            Voir le crew
+            {t("teen.social.viewCrew")}
           </Link>
         </Button>
         <Button asChild variant="outline" className="flex-1">
           <Link href="/teen/circles">
             <MessageCircle className="w-4 h-4 mr-2" />
-            Chat crew
+            {t("teen.social.crewChat")}
           </Link>
         </Button>
       </div>
@@ -237,7 +240,7 @@ function CrewTab({ teenId }: { teenId: string }) {
   )
 }
 
-function FriendsTab({ teenId }: { teenId?: string }) {
+function FriendsTab({ teenId, t }: { teenId?: string; t: Translator }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [friends, setFriends] = useState<Friend[]>([])
   const [loading, setLoading] = useState(true)
@@ -282,7 +285,7 @@ function FriendsTab({ teenId }: { teenId?: string }) {
         <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Cherche un pote…"
+          placeholder={t("teen.social.searchFriends")}
           className="pl-12 h-14 rounded-xl border-2 border-ink"
         />
       </div>
@@ -293,16 +296,16 @@ function FriendsTab({ teenId }: { teenId?: string }) {
           <EmptyState
             preset="feed"
             size="default"
-            title="Ton feed est vide"
-            description="Suis tes potes et rejoins une crew pour voir leur activité ici."
-            action={{ label: "Trouver des amis", href: "/teen/friends" }}
+            title={t("teen.social.feedEmptyTitle")}
+            description={t("teen.social.feedEmptyDesc")}
+            action={{ label: t("teen.social.findFriends"), href: "/teen/friends" }}
           />
         ) : (
           <EmptyState
             preset="search"
             size="small"
-            title="Aucun ami trouvé"
-            description="Essaie une autre recherche."
+            title={t("teen.social.noFriendFoundTitle")}
+            description={t("teen.social.noFriendFoundDesc")}
           />
         )
       ) : (
@@ -335,7 +338,7 @@ function FriendsTab({ teenId }: { teenId?: string }) {
               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-ink">{friend.name}</h4>
-                <p className="text-sm text-mute">{friend.mutual} amis en commun</p>
+                <p className="text-sm text-mute">{t("teen.social.mutualFriends", { count: friend.mutual })}</p>
               </div>
               <div className="text-right">
                 <div className="flex items-center gap-1 text-gold">
@@ -356,14 +359,14 @@ function FriendsTab({ teenId }: { teenId?: string }) {
       <Button asChild variant="pink" className="w-full h-14">
         <Link href="/teen/friends">
           <UserPlus className="w-5 h-5 mr-2" />
-          Ajouter des potes
+          {t("teen.social.addFriends")}
         </Link>
       </Button>
     </div>
   )
 }
 
-function RankingTab({ teenId }: { teenId: string }) {
+function RankingTab({ teenId, t }: { teenId: string; t: Translator }) {
   const [rankings, setRankings] = useState<RankingEntry[]>([])
   const [userRank, setUserRank] = useState<number>(-1)
   const [loading, setLoading] = useState(true)
@@ -399,8 +402,8 @@ function RankingTab({ teenId }: { teenId: string }) {
   if (rankings.length === 0) {
     return (
       <NivEmpty
-        title="Classement vide"
-        description="Le classement se remplit dès que ton crew gagne de l'XP."
+        title={t("teen.social.rankingEmptyTitle")}
+        description={t("teen.social.rankingEmptyDesc")}
       />
     )
   }
@@ -463,13 +466,13 @@ function RankingTab({ teenId }: { teenId: string }) {
   )
 }
 
-function MapTab() {
+function MapTab({ t }: { t: Translator }) {
   return (
     <div className="space-y-6">
       <div className="relative overflow-hidden rounded-2xl border-2 border-ink shadow-stkr-md">
         <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-xl border-2 border-ink bg-ink/80 px-4 py-2 text-paper">
           <MapPin className="w-4 h-4 text-lime" />
-          <span className="font-mono text-sm font-bold">Carte des potes</span>
+          <span className="font-mono text-sm font-bold">{t("teen.social.mapTitle")}</span>
         </div>
         <div className="h-[400px]">
           <TeenMapWrapper />

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { StickerTabs } from "@/components/brand/sticker-tab"
 import { Niv, NivCoach, NivEmpty } from "@/components/brand"
+import { useT } from "@/lib/i18n"
 
 export type GameType = {
   id: string
@@ -27,20 +28,21 @@ export type GameStats = {
   total_wins: number
 }
 
-const CATEGORIES = [
-  { value: "all", label: "Tous", icon: <Gamepad2 /> },
-  { value: "daily", label: "Quotidien", icon: <Clock /> },
-  { value: "brain", label: "Cerveau", icon: <Target /> },
-  { value: "pvp", label: "PvP", icon: <Users /> },
-]
-
 interface Props {
   games: GameType[]
   stats: GameStats
 }
 
 export function GamesClient({ games, stats }: Props) {
+  const t = useT()
   const [category, setCategory] = useState("all")
+
+  const CATEGORIES = [
+    { value: "all", label: t("teen.games.catAll"), icon: <Gamepad2 /> },
+    { value: "daily", label: t("teen.games.catDaily"), icon: <Clock /> },
+    { value: "brain", label: t("teen.games.catBrain"), icon: <Target /> },
+    { value: "pvp", label: t("teen.games.catPvp"), icon: <Users /> },
+  ]
 
   const dailyGames = games.filter((g) => g.is_daily)
   const challengeGames = games.filter((g) => !g.is_daily && g.max_players > 1)
@@ -56,15 +58,15 @@ export function GamesClient({ games, stats }: Props) {
         <div className="flex items-center gap-4">
           <Niv mood="hype" size={72} className="shrink-0" />
           <div>
-            <p className="eyebrow tracking-[0.16em]">Arène · Jeux</p>
+            <p className="eyebrow tracking-[0.16em]">{t("teen.games.eyebrow")}</p>
             <h1 className="font-display text-4xl font-extrabold tracking-tight">
-              Joue, gagne des <em className="font-semibold italic text-pink">XP</em>
+              {t("teen.games.titleLead")} <em className="font-semibold italic text-pink">{t("teen.games.titleEm")}</em>
             </h1>
-            <p className="text-sm text-mute">Des mini-jeux chaque jour pour booster ton XP.</p>
+            <p className="text-sm text-mute">{t("teen.games.subtitle")}</p>
           </div>
         </div>
 
-        <NivCoach mood="hype" message="Chaque partie compte. Enchaîne les jeux du jour et regarde ton XP grimper !" />
+        <NivCoach mood="hype" message={t("teen.games.coach")} />
 
         {/* Stats cumulées — pills sticker mono */}
         <div className="grid grid-cols-3 gap-3">
@@ -73,7 +75,7 @@ export function GamesClient({ games, stats }: Props) {
               <Play className="size-4 text-teal" aria-hidden="true" />
               {totalPlayed}
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Parties jouées</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{t("teen.games.played")}</span>
           </StickerCard>
 
           <StickerCard className="items-center gap-1 p-4 text-center">
@@ -81,7 +83,7 @@ export function GamesClient({ games, stats }: Props) {
               <Zap className="size-4 text-gold" aria-hidden="true" />
               {totalXp}
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">XP gagnés</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{t("teen.games.xpEarned")}</span>
           </StickerCard>
 
           <StickerCard className="items-center gap-1 p-4 text-center">
@@ -89,7 +91,7 @@ export function GamesClient({ games, stats }: Props) {
               <Trophy className="size-4 text-pink" aria-hidden="true" />
               {totalWins}
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Victoires</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{t("teen.games.wins")}</span>
           </StickerCard>
         </div>
 
@@ -104,13 +106,13 @@ export function GamesClient({ games, stats }: Props) {
 
       {/* Jeux quotidiens */}
       <section className="space-y-4">
-        <p className="eyebrow tracking-[0.16em]">Jeux du jour</p>
+        <p className="eyebrow tracking-[0.16em]">{t("teen.games.dailyGames")}</p>
 
         {dailyGames.length === 0 ? (
           <NivEmpty
             mood="calm"
-            title="Pas de jeu pour l'instant"
-            description="Reviens t'éclater plus tard — de nouveaux jeux quotidiens arrivent chaque jour."
+            title={t("teen.games.dailyEmptyTitle")}
+            description={t("teen.games.dailyEmptyDesc")}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -131,7 +133,7 @@ export function GamesClient({ games, stats }: Props) {
 
                 <Button variant="pink" className="w-full">
                   <Play className="mr-2 size-4" aria-hidden="true" />
-                  Jouer
+                  {t("teen.games.play")}
                 </Button>
               </StickerCard>
             ))}
@@ -142,7 +144,7 @@ export function GamesClient({ games, stats }: Props) {
       {/* Défis multijoueur */}
       {challengeGames.length > 0 && (
         <section className="space-y-4">
-          <p className="eyebrow tracking-[0.16em]">Défis multijoueur</p>
+          <p className="eyebrow tracking-[0.16em]">{t("teen.games.multiplayer")}</p>
 
           <div className="space-y-4">
             {challengeGames.map((game) => (
@@ -161,10 +163,10 @@ export function GamesClient({ games, stats }: Props) {
                     </span>
                     <span className="flex items-center justify-end gap-1 font-mono text-xs text-mute">
                       <Users className="size-3" aria-hidden="true" />
-                      max {game.max_players}
+                      {t("teen.games.maxPlayers", { count: game.max_players })}
                     </span>
                   </div>
-                  <Button variant="outline">Rejoindre</Button>
+                  <Button variant="outline">{t("teen.games.join")}</Button>
                 </div>
               </StickerCard>
             ))}

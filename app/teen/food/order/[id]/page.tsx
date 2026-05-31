@@ -10,6 +10,8 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { H1, H2 } from "@/components/ui/headings"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { StickerCard } from "@/components/ui/sticker-card"
+import { getT } from "@/lib/i18n/server"
+import { foodOrderStatusLabel } from "@/lib/i18n/status-labels"
 import { OrderDeliveredCelebrate } from "./order-delivered-celebrate"
 
 export const dynamic = "force-dynamic"
@@ -23,16 +25,6 @@ const STATUSES = [
   "delivered",
 ] as const
 
-// Libellés FR des étapes (présentation seulement).
-const STATUS_LABELS: Record<(typeof STATUSES)[number], string> = {
-  pending: "En attente",
-  accepted: "Acceptée",
-  preparing: "En prépa",
-  ready: "Prête",
-  out_for_delivery: "En route",
-  delivered: "Livrée",
-}
-
 const DELIVERY_TYPE_LABELS: Record<string, string> = {
   pickup: "À emporter",
   delivery: "Livraison",
@@ -44,6 +36,7 @@ export default async function FoodOrderTrackingPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const t = await getT()
   const sb = createServiceRoleClient()
 
   const { data: order } = await sb
@@ -103,7 +96,7 @@ export default async function FoodOrderTrackingPage({
                     idx <= currentIdx ? "font-bold text-ink" : "text-mute"
                   }
                 >
-                  {STATUS_LABELS[s]}
+                  {foodOrderStatusLabel(s, t)}
                 </li>
               ))}
             </ol>

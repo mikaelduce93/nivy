@@ -14,20 +14,24 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { NivEmpty } from "@/components/brand"
+import { getT } from "@/lib/i18n/server"
+import { rideStatusLabel } from "@/lib/i18n/status-labels"
+import type { Translator } from "@/lib/i18n"
 import Link from "next/link"
 import { Plus, MapPin, Car } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
-// Libellé + ton FR mono par statut (présentation seulement).
-const RIDE_STATUS: Record<string, { label: string; cls: string }> = {
-  completed: { label: "Terminé", cls: "bg-lime/15 text-ink border-ink" },
-  cancelled: { label: "Annulé", cls: "bg-muted text-mute border-ink" },
-  denied: { label: "Refusé", cls: "bg-destructive/15 text-destructive border-ink" },
-  in_progress: { label: "En route", cls: "bg-teal/15 text-ink border-ink" },
-  dispatched: { label: "En route", cls: "bg-teal/15 text-ink border-ink" },
-  pending: { label: "En attente", cls: "bg-gold/15 text-ink border-ink" },
-  approved: { label: "Validé", cls: "bg-teal/15 text-ink border-ink" },
+// Ton FR mono par statut (couleurs charte). Le libellé est désormais centralisé
+// via rideStatusLabel() — on ne garde ici que le mapping vers la classe couleur.
+const RIDE_STATUS_CLS: Record<string, string> = {
+  completed: "bg-lime/15 text-ink border-ink",
+  cancelled: "bg-muted text-mute border-ink",
+  denied: "bg-destructive/15 text-destructive border-ink",
+  in_progress: "bg-teal/15 text-ink border-ink",
+  dispatched: "bg-teal/15 text-ink border-ink",
+  pending: "bg-gold/15 text-ink border-ink",
+  approved: "bg-teal/15 text-ink border-ink",
 }
 
 // Libellés FR des modes de paiement / fournisseurs (présentation seulement —
@@ -52,6 +56,7 @@ const PROVIDER_LABELS: Record<string, string> = {
 export default async function TeenRidesPage() {
   const userInfo = await getUserRole()
   if (!userInfo || userInfo.role !== "teen") redirect("/login")
+  const t = await getT()
   const supabase = await createClient()
 
   const { data: rides } = await supabase
@@ -115,7 +120,7 @@ export default async function TeenRidesPage() {
         ) : (
           <div className="space-y-3">
             {upcoming.map((r) => (
-              <RideRow key={r.id} ride={r} />
+              <RideRow key={r.id} ride={r} t={t} />
             ))}
           </div>
         )}
@@ -134,7 +139,7 @@ export default async function TeenRidesPage() {
         ) : (
           <div className="space-y-3">
             {history.map((r) => (
-              <RideRow key={r.id} ride={r} />
+              <RideRow key={r.id} ride={r} t={t} />
             ))}
           </div>
         )}
@@ -155,14 +160,13 @@ interface RideRowProps {
     payment_method: string
     provider: string
   }
+  t: Translator
 }
 
-function RideRow({ ride }: RideRowProps) {
+function RideRow({ ride, t }: RideRowProps) {
   const dt = new Date(ride.scheduled_for)
-  const status = RIDE_STATUS[ride.status] ?? {
-    label: ride.status,
-    cls: "bg-muted text-mute border-ink",
-  }
+  const statusLabel = rideStatusLabel(ride.status, t)
+  const statusCls = RIDE_STATUS_CLS[ride.status] ?? "bg-muted text-mute border-ink"
   return (
     <StickerCard className="gap-0 p-4">
       <div className="flex items-start justify-between gap-3">
@@ -187,9 +191,9 @@ function RideRow({ ride }: RideRowProps) {
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1.5">
           <span
-            className={`inline-flex items-center rounded-full border-2 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] ${status.cls}`}
+            className={`inline-flex items-center rounded-full border-2 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] ${statusCls}`}
           >
-            {status.label}
+            {statusLabel}
           </span>
           <span className="font-mono text-sm font-bold tabular-nums text-ink">
             {ride.actual_dh ?? ride.estimated_dh ?? "—"} DH
