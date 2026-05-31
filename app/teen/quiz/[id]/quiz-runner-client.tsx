@@ -3,11 +3,13 @@
 import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
-import { Brain, Zap, Trophy, ArrowRight, Clock, X, CheckCircle2 } from "lucide-react"
+import { Brain, Zap, ArrowRight, Clock, X, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Niv, DarkSurface } from "@/components/brand"
+import { Confetti } from "@/components/ui/effects/confetti"
 import type { Quiz } from "@/lib/quiz/schema"
 import { getCategoryMeta } from "@/lib/quiz/catalog"
 import { markPushPromptEligible } from "@/components/teen/push-permission-prompt"
@@ -129,67 +131,75 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
       <div className="min-h-screen pb-32 pt-6" data-testid="quiz-result-screen">
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
-            <Link href="/teen/quiz" className="text-sm text-mute hover:text-ink">
+            <Link href="/teen/quiz" className="font-mono text-sm text-mute hover:text-ink">
               ← Retour aux quiz
             </Link>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className={cn(
-              "p-8 rounded-2xl border text-center",
-              result.passed
-                ? "bg-success-soft/10 border-success-soft/30"
-                : "bg-accent-soft/10 border-accent-soft/30",
-            )}
-          >
-            <div className="flex justify-center mb-4">
-              {result.passed ? (
-                <Trophy className="w-16 h-16 text-gold" />
-              ) : (
-                <Brain className="w-16 h-16 text-accent-soft" />
-              )}
-            </div>
-            <h1 className="text-4xl font-black mb-2 uppercase italic">
+          {/* Moment de pic — surface sombre ponctuelle + Niv + confettis */}
+          <DarkSurface tone={result.passed ? "lime" : "coral"} shadow className="p-8 text-center">
+            {result.passed && <Confetti trigger palette="levelup" />}
+            <Niv
+              mood={result.passed ? "hype" : "proud"}
+              float={result.passed}
+              size={120}
+              className="mx-auto"
+            />
+            <p className="eyebrow mt-4 tracking-[0.16em] text-paper/60">
+              {result.passed ? "Réussi" : "Continue comme ça"}
+            </p>
+            <h1 className="mt-2 font-display text-5xl font-extrabold tracking-tight text-paper">
               {result.passed ? "Bravo !" : "Pas mal..."}
             </h1>
-            <p className="text-mute mb-6">
+            <p className="mt-3 text-paper/70">
               Tu as répondu correctement à {result.correctCount} / {result.totalQuestions} questions
             </p>
-            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-              <div className="p-4 rounded-2xl bg-card border border-ink">
-                <div className="text-3xl font-black text-ink">{result.score}%</div>
-                <div className="text-xs text-mute uppercase tracking-wider">Score</div>
-              </div>
-              <div className="p-4 rounded-2xl bg-card border border-ink">
-                <div className="text-3xl font-black text-brand-soft flex items-center justify-center gap-1">
-                  <Zap className="w-6 h-6" />+{result.xpEarned}
+            <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-4">
+              <div className="rounded-2xl border-2 border-paper/20 bg-paper/5 p-4">
+                <div
+                  className={cn(
+                    "font-display text-5xl font-extrabold leading-none tabular-nums",
+                    result.passed ? "text-lime" : "text-coral",
+                  )}
+                >
+                  {result.score}%
                 </div>
-                <div className="text-xs text-mute uppercase tracking-wider">XP gagnés</div>
+                <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">
+                  Score
+                </div>
+              </div>
+              <div className="rounded-2xl border-2 border-paper/20 bg-paper/5 p-4">
+                <div className="flex items-center justify-center gap-1 font-display text-5xl font-extrabold leading-none tabular-nums text-gold">
+                  <Zap className="size-7" aria-hidden="true" />+{result.xpEarned}
+                </div>
+                <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">
+                  XP gagnés
+                </div>
               </div>
             </div>
-          </motion.div>
+          </DarkSurface>
 
           {/* Per-question breakdown */}
           <div className="space-y-3">
-            <h2 className="text-lg font-black uppercase">Détail</h2>
+            <p className="eyebrow tracking-[0.16em]">Détail</p>
             {result.results.map((r, i) => (
-              <div
+              <StickerCard
                 key={i}
-                className={cn(
-                  "p-4 rounded-2xl border",
-                  r.isCorrect
-                    ? "bg-success-soft/5 border-success-soft/20"
-                    : "bg-accent-soft/5 border-accent-soft/20",
-                )}
+                className={cn("p-4", r.isCorrect ? "bg-success-soft" : "border-coral")}
               >
                 <div className="flex items-start gap-3">
-                  {r.isCorrect ? (
-                    <CheckCircle2 className="w-5 h-5 text-success-soft shrink-0 mt-0.5" />
-                  ) : (
-                    <X className="w-5 h-5 text-accent-soft shrink-0 mt-0.5" />
-                  )}
+                  <span
+                    className={cn(
+                      "grid size-7 shrink-0 place-items-center rounded-full border-2 border-ink",
+                      r.isCorrect ? "bg-lime" : "bg-coral",
+                    )}
+                  >
+                    {r.isCorrect ? (
+                      <CheckCircle2 className="size-4 text-ink" aria-hidden="true" />
+                    ) : (
+                      <X className="size-4 text-ink" strokeWidth={3} aria-hidden="true" />
+                    )}
+                  </span>
                   <div className="flex-1">
                     <p className="font-medium text-ink">{r.question}</p>
                     {!r.isCorrect && quiz.questions[i] && (
@@ -199,21 +209,17 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                     )}
                   </div>
                 </div>
-              </div>
+              </StickerCard>
             ))}
           </div>
 
           <div className="flex gap-3">
-            <Link href="/teen/quiz" className="flex-1">
-              <Button variant="outline" className="w-full">
-                Retour
-              </Button>
-            </Link>
-            <Link href="/teen/quiz/history" className="flex-1">
-              <Button className="w-full bg-brand-soft text-ink font-bold">
-                Voir l'historique
-              </Button>
-            </Link>
+            <Button asChild variant="outline" className="flex-1">
+              <Link href="/teen/quiz">Retour</Link>
+            </Button>
+            <Button asChild variant="pink" className="flex-1">
+              <Link href="/teen/quiz/history">Voir l'historique</Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -226,13 +232,13 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Link href="/teen/quiz" className="text-sm text-mute hover:text-ink">
+          <Link href="/teen/quiz" className="font-mono text-sm text-mute hover:text-ink">
             ← Quitter
           </Link>
           {timeLimitSec > 0 && (
-            <div className="flex items-center gap-2 text-sm text-mute">
-              <Clock className="w-4 h-4" />
-              <span>
+            <div className="flex items-center gap-2 font-mono text-sm text-mute">
+              <Clock className="size-4" aria-hidden="true" />
+              <span className="tabular-nums">
                 {Math.floor(secondsLeft / 60)}:
                 {(secondsLeft % 60).toString().padStart(2, "0")}
               </span>
@@ -243,65 +249,49 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
         {/* Title + progress */}
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br",
-                meta.color,
-              )}
-            >
-              <Brain className="w-6 h-6 text-ink" />
-            </div>
+            <span className="grid size-12 place-items-center rounded-2xl border-2 border-ink bg-paper-2">
+              <Brain className="size-6 text-ink" aria-hidden="true" />
+            </span>
             <div>
-              <h1 className="text-2xl font-black tracking-tight">{quiz.title}</h1>
-              <p className="text-sm text-mute">
+              <h1 className="font-display text-2xl font-extrabold tracking-tight">{quiz.title}</h1>
+              <p className="font-mono text-sm text-mute">
                 {meta.name} · Question {currentIndex + 1} / {totalQuestions}
               </p>
             </div>
           </div>
-          <Progress
-            value={((currentIndex + 1) / totalQuestions) * 100}
-            className="h-2"
-          />
+          <SegmentedProgress steps={totalQuestions} current={currentIndex} size="md" />
         </div>
 
         {/* Question */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-4"
-          >
-            <h2 className="text-xl font-bold text-ink">{currentQuestion.question}</h2>
-            <div className="space-y-2" data-testid="quiz-options">
-              {currentQuestion.options.map((option, idx) => {
-                const isSelected = answers[currentIndex] === idx
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => selectAnswer(idx)}
-                    className={cn(
-                      "w-full p-4 rounded-2xl border text-left transition-all",
-                      isSelected
-                        ? "bg-brand-soft/20 border-brand-soft text-ink"
-                        : "bg-card border-ink text-ink-2 hover:border-ink",
-                    )}
-                    data-testid={`quiz-option-${idx}`}
-                  >
-                    <span className="font-medium">{option}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-ink">{currentQuestion.question}</h2>
+          <div className="space-y-2" data-testid="quiz-options">
+            {currentQuestion.options.map((option, idx) => {
+              const isSelected = answers[currentIndex] === idx
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => selectAnswer(idx)}
+                  className={cn(
+                    "w-full rounded-2xl border-2 border-ink p-4 text-left transition-all duration-150 ease-out",
+                    isSelected
+                      ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                      : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md motion-reduce:translate-x-0 motion-reduce:translate-y-0",
+                  )}
+                  data-testid={`quiz-option-${idx}`}
+                >
+                  <span className="font-medium">{option}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-accent-soft/10 border border-accent-soft/30 text-sm text-accent-soft">
+          <StickerCard className="border-coral p-3 text-sm text-coral">
             {error}
-          </div>
+          </StickerCard>
         )}
 
         {/* Navigation */}
@@ -318,19 +308,21 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
           {!isLast ? (
             <Button
               type="button"
+              variant="pink"
               disabled={answers[currentIndex] < 0}
               onClick={() => setCurrentIndex((i) => Math.min(totalQuestions - 1, i + 1))}
-              className="flex-1 bg-brand-soft text-ink font-bold"
+              className="flex-1"
               data-testid="quiz-next-button"
             >
-              Suivant <ArrowRight className="w-4 h-4 ml-2" />
+              Suivant <ArrowRight className="size-4" aria-hidden="true" />
             </Button>
           ) : (
             <Button
               type="button"
+              variant="lime"
               disabled={!allAnswered || submitting}
               onClick={submit}
-              className="flex-1 bg-success-soft text-ink font-bold"
+              className="flex-1"
               data-testid="quiz-submit-button"
             >
               {submitting ? "Envoi..." : "Valider"}

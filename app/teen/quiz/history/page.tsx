@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Brain, Zap, ArrowLeft } from "lucide-react"
+import { Zap, ArrowLeft, Brain } from "lucide-react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { getRecentQuizAttempts, getTeenQuizStats } from "@/lib/quiz/server"
 import { cn } from "@/lib/utils"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
@@ -34,77 +36,94 @@ export default async function QuizHistoryPage() {
     <div className="min-h-screen pb-32 pt-6 space-y-6" data-testid="quiz-history-page">
       <div className="flex items-center gap-3">
         <Link href="/teen/quiz" className="text-mute hover:text-ink">
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="size-5" aria-hidden="true" />
+          <span className="sr-only">Retour aux quiz</span>
         </Link>
         <div>
-          <h1 className="text-3xl font-black uppercase italic tracking-tight">Historique</h1>
-          <p className="text-sm text-mute">Tous tes quiz joués</p>
+          <p className="eyebrow tracking-[0.16em]">Ton historique quiz</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight">
+            Tes <em className="font-semibold italic text-pink">quiz</em> joués
+          </h1>
         </div>
       </div>
 
       {/* Quick stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-card border border-ink text-center">
-          <div className="text-2xl font-black text-ink">{stats.totalCompleted}</div>
-          <div className="text-[10px] text-mute uppercase tracking-wider">Quiz joués</div>
-        </div>
-        <div className="p-4 rounded-2xl bg-card border border-ink text-center">
-          <div className="text-2xl font-black text-ink">{stats.averageScore}%</div>
-          <div className="text-[10px] text-mute uppercase tracking-wider">Moyenne</div>
-        </div>
-        <div className="p-4 rounded-2xl bg-card border border-ink text-center">
-          <div className="text-2xl font-black text-brand-soft">
+        <StickerCard className="items-center p-4 text-center">
+          <div className="font-mono text-2xl font-bold tabular-nums text-ink">
+            {stats.totalCompleted}
+          </div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">
+            Quiz joués
+          </div>
+        </StickerCard>
+        <StickerCard className="items-center p-4 text-center">
+          <div className="font-mono text-2xl font-bold tabular-nums text-teal">
+            {stats.averageScore}%
+          </div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">
+            Moyenne
+          </div>
+        </StickerCard>
+        <StickerCard className="items-center p-4 text-center">
+          <div className="font-mono text-2xl font-bold tabular-nums text-gold">
             {stats.totalXpEarned.toLocaleString()}
           </div>
-          <div className="text-[10px] text-mute uppercase tracking-wider">XP Total</div>
-        </div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">
+            XP Total
+          </div>
+        </StickerCard>
       </div>
 
       {/* Attempts list */}
       {attempts.length === 0 ? (
         <div data-testid="quiz-history-empty">
-          <EmptyState
-            icon={Brain}
+          <NivEmpty
+            mood="calm"
             title="Aucun quiz joué"
             description="Lance ton premier quiz pour commencer à gagner de l'XP."
-            action={{ label: "Voir les quiz", href: "/teen/quiz" }}
+            action={
+              <Button asChild variant="pink">
+                <Link href="/teen/quiz">Voir les quiz</Link>
+              </Button>
+            }
           />
         </div>
       ) : (
-        <div className="space-y-2" data-testid="quiz-history-list">
+        <div className="space-y-3" data-testid="quiz-history-list">
           {attempts.map((attempt) => (
             <Link
               key={attempt.id}
               href={attempt.quiz_id ? `/teen/quiz/${attempt.quiz_id}` : "#"}
-              className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink hover:border-ink transition-colors"
+              className="flex items-center gap-4 rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-md transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
             >
-              <div className="w-12 h-12 rounded-xl bg-brand-soft/20 flex items-center justify-center">
-                <Brain className="w-6 h-6 text-brand-soft" />
-              </div>
-              <div className="flex-1 min-w-0">
+              <span className="grid size-12 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper-2">
+                <Brain className="size-6 text-ink" aria-hidden="true" />
+              </span>
+              <div className="min-w-0 flex-1">
                 <h4 className="font-bold text-ink truncate">
                   {attempt.quiz?.title ?? "Quiz supprimé"}
                 </h4>
-                <p className="text-xs text-mute capitalize">
+                <p className="font-mono text-xs text-mute capitalize">
                   {attempt.quiz?.subject ?? "—"} · {formatDate(attempt.created_at)}
                 </p>
               </div>
-              <div className="text-right">
-                <div
+              <div className="flex flex-col items-end gap-1">
+                <span
                   className={cn(
-                    "font-black text-lg",
+                    "rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-sm font-bold tabular-nums",
                     attempt.score >= 90
-                      ? "text-success-soft"
+                      ? "bg-lime text-on-bright"
                       : attempt.score >= 70
-                        ? "text-gold"
-                        : "text-accent-soft",
+                        ? "bg-gold text-on-bright"
+                        : "bg-coral text-on-bright",
                   )}
                 >
                   {attempt.score}%
-                </div>
+                </span>
                 {(attempt.xp_earned ?? 0) > 0 && (
-                  <div className="flex items-center justify-end gap-1 text-xs text-brand-soft">
-                    <Zap className="w-3 h-3" />
+                  <div className="flex items-center justify-end gap-1 font-mono text-xs text-gold">
+                    <Zap className="size-3" aria-hidden="true" />
                     <span>+{attempt.xp_earned}</span>
                   </div>
                 )}
