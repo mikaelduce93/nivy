@@ -102,11 +102,8 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
           }))
           setNearbyFriends(friends)
         } else {
-          setNearbyFriends([
-            { id: '1', name: 'Max', avatar_url: undefined, distance: '500m' },
-            { id: '2', name: 'Emma', avatar_url: undefined, distance: '1.2km' },
-            { id: '3', name: 'Lucas', avatar_url: undefined, distance: '2km' },
-          ])
+          // #201 Stop the lies — pas de faux contacts « à 500m » (empty-safe).
+          setNearbyFriends([])
         }
 
         const todayIso = new Date().toISOString()
@@ -124,20 +121,14 @@ export function MapPreview({ userId, className }: MapPreviewProps) {
             type: mapEventType(event.category),
           })))
         } else {
-          setNearbyEvents([
-            { id: '1', name: 'Meetup Gaming', type: 'meetup' },
-            { id: '2', name: 'Challenge Fitness', type: 'challenge' },
-          ])
+          // #201 Stop the lies — pas de faux events de remplissage.
+          setNearbyEvents([])
         }
       } catch (error) {
         console.error('Error fetching map data:', error)
-        setNearbyFriends([
-          { id: '1', name: 'Max', distance: '500m' },
-          { id: '2', name: 'Emma', distance: '1.2km' },
-        ])
-        setNearbyEvents([
-          { id: '1', name: 'Meetup Gaming', type: 'meetup' },
-        ])
+        // #201 Stop the lies — en cas d'erreur on n'invente rien.
+        setNearbyFriends([])
+        setNearbyEvents([])
       } finally {
         setLoading(false)
       }

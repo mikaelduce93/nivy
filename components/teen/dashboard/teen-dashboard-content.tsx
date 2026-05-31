@@ -15,7 +15,7 @@ import { MeshBackground } from "@/components/ui/effects/mesh-background"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { OrbitingTokens, StatHero } from "@/components/brand"
 import { CrewHub } from "@/components/teen/dashboard/crew-hub"
-import { LazySocialFeed, LazyMarketplaceOverlay } from "./lazy-components"
+import { LazySocialFeed } from "./lazy-components"
 import { MobileBottomNav } from "./mobile-nav"
 import { MapSkeleton, QuickAccessSkeleton, CardSkeleton } from "@/components/ui/skeleton-variants"
 import { useDashboardContext } from "@/lib/hooks/teen-dashboard"
@@ -229,8 +229,9 @@ export function TeenDashboardContent({
           </StickerCard>
         </section>
 
-        {/* Marketplace Overlay */}
-        <LazyMarketplaceOverlay />
+        {/* #201 Stop the lies — MarketplaceOverlay retiré : 100 % mock
+            (faux partenaires « Nike Morocco / Megarama », CTA mort). Ne pas
+            réafficher tant qu'il n'y a pas de deals réels. */}
 
       </div>
 

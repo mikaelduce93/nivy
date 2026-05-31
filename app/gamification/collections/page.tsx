@@ -1,5 +1,5 @@
-// Wave 2B — canon §6.5 (routing.locked.md): /gamification/collections → /teen/profile?tab=achievements.
-// Achievement display lives on the teen profile; this dedicated zone is sunset.
+// #201 Stop the lies — la surface canonique des badges est /teen/wallet?tab=badges
+// (l'onglet `?tab=achievements` du profil n'existe pas).
 import { permanentRedirect } from "next/navigation"
 
 export const dynamic = "force-static"
@@ -9,5 +9,5 @@ export const metadata = {
 }
 
 export default function GamificationCollectionsRedirect(): never {
-  permanentRedirect("/teen/profile?tab=achievements")
+  permanentRedirect("/teen/wallet?tab=badges")
 }

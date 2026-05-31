@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Flame, Zap, Trophy, Target, Check, Lock, Clock } from "lucide-react"
+import { Flame, Zap, Trophy, Target, Check, Lock } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,8 +34,6 @@ interface DailyTask {
 interface StreakClientProps {
   currentStreak: number
   bestStreak: number
-  streakMultiplier: number
-  streakPasses: number
   milestones: Milestone[]
   streakHistory: StreakDay[]
   dailyTasks: DailyTask[]
@@ -44,8 +42,6 @@ interface StreakClientProps {
 export function StreakClient({
   currentStreak,
   bestStreak,
-  streakMultiplier,
-  streakPasses,
   milestones,
   streakHistory,
   dailyTasks,
@@ -125,12 +121,8 @@ export function StreakClient({
               <span className="text-7xl tabular-nums">{currentStreak}</span>
               <span className="text-2xl text-paper/60">jours</span>
             </p>
-            {streakMultiplier > 1 && (
-              <p className="mt-4 flex items-center gap-2 font-mono text-sm font-bold text-pink">
-                <Flame className="size-5" aria-hidden="true" />
-                x{streakMultiplier.toFixed(1)} multiplicateur XP actif !
-              </p>
-            )}
+            {/* #201 Stop the lies — bannière « xN multiplicateur XP actif ! »
+                retirée : le multiplicateur n'était jamais appliqué au calcul XP. */}
           </div>
           <div className="text-center">
             <span className="mx-auto grid size-28 place-items-center rounded-2xl border-2 border-paper/30">
@@ -241,22 +233,9 @@ export function StreakClient({
         )}
       </section>
 
-      {/* Streak protection */}
-      <StickerCard className="p-6">
-        <div className="flex items-center gap-4">
-          <span className="grid size-14 shrink-0 place-items-center rounded-2xl border-2 border-ink bg-paper-2">
-            <Clock className="size-7 text-teal" aria-hidden="true" />
-          </span>
-          <div className="flex-1">
-            <h3 className="font-display font-extrabold text-ink">Protection streak</h3>
-            <p className="text-sm text-mute">Utilise un pass pour ne pas perdre ta streak si tu manques un jour.</p>
-          </div>
-          <div className="text-right">
-            <p className="font-display text-2xl font-extrabold tabular-nums text-pink">{streakPasses}</p>
-            <p className="font-mono text-xs text-mute">disponibles</p>
-          </div>
-        </div>
-      </StickerCard>
+      {/* #201 Stop the lies — carte « Protection streak » retirée : la colonne
+          `streak_passes` n'existe pas (valeur toujours 0) et aucun mécanisme de
+          pass n'est implémenté. À réintroduire quand la feature existera. */}
     </div>
   )
 }

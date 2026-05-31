@@ -151,7 +151,9 @@ export default function MenuCartClient({
         body: JSON.stringify({
           partnerId,
           deliveryType: values.deliveryType,
-          deliveryAddress:
+          // #201 Stop the lies — la route lit `address` ; on envoyait
+          // `deliveryAddress`, donc l'adresse de livraison était perdue (NULL).
+          address:
             values.deliveryType === "delivery"
               ? values.deliveryAddress?.trim() || undefined
               : undefined,

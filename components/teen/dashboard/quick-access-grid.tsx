@@ -3,15 +3,13 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion'
-import { 
-  ShoppingBag, 
-  Target, 
-  Swords,
-  ArrowRight, 
+import {
+  ShoppingBag,
+  Target,
+  ArrowRight,
   Zap,
   Crown,
   Sparkles,
-  Gem,
   Star
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -263,20 +261,11 @@ function QuickAccessCard({ item, index }: QuickAccessCardProps) {
 
 export function QuickAccessGrid({ userId }: { userId?: string }) {
   const notificationCounts = useNotificationCounts(userId)
+  // #201 Stop the lies — 4 raccourcis vers des destinations DISTINCTES qui
+  // résolvent toutes (plus de doublon Clubs/Crew Battle → /teen/circles), et
+  // AUCUN badge NEW/HOT/LIVE codé en dur (seuls les compteurs réels issus de
+  // useNotificationCounts subsistent). Cible finale (4 piliers) traitée en #205.
   const items = React.useMemo<QuickAccessItem[]>(() => [
-    {
-      label: "Shop XP",
-      shortLabel: "Shop",
-      description: "Convertis tes XP en récompenses exclusives",
-      href: "/teen/shop",
-      icon: ShoppingBag,
-      gradient: "from-brand-soft to-pink",
-      iconBg: "bg-brand-soft/20",
-      badge: "NEW",
-      badgeType: 'new',
-      notificationCount: notificationCounts.wallet,
-      borderGradient: 'lavender',
-    },
     {
       label: "Quêtes",
       shortLabel: "Quêtes",
@@ -289,28 +278,35 @@ export function QuickAccessGrid({ userId }: { userId?: string }) {
       borderGradient: 'coral',
     },
     {
-      label: "Clubs",
-      shortLabel: "Clubs",
-      description: "Rejoins des communautés et gagne des XP",
+      label: "Quiz",
+      shortLabel: "Quiz",
+      description: "Teste tes connaissances et gagne des XP",
+      href: "/teen/quiz",
+      icon: Star,
+      gradient: "from-brand-soft to-pink",
+      iconBg: "bg-brand-soft/20",
+      borderGradient: 'lavender',
+    },
+    {
+      label: "Crew",
+      shortLabel: "Crew",
+      description: "Ton crew, tes amis et le classement",
       href: "/teen/circles",
       icon: Crown,
       gradient: "from-gold to-gold",
       iconBg: "bg-gold/20",
-      badge: "HOT",
-      badgeType: 'hot',
+      notificationCount: notificationCounts.social,
       borderGradient: 'gold',
     },
     {
-      label: "Crew Battle",
-      shortLabel: "Crew",
-      description: "Défie d'autres crews et grimpe le classement",
-      href: "/teen/circles",
-      icon: Swords,
+      label: "Wallet",
+      shortLabel: "Wallet",
+      description: "Tes coins, ta boutique et tes badges",
+      href: "/teen/wallet",
+      icon: ShoppingBag,
       gradient: "from-success-soft to-teal",
       iconBg: "bg-success-soft/20",
-      badge: "LIVE",
-      badgeType: 'live',
-      notificationCount: notificationCounts.social,
+      notificationCount: notificationCounts.wallet,
       borderGradient: 'mint',
     },
   ], [notificationCounts])

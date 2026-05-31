@@ -1,9 +1,9 @@
-// #68 — single-hop redirect straight to the canonical achievements surface.
-// Previously bounced through the legacy /gamification/collections stub.
+// #201 Stop the lies — la surface canonique des achievements/badges est
+// /teen/wallet?tab=badges (l'onglet `?tab=achievements` du profil n'existe pas).
 import { permanentRedirect } from "next/navigation"
 
 export const metadata = { robots: { index: false, follow: false } }
 
 export default function AchievementsPage() {
-  permanentRedirect("/teen/profile?tab=achievements")
+  permanentRedirect("/teen/wallet?tab=badges")
 }

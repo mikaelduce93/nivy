@@ -5,8 +5,9 @@
  * totaux en ⊙ mono coral, articles en sticker. Confetti delivered préservé.
  */
 
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { getUserRole } from "@/lib/auth/get-user-role"
 import { H1, H2 } from "@/components/ui/headings"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { StickerCard } from "@/components/ui/sticker-card"
@@ -37,12 +38,21 @@ export default async function FoodOrderTrackingPage({
 }) {
   const { id } = await params
   const t = await getT()
+
+  // #201 Stop the lies — contrôle d'ownership : un teen ne peut voir QUE ses
+  // propres commandes (la page lisait en service-role sans filtre teen_id).
+  const userInfo = await getUserRole()
+  if (!userInfo || userInfo.role !== "teen") redirect("/auth/redirect")
+  const teenId = userInfo.teenData?.id || userInfo.profileId
+  if (!teenId) return notFound()
+
   const sb = createServiceRoleClient()
 
   const { data: order } = await sb
     .from("food_orders")
     .select("*, partners!inner(company_name)")
     .eq("id", id)
+    .eq("teen_id", teenId)
     .maybeSingle()
 
   if (!order) return notFound()

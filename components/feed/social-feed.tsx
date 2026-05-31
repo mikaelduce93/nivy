@@ -54,39 +54,6 @@ type FeedActivity = {
   presenceType?: PresenceActivityType
 }
 
-const fallbackActivities: FeedActivity[] = [
-  {
-    id: 'demo-1',
-    created_at: new Date().toISOString(),
-    user: { username: 'Amine', avatar_url: '/avatars/amine.jpg' },
-    activity_type: { name: 'Nouvelle mission', emoji: '🎯', type: 'achievement' },
-    title: 'A complété un défi quotidien',
-    likes_count: 12,
-    comments_count: 3,
-    shares_count: 1,
-  },
-  {
-    id: 'demo-2',
-    created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-    user: { username: 'Sara', avatar_url: '/avatars/sara.jpg' },
-    activity_type: { name: 'Event', emoji: '🎉', type: 'event' },
-    title: "S'est inscrite à la soirée de vendredi",
-    likes_count: 24,
-    comments_count: 8,
-    shares_count: 4,
-  },
-  {
-    id: 'demo-3',
-    created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-    user: { username: 'Lina', avatar_url: '/avatars/lina.jpg' },
-    activity_type: { name: 'XP gagné', emoji: '✨', type: 'xp' },
-    title: 'A gagné 150 XP',
-    likes_count: 7,
-    comments_count: 0,
-    shares_count: 0,
-  },
-]
-
 // Activity type colors
 const activityTypeColors: Record<string, { bg: string; border: string; glow: string }> = {
   achievement: { bg: 'bg-gold/10', border: 'border-gold/20', glow: 'rgba(245, 158, 11, 0.3)' },
@@ -169,9 +136,12 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
   }, [])
 
   const activities = useMemo(() => {
-    const baseActivities = Array.isArray(initialActivities) && initialActivities.length > 0
-      ? initialActivities as FeedActivity[]
-      : fallbackActivities
+    // #201 Stop the lies — empty-safe : on n'affiche JAMAIS de faux posts de
+    // remplissage (anciennement `fallbackActivities` Amine/Sara/Lina). Si le
+    // feed réel est vide, on rend un état vide honnête (voir plus bas).
+    const baseActivities = Array.isArray(initialActivities)
+      ? (initialActivities as FeedActivity[])
+      : []
 
     return [...presenceEvents, ...baseActivities]
   }, [initialActivities, presenceEvents])
@@ -223,6 +193,14 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
     <div className="h-full flex flex-col px-4 sm:px-6 pb-4 sm:pb-6">
       {/* Activity cards */}
       <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide">
+        {activities.length === 0 && (
+          <div className="flex h-full min-h-[160px] flex-col items-center justify-center py-12 text-center">
+            <span className="eyebrow tracking-[0.16em] text-mute">En direct</span>
+            <p className="mt-2 text-sm text-mute">
+              Rien en direct pour l&apos;instant — l&apos;activité de ton crew apparaîtra ici.
+            </p>
+          </div>
+        )}
         <AnimatePresence mode="popLayout">
           {activities.map((activity, index) => {
             // Only attach Signaler when this is a real feed_post id (UUID).

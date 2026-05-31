@@ -107,8 +107,11 @@ export function AvatarClient() {
                         Actif
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-mute text-xs font-bold tabular-nums">
-                        <Lock className="h-3 w-3" /> {s.cost} XP
+                      // #201 Stop the lies — le déblocage de skins par XP n'est pas
+                      // implémenté : on affiche « Bientôt » au lieu d'un faux prix XP
+                      // (qui laissait croire que l'XP s'achète/se dépense ici).
+                      <span className="flex items-center gap-1 text-mute text-[10px] font-mono font-bold uppercase tracking-wide">
+                        <Lock className="h-3 w-3" /> Bientôt
                       </span>
                     )}
                   </div>
@@ -116,12 +119,12 @@ export function AvatarClient() {
               ))}
             </div>
             <p className="text-xs text-mute">
-              D'autres skins arrivent — gagne de l'XP via tes quêtes pour les débloquer.
+              D&apos;autres skins arrivent bientôt.
             </p>
           </section>
 
           <Button asChild variant="pink">
-            <a href="/teen/quests">Gagner de l'XP →</a>
+            <a href="/teen/quests">Faire mes quêtes →</a>
           </Button>
         </div>
       </div>

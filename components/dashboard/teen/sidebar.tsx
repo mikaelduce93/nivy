@@ -30,7 +30,7 @@ const navigation = [
   { name: "Games", href: "/teen/games", icon: Gamepad2 },
   { name: "Circles", href: "/teen/circles", icon: Users },
   { name: "Partager", href: "/teen/share", icon: Share2 },
-  { name: "Mes Achievements", href: "/teen/profile?tab=achievements", icon: Trophy },
+  { name: "Mes Achievements", href: "/teen/wallet?tab=badges", icon: Trophy },
   { name: "Mes Coins", href: "/teen/coins", icon: Coins },
   { name: "Ma Streak", href: "/teen/streak", icon: Flame },
   { name: "Récompenses", href: "/teen/wallet?tab=shop", icon: Gift },

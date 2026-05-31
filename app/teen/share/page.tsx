@@ -202,7 +202,7 @@ export default function TeenSharePage() {
     if (!generatedImageUrl) return
 
     const link = document.createElement("a")
-    link.download = `teensparty-share-${Date.now()}.png`
+    link.download = `nivy-share-${Date.now()}.png`
     link.href = generatedImageUrl
     link.click()
 

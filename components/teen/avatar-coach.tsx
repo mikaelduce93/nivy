@@ -252,7 +252,8 @@ function ChoreNudgeSection({
               href="/teen/chores"
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs sm:text-sm font-bold",
-                "bg-lime text-lime hover:bg-lime transition-colors",
+                // #201 Stop the lies — texte était invisible (text-lime sur bg-lime).
+                "bg-lime text-ink hover:bg-lime/90 transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime",
               )}
             >

@@ -55,18 +55,13 @@ export default async function StreakPage() {
     unlocked: currentStreak >= m.days,
   }))
 
-  // XP multiplier: 1x base, +0.1 per 7-day tier
-  const streakMultiplier = Math.min(3.0, 1 + Math.floor(currentStreak / 7) * 0.1)
-
-  // Streak protection passes — from lifetime stats if available
-  const streakPasses = (lifetimeStats as any)?.streak_passes ?? 0
-
+  // #201 Stop the lies — streakMultiplier (jamais appliqué) et streakPasses
+  // (colonne inexistante, toujours 0) retirés : ne plus promettre de mécaniques
+  // non implémentées.
   const props = JSON.parse(
     JSON.stringify({
       currentStreak,
       bestStreak,
-      streakMultiplier,
-      streakPasses,
       milestones,
       streakHistory,
       dailyTasks,

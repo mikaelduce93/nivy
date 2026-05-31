@@ -27,7 +27,7 @@ export default function TeenBirthdayPage() {
         <Niv size={120} mood="hype" float />
         <h2 className="mt-4 font-display text-2xl font-extrabold text-paper">Ton jour, en grand 🎉</h2>
         <p className="mt-2 mb-6 max-w-sm text-paper/70">
-          Choisis un pack chez nos lieux et restos partenaires, paie en coins, et invite tes amis.
+          Choisis un pack chez nos lieux et restos partenaires, paie en DH, et invite tes amis.
         </p>
         <Button asChild variant="pink">
           <Link href="/anniversaires"><Cake className="mr-2 h-4 w-4" />Découvrir les packs</Link>
