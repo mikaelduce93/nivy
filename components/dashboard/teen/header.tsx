@@ -77,18 +77,28 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
               <div className="px-4 mb-4">
                 <h2 className="text-lg font-bold text-primary">Teen Club</h2>
               </div>
+              {/* #203 — miroir des 5 piliers (+ Profil/Paramètres), libellés FR. */}
               <nav className="space-y-1 px-2">
                 <Link href="/teen" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
-                  Dashboard
+                  Accueil
                 </Link>
-                <Link href="/teen/events" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
-                  Events
+                <Link href="/teen/quests" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
+                  Jouer
                 </Link>
-                <Link href="/teen/wallet?tab=badges" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
-                  Achievements
+                <Link href="/teen/circles" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
+                  Crew
                 </Link>
-                <Link href="/teen/coins" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
-                  Mes Coins
+                <Link href="/teen/services" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
+                  Services
+                </Link>
+                <Link href="/teen/wallet" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
+                  Wallet
+                </Link>
+                <Link href="/teen/profile" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
+                  Mon Profil
+                </Link>
+                <Link href="/teen/settings" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-muted/40">
+                  Paramètres
                 </Link>
               </nav>
             </div>

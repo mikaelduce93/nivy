@@ -25,6 +25,7 @@ import { ClientErrorBoundary } from "@/components/common/client-error-boundary"
 import { PushPermissionPrompt } from "@/components/teen/push-permission-prompt"
 import { SkipToContent } from "@/components/ui/skip-to-content"
 import { StreakPinger } from "@/components/teen/streak-pinger"
+import { MobileBottomNav } from "@/components/teen/dashboard/mobile-nav"
 
 export default async function TeenLayout({
   children,
@@ -84,6 +85,12 @@ export default async function TeenLayout({
           <div className="[&>div]:!bottom-24 md:[&>div]:!bottom-6">
             <PushPermissionPrompt />
           </div>
+        </ClientErrorBoundary>
+        {/* #203 — bottom-nav mobile montée AU NIVEAU DU LAYOUT : elle est donc
+            présente sur TOUTES les pages teen (avant, elle vivait dans le
+            dashboard-content et n'existait que sur l'accueil). md:hidden. */}
+        <ClientErrorBoundary>
+          <MobileBottomNav />
         </ClientErrorBoundary>
       </div>
     </GamificationProvider>

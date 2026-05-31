@@ -5,39 +5,32 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
   Home,
-  Calendar,
-  Trophy,
-  Coins,
-  Star,
-  Gift,
+  Target,
+  Users,
+  Compass,
+  Wallet,
   User,
   Settings,
-  Flame,
-  GraduationCap,
-  Dumbbell,
-  Sparkles,
-  Users,
-  Share2,
-  Gamepad2,
 } from "lucide-react"
 
-const navigation = [
-  { name: "Dashboard", href: "/teen", icon: Home },
-  { name: "Events", href: "/teen/events", icon: Calendar },
-  { name: "Aide Scolaire", href: "/teen/aide-scolaire", icon: GraduationCap },
-  { name: "Défis Physiques", href: "/teen/defis-physiques", icon: Dumbbell },
-  { name: "Parcours Passion", href: "/teen/passions", icon: Sparkles },
-  { name: "Games", href: "/teen/games", icon: Gamepad2 },
-  { name: "Circles", href: "/teen/circles", icon: Users },
-  { name: "Partager", href: "/teen/share", icon: Share2 },
-  { name: "Mes Achievements", href: "/teen/wallet?tab=badges", icon: Trophy },
-  { name: "Mes Coins", href: "/teen/coins", icon: Coins },
-  { name: "Ma Streak", href: "/teen/streak", icon: Flame },
-  { name: "Récompenses", href: "/teen/wallet?tab=shop", icon: Gift },
-  { name: "Classement", href: "/teen/leaderboard", icon: Star },
+// #203 — IA unifiée : 5 piliers (miroir exact de la bottom-nav mobile), puis
+// Profil / Paramètres en secondaire. Tous les anciens écrans sont accessibles
+// via leur pilier (Jouer regroupe quiz/quêtes/sport, Services regroupe events/
+// transport/food/orientation/école, Wallet regroupe coins/boutique/badges…).
+const PILLARS = [
+  { name: "Accueil", href: "/teen", icon: Home },
+  { name: "Jouer", href: "/teen/quests", icon: Target },
+  { name: "Crew", href: "/teen/circles", icon: Users },
+  { name: "Services", href: "/teen/services", icon: Compass },
+  { name: "Wallet", href: "/teen/wallet", icon: Wallet },
+]
+
+const SECONDARY = [
   { name: "Mon Profil", href: "/teen/profile", icon: User },
   { name: "Paramètres", href: "/teen/settings", icon: Settings },
 ]
+
+const navigation = [...PILLARS, ...SECONDARY]
 
 export function TeenSidebar() {
   const pathname = usePathname()

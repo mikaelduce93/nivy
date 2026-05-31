@@ -16,7 +16,6 @@ import { StickerCard } from "@/components/ui/sticker-card"
 import { OrbitingTokens, StatHero } from "@/components/brand"
 import { CrewHub } from "@/components/teen/dashboard/crew-hub"
 import { LazySocialFeed } from "./lazy-components"
-import { MobileBottomNav } from "./mobile-nav"
 import { MapSkeleton, QuickAccessSkeleton, CardSkeleton } from "@/components/ui/skeleton-variants"
 import { useDashboardContext } from "@/lib/hooks/teen-dashboard"
 import type { UserRoleInfo } from "@/lib/auth/get-user-role"
@@ -235,8 +234,8 @@ export function TeenDashboardContent({
 
       </div>
 
-      {/* MOBILE BOTTOM NAVIGATION */}
-      <MobileBottomNav />
+      {/* #203 — MobileBottomNav déplacée dans app/teen/layout.tsx (montée
+          globalement). Plus rendue ici pour éviter le double rendu sur l'accueil. */}
     </div>
   )
 

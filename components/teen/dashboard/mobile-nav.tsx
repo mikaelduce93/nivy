@@ -11,7 +11,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Map, Users, User, Compass, Zap, Calendar, Trophy } from 'lucide-react'
+import { Home, Target, Users, Compass, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTapFeedback } from '@/lib/hooks/use-touch-optimized'
 
@@ -40,18 +40,19 @@ interface MobileBottomNavProps {
    NAV ITEMS
    ========================================================================== */
 
+// #203 — 5 piliers, miroir exact de la sidebar desktop, libellés FR.
 const DEFAULT_NAV_ITEMS: NavItem[] = [
   {
-    label: 'Home',
+    label: 'Accueil',
     href: '/teen',
     icon: Home,
     activeColor: 'text-brand-soft',
   },
   {
-    label: 'Explore',
-    href: '/teen/map',
-    icon: Map,
-    activeColor: 'text-success-soft',
+    label: 'Jouer',
+    href: '/teen/quests',
+    icon: Target,
+    activeColor: 'text-accent-soft',
   },
   {
     label: 'Crew',
@@ -60,9 +61,15 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
     activeColor: 'text-accent-soft',
   },
   {
-    label: 'Profile',
-    href: '/teen/profile',
-    icon: User,
+    label: 'Services',
+    href: '/teen/services',
+    icon: Compass,
+    activeColor: 'text-success-soft',
+  },
+  {
+    label: 'Wallet',
+    href: '/teen/wallet',
+    icon: Wallet,
     activeColor: 'text-gold',
   },
 ]
@@ -159,9 +166,11 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
    MAIN COMPONENT
    ========================================================================== */
 
-export function MobileBottomNav({ 
-  extraItems = [], 
-  hiddenPaths = ['/teen/chat', '/teen/quests'],
+export function MobileBottomNav({
+  extraItems = [],
+  // #203 — la nav doit rester visible partout (y compris /teen/quests, le
+  // pilier « Jouer »). Plus aucun chemin masqué par défaut.
+  hiddenPaths = [],
   className,
 }: MobileBottomNavProps) {
   const pathname = usePathname()
