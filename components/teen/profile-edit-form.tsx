@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { FieldInput } from "@/components/ui/field-input"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, Save, Camera, User, AtSign, FileText } from "lucide-react"
+import { NivCoach } from "@/components/brand"
+import { Loader2, Save, Camera } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 interface ProfileEditFormProps {
   profileId: string
@@ -90,26 +91,31 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Coach Niv */}
+      <NivCoach
+        mood="happy"
+        message="Montre qui tu es à ton crew."
+      />
+
       {/* Avatar Selection */}
       <div className="space-y-3">
-        <Label className="text-ink-2">Avatar</Label>
+        <span className="eyebrow tracking-[0.16em]">Avatar</span>
         <div className="flex items-center gap-4">
-          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink text-3xl font-black">
+          <div className="h-20 w-20 rounded-2xl border-2 border-ink bg-white flex items-center justify-center text-ink text-3xl font-extrabold">
             {formData.avatarEmoji || initialData.fullName?.charAt(0) || "?"}
           </div>
           <Button
             type="button"
             variant="outline"
-            className="border-ink text-ink-2"
             onClick={() => setShowAvatarPicker(!showAvatarPicker)}
           >
             <Camera className="h-4 w-4 mr-2" />
-            Changer l'avatar
+            Changer l&apos;avatar
           </Button>
         </div>
 
         {showAvatarPicker && (
-          <div className="p-4 bg-card rounded-xl border border-ink">
+          <div className="p-4 bg-white rounded-2xl border-2 border-ink shadow-stkr-sm">
             <p className="text-sm text-mute mb-3">Choisis un emoji comme avatar</p>
             <div className="grid grid-cols-6 gap-2">
               {avatarOptions.map((emoji) => (
@@ -120,11 +126,12 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
                     handleChange("avatarEmoji", emoji)
                     setShowAvatarPicker(false)
                   }}
-                  className={`h-12 w-12 rounded-xl text-2xl flex items-center justify-center transition-all ${
+                  className={cn(
+                    "h-12 w-12 rounded-xl text-2xl flex items-center justify-center border-2 transition-all",
                     formData.avatarEmoji === emoji
-                      ? "bg-lime/20 border-2 border-lime"
-                      : "bg-muted hover:bg-muted border-2 border-transparent"
-                  }`}
+                      ? "bg-pink/20 border-ink"
+                      : "bg-paper border-transparent hover:border-ink"
+                  )}
                 >
                   {emoji}
                 </button>
@@ -135,54 +142,38 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
       </div>
 
       {/* Full Name */}
-      <div className="space-y-2">
-        <Label className="text-ink-2 flex items-center gap-2">
-          <User className="h-4 w-4" />
-          Nom complet
-        </Label>
-        <Input
-          type="text"
-          value={formData.fullName}
-          onChange={(e) => handleChange("fullName", e.target.value)}
-          placeholder="Ton nom"
-          className="bg-card border-ink text-ink placeholder:text-mute"
-          maxLength={50}
-        />
-      </div>
+      <FieldInput
+        label="Nom complet"
+        type="text"
+        value={formData.fullName}
+        onChange={(e) => handleChange("fullName", e.target.value)}
+        placeholder="Ton nom"
+        maxLength={50}
+      />
 
       {/* Username */}
-      <div className="space-y-2">
-        <Label className="text-ink-2 flex items-center gap-2">
-          <AtSign className="h-4 w-4" />
-          Pseudo (optionnel)
-        </Label>
-        <Input
-          type="text"
-          value={formData.username}
-          onChange={(e) => handleChange("username", e.target.value.toLowerCase())}
-          placeholder="ton_pseudo"
-          className="bg-card border-ink text-ink placeholder:text-mute"
-          maxLength={20}
-        />
-        <p className="text-xs text-mute">
-          Lettres, chiffres et underscores uniquement
-        </p>
-      </div>
+      <FieldInput
+        label="Pseudo (optionnel)"
+        type="text"
+        value={formData.username}
+        onChange={(e) => handleChange("username", e.target.value.toLowerCase())}
+        placeholder="ton_pseudo"
+        maxLength={20}
+        hint="Lettres, chiffres et underscores uniquement"
+      />
 
       {/* Bio */}
-      <div className="space-y-2">
-        <Label className="text-ink-2 flex items-center gap-2">
-          <FileText className="h-4 w-4" />
-          Bio
-        </Label>
+      <div className="space-y-1.5">
+        <label htmlFor="profile-bio" className="eyebrow tracking-[0.16em]">Bio</label>
         <Textarea
+          id="profile-bio"
           value={formData.bio}
           onChange={(e) => handleChange("bio", e.target.value)}
           placeholder="Parle un peu de toi..."
-          className="bg-card border-ink text-ink placeholder:text-mute min-h-[100px] resize-none"
+          className="bg-white border-2 border-ink text-ink placeholder:text-mute min-h-[100px] resize-none focus-visible:border-ink focus-visible:ring-0"
           maxLength={200}
         />
-        <p className="text-xs text-mute text-right">
+        <p className="font-mono text-xs text-mute text-right tabular-nums">
           {formData.bio.length}/200 caractères
         </p>
       </div>
@@ -192,15 +183,16 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
         <Button
           type="button"
           variant="outline"
-          className="flex-1 border-ink text-ink-2"
+          className="flex-1"
           onClick={() => router.back()}
         >
           Annuler
         </Button>
         <Button
           type="submit"
+          variant="pink"
           disabled={loading}
-          className="flex-1 bg-lime hover:bg-lime text-ink"
+          className="flex-1"
         >
           {loading ? (
             <>
