@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
-import { Niv } from "@/components/brand/niv"
-import { Card } from "@/components/ui/card"
+import { NivEmpty } from "@/components/brand"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Store } from "lucide-react"
+import { MapPin, Store, Music, School, Utensils, type LucideIcon } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = { title: "Partenaires" }
@@ -12,7 +12,16 @@ const TYPE_LABEL: Record<string, string> = {
   food: "Resto", event_talent: "DJ", event_organizer: "Événement",
 }
 
-// Refonte V1.5 (#104) — annuaire unifié des partenaires côté ado
+// Icône par type de partenaire (présentation seulement).
+const TYPE_ICON: Record<string, LucideIcon> = {
+  retail: Store, venue: MapPin, club: Music, education: School,
+  food: Utensils, event_talent: Music, event_organizer: MapPin,
+}
+
+// Types acceptant le paiement en coins Nivy (lieux de consommation).
+const COINS_ELIGIBLE = new Set(["retail", "food", "venue", "club"])
+
+// Refonte V2 (#158) — annuaire unifié des partenaires côté ado
 // (partner-ecosystem §7.4). Lit la table partners (actifs).
 export default async function TeenPartenairesPage() {
   let partners: { id: string; company_name: string; partner_type?: string; city?: string }[] = []
@@ -31,38 +40,53 @@ export default async function TeenPartenairesPage() {
   return (
     <div className="space-y-8 pt-6">
       <header className="space-y-2">
-        <p className="eyebrow">Écosystème</p>
-        <h1 className="text-4xl font-extrabold tracking-tight">
-          Nos <span className="text-pink italic">partenaires</span>
+        <p className="eyebrow tracking-[0.16em]">Écosystème</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+          Nos <em className="font-semibold italic text-pink">partenaires</em>
         </h1>
         <p className="text-mute max-w-md">Boutiques, lieux, clubs, restos & profs qui acceptent ta carte Nivy.</p>
       </header>
 
       {partners.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {partners.map((p) => (
-            <Card key={p.id} className="gap-2">
-              <div className="flex items-center gap-3 px-6">
-                <div className="w-11 h-11 rounded-2xl border-2 border-ink bg-accent-soft flex items-center justify-center">
-                  <Store className="w-5 h-5 text-ink" />
+          {partners.map((p) => {
+            const Icon = (p.partner_type && TYPE_ICON[p.partner_type]) || Store
+            const acceptsCoins = !!p.partner_type && COINS_ELIGIBLE.has(p.partner_type)
+            return (
+              <StickerCard key={p.id} className="gap-3 p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-accent-soft">
+                    <Icon className="h-5 w-5 text-ink" aria-hidden />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="truncate font-display font-bold leading-tight text-ink">{p.company_name}</h3>
+                    {p.city && (
+                      <p className="flex items-center gap-1 font-mono text-xs text-mute">
+                        <MapPin className="h-3 w-3" />{p.city}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-display font-bold text-ink leading-tight truncate">{p.company_name}</h3>
-                  {p.city && <p className="text-mute text-xs flex items-center gap-1"><MapPin className="w-3 h-3" />{p.city}</p>}
+                <div className="flex flex-wrap items-center gap-2">
+                  {p.partner_type && (
+                    <Badge variant="outline">{TYPE_LABEL[p.partner_type] || p.partner_type}</Badge>
+                  )}
+                  {acceptsCoins && (
+                    <span className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-coral/15 px-2.5 py-0.5 font-mono text-[11px] font-bold text-ink">
+                      ⊙ accepte tes coins
+                    </span>
+                  )}
                 </div>
-              </div>
-              {p.partner_type && (
-                <div className="px-6"><Badge variant="outline">{TYPE_LABEL[p.partner_type] || p.partner_type}</Badge></div>
-              )}
-            </Card>
-          ))}
+              </StickerCard>
+            )
+          })}
         </div>
       ) : (
-        <Card className="items-center text-center py-16">
-          <Niv size={88} mood="happy" />
-          <h3 className="text-xl font-black text-ink mt-4 mb-2">Bientôt plein de partenaires</h3>
-          <p className="text-mute max-w-sm">On signe de nouveaux partenaires chaque semaine.</p>
-        </Card>
+        <NivEmpty
+          mood="happy"
+          title="Bientôt plein de partenaires"
+          description="On signe de nouveaux partenaires chaque semaine."
+        />
       )}
     </div>
   )

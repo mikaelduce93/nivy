@@ -21,10 +21,10 @@ import {
   CheckCircle2,
   Search,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { PullToRefresh } from "@/components/teen/pull-to-refresh"
-import { EmptyState } from "@/components/ui/states/empty-state"
-import { H1, H3 } from "@/components/ui/headings"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
+import { H3 } from "@/components/ui/headings"
 import { StatusBadge } from "@/components/ui/status-badge"
 
 export const dynamic = "force-dynamic"
@@ -43,8 +43,8 @@ interface MentorRow {
 }
 
 const EXPERTISE_PRESETS = [
-  { slug: "medicine", label: "Medecine" },
-  { slug: "engineering", label: "Ingenierie" },
+  { slug: "medicine", label: "Médecine" },
+  { slug: "engineering", label: "Ingénierie" },
   { slug: "coding", label: "Code / Tech" },
   { slug: "arts", label: "Arts" },
   { slug: "business", label: "Business" },
@@ -88,33 +88,34 @@ export default async function TeenMentorsPage({
 
   const list = (mentors ?? []) as MentorRow[]
 
-  // V1.3-B: shared control class — 44px min-height for WCAG AAA touch.
+  // Champ de filtre charte : bordure 2px ink + focus rose.
   const selectClass =
-    "min-h-11 rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+    "min-h-11 rounded-xl border-2 border-ink bg-white px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
 
   return (
     <PullToRefresh>
-    <div className="-m-4 md:-m-6 min-h-screen bg-background">
+    <div className="-m-4 md:-m-6 min-h-screen bg-paper">
       <div className="container mx-auto max-w-5xl px-4 sm:px-6 pt-6 pb-32 md:pt-12 md:pb-12">
         <Link
           href="/teen"
-          className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-mute hover:text-ink mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
         </Link>
 
-        <header className="mb-8">
-          <div className="flex items-start gap-3">
-            <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-info-soft to-success-soft flex items-center justify-center">
-              <GraduationCap className="h-6 w-6 text-primary-foreground" aria-hidden />
-            </div>
-            <div className="min-w-0">
-              <H1 className="uppercase leading-none">Mentors</H1>
-              <p className="mt-1 text-muted-foreground text-sm font-medium">
-                Trouve un mentor verifie pour t'accompagner sur ton chemin.
-              </p>
-            </div>
+        <header className="mb-8 flex items-start gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-teal/20">
+            <GraduationCap className="h-7 w-7 text-ink" aria-hidden />
+          </div>
+          <div className="min-w-0">
+            <p className="eyebrow tracking-[0.16em]">Mentorat</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight">
+              Tes <em className="font-semibold italic text-pink">mentors</em>
+            </h1>
+            <p className="mt-1 text-sm text-mute">
+              Trouve un mentor vérifié pour t'accompagner sur ton chemin.
+            </p>
           </div>
         </header>
 
@@ -122,7 +123,7 @@ export default async function TeenMentorsPage({
           <div
             role="alert"
             aria-live="assertive"
-            className="mb-6 rounded-2xl border border-destructive/40 bg-destructive/15 p-4 text-sm text-destructive"
+            className="mb-6 rounded-2xl border-2 border-ink bg-destructive/15 p-4 text-sm text-destructive"
           >
             Impossible de charger les mentors pour le moment.
           </div>
@@ -132,12 +133,12 @@ export default async function TeenMentorsPage({
         <form
           method="GET"
           aria-label="Filtres mentors"
-          className="mb-8 rounded-2xl border border-border bg-card/40  p-4 flex flex-wrap gap-3 items-end"
+          className="mb-8 flex flex-wrap items-end gap-3 rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm"
         >
           <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-none">
             <label
               htmlFor="mentor-tag"
-              className="text-xs font-black uppercase tracking-wider text-muted-foreground"
+              className="font-mono text-xs font-bold uppercase tracking-[0.12em] text-mute"
             >
               Domaine
             </label>
@@ -158,9 +159,9 @@ export default async function TeenMentorsPage({
           <div className="flex flex-col gap-1">
             <label
               htmlFor="mentor-age"
-              className="text-xs font-black uppercase tracking-wider text-muted-foreground"
+              className="font-mono text-xs font-bold uppercase tracking-[0.12em] text-mute"
             >
-              Mon age
+              Mon âge
             </label>
             <input
               id="mentor-age"
@@ -176,7 +177,7 @@ export default async function TeenMentorsPage({
           <div className="flex flex-col gap-1">
             <label
               htmlFor="mentor-min-rating"
-              className="text-xs font-black uppercase tracking-wider text-muted-foreground"
+              className="font-mono text-xs font-bold uppercase tracking-[0.12em] text-mute"
             >
               Note min.
             </label>
@@ -193,7 +194,7 @@ export default async function TeenMentorsPage({
           </div>
           <button
             type="submit"
-            className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-black text-background hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-ink bg-pink px-4 py-2 text-sm font-bold text-ink transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
           >
             <Search className="h-4 w-4" />
             Filtrer
@@ -202,9 +203,9 @@ export default async function TeenMentorsPage({
 
         {/* Grid */}
         {list.length === 0 ? (
-          <EmptyState
-            icon={GraduationCap}
-            title="Aucun mentor disponible"
+          <NivEmpty
+            mood="proud"
+            title="Aucun mentor dispo pour l'instant"
             description="Reviens bientôt — l'équipe Nivy onboarde de nouveaux mentors chaque semaine."
           />
         ) : (
@@ -236,32 +237,23 @@ function MentorCard({ mentor }: { mentor: MentorRow }) {
       // page assigns the same `vt-mentor-${id}` to its hero card so the
       // browser auto-tweens the bounding box + opacity.
       style={{ viewTransitionName: `vt-mentor-${mentor.id}` }}
-      className={cn(
-        "group relative block overflow-hidden rounded-2xl border  transition-all duration-300",
-        "border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent",
-        "hover:-translate-y-0.5 hover:border-info/30 hover:shadow-2xl hover:shadow-background/40",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/40"
-      )}
+      className="block rounded-2xl focus-visible:outline-none"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full blur-3xl bg-info-soft/40 opacity-50 transition-opacity duration-300 group-hover:opacity-80"
-      />
-      <div className="relative p-5 sm:p-6">
-        <div className="flex items-start justify-between gap-3 mb-3">
+      <StickerCard variant="hover" className="h-full gap-0 p-5 sm:p-6">
+        <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-info-soft/15">
-              <GraduationCap className="h-5 w-5 text-info" aria-hidden />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-ink bg-teal/15">
+              <GraduationCap className="h-5 w-5 text-ink" aria-hidden />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-info">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-teal">
                 Mentor
               </span>
               <StatusBadge
                 variant="success"
                 size="sm"
                 icon={CheckCircle2}
-                label="KYC verifie"
+                label="KYC vérifié"
               />
             </div>
           </div>
@@ -287,27 +279,27 @@ function MentorCard({ mentor }: { mentor: MentorRow }) {
           </div>
         </div>
 
-        <H3 className="text-base font-black leading-snug text-foreground sm:text-lg">
+        <H3 className="font-display text-base font-bold leading-snug text-ink sm:text-lg">
           {tags.length > 0 ? tags.map(prettyTag).join(" / ") : "Mentor Nivy"}
         </H3>
         {mentor.bio ? (
-          <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
+          <p className="mt-1 line-clamp-2 text-sm leading-snug text-mute">
             {mentor.bio}
           </p>
         ) : null}
 
-        <div className="mt-4 flex items-center justify-between gap-3 text-[11px] font-semibold text-muted-foreground">
+        <div className="mt-4 flex items-center justify-between gap-3 font-mono text-[11px] font-semibold text-mute">
           <span>
             {ageMin}-{ageMax} ans
           </span>
           <span>
             {sessions} session{sessions > 1 ? "s" : ""}
           </span>
-          <span className="font-black tabular-nums text-foreground">
+          <span className="font-bold tabular-nums text-ink">
             {hourly > 0 ? `${hourly.toFixed(0)} DH/h` : "Volontaire"}
           </span>
         </div>
-      </div>
+      </StickerCard>
     </Link>
   )
 }

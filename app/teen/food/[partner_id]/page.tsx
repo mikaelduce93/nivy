@@ -9,6 +9,16 @@ import { H1 } from "@/components/ui/headings"
 
 export const dynamic = "force-dynamic"
 
+// Libellés FR des sous-catégories (présentation seulement).
+const SUB_CATEGORY_LABELS: Record<string, string> = {
+  restaurant: "Restaurant",
+  cafe: "Café",
+  bakery: "Boulangerie",
+  fast_food: "Fast-food",
+  catering: "Traiteur",
+  grocery: "Épicerie",
+}
+
 export default async function TeenRestaurantMenuPage({
   params,
 }: {
@@ -42,11 +52,14 @@ export default async function TeenRestaurantMenuPage({
           + sub-category band in a single named element so the browser
           tweens the whole hero block as one. */}
       <div style={{ viewTransitionName: `vt-restaurant-${partner_id}` }}>
-        <H1 className="text-4xl font-black tracking-tighter uppercase leading-none">
+        <p className="eyebrow tracking-[0.16em] mb-1">Menu · payable en coins</p>
+        <H1 className="font-display text-4xl font-extrabold tracking-tight">
           {partner.company_name}
         </H1>
-        <p className="text-sm text-muted-foreground mt-2 mb-6 uppercase tracking-wide">
-          {partner.sub_category ?? "restaurant"}
+        <p className="mt-2 mb-6 font-mono text-[12px] uppercase tracking-[0.12em] text-mute">
+          {partner.sub_category
+            ? SUB_CATEGORY_LABELS[partner.sub_category] ?? partner.sub_category
+            : "Restaurant"}
         </p>
       </div>
       <MenuCartClient

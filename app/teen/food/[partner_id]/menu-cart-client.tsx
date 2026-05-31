@@ -228,10 +228,10 @@ export default function MenuCartClient({
               type="button"
               onClick={() => setFilter(f)}
               aria-pressed={active}
-              className={`rounded border border-border px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+              className={`inline-flex min-h-11 items-center rounded-xl border-2 border-ink px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-all focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40 ${
                 active
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-card text-foreground"
+                  ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                  : "bg-white text-mute hover:text-ink"
               }`}
             >
               {FILTER_LABELS[f]}
@@ -247,10 +247,10 @@ export default function MenuCartClient({
           return (
             <li
               key={it.id}
-              className="rounded border border-border bg-card p-3 flex justify-between gap-4"
+              className="flex justify-between gap-4 rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm"
             >
               <div className="flex-1">
-                <h3 className="font-medium text-base m-0 text-foreground">
+                <h3 className="m-0 font-display text-base font-bold text-ink">
                   {it.name}{" "}
                   {!it.is_halal && (
                     <StatusBadge
@@ -263,15 +263,20 @@ export default function MenuCartClient({
                   )}
                 </h3>
                 {it.description && (
-                  <div className="text-xs text-muted-foreground">{it.description}</div>
+                  <div className="text-xs text-mute">{it.description}</div>
                 )}
-                <div className="text-xs text-muted-foreground mt-1">
-                  {coins} coins · {it.price_dh} DH
-                  {it.calories ? ` · ${it.calories} kcal` : ""}
-                  {it.prep_time_minutes ? ` · ${it.prep_time_minutes} min` : ""}
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs">
+                  <span className="font-bold text-coral">⊙ {coins}</span>
+                  <span className="text-mute">{it.price_dh} DH</span>
+                  {it.calories ? (
+                    <span className="text-mute">· {it.calories} kcal</span>
+                  ) : null}
+                  {it.prep_time_minutes ? (
+                    <span className="text-mute">· {it.prep_time_minutes} min</span>
+                  ) : null}
                 </div>
                 {(it.nutrition_tags ?? []).length > 0 && (
-                  <div className="text-xs text-info mt-1">
+                  <div className="mt-1 font-mono text-xs text-teal">
                     {(it.nutrition_tags ?? []).join(" · ")}
                   </div>
                 )}
@@ -281,12 +286,12 @@ export default function MenuCartClient({
                   type="button"
                   onClick={() => removeFromCart(it.id)}
                   aria-label={`Diminuer la quantité de ${it.name}`}
-                  className="rounded bg-muted px-2 py-1 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="grid h-9 w-9 place-items-center rounded-xl border-2 border-ink bg-white text-base font-bold text-ink transition-colors hover:bg-paper-2 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
                 >
                   <span aria-hidden="true">−</span>
                 </button>
                 <span
-                  className="w-6 text-center text-sm text-foreground"
+                  className="w-6 text-center font-mono text-sm font-bold tabular-nums text-ink"
                   aria-label={`Quantité de ${it.name}: ${qty}`}
                   aria-live="polite"
                 >
@@ -296,7 +301,7 @@ export default function MenuCartClient({
                   type="button"
                   onClick={() => addToCart(it.id)}
                   aria-label={`Augmenter la quantité de ${it.name}`}
-                  className="rounded bg-muted px-2 py-1 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="grid h-9 w-9 place-items-center rounded-xl border-2 border-ink bg-pink text-base font-bold text-ink transition-colors hover:bg-pink/80 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
                 >
                   <span aria-hidden="true">+</span>
                 </button>
@@ -308,10 +313,10 @@ export default function MenuCartClient({
 
       <FormKeyboardAware
         onSubmit={handleSubmit(onSubmit)}
-        className="mt-6 space-y-4 rounded-lg border border-border bg-card p-4"
+        className="mt-6 space-y-4 rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm"
         aria-label="Finaliser la commande"
       >
-        <h2 className="text-base font-semibold text-foreground">
+        <h2 className="font-display text-base font-bold text-ink">
           Finaliser la commande
         </h2>
 
@@ -320,7 +325,7 @@ export default function MenuCartClient({
             <Label htmlFor="deliveryType">Type</Label>
             <select
               id="deliveryType"
-              className="w-full border border-border bg-background text-foreground rounded px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="w-full rounded-xl border-2 border-ink bg-white px-2 py-2 text-sm text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
               {...register("deliveryType")}
             >
               <option value="pickup">À emporter</option>
@@ -332,7 +337,7 @@ export default function MenuCartClient({
             <Label htmlFor="paymentMethod">Paiement</Label>
             <select
               id="paymentMethod"
-              className="w-full border border-border bg-background text-foreground rounded px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="w-full rounded-xl border-2 border-ink bg-white px-2 py-2 text-sm text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
               {...register("paymentMethod")}
             >
               <option value="coins">Coins</option>
@@ -374,9 +379,12 @@ export default function MenuCartClient({
           )}
         </div>
 
-        <div className="sticky bottom-0 flex items-center justify-between rounded-lg bg-info-soft/15 border border-info/20 p-3">
-          <div className="text-sm text-foreground">
-            Total: <strong>{totalCoins} coins</strong>
+        <div className="sticky bottom-0 flex items-center justify-between rounded-xl border-2 border-ink bg-coral/10 p-3">
+          <div className="text-sm text-ink">
+            Total :{" "}
+            <strong className="font-mono text-base font-bold tabular-nums text-coral">
+              ⊙ {totalCoins}
+            </strong>
           </div>
           <PremiumButton
             type="submit"
@@ -397,10 +405,10 @@ export default function MenuCartClient({
         <div
           role={orderResult.ok ? "status" : "alert"}
           aria-live={orderResult.ok ? "polite" : "assertive"}
-          className={`mt-4 rounded p-3 text-sm ${
+          className={`mt-4 rounded-xl border-2 border-ink p-3 text-sm ${
             orderResult.ok
-              ? "bg-success-soft/15 text-success border border-success/30"
-              : "bg-destructive/10 text-destructive border border-destructive/30"
+              ? "bg-lime/15 text-ink"
+              : "bg-destructive/10 text-destructive"
           }`}
         >
           <p className="font-medium">{orderResult.message}</p>

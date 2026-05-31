@@ -49,11 +49,11 @@ export function DeclarePathwayButton({ slug, title }: Props) {
         type="button"
         onClick={handleDeclare}
         disabled={isPending}
-        aria-label={`Declarer ${title}`}
+        aria-label={`Déclarer ${title}`}
         className={cn(
-          "inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-black text-background",
-          "hover:bg-foreground/90 transition-colors disabled:opacity-50",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          "inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-paper",
+          "transition-all disabled:opacity-50 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0",
+          "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
         )}
       >
         {isPending ? (
@@ -61,10 +61,10 @@ export function DeclarePathwayButton({ slug, title }: Props) {
         ) : (
           <Compass className="h-3 w-3" />
         )}
-        Declarer
+        Déclarer
       </button>
       {error ? (
-        <span className="text-[10px] text-destructive">Reessaye dans un instant.</span>
+        <span className="font-mono text-[10px] text-coral">Réessaie dans un instant.</span>
       ) : null}
     </div>
   )
