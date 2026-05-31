@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Shield, Users, Crown, Zap, Trophy, Search, Plus, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -76,6 +75,29 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
   const [searchQuery, setSearchQuery] = useState("")
   const [crewName, setCrewName] = useState("")
   const [creating, setCreating] = useState(false)
+  const [joiningId, setJoiningId] = useState<string | null>(null)
+
+  // #207 — « Voir » menait /teen/circles/{id} → redirect (non-membre). On
+  // rejoint vraiment la crew, puis on ouvre son détail (le créateur/membre y a
+  // désormais accès, cf. fix d'adhésion owner côté API).
+  const joinCrew = async (id: string) => {
+    if (joiningId) return
+    setJoiningId(id)
+    try {
+      const res = await fetch("/api/teen/crew", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "join", crewId: id }),
+      })
+      if (res.ok) {
+        router.push(`/teen/circles/${id}`)
+        return
+      }
+    } catch {
+      /* re-enable below */
+    }
+    setJoiningId(null)
+  }
 
   const createCrew = async () => {
     const name = crewName.trim()
@@ -273,8 +295,8 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
                           <p className="text-xs text-mute mt-2 line-clamp-1">{c.description}</p>
                         )}
                       </div>
-                      <Button asChild>
-                        <Link href={`/teen/circles/${c.id}`}>Voir</Link>
+                      <Button onClick={() => joinCrew(c.id)} disabled={joiningId === c.id}>
+                        {joiningId === c.id ? "…" : "Rejoindre"}
                       </Button>
                     </StickerCard>
                   )

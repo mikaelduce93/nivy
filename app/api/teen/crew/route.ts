@@ -188,6 +188,24 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to create crew' }, { status: 500 })
       }
 
+      // #207 — FIX BOUCLE : ajouter le créateur comme membre owner. Sans ça, la
+      // page détail /teen/circles/[id] (qui vérifie circle_members) renvoyait le
+      // créateur vers /teen/circles → cul-de-sac. teens.id = profiles.id = auth.uid()
+      // (identité unifiée, migration 040), donc teen_id correspond bien au check.
+      const { error: memberErr } = await supabase
+        .from('circle_members')
+        .insert({
+          circle_id: circle.id,
+          teen_id: teenId,
+          role: 'owner',
+          status: 'active',
+        })
+
+      if (memberErr) {
+        console.error('Error adding owner membership:', memberErr)
+        return NextResponse.json({ error: 'Failed to finalize crew' }, { status: 500 })
+      }
+
       return NextResponse.json({
         success: true,
         crew: circle,
