@@ -60,20 +60,48 @@ function ApprovalItem({ request, onAction }: { request: any, onAction: (id: stri
     }
   }
 
-  const handleApprove = () => {
+  // Real decision call. The approval is only removed from the list on a 2xx
+  // response — a failed POST keeps the card and surfaces an honest error
+  // instead of the previous fake "approuvée et payée" success.
+  const decide = async (decision: 'approve' | 'deny') => {
+    if (isApproving) return
     setIsApproving(true)
-    setTimeout(() => {
-      toast.success("Demande approuvée et payée !")
+    try {
+      const res = await fetch('/api/parent/approvals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approvalId: request.id, decision }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(data?.error || 'request_failed')
+      }
+      toast.success(decision === 'approve' ? 'Demande approuvée' : 'Demande refusée')
       onAction(request.id)
-    }, 1000)
+    } catch {
+      toast.error("Action impossible pour le moment. Réessaie dans un instant.")
+      setIsApproving(false)
+    }
   }
 
-  const handleReject = () => {
-    toast.error("Demande refusée")
-    onAction(request.id)
-  }
+  const handleApprove = () => decide('approve')
+  const handleReject = () => decide('deny')
 
-  const isBirthday = request.action_type === 'purchase' && request.details?.type === 'birthday'
+  const ACTION_LABELS: Record<string, string> = {
+    food_order: 'Commande repas',
+    ride: 'Trajet',
+    coach_meeting: 'Séance mentor',
+    purchase_above_ceiling: 'Achat',
+    content: 'Contenu',
+    booking: 'Réservation événement',
+  }
+  const isBirthday = request.details?.type === 'birthday'
+  const actionLabel = isBirthday
+    ? "Fête d'anniversaire"
+    : ACTION_LABELS[request.action_type as string] ?? 'Demande'
+  const detailText = isBirthday
+    ? `${request.details?.guests ?? request.details?.guest_count ?? '?'} invités`
+    : request.details?.event_name || request.details?.reason || actionLabel
 
   return (
     <motion.div
@@ -103,17 +131,14 @@ function ApprovalItem({ request, onAction }: { request: any, onAction: (id: stri
             <div>
               <div className="flex items-center gap-2">
                 <h4 className="font-black text-ink uppercase tracking-tight">
-                  {isBirthday ? "Fête d'Anniversaire" : "Réservation Événement"}
+                  {actionLabel}
                 </h4>
                 <span className="px-2 py-0.5 rounded-full bg-paper-2 text-[8px] font-black text-mute uppercase">
                   de {request.teen_name || "ton enfant"}
                 </span>
               </div>
               <p className="text-mute text-sm font-medium">
-                {isBirthday 
-                  ? `${request.details?.price} DH • ${request.details?.guests} invités` 
-                  : `${request.details?.event_name || 'Événement'}`
-                }
+                {detailText}
               </p>
             </div>
           </div>

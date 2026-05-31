@@ -30,26 +30,42 @@ export default async function ReservationConfirmationPage({
     redirect("/auth/login")
   }
 
+  // bookings owner column is user_id (not parent_id), and there is no children
+  // table — booking_tickets stores child_id only, so holder names are resolved
+  // from teens separately rather than via a (non-existent) children embed.
   const { data: booking } = await supabase
     .from("bookings")
     .select(`
       *,
       events (*),
-      booking_tickets (
-        *,
-        children (*)
-      )
+      booking_tickets (*)
     `)
     .eq("id", bookingId)
-    .eq("parent_id", user.id)
+    .eq("user_id", user.id)
     .single()
 
   if (!booking) {
-    redirect("/mes-reservations")
+    redirect("/agenda")
   }
 
   if (booking.payment_status !== "paid") {
     redirect(`/reservation/paiement?booking=${bookingId}`)
+  }
+
+  // Resolve ticket-holder names from teens via child_id (no children table).
+  const childIds: string[] = (booking.booking_tickets ?? [])
+    .map((t: any) => t.child_id)
+    .filter(Boolean)
+  const holderNames: Record<string, string> = {}
+  if (childIds.length > 0) {
+    const { data: holders } = await supabase
+      .from("teens")
+      .select("id, first_name, last_name, pseudo")
+      .in("id", childIds)
+    for (const h of holders ?? []) {
+      holderNames[h.id as string] =
+        [h.first_name, h.last_name].filter(Boolean).join(" ") || (h.pseudo as string) || ""
+    }
   }
 
   return (
@@ -145,7 +161,7 @@ export default async function ReservationConfirmationPage({
                   {booking.booking_tickets?.map((ticket: any) => (
                     <div key={ticket.id} className="flex items-center justify-between p-3 rounded-xl border-2 border-line bg-paper-2">
                       <span className="font-medium text-ink">
-                        {ticket.children?.prenom} {ticket.children?.nom}
+                        {holderNames[ticket.child_id] || "Billet"}
                       </span>
                       <span className="text-sm text-mute capitalize">{ticket.ticket_type}</span>
                     </div>
@@ -202,8 +218,8 @@ export default async function ReservationConfirmationPage({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
             <Button asChild variant="pink" className="flex-1">
-              <Link href={`/mes-reservations/${bookingId}`}>
-                Voir mes billets
+              <Link href={`/agenda/${booking.event_id}`}>
+                Voir l'événement
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>

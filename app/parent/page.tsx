@@ -55,7 +55,7 @@ export default async function ParentDashboardPage() {
     const { data } = await supabase
       .from("bookings")
       .select("*, event:events(title, category, event_date, venue_name, event_start)")
-      .in("teen_id", teenIds)
+      .in("user_id", teenIds)
       .neq("status", "cancelled")
     bookings = data || []
   }
@@ -69,15 +69,28 @@ export default async function ParentDashboardPage() {
     // #30 — real sort column is requested_at (no created_at on parental_approvals).
     .order("requested_at", { ascending: false })
 
+  // Attach the teen display name (parental_approvals has no teen_name column) so
+  // the approval cards show "de <teen>" rather than the generic fallback.
+  const teenNameById = new Map<string, string>(
+    (teens ?? []).map((t: any) => [
+      t.teen_id,
+      t.full_name || t.teen_name || t.first_name || "ton enfant",
+    ]),
+  )
+  const approvalsWithNames = (pendingApprovals ?? []).map((a: any) => ({
+    ...a,
+    teen_name: teenNameById.get(a.teen_id) ?? a.teen_name ?? null,
+  }))
+
   // --- TRAITEMENT DES DONNÉES ---
   const currentMonthBookings = bookings.filter((b: any) => new Date(b.created_at) >= startOfCurrentMonth)
-  const monthlySpending = currentMonthBookings.reduce((sum: number, b: any) => sum + (b.total_price || 0), 0)
+  const monthlySpending = currentMonthBookings.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0)
   const totalBudgetLimit = budgetLimits.reduce((sum: number, b: any) => sum + (b.monthly_limit || 0), 0)
 
   const spendingByCategory: Record<string, number> = {}
   currentMonthBookings.forEach((b: any) => {
     const cat = b.event?.category || "autres"
-    spendingByCategory[cat] = (spendingByCategory[cat] || 0) + (b.total_price || 0)
+    spendingByCategory[cat] = (spendingByCategory[cat] || 0) + (b.total_amount || 0)
   })
 
   // --- 5. STATS PAR TEEN (responsibility / social / creativity / academic) ---
@@ -206,7 +219,7 @@ export default async function ParentDashboardPage() {
       const { data: upcomingRows } = await supabase
         .from("bookings")
         .select("id, event:events(id, title, event_date, venue_name, event_start)")
-        .in("teen_id", teenIds)
+        .in("user_id", teenIds)
         .neq("status", "cancelled")
       upcomingEvents = (upcomingRows ?? [])
         .map((b: any) => b.event)
@@ -253,7 +266,7 @@ export default async function ParentDashboardPage() {
                 size="md"
               />
               <StickerCard className="justify-center p-4">
-                <ControlCenter pendingCount={pendingApprovals?.length || 0} activePermissionsCount={0} teensCount={teenIds.length} />
+                <ControlCenter pendingCount={approvalsWithNames.length} activePermissionsCount={0} teensCount={teenIds.length} />
               </StickerCard>
             </div>
           </div>
@@ -270,9 +283,9 @@ export default async function ParentDashboardPage() {
 
         {/* Approvals */}
         <Suspense fallback={<SkeletonCard noImage lines={3} className="min-h-[180px] border-2 border-ink" />}>
-          {pendingApprovals && pendingApprovals.length > 0 && (
+          {approvalsWithNames.length > 0 && (
             <section>
-              <ParentalApprovalList requests={pendingApprovals} />
+              <ParentalApprovalList requests={approvalsWithNames} />
             </section>
           )}
         </Suspense>

@@ -47,9 +47,9 @@ async function getTransactionHistory(profileId: string) {
     .from("bookings")
     .select(`
       id,
-      teen_id,
+      user_id,
       event_id,
-      total_price,
+      total_amount,
       status,
       payment_status,
       created_at,
@@ -58,7 +58,7 @@ async function getTransactionHistory(profileId: string) {
         event_date
       )
     `)
-    .in("teen_id", teenIds)
+    .in("user_id", teenIds)
     .order("created_at", { ascending: false })
     .limit(100)
 
@@ -111,7 +111,7 @@ async function getTransactionHistory(profileId: string) {
 
   // Calculate totals
   const totalSpent = bookings?.filter((b: any) => b.payment_status === "paid")
-    .reduce((sum: number, b: any) => sum + (b.total_price || 0), 0) || 0
+    .reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0) || 0
 
   const startOfMonth = new Date()
   startOfMonth.setDate(1)
@@ -119,7 +119,7 @@ async function getTransactionHistory(profileId: string) {
 
   const monthlySpent = bookings?.filter((b: any) =>
     b.payment_status === "paid" && new Date(b.created_at) >= startOfMonth
-  ).reduce((sum: number, b: any) => sum + (b.total_price || 0), 0) || 0
+  ).reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0) || 0
 
   const totalTopup = coinTransactions?.filter((t: any) => t.transaction_type === "topup")
     .reduce((sum: number, t: any) => sum + (t.amount || 0), 0) || 0
@@ -132,9 +132,9 @@ async function getTransactionHistory(profileId: string) {
     ...(bookings || []).map((b: any) => ({
       id: b.id,
       type: "booking" as const,
-      teenId: b.teen_id,
-      teenName: teenNameMap.get(b.teen_id) || "Teen",
-      amount: b.total_price,
+      teenId: b.user_id,
+      teenName: teenNameMap.get(b.user_id) || "Teen",
+      amount: b.total_amount,
       status: b.status,
       paymentStatus: b.payment_status,
       date: b.created_at,
