@@ -1,15 +1,12 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
 import {
-  ArrowRight, ArrowLeft, PartyPopper, Palette, Dumbbell,
-  Gamepad2, Music, Camera, MapPin, Clock, Users, ChevronLeft,
-  ChevronRight, Play
+  PartyPopper, Palette, Gamepad2, ChevronLeft, ChevronRight, Play
 } from 'lucide-react'
-import Image from "next/image"
 
 interface ShowcaseStepProps {
   onNext: () => void
@@ -27,7 +24,7 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
       title: "Fête ton anniversaire comme jamais",
       description: "Des anniversaires inoubliables avec tes amis, des activités folles et des souvenirs à vie",
       image: "/images/onboarding/birthday.jpg",
-      color: "from-pink to-pink",
+      accent: "bg-pink",
       stats: [
         { label: "Formules", value: "3+" },
         { label: "Activités", value: "10+" },
@@ -46,7 +43,7 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
       title: "Développe tes talents",
       description: "Rejoins nos clubs créatifs, sportifs et technologiques. Apprends en t'amusant !",
       image: "/images/onboarding/clubs.jpg",
-      color: "from-pink to-pink",
+      accent: "bg-gold",
       stats: [
         { label: "Clubs", value: "12+" },
         { label: "Catégories", value: "3" },
@@ -63,18 +60,18 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
       category: "Events",
       icon: Gamepad2,
       title: "Des événements chaque semaine",
-      description: "Sorties au ciné, gaming parties, workshops… Il se passe toujours quelque chose !",
+      description: "Sorties au ciné, gaming parties, ateliers… Il se passe toujours quelque chose !",
       image: "/images/onboarding/events.jpg",
-      color: "from-teal to-teal",
+      accent: "bg-teal",
       stats: [
         { label: "Events/mois", value: "50+" },
         { label: "Ados", value: "500+" },
-        { label: "Nouveaux", value: "Weekly" }
+        { label: "Nouveaux", value: "Chaque semaine" }
       ],
       highlights: [
-        "Gaming tournaments",
+        "Tournois gaming",
         "Sorties ciné & bowling",
-        "Workshops créatifs",
+        "Ateliers créatifs",
         "Pool parties d'été"
       ]
     }
@@ -107,12 +104,12 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
-          <Icon className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-primary">{currentShowcase.category}</span>
+        <div className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper-2 px-4 py-2 mb-4">
+          <Icon className="w-4 h-4 text-ink" aria-hidden="true" />
+          <span className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-ink">{currentShowcase.category}</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl font-black mb-3">{currentShowcase.title}</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">{currentShowcase.description}</p>
+        <h2 className="font-display text-3xl sm:text-4xl font-extrabold mb-3">{currentShowcase.title}</h2>
+        <p className="text-mute max-w-2xl mx-auto">{currentShowcase.description}</p>
       </motion.div>
 
       {/* Main Showcase Card */}
@@ -126,21 +123,19 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
           role="tabpanel"
           aria-label={currentShowcase.category}
         >
-          <Card className="overflow-hidden border-2">
+          <StickerCard className="overflow-hidden">
             {/* Image Section */}
-            <div className={`relative h-64 sm:h-80 bg-gradient-to-br ${currentShowcase.color} flex items-center justify-center`}>
-              {/* Placeholder for actual images */}
-              <div className="absolute inset-0 bg-ink/20" />
+            <div className={`relative h-64 sm:h-80 ${currentShowcase.accent} flex items-center justify-center border-b-2 border-ink`}>
               <div className="relative z-10 text-center text-ink" aria-hidden="true">
                 <motion.div
                   initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={prefersReducedMotion ? { duration: 0.15 } : { delay: 0.2, type: "spring" }}
-                  className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-paper-2  mb-4"
+                  className="inline-flex items-center justify-center w-20 h-20 rounded-full border-2 border-ink bg-paper mb-4 shadow-stkr-sm"
                 >
                   <Icon className="w-10 h-10" />
                 </motion.div>
-                <div className="flex items-center justify-center gap-2 text-sm">
+                <div className="flex items-center justify-center gap-2 text-sm font-medium">
                   <Play className="w-4 h-4" />
                   <span>Voir la vidéo</span>
                 </div>
@@ -154,10 +149,10 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
                     initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: prefersReducedMotion ? 0 : 0.3 + index * 0.1 }}
-                    className="flex-1 bg-paper-2  rounded-lg p-3 text-center"
+                    className="flex-1 rounded-xl border-2 border-ink bg-paper p-3 text-center shadow-stkr-sm"
                   >
-                    <p className="text-2xl font-black text-primary tabular-nums">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground">{stat.label}</p>
+                    <p className="font-display text-2xl font-extrabold text-ink tabular-nums">{stat.value}</p>
+                    <p className="font-mono text-[11px] uppercase tracking-wide text-mute">{stat.label}</p>
                   </motion.div>
                 ))}
               </div>
@@ -165,7 +160,7 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
 
             {/* Content Section */}
             <div className="p-6 sm:p-8">
-              <h3 className="font-bold text-xl mb-4">Ce qui t'attend :</h3>
+              <h3 className="font-display font-bold text-xl mb-4">Ce qui t'attend :</h3>
               <div className="grid sm:grid-cols-2 gap-3">
                 {currentShowcase.highlights.map((highlight, index) => (
                   <motion.div
@@ -173,15 +168,15 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + index * 0.1 }}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
+                    className="flex items-center gap-3 rounded-xl border-2 border-ink bg-paper-2 p-3"
                   >
-                    <div className={`w-2 h-2 rounded-full bg-gradient-to-br ${currentShowcase.color}`} />
+                    <div className={`w-2.5 h-2.5 rounded-full border border-ink ${currentShowcase.accent}`} />
                     <span className="text-sm font-medium">{highlight}</span>
                   </motion.div>
                 ))}
               </div>
             </div>
-          </Card>
+          </StickerCard>
         </motion.div>
       </AnimatePresence>
 
@@ -194,8 +189,8 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
             role="tab"
             aria-selected={index === currentSlide}
             aria-label={`Voir ${showcase.category} (${index + 1} sur ${showcases.length})`}
-            className={`h-2 rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-              index === currentSlide ? 'w-8 bg-primary' : 'w-2 bg-secondary hover:bg-secondary/80'
+            className={`h-2.5 rounded-full border-2 border-ink transition-all duration-200 focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 ${
+              index === currentSlide ? 'w-8 bg-pink' : 'w-2.5 bg-paper-2 hover:bg-line'
             }`}
           />
         ))}
@@ -213,8 +208,9 @@ export function ShowcaseStep({ onNext, onBack }: ShowcaseStepProps) {
         </Button>
 
         <Button
+          variant="pink"
           onClick={handleNext}
-          className="gap-2 bg-gradient-to-r from-primary to-pink hover:opacity-90 text-ink"
+          className="gap-2"
         >
           {currentSlide < showcases.length - 1 ? 'Suivant' : 'Continuer'}
           <ChevronRight className="w-4 h-4" />

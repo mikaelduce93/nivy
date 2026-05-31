@@ -1,5 +1,5 @@
 /**
- * TEENS PARTY MOROCCO - Onboarding Gamification Components
+ * Nivy — Onboarding Gamification Components
  * ========================================================
  *
  * Export centralisé des composants de gamification pour l'onboarding.

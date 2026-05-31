@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * TEENS PARTY MOROCCO - Onboarding Missions Preview
+ * Nivy - Onboarding Missions Preview
  * =================================================
  *
  * Sidebar montrant les missions d'onboarding avec:
@@ -55,7 +55,7 @@ const STEP_NAMES: Record<string, string> = {
   'parent-setup': 'Configuration',
   'teen-setup': 'Configuration',
   features: 'Fonctionnalités',
-  completion: 'Terminé!',
+  completion: 'Terminé !',
 }
 
 export function OnboardingMissionsPreview({
@@ -82,7 +82,7 @@ export function OnboardingMissionsPreview({
   return (
     <motion.div
       className={cn(
-        'bg-card  border border-ink rounded-2xl p-5',
+        'rounded-2xl border-2 border-ink bg-white p-5 shadow-stkr-md',
         className
       )}
       initial={{ opacity: 0, x: 20 }}
@@ -91,19 +91,19 @@ export function OnboardingMissionsPreview({
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-ink bg-teal flex items-center justify-center">
           <Zap className="w-4 h-4 text-ink" />
         </div>
         <div>
-          <h3 className="text-ink font-semibold text-sm">Missions Onboarding</h3>
-          <p className="text-mute text-xs">{earnedXP} / {TOTAL_ONBOARDING_XP} XP</p>
+          <h3 className="text-ink font-display font-extrabold text-sm">Missions Onboarding</h3>
+          <p className="text-mute font-mono text-xs">{earnedXP} / {TOTAL_ONBOARDING_XP} XP</p>
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="h-2 bg-card rounded-full overflow-hidden mb-5">
+      <div className="h-2.5 bg-ink/10 rounded-full border-2 border-ink overflow-hidden mb-5">
         <motion.div
-          className="h-full bg-gradient-to-r from-teal to-pink rounded-full"
+          className="h-full bg-pink rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.5 }}
@@ -121,12 +121,12 @@ export function OnboardingMissionsPreview({
             <motion.div
               key={step}
               className={cn(
-                'flex items-center gap-3 p-2.5 rounded-xl transition-colors',
+                'flex items-center gap-3 p-2.5 rounded-xl border-2 transition-colors',
                 isCurrent
-                  ? 'bg-gradient-to-r from-teal/10 to-teal/10 border border-teal/30'
+                  ? 'border-ink bg-teal/15'
                   : isCompleted
-                    ? 'bg-card'
-                    : 'bg-transparent opacity-50'
+                    ? 'border-line bg-paper-2'
+                    : 'border-transparent bg-transparent opacity-50'
               )}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: isCompleted || isCurrent ? 1 : 0.5, x: 0 }}
@@ -135,12 +135,12 @@ export function OnboardingMissionsPreview({
               {/* Step indicator */}
               <div
                 className={cn(
-                  'w-7 h-7 rounded-full flex items-center justify-center',
+                  'w-7 h-7 rounded-full border-2 border-ink flex items-center justify-center',
                   isCompleted
                     ? 'bg-lime'
                     : isCurrent
-                      ? 'bg-gradient-to-br from-teal to-teal'
-                      : 'bg-muted'
+                      ? 'bg-teal'
+                      : 'bg-paper-2'
                 )}
               >
                 {isCompleted ? (
@@ -154,7 +154,7 @@ export function OnboardingMissionsPreview({
               <span
                 className={cn(
                   'flex-1 text-sm font-medium',
-                  isCurrent ? 'text-teal' : isCompleted ? 'text-mute' : 'text-mute'
+                  isCurrent ? 'text-ink' : 'text-mute'
                 )}
               >
                 {STEP_NAMES[step]}
@@ -163,7 +163,7 @@ export function OnboardingMissionsPreview({
               {/* XP reward */}
               <div
                 className={cn(
-                  'flex items-center gap-1 text-xs',
+                  'flex items-center gap-1 font-mono text-xs',
                   isCompleted ? 'text-lime' : isCurrent ? 'text-teal' : 'text-mute'
                 )}
               >
@@ -185,19 +185,19 @@ export function OnboardingMissionsPreview({
       </div>
 
       {/* Bonus rewards preview */}
-      <div className="mt-5 pt-4 border-t border-ink">
-        <p className="text-xs text-mute mb-3">Bonus à la fin</p>
+      <div className="mt-5 pt-4 border-t-2 border-ink">
+        <p className="font-mono text-xs uppercase tracking-wide text-mute mb-3">Bonus à la fin</p>
         <div className="flex gap-3">
           {/* Coins bonus */}
-          <div className="flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-lg px-3 py-2">
-            <Gift className="w-4 h-4 text-gold" />
-            <span className="text-gold text-sm font-medium">+50 Coins</span>
+          <div className="flex items-center gap-2 rounded-lg border-2 border-ink bg-coral/15 px-3 py-2">
+            <Gift className="w-4 h-4 text-coral" />
+            <span className="text-ink text-sm font-bold">+50 Coins</span>
           </div>
 
           {/* Badge */}
-          <div className="flex items-center gap-2 bg-pink/10 border border-pink/20 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-2 rounded-lg border-2 border-ink bg-pink/15 px-3 py-2">
             <Award className="w-4 h-4 text-pink" />
-            <span className="text-pink text-sm font-medium">2 Badges</span>
+            <span className="text-ink text-sm font-bold">2 Badges</span>
           </div>
         </div>
       </div>
