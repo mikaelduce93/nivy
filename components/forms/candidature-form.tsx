@@ -19,23 +19,30 @@ interface CandidatureFormProps {
 export function CandidatureForm({ endpoint, role }: CandidatureFormProps) {
   const [done, setDone] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" })
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    try {
-      if (endpoint) {
-        await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        })
-      }
-    } catch {
-      /* la confirmation s'affiche quand même ; reprise possible */
-    } finally {
+    setError(null)
+    if (!endpoint) {
       setDone(true)
+      setSubmitting(false)
+      return
+    }
+    try {
+      // Only confirm on a real 2xx — no more fake success when the POST fails.
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error("request_failed")
+      setDone(true)
+    } catch {
+      setError("Envoi impossible pour le moment. Vérifie ta connexion et réessaie.")
+    } finally {
       setSubmitting(false)
     }
   }
@@ -68,6 +75,7 @@ export function CandidatureForm({ endpoint, role }: CandidatureFormProps) {
         <Button type="submit" variant="pink" className="w-full" disabled={submitting}>
           <Send className="w-4 h-4 mr-2" />{submitting ? "Envoi..." : "Envoyer ma candidature"}
         </Button>
+        {error && <p className="text-sm text-coral text-center" role="alert">{error}</p>}
       </form>
     </Card>
   )

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Send, Video, Gift } from "lucide-react"
 
@@ -30,8 +29,6 @@ export default function AmbassadorApplicationForm({ profile }: AmbassadorApplica
     videoUrl: "",
   })
 
-  const supabase = createClient()
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsProcessing(true)
@@ -48,17 +45,29 @@ export default function AmbassadorApplicationForm({ profile }: AmbassadorApplica
       if (formData.tiktok) socialMedia.tiktok = formData.tiktok
       if (formData.snapchat) socialMedia.snapchat = formData.snapchat
 
-      const { error: applicationError } = await supabase.from("ambassadors").insert({
-        profile_id: profile.id,
-        stage_name: formData.stageName || profile.full_name,
-        bio: formData.bio,
-        social_media: socialMedia,
-        specialties: specialtiesArray,
-        video_url: formData.videoUrl || null,
-        status: "pending",
+      // Insert via the canonical ambassadors schema (server route). The form's
+      // narrative answers (incl. the required "pourquoi") are persisted server-side.
+      const res = await fetch("/api/ambassador/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stageName: formData.stageName || profile.full_name,
+          bio: formData.bio,
+          socialMedia,
+          specialties: specialtiesArray,
+          whyAmbassador: formData.whyAmbassador,
+          videoUrl: formData.videoUrl || null,
+        }),
       })
 
-      if (applicationError) throw applicationError
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(
+          data?.error === "already_applied"
+            ? "Tu as déjà une candidature ambassadeur en cours."
+            : data?.error || "Une erreur est survenue",
+        )
+      }
 
       router.push("/devenir-ambassadeur?applied=true")
     } catch (err: any) {

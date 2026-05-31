@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Store, Building2, Dumbbell, GraduationCap, ArrowRight, CheckCircle2, Info } from 'lucide-react'
@@ -248,8 +249,8 @@ export default function PartnerRegistrationPage() {
                   <p className="text-mute mb-2">
                     Vous avez des questions sur le programme de partenariat ?
                   </p>
-                  <Button variant="outline" className="border-teal/50 text-teal hover:bg-teal/10">
-                    Contactez notre équipe
+                  <Button asChild variant="outline" className="border-teal/50 text-teal hover:bg-teal/10">
+                    <Link href="/aide">Contactez notre équipe</Link>
                   </Button>
                 </CardContent>
               </Card>
