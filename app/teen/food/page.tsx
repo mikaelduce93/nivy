@@ -36,7 +36,7 @@ const SUB_CATEGORY_META: Record<
 }
 
 const TAG_LABELS: Record<string, string> = {
-  healthy: "Healthy",
+  healthy: "Sain",
   vegetarian: "Végétarien",
   vegan: "Végan",
   gluten_free: "Sans gluten",
@@ -170,7 +170,7 @@ export default async function TeenFoodDiscoveryPage({
             defaultChecked={sp.halal === "true"}
             className="sr-only"
           />
-          Halal only
+          Halal
         </label>
         <button
           type="submit"

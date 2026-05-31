@@ -30,6 +30,25 @@ const RIDE_STATUS: Record<string, { label: string; cls: string }> = {
   approved: { label: "Validé", cls: "bg-teal/15 text-ink border-ink" },
 }
 
+// Libellés FR des modes de paiement / fournisseurs (présentation seulement —
+// jamais le slug DB brut, ex. "split_with_parent").
+const PAYMENT_LABELS: Record<string, string> = {
+  coins: "Coins ⊙",
+  dh: "DH",
+  cash: "Espèces",
+  card: "Carte",
+  split_with_parent: "Partagé parent",
+  parent: "Payé par le parent",
+}
+const PROVIDER_LABELS: Record<string, string> = {
+  careem: "Careem",
+  yango: "Yango",
+  heetch: "Heetch",
+  indrive: "inDrive",
+  nivy: "Nivy",
+  internal: "Nivy",
+}
+
 export default async function TeenRidesPage() {
   const userInfo = await getUserRole()
   if (!userInfo || userInfo.role !== "teen") redirect("/login")
@@ -155,7 +174,15 @@ function RideRow({ ride }: RideRowProps) {
             </span>
           </div>
           <div className="mt-1 font-mono text-xs text-mute">
-            {dt.toLocaleString("fr-FR")} · {ride.provider} · {ride.payment_method}
+            {[
+              dt.toLocaleString("fr-FR"),
+              ride.provider ? (PROVIDER_LABELS[ride.provider] ?? ride.provider) : null,
+              ride.payment_method
+                ? (PAYMENT_LABELS[ride.payment_method] ?? ride.payment_method)
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1.5">

@@ -42,7 +42,7 @@ const FILTER_LABELS: Record<"all" | "halal" | "vegetarian" | "healthy", string> 
   all: "Tous",
   halal: "Halal",
   vegetarian: "Végétarien",
-  healthy: "Healthy",
+  healthy: "Sain",
 }
 
 const checkoutSchema = z
