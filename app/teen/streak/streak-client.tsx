@@ -1,12 +1,13 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Flame, Zap, Trophy, Target, Check, Lock, Clock } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { StickerCard } from "@/components/ui/sticker-card"
-import { Niv, DarkSurface } from "@/components/brand"
+import { Niv, DarkSurface, NivCelebration } from "@/components/brand"
 import { EmptyState } from "@/components/ui/states/empty-state"
 
 interface Milestone {
@@ -57,8 +58,51 @@ export function StreakClient({
 
   const completedTasks = dailyTasks.filter((t) => t.completed).length
 
+  // #187 — moment de pic « premier franchissement de milestone ». Le streak
+  // est exactement sur un palier (3/7/14…) : on monte <NivCelebration> une
+  // seule fois par palier (garde localStorage), pas à chaque visite.
+  const crossedMilestone = milestones.find((m) => m.days === currentStreak)
+  const [showStreakPeak, setShowStreakPeak] = useState(false)
+  useEffect(() => {
+    if (!crossedMilestone) return
+    const key = `nivy.streak.celebrated.${crossedMilestone.days}`
+    try {
+      if (window.localStorage.getItem(key)) return
+      window.localStorage.setItem(key, "1")
+    } catch {
+      // localStorage indispo (mode privé) : on célèbre quand même cette session.
+    }
+    setShowStreakPeak(true)
+  }, [crossedMilestone])
+
   return (
     <div className="space-y-8 pt-6">
+      {/* #187 — pic premier streak : surface sombre charte plein écran. */}
+      {showStreakPeak && crossedMilestone && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Palier de streak atteint"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-ink/80 p-4"
+          onClick={() => setShowStreakPeak(false)}
+        >
+          <div className="w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <NivCelebration
+              tone="pink"
+              palette="reward"
+              title={`Streak ${crossedMilestone.badge}`}
+              value={<>{currentStreak} j</>}
+              caption={`${crossedMilestone.title} — +${crossedMilestone.xpReward} XP. Ne lâche rien !`}
+              action={
+                <Button variant="pink" onClick={() => setShowStreakPeak(false)}>
+                  Continuer
+                </Button>
+              }
+            />
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="flex items-center gap-4">
         <Niv mood="hype" size={72} />

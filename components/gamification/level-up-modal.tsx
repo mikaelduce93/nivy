@@ -23,6 +23,12 @@ interface LevelUpModalProps {
   xpToNextLevel?: number
 }
 
+/**
+ * @deprecated #187 — le moment de pic level-up passe désormais par
+ * `<NivCelebration>` (surface sombre charte + Niv + confettis charté), monté
+ * dans `gamification-provider.tsx`. Ce composant (titre « LEVEL UP ! », néon,
+ * blur, `<NeonButton>`) n'est plus branché. Conservé sans suppression.
+ */
 export function LevelUpModal({
   isOpen,
   onClose,

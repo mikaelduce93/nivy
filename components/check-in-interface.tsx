@@ -121,7 +121,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       }
 
       if (!eventId) {
-        toast.error("Veuillez selectionner un evenement")
+        toast.error("Veuillez sélectionner un événement")
         return
       }
 
@@ -157,15 +157,15 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
       toast.success(
         checkInMode === "in"
-          ? `Entree enregistree pour ${data.childName}`
-          : `Sortie enregistree pour ${data.childName}`
+          ? `Entrée enregistrée pour ${data.childName}`
+          : `Sortie enregistrée pour ${data.childName}`
       )
 
       // Refresh stats
       fetchStats()
     } catch (error) {
       console.error("QR scan error:", error)
-      toast.error("Oups, ca a pas marche. On retente? 💪")
+      toast.error("Oups, ça n'a pas marché. On retente ? 💪")
     } finally {
       setIsProcessing(false)
       setCheckInMode(null)
@@ -209,10 +209,10 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       // Play success sound
       playSuccessSound()
 
-      toast.success(data.message || "Pass VIP valide!")
+      toast.success(data.message || "Pass VIP valide !")
     } catch (error) {
       console.error("VIP pass scan error:", error)
-      toast.error("Verification ratee. Reessaye?")
+      toast.error("Vérification ratée. Réessaye ?")
     } finally {
       setIsProcessing(false)
       setCheckInMode(null)
@@ -221,7 +221,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
   const handleExport = async (format: "json" | "csv") => {
     if (!selectedEvent) {
-      toast.error("Veuillez selectionner un evenement")
+      toast.error("Veuillez sélectionner un événement")
       return
     }
 
@@ -246,7 +246,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
         a.click()
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        toast.success("Export CSV telecharge")
+        toast.success("Export CSV téléchargé")
       } else {
         const data = await response.json()
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
@@ -258,7 +258,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
         a.click()
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        toast.success("Export JSON telecharge")
+        toast.success("Export JSON téléchargé")
       }
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de l'export")
@@ -269,7 +269,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
   const handleManualSearch = async () => {
     if (!searchQuery.trim()) {
-      toast.error("Entrez une reference de reservation")
+      toast.error("Entrez une référence de réservation")
       return
     }
 
@@ -281,7 +281,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(data.error || "Reservation non trouvee")
+        toast.error(data.error || "Réservation non trouvée")
         return
       }
 
@@ -289,10 +289,10 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
         ...data,
         scanType: "search"
       })
-      toast.success("Reservation trouvee")
+      toast.success("Réservation trouvée")
     } catch (error) {
       console.error("Manual search error:", error)
-      toast.error("Recherche ratee. Retente?")
+      toast.error("Recherche ratée. Retente ?")
     } finally {
       setIsProcessing(false)
     }
@@ -300,7 +300,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
 
   const handleManualCheckIn = async (mode: "in" | "out") => {
     if (!scannedData?.bookingId) {
-      toast.error("Aucune reservation selectionnee")
+      toast.error("Aucune réservation sélectionnée")
       return
     }
 
@@ -326,14 +326,14 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
         return
       }
 
-      toast.success(mode === "in" ? "Entree enregistree" : "Sortie enregistree")
+      toast.success(mode === "in" ? "Entrée enregistrée" : "Sortie enregistrée")
       playSuccessSound()
       fetchStats()
       setScannedData(null)
       setSearchQuery("")
     } catch (error) {
       console.error("Manual check-in error:", error)
-      toast.error("Check-in rate. On retente? 💪")
+      toast.error("Check-in raté. On retente ? 💪")
     } finally {
       setIsProcessing(false)
     }

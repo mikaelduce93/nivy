@@ -20,6 +20,13 @@ interface CelebrationOverlayProps {
   onClose: () => void
 }
 
+/**
+ * @deprecated #187 — pour le pic level-up, remplacé par `<NivCelebration>`
+ * (surface sombre charte + Niv + confettis charté) dans
+ * `gamification-provider.tsx`. Cet overlay (néon `--neon-*`, `blur-3xl`,
+ * `textShadow`, confettis RGB en dur) reste branché sur les autres types
+ * (badge / mission / streak) le temps de leur migration. Non supprimé.
+ */
 export function CelebrationOverlay({
   type,
   title,
