@@ -1,6 +1,5 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { headers } from "next/headers"
 import { Bricolage_Grotesque, Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -159,9 +158,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Get nonce from headers (set by middleware)
-  const headersList = await headers()
-  const nonce = headersList.get('x-nonce') || ''
   const locale = await getLocale()
 
   // i18n: derive `lang` and `dir` from the active locale so AR (MSA) renders
@@ -180,12 +176,13 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
         <link rel="dns-prefetch" href="https://teensparty.supabase.co" />
 
-        {/* Preload critical resources */}
-        <link rel="preload" href="/teens-party-event.jpg" as="image" type="image/jpeg" />
 
+        {/* JSON-LD est un bloc de données (non exécuté) : non soumis au CSP
+            script-src, donc aucun nonce requis. Passer un nonce par requête ici
+            provoquait un mismatch d'hydratation (le nonce est retiré du payload
+            RSC), d'où l'« Application error » côté client. */}
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -286,8 +283,8 @@ export default async function RootLayout({
             <SentryUserContext />
             <SentryWebVitals />
 
-            <Analytics />
-            
+            {process.env.NODE_ENV === "production" && <Analytics />}
+
             {/* Sonner Toaster for toast notifications */}
             <Toaster />
           </AnnounceRegion>
