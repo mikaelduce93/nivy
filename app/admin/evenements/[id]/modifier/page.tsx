@@ -4,12 +4,14 @@ import type React from 'react'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { StickerCard } from '@/components/ui/sticker-card'
+import { FieldInput } from '@/components/ui/field-input'
+import { SelectSticker, SelectStickerItem } from '@/components/ui/select-sticker'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Calendar, Clock, MapPin, Users, Image as ImageIcon, ArrowLeft, Save, Loader2, DollarSign } from 'lucide-react'
+import { SegmentedProgress } from '@/components/ui/progress'
+import { NivCoach, Niv } from '@/components/brand'
+import { Calendar, Clock, MapPin, Users, ArrowLeft, Save, Coins } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import VIPPricePreview from '@/components/admin/VIPPricePreview'
@@ -184,390 +186,338 @@ export default function EditEventPage() {
 
   if (isFetching) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-teal animate-spin mx-auto mb-4" />
-          <p className="text-mute">Chargement de l'événement...</p>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-6 py-16">
+          <div className="mb-8 flex items-center gap-3">
+            <Niv mood="calm" size={56} />
+            <div>
+              <p className="eyebrow tracking-[0.16em] text-mute">Chargement</p>
+              <p className="font-display text-xl font-extrabold tracking-tight text-ink">
+                On récupère ton événement...
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-6">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-40 animate-pulse rounded-2xl border-2 border-ink bg-white shadow-stkr-sm"
+              />
+            ))}
+          </div>
         </div>
       </div>
     )
   }
 
+  const capacityNum = parseInt(capacity)
+  const availableNum = parseInt(availableSpots)
+  const spotsError =
+    !Number.isNaN(capacityNum) &&
+    !Number.isNaN(availableNum) &&
+    availableNum > capacityNum
+      ? 'Les places disponibles dépassent la capacité.'
+      : undefined
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
+      <div className="container mx-auto px-6 py-16">
         <div className="mb-8">
-          <Button asChild variant="outline" className="mb-4 bg-transparent border-ink text-ink-2">
+          <Button asChild variant="outline" className="mb-4 border-2 border-ink bg-transparent text-ink">
             <Link href="/admin/evenements">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour aux événements
             </Link>
           </Button>
-          <h1 className="text-4xl font-black text-ink mb-2">Modifier l'événement</h1>
-          <p className="text-mute">Modifiez les informations de l'événement</p>
+          <p className="eyebrow tracking-[0.16em] text-pink">Admin · Édition</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">
+            Modifier l'<em className="font-semibold italic text-pink">événement</em>
+          </h1>
+          <p className="mt-2 text-mute">Mets à jour les informations de l'événement.</p>
         </div>
 
+        {/* Carte d'étapes du formulaire */}
+        <div className="mb-6">
+          <SegmentedProgress
+            steps={5}
+            current={0}
+            size="md"
+            showLabel
+            label="Infos · Date · Lieu · Capacité · Prix"
+          />
+        </div>
+
+        <NivCoach
+          className="mb-6"
+          mood="calm"
+          message="Touche aux places dispo avec précaution : ça impacte la billetterie en direct."
+        />
+
         {error && (
-          <Card className="mb-6 bg-destructive/10 border-destructive/50">
-            <CardContent className="pt-6">
-              <p className="text-destructive">{error}</p>
-            </CardContent>
-          </Card>
+          <StickerCard className="mb-6 border-coral p-5 shadow-stkr-md">
+            <p className="text-coral">{error}</p>
+          </StickerCard>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6">
             {/* Informations de base */}
-            <Card className="bg-card border-ink">
-              <CardHeader>
-                <CardTitle className="text-ink">Informations de base</CardTitle>
-                <CardDescription className="text-mute">
-                  Les informations principales de l'événement
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title" className="text-ink-2">
-                    Titre de l'événement <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => handleTitleChange(e.target.value)}
-                    placeholder="Ex: Soirée Teens Party - Casablanca"
-                    className="bg-background border-ink text-ink"
-                    required
-                  />
-                </div>
+            <StickerCard className="gap-4 p-6">
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-mute">Informations de base</p>
+                <p className="mt-1 text-sm text-mute">Les informations principales de l'événement.</p>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="slug" className="text-ink-2">
-                    Slug (URL) <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="slug"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="soiree-teens-party-casablanca"
-                    className="bg-background border-ink text-ink font-mono text-sm"
-                    required
-                  />
-                  <p className="text-xs text-mute">Généré automatiquement à partir du titre</p>
-                </div>
+              <FieldInput
+                id="title"
+                label="Titre de l'événement *"
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Ex : Soirée Teens Party - Casablanca"
+                required
+              />
 
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="text-ink-2">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Décrivez votre événement..."
-                    className="bg-background border-ink text-ink min-h-32"
-                    rows={4}
-                  />
-                </div>
+              <FieldInput
+                id="slug"
+                label="Slug (URL) *"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="soiree-teens-party-casablanca"
+                hint="Généré automatiquement à partir du titre"
+                className="font-mono text-sm"
+                required
+              />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="category" className="text-ink-2">
-                      Catégorie <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="bg-background border-ink text-ink">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-ink">
-                        <SelectItem value="party">Soirée / Party</SelectItem>
-                        <SelectItem value="concert">Concert</SelectItem>
-                        <SelectItem value="workshop">Atelier</SelectItem>
-                        <SelectItem value="sport">Sport</SelectItem>
-                        <SelectItem value="cultural">Culturel</SelectItem>
-                        <SelectItem value="other">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="description" className="eyebrow tracking-[0.16em]">
+                  Description
+                </Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Décris ton événement..."
+                  className="min-h-32 border-2 border-ink"
+                  rows={4}
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="status" className="text-ink-2">
-                      Statut <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={status} onValueChange={setStatus}>
-                      <SelectTrigger className="bg-background border-ink text-ink">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-ink">
-                        <SelectItem value="upcoming">À venir</SelectItem>
-                        <SelectItem value="ongoing">En cours</SelectItem>
-                        <SelectItem value="completed">Terminé</SelectItem>
-                        <SelectItem value="cancelled">Annulé</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SelectSticker
+                  label="Catégorie *"
+                  value={category}
+                  onValueChange={setCategory}
+                >
+                  <SelectStickerItem value="party">Soirée / Party</SelectStickerItem>
+                  <SelectStickerItem value="concert">Concert</SelectStickerItem>
+                  <SelectStickerItem value="workshop">Atelier</SelectStickerItem>
+                  <SelectStickerItem value="sport">Sport</SelectStickerItem>
+                  <SelectStickerItem value="cultural">Culturel</SelectStickerItem>
+                  <SelectStickerItem value="other">Autre</SelectStickerItem>
+                </SelectSticker>
 
-                <div className="space-y-2">
-                  <Label htmlFor="imageUrl" className="text-ink-2 flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4" />
-                    URL de l'image
-                  </Label>
-                  <Input
-                    id="imageUrl"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="bg-background border-ink text-ink"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                <SelectSticker label="Statut *" value={status} onValueChange={setStatus}>
+                  <SelectStickerItem value="upcoming">À venir</SelectStickerItem>
+                  <SelectStickerItem value="ongoing">En cours</SelectStickerItem>
+                  <SelectStickerItem value="completed">Terminé</SelectStickerItem>
+                  <SelectStickerItem value="cancelled">Annulé</SelectStickerItem>
+                </SelectSticker>
+              </div>
+
+              <FieldInput
+                id="imageUrl"
+                label="URL de l'image"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </StickerCard>
 
             {/* Date et heure */}
-            <Card className="bg-card border-ink">
-              <CardHeader>
-                <CardTitle className="text-ink flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
+            <StickerCard className="gap-4 p-6">
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-mute flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
                   Date et heure
-                </CardTitle>
-                <CardDescription className="text-mute">
-                  Quand aura lieu l'événement ?
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="eventDate" className="text-ink-2">
-                      Date de l'événement <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="eventDate"
-                      type="date"
-                      value={eventDate}
-                      onChange={(e) => setEventDate(e.target.value)}
-                      className="bg-background border-ink text-ink"
-                      required
-                    />
-                  </div>
+                </p>
+                <p className="mt-1 text-sm text-mute">Quand aura lieu l'événement ?</p>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="eventTime" className="text-ink-2">
-                      Heure de début <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="eventTime"
-                      type="time"
-                      value={eventTime}
-                      onChange={(e) => setEventTime(e.target.value)}
-                      className="bg-background border-ink text-ink"
-                      required
-                    />
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FieldInput
+                  id="eventDate"
+                  label="Date de l'événement *"
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  required
+                />
+                <FieldInput
+                  id="eventTime"
+                  label="Heure de début *"
+                  type="time"
+                  value={eventTime}
+                  onChange={(e) => setEventTime(e.target.value)}
+                  required
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="endTime" className="text-ink-2">
-                    Heure de fin (optionnel)
-                  </Label>
-                  <Input
-                    id="endTime"
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="bg-background border-ink text-ink"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+              <FieldInput
+                id="endTime"
+                label="Heure de fin (optionnel)"
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
+            </StickerCard>
 
             {/* Lieu */}
-            <Card className="bg-card border-ink">
-              <CardHeader>
-                <CardTitle className="text-ink flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
+            <StickerCard className="gap-4 p-6">
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-mute flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
                   Lieu de l'événement
-                </CardTitle>
-                <CardDescription className="text-mute">
-                  Où aura lieu l'événement ?
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="venueName" className="text-ink-2">
-                    Nom du lieu <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="venueName"
-                    value={venueName}
-                    onChange={(e) => setVenueName(e.target.value)}
-                    placeholder="Ex: Salle des fêtes Anfa"
-                    className="bg-background border-ink text-ink"
-                    required
-                  />
-                </div>
+                </p>
+                <p className="mt-1 text-sm text-mute">Où aura lieu l'événement ?</p>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="venueAddress" className="text-ink-2">
-                    Adresse <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="venueAddress"
-                    value={venueAddress}
-                    onChange={(e) => setVenueAddress(e.target.value)}
-                    placeholder="Ex: Boulevard de la Corniche, Casablanca"
-                    className="bg-background border-ink text-ink"
-                    required
-                  />
-                </div>
+              <FieldInput
+                id="venueName"
+                label="Nom du lieu *"
+                value={venueName}
+                onChange={(e) => setVenueName(e.target.value)}
+                placeholder="Ex : Salle des fêtes Anfa"
+                required
+              />
 
-                <div className="space-y-2">
-                  <Label htmlFor="city" className="text-ink-2">
-                    Ville <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={city} onValueChange={setCity}>
-                    <SelectTrigger className="bg-background border-ink text-ink">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-ink">
-                      <SelectItem value="Casablanca">Casablanca</SelectItem>
-                      <SelectItem value="Rabat">Rabat</SelectItem>
-                      <SelectItem value="Marrakech">Marrakech</SelectItem>
-                      <SelectItem value="Fès">Fès</SelectItem>
-                      <SelectItem value="Tanger">Tanger</SelectItem>
-                      <SelectItem value="Agadir">Agadir</SelectItem>
-                      <SelectItem value="Meknès">Meknès</SelectItem>
-                      <SelectItem value="Oujda">Oujda</SelectItem>
-                      <SelectItem value="Kenitra">Kenitra</SelectItem>
-                      <SelectItem value="Tétouan">Tétouan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+              <FieldInput
+                id="venueAddress"
+                label="Adresse *"
+                value={venueAddress}
+                onChange={(e) => setVenueAddress(e.target.value)}
+                placeholder="Ex : Boulevard de la Corniche, Casablanca"
+                required
+              />
+
+              <SelectSticker label="Ville *" value={city} onValueChange={setCity}>
+                <SelectStickerItem value="Casablanca">Casablanca</SelectStickerItem>
+                <SelectStickerItem value="Rabat">Rabat</SelectStickerItem>
+                <SelectStickerItem value="Marrakech">Marrakech</SelectStickerItem>
+                <SelectStickerItem value="Fès">Fès</SelectStickerItem>
+                <SelectStickerItem value="Tanger">Tanger</SelectStickerItem>
+                <SelectStickerItem value="Agadir">Agadir</SelectStickerItem>
+                <SelectStickerItem value="Meknès">Meknès</SelectStickerItem>
+                <SelectStickerItem value="Oujda">Oujda</SelectStickerItem>
+                <SelectStickerItem value="Kenitra">Kenitra</SelectStickerItem>
+                <SelectStickerItem value="Tétouan">Tétouan</SelectStickerItem>
+              </SelectSticker>
+            </StickerCard>
 
             {/* Capacité et disponibilité */}
-            <Card className="bg-card border-ink">
-              <CardHeader>
-                <CardTitle className="text-ink flex items-center gap-2">
-                  <Users className="w-5 h-5" />
+            <StickerCard className="gap-4 p-6">
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-mute flex items-center gap-2">
+                  <Users className="w-4 h-4" />
                   Capacité et restrictions d'âge
-                </CardTitle>
-                <CardDescription className="text-mute">
-                  Combien de personnes et quel âge ?
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="capacity" className="text-ink-2">
-                      Capacité maximale <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="capacity"
-                      type="number"
-                      min="1"
-                      value={capacity}
-                      onChange={(e) => setCapacity(e.target.value)}
-                      placeholder="100"
-                      className="bg-background border-ink text-ink"
-                      required
-                    />
-                  </div>
+                </p>
+                <p className="mt-1 text-sm text-mute">Combien de personnes et quel âge ?</p>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="availableSpots" className="text-ink-2">
-                      Places disponibles <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="availableSpots"
-                      type="number"
-                      min="0"
-                      value={availableSpots}
-                      onChange={(e) => setAvailableSpots(e.target.value)}
-                      placeholder="100"
-                      className="bg-background border-ink text-ink"
-                      required
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FieldInput
+                  id="capacity"
+                  label="Capacité maximale *"
+                  type="number"
+                  min="1"
+                  value={capacity}
+                  onChange={(e) => setCapacity(e.target.value)}
+                  placeholder="100"
+                  required
+                />
+                <FieldInput
+                  id="availableSpots"
+                  label="Places disponibles *"
+                  type="number"
+                  min="0"
+                  value={availableSpots}
+                  onChange={(e) => setAvailableSpots(e.target.value)}
+                  placeholder="100"
+                  error={spotsError}
+                  required
+                />
+              </div>
+
+              {/* Récap capacité vs dispo */}
+              {!Number.isNaN(capacityNum) && !Number.isNaN(availableNum) && (
+                <div className="flex items-center justify-between rounded-xl border-2 border-ink bg-white p-3">
+                  <span className="eyebrow text-mute">Places vendues</span>
+                  <span className="font-mono text-sm font-bold text-teal">
+                    {Math.max(0, capacityNum - availableNum)} / {capacityNum}
+                  </span>
                 </div>
+              )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="ageMin" className="text-ink-2">
-                      Âge minimum
-                    </Label>
-                    <Input
-                      id="ageMin"
-                      type="number"
-                      min="1"
-                      max="99"
-                      value={ageMin}
-                      onChange={(e) => setAgeMin(e.target.value)}
-                      className="bg-background border-ink text-ink"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="ageMax" className="text-ink-2">
-                      Âge maximum
-                    </Label>
-                    <Input
-                      id="ageMax"
-                      type="number"
-                      min="1"
-                      max="99"
-                      value={ageMax}
-                      onChange={(e) => setAgeMax(e.target.value)}
-                      className="bg-background border-ink text-ink"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FieldInput
+                  id="ageMin"
+                  label="Âge minimum"
+                  type="number"
+                  min="1"
+                  max="99"
+                  value={ageMin}
+                  onChange={(e) => setAgeMin(e.target.value)}
+                />
+                <FieldInput
+                  id="ageMax"
+                  label="Âge maximum"
+                  type="number"
+                  min="1"
+                  max="99"
+                  value={ageMax}
+                  onChange={(e) => setAgeMax(e.target.value)}
+                />
+              </div>
+            </StickerCard>
 
             {/* Tarification */}
-            <Card className="bg-card border-ink">
-              <CardHeader>
-                <CardTitle className="text-ink flex items-center gap-2">
-                  <DollarSign className="w-5 h-5" />
+            <StickerCard className="gap-4 p-6">
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-mute flex items-center gap-2">
+                  <Coins className="w-4 h-4" />
                   Tarification
-                </CardTitle>
-                <CardDescription className="text-mute">
-                  Prix de base (les réductions VIP seront calculées automatiquement)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="basePrice" className="text-ink-2">
-                    Prix de base (DH) <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="basePrice"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={basePrice}
-                    onChange={(e) => setBasePrice(e.target.value)}
-                    placeholder="150.00"
-                    className="bg-background border-ink text-ink"
-                    required
-                  />
-                  <p className="text-xs text-mute">
-                    Les détenteurs de cartes VIP bénéficieront de réductions automatiques
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                </p>
+                <p className="mt-1 text-sm text-mute">
+                  Prix de base (les réductions VIP seront calculées automatiquement).
+                </p>
+              </div>
 
-            {/* Aperçu des prix VIP */}
-            <VIPPricePreview basePrice={basePrice} currency="DH" />
+              <FieldInput
+                id="basePrice"
+                label="Prix de base (DH) *"
+                type="number"
+                min="0"
+                step="0.01"
+                value={basePrice}
+                onChange={(e) => setBasePrice(e.target.value)}
+                placeholder="150.00"
+                hint="Les détenteurs de cartes VIP bénéficieront de réductions automatiques"
+                className="font-mono"
+                required
+              />
+            </StickerCard>
+
+            {/* Aperçu des prix VIP — mis en avant */}
+            <StickerCard variant="hover" className="gap-4 p-6 shadow-stkr-pink">
+              <p className="eyebrow tracking-[0.16em] text-pink">Aperçu des tarifs VIP</p>
+              <VIPPricePreview basePrice={basePrice} currency="DH" />
+            </StickerCard>
 
             {/* Boutons d'action */}
             <div className="flex gap-4">
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal"
+                className="rounded-full border-2 border-ink bg-ink text-paper shadow-stkr-pink hover:bg-ink hover:text-paper"
               >
                 {isLoading ? (
                   <>
@@ -585,7 +535,7 @@ export default function EditEventPage() {
                 type="button"
                 variant="outline"
                 onClick={() => router.push('/admin/evenements')}
-                className="bg-transparent border-ink text-ink-2"
+                className="border-2 border-ink bg-transparent text-ink"
               >
                 Annuler
               </Button>

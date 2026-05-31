@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Calendar, Plus, Edit, Eye, Trash2, Users } from "lucide-react"
+import { Plus, Edit, Eye, Trash2, Users, Coins } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { NivEmpty } from "@/components/brand"
 import Image from "next/image"
 import Link from "next/link"
 import BackButton from "@/components/admin/BackButton"
@@ -51,14 +53,20 @@ export default async function AdminEventsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
+      <div className="container mx-auto px-6 py-16">
         <BackButton href="/admin" label="Retour au dashboard" />
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 mt-4 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-black text-ink mb-2">Gestion des événements</h1>
-            <p className="text-mute">Créez et gérez tous vos événements</p>
+            <p className="eyebrow tracking-[0.16em] text-pink">Admin · Programmation</p>
+            <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">
+              Tes <em className="font-semibold italic text-pink">événements</em>
+            </h1>
+            <p className="mt-2 text-mute">Crée, suis et remplis chaque date.</p>
           </div>
-          <Button asChild className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal">
+          <Button
+            asChild
+            className="rounded-full border-2 border-ink bg-ink text-paper shadow-stkr-pink hover:bg-ink hover:text-paper"
+          >
             <Link href="/admin/evenements/creer">
               <Plus className="w-4 h-4 mr-2" />
               Créer un événement
@@ -71,11 +79,15 @@ export default async function AdminEventsPage() {
             {eventsWithStats.map((event) => {
               const isPast = new Date(event.event_date) < new Date()
               const isSoldOut = event.available_spots === 0
+              const fillRatio =
+                event.capacity > 0
+                  ? Math.min(1, event.bookings_count / event.capacity)
+                  : 0
 
               return (
-                <Card key={event.id} className="p-6 bg-card border-ink">
-                  <div className="flex gap-6">
-                    <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0">
+                <StickerCard key={event.id} variant="hover" className="p-6">
+                  <div className="flex flex-col gap-6 md:flex-row">
+                    <div className="relative h-32 w-full flex-shrink-0 overflow-hidden rounded-xl border-2 border-ink md:w-48">
                       <Image
                         src={event.image_url || "/placeholder.svg?height=128&width=192&query=event"}
                         alt={event.title}
@@ -86,78 +98,87 @@ export default async function AdminEventsPage() {
                       />
                       {isSoldOut && (
                         <div className="absolute inset-0 bg-ink/60 flex items-center justify-center">
-                          <span className="text-paper font-bold text-sm">COMPLET</span>
+                          <span className="font-mono text-sm font-bold uppercase tracking-[0.16em] text-paper">
+                            Complet
+                          </span>
                         </div>
                       )}
                     </div>
 
                     <div className="flex-1">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="text-xl font-bold text-ink mb-1">{event.title}</h3>
-                          <p className="text-mute text-sm mb-2">{event.city}</p>
-                          <div className="flex items-center gap-4 text-sm">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-teal" />
-                              <span className="text-ink-2">
-                                {new Date(event.event_date).toLocaleDateString("fr-FR")}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4 text-teal" />
-                              <span className="text-ink-2">
-                                {event.bookings_count} / {event.capacity}
-                              </span>
-                            </div>
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="eyebrow tracking-[0.14em] text-mute">
+                            {event.city} · {new Date(event.event_date).toLocaleDateString("fr-FR")}
+                          </p>
+                          <h3 className="mt-1 font-display text-xl font-extrabold tracking-tight text-ink">
+                            {event.title}
+                          </h3>
+                          <div className="mt-2 flex items-center gap-2 text-sm">
+                            <Users className="w-4 h-4 text-teal" />
+                            <span className="font-mono text-ink-2">
+                              {event.bookings_count} / {event.capacity}
+                            </span>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2">
                           {isPast && (
-                            <div className="px-3 py-1 rounded-full bg-card text-mute text-xs font-semibold">
-                              PASSÉ
-                            </div>
+                            <span className="rounded-full border-2 border-ink bg-white px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-mute">
+                              Passé
+                            </span>
                           )}
                           {event.status === "published" && !isPast && (
-                            <div className="px-3 py-1 rounded-full bg-lime/20 text-lime text-xs font-semibold">
-                              PUBLIÉ
-                            </div>
+                            <span className="rounded-full border-2 border-ink bg-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-paper">
+                              Publié
+                            </span>
                           )}
                           {event.status === "draft" && (
-                            <div className="px-3 py-1 rounded-full bg-gold/20 text-gold text-xs font-semibold">
-                              BROUILLON
-                            </div>
+                            <span className="rounded-full border-2 border-ink bg-white px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-gold">
+                              Brouillon
+                            </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-4 mb-4">
-                        <div className="bg-background rounded-lg p-3">
-                          <p className="text-xs text-mute mb-1">Prix standard</p>
-                          <p className="text-lg font-bold text-teal">{event.base_price} DH</p>
+                      {/* Taux de remplissage */}
+                      <SegmentedProgress
+                        steps={10}
+                        current={Math.round(fillRatio * 10)}
+                        size="md"
+                        className="mb-4"
+                      />
+
+                      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        <div className="rounded-xl border-2 border-ink bg-white p-3">
+                          <p className="eyebrow text-mute">Prix standard</p>
+                          <p className="mt-1 font-mono text-lg font-bold text-teal">{event.base_price} DH</p>
                         </div>
                         {event.vip_price && (
-                          <div className="bg-background rounded-lg p-3">
-                            <p className="text-xs text-mute mb-1">Prix VIP</p>
-                            <p className="text-lg font-bold text-pink">{event.vip_price} DH</p>
+                          <div className="rounded-xl border-2 border-ink bg-white p-3">
+                            <p className="eyebrow text-mute">Prix VIP</p>
+                            <p className="mt-1 font-mono text-lg font-bold text-pink">{event.vip_price} DH</p>
                           </div>
                         )}
-                        <div className="bg-background rounded-lg p-3">
-                          <p className="text-xs text-mute mb-1">Réservations</p>
-                          <p className="text-lg font-bold text-ink">{event.bookings_count}</p>
+                        <div className="rounded-xl border-2 border-ink bg-white p-3">
+                          <p className="eyebrow text-mute">Réservations</p>
+                          <p className="mt-1 font-mono text-lg font-bold text-ink">{event.bookings_count}</p>
                         </div>
-                        <div className="bg-background rounded-lg p-3">
-                          <p className="text-xs text-mute mb-1">Revenus</p>
-                          <p className="text-lg font-bold text-lime">{event.revenue} DH</p>
+                        <div className="rounded-xl border-2 border-ink bg-white p-3">
+                          <p className="eyebrow text-mute">Revenus</p>
+                          <p className="mt-1 flex items-center gap-1 font-display text-lg font-extrabold text-coral">
+                            <Coins className="h-4 w-4" />
+                            {event.revenue} DH
+                          </p>
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button
                           asChild
                           size="sm"
                           variant="outline"
-                          className="bg-transparent border-teal text-teal"
+                          className="border-2 border-ink bg-transparent text-ink"
                         >
                           <Link href={`/agenda/${event.slug}`}>
                             <Eye className="w-4 h-4 mr-2" />
@@ -168,7 +189,7 @@ export default async function AdminEventsPage() {
                           asChild
                           size="sm"
                           variant="outline"
-                          className="bg-transparent border-teal text-teal"
+                          className="border-2 border-ink bg-transparent text-ink"
                         >
                           <Link href={`/admin/evenements/${event.id}/modifier`}>
                             <Edit className="w-4 h-4 mr-2" />
@@ -179,7 +200,7 @@ export default async function AdminEventsPage() {
                           asChild
                           size="sm"
                           variant="outline"
-                          className="bg-transparent border-destructive text-destructive"
+                          className="border-2 border-ink bg-transparent text-coral"
                         >
                           <Link href={`/admin/evenements/${event.id}/supprimer`}>
                             <Trash2 className="w-4 h-4 mr-2" />
@@ -189,22 +210,26 @@ export default async function AdminEventsPage() {
                       </div>
                     </div>
                   </div>
-                </Card>
+                </StickerCard>
               )
             })}
           </div>
         ) : (
-          <Card className="p-12 text-center bg-card border-ink">
-            <Calendar className="w-16 h-16 text-ink mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-ink mb-2">Aucun événement</h3>
-            <p className="text-mute mb-6">Créez votre premier événement pour commencer</p>
-            <Button asChild className="bg-gradient-to-r from-teal to-teal">
-              <Link href="/admin/evenements/creer">
-                <Plus className="w-4 h-4 mr-2" />
-                Créer un événement
-              </Link>
-            </Button>
-          </Card>
+          <NivEmpty
+            title="Aucun événement pour l'instant"
+            description="Crée ta première date pour lancer la billetterie."
+            action={
+              <Button
+                asChild
+                className="rounded-full border-2 border-ink bg-ink text-paper shadow-stkr-pink hover:bg-ink hover:text-paper"
+              >
+                <Link href="/admin/evenements/creer">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Créer un événement
+                </Link>
+              </Button>
+            }
+          />
         )}
       </div>
     </div>

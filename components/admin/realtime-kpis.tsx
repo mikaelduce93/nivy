@@ -1,21 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StatCard } from "@/components/admin/stat-card"
 import {
   Users,
   TrendingUp,
-  DollarSign,
   Activity,
-  ArrowUpRight,
   ArrowDownRight,
   RefreshCw,
-  Zap,
-  Clock,
   UserPlus,
-  ShoppingCart,
-  Calendar
+  Calendar,
 } from "lucide-react"
 
 interface KPIData {
@@ -89,37 +84,41 @@ export function RealtimeKPIs({ initialData }: RealtimeKPIsProps) {
     })
   }
 
+  const teensActivityRate =
+    data.teens.total > 0 ? Math.round((data.teens.active / data.teens.total) * 100) : 0
+
   return (
     <div className="space-y-6 mb-8">
-      {/* Live Status Bar */}
-      <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-ink">
+      {/* Barre de statut live — accent unique : pill mono + point lime pulsant */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className={`h-3 w-3 rounded-full ${isLive ? "bg-lime animate-pulse" : "bg-muted"}`} />
-            <span className={`text-sm font-medium ${isLive ? "text-lime" : "text-mute"}`}>
-              {isLive ? "Live" : "Pause"}
+          <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-3 py-1">
+            <span
+              className={`h-2 w-2 rounded-full ${isLive ? "bg-lime animate-pulse" : "bg-mute"}`}
+            />
+            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-paper">
+              {isLive ? "En direct" : "En pause"}
             </span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-mute">
-            <Clock className="h-3 w-3" />
-            Dernière MAJ: {formatTime(lastUpdate)}
-          </div>
+          </span>
+          <span className="font-mono text-xs text-mute">
+            Dernière MAJ : {formatTime(lastUpdate)}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsLive(!isLive)}
-            className={`text-xs ${isLive ? "text-gold" : "text-lime"}`}
+            className="text-xs"
           >
-            {isLive ? "Pause" : "Reprendre"}
+            {isLive ? "Mettre en pause" : "Reprendre"}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={handleManualRefresh}
             disabled={loading}
-            className="border-ink text-ink-2"
+            className="border-2 border-ink text-ink"
           >
             <RefreshCw className={`h-3 w-3 mr-1 ${loading ? "animate-spin" : ""}`} />
             Rafraîchir
@@ -127,135 +126,79 @@ export function RealtimeKPIs({ initialData }: RealtimeKPIsProps) {
         </div>
       </div>
 
-      {/* Live KPI Cards */}
+      {/* Rail KPI unique — cartes sticker charte */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Online Users */}
-        <Card className="bg-gradient-to-br from-lime/10 to-teal/10 border-lime/30 bg-card relative overflow-hidden">
-          <div className="absolute top-2 right-2">
-            <span className="flex items-center gap-1 text-xs bg-lime/20 text-lime px-2 py-0.5 rounded-full">
-              <Zap className="h-3 w-3" />
-              Live
+        <StatCard
+          label="Actifs aujourd'hui"
+          value={data.teens.active}
+          tone="lime"
+          icon={<Activity className="h-5 w-5" />}
+          hint="Ados connectés"
+        />
+        <StatCard
+          label="Nouveaux du jour"
+          value={`+${data.users.today}`}
+          tone="teal"
+          icon={<UserPlus className="h-5 w-5" />}
+          hint="Inscriptions"
+        />
+        <StatCard
+          label="Revenus du mois"
+          value={data.revenue.monthly.toLocaleString("fr-FR")}
+          tone="lime"
+          mono
+          icon={<TrendingUp className="h-5 w-5" />}
+          hint={
+            <span className={data.revenue.growth >= 0 ? "text-lime" : "text-coral"}>
+              {data.revenue.growth >= 0 ? "+" : ""}
+              {data.revenue.growth}% · DH
             </span>
-          </div>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-full bg-lime/20 flex items-center justify-center">
-                <Activity className="h-5 w-5 text-lime" />
-              </div>
-            </div>
-            <p className="text-3xl font-black text-ink">{data.teens.active}</p>
-            <p className="text-xs text-lime">Utilisateurs actifs</p>
-          </CardContent>
-        </Card>
-
-        {/* New Users Today */}
-        <Card className="bg-gradient-to-br from-teal/10 to-teal/10 border-teal/30 bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-full bg-teal/20 flex items-center justify-center">
-                <UserPlus className="h-5 w-5 text-teal" />
-              </div>
-            </div>
-            <p className="text-3xl font-black text-ink">+{data.users.today}</p>
-            <p className="text-xs text-teal">Nouveaux aujourd'hui</p>
-          </CardContent>
-        </Card>
-
-        {/* Monthly Revenue */}
-        <Card className="bg-gradient-to-br from-lime/10 to-lime/10 border-lime/30 bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="h-10 w-10 rounded-full bg-lime/20 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-lime" />
-              </div>
-              <div className={`flex items-center gap-1 text-xs ${data.revenue.growth >= 0 ? "text-lime" : "text-destructive"}`}>
-                {data.revenue.growth >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                {Math.abs(data.revenue.growth)}%
-              </div>
-            </div>
-            <p className="text-3xl font-black text-ink">{data.revenue.monthly.toLocaleString()}</p>
-            <p className="text-xs text-lime">DH ce mois</p>
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Events */}
-        <Card className="bg-gradient-to-br from-pink/10 to-pink/10 border-pink/30 bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-full bg-pink/20 flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-pink" />
-              </div>
-            </div>
-            <p className="text-3xl font-black text-ink">{data.events.upcoming}</p>
-            <p className="text-xs text-pink">Events à venir</p>
-          </CardContent>
-        </Card>
+          }
+        />
+        <StatCard
+          label="Events à venir"
+          value={data.events.upcoming}
+          tone="coral"
+          icon={<Calendar className="h-5 w-5" />}
+          hint="Programmés"
+        />
       </div>
 
-      {/* Growth Indicators */}
+      {/* Indicateurs de croissance — même rail, cartes sticker */}
       <div className="grid md:grid-cols-3 gap-4">
-        <Card className="bg-card border-ink">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-mute">Croissance utilisateurs</p>
-                <p className="text-2xl font-black text-ink">
-                  {data.users.growth >= 0 ? "+" : ""}{data.users.growth}%
-                </p>
-              </div>
-              <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
-                data.users.growth >= 0 ? "bg-lime/20" : "bg-destructive/20"
-              }`}>
-                {data.users.growth >= 0 ? (
-                  <TrendingUp className="h-6 w-6 text-lime" />
-                ) : (
-                  <ArrowDownRight className="h-6 w-6 text-destructive" />
-                )}
-              </div>
-            </div>
-            <p className="text-xs text-mute mt-2">vs mois dernier</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-ink">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-mute">Croissance revenus</p>
-                <p className="text-2xl font-black text-ink">
-                  {data.revenue.growth >= 0 ? "+" : ""}{data.revenue.growth}%
-                </p>
-              </div>
-              <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
-                data.revenue.growth >= 0 ? "bg-lime/20" : "bg-destructive/20"
-              }`}>
-                {data.revenue.growth >= 0 ? (
-                  <TrendingUp className="h-6 w-6 text-lime" />
-                ) : (
-                  <ArrowDownRight className="h-6 w-6 text-destructive" />
-                )}
-              </div>
-            </div>
-            <p className="text-xs text-mute mt-2">vs mois dernier</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-ink">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-mute">Taux d'activité teens</p>
-                <p className="text-2xl font-black text-ink">
-                  {data.teens.total > 0 ? Math.round((data.teens.active / data.teens.total) * 100) : 0}%
-                </p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-teal/20 flex items-center justify-center">
-                <Activity className="h-6 w-6 text-teal" />
-              </div>
-            </div>
-            <p className="text-xs text-mute mt-2">{data.teens.active} sur {data.teens.total}</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          label="Croissance utilisateurs"
+          value={`${data.users.growth >= 0 ? "+" : ""}${data.users.growth}%`}
+          tone={data.users.growth >= 0 ? "lime" : "coral"}
+          icon={
+            data.users.growth >= 0 ? (
+              <TrendingUp className="h-5 w-5" />
+            ) : (
+              <ArrowDownRight className="h-5 w-5" />
+            )
+          }
+          hint="vs mois dernier"
+        />
+        <StatCard
+          label="Croissance revenus"
+          value={`${data.revenue.growth >= 0 ? "+" : ""}${data.revenue.growth}%`}
+          tone={data.revenue.growth >= 0 ? "lime" : "coral"}
+          icon={
+            data.revenue.growth >= 0 ? (
+              <TrendingUp className="h-5 w-5" />
+            ) : (
+              <ArrowDownRight className="h-5 w-5" />
+            )
+          }
+          hint="vs mois dernier"
+        />
+        <StatCard
+          label="Taux d'activité ados"
+          value={`${teensActivityRate}%`}
+          tone="teal"
+          icon={<Users className="h-5 w-5" />}
+          hint={`${data.teens.active} sur ${data.teens.total}`}
+        />
       </div>
     </div>
   )
