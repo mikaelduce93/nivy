@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { SegmentedProgress } from '@/components/ui/progress'
 import { StickerCard } from '@/components/ui/sticker-card'
-import { NivCelebration } from '@/components/brand'
+import { NivCelebration, NivCoach } from '@/components/brand'
 import { MeshBackground } from '@/components/ui/effects/mesh-background'
 import { cn } from '@/lib/utils'
 import { useOptimisticRunner } from '@/lib/hooks/use-optimistic-mutation'
@@ -87,6 +87,10 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
   // Optimistic XP delta — reflects the +50 (or quest reward) added immediately,
   // then reconciled with the server response. Negative if the server rolls back.
   const [optimisticXpDelta, setOptimisticXpDelta] = useState<number>(0)
+  // Moment de pic — déclenché UNIQUEMENT à la réussite serveur confirmée
+  // (onSuccess), pas en optimiste : évite un faux confetti si la complétion
+  // est rollback, et ne rejoue pas la fête en rouvrant une quête déjà finie.
+  const [celebrate, setCelebrate] = useState(false)
   const { play: playJuice } = useJuice()
 
   const config = PILLAR_CONFIG[quest.pillar] || PILLAR_CONFIG.intellect
@@ -176,6 +180,8 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
             return d - optimisticAdded + output.xpEarned
           })
         }
+        // Moment de pic confirmé côté serveur.
+        setCelebrate(true)
         toast.success(`+${output?.xpEarned ?? quest.xp_reward} XP gagnés !`)
       },
     }
@@ -293,15 +299,29 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
           </div>
         </StickerCard>
 
-        {/* Moment de pic — level-up : Niv proud + confettis au succès */}
-        {isCompleted && (
+        {/* Niv coach — présence mascotte sur le détail tant que la quête
+            n'est pas terminée (le moment de pic prend le relais après). */}
+        {!isCompleted && (
+          <NivCoach
+            mood="hype"
+            message={
+              isInProgress
+                ? "Yallah, encore un effort et l'XP est à toi !"
+                : "Lance-toi, je reste avec toi sur cette quête."
+            }
+          />
+        )}
+
+        {/* Moment de pic — level-up : Niv proud + confettis à la réussite
+            serveur confirmée (onSuccess), pas en optimiste. */}
+        {celebrate && (
           <NivCelebration
             title="Quête terminée"
             value={`+${optimisticXpDelta || quest.xp_reward} XP`}
             caption="Bien joué ! Ton XP grimpe."
             tone="gold"
             palette="levelup"
-            trigger={isCompleted}
+            trigger={celebrate}
           />
         )}
 
