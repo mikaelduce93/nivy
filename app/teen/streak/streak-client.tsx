@@ -79,6 +79,7 @@ export function StreakClient({
     <div className="space-y-8 pt-6">
       {/* #187 — pic premier streak : surface sombre charte plein écran. */}
       {showStreakPeak && crossedMilestone && (
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- backdrop click-to-dismiss sur une overlay role=dialog (pré-existant)
         <div
           role="dialog"
           aria-modal="true"

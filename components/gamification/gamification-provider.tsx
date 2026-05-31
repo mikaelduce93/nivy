@@ -344,6 +344,7 @@ export function GamificationProvider({
           <NivCelebration> déclenche les confettis charte à l'apparition
           (coupés sous prefers-reduced-motion). */}
       {levelUpCelebration && (
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- backdrop click-to-dismiss sur une overlay role=dialog (pré-existant)
         <div
           role="dialog"
           aria-modal="true"
