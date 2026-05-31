@@ -33,6 +33,18 @@ export default async function EditProfilePage() {
 
   const profile = await getProfile(userInfo.profileId)
 
+  // Le pseudo (≈ username) vit sur teens.pseudo, pas sur profiles.
+  let pseudo = ""
+  if (userInfo.teenData?.id) {
+    const supabase = await createClient()
+    const { data: teen } = await supabase
+      .from("teens")
+      .select("pseudo")
+      .eq("id", userInfo.teenData.id)
+      .maybeSingle()
+    pseudo = (teen?.pseudo as string | null) ?? ""
+  }
+
   return (
     <div className="min-h-screen">
       <div className="container-tight py-12 max-w-2xl space-y-8">
@@ -59,8 +71,7 @@ export default async function EditProfilePage() {
             profileId={userInfo.profileId}
             initialData={{
               fullName: profile?.full_name || "",
-              username: profile?.username || "",
-              bio: profile?.bio || "",
+              username: pseudo,
               avatarUrl: profile?.avatar_url || "",
             }}
           />

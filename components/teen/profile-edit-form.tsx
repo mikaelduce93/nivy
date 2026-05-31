@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { FieldInput } from "@/components/ui/field-input"
-import { Textarea } from "@/components/ui/textarea"
 import { NivCoach } from "@/components/brand"
 import { Loader2, Save } from "lucide-react"
 import { toast } from "sonner"
@@ -14,7 +13,6 @@ interface ProfileEditFormProps {
   initialData: {
     fullName: string
     username: string
-    bio: string
     avatarUrl: string
   }
 }
@@ -25,7 +23,6 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
   const [formData, setFormData] = useState({
     fullName: initialData.fullName,
     username: initialData.username,
-    bio: initialData.bio,
   })
 
   const handleChange = (field: string, value: string) => {
@@ -45,11 +42,6 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
       return
     }
 
-    if (formData.bio.length > 200) {
-      toast.error("La bio ne peut pas dépasser 200 caractères")
-      return
-    }
-
     setLoading(true)
     try {
       const response = await fetch("/api/teen/profile", {
@@ -59,7 +51,6 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
           profileId,
           fullName: formData.fullName,
           username: formData.username || null,
-          bio: formData.bio || null,
         }),
       })
 
@@ -119,22 +110,6 @@ export function ProfileEditForm({ profileId, initialData }: ProfileEditFormProps
         maxLength={20}
         hint="Lettres, chiffres et underscores uniquement"
       />
-
-      {/* Bio */}
-      <div className="space-y-1.5">
-        <label htmlFor="profile-bio" className="eyebrow tracking-[0.16em]">Bio</label>
-        <Textarea
-          id="profile-bio"
-          value={formData.bio}
-          onChange={(e) => handleChange("bio", e.target.value)}
-          placeholder="Parle un peu de toi..."
-          className="bg-white border-2 border-ink text-ink placeholder:text-mute min-h-[100px] resize-none focus-visible:border-ink focus-visible:ring-0"
-          maxLength={200}
-        />
-        <p className="font-mono text-xs text-mute text-right tabular-nums">
-          {formData.bio.length}/200 caractères
-        </p>
-      </div>
 
       {/* Submit */}
       <div className="flex gap-3 pt-4">
