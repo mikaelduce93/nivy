@@ -10,6 +10,7 @@ import Link from "next/link"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
+import { NivCoach, NivEmpty } from "@/components/brand"
 import { ArrowLeft } from "lucide-react"
 import { NewFriendDefiForm, type FriendOption } from "./new-friend-defi-form"
 
@@ -62,24 +63,34 @@ export default async function NewFriendDefiPage() {
         </Button>
       </div>
 
-      <header className="space-y-2">
-        <h1 className="text-3xl font-black tracking-tight">Lancer un défi</h1>
-        <p className="text-sm text-muted-foreground">
+      <header className="space-y-3">
+        <span className="eyebrow tracking-[0.16em] text-pink">Lancer un défi</span>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Défie ton <em className="font-semibold italic text-pink">crew</em>
+        </h1>
+        <p className="text-sm text-mute">
           Choisis un adversaire, un type de défi, ton enjeu en XP. La mise est
           débitée à la création; ton adversaire est débité à l&apos;acceptation;
           le pot va au gagnant.
         </p>
       </header>
 
+      <NivCoach
+        mood="happy"
+        message="Choisis bien ton enjeu : pas de remboursement après acceptation."
+      />
+
       {friends.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-ink bg-card p-6 text-center">
-          <p className="text-sm text-mute">
-            Aucun ami pour le moment. Ajoute des amis avant de lancer un défi.
-          </p>
-          <Button asChild className="mt-4">
-            <Link href="/teen/friends">Ajouter des amis</Link>
-          </Button>
-        </div>
+        <NivEmpty
+          mood="calm"
+          title="Aucun ami pour le moment"
+          description="Ajoute des amis avant de lancer un défi."
+          action={
+            <Button variant="pink" asChild>
+              <Link href="/teen/friends">Ajouter des amis</Link>
+            </Button>
+          }
+        />
       ) : (
         <NewFriendDefiForm friends={friends} />
       )}

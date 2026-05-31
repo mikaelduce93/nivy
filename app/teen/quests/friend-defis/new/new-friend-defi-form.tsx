@@ -3,15 +3,10 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { FieldInput } from "@/components/ui/field-input"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { DefiCard } from "@/components/teen/defi-card"
 import { Loader2, Swords } from "lucide-react"
 import { toast } from "sonner"
 
@@ -76,117 +71,127 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
     }
   }
 
+  // Preview live — le défi se construit sous les yeux de l'ado au fil de la
+  // saisie (adversaire / type / mise / objectif). Purement présentationnel.
+  const opponentPseudo =
+    friends.find((f) => f.id === opponentId)?.pseudo ?? null
+  const kindLabel = KIND_OPTIONS.find((k) => k.id === kind)?.label ?? "Défi"
+  const previewTitle = name.trim() || kindLabel
+  const previewTarget = target ? Math.max(1, parseInt(target, 10)) : 0
+  const previewStake = stake ? Math.max(0, parseInt(stake, 10)) : 0
+  const previewDescription = opponentPseudo
+    ? `Tu défies ${opponentPseudo} · ${kindLabel}`
+    : `Choisis un adversaire · ${kindLabel}`
+
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
-      <div className="space-y-2">
-        <Label htmlFor="opponent">Adversaire</Label>
-        <Select value={opponentId} onValueChange={setOpponentId}>
-          <SelectTrigger id="opponent">
-            <SelectValue placeholder="Choisis un ami" />
-          </SelectTrigger>
-          <SelectContent>
+    <div className="space-y-6">
+      {/* Récap visuel de l'enjeu */}
+      <div>
+        <span className="eyebrow tracking-[0.16em] text-mute">Aperçu du défi</span>
+        <div className="mt-2">
+          <DefiCard
+            type="friend"
+            title={previewTitle}
+            description={previewDescription}
+            xpReward={previewStake}
+            status="active"
+            progress={previewTarget > 0 ? { current: 0, target: previewTarget } : undefined}
+          />
+        </div>
+      </div>
+
+      <StickerCard className="p-5 sm:p-6">
+        <form onSubmit={onSubmit} className="space-y-5">
+          <SelectSticker
+            label="Adversaire"
+            placeholder="Choisis un ami"
+            value={opponentId}
+            onValueChange={setOpponentId}
+          >
             {friends.map((f) => (
-              <SelectItem key={f.id} value={f.id}>
+              <SelectStickerItem key={f.id} value={f.id}>
                 {f.pseudo}
-              </SelectItem>
+              </SelectStickerItem>
             ))}
-          </SelectContent>
-        </Select>
-      </div>
+          </SelectSticker>
 
-      <div className="space-y-2">
-        <Label htmlFor="kind">Type de défi</Label>
-        <Select value={kind} onValueChange={setKind}>
-          <SelectTrigger id="kind">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
+          <SelectSticker
+            label="Type de défi"
+            value={kind}
+            onValueChange={setKind}
+          >
             {KIND_OPTIONS.map((k) => (
-              <SelectItem key={k.id} value={k.id}>
+              <SelectStickerItem key={k.id} value={k.id}>
                 {k.label}
-              </SelectItem>
+              </SelectStickerItem>
             ))}
-          </SelectContent>
-        </Select>
-      </div>
+          </SelectSticker>
 
-      <div className="space-y-2">
-        <Label htmlFor="name">Nom (optionnel)</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          maxLength={80}
-          placeholder="Premier à 1000 XP"
-        />
-      </div>
+          <FieldInput
+            label="Nom (optionnel)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={80}
+            placeholder="Premier à 1000 XP"
+          />
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="target">Objectif</Label>
-          <Input
-            id="target"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            value={target}
-            onChange={(e) => setTarget(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="duration">Durée (heures)</Label>
-          <Input
-            id="duration"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={720}
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="stake">Mise XP</Label>
-          <Input
-            id="stake"
-            type="number"
-            inputMode="numeric"
-            min={0}
-            value={stake}
-            onChange={(e) => setStake(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="expires">Expiration invitation (h)</Label>
-          <Input
-            id="expires"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={168}
-            value={expires}
-            onChange={(e) => setExpires(e.target.value)}
-          />
-        </div>
-      </div>
+          <div className="grid grid-cols-2 gap-4">
+            <FieldInput
+              label="Objectif"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+            />
+            <FieldInput
+              label="Durée (heures)"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={720}
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+            />
+            <FieldInput
+              label="Mise XP"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={stake}
+              onChange={(e) => setStake(e.target.value)}
+            />
+            <FieldInput
+              label="Expiration invitation (h)"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={168}
+              value={expires}
+              onChange={(e) => setExpires(e.target.value)}
+            />
+          </div>
 
-      <Button
-        type="submit"
-        disabled={submitting || !opponentId}
-        className="w-full bg-gradient-to-r from-pink to-pink hover:from-pink hover:to-pink text-ink font-black uppercase tracking-wider"
-      >
-        {submitting ? (
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-        ) : (
-          <Swords className="w-4 h-4 mr-2" />
-        )}
-        Envoyer le défi
-      </Button>
+          <Button
+            type="submit"
+            variant="pink"
+            disabled={submitting || !opponentId}
+            className="w-full uppercase tracking-wider"
+          >
+            {submitting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Swords className="w-4 h-4 mr-2" />
+            )}
+            Envoyer le défi
+          </Button>
 
-      <p className="text-xs text-mute">
-        Ta mise XP est débitée immédiatement et placée en escrow. Si ton ami
-        refuse ou laisse expirer l&apos;invitation, ta mise t&apos;est rendue.
-      </p>
-    </form>
+          <p className="text-xs text-mute">
+            Ta mise XP est débitée immédiatement et placée en escrow. Si ton ami
+            refuse ou laisse expirer l&apos;invitation, ta mise t&apos;est rendue.
+          </p>
+        </form>
+      </StickerCard>
+    </div>
   )
 }

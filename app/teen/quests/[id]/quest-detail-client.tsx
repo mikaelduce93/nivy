@@ -2,15 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  ArrowLeft, 
-  Brain, 
-  Dumbbell, 
-  Palette, 
+import {
+  ArrowLeft,
+  Brain,
+  Dumbbell,
+  Palette,
   Users,
-  Zap, 
-  Clock, 
+  Zap,
+  Clock,
   Trophy,
   CheckCircle2,
   Circle,
@@ -18,10 +17,13 @@ import {
   Share2,
   Flame,
   Target,
-  Loader2
+  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
+import { SegmentedProgress } from '@/components/ui/progress'
+import { StickerCard } from '@/components/ui/sticker-card'
+import { NivCelebration } from '@/components/brand'
+import { MeshBackground } from '@/components/ui/effects/mesh-background'
 import { cn } from '@/lib/utils'
 import { useOptimisticRunner } from '@/lib/hooks/use-optimistic-mutation'
 import { useJuice } from '@/lib/hooks/use-juice'
@@ -57,31 +59,23 @@ interface QuestDetailClientProps {
 const PILLAR_CONFIG = {
   intellect: {
     icon: Brain,
-    color: 'var(--info-soft)',
-    gradient: 'from-info-soft to-teal',
-    bg: 'bg-info-soft/10',
-    label: 'INTELLECT',
+    accent: 'text-teal',
+    label: 'Cerveau',
   },
   vitality: {
     icon: Dumbbell,
-    color: 'var(--gen-z-lime)',
-    gradient: 'from-lime to-lime',
-    bg: 'bg-lime/10',
-    label: 'VITALITY',
+    accent: 'text-lime',
+    label: 'Corps',
   },
   creativity: {
     icon: Palette,
-    color: 'var(--brand-soft)',
-    gradient: 'from-brand-soft to-pink',
-    bg: 'bg-brand-soft/10',
-    label: 'CREATIVITY',
+    accent: 'text-pink',
+    label: 'Créa',
   },
   social: {
     icon: Users,
-    color: 'var(--accent-soft)',
-    gradient: 'from-accent-soft to-pink',
-    bg: 'bg-accent-soft/10',
-    label: 'SOCIAL',
+    accent: 'text-coral',
+    label: 'Social',
   },
 }
 
@@ -100,7 +94,6 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
 
   const completedSteps = steps.filter(s => s.completed).length
   const totalSteps = steps.length
-  const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
 
   const isCompleted = currentStatus === 'completed'
   const isInProgress = currentStatus === 'in_progress'
@@ -125,7 +118,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
   }
 
   const handleStepToggle = async (stepId: string) => {
-    const updatedSteps = steps.map(s => 
+    const updatedSteps = steps.map(s =>
       s.id === stepId ? { ...s, completed: !s.completed } : s
     )
     setSteps(updatedSteps)
@@ -209,63 +202,44 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background text-ink">
-      {/* Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div 
-          className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full blur-[150px] opacity-20"
-          style={{ backgroundColor: config.color }}
-        />
-        <div 
-          className="absolute bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-10"
-          style={{ backgroundColor: config.color }}
-        />
-      </div>
+    <div className="relative min-h-screen bg-paper text-ink">
+      {/* Fond mesh crème conforme (remplace les radial blur bannis) */}
+      <MeshBackground className="z-0" />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-8">
         {/* Back Button */}
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
+        <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-mute hover:text-ink transition-colors"
+          className="flex items-center gap-2 text-mute transition-colors hover:text-ink"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">Retour aux quêtes</span>
-        </motion.button>
+        </button>
 
         {/* Header Card */}
         {/* TICKET-024 — destination half of the View Transitions morph.
             Pairs with the DefiCard on /teen/quests (same `vt-quest-${id}`).
             The browser auto-tweens the card → hero on navigation. */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-card  border border-ink p-6 sm:p-8"
+        <StickerCard
+          className="p-6 sm:p-8"
           style={{ viewTransitionName: `vt-quest-${quest.id}` }}
         >
           {/* Pillar badge */}
-          <div className="flex items-center justify-between mb-6">
-            <div 
-              className={cn(
-                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black tracking-wider",
-                config.bg
-              )}
-              style={{ color: config.color }}
-            >
-              <Icon className="w-4 h-4" />
-              {config.label}
+          <div className="mb-6 flex items-center justify-between">
+            <div className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider shadow-stkr-sm">
+              <Icon className={cn('w-4 h-4', config.accent)} />
+              <span className={config.accent}>{config.label}</span>
             </div>
-            
-            <div className="flex items-center gap-3">
+
+            <div className="flex items-center gap-2">
               {quest.difficulty && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-paper-2 text-xs font-bold text-mute">
+                <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-3 py-1 text-xs font-bold text-mute">
                   <Flame className="w-3.5 h-3.5" />
                   {quest.difficulty}
                 </div>
               )}
               {quest.duration && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-paper-2 text-xs font-bold text-mute">
+                <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-3 py-1 text-xs font-bold text-mute">
                   <Clock className="w-3.5 h-3.5" />
                   {quest.duration}
                 </div>
@@ -274,17 +248,12 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
           </div>
 
           {/* Title and description */}
-          <div className="flex gap-6 mb-6">
-            <div 
-              className={cn(
-                "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center flex-shrink-0",
-                "bg-gradient-to-br", config.gradient
-              )}
-            >
-              <Target className="w-8 h-8 sm:w-10 sm:h-10 text-ink" />
+          <div className="mb-6 flex gap-6">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-white sm:h-20 sm:w-20">
+              <Target className={cn('h-8 w-8 sm:h-10 sm:w-10', config.accent)} />
             </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-2">
+            <div className="min-w-0 flex-1">
+              <h1 className="mb-2 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
                 {quest.title}
               </h1>
               <p className="text-mute text-sm sm:text-base">
@@ -294,17 +263,17 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
           </div>
 
           {/* XP Reward */}
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-paper-2 border border-ink">
+          <div className="flex items-center justify-between rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center">
-                <Zap className="w-6 h-6 text-gold" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink bg-white">
+                <Zap className="h-6 w-6 text-gold" />
               </div>
               <div>
-                <p className="text-xs text-mute font-medium uppercase tracking-wider">Récompense</p>
-                <p className="text-2xl font-black text-ink">+{quest.xp_reward} XP</p>
+                <p className="eyebrow text-mute">Récompense</p>
+                <p className="font-display text-2xl font-extrabold text-gold tabular-nums">+{quest.xp_reward} XP</p>
                 {optimisticXpDelta > 0 && (
                   <p
-                    className="mt-1 text-xs font-bold text-success-soft animate-in fade-in slide-in-from-bottom-1"
+                    className="mt-1 text-xs font-bold text-lime"
                     aria-live="polite"
                   >
                     +{optimisticXpDelta} XP gagnés
@@ -317,62 +286,57 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
               variant="ghost"
               size="icon"
               onClick={handleShare}
-              className="rounded-xl text-mute hover:text-ink"
+              className="text-mute hover:text-ink"
             >
               <Share2 className="w-5 h-5" />
             </Button>
           </div>
-        </motion.div>
+        </StickerCard>
+
+        {/* Moment de pic — level-up : Niv proud + confettis au succès */}
+        {isCompleted && (
+          <NivCelebration
+            title="Quête terminée"
+            value={`+${optimisticXpDelta || quest.xp_reward} XP`}
+            caption="Bien joué ! Ton XP grimpe."
+            tone="gold"
+            palette="levelup"
+            trigger={isCompleted}
+          />
+        )}
 
         {/* Progress (if in progress) */}
-        {(isInProgress || isCompleted) && totalSteps > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="space-y-3"
-          >
+        {isInProgress && totalSteps > 0 && (
+          <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="font-bold text-ink">Progression</span>
-              <span className="font-bold" style={{ color: config.color }}>
+              <span className={cn('font-bold', config.accent)}>
                 {completedSteps}/{totalSteps} étapes
               </span>
             </div>
-            <Progress value={progress} className="h-3" />
-          </motion.div>
+            <SegmentedProgress steps={totalSteps} current={completedSteps} />
+          </div>
         )}
 
         {/* Steps */}
         {totalSteps > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-4"
-          >
-            <h2 className="text-lg font-black uppercase tracking-wider text-mute">Étapes</h2>
+          <div className="space-y-4">
+            <h2 className="eyebrow text-mute">Étapes</h2>
             <div className="space-y-3">
-              {steps.map((step, index) => (
-                <motion.button
+              {steps.map((step) => (
+                <button
                   key={step.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + index * 0.05 }}
                   onClick={() => isInProgress && handleStepToggle(step.id)}
                   disabled={!isInProgress}
                   className={cn(
-                    "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left",
-                    step.completed
-                      ? "bg-success-soft/10 border-success-soft/30"
-                      : "bg-paper-2 border-ink hover:bg-paper-2",
-                    !isInProgress && "opacity-60 cursor-not-allowed"
+                    'flex w-full items-center gap-4 rounded-2xl border-2 border-ink bg-white p-4 text-left shadow-stkr-sm transition-all',
+                    step.completed && 'shadow-stkr-pink',
+                    !isInProgress && 'opacity-60 cursor-not-allowed',
                   )}
                 >
                   <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors",
-                    step.completed
-                      ? "bg-success-soft text-ink"
-                      : "bg-paper-2 text-mute"
+                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-ink',
+                    step.completed ? 'bg-lime text-ink' : 'bg-white text-mute',
                   )}>
                     {step.completed ? (
                       <CheckCircle2 className="w-5 h-5" />
@@ -380,47 +344,39 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
                       <Circle className="w-5 h-5" />
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className={cn(
-                      "font-bold",
-                      step.completed ? "text-success-soft line-through" : "text-ink"
+                      'font-bold',
+                      step.completed ? 'text-mute line-through' : 'text-ink',
                     )}>
                       {step.title}
                     </p>
                     {step.description && (
-                      <p className="text-sm text-mute truncate">{step.description}</p>
+                      <p className="truncate text-sm text-mute">{step.description}</p>
                     )}
                   </div>
-                </motion.button>
+                </button>
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Action Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="pt-4"
-        >
+        <div className="pt-4">
           {isCompleted ? (
-            <div className="flex items-center justify-center gap-4 p-6 rounded-2xl bg-success-soft/20 border border-success-soft/30">
-              <Trophy className="w-8 h-8 text-success-soft" />
+            <div className="flex items-center justify-center gap-4 rounded-2xl border-2 border-ink bg-white p-6 shadow-stkr-pink">
+              <Trophy className="h-8 w-8 text-lime" />
               <div>
-                <p className="text-xl font-black text-success-soft">Quête Complétée !</p>
-                <p className="text-sm text-success-soft/70">+{quest.xp_reward} XP gagnés</p>
+                <p className="font-display text-xl font-extrabold text-ink">Quête terminée !</p>
+                <p className="text-sm text-mute">+{quest.xp_reward} XP gagnés</p>
               </div>
             </div>
           ) : isInProgress ? (
             <Button
+              variant="pink"
               onClick={handleComplete}
               disabled={isCompleting || (totalSteps > 0 && completedSteps < totalSteps)}
-              className={cn(
-                "w-full h-14 rounded-2xl text-lg font-black transition-all",
-                "bg-gradient-to-r", config.gradient,
-                "disabled:opacity-50"
-              )}
+              className="h-14 w-full rounded-2xl text-lg font-bold"
             >
               {isCompleting ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
@@ -433,12 +389,10 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
             </Button>
           ) : (
             <Button
+              variant="pink"
               onClick={handleStart}
               disabled={isStarting}
-              className={cn(
-                "w-full h-14 rounded-2xl text-lg font-black transition-all",
-                "bg-gradient-to-r", config.gradient
-              )}
+              className="h-14 w-full rounded-2xl text-lg font-bold"
             >
               {isStarting ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
@@ -450,7 +404,7 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
               )}
             </Button>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
   )

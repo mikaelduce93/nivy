@@ -30,7 +30,7 @@ async function getQuestData(questId: string, teenId: string) {
     if (challenge) {
       return {
         id: challenge.id,
-        title: challenge.challenge?.title || 'Daily Challenge',
+        title: challenge.challenge?.title || 'Quête du jour',
         description: challenge.challenge?.description || '',
         xp_reward: challenge.challenge?.xp_reward || 50,
         pillar: 'vitality' as const,
