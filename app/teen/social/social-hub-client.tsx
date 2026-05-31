@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Users, UserPlus, Trophy, Map, MessageCircle, Search, Crown, Zap, Shield, Swords, MapPin, Loader2, RefreshCw } from "lucide-react"
+import { Users, UserPlus, Trophy, Map, MessageCircle, Search, Crown, Zap, Shield, MapPin, Loader2 } from "lucide-react"
+import Link from "next/link"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, NivEmpty } from "@/components/brand"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
@@ -15,9 +17,9 @@ import { EmptyState } from "@/components/ui/states/empty-state"
 // Lazy load the map component
 const TeenMapWrapper = dynamic(
   () => import("@/components/maps/teen-map-wrapper").then(mod => ({ default: mod.TeenMapWrapper })),
-  { 
+  {
     loading: () => <div className="h-[400px] bg-card rounded-2xl animate-pulse" />,
-    ssr: false 
+    ssr: false
   }
 )
 
@@ -48,9 +50,9 @@ interface SocialHubClientProps {
 
 const SOCIAL_TABS: HubTab[] = [
   { id: "crew", label: "Crew", icon: Shield },
-  { id: "friends", label: "Friends", icon: Users },
-  { id: "ranking", label: "Ranking", icon: Trophy },
-  { id: "map", label: "Map", icon: Map },
+  { id: "friends", label: "Potes", icon: Users },
+  { id: "ranking", label: "Classement", icon: Trophy },
+  { id: "map", label: "Carte", icon: Map },
 ]
 
 export function SocialHubClient({ teenId, teenName }: SocialHubClientProps) {
@@ -78,49 +80,35 @@ export function SocialHubClient({ teenId, teenName }: SocialHubClientProps) {
     <div className="space-y-8 pt-6">
       {/* Header */}
       <header className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink flex items-center justify-center">
-                <Users className="w-6 h-6 text-ink" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Social</h1>
-                <p className="text-mute text-sm font-medium">Connect with your tribe</p>
-              </div>
-            </div>
+            <p className="eyebrow tracking-[0.16em]">Ton crew</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight">
+              Reste <em className="font-semibold italic text-pink">branché</em>
+            </h1>
+            <p className="text-sm text-mute">Reste branché avec ton crew.</p>
           </div>
 
-          {/* Quick Stats */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-paper-2 border border-ink">
-              <Users className="w-4 h-4 text-accent-soft" />
-              <span className="font-bold text-sm">
-                {friendsCount !== null ? `${friendsCount} Friends` : 'Loading...'}
-              </span>
-            </div>
+          {/* Quick Stat */}
+          <div className="flex items-center gap-2 self-start rounded-xl border-2 border-ink bg-white px-4 py-2 shadow-stkr-sm">
+            <Users className="w-4 h-4 text-teal" />
+            <span className="font-mono text-sm font-bold tabular-nums">
+              {friendsCount !== null ? `${friendsCount} potes` : "Chargement…"}
+            </span>
           </div>
         </div>
 
         {/* Tabs */}
-        <HubTabs tabs={SOCIAL_TABS} defaultTab="crew" />
+        <HubTabs tabs={SOCIAL_TABS} defaultTab="crew" ariaLabel="Sections sociales" />
       </header>
 
       {/* Tab Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentTab}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {currentTab === "crew" && <CrewTab teenId={teenId} />}
-          {currentTab === "friends" && <FriendsTab teenId={teenId} />}
-          {currentTab === "ranking" && <RankingTab teenId={teenId} />}
-          {currentTab === "map" && <MapTab />}
-        </motion.div>
-      </AnimatePresence>
+      <div key={currentTab}>
+        {currentTab === "crew" && <CrewTab teenId={teenId} />}
+        {currentTab === "friends" && <FriendsTab teenId={teenId} />}
+        {currentTab === "ranking" && <RankingTab teenId={teenId} />}
+        {currentTab === "map" && <MapTab />}
+      </div>
     </div>
   )
 }
@@ -154,173 +142,98 @@ function CrewTab({ teenId }: { teenId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-accent-soft" />
+        <Loader2 className="w-8 h-8 animate-spin text-pink" />
       </div>
     )
   }
 
   if (!hasCrew || !crewData) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-accent-soft/20 to-pink/20 flex items-center justify-center mb-6 border border-accent-soft/30">
-          <Shield className="w-12 h-12 text-accent-soft" />
-        </div>
-        <h3 className="text-2xl font-black text-ink mb-2">No Crew Yet</h3>
-        <p className="text-mute max-w-sm mb-8">Join forces with your friends to compete in crew battles and earn bonus XP!</p>
-        <div className="flex gap-4">
-          <Button className="bg-accent-soft text-ink font-bold">
-            <Shield className="w-4 h-4 mr-2" />
-            Create Crew
+      <NivEmpty
+        mood="hype"
+        title="Pas encore de crew"
+        description="Rassemble tes potes pour les défis d'équipe et gagner du bonus XP."
+        action={
+          <Button asChild variant="pink">
+            <Link href="/teen/circles">
+              <Shield className="w-4 h-4 mr-2" />
+              Créer un crew
+            </Link>
           </Button>
-          <Button variant="outline">
-            <Search className="w-4 h-4 mr-2" />
-            Find Crew
-          </Button>
-        </div>
-      </div>
+        }
+      />
     )
   }
 
-  const { stats, members, activeBattles } = crewData
+  const { stats, members } = crewData
 
   return (
-    <div className="space-y-8">
-      {/* Crew Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-2xl p-8 border border-ink bg-gradient-to-br from-accent-soft/10 to-pink/5"
-      >
-        <div className="absolute top-4 right-4">
-          <div className="px-3 py-1 rounded-full bg-accent-soft/20 text-accent-soft text-xs font-black uppercase tracking-wider">
-            {crewData.tier || 'Bronze'} Tier
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Crew hero — surface sombre ponctuelle */}
+      <StatHero
+        eyebrow={`${crewData.name || "Mon crew"} · ${crewData.tier || "Bronze"}`}
+        value={(stats?.totalXp || 0).toLocaleString()}
+        unit="XP"
+        tone="gold"
+        size="lg"
+        meta={`${stats?.memberCount || 0} membres`}
+      />
 
-        <div className="flex items-center gap-6">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-soft to-pink flex items-center justify-center">
-            {crewData.emoji ? (
-              <span className="text-4xl">{crewData.emoji}</span>
-            ) : (
-              <Shield className="w-10 h-10 text-ink" />
-            )}
-          </div>
-          <div>
-            <h2 className="text-3xl font-black">{crewData.name || 'MY CREW'}</h2>
-            <p className="text-mute">{stats?.memberCount || 0} members • Active now</p>
-          </div>
-        </div>
+      {/* Secondary stats */}
+      <div className="grid grid-cols-2 gap-3">
+        <StickerCard className="items-center p-4 text-center">
+          <p className="font-display text-2xl font-extrabold tabular-nums text-lime">{stats?.battlesWon || 0}</p>
+          <p className="eyebrow mt-1 text-mute">Défis gagnés</p>
+        </StickerCard>
+        <StickerCard className="items-center p-4 text-center">
+          <p className="font-display text-2xl font-extrabold tabular-nums text-teal">#{stats?.cityRank || "—"}</p>
+          <p className="eyebrow mt-1 text-mute">Rang ville</p>
+        </StickerCard>
+      </div>
 
-        {/* Crew Stats */}
-        <div className="grid grid-cols-3 gap-6 mt-8">
-          <div className="text-center p-4 rounded-2xl bg-ink/20">
-            <p className="text-3xl font-black text-accent-soft">{(stats?.totalXp || 0).toLocaleString()}</p>
-            <p className="text-[10px] text-mute uppercase tracking-wider mt-1">Total XP</p>
-          </div>
-          <div className="text-center p-4 rounded-2xl bg-ink/20">
-            <p className="text-3xl font-black text-success-soft">{stats?.battlesWon || 0}</p>
-            <p className="text-[10px] text-mute uppercase tracking-wider mt-1">Battles Won</p>
-          </div>
-          <div className="text-center p-4 rounded-2xl bg-ink/20">
-            <p className="text-3xl font-black text-brand-soft">#{stats?.cityRank || '-'}</p>
-            <p className="text-[10px] text-mute uppercase tracking-wider mt-1">City Rank</p>
-          </div>
+      {/* Members */}
+      <div>
+        <p className="eyebrow mb-3">Membres</p>
+        <div className="flex items-center gap-3 flex-wrap">
+          {(members || []).slice(0, 6).map((member: any, i: number) => (
+            <div key={member.id || i} className="relative">
+              {member.avatar_url ? (
+                <Image
+                  src={member.avatar_url}
+                  alt={member.name}
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 rounded-full border-2 border-ink object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full border-2 border-ink bg-paper flex items-center justify-center text-sm font-bold text-ink">
+                  {member.name?.charAt(0) || '?'}
+                </div>
+              )}
+              {member.isOwner && (
+                <Crown className="absolute -top-2 -right-1 w-5 h-5 text-gold fill-current" />
+              )}
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* Members */}
-        <div className="mt-8">
-          <h3 className="text-sm font-bold text-mute uppercase tracking-wider mb-4">Members</h3>
-          <div className="flex items-center gap-3 flex-wrap">
-            {(members || []).slice(0, 6).map((member: any, i: number) => (
-              <div key={member.id || i} className="relative">
-                {member.avatar_url ? (
-                  <Image
-                    src={member.avatar_url}
-                    alt={member.name}
-                    width={48}
-                    height={48}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-sm font-bold text-ink">
-                    {member.name?.charAt(0) || '?'}
-                  </div>
-                )}
-                {member.isOwner && (
-                  <Crown className="absolute -top-2 -right-1 w-5 h-5 text-gold fill-current" />
-                )}
-              </div>
-            ))}
-            <Button variant="outline" size="icon" className="w-12 h-12 rounded-full">
-              <UserPlus className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-4 mt-8">
-          <Button className="flex-1 bg-accent-soft text-ink font-bold">
-            <Swords className="w-4 h-4 mr-2" />
-            Start Battle
-          </Button>
-          <Button variant="outline" className="flex-1">
+      {/* Actions — vers la source canonique */}
+      <div className="flex gap-3">
+        <Button asChild variant="pink" className="flex-1">
+          <Link href="/teen/circles">
+            <Shield className="w-4 h-4 mr-2" />
+            Voir le crew
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="flex-1">
+          <Link href="/teen/circles">
             <MessageCircle className="w-4 h-4 mr-2" />
-            Crew Chat
-          </Button>
-        </div>
-      </motion.div>
-
-      {/* Active Battles */}
-      {activeBattles && activeBattles.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold">Active Battles</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {activeBattles.map((battle: any) => (
-              <BattleCard
-                key={battle.id}
-                opponent={battle.opponent}
-                status={battle.status === 'in_progress' ? 'In Progress' : 'Pending'}
-                ourScore={battle.ourScore}
-                theirScore={battle.theirScore}
-                endsIn={battle.endsIn}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+            Chat crew
+          </Link>
+        </Button>
+      </div>
     </div>
-  )
-}
-
-function BattleCard({ opponent, status, ourScore, theirScore, endsIn }: any) {
-  const isWinning = ourScore > theirScore
-
-  return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      className="p-6 rounded-2xl bg-card border border-ink"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-bold text-mute uppercase tracking-wider">{status}</span>
-        <span className="text-xs text-mute">{endsIn}</span>
-      </div>
-      <div className="flex items-center justify-between">
-        <div className="text-center">
-          <p className="text-2xl font-black text-accent-soft">{ourScore}</p>
-          <p className="text-xs text-mute">US</p>
-        </div>
-        <div className="text-2xl font-black text-mute">VS</div>
-        <div className="text-center">
-          <p className="text-2xl font-black text-ink">{theirScore}</p>
-          <p className="text-xs text-mute">{opponent}</p>
-        </div>
-      </div>
-      {isWinning && ourScore > 0 && (
-        <div className="mt-4 text-center text-xs font-bold text-success-soft">
-          You're winning! Keep it up!
-        </div>
-      )}
-    </motion.div>
   )
 }
 
@@ -356,7 +269,7 @@ function FriendsTab({ teenId }: { teenId?: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-accent-soft" />
+        <Loader2 className="w-8 h-8 animate-spin text-pink" />
       </div>
     )
   }
@@ -369,8 +282,8 @@ function FriendsTab({ teenId }: { teenId?: string }) {
         <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search friends..."
-          className="pl-12 h-14 rounded-2xl bg-card border-ink"
+          placeholder="Cherche un pote…"
+          className="pl-12 h-14 rounded-xl border-2 border-ink"
         />
       </div>
 
@@ -394,13 +307,11 @@ function FriendsTab({ teenId }: { teenId?: string }) {
         )
       ) : (
         <div className="space-y-3">
-          {filteredFriends.map((friend, idx) => (
-            <motion.div
+          {filteredFriends.map((friend) => (
+            <StickerCard
               key={friend.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink hover:border-ink transition-colors cursor-pointer"
+              variant="hover"
+              className="flex-row items-center gap-4 p-4"
             >
               <div className="relative">
                 {friend.avatar_url ? (
@@ -409,10 +320,10 @@ function FriendsTab({ teenId }: { teenId?: string }) {
                     alt={friend.name}
                     width={56}
                     height={56}
-                    className="w-14 h-14 rounded-full object-cover"
+                    className="w-14 h-14 rounded-full border-2 border-ink object-cover"
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-ink">
+                  <div className="w-14 h-14 rounded-full border-2 border-ink bg-paper flex items-center justify-center text-xl font-bold text-ink">
                     {friend.name.charAt(0)}
                   </div>
                 )}
@@ -424,27 +335,29 @@ function FriendsTab({ teenId }: { teenId?: string }) {
               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-ink">{friend.name}</h4>
-                <p className="text-sm text-mute">{friend.mutual} mutual friends</p>
+                <p className="text-sm text-mute">{friend.mutual} amis en commun</p>
               </div>
               <div className="text-right">
-                <div className="flex items-center gap-1 text-brand-soft">
+                <div className="flex items-center gap-1 text-gold">
                   <Zap className="w-4 h-4" />
-                  <span className="font-bold">{friend.xp.toLocaleString()}</span>
+                  <span className="font-mono font-bold tabular-nums">{friend.xp.toLocaleString()}</span>
                 </div>
-                <p className="text-[10px] text-mute uppercase">XP</p>
+                <p className="eyebrow text-mute">XP</p>
               </div>
               <Button variant="ghost" size="icon">
                 <MessageCircle className="w-5 h-5" />
               </Button>
-            </motion.div>
+            </StickerCard>
           ))}
         </div>
       )}
 
       {/* Add Friends */}
-      <Button className="w-full h-14 rounded-2xl bg-accent-soft text-ink font-bold">
-        <UserPlus className="w-5 h-5 mr-2" />
-        Add New Friends
+      <Button asChild variant="pink" className="w-full h-14">
+        <Link href="/teen/friends">
+          <UserPlus className="w-5 h-5 mr-2" />
+          Ajouter des potes
+        </Link>
       </Button>
     </div>
   )
@@ -468,14 +381,6 @@ function RankingTab({ teenId }: { teenId: string }) {
         }
       } catch (error) {
         console.error('Failed to fetch leaderboard:', error)
-        // Fallback data
-        setRankings([
-          { rank: 1, id: '1', name: "Salma K.", xp: 4250, badge: "🏆" },
-          { rank: 2, id: '2', name: "Youssef M.", xp: 3820, badge: "🥈" },
-          { rank: 3, id: '3', name: "Nadia L.", xp: 3650, badge: "🥉" },
-          { rank: 4, id: '4', name: "Omar B.", xp: 3420 },
-          { rank: 5, id: '5', name: "Toi", xp: 2450, isYou: true },
-        ])
       } finally {
         setLoading(false)
       }
@@ -486,8 +391,17 @@ function RankingTab({ teenId }: { teenId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-soft" />
+        <Loader2 className="w-8 h-8 animate-spin text-pink" />
       </div>
+    )
+  }
+
+  if (rankings.length === 0) {
+    return (
+      <NivEmpty
+        title="Classement vide"
+        description="Le classement se remplit dès que ton crew gagne de l'XP."
+      />
     )
   }
 
@@ -500,61 +414,49 @@ function RankingTab({ teenId }: { teenId: string }) {
           if (!player) return null
 
           const heights = { 1: "h-32", 2: "h-24", 3: "h-20" }
-          const colors = { 
-            1: "from-gold to-gold", 
-            2: "from-paper-2 to-card", 
-            3: "from-gold to-gold" 
-          }
 
           return (
-            <motion.div
-              key={rank}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: rank * 0.1 }}
-              className="flex flex-col items-center"
-            >
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-soft to-info-soft mb-2" />
+            <div key={rank} className="flex flex-col items-center">
+              <div className="w-16 h-16 rounded-full border-2 border-ink bg-paper mb-2 flex items-center justify-center text-lg font-bold text-ink">
+                {player.name.charAt(0)}
+              </div>
               <span className="font-bold text-sm mb-2">{player.name}</span>
               <div className={cn(
-                "w-20 rounded-t-xl flex items-end justify-center pb-3",
-                heights[rank as 1 | 2 | 3],
-                `bg-gradient-to-t ${colors[rank as 1 | 2 | 3]}`
+                "w-20 rounded-t-xl border-2 border-b-0 border-ink bg-gold flex items-end justify-center pb-3",
+                heights[rank as 1 | 2 | 3]
               )}>
                 <span className="text-2xl">{player.badge || rank}</span>
               </div>
-            </motion.div>
+            </div>
           )
         })}
       </div>
 
       {/* Rest of Rankings */}
       <div className="space-y-3">
-        {rankings.filter(r => r.rank > 3).map((player, idx) => (
-          <motion.div
+        {rankings.filter(r => r.rank > 3).map((player) => (
+          <StickerCard
             key={player.rank}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.05 }}
+            variant={player.isYou ? "default" : "hover"}
             className={cn(
-              "flex items-center gap-4 p-4 rounded-2xl border transition-colors",
-              player.isYou 
-                ? "bg-brand-soft/10 border-brand-soft/30" 
-                : "bg-card border-ink"
+              "flex-row items-center gap-4 p-4",
+              player.isYou && "bg-pink"
             )}
           >
-            <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-full border-2 border-ink bg-paper flex items-center justify-center font-extrabold">
               {player.rank}
             </div>
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft" />
+            <div className="w-12 h-12 rounded-full border-2 border-ink bg-paper flex items-center justify-center font-bold text-ink">
+              {player.name.charAt(0)}
+            </div>
             <div className="flex-1">
               <h4 className="font-bold text-ink">{player.name}</h4>
             </div>
-            <div className="flex items-center gap-2 text-brand-soft">
+            <div className="flex items-center gap-2 text-gold">
               <Zap className="w-4 h-4" />
-              <span className="font-black">{player.xp.toLocaleString()}</span>
+              <span className="font-mono font-extrabold tabular-nums">{player.xp.toLocaleString()}</span>
             </div>
-          </motion.div>
+          </StickerCard>
         ))}
       </div>
     </div>
@@ -564,46 +466,14 @@ function RankingTab({ teenId }: { teenId: string }) {
 function MapTab() {
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-2xl border border-ink">
-        <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-4 py-2 rounded-xl bg-ink/60 text-paper border border-ink">
+      <div className="relative overflow-hidden rounded-2xl border-2 border-ink shadow-stkr-md">
+        <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-xl border-2 border-ink bg-ink/80 px-4 py-2 text-paper">
           <MapPin className="w-4 h-4 text-lime" />
-          <span className="text-sm font-bold">3 friends nearby</span>
+          <span className="font-mono text-sm font-bold">Carte des potes</span>
         </div>
         <div className="h-[400px]">
           <TeenMapWrapper />
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="p-6 rounded-2xl bg-card border border-ink cursor-pointer"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-accent-soft/20 flex items-center justify-center">
-              <Swords className="w-6 h-6 text-accent-soft" />
-            </div>
-            <div>
-              <h4 className="font-bold text-ink">Active Event</h4>
-              <p className="text-sm text-mute">Gaming Night @ Casa</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="p-6 rounded-2xl bg-card border border-ink cursor-pointer"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-success-soft/20 flex items-center justify-center">
-              <Users className="w-6 h-6 text-success-soft" />
-            </div>
-            <div>
-              <h4 className="font-bold text-ink">Crew Meetup</h4>
-              <p className="text-sm text-mute">2 members at Morocco Mall</p>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </div>
   )

@@ -53,7 +53,7 @@ export default async function CircleDetailPage({
     name: circle.name,
     description: circle.description ?? undefined,
     avatar_url: circle.avatar_url ?? undefined,
-    theme_color: circle.theme_color ?? "#6366f1",
+    theme_color: circle.theme_color ?? "teal",
     emoji: circle.emoji ?? undefined,
     member_count: memberCount ?? 0,
   }

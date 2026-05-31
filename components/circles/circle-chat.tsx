@@ -2,30 +2,23 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import NextImage from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
 import { confirmToast } from "@/lib/ui/confirm-toast"
 import {
   Send,
-  Image as ImageIcon,
   Smile,
   MoreVertical,
   Reply,
   Pin,
   Trash2,
-  Edit3,
   ChevronLeft,
   Users,
   Settings,
-  Bell,
-  BellOff,
-  Info,
   X,
-  Check,
   ArrowDown,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { DarkSurface, NivEmpty } from "@/components/brand"
 
 /* ==========================================================================
    TYPES
@@ -70,6 +63,31 @@ interface CircleInfo {
 }
 
 /* ==========================================================================
+   THEME COLOR → token charte (set fixe, jamais de classe dynamique)
+   ========================================================================== */
+
+import type { DarkTone } from "@/components/brand/niv"
+
+const THEME_TONE: Record<string, DarkTone> = {
+  cyan: "teal",
+  blue: "teal",
+  teal: "teal",
+  green: "lime",
+  lime: "lime",
+  yellow: "gold",
+  gold: "gold",
+  orange: "coral",
+  coral: "coral",
+  red: "coral",
+  purple: "pink",
+  pink: "pink",
+}
+
+function toTone(themeColor: string): DarkTone {
+  return THEME_TONE[themeColor] ?? "teal"
+}
+
+/* ==========================================================================
    EMOJI PICKER (Simple version)
    ========================================================================== */
 
@@ -82,12 +100,7 @@ interface EmojiPickerProps {
 
 function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="absolute bottom-full mb-2 right-0 bg-card rounded-xl p-2 border border-ink z-10"
-    >
+    <div className="absolute bottom-full mb-2 right-0 bg-white rounded-xl p-2 border-2 border-ink shadow-stkr-sm z-10">
       <div className="flex gap-1">
         {COMMON_EMOJIS.map((emoji) => (
           <button
@@ -102,7 +115,7 @@ function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
           </button>
         ))}
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -119,7 +132,7 @@ interface MessageBubbleProps {
   onDelete?: () => void
   onPin?: () => void
   showSender: boolean
-  themeColor: string
+  tone: DarkTone
 }
 
 function MessageBubble({
@@ -131,7 +144,7 @@ function MessageBubble({
   onDelete,
   onPin,
   showSender,
-  themeColor,
+  tone,
 }: MessageBubbleProps) {
   const [showMenu, setShowMenu] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
@@ -148,7 +161,7 @@ function MessageBubble({
   if (message.message_type === "system") {
     return (
       <div className="flex justify-center my-4">
-        <span className="text-xs text-mute bg-card px-3 py-1 rounded-full">
+        <span className="text-xs text-mute bg-white border-2 border-ink px-3 py-1 rounded-full">
           {message.sender?.first_name} {message.content}
         </span>
       </div>
@@ -176,7 +189,7 @@ function MessageBubble({
       {!isOwn && (
         <div className="flex-shrink-0">
           {showSender ? (
-            <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center overflow-hidden">
+            <div className="relative w-8 h-8 rounded-full border-2 border-ink bg-paper flex items-center justify-center overflow-hidden">
               {message.sender?.avatar_url ? (
                 <NextImage
                   src={message.sender.avatar_url}
@@ -211,154 +224,56 @@ function MessageBubble({
           <div className={cn(
             "text-xs text-mute px-3 py-1.5 rounded-t-xl border-l-2 mb-0.5",
             isOwn
-              ? "bg-muted border-teal"
-              : "bg-card border-ink"
+              ? "bg-muted border-ink"
+              : "bg-white border-ink"
           )}>
             <span className="font-medium">{message.reply_to.sender?.first_name}</span>
             <p className="truncate">{message.reply_to.content}</p>
           </div>
         )}
 
-        {/* Bubble */}
-        <div
-          className={cn(
-            "relative px-4 py-2 rounded-2xl",
-            isOwn
-              ? `bg-gradient-to-r from-${themeColor}-500 to-${themeColor}-600 text-ink`
-              : "bg-card text-ink",
-            message.reply_to && "rounded-tl-md"
-          )}
-          style={isOwn ? {
-            background: `linear-gradient(135deg, var(--${themeColor}-500, #06b6d4), var(--${themeColor}-600, #0891b2))`
-          } : undefined}
-        >
-          {/* Media */}
-          {message.media_url && message.message_type === "image" && (
-            <NextImage
-              src={message.media_url}
-              alt=""
-              width={400}
-              height={400}
-              sizes="(max-width: 640px) 75vw, 400px"
-              className="rounded-lg max-w-full h-auto mb-2"
+        {/* Bubble — moi = surface sombre ; autre = sticker blanc bordure ink */}
+        {isOwn ? (
+          <DarkSurface
+            tone={tone}
+            className={cn("px-4 py-2", message.reply_to && "rounded-tl-md")}
+          >
+            <BubbleBody message={message} isOwn formatTime={formatTime} />
+            <BubbleActions
+              isOwn
+              showEmojiPicker={showEmojiPicker}
+              setShowEmojiPicker={setShowEmojiPicker}
+              showMenu={showMenu}
+              setShowMenu={setShowMenu}
+              onReply={onReply}
+              onReact={onReact}
+              onDelete={onDelete}
+              onPin={onPin}
+              isPinned={message.is_pinned}
             />
-          )}
-
-          {/* Text content */}
-          <p className="whitespace-pre-wrap break-words">{message.content}</p>
-
-          {/* Time and edit indicator */}
-          <div className={cn(
-            "flex items-center gap-1 mt-1",
-            isOwn ? "justify-end" : "justify-start"
-          )}>
-            <span className={cn(
-              "text-[10px]",
-              isOwn ? "text-ink/60" : "text-mute"
-            )}>
-              {formatTime(message.created_at)}
-            </span>
-            {message.is_edited && (
-              <span className={cn(
-                "text-[10px]",
-                isOwn ? "text-ink/60" : "text-mute"
-              )}>
-                (modifie)
-              </span>
+          </DarkSurface>
+        ) : (
+          <div
+            className={cn(
+              "relative px-4 py-2 rounded-2xl border-2 border-ink bg-white text-ink",
+              message.reply_to && "rounded-tl-md"
             )}
-            {message.is_pinned && (
-              <Pin className={cn(
-                "w-3 h-3",
-                isOwn ? "text-ink/60" : "text-mute"
-              )} />
-            )}
+          >
+            <BubbleBody message={message} isOwn={false} formatTime={formatTime} />
+            <BubbleActions
+              isOwn={false}
+              showEmojiPicker={showEmojiPicker}
+              setShowEmojiPicker={setShowEmojiPicker}
+              showMenu={showMenu}
+              setShowMenu={setShowMenu}
+              onReply={onReply}
+              onReact={onReact}
+              onDelete={onDelete}
+              onPin={onPin}
+              isPinned={message.is_pinned}
+            />
           </div>
-
-          {/* Actions (visible on hover) */}
-          <div className={cn(
-            "absolute top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1",
-            isOwn ? "-left-20" : "-right-20"
-          )}>
-            <button
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-1.5 rounded-full bg-card hover:bg-muted text-mute hover:text-ink"
-            >
-              <Smile className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onReply}
-              className="p-1.5 rounded-full bg-card hover:bg-muted text-mute hover:text-ink"
-            >
-              <Reply className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="p-1.5 rounded-full bg-card hover:bg-muted text-mute hover:text-ink"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Emoji picker */}
-          <AnimatePresence>
-            {showEmojiPicker && (
-              <EmojiPicker
-                onSelect={onReact}
-                onClose={() => setShowEmojiPicker(false)}
-              />
-            )}
-          </AnimatePresence>
-
-          {/* Context menu */}
-          <AnimatePresence>
-            {showMenu && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className={cn(
-                  "absolute top-full mt-1 w-36 bg-card rounded-xl border border-ink overflow-hidden z-10",
-                  isOwn ? "right-0" : "left-0"
-                )}
-              >
-                <button
-                  onClick={() => {
-                    onReply()
-                    setShowMenu(false)
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
-                >
-                  <Reply className="w-4 h-4" />
-                  Repondre
-                </button>
-                {onPin && (
-                  <button
-                    onClick={() => {
-                      onPin()
-                      setShowMenu(false)
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
-                  >
-                    <Pin className="w-4 h-4" />
-                    {message.is_pinned ? "Desepingler" : "Epingler"}
-                  </button>
-                )}
-                {isOwn && onDelete && (
-                  <button
-                    onClick={() => {
-                      onDelete()
-                      setShowMenu(false)
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-muted flex items-center gap-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Supprimer
-                  </button>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        )}
 
         {/* Reactions */}
         {reactionCounts.length > 0 && (
@@ -371,10 +286,10 @@ function MessageBubble({
                 key={emoji}
                 onClick={() => onReact(emoji)}
                 className={cn(
-                  "px-2 py-0.5 rounded-full text-xs flex items-center gap-1 transition-colors",
+                  "px-2 py-0.5 rounded-full border-2 border-ink text-xs flex items-center gap-1 transition-colors",
                   hasReacted
-                    ? "bg-teal/20 text-teal"
-                    : "bg-card text-mute hover:bg-muted"
+                    ? "bg-pink text-ink"
+                    : "bg-white text-mute hover:bg-muted"
                 )}
               >
                 <span>{emoji}</span>
@@ -385,6 +300,158 @@ function MessageBubble({
         )}
       </div>
     </div>
+  )
+}
+
+/** Corps de bulle (média + texte + heure/édité/épinglé). */
+function BubbleBody({
+  message,
+  isOwn,
+  formatTime,
+}: {
+  message: Message
+  isOwn: boolean
+  formatTime: (s: string) => string
+}) {
+  return (
+    <>
+      {/* Media */}
+      {message.media_url && message.message_type === "image" && (
+        <NextImage
+          src={message.media_url}
+          alt=""
+          width={400}
+          height={400}
+          sizes="(max-width: 640px) 75vw, 400px"
+          className="rounded-lg max-w-full h-auto mb-2"
+        />
+      )}
+
+      {/* Text content */}
+      <p className="whitespace-pre-wrap break-words">{message.content}</p>
+
+      {/* Time and edit indicator */}
+      <div className={cn(
+        "flex items-center gap-1 mt-1",
+        isOwn ? "justify-end" : "justify-start"
+      )}>
+        <span className={cn("text-[10px]", isOwn ? "text-paper/60" : "text-mute")}>
+          {formatTime(message.created_at)}
+        </span>
+        {message.is_edited && (
+          <span className={cn("text-[10px]", isOwn ? "text-paper/60" : "text-mute")}>
+            (modifié)
+          </span>
+        )}
+        {message.is_pinned && (
+          <Pin className={cn("w-3 h-3", isOwn ? "text-paper/60" : "text-mute")} />
+        )}
+      </div>
+    </>
+  )
+}
+
+/** Actions au survol + menu contextuel + emoji picker. */
+function BubbleActions({
+  isOwn,
+  showEmojiPicker,
+  setShowEmojiPicker,
+  showMenu,
+  setShowMenu,
+  onReply,
+  onReact,
+  onDelete,
+  onPin,
+  isPinned,
+}: {
+  isOwn: boolean
+  showEmojiPicker: boolean
+  setShowEmojiPicker: (v: boolean) => void
+  showMenu: boolean
+  setShowMenu: (v: boolean) => void
+  onReply: () => void
+  onReact: (emoji: string) => void
+  onDelete?: () => void
+  onPin?: () => void
+  isPinned: boolean
+}) {
+  return (
+    <>
+      <div className={cn(
+        "absolute top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1",
+        isOwn ? "-left-20" : "-right-20"
+      )}>
+        <button
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          className="p-1.5 rounded-full bg-white border-2 border-ink hover:bg-muted text-mute hover:text-ink"
+        >
+          <Smile className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onReply}
+          className="p-1.5 rounded-full bg-white border-2 border-ink hover:bg-muted text-mute hover:text-ink"
+        >
+          <Reply className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => setShowMenu(!showMenu)}
+          className="p-1.5 rounded-full bg-white border-2 border-ink hover:bg-muted text-mute hover:text-ink"
+        >
+          <MoreVertical className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Emoji picker */}
+      {showEmojiPicker && (
+        <EmojiPicker
+          onSelect={onReact}
+          onClose={() => setShowEmojiPicker(false)}
+        />
+      )}
+
+      {/* Context menu */}
+      {showMenu && (
+        <div className={cn(
+          "absolute top-full mt-1 w-36 bg-white rounded-xl border-2 border-ink overflow-hidden shadow-stkr-sm z-10",
+          isOwn ? "right-0" : "left-0"
+        )}>
+          <button
+            onClick={() => {
+              onReply()
+              setShowMenu(false)
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
+          >
+            <Reply className="w-4 h-4" />
+            Répondre
+          </button>
+          {onPin && (
+            <button
+              onClick={() => {
+                onPin()
+                setShowMenu(false)
+              }}
+              className="w-full px-4 py-2 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2"
+            >
+              <Pin className="w-4 h-4" />
+              {isPinned ? "Désépingler" : "Épingler"}
+            </button>
+          )}
+          {isOwn && onDelete && (
+            <button
+              onClick={() => {
+                onDelete()
+                setShowMenu(false)
+              }}
+              className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-muted flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Supprimer
+            </button>
+          )}
+        </div>
+      )}
+    </>
   )
 }
 
@@ -421,6 +488,8 @@ export function CircleChat({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const tone = toTone(circleInfo.theme_color)
 
   // Fetch messages
   const fetchMessages = useCallback(async (before?: string) => {
@@ -634,7 +703,7 @@ export function CircleChat({
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-teal border-t-transparent" />
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink border-t-transparent" />
       </div>
     )
   }
@@ -642,20 +711,15 @@ export function CircleChat({
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-ink bg-card">
+      <div className="flex items-center gap-3 p-4 border-b-2 border-ink bg-white">
         <button
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-card transition-colors"
+          className="p-2 rounded-xl hover:bg-muted transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-mute" />
         </button>
 
-        <div
-          className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center text-lg",
-            "bg-gradient-to-br from-teal to-teal"
-          )}
-        >
+        <div className="w-10 h-10 rounded-xl border-2 border-ink bg-paper flex items-center justify-center text-lg">
           {circleInfo.emoji || <Users className="w-5 h-5 text-ink" />}
         </div>
 
@@ -666,13 +730,13 @@ export function CircleChat({
 
         <button
           onClick={onOpenMembers}
-          className="p-2 rounded-xl hover:bg-card transition-colors"
+          className="p-2 rounded-xl hover:bg-muted transition-colors"
         >
           <Users className="w-5 h-5 text-mute" />
         </button>
         <button
           onClick={onOpenSettings}
-          className="p-2 rounded-xl hover:bg-card transition-colors"
+          className="p-2 rounded-xl hover:bg-muted transition-colors"
         >
           <Settings className="w-5 h-5 text-mute" />
         </button>
@@ -680,11 +744,11 @@ export function CircleChat({
 
       {/* Pinned messages */}
       {pinnedMessages.length > 0 && (
-        <div className="p-2 bg-gold/10 border-b border-gold/20">
+        <div className="p-2 bg-gold/10 border-b-2 border-ink">
           <div className="flex items-center gap-2 text-gold text-sm">
             <Pin className="w-4 h-4" />
             <span className="font-medium">
-              {pinnedMessages.length} message{pinnedMessages.length > 1 ? "s" : ""} epingle{pinnedMessages.length > 1 ? "s" : ""}
+              {pinnedMessages.length} message{pinnedMessages.length > 1 ? "s" : ""} épinglé{pinnedMessages.length > 1 ? "s" : ""}
             </span>
           </div>
         </div>
@@ -696,6 +760,17 @@ export function CircleChat({
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto p-4 space-y-4"
       >
+        {/* Empty state */}
+        {groupedMessages.length === 0 && (
+          <div className="flex h-full items-center justify-center py-12">
+            <NivEmpty
+              mood="happy"
+              title="Dis salam à ton cercle"
+              description="Aucun message pour l'instant. Lance la discussion !"
+            />
+          </div>
+        )}
+
         {/* Load more button */}
         {hasMore && (
           <div className="text-center">
@@ -704,9 +779,8 @@ export function CircleChat({
               disabled={loadingMore}
               variant="outline"
               size="sm"
-              className="border-ink"
             >
-              {loadingMore ? "Chargement..." : "Charger plus"}
+              {loadingMore ? "Chargement…" : "Charger plus"}
             </Button>
           </div>
         )}
@@ -716,9 +790,9 @@ export function CircleChat({
           <div key={group.date}>
             {/* Date separator */}
             <div className="flex items-center gap-4 my-4">
-              <div className="flex-1 h-px bg-card" />
-              <span className="text-xs text-mute capitalize">{group.date}</span>
-              <div className="flex-1 h-px bg-card" />
+              <div className="flex-1 h-px bg-ink/20" />
+              <span className="rounded-full border-2 border-ink bg-white px-3 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-mute">{group.date}</span>
+              <div className="flex-1 h-px bg-ink/20" />
             </div>
 
             {/* Messages */}
@@ -736,7 +810,7 @@ export function CircleChat({
                   onReact={(emoji) => handleReact(message.id, emoji)}
                   onDelete={() => handleDelete(message.id)}
                   showSender={shouldShowSender(index, group.messages)}
-                  themeColor={circleInfo.theme_color}
+                  tone={tone}
                 />
               ))}
             </div>
@@ -747,72 +821,54 @@ export function CircleChat({
       </div>
 
       {/* Scroll to bottom button */}
-      <AnimatePresence>
-        {showScrollButton && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })}
-            className="absolute bottom-24 right-4 p-3 rounded-full bg-card border border-ink shadow-lg"
-          >
-            <ArrowDown className="w-5 h-5 text-mute" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {showScrollButton && (
+        <button
+          onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })}
+          className="absolute bottom-24 right-4 p-3 rounded-full bg-white border-2 border-ink shadow-stkr-sm"
+        >
+          <ArrowDown className="w-5 h-5 text-mute" />
+        </button>
+      )}
 
       {/* Reply preview */}
-      <AnimatePresence>
-        {replyTo && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="px-4 pt-2 bg-card border-t border-ink"
-          >
-            <div className="flex items-center gap-2 p-2 bg-card rounded-lg">
-              <Reply className="w-4 h-4 text-teal" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-teal">{replyTo.sender?.first_name}</p>
-                <p className="text-sm text-mute truncate">{replyTo.content}</p>
-              </div>
-              <button
-                onClick={() => setReplyTo(null)}
-                className="p-1 hover:bg-muted rounded"
-              >
-                <X className="w-4 h-4 text-mute" />
-              </button>
+      {replyTo && (
+        <div className="px-4 pt-2 bg-white border-t-2 border-ink">
+          <div className="flex items-center gap-2 p-2 bg-paper border-2 border-ink rounded-lg">
+            <Reply className="w-4 h-4 text-pink" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-pink">{replyTo.sender?.first_name}</p>
+              <p className="text-sm text-mute truncate">{replyTo.content}</p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <button
+              onClick={() => setReplyTo(null)}
+              className="p-1 hover:bg-muted rounded"
+            >
+              <X className="w-4 h-4 text-mute" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Input */}
-      <div className="p-4 bg-card border-t border-ink">
+      <div className="p-4 bg-white border-t-2 border-ink">
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-xl hover:bg-card transition-colors">
-            <ImageIcon className="w-5 h-5 text-mute" />
-          </button>
-
           <div className="flex-1 relative">
             <input
               ref={inputRef}
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-              placeholder="Message..."
-              className="w-full bg-card border border-ink rounded-xl px-4 py-2.5 text-ink pr-12"
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              placeholder="Message…"
+              className="w-full bg-white border-2 border-ink rounded-xl px-4 py-2.5 text-ink transition-colors focus:border-pink focus:outline-none"
             />
-            <button className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Smile className="w-5 h-5 text-mute" />
-            </button>
           </div>
 
           <Button
             onClick={sendMessage}
             disabled={!inputValue.trim()}
-            className="bg-gradient-to-r from-teal to-teal p-2.5"
+            variant="pink"
+            size="icon"
           >
             <Send className="w-5 h-5" />
           </Button>

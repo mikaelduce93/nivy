@@ -18,7 +18,7 @@ export default async function SocialHubPage() {
   return (
     <div className="min-h-screen pb-32">
       <Suspense fallback={<SocialHubSkeleton />}>
-        <SocialHubClient teenId={teenId} teenName={(userInfo.teenData as { full_name?: string } | null)?.full_name || "Friend"} />
+        <SocialHubClient teenId={teenId} teenName={(userInfo.teenData as { full_name?: string } | null)?.full_name || "Ami"} />
       </Suspense>
     </div>
   )

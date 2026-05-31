@@ -1,25 +1,22 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
 import {
   Users,
   Plus,
-  MessageCircle,
   Bell,
   BellOff,
-  Settings,
   Search,
   ChevronRight,
   Globe,
   Lock,
   Eye,
   X,
-  Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 import { Button } from "@/components/ui/button"
 
 /* ==========================================================================
@@ -74,15 +71,18 @@ interface CircleStats {
    COLOR CONFIG
    ========================================================================== */
 
-const colorConfig: Record<string, { bg: string; text: string; gradient: string }> = {
-  cyan: { bg: "bg-teal/10", text: "text-teal", gradient: "from-teal to-teal" },
-  blue: { bg: "bg-teal/10", text: "text-teal", gradient: "from-teal to-pink" },
-  purple: { bg: "bg-pink/10", text: "text-pink", gradient: "from-pink to-pink" },
-  pink: { bg: "bg-pink/10", text: "text-pink", gradient: "from-pink to-pink" },
-  red: { bg: "bg-destructive/10", text: "text-destructive", gradient: "from-destructive to-coral" },
-  orange: { bg: "bg-coral/10", text: "text-coral", gradient: "from-coral to-gold" },
-  yellow: { bg: "bg-gold/10", text: "text-gold", gradient: "from-gold to-gold" },
-  green: { bg: "bg-lime/10", text: "text-lime", gradient: "from-lime to-lime" },
+// Mapping fixe theme_color → token charte (solide, jamais de classe dynamique).
+const colorConfig: Record<string, { bg: string; text: string; chip: string; swatch: string }> = {
+  cyan: { bg: "bg-teal/10", text: "text-teal", chip: "bg-teal text-paper", swatch: "bg-teal" },
+  blue: { bg: "bg-teal/10", text: "text-teal", chip: "bg-teal text-paper", swatch: "bg-teal" },
+  purple: { bg: "bg-pink/10", text: "text-pink", chip: "bg-pink text-ink", swatch: "bg-pink" },
+  pink: { bg: "bg-pink/10", text: "text-pink", chip: "bg-pink text-ink", swatch: "bg-pink" },
+  red: { bg: "bg-coral/10", text: "text-coral", chip: "bg-coral text-ink", swatch: "bg-coral" },
+  orange: { bg: "bg-coral/10", text: "text-coral", chip: "bg-coral text-ink", swatch: "bg-coral" },
+  yellow: { bg: "bg-gold/10", text: "text-gold", chip: "bg-gold text-ink", swatch: "bg-gold" },
+  gold: { bg: "bg-gold/10", text: "text-gold", chip: "bg-gold text-ink", swatch: "bg-gold" },
+  green: { bg: "bg-lime/10", text: "text-lime", chip: "bg-lime text-on-bright", swatch: "bg-lime" },
+  lime: { bg: "bg-lime/10", text: "text-lime", chip: "bg-lime text-on-bright", swatch: "bg-lime" },
 }
 
 /* ==========================================================================
@@ -105,7 +105,7 @@ function CircleCard({ circle, onClick }: CircleCardProps) {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-    if (diffMins < 1) return "A l'instant"
+    if (diffMins < 1) return "À l'instant"
     if (diffMins < 60) return `${diffMins}m`
     if (diffHours < 24) return `${diffHours}h`
     if (diffDays < 7) return `${diffDays}j`
@@ -116,18 +116,12 @@ function CircleCard({ circle, onClick }: CircleCardProps) {
     circle.circle_type === "secret" ? Eye : Lock
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
-      onClick={onClick}
-      className="cursor-pointer"
-    >
-      <Card className="p-4 bg-card border-ink hover:border-ink transition-colors">
+    <StickerCard variant="hover" onClick={onClick} className="p-4">
         <div className="flex items-center gap-4">
           {/* Avatar */}
           <div className={cn(
-            "relative w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden",
-            `bg-gradient-to-br ${colors.gradient}`
+            "relative w-14 h-14 rounded-2xl border-2 border-ink flex items-center justify-center overflow-hidden",
+            colors.bg
           )}>
             {circle.avatar_url ? (
               <Image
@@ -181,8 +175,8 @@ function CircleCard({ circle, onClick }: CircleCardProps) {
           <div className="flex flex-col items-end gap-2">
             {circle.stats.unread_count > 0 && (
               <span className={cn(
-                "px-2 py-0.5 rounded-full text-xs font-bold",
-                `bg-gradient-to-r ${colors.gradient} text-ink`
+                "px-2 py-0.5 rounded-full border-2 border-ink text-xs font-bold",
+                colors.chip
               )}>
                 {circle.stats.unread_count > 99 ? "99+" : circle.stats.unread_count}
               </span>
@@ -194,8 +188,7 @@ function CircleCard({ circle, onClick }: CircleCardProps) {
 
           <ChevronRight className="w-5 h-5 text-mute" />
         </div>
-      </Card>
-    </motion.div>
+    </StickerCard>
   )
 }
 
@@ -244,19 +237,11 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+      <div
         className="absolute inset-0 bg-ink/80"
         onClick={onClose}
       />
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="relative bg-card rounded-2xl p-6 max-w-md w-full border border-ink"
-      >
+      <div className="relative bg-white rounded-2xl p-6 max-w-md w-full border-2 border-ink shadow-stkr-md">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-mute hover:text-ink"
@@ -264,7 +249,7 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-xl font-bold text-ink mb-6">Creer un cercle</h3>
+        <h3 className="font-display text-xl font-extrabold text-ink mb-6">Créer un cercle</h3>
 
         <div className="space-y-4">
           {/* Name */}
@@ -276,7 +261,7 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Les gamers"
               maxLength={50}
-              className="w-full bg-card border border-ink rounded-xl px-4 py-3 text-ink"
+              className="w-full bg-white border-2 border-ink rounded-xl px-4 py-3 text-ink transition-colors focus:border-pink focus:outline-none"
             />
           </div>
 
@@ -288,7 +273,7 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
               onChange={(e) => setDescription(e.target.value)}
               placeholder="De quoi parle ce cercle ?"
               rows={2}
-              className="w-full bg-card border border-ink rounded-xl px-4 py-3 text-ink resize-none"
+              className="w-full bg-white border-2 border-ink rounded-xl px-4 py-3 text-ink resize-none transition-colors focus:border-pink focus:outline-none"
             />
           </div>
 
@@ -297,7 +282,7 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
             <label className="text-sm text-mute mb-2 block">Type de cercle</label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { id: "private", icon: Lock, label: "Prive" },
+                { id: "private", icon: Lock, label: "Privé" },
                 { id: "public", icon: Globe, label: "Public" },
                 { id: "secret", icon: Eye, label: "Secret" },
               ].map((type) => (
@@ -305,19 +290,19 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
                   key={type.id}
                   onClick={() => setCircleType(type.id)}
                   className={cn(
-                    "p-3 rounded-xl flex flex-col items-center gap-1 transition-all",
+                    "p-3 rounded-xl flex flex-col items-center gap-1 border-2 transition-all",
                     circleType === type.id
-                      ? "bg-teal/20 border-2 border-teal"
-                      : "bg-card border-2 border-transparent hover:border-ink"
+                      ? "bg-pink border-ink text-ink"
+                      : "bg-white border-ink/30 hover:border-ink"
                   )}
                 >
                   <type.icon className={cn(
                     "w-5 h-5",
-                    circleType === type.id ? "text-teal" : "text-mute"
+                    circleType === type.id ? "text-ink" : "text-mute"
                   )} />
                   <span className={cn(
                     "text-xs",
-                    circleType === type.id ? "text-teal" : "text-mute"
+                    circleType === type.id ? "text-ink" : "text-mute"
                   )}>
                     {type.label}
                   </span>
@@ -335,9 +320,9 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
                   key={color}
                   onClick={() => setThemeColor(color)}
                   className={cn(
-                    "w-8 h-8 rounded-full transition-all",
-                    `bg-gradient-to-br ${colorConfig[color].gradient}`,
-                    themeColor === color && "ring-2 ring-white ring-offset-2 ring-offset-zinc-900"
+                    "w-8 h-8 rounded-full border-2 border-ink transition-all",
+                    colorConfig[color].swatch,
+                    themeColor === color && "ring-2 ring-ink ring-offset-2 ring-offset-white"
                   )}
                 />
               ))}
@@ -352,7 +337,7 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
               value={emoji}
               onChange={(e) => setEmoji(e.target.value.slice(0, 2))}
               placeholder="Ex: 🎮"
-              className="w-24 bg-card border border-ink rounded-xl px-4 py-3 text-ink text-center text-xl"
+              className="w-24 bg-white border-2 border-ink rounded-xl px-4 py-3 text-ink text-center text-xl transition-colors focus:border-pink focus:outline-none"
             />
           </div>
         </div>
@@ -361,23 +346,21 @@ function CreateCircleModal({ isOpen, onClose, onSubmit }: CreateCircleModalProps
           <Button
             onClick={onClose}
             variant="outline"
-            className="flex-1 border-ink"
+            className="flex-1"
           >
             Annuler
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!name.trim()}
-            className={cn(
-              "flex-1 bg-gradient-to-r",
-              colorConfig[themeColor]?.gradient || "from-teal to-teal"
-            )}
+            variant="pink"
+            className="flex-1"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Creer
+            Créer
           </Button>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
@@ -494,7 +477,7 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-ink">Mes cercles</h2>
+          <p className="eyebrow">Mes cercles</p>
           {stats && (
             <p className="text-sm text-mute">
               {stats.total_circles} cercle{stats.total_circles > 1 ? "s" : ""}
@@ -506,7 +489,7 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
         </div>
         <Button
           onClick={() => setShowCreateModal(true)}
-          className="bg-gradient-to-r from-teal to-teal"
+          variant="pink"
         >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau
@@ -520,31 +503,31 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Rechercher un cercle..."
-          className="w-full bg-card border border-ink rounded-xl pl-12 pr-4 py-3 text-ink"
+          placeholder="Rechercher un cercle…"
+          className="w-full bg-white border-2 border-ink rounded-xl pl-12 pr-4 py-3 text-ink transition-colors focus:border-pink focus:outline-none"
         />
       </div>
 
       {/* Pending invitations */}
       {stats && stats.pending_invitations > 0 && (
-        <Card className="p-4 bg-teal/10 border-teal/30">
+        <StickerCard className="p-4 bg-teal/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl border-2 border-ink bg-teal/20 flex items-center justify-center">
                 <Bell className="w-5 h-5 text-teal" />
               </div>
               <div>
                 <p className="font-medium text-ink">
                   {stats.pending_invitations} invitation{stats.pending_invitations > 1 ? "s" : ""}
                 </p>
-                <p className="text-sm text-teal/70">En attente de reponse</p>
+                <p className="text-sm text-mute">En attente de réponse</p>
               </div>
             </div>
-            <Button size="sm" variant="outline" className="border-teal/30 text-teal">
+            <Button size="sm" variant="outline">
               Voir
             </Button>
           </div>
-        </Card>
+        </StickerCard>
       )}
 
       {/* Circles list */}
@@ -560,48 +543,37 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
 
       {/* Empty state */}
       {circles.length === 0 && (
-        <Card className="p-8 bg-card border-ink text-center">
-          <Users className="w-12 h-12 text-mute mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-ink mb-2">Aucun cercle</h3>
-          <p className="text-mute mb-4">
-            Cree ton premier cercle ou rejoins-en un public !
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              className="bg-gradient-to-r from-teal to-teal"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Creer
-            </Button>
-            <Button
-              onClick={() => setShowPublic(true)}
-              variant="outline"
-              className="border-ink"
-            >
-              <Globe className="w-4 h-4 mr-2" />
-              Decouvrir
-            </Button>
-          </div>
-        </Card>
+        <NivEmpty
+          title="Aucun cercle"
+          description="Crée ton premier cercle ou rejoins-en un public."
+          action={
+            <div className="flex gap-3 justify-center">
+              <Button onClick={() => setShowCreateModal(true)} variant="pink">
+                <Plus className="w-4 h-4 mr-2" />
+                Créer
+              </Button>
+              <Button onClick={() => setShowPublic(true)} variant="outline">
+                <Globe className="w-4 h-4 mr-2" />
+                Découvrir
+              </Button>
+            </div>
+          }
+        />
       )}
 
       {/* Public circles section */}
       {(showPublic || circles.length > 0) && publicCircles.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-mute flex items-center gap-2">
+          <p className="eyebrow flex items-center gap-2">
             <Globe className="w-4 h-4" />
-            Cercles publics a decouvrir
-          </h3>
+            Cercles publics à découvrir
+          </p>
           {publicCircles.slice(0, 3).map((circle) => (
-            <Card
-              key={circle.id}
-              className="p-4 bg-card border-ink hover:border-ink transition-colors"
-            >
+            <StickerCard key={circle.id} className="p-4">
               <div className="flex items-center gap-4">
                 <div className={cn(
-                  "w-12 h-12 rounded-xl flex items-center justify-center",
-                  `bg-gradient-to-br ${colorConfig[circle.theme_color]?.gradient || colorConfig.cyan.gradient}`
+                  "w-12 h-12 rounded-xl border-2 border-ink flex items-center justify-center",
+                  colorConfig[circle.theme_color]?.bg || colorConfig.cyan.bg
                 )}>
                   {circle.emoji || <Users className="w-6 h-6 text-ink" />}
                 </div>
@@ -614,12 +586,12 @@ export function CirclesList({ teenId, onSelectCircle }: CirclesListProps) {
                 <Button
                   onClick={() => handleJoinPublic(circle.id)}
                   size="sm"
-                  className="bg-gradient-to-r from-teal to-teal"
+                  variant="pink"
                 >
                   Rejoindre
                 </Button>
               </div>
-            </Card>
+            </StickerCard>
           ))}
         </div>
       )}
@@ -682,7 +654,7 @@ export function CirclesWidget({ teenId, limit = 3, onSeeAll, onSelectCircle }: C
   }
 
   return (
-    <Card className="p-4 bg-card border-ink">
+    <StickerCard className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-ink flex items-center gap-2">
           <Users className="w-4 h-4 text-teal" />
@@ -691,7 +663,7 @@ export function CirclesWidget({ teenId, limit = 3, onSeeAll, onSelectCircle }: C
         {onSeeAll && (
           <button
             onClick={onSeeAll}
-            className="text-sm text-teal hover:underline"
+            className="text-sm text-pink hover:underline"
           >
             Voir tout
           </button>
@@ -705,11 +677,11 @@ export function CirclesWidget({ teenId, limit = 3, onSeeAll, onSelectCircle }: C
             <div
               key={circle.id}
               onClick={() => onSelectCircle?.(circle.id)}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-card cursor-pointer transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors"
             >
               <div className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center text-lg",
-                `bg-gradient-to-br ${colors.gradient}`
+                "w-10 h-10 rounded-xl border-2 border-ink flex items-center justify-center text-lg",
+                colors.bg
               )}>
                 {circle.emoji || <Users className="w-5 h-5 text-ink" />}
               </div>
@@ -721,8 +693,8 @@ export function CirclesWidget({ teenId, limit = 3, onSeeAll, onSelectCircle }: C
               </div>
               {circle.stats.unread_count > 0 && (
                 <span className={cn(
-                  "px-2 py-0.5 rounded-full text-xs font-bold",
-                  `bg-gradient-to-r ${colors.gradient} text-ink`
+                  "px-2 py-0.5 rounded-full border-2 border-ink text-xs font-bold",
+                  colors.chip
                 )}>
                   {circle.stats.unread_count}
                 </span>
@@ -731,9 +703,6 @@ export function CirclesWidget({ teenId, limit = 3, onSeeAll, onSelectCircle }: C
           )
         })}
       </div>
-    </Card>
+    </StickerCard>
   )
 }
-
-// Need to import React for createElement
-import React from "react"

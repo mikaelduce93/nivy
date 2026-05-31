@@ -3,38 +3,31 @@
 /**
  * Teen direct messages — list + thread view.
  *
- * Wave 2 / TICKET-002 — design-system token sweep:
- *  - Surface backgrounds switched from raw zinc-9xx → semantic tokens
- *    (card/30, muted, border).
- *  - Body copy text-zinc-* → text-muted-foreground (per role).
- *  - Headings still use the teen 4xl/black/italic pattern.
- *  - Buttons + Input continue to be routed through their primitives.
+ * Refonte #154 — charte paper néo-brutaliste :
+ *  - Hero éditorial (eyebrow mono + titre Bricolage + Niv) au lieu du carré-
+ *    icône gradient.
+ *  - Bulles « moi » = surface sombre ponctuelle ; « autre » = sticker blanc.
+ *  - Rows conversation en StickerCard hover-lift ; empty desktop avec Niv.
+ *  - Boutons décoratifs sans action (Phone/Video/MoreVertical/Paperclip/
+ *    ImageIcon/Smile/Plus) retirés. Realtime `dm:{id}` inchangé.
  */
 
 import { useEffect, useRef, useState } from "react"
-import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { createClient as createBrowserClient } from "@/lib/supabase/client"
 import {
   MessageCircle,
   Search,
   Send,
-  Phone,
-  Video,
-  MoreVertical,
   CheckCheck,
-  Image as ImageIcon,
-  Smile,
-  Paperclip,
-  Users,
-  Plus,
   ArrowLeft,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Niv, DarkSurface, NivEmpty } from "@/components/brand"
 import { EmptyState } from "@/components/ui/states/empty-state"
-import { H1 } from "@/components/ui/headings"
 
 interface Conversation {
   id: string
@@ -267,12 +260,11 @@ export function MessagesClient({ conversations, currentUserId }: MessagesClientP
             isDesktop
           />
         ) : (
-          <div className="flex items-center justify-center h-[600px] rounded-2xl bg-card/30 border border-border ">
-            <div className="text-center">
-              <MessageCircle className="w-16 h-16 text-muted-foreground/60 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-foreground mb-2">Sélectionne une conversation</h3>
-              <p className="text-muted-foreground">Choisis une conversation pour commencer</p>
-            </div>
+          <div className="flex items-center justify-center h-[600px] rounded-2xl border-2 border-ink bg-white shadow-stkr-md">
+            <NivEmpty
+              title="Sélectionne une conversation"
+              description="Choisis une conversation pour commencer."
+            />
           </div>
         )}
       </div>
@@ -298,32 +290,26 @@ function ConversationList({
   return (
     <div className="space-y-6 pt-6 md:pt-0">
       <header className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-info-soft to-teal flex items-center justify-center">
-              <MessageCircle className="w-6 h-6 text-ink" />
-            </div>
-            <div>
-              <H1 className="text-4xl font-black tracking-tighter uppercase italic leading-none">
-                Messages
-              </H1>
-              <p className="text-muted-foreground text-sm font-medium">
-                {totalUnread > 0 ? `${totalUnread} non lus` : "Tous lus"}
-              </p>
-            </div>
+        <div className="flex items-center gap-4">
+          <Niv mood="happy" size={64} />
+          <div>
+            <p className="eyebrow tracking-[0.16em]">Tes DM</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight leading-none">
+              Messages
+            </h1>
+            <p className="text-sm text-mute">
+              {totalUnread > 0 ? `${totalUnread} non lus` : "Tous lus"}
+            </p>
           </div>
-          <Button size="icon" className="rounded-full bg-info-soft text-ink">
-            <Plus className="w-5 h-5" />
-          </Button>
         </div>
 
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher..."
-            className="pl-12 h-12 rounded-xl bg-card/40 border-border"
+            placeholder="Rechercher…"
+            className="pl-12 h-12 rounded-xl border-2 border-ink"
           />
         </div>
       </header>
@@ -336,53 +322,47 @@ function ConversationList({
         />
       ) : (
         <div className="space-y-2">
-          {conversations.map((convo, idx) => (
-            <motion.div
+          {conversations.map((convo) => (
+            <StickerCard
               key={convo.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.05 }}
+              variant="hover"
               onClick={() => onSelect(convo.id)}
               className={cn(
-                "flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all",
-                selectedId === convo.id
-                  ? "bg-info-soft/10 border border-info-soft/30"
-                  : "bg-card/30 border border-border hover:border-border/80 "
+                "flex-row items-center gap-4 p-4",
+                selectedId === convo.id && "bg-pink"
               )}
             >
               <div className="relative">
-                {convo.isGroup ? (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent-soft to-brand-soft flex items-center justify-center">
-                    <Users className="w-7 h-7 text-primary-foreground" />
-                  </div>
-                ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-primary-foreground">
-                    {convo.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                <div className="w-14 h-14 rounded-full border-2 border-ink bg-paper flex items-center justify-center text-xl font-bold text-ink">
+                  {convo.isGroup ? (
+                    <MessageCircle className="w-7 h-7 text-ink" />
+                  ) : (
+                    convo.name.charAt(0).toUpperCase()
+                  )}
+                </div>
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-bold text-foreground truncate">{convo.name}</h4>
+                  <h4 className="font-bold text-ink truncate">{convo.name}</h4>
                 </div>
                 <p className={cn(
                   "text-sm truncate",
-                  convo.unreadCount > 0 ? "text-foreground font-medium" : "text-muted-foreground"
+                  convo.unreadCount > 0 ? "text-ink font-medium" : "text-mute"
                 )}>
                   {convo.lastMessage ?? "Nouvelle conversation"}
                 </p>
               </div>
 
               <div className="text-right shrink-0">
-                <span className="text-xs text-muted-foreground">{formatTime(convo.lastMessageAt)}</span>
+                <span className="font-mono text-xs text-mute">{formatTime(convo.lastMessageAt)}</span>
                 {convo.unreadCount > 0 && (
-                  <div className="mt-1 w-6 h-6 rounded-full bg-info-soft text-ink text-xs font-black flex items-center justify-center ml-auto">
+                  <div className="mt-1 w-6 h-6 rounded-full border-2 border-ink bg-pink text-ink text-xs font-extrabold flex items-center justify-center ml-auto">
                     {convo.unreadCount}
                   </div>
                 )}
               </div>
-            </motion.div>
+            </StickerCard>
           ))}
         </div>
       )}
@@ -412,102 +392,81 @@ function ChatView({
   return (
     <div className={cn(
       "flex flex-col",
-      isDesktop ? "h-[600px] rounded-2xl bg-card/30 border border-border " : "min-h-screen"
+      isDesktop ? "h-[600px] rounded-2xl border-2 border-ink bg-white shadow-stkr-md overflow-hidden" : "min-h-screen"
     )}>
       {/* Chat Header */}
-      <div className={cn("flex items-center gap-4 p-4 border-b border-border", !isDesktop && "pt-6")}>
+      <div className={cn("flex items-center gap-4 p-4 border-b-2 border-ink", !isDesktop && "pt-6")}>
         {!isDesktop && (
           <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
         <div className="relative">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-lg font-bold text-primary-foreground">
+          <div className="w-12 h-12 rounded-full border-2 border-ink bg-paper flex items-center justify-center text-lg font-bold text-ink">
             {conversation.name.charAt(0).toUpperCase()}
           </div>
         </div>
         <div className="flex-1">
-          <h4 className="font-bold text-foreground">{conversation.name}</h4>
-          <p className="text-sm text-muted-foreground">
+          <h4 className="font-bold text-ink">{conversation.name}</h4>
+          <p className="text-sm text-mute">
             {conversation.isGroup ? `${conversation.participantIds.length} membres` : "Conversation privée"}
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Phone className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Video className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MoreVertical className="w-5 h-5" />
-          </Button>
         </div>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading && (
-          <div className="text-center text-muted-foreground py-8">Chargement...</div>
+          <div className="text-center text-mute py-8">Chargement…</div>
         )}
         {!loading && messages.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">
-            <MessageCircle className="w-12 h-12 text-muted-foreground/60 mx-auto mb-3" />
-            <p>Aucun message. Dis bonjour !</p>
+          <div className="flex h-full items-center justify-center py-8">
+            <NivEmpty
+              mood="happy"
+              title="Dis salam à ton pote"
+              description="Aucun message. Lance la discussion !"
+            />
           </div>
         )}
         {messages.map((msg) => (
-          <motion.div
+          <div
             key={msg.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
             className={cn("flex", msg.sender === "me" ? "justify-end" : "justify-start")}
           >
-            <div className={cn(
-              "max-w-[70%] p-4 rounded-2xl",
-              msg.sender === "me"
-                ? "bg-info-soft text-ink rounded-br-md"
-                : "bg-muted text-foreground rounded-bl-md"
-            )}>
-              <p>{msg.text}</p>
-              <div className={cn(
-                "flex items-center gap-1 mt-1",
-                msg.sender === "me" ? "justify-end" : "justify-start"
-              )}>
-                <span className={cn("text-xs", msg.sender === "me" ? "text-ink/60" : "text-muted-foreground")}>
-                  {msg.time}
-                </span>
-                {msg.sender === "me" && (
-                  <CheckCheck className={cn("w-4 h-4", msg.read ? "text-ink" : "text-ink/40")} />
-                )}
+            {msg.sender === "me" ? (
+              <DarkSurface tone="pink" className="max-w-[70%] px-4 py-2.5 rounded-br-md">
+                <p className="text-paper">{msg.text}</p>
+                <div className="flex items-center justify-end gap-1 mt-1">
+                  <span className="font-mono text-[10px] text-paper/60">{msg.time}</span>
+                  <CheckCheck className={cn("w-4 h-4", msg.read ? "text-paper" : "text-paper/40")} />
+                </div>
+              </DarkSurface>
+            ) : (
+              <div className="max-w-[70%] px-4 py-2.5 rounded-2xl rounded-bl-md border-2 border-ink bg-white text-ink">
+                <p>{msg.text}</p>
+                <div className="flex items-center justify-start gap-1 mt-1">
+                  <span className="font-mono text-[10px] text-mute">{msg.time}</span>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            )}
+          </div>
         ))}
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t-2 border-ink">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
-            <Paperclip className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
-            <ImageIcon className="w-5 h-5" />
-          </Button>
           <Input
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSend()}
-            placeholder="Écrire un message..."
-            className="flex-1 h-12 rounded-xl bg-muted border-0"
+            placeholder="Écrire un message…"
+            className="flex-1 h-12 rounded-xl border-2 border-ink"
           />
-          <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
-            <Smile className="w-5 h-5" />
-          </Button>
           <Button
+            variant="pink"
             size="icon"
-            className="shrink-0 rounded-full bg-info-soft text-ink"
+            className="shrink-0"
             onClick={onSend}
           >
             <Send className="w-5 h-5" />

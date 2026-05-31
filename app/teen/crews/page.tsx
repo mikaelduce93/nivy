@@ -1,12 +1,11 @@
-import type { Metadata } from "next"
-import { CrewsClient } from "./crews-client"
+// REDIRECT: /teen/crews → /teen/circles (écran canonique du concept crew).
+// #154 — convergence des doublons crew : /teen/circles reste la cible du 308
+// depuis /gamification/crews, /teen/crews y converge à son tour.
+// permanentRedirect (308) + robots:noindex (à l'image de /gamification/crews).
+import { permanentRedirect } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Mon crew",
-}
+export const metadata = { robots: { index: false, follow: false } }
 
-// Refonte V1.5 (#103) — hub crews teen (débloque la cible du redirect
-// /gamification/crews). Lit /api/teen/crew.
 export default function TeenCrewsPage() {
-  return <CrewsClient />
+  permanentRedirect("/teen/circles")
 }
