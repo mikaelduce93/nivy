@@ -343,6 +343,18 @@ export default [js.configs.recommended, {
           name: 'framer-motion',
           message: 'CANON VIOLATION: import the `Motion` proxy from `@/components/ui/motion` instead. Canon: INDEX #4, design-system §3.',
         },
+        {
+          name: '@/components/ui/glass-card',
+          message: 'CHARTE VIOLATION (§3): <GlassCard> supprimé (#123) — utilise <StickerCard> (F1, bordure 2px ink + ombre sticker dure).',
+        },
+        {
+          name: '@/components/ui/neon-button',
+          message: 'CHARTE VIOLATION (§3): <NeonButton> supprimé (#123) — utilise <Button variant="pink"> (kit charte).',
+        },
+        {
+          name: '@/components/ui/energy-orb',
+          message: 'CHARTE VIOLATION (§3): <EnergyOrb> supprimé (#123) — utilise une jauge sticker / <SegmentedProgress> (F5).',
+        },
       ],
     }],
   },

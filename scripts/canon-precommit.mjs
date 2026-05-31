@@ -130,6 +130,36 @@ const CANON_RULES = [
     pattern: /\.from\(['"]cin-scans['"]\)[\s\S]*?\.getPublicUrl\(/,
     message: 'CIN must use createSignedUrl (private bucket). See lib/storage/cin-signed-url.ts.',
   },
+  // ── CHARTE (refonte V2 #125) — verrou anti glass / blur / néon / glow (charte §3) ──
+  // La charte « paper néo-brutaliste » bannit le glassmorphism, le flou et le
+  // néon : bordures dures 2px ink, ombres « sticker » dures (jamais blur).
+  // Ratchet baseline : les violations existantes sont gelées, tout net-new échoue.
+  {
+    id: 'CHARTE-BLUR-001',
+    pattern: /\bbackdrop-blur/,
+    message: 'flou `backdrop-blur` banni (charte §3) — cartes sticker bordure 2px ink, jamais glass. Flou toléré uniquement nav + overlay de modale.',
+    allowFiles: [/components[\\/]navbar\.tsx$/, /components[\\/]ui[\\/]dialog\.tsx$/, /components[\\/]ui[\\/]responsive-modal\.tsx$/],
+  },
+  {
+    id: 'CHARTE-BLUR-002',
+    pattern: /drop-shadow-(?:\[|sm|md|lg|xl|2xl)\b/,
+    message: 'ombre floue `drop-shadow-*` bannie (charte §3) — ombres « sticker » dures `shadow-stkr-md/-sm/-pink` (Npx Npx 0, jamais blur).',
+  },
+  {
+    id: 'CHARTE-NEON-001',
+    pattern: /\bneon-[a-z]|shadow-glow|text-glow|drop-shadow-glow/,
+    message: 'halo néon banni (charte §3) — accents charte pink/gold/teal/coral/lime, jamais de glow.',
+  },
+  {
+    id: 'CHARTE-GLOW-001',
+    pattern: /import\s+[^;\n]*\b(?:GlowBlob|GlowRing|MeshGradient)\b[^;\n]*from/,
+    message: 'primitive glow supprimée (#124) — fond paper texturé via `<MeshBackground>` (F11), jamais de blur/glow.',
+  },
+  {
+    id: 'CHARTE-DEPRECATED-001',
+    pattern: /import\s+[^;\n]*\b(?:GlassCard|NeonButton|EnergyOrb)\b[^;\n]*from/,
+    message: 'primitive gen-z supprimée (#123) — `<StickerCard>` (F1) / `<Button variant="pink">` / jauge sticker `<SegmentedProgress>` (F5).',
+  },
 ]
 
 const ALLOW_INLINE = /canon-allow:/
