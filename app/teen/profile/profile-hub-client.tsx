@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
-  User, Trophy, Flame, Coins, Star, Calendar, Settings, Camera, Edit2, 
-  Shield, Award, Target, Users, ChartBar, Clock, Bell, Lock, Eye, LogOut,
+  User, Trophy, Flame, Coins, Star, Calendar, Settings, Camera, Edit2,
+  Shield, Award, Target, Users, ChartBar, Clock, LogOut,
   Zap, TrendingUp, Check, Loader2
 } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach } from "@/components/brand"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
@@ -386,57 +388,42 @@ function SettingsTab() {
     }
   }
 
-  const sections = [
-    {
-      title: "Account",
-      items: [
-        { label: "Edit Profile", icon: Edit2, href: "/teen/profile/edit" },
-        { label: "Privacy", icon: Lock, href: "/teen/settings/privacy" },
-        { label: "Notifications", icon: Bell, href: "/teen/settings/notifications" },
-      ]
-    },
-    {
-      title: "Preferences",
-      items: [
-        { label: "Visibility", icon: Eye, href: "/teen/settings/visibility" },
-        { label: "Language", icon: Settings, href: "/teen/settings/language" },
-      ]
-    },
-  ]
-
   return (
-    <div className="space-y-6">
-      {sections.map((section) => (
-        <div key={section.title}>
-          <h3 className="text-sm font-bold text-mute uppercase tracking-wider mb-3">{section.title}</h3>
-          <div className="space-y-2">
-            {section.items.map((item) => (
-              <motion.div key={item.label} whileHover={{ x: 4 }}>
-                <Link href={item.href} className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-ink hover:border-ink transition-colors">
-                  <item.icon className="w-5 h-5 text-mute" />
-                  <span className="flex-1 text-ink">{item.label}</span>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      ))}
+    <div className="space-y-8">
+      {/* Header éditorial + Niv */}
+      <header className="space-y-4">
+        <span className="eyebrow tracking-[0.16em] text-pink">Réglages</span>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Mes <em className="font-semibold italic text-pink">réglages</em>
+        </h1>
+        <NivCoach
+          mood="calm"
+          message="Ajuste ton profil et ta confidentialité depuis ton espace teen."
+        />
+      </header>
 
-      {/* Logout */}
-      <Button 
-        variant="outline" 
-        className="w-full rounded-2xl border-destructive/30 text-destructive hover:bg-destructive/10"
+      {/* Compte */}
+      <section className="space-y-3">
+        <span className="eyebrow tracking-[0.16em]">Compte</span>
+        <Link href="/teen/profile/edit" className="block focus:outline-none">
+          <StickerCard variant="hover" className="p-4">
+            <div className="flex items-center gap-4">
+              <Edit2 className="size-5 text-ink" aria-hidden="true" />
+              <span className="flex-1 font-medium text-ink">Modifier mon profil</span>
+            </div>
+          </StickerCard>
+        </Link>
+      </section>
+
+      {/* Déconnexion */}
+      <Button
+        variant="outline"
+        className="w-full"
         onClick={handleLogout}
         disabled={loggingOut}
       >
-        {loggingOut ? (
-          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-            <LogOut className="w-4 h-4 mr-2" />
-          </motion.div>
-        ) : (
-          <LogOut className="w-4 h-4 mr-2" />
-        )}
-        {loggingOut ? 'Logging out...' : 'Log Out'}
+        <LogOut className="w-4 h-4 mr-2" />
+        {loggingOut ? 'Déconnexion…' : 'Déconnexion'}
       </Button>
     </div>
   )

@@ -1,13 +1,27 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { Settings, ShieldCheck } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
+import { Lock, ShieldCheck } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { CheckRound } from "@/components/ui/check-round"
+import { NivCoach } from "@/components/brand"
 import { toast } from "sonner"
 import { updatePrivacySettings } from "@/gamification-system/features/pillars/actions"
+
+const PRIVACY_TOGGLES: { key: string; label: string }[] = [
+  { key: "show_profile_to_other_teens", label: "Profil visible aux autres teens" },
+  { key: "show_activity_to_parents", label: "Partager l'activité aux parents" },
+  { key: "allow_friend_requests", label: "Demandes d'amis" },
+  { key: "show_on_leaderboard", label: "Visible sur le leaderboard" },
+]
+
+const PARENTAL_PERMISSIONS: { key: string; label: string }[] = [
+  { key: "can_view_activity", label: "Voir l'activité" },
+  { key: "can_approve_events", label: "Valider les events" },
+  { key: "can_topup_credits", label: "Recharger des crédits" },
+  { key: "can_set_spending_limit", label: "Fixer un budget" },
+  { key: "can_view_location", label: "Voir la localisation" },
+]
 
 export function TeenSettingsClient({ privacy, permissions, teenId }: { privacy: any, permissions: any, teenId: string }) {
   const [settings, setSettings] = useState(privacy)
@@ -34,104 +48,69 @@ export function TeenSettingsClient({ privacy, permissions, teenId }: { privacy: 
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-black text-pink">Paramètres</h1>
-        <p className="text-sm text-mute">Gère ta confidentialité et consulte tes permissions.</p>
-      </div>
+    <div className="space-y-8">
+      {/* Header éditorial */}
+      <header className="space-y-4">
+        <span className="eyebrow tracking-[0.16em] text-pink">Réglages</span>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Mes <em className="font-semibold italic text-pink">réglages</em>
+        </h1>
+        <NivCoach
+          mood="calm"
+          message="Gère ta confidentialité et garde un œil sur ce que tes parents peuvent voir."
+        />
+      </header>
 
-      <Card className="bg-paper-2 border-pink">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-pink">
-            <Settings className="h-5 w-5" />
-            Préférences de confidentialité
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm text-mute">
-          <div className="flex items-center justify-between">
-            <span>Profil visible aux autres teens</span>
-            <Switch
-                checked={settings.show_profile_to_other_teens}
-                onCheckedChange={() => handleToggle('show_profile_to_other_teens')}
-                disabled={!!updating}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Partager l'activité aux parents</span>
-            <Switch
-                checked={settings.show_activity_to_parents}
-                onCheckedChange={() => handleToggle('show_activity_to_parents')}
-                disabled={!!updating}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Demandes d'amis</span>
-            <Switch
-                checked={settings.allow_friend_requests}
-                onCheckedChange={() => handleToggle('allow_friend_requests')}
-                disabled={!!updating}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Visible sur le leaderboard</span>
-            <Switch
-                checked={settings.show_on_leaderboard}
-                onCheckedChange={() => handleToggle('show_on_leaderboard')}
-                disabled={!!updating}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Confidentialité */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Lock className="size-4 text-ink" aria-hidden="true" />
+          <span className="eyebrow tracking-[0.16em]">Confidentialité</span>
+        </div>
+        <div className="space-y-2">
+          {PRIVACY_TOGGLES.map(({ key, label }) => (
+            <StickerCard key={key} variant="hover" className="p-4">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm font-medium text-ink">{label}</span>
+                <CheckRound
+                  checked={settings[key]}
+                  onCheckedChange={() => handleToggle(key)}
+                  disabled={!!updating}
+                  aria-label={label}
+                />
+              </div>
+            </StickerCard>
+          ))}
+        </div>
+      </section>
 
-      <Card className="bg-paper-2 border-pink">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-pink">
-            <ShieldCheck className="h-5 w-5" />
-            Permissions parentales (Lecture seule)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-mute">
-          <div className="flex items-center justify-between">
-            <span>Voir l'activité</span>
-            <span className={permissions.can_view_activity ? "text-lime" : "text-destructive"}>
-              {permissions.can_view_activity ? "Autorisé" : "Bloqué"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Valider les events</span>
-            <span className={permissions.can_approve_events ? "text-lime" : "text-destructive"}>
-              {permissions.can_approve_events ? "Autorisé" : "Bloqué"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Recharger des crédits</span>
-            <span className={permissions.can_topup_credits ? "text-lime" : "text-destructive"}>
-              {permissions.can_topup_credits ? "Autorisé" : "Bloqué"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Fixer un budget</span>
-            <span className={permissions.can_set_spending_limit ? "text-lime" : "text-destructive"}>
-              {permissions.can_set_spending_limit ? "Autorisé" : "Bloqué"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Voir la localisation</span>
-            <span className={permissions.can_view_location ? "text-lime" : "text-destructive"}>
-              {permissions.can_view_location ? "Autorisé" : "Bloqué"}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-wrap gap-3">
-        <Button asChild variant="secondary" className="bg-pink">
-          <Link href="/teen/profile">Notifications</Link>
-        </Button>
-        <Button asChild variant="ghost" className="text-pink">
-          <Link href="/teen/profile">Mon profil</Link>
-        </Button>
-      </div>
+      {/* Permissions parentales — lecture seule */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="size-4 text-ink" aria-hidden="true" />
+          <span className="eyebrow tracking-[0.16em]">Permissions parentales (lecture seule)</span>
+        </div>
+        <div className="space-y-2">
+          {PARENTAL_PERMISSIONS.map(({ key, label }) => {
+            const granted = !!permissions[key]
+            return (
+              <StickerCard key={key} variant="default" className="p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-sm font-medium text-ink">{label}</span>
+                  <span
+                    className={
+                      "inline-flex items-center rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] " +
+                      (granted ? "bg-lime text-ink" : "bg-coral text-ink")
+                    }
+                  >
+                    {granted ? "Autorisé" : "Bloqué"}
+                  </span>
+                </div>
+              </StickerCard>
+            )
+          })}
+        </div>
+      </section>
     </div>
   )
 }
