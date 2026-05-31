@@ -1,6 +1,11 @@
 "use client"
 
 /**
+ * @deprecated Orphaned (#184). Not imported in production. Canon: app/teen/leaderboard.
+ * Kept on disk for git history; deletion candidate pending ratification.
+ */
+
+/**
  * TEENS PARTY MOROCCO - Leaderboard Client Component
  * ===================================================
  */

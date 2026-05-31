@@ -1,6 +1,12 @@
 "use client"
 
 /**
+ * @deprecated Orphaned (#184). Not imported in production. The roue feature is
+ * frozen (no canon /teen/* surface). Kept on disk for git history; deletion
+ * candidate pending ratification.
+ */
+
+/**
  * TEENS PARTY MOROCCO - Fortune Wheel Client Component
  * =====================================================
  * Composant client pour la roue de la fortune avec server actions

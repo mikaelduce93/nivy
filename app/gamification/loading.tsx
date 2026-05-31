@@ -1,3 +1,9 @@
+/**
+ * @deprecated Orphaned (#184). The /gamification hub is sunset (force-static 308
+ * redirect to /teen), so this loading.tsx can never render. Canon skeletons live
+ * under app/teen/*. Kept on disk for git history; deletion candidate pending
+ * ratification.
+ */
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function GamificationLoading() {

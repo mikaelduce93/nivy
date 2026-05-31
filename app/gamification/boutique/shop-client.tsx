@@ -1,6 +1,13 @@
 "use client"
 
 /**
+ * @deprecated Orphaned (#184). Not imported in production. The canonical wallet
+ * shop tab lives in app/teen/wallet/wallet-hub-client.tsx (getRewards() —
+ * reward_categories + RPC get_shop_rewards). Kept on disk for git history;
+ * deletion candidate pending ratification.
+ */
+
+/**
  * TEENS PARTY MOROCCO - Shop Client Component
  * ============================================
  * Composant client pour la boutique de récompenses

@@ -1,6 +1,12 @@
 "use client"
 
 /**
+ * @deprecated Orphaned (#184). Not imported in production. Canon: achievements
+ * display lives on app/teen/profile (tab=achievements). Kept on disk for git
+ * history; deletion candidate pending ratification.
+ */
+
+/**
  * TEENS PARTY MOROCCO - Collections Client Component
  * ===================================================
  */
