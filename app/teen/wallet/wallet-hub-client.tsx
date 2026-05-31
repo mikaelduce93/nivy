@@ -13,6 +13,9 @@ import { toast } from "sonner"
 import { purchaseReward } from "@/gamification-system/features/shop/actions"
 import { convertXPToDH, formatDH } from "@/lib/payments/xp-converter"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StickerTabs } from "@/components/brand/sticker-tab"
+import { NivCoach, NivEmpty, DarkSurface } from "@/components/brand"
 
 interface ShopReward {
   reward_id: string
@@ -341,103 +344,84 @@ function ShopTab({
     return (
       <div className="flex flex-col items-end">
         <div className="flex items-center gap-1">
-          <Zap className="w-4 h-4 text-brand-soft" />
-          <span className="font-black text-brand-soft">
+          <Zap className="w-4 h-4 text-gold" />
+          <span className="font-display font-extrabold tabular-nums text-gold">
             {xpCost.toLocaleString()}
           </span>
         </div>
-        <span className="text-[10px] text-mute">≈ {formatDH(dhValue)}</span>
+        <span className="font-mono text-[10px] tabular-nums text-mute">
+          ≈ {formatDH(dhValue)}
+        </span>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
+      {/* Coach Niv — entrée d'onglet */}
+      <NivCoach
+        mood="happy"
+        message="Tes XP, tu les dépenses ici. Vise un item, je te dis s'il est à ta portée !"
+      />
+
       {/* Affordability banner */}
-      <div className="p-4 rounded-2xl bg-card border border-ink flex items-center justify-between flex-wrap gap-3">
-        <div className="text-sm text-ink-2">
-          Tu as{" "}
-          <span className="text-brand-soft font-bold">
-            {userXP.toLocaleString()} XP
-          </span>{" "}
-          (≈{" "}
-          <span className="text-lime font-bold">
-            {formatDH(walletData.currency?.xpValueDH || convertXPToDH(userXP))}
-          </span>
-          ) à dépenser.
+      <StickerCard variant="panel" className="p-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="text-sm text-ink-2">
+            Tu as{" "}
+            <span className="font-mono font-bold tabular-nums text-gold">
+              {userXP.toLocaleString()} XP
+            </span>{" "}
+            (≈{" "}
+            <span className="font-mono font-bold tabular-nums text-ink-2">
+              {formatDH(walletData.currency?.xpValueDH || convertXPToDH(userXP))}
+            </span>
+            ) à dépenser.
+          </div>
+          <div className="font-mono text-xs uppercase tracking-wider text-mute">
+            {rewards.filter((r) => r.xp_cost <= userXP).length} item(s) accessible(s)
+          </div>
         </div>
-        <div className="text-xs text-mute">
-          {rewards.filter((r) => r.xp_cost <= userXP).length} item(s) accessible(s)
-        </div>
-      </div>
+      </StickerCard>
 
       {/* Category filters */}
       {categories.length > 0 && (
-        <div role="group" aria-label="Filtres catégories" className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveCategory(null)}
-            aria-pressed={!activeCategory}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-soft",
-              !activeCategory
-                ? "bg-brand-soft text-ink"
-                : "bg-card text-ink-2 hover:text-ink"
-            )}
-          >
-            Tous
-          </button>
-          {categories.map((cat) => {
-            const active = activeCategory === cat.slug
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setActiveCategory(cat.slug)}
-                aria-pressed={active}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-soft",
-                  active
-                    ? "bg-brand-soft text-ink"
-                    : "bg-card text-ink-2 hover:text-ink"
-                )}
-              >
-                {cat.name}
-              </button>
-            )
-          })}
-        </div>
+        <StickerTabs
+          ariaLabel="Filtres catégories"
+          value={activeCategory ?? "__all__"}
+          onValueChange={(v) => setActiveCategory(v === "__all__" ? null : v)}
+          tabs={[
+            { value: "__all__", label: "Tous" },
+            ...categories.map((cat) => ({ value: cat.slug, label: cat.name })),
+          ]}
+        />
       )}
 
-      {/* Featured */}
+      {/* En vedette — surface sombre ponctuelle */}
       {featured && !activeCategory && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative overflow-hidden rounded-2xl p-8 border border-brand-soft/20 bg-gradient-to-br from-brand-soft/10 to-info-soft/5"
-        >
-          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-brand-soft/20 text-brand-soft text-xs font-black uppercase">
-            Featured
-          </div>
-          <div className="flex items-center gap-6 flex-wrap">
-            <div className="w-24 h-24 rounded-2xl bg-paper-2 flex items-center justify-center text-5xl">
-              <Gift className="w-10 h-10 text-brand-soft" />
+        <DarkSurface tone="pink" shadow className="p-6 sm:p-8">
+          <span className="eyebrow tracking-[0.16em] text-paper/60">En vedette</span>
+          <div className="mt-3 flex items-center gap-6 flex-wrap">
+            <div className="w-24 h-24 rounded-2xl border-2 border-paper/30 flex items-center justify-center">
+              <Gift className="w-10 h-10 text-pink" />
             </div>
             <div className="flex-1 min-w-[200px]">
-              <h3 className="text-2xl font-black">{featured.name}</h3>
-              <p className="text-mute mt-1">{featured.description || "Limited edition reward"}</p>
-              <div className="flex items-center gap-2 mt-4">
-                <Zap className="w-5 h-5 text-brand-soft" />
-                <span className="font-black text-xl text-brand-soft">
+              <h3 className="font-display text-2xl font-extrabold text-paper">
+                {featured.name}
+              </h3>
+              <p className="text-paper/70 mt-1">{featured.description}</p>
+              <div className="flex items-baseline gap-2 mt-4">
+                <Zap className="w-5 h-5 self-center text-gold" />
+                <span className="font-display text-xl font-extrabold tabular-nums text-gold">
                   {featured.xp_cost.toLocaleString()} XP
                 </span>
-                <span className="text-sm text-mute">
+                <span className="font-mono text-sm tabular-nums text-paper/60">
                   ≈ {formatDH(convertXPToDH(featured.xp_cost))}
                 </span>
               </div>
             </div>
             <Button
-              className="bg-brand-soft text-ink font-bold"
+              variant="pink"
               disabled={
                 !featured.can_purchase ||
                 userXP < featured.xp_cost ||
@@ -454,43 +438,36 @@ function ShopTab({
               )}
             </Button>
           </div>
-        </motion.div>
+        </DarkSurface>
       )}
 
       {/* Items Grid */}
       {filteredRewards.length === 0 ? (
-        <div className="text-center py-12">
-          <ShoppingBag className="w-16 h-16 text-ink mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-ink mb-2">Aucun item disponible</h3>
-          <p className="text-mute">De nouveaux items arriveront bientôt !</p>
-        </div>
+        <NivEmpty
+          mood="calm"
+          title="Aucun item disponible"
+          description="De nouveaux items arriveront bientôt !"
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {filteredRewards.map((item, idx) => {
+          {filteredRewards.map((item) => {
             const canAfford = userXP >= item.xp_cost
             const isPending = pendingId === item.reward_id
             return (
-              <motion.div
+              <StickerCard
                 key={item.reward_id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={cn(
-                  "p-5 rounded-2xl bg-card border transition-all flex flex-col",
-                  canAfford
-                    ? "border-ink hover:border-brand-soft/40"
-                    : "border-ink opacity-70"
-                )}
+                variant={canAfford ? "hover" : "default"}
+                className={cn("p-5", !canAfford && "opacity-70")}
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-soft/10 flex items-center justify-center">
-                    <Gift className="w-7 h-7 text-brand-soft" />
+                  <div className="w-14 h-14 rounded-2xl border-2 border-ink bg-paper-2 flex items-center justify-center">
+                    <Gift className="w-7 h-7 text-pink" />
                   </div>
                   {renderPriceTag(item.xp_cost)}
                 </div>
-                <h4 className="font-bold text-ink">{item.name}</h4>
+                <h4 className="font-display font-bold text-ink">{item.name}</h4>
                 {item.category_name && (
-                  <p className="text-[10px] uppercase tracking-wider text-mute mt-0.5">
+                  <p className="font-mono text-[10px] uppercase tracking-wider text-mute mt-0.5">
                     {item.category_name}
                   </p>
                 )}
@@ -501,6 +478,7 @@ function ShopTab({
                 )}
                 <Button
                   size="sm"
+                  variant="pink"
                   className="mt-4 w-full"
                   disabled={!item.can_purchase || !canAfford || isPending}
                   onClick={() => handlePurchase(item)}
@@ -515,7 +493,7 @@ function ShopTab({
                     `Manque ${(item.xp_cost - userXP).toLocaleString()} XP`
                   )}
                 </Button>
-              </motion.div>
+              </StickerCard>
             )
           })}
         </div>

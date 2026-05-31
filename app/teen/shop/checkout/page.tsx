@@ -65,12 +65,15 @@ export default async function CheckoutPage({
     : (booking.events as { title?: string } | null)?.title
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-paper flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-black text-foreground mb-2">Checkout</h1>
-          <p className="text-muted-foreground">Finalise ta commande pour</p>
-          <p className="text-primary font-bold text-lg">
+          <span className="eyebrow tracking-[0.16em] text-mute">Paiement</span>
+          <h1 className="mt-2 mb-2 font-display text-2xl font-extrabold text-ink">
+            Finalise ta <em className="font-semibold italic text-pink">commande</em>
+          </h1>
+          <p className="text-mute">Pour</p>
+          <p className="font-display font-bold text-lg text-ink">
             {eventTitle || `Réservation ${booking.booking_reference}`}
           </p>
         </div>

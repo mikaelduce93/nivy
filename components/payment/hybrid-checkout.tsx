@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { StickerCard } from '@/components/ui/sticker-card'
 import { Switch } from '@/components/ui/switch'
-import { Coins, CreditCard } from 'lucide-react'
-import { XPValueDisplay } from '@/components/gamification/xp-display'
-import { AnimatedCounter } from '@/components/ui/animated-counter'
+import { Zap, CreditCard } from 'lucide-react'
 
 interface HybridCheckoutProps {
   totalAmount: number // in DH
@@ -45,28 +43,32 @@ export function HybridCheckout({
   const finalAmount = totalAmount - discountAmount
 
   return (
-    <Card className="p-6 bg-card border-ink">
-      <h3 className="text-lg font-bold text-ink mb-4">Paiement</h3>
-      
-      <div className="flex justify-between items-center mb-6">
+    <StickerCard className="p-6">
+      <span className="eyebrow tracking-[0.16em] text-mute">Paiement</span>
+
+      <div className="mt-3 flex justify-between items-center mb-6">
         <span className="text-mute">Total à payer</span>
-        <span className="text-2xl font-black text-ink">{totalAmount.toFixed(2)} DH</span>
+        <span className="font-display text-2xl font-extrabold tabular-nums text-ink">
+          {totalAmount.toFixed(2)} <span className="font-mono text-base font-medium text-mute">DH</span>
+        </span>
       </div>
 
       <div className="space-y-6">
         {/* Toggle XP Payment */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-lime/10 to-teal/10 border border-lime/20">
+        <div className="flex items-center justify-between p-4 rounded-xl border-2 border-ink bg-paper-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-lime/20 flex items-center justify-center">
-              <Coins className="w-5 h-5 text-lime" />
+            <div className="w-10 h-10 rounded-xl border-2 border-ink bg-white flex items-center justify-center">
+              <Zap className="w-5 h-5 text-gold" />
             </div>
             <div>
-              <p className="font-bold text-ink">Payer avec mes XP</p>
-              <p className="text-xs text-lime">Solde : {userXP.toLocaleString()} XP</p>
+              <p className="font-display font-bold text-ink">Payer avec mes XP</p>
+              <p className="font-mono text-xs tabular-nums text-gold">
+                Solde : {userXP.toLocaleString()} XP
+              </p>
             </div>
           </div>
-          <Switch 
-            checked={useXP} 
+          <Switch
+            checked={useXP}
             onCheckedChange={setUseXP}
             disabled={userXP === 0}
           />
@@ -74,36 +76,38 @@ export function HybridCheckout({
 
         {/* XP Slider */}
         {useXP && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="space-y-4">
             <div className="flex justify-between text-sm">
               <span className="text-mute">Utiliser</span>
-              <span className="font-bold text-lime">{xpToUse.toLocaleString()} XP</span>
+              <span className="font-mono font-bold tabular-nums text-gold">
+                {xpToUse.toLocaleString()} XP
+              </span>
             </div>
-            
+
             <Slider
               value={[xpToUse]}
               max={maxXPAvailable}
               step={10}
               onValueChange={([val]) => setXpToUse(val)}
-              className="py-2"
+              className="py-2 [&_[data-slot=slider-range]]:bg-pink [&_[data-slot=slider-thumb]]:border-pink"
             />
-            
-            <div className="flex justify-between text-xs text-mute">
+
+            <div className="flex justify-between font-mono text-xs tabular-nums text-mute">
               <span>0 XP</span>
-              <span>Max: {maxXPAvailable.toLocaleString()} XP</span>
+              <span>Max : {maxXPAvailable.toLocaleString()} XP</span>
             </div>
 
-            <div className="flex justify-between items-center pt-2 border-t border-ink">
+            <div className="flex justify-between items-center pt-2 border-t-2 border-ink">
               <span className="text-sm text-lime">Économie réalisée</span>
-              <span className="font-bold text-lime">
-                -<AnimatedCounter value={discountAmount} suffix=" DH" />
+              <span className="font-mono font-bold tabular-nums text-lime">
+                −{discountAmount.toFixed(2)} DH
               </span>
             </div>
           </div>
         )}
 
         {/* Final Summary */}
-        <div className="pt-4 border-t border-ink">
+        <div className="pt-4 border-t-2 border-ink">
           <div className="flex justify-between items-end mb-6">
             <div className="text-mute">
               <p className="text-sm">Reste à payer</p>
@@ -113,24 +117,27 @@ export function HybridCheckout({
               </div>
             </div>
             <div className="text-right">
-              <span className="text-3xl font-black text-ink">
-                <AnimatedCounter value={finalAmount} suffix=" DH" />
+              <span className="font-display text-3xl font-extrabold tabular-nums text-ink">
+                {finalAmount.toFixed(2)} <span className="font-mono text-base font-medium text-mute">DH</span>
               </span>
               {useXP && (
-                <p className="text-xs text-mute line-through">{totalAmount.toFixed(2)} DH</p>
+                <p className="font-mono text-xs tabular-nums text-mute line-through">
+                  {totalAmount.toFixed(2)} DH
+                </p>
               )}
             </div>
           </div>
 
-          <Button 
-            className="w-full h-12 text-lg font-bold bg-white text-ink hover:bg-paper-2"
+          <Button
+            variant="pink"
+            className="w-full h-12 text-lg font-bold"
             onClick={() => onConfirm(xpToUse, finalAmount)}
           >
             Confirmer le paiement
           </Button>
         </div>
       </div>
-    </Card>
+    </StickerCard>
   )
 }
 
