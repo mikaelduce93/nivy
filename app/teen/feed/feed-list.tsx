@@ -297,7 +297,7 @@ function FeedListRow({
           </div>
         )}
         <div className="mt-3 flex items-center gap-4 font-mono text-xs">
-          <span className="text-pink" aria-label={p.user_liked ? 'Aimé' : 'Likes'}>
+          <span className="text-pink" aria-label={p.user_liked ? 'Aimé' : "J'aime"}>
             {p.user_liked ? '♥' : '♡'} {p.likes_count ?? 0}
           </span>
           <span className="text-teal" aria-label="Commentaires">💬 {p.comments_count ?? 0}</span>

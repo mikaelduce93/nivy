@@ -126,7 +126,7 @@ export default async function SubmissionDetailPage({
           </div>
         )}
         <div className="mt-4 flex items-center gap-4 font-mono text-sm">
-          <span className="text-pink" aria-label="Likes">♥ {post.likes_count ?? 0}</span>
+          <span className="text-pink" aria-label="J'aime">♥ {post.likes_count ?? 0}</span>
           <span className="text-teal" aria-label="Commentaires">💬 {post.comments_count ?? 0}</span>
           <span className="text-mute" aria-label="Partages">↗ {post.shares_count ?? 0}</span>
           <span className="ml-auto inline-flex items-center gap-1 rounded-full border-2 border-ink bg-gold px-3 py-1 font-bold text-ink">
