@@ -1,8 +1,10 @@
+import Anthropic from "@anthropic-ai/sdk"
 import { BaseAIProvider, type AIProviderResponse } from "./base"
 
-// Last-resort fallback if neither a constructor-passed model nor the
-// CLAUDE_MODEL_ID env var is set. Kept in sync with the canonical default
-// in `lib/ai/content-generator.ts`.
+// #210 — provider Claude via le SDK officiel (@anthropic-ai/sdk), remplace le
+// fetch artisanal figé sur `anthropic-version: 2023-06-01`. Modèle env-driven
+// (constructeur > CLAUDE_MODEL_ID > fallback). Prompt caching activé sur le
+// bloc system (stable) pour ~90% d'économie dès le 2e tour d'une conversation.
 const CLAUDE_FALLBACK_MODEL = "claude-sonnet-4-6"
 
 export class ClaudeProvider extends BaseAIProvider {
@@ -13,43 +15,31 @@ export class ClaudeProvider extends BaseAIProvider {
 
     const startTime = Date.now()
     const model = this.model || process.env.CLAUDE_MODEL_ID || CLAUDE_FALLBACK_MODEL
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": this.apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 2000,
-        system: systemPrompt,
-        messages: [
-          { role: "user", content: userPrompt },
-        ],
-      }),
+    const client = new Anthropic({ apiKey: this.apiKey })
+
+    const message = await client.messages.create({
+      model,
+      max_tokens: 2000,
+      // Le system (sécurité + contexte profil/mémoire) est stable → cache_control
+      // ephemeral. `messages` (volatil) reste hors cache.
+      system: [
+        { type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } },
+      ],
+      messages: [{ role: "user", content: userPrompt }],
     })
 
-    if (!response.ok) {
-      let errorMessage = "Unknown error"
-      try {
-        const error = await response.json()
-        errorMessage = error.error?.message || error.message || JSON.stringify(error)
-      } catch {
-        errorMessage = `HTTP ${response.status}: ${response.statusText}`
-      }
-      throw new Error(`Claude API error: ${errorMessage}`)
-    }
-
-    const data = await response.json()
     const generationTime = Date.now() - startTime
+    const content = message.content
+      .map((block) => (block.type === "text" ? block.text : ""))
+      .join("")
 
+    const usage = message.usage
     return {
-      content: data.content[0]?.text || "",
+      content,
       metadata: {
         provider: "claude",
         model,
-        tokensUsed: data.usage?.input_tokens + data.usage?.output_tokens || 0,
+        tokensUsed: (usage?.input_tokens ?? 0) + (usage?.output_tokens ?? 0),
         generationTime,
       },
     }

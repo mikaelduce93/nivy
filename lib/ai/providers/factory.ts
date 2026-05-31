@@ -10,12 +10,14 @@ export class AIProviderFactory {
       case "openai":
         return new OpenAIProvider(
           process.env.OPENAI_API_KEY || null,
-          model || "gpt-4"
+          // #210 — défaut env-driven (plus de gpt-4 obsolète/coûteux en dur).
+          model || process.env.OPENAI_MODEL_ID || "gpt-4o-mini"
         )
       case "claude":
         return new ClaudeProvider(
           process.env.ANTHROPIC_API_KEY || null,
-          model || "claude-3-sonnet-20240229"
+          // #210 — défaut moderne env-driven (plus de claude-3-sonnet-20240229).
+          model || process.env.CLAUDE_MODEL_ID || "claude-sonnet-4-6"
         )
       default:
         throw new Error(`Unsupported AI provider: ${type}`)
