@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Users, Shield, Search, Download, Filter, UserPlus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Users, Shield, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import Link from "next/link"
 import BackButton from "@/components/admin/BackButton"
+import { StatCard } from "@/components/admin/stat-card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 
 export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<{ search?: string }> }) {
   const { search } = await searchParams
@@ -68,157 +69,120 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
-        <BackButton href="/admin" label="Retour au dashboard" />
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-ink mb-2">Gestion des utilisateurs</h1>
-          <p className="text-mute">Gérez tous les utilisateurs de la plateforme</p>
-        </div>
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <BackButton href="/admin" label="Retour au dashboard" />
 
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card className="p-4 bg-card border-ink">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-mute text-sm mb-1">Total</p>
-                <p className="text-3xl font-black text-ink">{stats.total}</p>
-              </div>
-              <Users className="w-10 h-10 text-teal" />
-            </div>
-          </Card>
-          <Card className="p-4 bg-card border-pink/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-mute text-sm mb-1">Administrateurs</p>
-                <p className="text-3xl font-black text-pink">{stats.admins}</p>
-              </div>
-              <Shield className="w-10 h-10 text-pink" />
-            </div>
-          </Card>
-          <Card className="p-4 bg-card border-teal/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-mute text-sm mb-1">Parents</p>
-                <p className="text-3xl font-black text-teal">{stats.parents}</p>
-              </div>
-              <UserPlus className="w-10 h-10 text-teal" />
-            </div>
-          </Card>
-        </div>
+      <header className="mb-8 space-y-2">
+        <p className="eyebrow text-mute">Admin · Utilisateurs</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          Gérer les <em className="font-semibold italic text-pink">utilisateurs</em>
+        </h1>
+        <p className="text-mute">Tous les comptes de la plateforme, parents et administrateurs.</p>
+      </header>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
-            <Input
-              placeholder="Rechercher par nom, email, téléphone..."
-              className="pl-10 bg-card border-ink"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="bg-transparent border-ink">
-              <Filter className="w-4 h-4 mr-2" />
-              Filtres
-            </Button>
-            <Button variant="outline" className="bg-transparent border-ink">
-              <Download className="w-4 h-4 mr-2" />
-              Exporter
-            </Button>
-          </div>
-        </div>
+      <section className="mb-8 grid grid-cols-3 gap-3">
+        <StatCard label="Total" value={stats.total} tone="teal" icon={<Users className="h-5 w-5" />} />
+        <StatCard label="Administrateurs" value={stats.admins} tone="coral" icon={<Shield className="h-5 w-5" />} />
+        <StatCard label="Parents" value={stats.parents} tone="paper" />
+      </section>
 
-        {filteredProfiles && filteredProfiles.length > 0 ? (
-          <div className="space-y-4">
-            {filteredProfiles.map((profile) => (
-              <Card key={profile.id} className="p-6 bg-card border-ink">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center flex-shrink-0">
-                      {profile.avatar_url ? (
-                        <Image
-                          src={profile.avatar_url || "/placeholder.svg"}
-                          alt={profile.prenom || "User"}
-                          width={48}
-                          height={48}
-                          className="w-full h-full object-cover rounded-full"
-                        />
-                      ) : (
-                        <span className="text-ink font-bold text-lg">
-                          {(profile.prenom || "U").charAt(0).toUpperCase()}
+      <form method="GET" className="relative mb-6 lg:max-w-md">
+        <Search className="pointer-events-none absolute left-3 top-1/2 w-5 h-5 -translate-y-1/2 text-mute" />
+        <Input
+          name="search"
+          defaultValue={search ?? ""}
+          placeholder="Rechercher par nom, email, téléphone..."
+          className="rounded-xl border-2 border-ink bg-white pl-10"
+        />
+      </form>
+
+      {filteredProfiles && filteredProfiles.length > 0 ? (
+        <div className="space-y-4">
+          {filteredProfiles.map((profile) => (
+            <StickerCard key={profile.id} variant="hover" className="p-6">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex min-w-0 flex-1 items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-ink bg-teal/20">
+                    {profile.avatar_url ? (
+                      <Image
+                        src={profile.avatar_url}
+                        alt={profile.prenom || "Utilisateur"}
+                        width={48}
+                        height={48}
+                        className="h-full w-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="font-display text-lg font-bold text-ink">
+                        {(profile.prenom || "U").charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-3">
+                      <h3 className="font-display text-lg font-bold text-ink">
+                        {profile.prenom} {profile.nom}
+                      </h3>
+                      {profile.is_admin && (
+                        <span className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-paper">
+                          <Shield className="h-3 w-3" />
+                          Admin
                         </span>
                       )}
                     </div>
 
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-ink">
-                          {profile.prenom} {profile.nom}
-                        </h3>
-                        {profile.is_admin && (
-                          <div className="px-2 py-1 rounded-full bg-pink/20 text-pink text-xs font-semibold flex items-center gap-1">
-                            <Shield className="w-3 h-3" />
-                            ADMIN
-                          </div>
-                        )}
+                    <div className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                      <div>
+                        <p className="eyebrow mb-1 text-mute">Contact</p>
+                        <p className="text-ink-2">{profile.email}</p>
+                        {profile.telephone && <p className="text-mute">{profile.telephone}</p>}
                       </div>
 
-                      <div className="grid md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <p className="text-mute mb-1">Contact</p>
-                          <p className="text-ink-2">{profile.email}</p>
-                          {profile.telephone && <p className="text-mute">{profile.telephone}</p>}
-                        </div>
+                      <div>
+                        <p className="eyebrow mb-1 text-mute">Statistiques</p>
+                        <p className="text-teal">
+                          {profile.bookings_count} réservation{profile.bookings_count !== 1 ? "s" : ""}
+                        </p>
+                        <p className="text-teal">
+                          {profile.children_count} ado{profile.children_count !== 1 ? "s" : ""}
+                        </p>
+                      </div>
 
-                        <div>
-                          <p className="text-mute mb-1">Statistiques</p>
-                          <p className="text-teal">
-                            {profile.bookings_count} réservation{profile.bookings_count !== 1 ? "s" : ""}
-                          </p>
-                          <p className="text-teal">
-                            {profile.children_count} ado{profile.children_count !== 1 ? "s" : ""}
-                          </p>
-                        </div>
+                      <div>
+                        <p className="eyebrow mb-1 text-mute">Revenus générés</p>
+                        <p className="font-mono text-lg font-bold text-lime tabular-nums">{profile.total_revenue} DH</p>
+                      </div>
 
-                        <div>
-                          <p className="text-mute mb-1">Revenus générés</p>
-                          <p className="text-lime font-bold text-lg">{profile.total_revenue} DH</p>
-                        </div>
-
-                        <div>
-                          <p className="text-mute mb-1">Inscription</p>
-                          <p className="text-mute text-xs">
-                            {new Date(profile.created_at).toLocaleDateString("fr-FR", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
-                          </p>
-                        </div>
+                      <div>
+                        <p className="eyebrow mb-1 text-mute">Inscription</p>
+                        <p className="text-xs text-mute">
+                          {new Date(profile.created_at).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
                       </div>
                     </div>
                   </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      asChild
-                      size="sm"
-                      variant="outline"
-                      className="bg-transparent border-teal text-teal"
-                    >
-                      <Link href={`/admin/utilisateurs/${profile.id}`}>Détails</Link>
-                    </Button>
-                  </div>
                 </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="p-12 text-center bg-card border-ink">
-            <Users className="w-16 h-16 text-ink mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-ink mb-2">Aucun utilisateur trouvé</h3>
-            <p className="text-mute">Essayez de modifier vos critères de recherche</p>
-          </Card>
-        )}
-      </div>
+
+                <Link
+                  href={`/admin/utilisateurs/${profile.id}`}
+                  className="inline-flex min-h-touch shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-white px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-[0.12em] text-ink shadow-stkr-sm transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink"
+                >
+                  Détails
+                </Link>
+              </div>
+            </StickerCard>
+          ))}
+        </div>
+      ) : (
+        <NivEmpty
+          title="Aucun utilisateur trouvé"
+          description="Personne ne matche ta recherche, frérot — essaie un autre nom ou email."
+        />
+      )}
     </div>
   )
 }

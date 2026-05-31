@@ -3,27 +3,21 @@ import { redirect, notFound } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import Image from "next/image"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, Niv } from "@/components/brand"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
-  Cake,
   Calendar,
   Users,
   ArrowLeft,
   Phone,
   Mail,
-  MapPin,
-  CreditCard,
   Clock,
   CheckCircle2,
-  XCircle,
-  AlertCircle,
   QrCode,
   User,
   Gift,
   FileText,
-  Euro,
 } from "lucide-react"
 import type { Metadata } from "next"
 import { AnnivOrderActions } from "./actions-client"
@@ -59,34 +53,34 @@ async function getAnnivOrder(supabase: any, orderId: string) {
   return data
 }
 
-function getStatusBadge(status: string) {
-  switch (status) {
-    case "confirmed":
-      return <Badge className="bg-lime text-ink text-sm px-3 py-1">Confirmé</Badge>
-    case "pending":
-      return <Badge className="bg-gold text-ink text-sm px-3 py-1">En attente</Badge>
-    case "cancelled":
-      return <Badge className="bg-destructive text-ink text-sm px-3 py-1">Annulé</Badge>
-    case "completed":
-      return <Badge className="bg-teal text-ink text-sm px-3 py-1">Terminé</Badge>
-    default:
-      return <Badge variant="secondary" className="text-sm px-3 py-1">{status}</Badge>
+function StatusPill({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    confirmed: { label: "Confirmé", cls: "bg-lime/15 text-lime" },
+    pending: { label: "En attente", cls: "bg-gold/15 text-gold" },
+    cancelled: { label: "Annulé", cls: "bg-coral/15 text-coral" },
+    completed: { label: "Terminé", cls: "bg-teal/15 text-teal" },
   }
+  const it = map[status] ?? { label: status.toUpperCase(), cls: "bg-white text-mute" }
+  return (
+    <span className={`inline-flex items-center rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] ${it.cls}`}>
+      {it.label}
+    </span>
+  )
 }
 
-function getPaymentBadge(status: string) {
-  switch (status) {
-    case "paid":
-      return <Badge variant="outline" className="border-lime text-lime text-sm px-3 py-1">Payé intégralement</Badge>
-    case "deposit":
-      return <Badge variant="outline" className="border-gold text-gold text-sm px-3 py-1">Acompte versé</Badge>
-    case "pending":
-      return <Badge variant="outline" className="border-line text-mute text-sm px-3 py-1">Non payé</Badge>
-    case "refunded":
-      return <Badge variant="outline" className="border-destructive text-destructive text-sm px-3 py-1">Remboursé</Badge>
-    default:
-      return <Badge variant="outline" className="text-sm px-3 py-1">{status}</Badge>
+function PaymentPill({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    paid: { label: "Payé intégralement", cls: "bg-lime/15 text-lime" },
+    deposit: { label: "Acompte versé", cls: "bg-gold/15 text-gold" },
+    pending: { label: "Non payé", cls: "bg-white text-mute" },
+    refunded: { label: "Remboursé", cls: "bg-coral/15 text-coral" },
   }
+  const it = map[status] ?? { label: status.toUpperCase(), cls: "bg-white text-mute" }
+  return (
+    <span className={`inline-flex items-center rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] ${it.cls}`}>
+      {it.label}
+    </span>
+  )
 }
 
 export default async function AdminAnnivOrderDetailPage({
@@ -118,337 +112,302 @@ export default async function AdminAnnivOrderDetailPage({
   }, 0) || 0
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto space-y-8 px-4 sm:px-6 py-8 sm:py-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-2">
+          <Button variant="ghost" size="sm" asChild className="-ml-2 mb-1">
             <Link href="/admin/anniversaires">
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              Anniversaires
             </Link>
           </Button>
-          <div>
-            <h1 className="text-2xl font-black text-ink flex items-center gap-3">
-              <Cake className="w-7 h-7 text-pink" />
-              Commande {order.booking_reference}
-            </h1>
-            <p className="text-mute mt-1">
-              Créée le {createdAt.toLocaleDateString("fr-FR", {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-              })}
-            </p>
-          </div>
+          <p className="eyebrow text-mute">Anniversaire · Commande</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Commande <em className="font-mono not-italic text-pink">{order.booking_reference}</em>
+          </h1>
+          <p className="text-sm text-mute">
+            Créée le {createdAt.toLocaleDateString("fr-FR", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+            })}
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          {getStatusBadge(order.status)}
-          {getPaymentBadge(order.payment_status)}
+        <div className="flex flex-wrap items-center gap-3">
+          <StatusPill status={order.status} />
+          <PaymentPill status={order.payment_status} />
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Info */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Event Details */}
-          <Card className="bg-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-pink" />
-                Détails de l'événement
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-lg bg-card">
-                  <p className="text-xs text-mute uppercase mb-1">Date de célébration</p>
-                  <p className="text-xl font-bold text-ink">
-                    {celebrationDate.toLocaleDateString("fr-FR", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric"
-                    })}
-                  </p>
-                  {isUpcoming ? (
-                    <span className="text-xs text-lime flex items-center gap-1 mt-1">
-                      <Clock className="w-3 h-3" />
-                      À venir
-                    </span>
-                  ) : (
-                    <span className="text-xs text-mute flex items-center gap-1 mt-1">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Passé
-                    </span>
-                  )}
-                </div>
-                <div className="p-4 rounded-lg bg-card">
-                  <p className="text-xs text-mute uppercase mb-1">Nombre d'invités</p>
-                  <p className="text-xl font-bold text-ink flex items-center gap-2">
-                    <Users className="w-5 h-5 text-teal" />
-                    {order.guest_count} personnes
-                  </p>
-                </div>
-              </div>
+          <StickerCard className="gap-4 p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+              <Calendar className="h-5 w-5 text-pink" />
+              Détails de l'événement
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <StickerCard variant="panel" className="gap-1 p-4">
+                <p className="eyebrow text-mute">Date de célébration</p>
+                <p className="font-display text-xl font-bold text-ink">
+                  {celebrationDate.toLocaleDateString("fr-FR", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  })}
+                </p>
+                {isUpcoming ? (
+                  <span className="mt-1 flex items-center gap-1 text-xs text-lime">
+                    <Clock className="h-3 w-3" />
+                    À venir
+                  </span>
+                ) : (
+                  <span className="mt-1 flex items-center gap-1 text-xs text-mute">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Passé
+                  </span>
+                )}
+              </StickerCard>
+              <StickerCard variant="panel" className="gap-1 p-4">
+                <p className="eyebrow text-mute">Nombre d'invités</p>
+                <p className="flex items-center gap-2 font-display text-xl font-bold text-ink">
+                  <Users className="h-5 w-5 text-teal" />
+                  {order.guest_count} personnes
+                </p>
+              </StickerCard>
+            </div>
 
-              {/* Pack Info */}
-              <div className="p-4 rounded-lg bg-gradient-to-r from-pink/10 to-pink/10 border border-pink/20">
-                <p className="text-xs text-mute uppercase mb-1">Formule choisie</p>
-                <p className="text-lg font-bold text-pink">{order.pack?.name || "Pack inconnu"}</p>
-                <p className="text-sm text-mute">{order.pack?.description}</p>
-                <p className="text-ink font-bold mt-2">{order.pack?.base_price?.toLocaleString()} DH</p>
-              </div>
+            {/* Pack Info */}
+            <StickerCard variant="panel" className="gap-1 p-4">
+              <p className="eyebrow text-mute">Formule choisie</p>
+              <p className="font-display text-lg font-bold text-pink">{order.pack?.name || "Pack inconnu"}</p>
+              <p className="text-sm text-mute">{order.pack?.description}</p>
+              <p className="mt-2 font-mono font-bold text-ink tabular-nums">{order.pack?.base_price?.toLocaleString()} DH</p>
+            </StickerCard>
 
-              {/* Extras */}
-              {order.extras && order.extras.length > 0 && (
-                <div className="space-y-3">
-                  <p className="text-sm font-medium text-mute">Options supplémentaires</p>
-                  {order.extras.map((item: any) => (
-                    <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-card">
-                      <div className="flex items-center gap-3">
-                        <Gift className="w-4 h-4 text-pink" />
-                        <div>
-                          <p className="text-ink font-medium">{item.extra?.name}</p>
-                          <p className="text-xs text-mute">
-                            {item.quantity} x {item.unit_price} DH
-                          </p>
-                        </div>
+            {/* Extras */}
+            {order.extras && order.extras.length > 0 && (
+              <div className="space-y-3">
+                <p className="eyebrow text-mute">Options supplémentaires</p>
+                {order.extras.map((item: any) => (
+                  <div key={item.id} className="flex items-center justify-between rounded-xl border-2 border-ink bg-white p-3">
+                    <div className="flex items-center gap-3">
+                      <Gift className="h-4 w-4 text-pink" />
+                      <div>
+                        <p className="font-medium text-ink">{item.extra?.name}</p>
+                        <p className="font-mono text-xs text-mute">
+                          {item.quantity} × {item.unit_price} DH
+                        </p>
                       </div>
-                      <p className="font-bold text-ink">{(item.quantity * item.unit_price).toLocaleString()} DH</p>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <p className="font-mono font-bold text-ink tabular-nums">{(item.quantity * item.unit_price).toLocaleString()} DH</p>
+                  </div>
+                ))}
+              </div>
+            )}
 
-              {/* Notes */}
-              {order.special_requests && (
-                <div className="p-4 rounded-lg bg-card">
-                  <p className="text-xs text-mute uppercase mb-1 flex items-center gap-1">
-                    <FileText className="w-3 h-3" />
-                    Demandes spéciales
-                  </p>
-                  <p className="text-ink">{order.special_requests}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            {/* Notes */}
+            {order.special_requests && (
+              <StickerCard variant="panel" className="gap-1 p-4">
+                <p className="eyebrow flex items-center gap-1 text-mute">
+                  <FileText className="h-3 w-3" />
+                  Demandes spéciales
+                </p>
+                <p className="text-ink">{order.special_requests}</p>
+              </StickerCard>
+            )}
+          </StickerCard>
 
           {/* Child Info */}
-          <Card className="bg-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <User className="w-5 h-5 text-teal" />
-                Enfant fêté
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                {order.teen?.avatar_url ? (
-                  <Image
-                    src={order.teen.avatar_url}
-                    alt={order.teen.pseudo || order.teen.first_name}
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-pink"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink to-pink flex items-center justify-center">
-                    <span className="text-xl font-bold text-ink">
-                      {(order.teen?.first_name || "?")[0].toUpperCase()}
-                    </span>
-                  </div>
+          <StickerCard className="gap-4 p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+              <User className="h-5 w-5 text-teal" />
+              Enfant fêté
+            </h2>
+            <div className="flex items-center gap-4">
+              {order.teen?.avatar_url ? (
+                <Image
+                  src={order.teen.avatar_url}
+                  alt={order.teen.pseudo || order.teen.first_name}
+                  width={64}
+                  height={64}
+                  className="h-16 w-16 rounded-full border-2 border-ink object-cover"
+                />
+              ) : (
+                <Niv mood="happy" size={64} />
+              )}
+              <div>
+                <p className="font-display text-lg font-bold text-ink">
+                  {order.teen?.first_name} {order.teen?.last_name}
+                </p>
+                {order.teen?.pseudo && (
+                  <p className="text-pink">@{order.teen.pseudo}</p>
                 )}
-                <div>
-                  <p className="text-lg font-bold text-ink">
-                    {order.teen?.first_name} {order.teen?.last_name}
+                {order.teen?.birth_date && (
+                  <p className="text-sm text-mute">
+                    Né(e) le {new Date(order.teen.birth_date).toLocaleDateString("fr-FR")}
                   </p>
-                  {order.teen?.pseudo && (
-                    <p className="text-pink">@{order.teen.pseudo}</p>
-                  )}
-                  {order.teen?.birth_date && (
-                    <p className="text-sm text-mute">
-                      Né(e) le {new Date(order.teen.birth_date).toLocaleDateString("fr-FR")}
-                    </p>
-                  )}
-                </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </StickerCard>
 
           {/* Parent Info */}
-          <Card className="bg-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <Users className="w-5 h-5 text-lime" />
-                Parent / Contact
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-lime/20 flex items-center justify-center">
-                  <User className="w-5 h-5 text-lime" />
-                </div>
-                <div>
-                  <p className="font-bold text-ink">{order.parent?.full_name || "Non renseigné"}</p>
-                </div>
+          <StickerCard className="gap-3 p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+              <Users className="h-5 w-5 text-lime" />
+              Parent / Contact
+            </h2>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-ink bg-lime/15">
+                <User className="h-5 w-5 text-lime" />
               </div>
-              {order.parent?.email && (
-                <div className="flex items-center gap-3 text-mute">
-                  <Mail className="w-4 h-4" />
-                  <a href={`mailto:${order.parent.email}`} className="hover:text-ink transition-colors">
-                    {order.parent.email}
-                  </a>
-                </div>
-              )}
-              {order.parent?.phone && (
-                <div className="flex items-center gap-3 text-mute">
-                  <Phone className="w-4 h-4" />
-                  <a href={`tel:${order.parent.phone}`} className="hover:text-ink transition-colors">
-                    {order.parent.phone}
-                  </a>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              <p className="font-bold text-ink">{order.parent?.full_name || "Non renseigné"}</p>
+            </div>
+            {order.parent?.email && (
+              <div className="flex items-center gap-3 text-mute">
+                <Mail className="h-4 w-4" />
+                <a href={`mailto:${order.parent.email}`} className="transition-colors hover:text-ink">
+                  {order.parent.email}
+                </a>
+              </div>
+            )}
+            {order.parent?.phone && (
+              <div className="flex items-center gap-3 text-mute">
+                <Phone className="h-4 w-4" />
+                <a href={`tel:${order.parent.phone}`} className="transition-colors hover:text-ink">
+                  {order.parent.phone}
+                </a>
+              </div>
+            )}
+          </StickerCard>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* QR Code */}
-          {order.qr_code && (
-            <Card className="bg-card border-ink">
-              <CardHeader>
-                <CardTitle className="text-ink flex items-center gap-2">
-                  <QrCode className="w-5 h-5 text-pink" />
-                  QR Code
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-center">
-                <div className="p-4 bg-white rounded-lg">
-                  <Image
-                    src={order.qr_code}
-                    alt="QR Code réservation"
-                    width={160}
-                    height={160}
-                    className="w-40 h-40"
-                    unoptimized
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Pricing Summary */}
-          <Card className="bg-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-lime" />
-                Récapitulatif
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between text-mute">
+          {/* Pricing Summary — surface sombre « solde » charte */}
+          <StatHero
+            eyebrow="Récapitulatif"
+            tone="pink"
+            value={order.total_price?.toLocaleString()}
+            unit="DH"
+          >
+            <div className="space-y-2">
+              <div className="flex justify-between">
                 <span>Formule de base</span>
-                <span>{order.pack?.base_price?.toLocaleString() || 0} DH</span>
+                <span className="font-mono tabular-nums">{order.pack?.base_price?.toLocaleString() || 0} DH</span>
               </div>
               {extrasTotal > 0 && (
-                <div className="flex justify-between text-mute">
+                <div className="flex justify-between">
                   <span>Options</span>
-                  <span>{extrasTotal.toLocaleString()} DH</span>
+                  <span className="font-mono tabular-nums">{extrasTotal.toLocaleString()} DH</span>
                 </div>
               )}
-              <div className="border-t border-ink pt-3 flex justify-between text-xl font-black">
-                <span className="text-ink">Total</span>
-                <span className="text-pink">{order.total_price?.toLocaleString()} DH</span>
+            </div>
+            {order.deposit_amount && order.deposit_amount > 0 && (
+              <div className="mt-4 rounded-xl border-2 border-paper/20 p-3">
+                <p className="eyebrow tracking-[0.14em] text-gold">Acompte versé</p>
+                <p className="font-mono text-lg font-bold text-gold tabular-nums">{order.deposit_amount.toLocaleString()} DH</p>
+                <p className="text-xs text-paper/60">
+                  Reste à payer : {(order.total_price - order.deposit_amount).toLocaleString()} DH
+                </p>
               </div>
+            )}
+          </StatHero>
 
-              {order.deposit_amount && order.deposit_amount > 0 && (
-                <div className="p-3 rounded-lg bg-gold/10 border border-gold/30">
-                  <p className="text-xs text-gold uppercase mb-1">Acompte versé</p>
-                  <p className="text-lg font-bold text-gold">{order.deposit_amount.toLocaleString()} DH</p>
-                  <p className="text-xs text-mute">
-                    Reste à payer: {(order.total_price - order.deposit_amount).toLocaleString()} DH
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* QR Code */}
+          {order.qr_code && (
+            <StickerCard className="items-center gap-3 p-6 text-center">
+              <span className="eyebrow flex items-center gap-2 text-mute">
+                <QrCode className="h-4 w-4 text-pink" />
+                QR Check-in
+              </span>
+              <div className="rounded-xl border-2 border-ink bg-white p-4">
+                <Image
+                  src={order.qr_code}
+                  alt="QR Code réservation"
+                  width={160}
+                  height={160}
+                  className="h-40 w-40"
+                  unoptimized
+                />
+              </div>
+            </StickerCard>
+          )}
 
           {/* Actions */}
-          <Card className="bg-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink">Actions</CardTitle>
-              <CardDescription>Gérer cette commande</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <StickerCard className="gap-2 p-6">
+            <h2 className="font-display text-lg font-bold text-ink">Actions</h2>
+            <p className="text-sm text-mute">Gérer cette commande</p>
+            <div className="mt-2">
               <AnnivOrderActions
                 orderId={order.id}
                 currentStatus={order.status}
                 currentPaymentStatus={order.payment_status}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </StickerCard>
 
           {/* Timeline */}
-          <Card className="bg-card border-ink">
-            <CardHeader>
-              <CardTitle className="text-ink flex items-center gap-2">
-                <Clock className="w-5 h-5 text-mute" />
-                Historique
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+          <StickerCard className="gap-4 p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+              <Clock className="h-5 w-5 text-mute" />
+              Historique
+            </h2>
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <div className="mt-2 h-2 w-2 rounded-full bg-pink" />
+                <div>
+                  <p className="text-sm font-medium text-ink">Commande créée</p>
+                  <p className="text-xs text-mute">
+                    {createdAt.toLocaleDateString("fr-FR", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit"
+                    })}
+                  </p>
+                </div>
+              </div>
+              {order.status === "confirmed" && (
                 <div className="flex gap-3">
-                  <div className="w-2 h-2 mt-2 rounded-full bg-pink" />
+                  <div className="mt-2 h-2 w-2 rounded-full bg-lime" />
                   <div>
-                    <p className="text-sm font-medium text-ink">Commande créée</p>
+                    <p className="text-sm font-medium text-ink">Commande confirmée</p>
                     <p className="text-xs text-mute">
-                      {createdAt.toLocaleDateString("fr-FR", {
+                      {order.confirmed_at ? new Date(order.confirmed_at).toLocaleDateString("fr-FR", {
                         day: "numeric",
                         month: "short",
-                        year: "numeric",
                         hour: "2-digit",
                         minute: "2-digit"
-                      })}
+                      }) : "Date inconnue"}
                     </p>
                   </div>
                 </div>
-                {order.status === "confirmed" && (
-                  <div className="flex gap-3">
-                    <div className="w-2 h-2 mt-2 rounded-full bg-lime" />
-                    <div>
-                      <p className="text-sm font-medium text-ink">Commande confirmée</p>
-                      <p className="text-xs text-mute">
-                        {order.confirmed_at ? new Date(order.confirmed_at).toLocaleDateString("fr-FR", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit"
-                        }) : "Date inconnue"}
-                      </p>
-                    </div>
+              )}
+              {order.status === "cancelled" && (
+                <div className="flex gap-3">
+                  <div className="mt-2 h-2 w-2 rounded-full bg-coral" />
+                  <div>
+                    <p className="text-sm font-medium text-ink">Commande annulée</p>
+                    <p className="text-xs text-mute">
+                      {order.cancelled_at ? new Date(order.cancelled_at).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      }) : "Date inconnue"}
+                    </p>
                   </div>
-                )}
-                {order.status === "cancelled" && (
-                  <div className="flex gap-3">
-                    <div className="w-2 h-2 mt-2 rounded-full bg-destructive" />
-                    <div>
-                      <p className="text-sm font-medium text-ink">Commande annulée</p>
-                      <p className="text-xs text-mute">
-                        {order.cancelled_at ? new Date(order.cancelled_at).toLocaleDateString("fr-FR", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit"
-                        }) : "Date inconnue"}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              )}
+            </div>
+          </StickerCard>
         </div>
       </div>
     </div>
