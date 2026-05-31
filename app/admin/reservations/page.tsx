@@ -37,11 +37,12 @@ export default async function AdminBookingsPage({
     redirect("/")
   }
 
+  // bookings n'a pas de FK vers profiles (seulement event_id) — on ne peut pas
+  // embarquer profiles via PostgREST. On résout le réservant (user_id) à part.
   let query = supabase
     .from("bookings")
     .select(`
       *,
-      profiles!bookings_parent_id_fkey (prenom, nom, email, telephone),
       events (title, event_date, city)
     `)
     .order("created_at", { ascending: false })
@@ -52,13 +53,24 @@ export default async function AdminBookingsPage({
 
   const { data: bookings } = await query
 
+  const bookerIds = [...new Set((bookings ?? []).map((b: any) => b.user_id).filter(Boolean))]
+  if (bookerIds.length > 0) {
+    const { data: bookers } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .in("id", bookerIds)
+    const byId = new Map((bookers ?? []).map((p: any) => [p.id, p]))
+    for (const b of bookings ?? []) {
+      ;(b as any).profiles = byId.get((b as any).user_id) ?? null
+    }
+  }
+
   const filteredBookings = bookings?.filter((booking) => {
     if (!search) return true
     const searchLower = search.toLowerCase()
     return (
       booking.booking_reference?.toLowerCase().includes(searchLower) ||
-      booking.profiles?.prenom?.toLowerCase().includes(searchLower) ||
-      booking.profiles?.nom?.toLowerCase().includes(searchLower) ||
+      booking.profiles?.full_name?.toLowerCase().includes(searchLower) ||
       booking.profiles?.email?.toLowerCase().includes(searchLower) ||
       booking.events?.title?.toLowerCase().includes(searchLower)
     )
@@ -145,10 +157,9 @@ export default async function AdminBookingsPage({
                     <div>
                       <p className="eyebrow mb-1 text-mute">Parent</p>
                       <p className="font-semibold text-ink">
-                        {booking.profiles?.prenom} {booking.profiles?.nom}
+                        {booking.profiles?.full_name || "—"}
                       </p>
                       <p className="text-mute">{booking.profiles?.email}</p>
-                      {booking.profiles?.telephone && <p className="text-mute">{booking.profiles.telephone}</p>}
                     </div>
 
                     <div>

@@ -9,7 +9,7 @@ interface ExportRow {
   payment_status?: string | null
   payment_method?: string | null
   created_at: string
-  profiles?: { prenom?: string | null; nom?: string | null; email?: string | null; telephone?: string | null } | null
+  profiles?: { full_name?: string | null; email?: string | null } | null
   events?: { title?: string | null; event_date?: string | null; city?: string | null } | null
 }
 
@@ -28,9 +28,9 @@ export function ReservationsExportButton({ rows }: { rows: ExportRow[] }) {
       ...rows.map((b) =>
         [
           b.booking_reference || '',
-          `${b.profiles?.prenom || ''} ${b.profiles?.nom || ''}`,
+          b.profiles?.full_name || '',
           b.profiles?.email || '',
-          b.profiles?.telephone || '',
+          '',
           b.events?.title || '',
           b.events?.event_date ? new Date(b.events.event_date).toLocaleDateString('fr-FR') : '',
           b.events?.city || '',
