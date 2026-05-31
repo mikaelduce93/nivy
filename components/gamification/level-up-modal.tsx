@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Star, Zap, Gift, Trophy, Sparkles, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { NeonButton } from '@/components/ui/neon-button'
+import { Button } from '@/components/ui/button'
 
 interface Reward {
   type: 'xp_bonus' | 'coins' | 'badge' | 'title' | 'item' | 'feature'
@@ -334,15 +334,15 @@ export function LevelUpModal({
                   </p>
                 )}
                 
-                <NeonButton 
-                  variant="prestige" 
-                  size="lg" 
+                <Button
+                  variant="pink"
+                  size="lg"
                   className="w-full rounded-2xl"
                   onClick={onClose}
                 >
                   <span className="font-bold">Continuer l'aventure</span>
                   <ChevronRight className="w-5 h-5 ml-2" />
-                </NeonButton>
+                </Button>
               </div>
             </div>
           </motion.div>

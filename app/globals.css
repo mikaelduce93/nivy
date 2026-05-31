@@ -806,45 +806,6 @@
   }
 
   /* --------------------------------------------------------------------------
-     Glass Effects — DÉPRÉCIÉ : neutralisé en surfaces « paper » sticker
-     (plus de backdrop-blur ni bordures blanches ; charte §3). Conservés comme
-     classes pour ne pas casser les appelants ; à retirer en V2.
-     -------------------------------------------------------------------------- */
-  .glass {
-    @apply bg-card border-2 border-ink;
-  }
-
-  .glass-card {
-    @apply bg-card border-2 border-ink rounded-2xl;
-    box-shadow: var(--shadow-stkr-md);
-  }
-
-  .glass-card-hover {
-    @apply transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5;
-  }
-
-  .glass-card-hover:hover {
-    box-shadow: var(--shadow-stkr);
-  }
-
-  .glass-panel {
-    @apply bg-card border-2 border-ink;
-  }
-
-  /* --------------------------------------------------------------------------
-     Neon Effects — DÉPRÉCIÉ : remplacés par des bordures/textes accent charte
-     (sans glow ni palette brute). Conservés comme classes pour compat.
-     -------------------------------------------------------------------------- */
-  .neon-border-party { @apply border-pink; }
-  .neon-text-party { @apply text-pink; }
-  .neon-border-vitality { @apply border-lime; }
-  .neon-text-vitality { @apply text-lime; }
-  .neon-border-intellect { @apply border-teal; }
-  .neon-text-intellect { @apply text-teal; }
-  .neon-border-prestige { @apply border-gold; }
-  .neon-text-prestige { @apply text-gold; }
-
-  /* --------------------------------------------------------------------------
      Status Indicators
      -------------------------------------------------------------------------- */
   .status-success {

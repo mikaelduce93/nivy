@@ -103,8 +103,6 @@ interface PillarScoreCardProps {
   showDetails?: boolean
 }
 
-import { EnergyOrb } from "@/components/ui/energy-orb"
-
 export function PillarScoreCard({
   pillar,
   score,
@@ -189,24 +187,41 @@ export function PillarScoreCard({
           )}
         </div>
 
-        {/* Score Energy Orb */}
+        {/* Score — jauge anneau sticker (charte : sans glow ni flou) */}
         <div className="flex items-center justify-center mb-8">
-          <EnergyOrb 
-            value={score} 
-            max={100} 
-            size={160} 
-            color={pillar.color.replace('text-', 'var(--') + ')'}
-          >
-            <div className="flex flex-col items-center">
-              <motion.span
-                className={cn("text-4xl font-black", pillar.color)}
-                key={displayScore}
-              >
+          <div className="relative" style={{ width: 160, height: 160 }}>
+            <svg width={160} height={160} viewBox="0 0 160 160" className="-rotate-90">
+              {/* Piste */}
+              <circle
+                cx="80"
+                cy="80"
+                r="70"
+                fill="none"
+                stroke="var(--ink)"
+                strokeOpacity={0.12}
+                strokeWidth="10"
+              />
+              {/* Progression — score pilier en teal */}
+              <circle
+                cx="80"
+                cy="80"
+                r="70"
+                fill="none"
+                stroke="var(--teal)"
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 70}
+                strokeDashoffset={2 * Math.PI * 70 - (Math.min(score, 100) / 100) * (2 * Math.PI * 70)}
+                className="transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-4xl font-black text-teal tabular-nums">
                 {displayScore}
-              </motion.span>
+              </span>
               <span className="text-[10px] font-black text-mute uppercase tracking-tighter">SCORE</span>
             </div>
-          </EnergyOrb>
+          </div>
         </div>
 
         {/* Score level label */}

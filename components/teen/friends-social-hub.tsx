@@ -8,8 +8,7 @@ import {
   Zap, Target, Flame, Swords, Crown, ChevronRight, Gift, Star, Activity
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { GlassCard } from '@/components/ui/glass-card'
-import { NeonButton } from '@/components/ui/neon-button'
+import { Card } from '@/components/ui/card'
 import { CrewPulse } from '@/gamification-system/features/crews/components/crew-pulse'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -109,11 +108,10 @@ function FriendCard({ friend, onChallenge, onMessage }: { friend: Friend, onChal
       whileHover={{ scale: 1.02 }}
       className="group"
     >
-      <GlassCard 
-        variant="hover"
+      <Card
         className={cn(
           "p-4 relative overflow-hidden",
-          friend.isOnline && "border-lime/30"
+          friend.isOnline && "border-lime"
         )}
       >
         {/* Online glow */}
@@ -168,7 +166,7 @@ function FriendCard({ friend, onChallenge, onMessage }: { friend: Friend, onChal
             </motion.button>
           </div>
         </div>
-      </GlassCard>
+      </Card>
     </motion.div>
   )
 }
@@ -186,7 +184,7 @@ function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
   }
 
   return (
-    <GlassCard className="p-5">
+    <Card className="p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-ink flex items-center gap-2">
           <Activity className="w-5 h-5 text-teal" />
@@ -232,7 +230,7 @@ function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
           </div>
         )}
       </div>
-    </GlassCard>
+    </Card>
   )
 }
 
@@ -240,7 +238,7 @@ function QuickChallengeWidget({ friends }: { friends: Friend[] }) {
   const onlineFriends = friends.filter(f => f.isOnline)
 
   return (
-    <GlassCard neon="party" className="p-5">
+    <Card className="p-5">
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 rounded-xl bg-pink/20">
           <Swords className="w-5 h-5 text-pink" />
@@ -278,11 +276,11 @@ function QuickChallengeWidget({ friends }: { friends: Friend[] }) {
         <p className="text-sm text-mute mb-4">Aucun ami en ligne</p>
       )}
 
-      <NeonButton variant="party" size="sm" className="w-full" disabled={onlineFriends.length === 0}>
+      <Button variant="pink" size="sm" className="w-full" disabled={onlineFriends.length === 0}>
         <Swords className="w-4 h-4 mr-2" />
         Lancer un défi
-      </NeonButton>
-    </GlassCard>
+      </Button>
+    </Card>
   )
 }
 
@@ -295,7 +293,7 @@ function FriendsBenefits() {
   ]
 
   return (
-    <GlassCard neon="intellect" className="p-5">
+    <Card className="p-5">
       <h3 className="font-bold text-ink mb-4 flex items-center gap-2">
         <Star className="w-5 h-5 text-gold" />
         Avantages Amis
@@ -318,7 +316,7 @@ function FriendsBenefits() {
           )
         })}
       </div>
-    </GlassCard>
+    </Card>
   )
 }
 
@@ -347,7 +345,7 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
       {/* Crew Progress */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CrewPulse currentXP={4200} targetXP={5000} />
-        <GlassCard className="p-3 flex items-center justify-between">
+        <Card className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-lime/20">
               <Users className="w-5 h-5 text-lime" />
@@ -361,7 +359,7 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
             <span className="w-2 h-2 rounded-full bg-lime animate-pulse" />
             <span className="text-sm text-lime font-medium">{onlineFriendsCount} en ligne</span>
           </div>
-        </GlassCard>
+        </Card>
       </div>
 
       {/* Search and Filter */}
@@ -405,7 +403,7 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
         <div className="lg:col-span-2 space-y-4">
           {/* Pending Requests */}
           {pendingRequests.length > 0 && (
-            <GlassCard neon="creativity" className="p-4">
+            <Card className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-ink flex items-center gap-2">
                   <Bell className="w-4 h-4 text-coral" />
@@ -440,7 +438,7 @@ export function FriendsSocialHub({ teenId, friends, pendingRequests }: SocialHub
                   </motion.div>
                 ))}
               </div>
-            </GlassCard>
+            </Card>
           )}
 
           {/* Friends Grid */}

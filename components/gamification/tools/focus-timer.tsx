@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Play, Pause, RefreshCw, CheckCircle, Brain } from "lucide-react"
-import { GlassCard } from "@/components/ui/glass-card"
-import { NeonButton } from "@/components/ui/neon-button"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 interface FocusTimerProps {
@@ -61,14 +61,11 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
   }
 
   return (
-    <GlassCard neon="intellect" className="p-8 flex flex-col items-center justify-center relative overflow-hidden max-w-md mx-auto w-full">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-teal/5 to-teal/5 pointer-events-none" />
-      
+    <Card className="p-8 flex flex-col items-center justify-center relative overflow-hidden max-w-md mx-auto w-full">
       <div className="relative z-10 flex flex-col items-center w-full">
         <div className="flex items-center gap-2 mb-6">
           <Brain className="w-6 h-6 text-teal" />
-          <h2 className="text-xl font-bold text-ink neon-text-intellect">Focus Mode</h2>
+          <h2 className="text-xl font-bold text-ink">Mode focus</h2>
         </div>
 
         {/* Timer Circle */}
@@ -91,7 +88,7 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
               stroke="currentColor"
               strokeWidth="8"
               fill="transparent"
-              className="text-teal drop-"
+              className="text-teal"
               strokeDasharray={circumference}
               strokeDashoffset={circumference - (progress / 100) * circumference}
               strokeLinecap="round"
@@ -111,7 +108,7 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
                   exit={{ scale: 0, opacity: 0 }}
                   className="flex flex-col items-center"
                 >
-                  <CheckCircle className="w-16 h-16 text-lime mb-2 drop-" />
+                  <CheckCircle className="w-16 h-16 text-lime mb-2" />
                   <span className="text-ink font-bold text-lg">Terminé !</span>
                   <span className="text-teal text-sm mt-1">+50 XP</span>
                 </motion.div>
@@ -138,33 +135,32 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
         <div className="flex items-center gap-4 w-full justify-center">
           {!isCompleted ? (
             <>
-              <NeonButton
+              <Button
                 variant="outline"
                 size="icon"
                 onClick={resetTimer}
                 className="border-ink text-mute hover:text-ink hover:border-line rounded-full w-14 h-14"
               >
                 <RefreshCw className="w-5 h-5" />
-              </NeonButton>
+              </Button>
 
-              <NeonButton
-                variant="intellect"
+              <Button
+                variant="mint"
                 size="lg"
                 onClick={toggleTimer}
-                glow={isActive}
                 className="w-32 rounded-full h-16"
               >
                 {isActive ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current pl-1" />}
-              </NeonButton>
+              </Button>
             </>
           ) : (
-            <NeonButton
-              variant="intellect"
+            <Button
+              variant="mint"
               onClick={resetTimer}
               className="w-full max-w-[200px]"
             >
-              Nouvelle Session
-            </NeonButton>
+              Nouvelle session
+            </Button>
           )}
         </div>
 
@@ -188,7 +184,7 @@ export function FocusTimer({ onComplete, initialDuration = 25 }: FocusTimerProps
           </div>
         )}
       </div>
-    </GlassCard>
+    </Card>
   )
 }
 

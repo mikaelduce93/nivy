@@ -8,8 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import Link from "next/link"
-import { GlassCard } from "@/components/ui/glass-card"
-import { NeonButton } from "@/components/ui/neon-button"
+import { Card } from "@/components/ui/card"
 import { VIPDiscountBadge } from "./vip-pricing-badge"
 
 const categoryIcons = {
@@ -45,6 +44,16 @@ const categoryTextColors: Record<string, string> = {
   none: "text-mute",
 }
 
+// Mapping pilier -> variante bouton charte (party/prestige -> pink, etc.)
+const categoryButtonVariant: Record<string, "pink" | "lime" | "coral" | "mint" | "default"> = {
+  vitality: "lime",
+  creativity: "coral",
+  intellect: "mint",
+  party: "pink",
+  prestige: "pink",
+  none: "default",
+}
+
 interface Event {
   id: string
   slug: string
@@ -73,10 +82,9 @@ function EventCard({ event }: { event: Event }) {
   const textColor = categoryTextColors[neonType] || "text-mute"
 
   return (
-    <GlassCard 
-      variant="hover" 
-      neon={neonType}
-      className="group relative overflow-hidden h-full flex flex-col"
+    <Card
+      padding="none"
+      className="group relative overflow-hidden h-full flex flex-col gap-0"
     >
       <div className="relative h-64 w-full shrink-0">
         <Image
@@ -87,10 +95,10 @@ function EventCard({ event }: { event: Event }) {
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/20 to-transparent" />
+
         {/* Date Badge */}
-        <div className="absolute top-4 left-4 flex flex-col items-center bg-ink/60  border border-ink rounded-xl overflow-hidden shadow-xl">
+        <div className="absolute top-4 left-4 flex flex-col items-center bg-paper border-2 border-ink rounded-xl overflow-hidden shadow-stkr-sm">
           <div className={`px-4 py-1 text-xs font-bold uppercase w-full text-center ${textColor} bg-paper-2`}>
             {new Date(event.event_date).toLocaleDateString("fr-FR", { month: "short" })}
           </div>
@@ -101,7 +109,7 @@ function EventCard({ event }: { event: Event }) {
 
         {/* Category Badge */}
         <div className="absolute bottom-4 left-4">
-          <div className={`glass px-3 py-1.5 rounded-full flex items-center gap-1.5  border-ink ${textColor}`}>
+          <div className={`bg-paper px-3 py-1.5 rounded-full flex items-center gap-1.5 border-2 border-ink ${textColor}`}>
             <Icon className="w-3.5 h-3.5" />
             <span className="text-xs font-bold uppercase tracking-wider">{categoryLabels[event.category as keyof typeof categoryLabels]}</span>
           </div>
@@ -110,13 +118,13 @@ function EventCard({ event }: { event: Event }) {
         {/* Status Badges */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
           {event.is_featured && (
-            <div className="bg-gold/90 text-ink font-bold text-[10px] px-3 py-1 rounded-full flex items-center gap-1 shadow-lg  uppercase tracking-wide">
+            <div className="bg-gold text-ink font-bold text-[10px] px-3 py-1 rounded-full flex items-center gap-1 border-2 border-ink uppercase tracking-wide">
               <Sparkles className="w-3 h-3" />
               Vedette
             </div>
           )}
           {event.available_spots === 0 && (
-            <div className="bg-destructive/90 text-ink font-bold text-[10px] px-3 py-1 rounded-full shadow-lg  uppercase tracking-wide">
+            <div className="bg-destructive text-ink font-bold text-[10px] px-3 py-1 rounded-full border-2 border-ink uppercase tracking-wide">
               Complet
             </div>
           )}
@@ -124,7 +132,7 @@ function EventCard({ event }: { event: Event }) {
       </div>
 
       <div className="p-6 flex flex-col flex-1">
-        <h3 className="text-2xl font-black mb-2 text-ink group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-card transition-all leading-tight">
+        <h3 className="text-2xl font-black mb-2 text-ink transition-all leading-tight">
           {event.title}
         </h3>
 
@@ -162,20 +170,20 @@ function EventCard({ event }: { event: Event }) {
               </p>
             )}
             <Link href={`/agenda/${event.slug}`}>
-              <NeonButton 
-                variant={neonType === 'none' ? 'default' : neonType as any} 
-                size="sm" 
+              <Button
+                variant={categoryButtonVariant[neonType] || "default"}
+                size="sm"
                 className="rounded-full px-6"
                 disabled={event.available_spots === 0}
               >
                 {event.available_spots === 0 ? "Complet" : "Réserver"}
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </NeonButton>
+              </Button>
             </Link>
           </div>
         </div>
       </div>
-    </GlassCard>
+    </Card>
   )
 }
 
@@ -237,7 +245,6 @@ export function EventsListClient({ initialEvents }: EventsListClientProps) {
       <div className="max-w-4xl mx-auto mb-12">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1 group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-pink/20 to-pink/20 rounded-xl blur opacity-25 group-hover:opacity-75 transition duration-1000" />
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
               <Input
@@ -257,10 +264,10 @@ export function EventsListClient({ initialEvents }: EventsListClientProps) {
               )}
             </div>
           </div>
-          <NeonButton 
-            variant="outline" 
-            size="lg" 
-            onClick={() => setShowFilters(!showFilters)} 
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setShowFilters(!showFilters)}
             className={`gap-2 h-14 px-8 border-ink ${showFilters ? 'bg-paper-2 text-ink' : 'text-mute hover:text-ink hover:bg-paper-2'}`}
           >
             <Filter className="w-4 h-4" />
@@ -268,12 +275,12 @@ export function EventsListClient({ initialEvents }: EventsListClientProps) {
             {(selectedCity !== "all" || selectedPriceRange !== "all") && (
               <span className="w-2 h-2 rounded-full bg-pink " />
             )}
-          </NeonButton>
+          </Button>
         </div>
 
         {/* Advanced Filters Panel */}
         {showFilters && (
-          <GlassCard className="mt-4 p-6 animate-fade-in-up border-ink bg-card">
+          <Card className="mt-4 p-6 animate-fade-in-up border-ink bg-card">
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
                 <label className="text-xs font-bold text-mute uppercase tracking-widest mb-3 block">Ville</label>
@@ -324,7 +331,7 @@ export function EventsListClient({ initialEvents }: EventsListClientProps) {
                 </Button>
               </div>
             )}
-          </GlassCard>
+          </Card>
         )}
       </div>
 

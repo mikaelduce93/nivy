@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { Zap, Flame, Palette, Users, BookOpen, Trophy, ChevronRight, Clock, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { GlassCard } from '@/components/ui/glass-card'
+import { Card } from '@/components/ui/card'
 
 export type QuestType = 'quiz' | 'sport' | 'creative' | 'social' | 'academic' | 'event' | 'daily'
 
@@ -100,23 +100,21 @@ export function QuestCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
     >
-      <GlassCard
-        variant={isLocked ? 'default' : 'hover'}
-        neon={isActive ? (type === 'quiz' ? 'prestige' : type === 'sport' ? 'creativity' : type === 'creative' ? 'party' : 'intellect') : 'none'}
+      <Card
         className={cn(
           sizeClasses[size],
           'relative overflow-hidden cursor-pointer transition-all duration-300',
           isLocked && 'opacity-50 cursor-not-allowed',
-          isCompleted && 'border-lime/30 bg-lime/10',
+          isCompleted && 'bg-lime/10',
           isActive && config.neonClass,
           isActive && 'border-l-4',
-          isActive && type === 'quiz' && 'border-l-yellow-400',
-          isActive && type === 'sport' && 'border-l-orange-400',
-          isActive && type === 'creative' && 'border-l-purple-400',
-          isActive && type === 'social' && 'border-l-cyan-400',
-          isActive && type === 'academic' && 'border-l-blue-400',
-          isActive && type === 'event' && 'border-l-pink-400',
-          isActive && type === 'daily' && 'border-l-emerald-400',
+          isActive && type === 'quiz' && 'border-l-gold',
+          isActive && type === 'sport' && 'border-l-coral',
+          isActive && type === 'creative' && 'border-l-pink',
+          isActive && type === 'social' && 'border-l-teal',
+          isActive && type === 'academic' && 'border-l-teal',
+          isActive && type === 'event' && 'border-l-pink',
+          isActive && type === 'daily' && 'border-l-lime',
         )}
         onClick={isLocked ? undefined : onClick}
       >
@@ -199,14 +197,11 @@ export function QuestCard({
                   <span>{progress}%</span>
                 </div>
                 <div className="h-2 bg-card rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     className={cn("h-full rounded-full", config.bgColor.replace('/20', ''))}
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    style={{ 
-                      boxShadow: `0 0 10px ${config.color.replace('text-', '').replace('-400', '')}` 
-                    }}
                   />
                 </div>
               </div>
@@ -245,7 +240,7 @@ export function QuestCard({
             </div>
           </div>
         </div>
-      </GlassCard>
+      </Card>
     </motion.div>
   )
 }
