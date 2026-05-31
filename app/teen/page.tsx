@@ -127,6 +127,7 @@ export default async function TeenDashboardPage() {
           teenId={teenId}
           xpData={xpData}
           currentStreak={currentStreak}
+          coins={coinsBalance}
           displayAction={displayAction}
           socialFeed={socialFeed}
           nextReward={nextReward}

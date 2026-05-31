@@ -151,7 +151,7 @@ export function AvatarCoachClient({
         {/* Message + CTA */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-ink/60">
+            <span className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-pink">
               {coachName}
             </span>
             <span

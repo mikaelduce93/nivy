@@ -13,7 +13,7 @@ import { MapPreview } from "@/components/teen/dashboard/map-preview"
 import { ClientErrorBoundary } from "@/components/common/client-error-boundary"
 import { MeshBackground } from "@/components/ui/effects/mesh-background"
 import { StickerCard } from "@/components/ui/sticker-card"
-import { Niv, StatHero } from "@/components/brand"
+import { OrbitingTokens, StatHero } from "@/components/brand"
 import { CrewHub } from "@/components/teen/dashboard/crew-hub"
 import { LazySocialFeed, LazyMarketplaceOverlay } from "./lazy-components"
 import { MobileBottomNav } from "./mobile-nav"
@@ -33,6 +33,7 @@ interface TeenDashboardContentProps {
     progressPercent?: number
   }
   currentStreak: number
+  coins: number
   displayAction: {
     mission: {
       id?: string
@@ -65,6 +66,7 @@ export function TeenDashboardContent({
   teenId,
   xpData,
   currentStreak,
+  coins,
   displayAction,
   socialFeed,
   nextReward,
@@ -94,7 +96,8 @@ export function TeenDashboardContent({
 
       <div className="relative z-10 py-6 sm:py-8 md:py-10 px-3 sm:px-4 md:px-8 max-w-[1200px] mx-auto space-y-8 sm:space-y-10 md:space-y-12 pb-24 md:pb-10">
 
-        {/* HERO ÉDITORIAL — eyebrow mono + titre Bricolage + Niv en grand. */}
+        {/* HERO ÉDITORIAL — eyebrow mono + titre Bricolage + Niv au centre des
+            tokens éco en orbite (F3, signature handoff). Valeurs réelles. */}
         <section className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between sm:text-left">
           <div className="flex-1 text-center sm:text-left">
             <span className="eyebrow tracking-[0.16em] text-pink">
@@ -108,7 +111,15 @@ export function TeenDashboardContent({
               Ta mission du jour, tes raccourcis et ton crew, réunis ici.
             </p>
           </div>
-          <Niv mood="proud" float size={mobile ? 132 : 168} className="shrink-0" />
+          <OrbitingTokens
+            xp={xpData.total.toLocaleString('fr-FR')}
+            coins={coins.toLocaleString('fr-FR')}
+            level={xpData.level}
+            streak={currentStreak}
+            nivMood="proud"
+            size={mobile ? 280 : 340}
+            className="shrink-0"
+          />
         </section>
 
         {/* SOLDE XP — surface sombre ponctuelle, chiffre Bricolage géant (F2). */}
