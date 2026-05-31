@@ -3,7 +3,10 @@
 
 import { useEffect, useState } from 'react'
 import { getLiveScorecard, type ScorecardMetrics } from '@/lib/analytics/scorecard'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatCard } from '@/components/admin/stat-card'
+import { SegmentedProgress } from '@/components/ui/progress'
+import { NivCoach } from '@/components/brand'
+import BackButton from '@/components/admin/BackButton'
 import { TrendingUp, Users, Zap, DollarSign } from 'lucide-react'
 
 export default function AdminScorecardPage() {
@@ -17,66 +20,99 @@ export default function AdminScorecardPage() {
     load()
   }, [])
 
-  if (!metrics) return <div>Chargement du Live Pulse...</div>
+  if (!metrics) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-6 py-32">
+          <NivCoach mood="calm" message="Je calcule le pouls de la plateforme…" className="max-w-md" />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="p-8 space-y-8 bg-background min-h-screen text-ink">
-      <h1 className="text-3xl font-bold bg-gradient-to-r from-teal to-teal bg-clip-text text-transparent">
-        Live Pulse 10/10 🚀
-      </h1>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-6 py-32">
+        <BackButton href="/admin" label="Retour au dashboard" />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Retention */}
-        <Card className="bg-card border-ink">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-mute">Rétention D1</CardTitle>
-            <TrendingUp className="h-4 w-4 text-lime" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-ink">{metrics.retention.d1}%</div>
-            <p className="text-xs text-mute">Target: 45-60%</p>
-          </CardContent>
-        </Card>
+        <header className="mb-8 space-y-2">
+          <p className="eyebrow">Gamification · Pulse</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Pouls <em className="font-semibold italic text-pink">en direct</em>
+          </h1>
+          <p className="text-mute">Les KPIs critiques de la plateforme, en temps réel.</p>
+        </header>
 
-        {/* Engagement */}
-        <Card className="bg-card border-ink">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-mute">Sessions / Jour</CardTitle>
-            <Zap className="h-4 w-4 text-gold" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-ink">{metrics.engagement.avgSessionsPerDay}</div>
-            <p className="text-xs text-mute">Target: 2-4</p>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Rétention D1 — objectif 45-60% */}
+          <StatCard
+            label="Rétention D1"
+            value={`${metrics.retention.d1}%`}
+            tone="lime"
+            icon={<TrendingUp className="h-5 w-5" />}
+            hint={
+              <span className="block space-y-1">
+                <span className="text-mute">Objectif 45–60 %</span>
+                <SegmentedProgress
+                  steps={6}
+                  current={Math.min(Math.round((metrics.retention.d1 / 60) * 6), 6)}
+                />
+              </span>
+            }
+          />
 
-        {/* Social */}
-        <Card className="bg-card border-ink">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-mute">Actions Sociales</CardTitle>
-            <Users className="h-4 w-4 text-pink" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-ink">{metrics.gamification.socialActionRate.toFixed(1)}%</div>
-            <p className="text-xs text-mute">Target: {'>'}40%</p>
-          </CardContent>
-        </Card>
+          {/* Sessions / jour — objectif 2-4 */}
+          <StatCard
+            label="Sessions / jour"
+            value={metrics.engagement.avgSessionsPerDay}
+            tone="gold"
+            icon={<Zap className="h-5 w-5" />}
+            hint={
+              <span className="block space-y-1">
+                <span className="text-mute">Objectif 2–4</span>
+                <SegmentedProgress
+                  steps={4}
+                  current={Math.min(Math.round(metrics.engagement.avgSessionsPerDay), 4)}
+                />
+              </span>
+            }
+          />
 
-        {/* Monetization */}
-        <Card className="bg-card border-ink">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-mute">Conversion</CardTitle>
-            <DollarSign className="h-4 w-4 text-lime" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-ink">{metrics.monetization.conversionRate}%</div>
-            <p className="text-xs text-mute">Target: 4-8%</p>
-          </CardContent>
-        </Card>
+          {/* Actions sociales — objectif > 40% */}
+          <StatCard
+            label="Actions sociales"
+            value={`${metrics.gamification.socialActionRate.toFixed(1)}%`}
+            tone="coral"
+            icon={<Users className="h-5 w-5" />}
+            hint={
+              <span className="block space-y-1">
+                <span className="text-mute">Objectif &gt; 40 %</span>
+                <SegmentedProgress
+                  steps={5}
+                  current={Math.min(Math.round((metrics.gamification.socialActionRate / 40) * 5), 5)}
+                />
+              </span>
+            }
+          />
+
+          {/* Conversion — objectif 4-8% */}
+          <StatCard
+            label="Conversion"
+            value={`${metrics.monetization.conversionRate}%`}
+            tone="teal"
+            icon={<DollarSign className="h-5 w-5" />}
+            hint={
+              <span className="block space-y-1">
+                <span className="text-mute">Objectif 4–8 %</span>
+                <SegmentedProgress
+                  steps={8}
+                  current={Math.min(Math.round(metrics.monetization.conversionRate), 8)}
+                />
+              </span>
+            }
+          />
+        </div>
       </div>
     </div>
   )
 }
-
-
-

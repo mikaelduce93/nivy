@@ -2,6 +2,11 @@
 
 import { useState } from "react"
 import { CheckCircle, XCircle, Loader2, Database, Play, AlertTriangle } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { DarkSurface } from "@/components/brand"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button"
+import BackButton from "@/components/admin/BackButton"
 
 const MIGRATIONS = [
   { id: "001", name: "Achievements System", file: "001_achievements_system.sql" },
@@ -38,6 +43,9 @@ export default function GamificationSetupPage() {
     setCurrentMigration(migrationId)
 
     try {
+      // NB gouvernance : ce endpoint exécute du SQL depuis l'app, ce que
+      // /admin/scripts-sql interdit explicitement. Redondance signalée mais
+      // non résolue ici (hors périmètre iso de la refonte #179).
       const response = await fetch("/api/admin/run-migration", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,7 +89,7 @@ export default function GamificationSetupPage() {
       case "success":
         return <CheckCircle className="w-5 h-5 text-lime" />
       case "error":
-        return <XCircle className="w-5 h-5 text-destructive" />
+        return <XCircle className="w-5 h-5 text-coral" />
       default:
         return <div className="w-5 h-5 rounded-full border-2 border-ink" />
     }
@@ -91,128 +99,148 @@ export default function GamificationSetupPage() {
   const errorCount = Object.values(statuses).filter(s => s === "error").length
 
   return (
-    <div className="min-h-screen bg-background text-ink p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal to-pink flex items-center justify-center">
-            <Database className="w-6 h-6 text-ink" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">Gamification Setup</h1>
-            <p className="text-mute">Configure la base de données pour le système de gamification</p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background text-ink">
+      <div className="container mx-auto max-w-4xl px-6 py-32">
+        <BackButton href="/admin" label="Retour au dashboard" />
+
+        {/* Header */}
+        <header className="mb-8 space-y-2">
+          <p className="eyebrow">Système · Migrations</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink flex items-center gap-3">
+            <Database className="h-8 w-8 text-teal" />
+            Configuration <em className="font-semibold italic text-pink">gamification</em>
+          </h1>
+          <p className="text-mute">Configure la base de données du système de gamification.</p>
+        </header>
 
         {/* Warning */}
-        <div className="p-4 rounded-xl bg-gold/10 border border-gold/30 mb-6">
+        <StickerCard variant="panel" className="mb-6 gap-2 p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-gold mt-0.5" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-gold" />
             <div>
-              <h3 className="font-medium text-gold">Important</h3>
+              <h3 className="font-display font-bold text-ink">Important</h3>
               <p className="text-sm text-mute">
-                Ces migrations vont créer les tables et données initiales pour le système de gamification.
-                Assure-toi d'avoir les droits admin sur Supabase.
+                Ces migrations vont créer les tables et données initiales du système de gamification.
+                Assure-toi d&apos;avoir les droits admin sur Supabase.
               </p>
             </div>
           </div>
-        </div>
+        </StickerCard>
 
         {/* Progress */}
         {(completedCount > 0 || errorCount > 0) && (
-          <div className="p-4 rounded-xl bg-card border border-ink mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-mute">Progression</span>
-              <span className="text-sm font-medium">
+          <StickerCard className="mb-6 gap-3 p-4">
+            <div className="flex items-center justify-between">
+              <span className="eyebrow tracking-[0.14em] text-mute">Progression</span>
+              <span className="font-mono text-sm font-bold text-ink">
                 {completedCount}/{MIGRATIONS.length} complétées
-                {errorCount > 0 && <span className="text-destructive ml-2">({errorCount} erreurs)</span>}
+                {errorCount > 0 && <span className="ml-2 text-coral">({errorCount} erreurs)</span>}
               </span>
             </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${errorCount > 0 ? "bg-gold" : "bg-lime"}`}
-                style={{ width: `${(completedCount / MIGRATIONS.length) * 100}%` }}
-              />
-            </div>
-          </div>
+            <SegmentedProgress steps={MIGRATIONS.length} current={completedCount} />
+          </StickerCard>
         )}
 
-        {/* Run All Button */}
-        <button
-          onClick={runAllMigrations}
-          disabled={isRunning}
-          className="w-full mb-6 p-4 rounded-xl bg-gradient-to-r from-teal to-pink text-ink font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isRunning ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Exécution en cours...
-            </>
-          ) : (
-            <>
-              <Play className="w-5 h-5" />
-              Exécuter toutes les migrations
-            </>
-          )}
-        </button>
+        {/* Zone sensible — exécuter tout */}
+        <DarkSurface tone="coral" shadow className="mb-6 p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-6 w-6 text-coral" />
+              <div>
+                <h2 className="font-display text-lg font-extrabold tracking-tight text-paper">Zone sensible</h2>
+                <p className="mt-1 text-sm text-paper/70">
+                  Exécute l&apos;ensemble des migrations à la suite. À manipuler avec prudence.
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full border-2 border-paper/40 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-paper">
+              Critique
+            </span>
+          </div>
+          <Button
+            variant="default"
+            onClick={runAllMigrations}
+            disabled={isRunning}
+            className="mt-5 w-full"
+          >
+            {isRunning ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Exécution en cours…
+              </>
+            ) : (
+              <>
+                <Play className="mr-2 h-5 w-5" />
+                Exécuter toutes les migrations
+              </>
+            )}
+          </Button>
+        </DarkSurface>
 
         {/* Migrations List */}
         <div className="space-y-2">
-          {MIGRATIONS.map((migration) => (
-            <div
-              key={migration.id}
-              className={`p-4 rounded-xl border transition-colors ${
-                statuses[migration.id] === "running"
-                  ? "bg-teal/10 border-teal/30"
-                  : statuses[migration.id] === "success"
-                  ? "bg-lime/10 border-lime/30"
-                  : statuses[migration.id] === "error"
-                  ? "bg-destructive/10 border-destructive/30"
-                  : "bg-card border-ink"
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                {getStatusIcon(statuses[migration.id])}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-mute">{migration.id}</span>
-                    <span className="font-medium">{migration.name}</span>
+          {MIGRATIONS.map((migration) => {
+            const status = statuses[migration.id]
+            const accent =
+              status === "running"
+                ? "border-teal"
+                : status === "success"
+                ? "border-lime"
+                : status === "error"
+                ? "border-coral shadow-stkr-pink"
+                : "border-ink"
+            return (
+              <StickerCard
+                key={migration.id}
+                variant="panel"
+                className={`gap-2 p-4 ${accent}`}
+              >
+                <div className="flex items-center gap-4">
+                  {getStatusIcon(status)}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs text-mute">{migration.id}</span>
+                      <span className="font-medium text-ink">{migration.name}</span>
+                    </div>
+                    <p className="font-mono text-xs text-mute">{migration.file}</p>
                   </div>
-                  <p className="text-xs text-mute">{migration.file}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => runMigration(migration.id)}
+                    disabled={isRunning || status === "running"}
+                  >
+                    Exécuter
+                  </Button>
                 </div>
-                <button
-                  onClick={() => runMigration(migration.id)}
-                  disabled={isRunning || statuses[migration.id] === "running"}
-                  className="px-3 py-1 rounded-lg bg-muted text-sm hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Exécuter
-                </button>
-              </div>
-              {errors[migration.id] && (
-                <div className="mt-2 p-2 rounded bg-destructive/20 text-xs text-destructive font-mono">
-                  {errors[migration.id]}
-                </div>
-              )}
-            </div>
-          ))}
+                {errors[migration.id] && (
+                  <div className="mt-1 rounded-md border-2 border-coral/40 bg-coral/10 p-2 font-mono text-xs text-coral">
+                    {errors[migration.id]}
+                  </div>
+                )}
+              </StickerCard>
+            )
+          })}
         </div>
 
         {/* Instructions */}
-        <div className="mt-8 p-6 rounded-xl bg-card border border-ink">
-          <h3 className="font-bold mb-4">Instructions alternatives</h3>
-          <p className="text-sm text-mute mb-4">
-            Si l'exécution automatique ne fonctionne pas, tu peux exécuter les migrations manuellement:
+        <StickerCard className="mt-8 gap-4 p-6">
+          <h3 className="font-display text-lg font-bold tracking-tight text-ink">Instructions alternatives</h3>
+          <p className="text-sm text-mute">
+            Si l&apos;exécution automatique ne fonctionne pas, tu peux exécuter les migrations manuellement :
           </p>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-mute">
+          <ol className="list-inside list-decimal space-y-2 text-sm text-mute">
             <li>Va sur <a href="https://supabase.com/dashboard" target="_blank" className="text-teal hover:underline">Supabase Dashboard</a></li>
             <li>Sélectionne ton projet</li>
             <li>Va dans <strong>SQL Editor</strong></li>
-            <li>Copie-colle le contenu de chaque fichier .sql dans l'ordre</li>
+            <li>Copie-colle le contenu de chaque fichier .sql dans l&apos;ordre</li>
             <li>Clique sur <strong>Run</strong> pour chaque fichier</li>
           </ol>
-          <p className="text-sm text-mute mt-4">
-            Les fichiers sont dans: <code className="bg-card px-2 py-1 rounded">gamification-system/database/migrations/</code>
+          <p className="text-sm text-mute">
+            Les fichiers sont dans :{" "}
+            <code className="font-mono text-ink-2">gamification-system/database/migrations/</code>
           </p>
-        </div>
+        </StickerCard>
       </div>
     </div>
   )

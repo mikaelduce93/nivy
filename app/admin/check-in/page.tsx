@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { CheckInInterface } from "@/components/check-in-interface"
+import { DarkScannerShell } from "@/components/partner/dark-scanner-shell"
+import { NivEmpty } from "@/components/brand"
 import BackButton from "@/components/admin/BackButton"
 
 export default async function CheckInPage() {
@@ -44,40 +46,32 @@ export default async function CheckInPage() {
         <div className="max-w-6xl mx-auto">
           <BackButton href="/admin" label="Retour au dashboard" />
 
-          <div className="mb-8">
-            <h1 className="text-4xl font-black text-ink mb-2">Check-in securise</h1>
+          <header className="mb-8 space-y-2">
+            <p className="eyebrow">Admin · Check-in</p>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+              Check-in <em className="font-semibold italic text-pink">sécurisé</em>
+            </h1>
             <p className="text-mute">
-              Scannez les QR codes pour l'entree et la sortie des participants
+              Scannez les QR codes pour l&apos;entrée et la sortie des participants.
             </p>
-          </div>
+          </header>
 
           {events && events.length > 0 ? (
-            <CheckInInterface events={events} adminId={user.id} />
+            <DarkScannerShell
+              eyebrow="Admin · Check-in"
+              title="Scanner les"
+              titleEm="participants"
+              nivMood="calm"
+              className="max-w-none"
+            >
+              <CheckInInterface events={events} adminId={user.id} />
+            </DarkScannerShell>
           ) : (
-            <div className="text-center py-16">
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-card flex items-center justify-center">
-                <svg
-                  className="w-12 h-12 text-mute"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-ink mb-2">
-                Aucun evenement a venir
-              </h2>
-              <p className="text-mute max-w-md mx-auto">
-                Il n'y a pas d'evenements programmes pour les 7 prochains jours.
-                Le check-in sera disponible lorsqu'un evenement sera proche.
-              </p>
-            </div>
+            <NivEmpty
+              mood="calm"
+              title="Aucun event cette semaine — reviens plus tard !"
+              description="Il n'y a pas d'événements programmés pour les 7 prochains jours. Le check-in sera disponible lorsqu'un événement sera proche."
+            />
           )}
         </div>
       </div>
