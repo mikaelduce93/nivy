@@ -1,26 +1,46 @@
 import type { Metadata } from "next"
-import { Niv } from "@/components/brand/niv"
-import { Card } from "@/components/ui/card"
-import { RotateCcw } from "lucide-react"
+import { NivEmpty } from "@/components/brand/niv-usage"
+import { StatHero } from "@/components/brand/niv"
+import { StatCard } from "@/components/admin/stat-card"
+import { RotateCcw, Clock } from "lucide-react"
 
 export const metadata: Metadata = { title: "Remboursements — Admin" }
 
 // Refonte V1.5 (#107) — file des remboursements (admin-moderation §18/§22).
 export default function AdminRefundsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <header className="space-y-2">
         <p className="eyebrow">Modération · Finances</p>
-        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
-          <RotateCcw className="w-7 h-7 text-pink" /> Remboursements
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          File des <em className="font-semibold italic text-pink">remboursements</em>
         </h1>
-        <p className="text-mute">File des demandes de remboursement à traiter.</p>
+        <p className="text-mute">Demandes de remboursement à valider, montant par montant.</p>
       </header>
-      <Card className="items-center text-center py-16">
-        <Niv size={80} mood="calm" />
-        <h3 className="text-lg font-black text-ink mt-4">Aucune demande en attente</h3>
-        <p className="text-mute max-w-sm">Les demandes de remboursement apparaîtront ici pour validation.</p>
-      </Card>
+
+      <section className="grid gap-4 sm:grid-cols-2">
+        <StatHero
+          eyebrow="En attente"
+          value={0}
+          tone="coral"
+          icon={<Clock className="h-6 w-6" />}
+          meta="Aucune demande à traiter"
+        />
+        <StatCard
+          label="Total à rembourser"
+          value="0"
+          tone="coral"
+          mono
+          icon={<RotateCcw className="h-5 w-5" />}
+          hint="⊙ corail · DH"
+        />
+      </section>
+
+      <NivEmpty
+        mood="calm"
+        title="Aucune demande en attente"
+        description="Les demandes de remboursement apparaîtront ici pour validation."
+      />
     </div>
   )
 }
