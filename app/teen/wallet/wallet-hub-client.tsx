@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react"
 import Link from "next/link"
-import { Coins, ShoppingBag, Award, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2 } from "lucide-react"
+import { Coins, ShoppingBag, Award, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2, PiggyBank, Receipt } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -10,7 +10,6 @@ import { useSearchParams } from "next/navigation"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { toast } from "sonner"
 import { purchaseReward } from "@/gamification-system/features/shop/actions"
-import { convertXPToDH, formatDH } from "@/lib/payments/xp-converter"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { StickerTabs } from "@/components/brand/sticker-tab"
@@ -90,29 +89,42 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
           variant="full"
         />
 
-        {/* XP → DH shop redeem rate (NOT a coin conversion — informational). */}
-        {walletData.currency && (
-          <p className="text-xs text-mute">
-            Au shop : 1 XP ={" "}
-            <span className="text-lime font-bold">
-              {walletData.currency.xpToDhRate.toFixed(2)} DH
-            </span>{" "}
-            de remise (10 XP = 1 DH).{" "}
-            <a href="/teen/xp-value" className="underline hover:text-ink-2">
-              Voir le modèle d&apos;économie
-            </a>
-          </p>
-        )}
+        {/* #206 — règle devise tranchée : on NE présente plus l'XP avec une
+            « valeur en DH » (la bannière « 10 XP = 1 DH de remise » laissait
+            croire que l'XP est de l'argent). Les XP achètent des récompenses,
+            affichées en XP nus. Modèle expliqué sur la page Mes XP. */}
+        <p className="text-xs text-mute">
+          Tes XP débloquent des récompenses exclusives.{" "}
+          <a href="/teen/xp-value" className="underline hover:text-ink-2">
+            Comment ça marche
+          </a>
+        </p>
 
         {/* Tabs (VIP routé vers /teen/vip-card, canon VIP) */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <HubTabs tabs={WALLET_TABS} defaultTab="coins" />
-          <Link href="/teen/vip-card">
-            <Button variant="outline" size="sm">
-              <Crown className="w-4 h-4" />
-              Carte VIP
-            </Button>
-          </Link>
+          {/* #206 — accès aux surfaces économie absorbées par le hub Wallet :
+              Épargne (savings) et Historique/codes de retrait (shop/history). */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/teen/savings">
+              <Button variant="outline" size="sm">
+                <PiggyBank className="w-4 h-4" />
+                Épargne
+              </Button>
+            </Link>
+            <Link href="/teen/shop/history">
+              <Button variant="outline" size="sm">
+                <Receipt className="w-4 h-4" />
+                Historique
+              </Button>
+            </Link>
+            <Link href="/teen/vip-card">
+              <Button variant="outline" size="sm">
+                <Crown className="w-4 h-4" />
+                Carte VIP
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -339,18 +351,13 @@ function ShopTab({
     })
   }
 
+  // #206 — prix en XP nus (plus de « ≈ DH » : l'XP n'a pas de valeur en argent).
   const renderPriceTag = (xpCost: number) => {
-    const dhValue = convertXPToDH(xpCost)
     return (
-      <div className="flex flex-col items-end">
-        <div className="flex items-center gap-1">
-          <Zap className="w-4 h-4 text-gold" />
-          <span className="font-display font-extrabold tabular-nums text-gold">
-            {xpCost.toLocaleString()}
-          </span>
-        </div>
-        <span className="font-mono text-[10px] tabular-nums text-mute">
-          ≈ {formatDH(dhValue)}
+      <div className="flex items-center gap-1">
+        <Zap className="w-4 h-4 text-gold" />
+        <span className="font-display font-extrabold tabular-nums text-gold">
+          {xpCost.toLocaleString()} XP
         </span>
       </div>
     )
@@ -372,11 +379,7 @@ function ShopTab({
             <span className="font-mono font-bold tabular-nums text-gold">
               {userXP.toLocaleString()} XP
             </span>{" "}
-            (≈{" "}
-            <span className="font-mono font-bold tabular-nums text-ink-2">
-              {formatDH(walletData.currency?.xpValueDH || convertXPToDH(userXP))}
-            </span>
-            ) à dépenser.
+            à dépenser.
           </div>
           <div className="font-mono text-xs uppercase tracking-wider text-mute">
             {rewards.filter((r) => r.xp_cost <= userXP).length} item(s) accessible(s)
@@ -414,9 +417,6 @@ function ShopTab({
                 <Zap className="w-5 h-5 self-center text-gold" />
                 <span className="font-display text-xl font-extrabold tabular-nums text-gold">
                   {featured.xp_cost.toLocaleString()} XP
-                </span>
-                <span className="font-mono text-sm tabular-nums text-paper/60">
-                  ≈ {formatDH(convertXPToDH(featured.xp_cost))}
                 </span>
               </div>
             </div>
