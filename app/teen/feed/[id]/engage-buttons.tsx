@@ -10,18 +10,19 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { Confetti } from "@/components/ui/effects/confetti"
 
 type Action = "view" | "like" | "comment" | "share" | "save"
 
 export default function EngageButtons({ submissionId }: { submissionId: string }) {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState<string | null>(null)
+  const [celebrate, setCelebrate] = useState(false)
 
   async function fire(action: Action) {
     setBusy(true)
-    setMsg(null)
     try {
       const res = await fetch(`/api/teen/feed/${submissionId}/engage`, {
         method: "POST",
@@ -30,9 +31,13 @@ export default function EngageButtons({ submissionId }: { submissionId: string }
       })
       const json = await res.json()
       if (!res.ok) {
-        setMsg(json.error ?? "Erreur")
+        toast.error(json.error ?? "Action impossible, réessaie")
       } else {
-        setMsg(`OK${json.xp ? ` · ${JSON.stringify(json.xp)}` : ""}`)
+        if (action === "like") {
+          setCelebrate(true)
+          window.setTimeout(() => setCelebrate(false), 1200)
+        }
+        toast.success("C'est noté !")
         router.refresh()
       }
     } finally {
@@ -42,19 +47,19 @@ export default function EngageButtons({ submissionId }: { submissionId: string }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button disabled={busy} onClick={() => fire("like")} variant="outline" size="sm">
-        ♥ Like
+      <Confetti trigger={celebrate} palette="reward" numberOfPieces={80} />
+      <Button disabled={busy} onClick={() => fire("like")} variant="pink" size="sm">
+        ♥ J&apos;aime
       </Button>
       <Button disabled={busy} onClick={() => fire("comment")} variant="outline" size="sm">
-        💬 Comment
+        💬 Commenter
       </Button>
       <Button disabled={busy} onClick={() => fire("share")} variant="outline" size="sm">
-        ↗ Share
+        ↗ Partager
       </Button>
       <Button disabled={busy} onClick={() => fire("save")} variant="outline" size="sm">
-        🔖 Save
+        🔖 Garder
       </Button>
-      {msg && <span className="ml-2 text-xs text-muted-foreground">{msg}</span>}
     </div>
   )
 }

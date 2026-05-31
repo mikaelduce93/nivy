@@ -10,7 +10,6 @@ import { redirect, notFound } from "next/navigation"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { recordSignalAsync } from "@/lib/analytics/signals"
-import { H1 } from "@/components/ui/headings"
 import EngageButtons from "./engage-buttons"
 import { CommentsThread } from "./comments-thread"
 
@@ -81,37 +80,41 @@ export default async function SubmissionDetailPage({
       {/* TICKET-024 — destination half of the View Transitions morph.
           Pairs with the feed card on /teen/feed. */}
       <article
-        className="rounded-2xl border border-border bg-card/30 p-6 shadow-sm "
+        className="flex flex-col rounded-2xl border-2 border-ink bg-white p-6 text-ink shadow-stkr-md"
         style={{ viewTransitionName: `vt-feed-${post.id}` }}
       >
-        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
           {post.featured && (
-            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-warning-foreground">
-              ★ Featured
+            <span className="rounded-full border-2 border-ink bg-gold px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink">
+              ★ À la une
             </span>
           )}
           {post.type && (
-            <span className="rounded-full bg-muted px-2 py-0.5 capitalize text-muted-foreground">
+            <span className="rounded-full border-2 border-ink bg-paper px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink">
               {post.type}
             </span>
           )}
           {post.category && (
-            <span className="rounded-full bg-info-soft/15 px-2 py-0.5 text-info">
+            <span className="rounded-full border-2 border-ink bg-teal px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-paper">
               {post.category}
             </span>
           )}
-          <span>· {post.status}</span>
+          {post.status && (
+            <span className="font-mono text-[10px] uppercase tracking-wide text-mute">
+              {post.status}
+            </span>
+          )}
         </div>
         {title && (
-          <H1 className="mb-2 text-4xl font-black tracking-tighter uppercase italic leading-none">
+          <h1 className="mb-2 font-display text-3xl font-extrabold leading-tight tracking-tight text-ink">
             {title}
-          </H1>
+          </h1>
         )}
         {post.content && (
-          <p className="text-foreground/90 whitespace-pre-wrap">{post.content}</p>
+          <p className="whitespace-pre-wrap text-ink/90">{post.content}</p>
         )}
         {media && (
-          <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-xl">
+          <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-xl border-2 border-ink">
             <Image
               src={media}
               alt={title ?? "Image de la publication"}
@@ -122,16 +125,16 @@ export default async function SubmissionDetailPage({
             />
           </div>
         )}
-        <div className="mt-4 flex gap-4 text-sm text-muted-foreground">
-          <span>♥ {post.likes_count ?? 0}</span>
-          <span>💬 {post.comments_count ?? 0}</span>
-          <span>↗ {post.shares_count ?? 0}</span>
-          <span className="ml-auto text-xs text-muted-foreground/70">
-            XP: {post.xp_earned ?? 0}
+        <div className="mt-4 flex items-center gap-4 font-mono text-sm">
+          <span className="text-pink" aria-label="Likes">♥ {post.likes_count ?? 0}</span>
+          <span className="text-teal" aria-label="Commentaires">💬 {post.comments_count ?? 0}</span>
+          <span className="text-mute" aria-label="Partages">↗ {post.shares_count ?? 0}</span>
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full border-2 border-ink bg-gold px-3 py-1 font-bold text-ink">
+            ⚡ {post.xp_earned ?? 0} XP
           </span>
         </div>
         {post.user_id !== user.id && (
-          <div className="mt-4 border-t border-border pt-4">
+          <div className="mt-4 border-t-2 border-ink pt-4">
             <EngageButtons submissionId={post.id} />
           </div>
         )}
