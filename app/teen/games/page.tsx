@@ -13,12 +13,13 @@ export default async function GamesPage() {
   ])
 
   const games: GameType[] = (typesResult.data || []) as any
-  // TODO(data): wire today_played / today_xp / win_streak from getUserGameStats once shape is known
+  // getUserGameStats expose des cumuls (pas de ventilation « du jour » ni de
+  // win_streak en base) : on ne mappe que les champs réellement renvoyés.
+  const statsData = (statsResult as any)?.data
   const stats: GameStats = {
-    today_played: (statsResult as any)?.data?.games_played_today ?? 0,
-    today_xp: (statsResult as any)?.data?.xp_earned_today ?? 0,
-    total_wins: (statsResult as any)?.data?.total_wins ?? 0,
-    win_streak: (statsResult as any)?.data?.win_streak ?? 0,
+    total_played: statsData?.total_games_played ?? 0,
+    total_xp: Math.round(statsData?.total_xp_earned ?? 0),
+    total_wins: statsData?.win_count ?? 0,
   }
 
   return <GamesClient games={JSON.parse(JSON.stringify(games))} stats={stats} />
