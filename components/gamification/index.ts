@@ -6,6 +6,4 @@ export type { QuestCardProps, QuestType } from './quest-card'
 
 export { StreakCounter } from './streak-counter'
 
-export { LevelUpModal, useLevelUp } from './level-up-modal'
-
 export { BuddySelector } from './buddy-selector'

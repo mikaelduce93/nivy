@@ -1,18 +1,18 @@
 {
   "generated_at": "2026-05-31",
   "audit_source": "docs/compliance/* (Wave 0 — Safety Freeze)",
-  "total_violations": 192,
-  "files_in_scope": 1384,
+  "total_violations": 173,
+  "files_in_scope": 1372,
   "violations_by_rule": {
     "CANON-NOTIF-002": 6,
     "CANON-NOTIF-001": 10,
     "CANON-BUCKET-001": 1,
     "CANON-XP-002": 1,
     "CANON-SHOP-002": 1,
-    "CANON-MOTION-001": 118,
-    "CHARTE-BLUR-001": 23,
-    "CHARTE-BLUR-002": 12,
+    "CANON-MOTION-001": 107,
     "CHARTE-NEON-001": 18,
+    "CHARTE-BLUR-002": 8,
+    "CHARTE-BLUR-001": 19,
     "CANON-AI-002": 1,
     "CANON-AI-001": 1
   },
@@ -54,29 +54,6 @@
     },
     "app/api/webhooks/stripe/dispatcher.ts": {
       "CANON-NOTIF-001": 4
-    },
-    "app/gamification/boutique/shop-client.tsx": {
-      "CANON-MOTION-001": 1,
-      "CHARTE-BLUR-001": 1
-    },
-    "app/gamification/collections/collections-client.tsx": {
-      "CANON-MOTION-001": 1
-    },
-    "app/gamification/crews/crews-client.tsx": {
-      "CANON-MOTION-001": 1,
-      "CHARTE-BLUR-001": 1
-    },
-    "app/gamification/leaderboard/leaderboard-client.tsx": {
-      "CANON-MOTION-001": 1
-    },
-    "app/gamification/missions/missions-client.tsx": {
-      "CANON-MOTION-001": 1,
-      "CHARTE-BLUR-001": 1
-    },
-    "app/gamification/roue/fortune-wheel-client.tsx": {
-      "CANON-MOTION-001": 1,
-      "CHARTE-BLUR-002": 3,
-      "CHARTE-BLUR-001": 1
     },
     "app/offline/page.tsx": {
       "CANON-MOTION-001": 1
@@ -169,10 +146,6 @@
     },
     "components/gamification/level-badge.tsx": {
       "CANON-MOTION-001": 1
-    },
-    "components/gamification/level-up-modal.tsx": {
-      "CANON-MOTION-001": 1,
-      "CHARTE-BLUR-002": 1
     },
     "components/gamification/pillars.tsx": {
       "CANON-MOTION-001": 1
@@ -291,9 +264,6 @@
     "components/teen/dashboard/ai-companion.tsx": {
       "CANON-MOTION-001": 1
     },
-    "components/teen/dashboard/ai-oracle-card.tsx": {
-      "CANON-MOTION-001": 1
-    },
     "components/teen/dashboard/crew-hub.tsx": {
       "CANON-MOTION-001": 1
     },
@@ -304,9 +274,6 @@
       "CANON-MOTION-001": 1
     },
     "components/teen/dashboard/map-preview.tsx": {
-      "CANON-MOTION-001": 1
-    },
-    "components/teen/dashboard/marketplace-drops.tsx": {
       "CANON-MOTION-001": 1
     },
     "components/teen/dashboard/mobile-nav.tsx": {
@@ -323,16 +290,10 @@
     "components/teen/dashboard/profile-quest.tsx": {
       "CANON-MOTION-001": 1
     },
-    "components/teen/dashboard/quest-card.tsx": {
-      "CANON-MOTION-001": 1
-    },
     "components/teen/dashboard/quick-access-grid.tsx": {
       "CANON-MOTION-001": 1
     },
     "components/teen/dashboard/social-hub-widget.tsx": {
-      "CANON-MOTION-001": 1
-    },
-    "components/teen/dashboard/unified-quest-feed.tsx": {
       "CANON-MOTION-001": 1
     },
     "components/teen/friends-social-hub.tsx": {
