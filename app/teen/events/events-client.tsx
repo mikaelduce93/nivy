@@ -2,16 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Calendar, MapPin, Users, Filter } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { MapPin, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StickerTabs } from "@/components/brand/sticker-tab"
+import { Niv, DarkSurface, NivEmpty } from "@/components/brand"
 
 export function TeenEventsClient({ initialEvents }: { initialEvents: any[] }) {
   const [filter, setFilter] = useState<"all" | "confirmed" | "pending" | "featured">("all")
@@ -27,130 +22,133 @@ export function TeenEventsClient({ initialEvents }: { initialEvents: any[] }) {
   const pendingCount = initialEvents.filter((event) => event.rsvpStatus === "pending").length
   const featuredCount = initialEvents.filter((event) => event.isFeatured).length
 
+  const sectionTitle =
+    filter === "all"
+      ? "Prochains events"
+      : filter === "confirmed"
+        ? "Events confirmés"
+        : filter === "pending"
+          ? "Inscriptions en attente"
+          : "Recommandations"
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-8 pt-6">
+      {/* Hero éditorial */}
+      <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-foreground">Events</h1>
-          <p className="text-sm text-muted-foreground">Tes prochains events avec RSVP et disponibilité.</p>
+          <p className="eyebrow tracking-[0.16em] text-pink">Ton crew sort</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight">
+            Tes prochains <em className="font-semibold italic text-pink">events</em>
+          </h1>
+          <p className="mt-1 text-sm text-mute">Tes sorties avec inscription et places dispo.</p>
         </div>
-        <div className="flex gap-2">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="gap-2">
-                        <Filter className="h-4 w-4" />
-                        {filter === "all" ? "Tous" : filter === "confirmed" ? "Confirmés" : filter === "pending" ? "En attente" : "Recommandés"}
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setFilter("all")}>Tous</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilter("confirmed")}>Confirmés</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilter("pending")}>En attente</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilter("featured")}>Recommandés</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <Button asChild variant="secondary" className="gap-2">
-            <Link href="/agenda">
-                <MapPin className="h-4 w-4" />
-                Agenda public
-            </Link>
-            </Button>
-        </div>
-      </div>
+        <Niv mood="hype" size={72} className="shrink-0" />
+      </header>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className={`bg-card border-border cursor-pointer transition-all hover-lift ${filter === "all" ? "ring-2 ring-primary" : ""}`} onClick={() => setFilter("all")}>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Total à venir</p>
-            <p className="text-2xl font-black text-primary">{initialEvents.length}</p>
-          </CardContent>
-        </Card>
-        <Card className={`bg-card border-border cursor-pointer transition-all hover-lift ${filter === "confirmed" ? "ring-2 ring-success" : ""}`} onClick={() => setFilter("confirmed")}>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Confirmés</p>
-            <p className="text-2xl font-black text-success">{confirmedCount}</p>
-          </CardContent>
-        </Card>
-        <Card className={`bg-card border-border cursor-pointer transition-all hover-lift ${filter === "pending" ? "ring-2 ring-warning" : ""}`} onClick={() => setFilter("pending")}>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">En attente</p>
-            <p className="text-2xl font-black text-warning">{pendingCount}</p>
-          </CardContent>
-        </Card>
-        <Card className={`bg-card border-border cursor-pointer transition-all hover-lift ${filter === "featured" ? "ring-2 ring-info" : ""}`} onClick={() => setFilter("featured")}>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Recommandés</p>
-            <p className="text-2xl font-black text-info">
-              {featuredCount}
+      {/* Compteur en surface sombre + filtres sticker */}
+      <DarkSurface tone="pink" shadow className="p-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="eyebrow tracking-[0.16em] text-paper/60">Events à venir</p>
+            <p className="mt-2 font-display text-6xl font-extrabold leading-none tabular-nums text-pink">
+              {initialEvents.length}
             </p>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+          <StickerTabs
+            ariaLabel="Filtrer les events"
+            value={filter}
+            onValueChange={(v) => setFilter(v as typeof filter)}
+            tabs={[
+              { value: "all", label: "Tous" },
+              { value: "confirmed", label: "Confirmés", badge: confirmedCount || undefined },
+              { value: "pending", label: "En attente", badge: pendingCount || undefined },
+              { value: "featured", label: "Recommandés", badge: featuredCount || undefined },
+            ]}
+          />
+        </div>
+      </DarkSurface>
 
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-foreground">
-            <Calendar className="h-5 w-5" />
-            {filter === "all" ? "Prochains events" : filter === "confirmed" ? "Events confirmés" : filter === "pending" ? "Inscriptions en attente" : "Recommandations"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {filteredEvents.length > 0 ? (
-            filteredEvents.map((event) => {
+      {/* Liste des events */}
+      <section className="space-y-4">
+        <h2 className="font-display text-xl font-extrabold tracking-tight">{sectionTitle}</h2>
+
+        {filteredEvents.length > 0 ? (
+          <div className="space-y-3">
+            {filteredEvents.map((event) => {
               const date = new Date(event.date)
               const dayLabel = date.toLocaleDateString("fr-FR", { weekday: "short" }).toUpperCase()
               const dayNumber = date.getDate()
-              const statusClass =
+              const statusTone =
                 event.rsvpStatus === "confirmed"
-                  ? "status-success"
+                  ? "bg-lime text-on-bright"
                   : event.rsvpStatus === "pending"
-                  ? "status-warning"
-                  : event.rsvpStatus === "cancelled"
-                  ? "status-destructive"
-                  : "status-info"
+                    ? "bg-gold text-ink"
+                    : event.rsvpStatus === "cancelled"
+                      ? "bg-coral text-ink"
+                      : "bg-teal text-paper"
 
               return (
-                <div
-                  key={event.id}
-                  className="flex flex-wrap items-center gap-4 p-4 rounded-xl border border-border bg-card"
-                >
-                  <div className="text-center min-w-[54px]">
-                    <p className="text-xs text-muted-foreground">{dayLabel}</p>
-                    <p className="text-xl font-black text-primary">{dayNumber}</p>
-                  </div>
-                  <div className="flex-1 min-w-[180px]">
-                    <p className="font-semibold text-foreground">{event.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {event.time ? `${event.time} • ` : ""}
-                      {event.venue || "Lieu à confirmer"}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-2 text-xs text-muted-foreground">
-                      {event.category && <span>{event.category}</span>}
-                      {event.distanceLabel && <span>• {event.distanceLabel}</span>}
-                      {event.remaining !== null && (
-                        <span className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {event.remaining} places
-                        </span>
-                      )}
+                <StickerCard key={event.id} variant="hover" className="p-4">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="grid min-w-[54px] place-items-center rounded-xl border-2 border-ink bg-teal px-2 py-1 text-paper">
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em]">{dayLabel}</span>
+                      <span className="font-display text-xl font-extrabold tabular-nums">{dayNumber}</span>
                     </div>
+                    <div className="min-w-[180px] flex-1">
+                      <p className="font-display font-extrabold tracking-tight text-ink">{event.title}</p>
+                      <p className="mt-0.5 font-mono text-xs text-mute">
+                        {event.time ? `${event.time} • ` : ""}
+                        {event.venue || "Lieu à confirmer"}
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
+                        {event.category && (
+                          <span className="rounded-full border-2 border-ink px-2 py-0.5">{event.category}</span>
+                        )}
+                        {event.distanceLabel && <span>{event.distanceLabel}</span>}
+                        {event.remaining !== null && (
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" aria-hidden="true" />
+                            {event.remaining} places
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <span
+                      className={`rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.08em] ${statusTone}`}
+                    >
+                      {event.rsvpLabel}
+                    </span>
                   </div>
-                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${statusClass}`}>
-                    {event.rsvpLabel}
-                  </span>
-                </div>
+                </StickerCard>
               )
-            })
-          ) : (
-            <EmptyState
-              size="small"
-              preset="events"
-              title="Aucun event trouvé"
-              description="Aucun event ne correspond à ce filtre. Essaie une autre catégorie ou explore tous les events."
-            />
-          )}
-        </CardContent>
-      </Card>
+            })}
+          </div>
+        ) : (
+          <NivEmpty
+            mood="proud"
+            title="Rien de prévu pour l'instant"
+            description="Ton crew explore quoi ? Va voir l'agenda public pour dénicher ta prochaine sortie."
+            action={
+              <Button asChild variant="pink">
+                <Link href="/agenda">
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
+                  Explorer l'agenda
+                </Link>
+              </Button>
+            }
+          />
+        )}
+      </section>
+
+      {/* CTA secondaire discret vers l'agenda public */}
+      <div className="flex justify-center">
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/agenda">
+            <MapPin className="h-4 w-4" aria-hidden="true" />
+            Agenda public
+          </Link>
+        </Button>
+      </div>
     </div>
   )
 }
