@@ -67,6 +67,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [accepted, setAccepted] = useState(false)
 
   // Step 1: Club Information
   const [companyName, setCompanyName] = useState('')
@@ -808,7 +809,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
 
               <div className="p-4 bg-teal/10 border border-teal/30 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <Checkbox id="terms" />
+                  <Checkbox id="terms" checked={accepted} onCheckedChange={(v) => setAccepted(v === true)} />
                   <label htmlFor="terms" className="text-sm text-ink-2 cursor-pointer">
                     J'accepte les conditions générales du programme partenaire et je confirme que toutes les informations sont exactes.
                   </label>
@@ -847,7 +848,7 @@ export default function ClubPartnerForm({ onBack }: ClubPartnerFormProps) {
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !accepted}
             className="bg-lime hover:bg-lime text-ink"
           >
             {isSubmitting ? 'Envoi en cours...' : 'Soumettre la demande'}

@@ -32,9 +32,8 @@ export default async function BlogPage() {
       .eq("published", true)
       .order("published_at", { ascending: false })
       .limit(12)
-    posts = postsData
-  } catch (error) {
-    console.log("[v0] Blog posts table not found, showing empty state")
+    posts = postsData ?? []
+  } catch {
     posts = []
   }
 
@@ -42,9 +41,8 @@ export default async function BlogPage() {
     const { data: categoriesData } = await supabase
       .from("post_categories")
       .select("*")
-    categories = categoriesData
-  } catch (error) {
-    console.log("[v0] Post categories table not found")
+    categories = categoriesData ?? []
+  } catch {
     categories = []
   }
 
@@ -73,7 +71,7 @@ export default async function BlogPage() {
               </Button>
               {categories.map((cat) => (
                 <Button key={cat.id} variant="outline" asChild>
-                  <Link href={`/blog/categorie/${cat.slug}`}>{cat.name}</Link>
+                  <Link href={`/blog?categorie=${cat.slug}`}>{cat.name}</Link>
                 </Button>
               ))}
             </div>
@@ -85,7 +83,7 @@ export default async function BlogPage() {
         {posts && posts.length > 0 ? (
           <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
+              <div key={post.id} className="group block">
                 <StickerCard variant="hover" className="h-full gap-0 overflow-hidden p-0">
                   {post.cover_image && (
                     <div className="relative aspect-video border-b-2 border-ink">
@@ -128,7 +126,7 @@ export default async function BlogPage() {
                     </div>
                   </div>
                 </StickerCard>
-              </Link>
+              </div>
             ))}
           </div>
         ) : (

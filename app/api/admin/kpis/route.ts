@@ -59,18 +59,18 @@ export async function GET(request: Request) {
     // Revenue stats
     const { data: monthlyBookings } = await supabase
       .from("bookings")
-      .select("total_price")
+      .select("total_amount")
       .gte("created_at", startOfMonth.toISOString())
 
-    const monthlyRevenue = monthlyBookings?.reduce((sum, b) => sum + (b.total_price || 0), 0) || 0
+    const monthlyRevenue = monthlyBookings?.reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0
 
     const { data: lastMonthBookings } = await supabase
       .from("bookings")
-      .select("total_price")
+      .select("total_amount")
       .gte("created_at", startOfLastMonth.toISOString())
       .lt("created_at", startOfMonth.toISOString())
 
-    const lastMonthRevenue = lastMonthBookings?.reduce((sum, b) => sum + (b.total_price || 0), 0) || 0
+    const lastMonthRevenue = lastMonthBookings?.reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0
 
     // Events stats
     const { count: totalEvents } = await supabase

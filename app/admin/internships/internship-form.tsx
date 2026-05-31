@@ -219,10 +219,7 @@ function Label({
 
 /**
  * Close-internship action.
- * Calls POST /api/admin/internships/:id/close
- *
- * NOTE: this endpoint is not yet implemented (see report). Component is
- * complete; backend is the gap.
+ * Calls POST /api/admin/internships/:id/close (route exists and is wired).
  */
 export function CloseInternshipButton({ id }: { id: string }) {
   const router = useRouter()

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 
 interface ListingRow {
@@ -19,13 +20,23 @@ export function ModerateRow({ listing }: { listing: ListingRow }) {
 
   async function decide(decision: "approve" | "reject") {
     setBusy(true)
-    await fetch(`/api/admin/marketplace/moderate/${listing.id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ decision }),
-    })
-    setBusy(false)
-    router.refresh()
+    try {
+      const res = await fetch(`/api/admin/marketplace/moderate/${listing.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(data?.error || "request_failed")
+      }
+      toast.success(decision === "approve" ? "Annonce approuvée" : "Annonce rejetée")
+      router.refresh()
+    } catch {
+      toast.error("Action impossible pour le moment. Réessaie.")
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (

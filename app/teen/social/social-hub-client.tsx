@@ -347,8 +347,10 @@ function FriendsTab({ teenId, t }: { teenId?: string; t: Translator }) {
                 </div>
                 <p className="eyebrow text-mute">XP</p>
               </div>
-              <Button variant="ghost" size="icon">
-                <MessageCircle className="w-5 h-5" />
+              <Button asChild variant="ghost" size="icon">
+                <Link href={`/teen/messages?friend=${friend.id}`} aria-label={`Message à ${friend.name}`}>
+                  <MessageCircle className="w-5 h-5" />
+                </Link>
               </Button>
             </StickerCard>
           ))}

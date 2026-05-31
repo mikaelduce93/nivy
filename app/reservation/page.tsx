@@ -201,7 +201,7 @@ export default async function ReservationPage({
                 <Checkbox id="cgv" name="acceptCGV" required className="mt-1" />
                 <Label htmlFor="cgv" className="text-sm text-ink-2 cursor-pointer">
                   J'accepte les{" "}
-                  <Link href="/cgv" className="text-pink hover:underline" target="_blank">
+                  <Link href="/legal/cgv" className="text-pink hover:underline" target="_blank">
                     Conditions Générales de Vente
                   </Link>{" "}
                   et confirme avoir pris connaissance de la{" "}

@@ -248,7 +248,7 @@ export default async function PartnerEventsPage() {
                     <div className="flex flex-col items-end gap-2">
                       {!isFull ? (
                         <Button asChild variant="pink">
-                          <Link href={event.slug ? `/events/${event.slug}` : "#"}>
+                          <Link href={event.id ? `/agenda/${event.id}` : "#"}>
                             Voir l'event
                           </Link>
                         </Button>
@@ -258,7 +258,7 @@ export default async function PartnerEventsPage() {
                         </span>
                       )}
                       <Button variant="ghost" size="sm" className="text-mute hover:text-ink" asChild>
-                        <Link href={event.slug ? `/events/${event.slug}` : "#"}>
+                        <Link href={event.id ? `/agenda/${event.id}` : "#"}>
                           Détails <ExternalLink className="ml-1 h-3 w-3" />
                         </Link>
                       </Button>

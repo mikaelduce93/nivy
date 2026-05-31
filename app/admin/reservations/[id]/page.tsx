@@ -49,12 +49,12 @@ export default async function AdminReservationDetail({ params }: { params: Promi
     redirect("/")
   }
 
-  // Même select que la liste (#177) : booking + parent (profiles) + événement.
+  // bookings n'a pas de FK vers profiles (seulement event_id) — on résout le
+  // réservant (user_id) par une requête séparée plutôt qu'un embed cassé.
   const { data: booking } = await supabase
     .from("bookings")
     .select(`
       *,
-      profiles!bookings_parent_id_fkey (prenom, nom, email, telephone),
       events (title, event_date, city)
     `)
     .eq("id", id)
@@ -62,6 +62,16 @@ export default async function AdminReservationDetail({ params }: { params: Promi
 
   if (!booking) {
     notFound()
+  }
+
+  let booker: { full_name: string | null; email: string | null } | null = null
+  if (booking.user_id) {
+    const { data: bk } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", booking.user_id)
+      .maybeSingle()
+    booker = (bk as { full_name: string | null; email: string | null } | null) ?? null
   }
 
   const effectiveStatus = booking.status === "cancelled" ? "cancelled" : booking.payment_status
@@ -129,14 +139,14 @@ export default async function AdminReservationDetail({ params }: { params: Promi
                 <User className="h-5 w-5 text-teal" />
               </div>
               <p className="font-bold text-ink">
-                {booking.profiles?.prenom} {booking.profiles?.nom}
+                {booker?.full_name || "—"}
               </p>
             </div>
-            {booking.profiles?.email && (
+            {booker?.email && (
               <div className="flex items-center gap-3 text-mute">
                 <Mail className="h-4 w-4" />
-                <a href={`mailto:${booking.profiles.email}`} className="transition-colors hover:text-ink">
-                  {booking.profiles.email}
+                <a href={`mailto:${booker.email}`} className="transition-colors hover:text-ink">
+                  {booker.email}
                 </a>
               </div>
             )}

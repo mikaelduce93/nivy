@@ -35,13 +35,13 @@ async function getTeenBookings(parentId: string) {
   const { data: bookings, error } = await supabase
     .from("bookings")
     .select(`
-      id, teen_id, status, payment_status, total_price, ticket_code, created_at,
+      id, user_id, status, payment_status, total_amount, booking_reference, created_at,
       event:event_id (
         id, title, description, event_date, event_start,
         venue_name, city, image_url, price, category
       )
     `)
-    .in("teen_id", teenIds)
+    .in("user_id", teenIds)
     .order("created_at", { ascending: false })
 
   if (error) {
@@ -55,7 +55,7 @@ async function getTeenBookings(parentId: string) {
 
   const decorated = (bookings ?? []).map((b: any) => ({
     ...b,
-    teen: { id: b.teen_id, full_name: teenNameMap.get(b.teen_id) ?? "Teen" },
+    teen: { id: b.user_id, full_name: teenNameMap.get(b.user_id) ?? "Teen" },
   }))
 
   const now = new Date()
@@ -222,9 +222,9 @@ export default async function ParentEventsPage() {
                           <span className="text-sm text-ink-2">{booking.teen?.full_name || "Teen"}</span>
                           <div className="text-right">
                             <p className="font-mono text-base font-bold tabular-nums text-ink">
-                              {booking.total_price || 0} DH
+                              {booking.total_amount || 0} DH
                             </p>
-                            <p className="font-mono text-xs text-mute">Code : {booking.ticket_code}</p>
+                            <p className="font-mono text-xs text-mute">Code : {booking.booking_reference}</p>
                           </div>
                         </div>
                       </div>
@@ -287,7 +287,7 @@ export default async function ParentEventsPage() {
                   <div className="mt-3 flex items-center justify-between">
                     <span className="font-mono text-sm font-bold tabular-nums text-ink">{event.price} DH</span>
                     <Button size="sm" variant="outline" asChild>
-                      <Link href={`/events/${event.id}`}>Voir</Link>
+                      <Link href={`/agenda/${event.id}`}>Voir</Link>
                     </Button>
                   </div>
                 </StickerCard>
@@ -320,7 +320,7 @@ export default async function ParentEventsPage() {
                       </div>
                     </div>
                     <span className="font-mono text-sm font-semibold tabular-nums text-ink">
-                      {booking.total_price} DH
+                      {booking.total_amount} DH
                     </span>
                   </div>
                 </StickerCard>

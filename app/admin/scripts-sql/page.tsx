@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { DarkSurface } from "@/components/brand"
 import { AlertCircle, CheckCircle2, Database, ExternalLink, FileText, ShieldCheck } from "lucide-react"
-import Link from "next/link"
 import BackButton from "@/components/admin/BackButton"
 import { getAdminInfo, logAdminAction } from "@/lib/auth/admin-permissions"
 
@@ -196,14 +195,6 @@ export default async function SQLScriptsPage() {
             <li>Attendez la confirmation</li>
             <li>Répétez dans l&apos;ordre</li>
           </ol>
-          <div>
-            <Link href="/docs/EXECUTER_SCRIPTS_SQL.md">
-              <Button variant="outline">
-                <FileText className="mr-2 h-4 w-4" />
-                Voir le guide complet
-              </Button>
-            </Link>
-          </div>
         </StickerCard>
       </div>
     </div>

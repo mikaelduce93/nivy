@@ -73,7 +73,9 @@ async function getPartnerStats(partnerEmail: string) {
     id: t.id,
     used_at: t.scanned_at ?? t.created_at,
     final_amount: Number(t.amount_dh) || 0,
-    discount_amount: 0,
+    // partner_transactions carries no discount column — don't fabricate a
+    // "-0 DH" pill; null suppresses it in the feed.
+    discount_amount: null,
     profile: { full_name: teenNameById.get(t.teen_id) ?? "Member" },
   }))
 

@@ -392,7 +392,7 @@ export default async function TeenOffresPage() {
             const ctaLabel = ctaLabelFor(o)
             const description = descriptionFor(o)
             const target = o.isChallenge
-              ? `/teen/scan?offer=${encodeURIComponent(o.id)}`
+              ? `/teen/map?offer=${encodeURIComponent(o.id)}`
               : (o.externalUrl ?? "/teen/map")
 
             return (

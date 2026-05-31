@@ -223,9 +223,9 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
       <div className="grid grid-cols-1 gap-6 border-t-2 border-ink pt-8 md:grid-cols-2">
         <QuickActionCard
           icon={Brain}
-          title="Génère un quiz IA"
-          description="Crée un quiz personnalisé selon tes centres d'intérêt"
-          href="/teen/quests?tab=brain"
+          title="Joue à un quiz"
+          description="Teste tes connaissances et gagne de l'XP"
+          href="/teen/quiz"
         />
         <QuickActionCard
           icon={Trophy}

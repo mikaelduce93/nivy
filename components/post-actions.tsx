@@ -45,6 +45,23 @@ export default function PostActions({ postId, initialLikes, initialComments, isL
     }
   }
 
+  const handleShare = async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Nivy", url })
+      } catch {
+        /* user cancelled — expected */
+      }
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      /* clipboard unavailable — silent */
+    }
+  }
+
   return (
     <div className="flex items-center gap-6 pt-4 border-t border-ink">
       <Button
@@ -58,12 +75,12 @@ export default function PostActions({ postId, initialLikes, initialComments, isL
         {likes}
       </Button>
 
-      <Button variant="ghost" size="sm" className="text-mute hover:text-teal">
+      <Button variant="ghost" size="sm" className="text-mute" disabled title="Commentaires bientôt disponibles">
         <MessageSquare className="w-5 h-5 mr-2" />
         {initialComments}
       </Button>
 
-      <Button variant="ghost" size="sm" className="text-mute hover:text-teal">
+      <Button variant="ghost" size="sm" className="text-mute hover:text-teal" onClick={handleShare}>
         <Share2 className="w-5 h-5 mr-2" />
         Partager
       </Button>

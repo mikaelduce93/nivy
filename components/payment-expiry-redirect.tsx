@@ -24,7 +24,7 @@ interface PaymentExpiryRedirectProps {
 
 export function PaymentExpiryRedirect({
   expiresAt,
-  redirectTo = '/mes-reservations',
+  redirectTo = '/agenda',
   bookingReference,
 }: PaymentExpiryRedirectProps) {
   const handleExpire = useCallback(() => {

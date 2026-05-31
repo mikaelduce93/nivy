@@ -41,7 +41,7 @@ export default async function PaymentPage({
     .single()
 
   if (!booking) {
-    redirect("/mes-reservations")
+    redirect("/agenda")
   }
 
   if (booking.payment_status === "paid") {
@@ -59,15 +59,15 @@ export default async function PaymentPage({
           <ReservationStepper step={1} />
 
           <Button asChild variant="ghost" className="text-mute hover:text-ink mb-8">
-            <Link href={`/mes-reservations/${bookingId}`}>
+            <Link href="/agenda">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour à ma réservation
+              Retour aux événements
             </Link>
           </Button>
 
           <PaymentExpiryRedirect
             expiresAt={sessionExpiry}
-            redirectTo="/mes-reservations"
+            redirectTo="/agenda"
             bookingReference={booking.booking_reference}
           />
 

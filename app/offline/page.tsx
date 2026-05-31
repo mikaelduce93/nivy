@@ -49,8 +49,8 @@ export default function OfflinePage() {
           .filter((path) => path !== "/offline")
         setCachedPages(urls)
       }
-    } catch (error) {
-      console.error("Erreur lecture cache:", error)
+    } catch {
+      // Cache indisponible — on retombe sur une liste vide (gérée par l'UI).
     }
   }
 

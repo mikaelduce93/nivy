@@ -41,19 +41,21 @@ async function getTeenStats(teenIds: string[]) {
   const stats: Record<string, any> = {}
 
   for (const teenId of teenIds) {
-    // Get booking count
+    // bookings owner column is user_id (no teen_id); amount is total_amount
+    // (no total_price); and there is no event_date on bookings — upcoming is
+    // resolved by an inner join on events.event_date.
     const { count: bookingsCount } = await supabase
       .from("bookings")
       .select("*", { count: "exact", head: true })
-      .eq("teen_id", teenId)
+      .eq("user_id", teenId)
 
-    // Get upcoming events
+    // Get upcoming events (confirmed bookings whose event is in the future)
     const { count: upcomingCount } = await supabase
       .from("bookings")
-      .select("*", { count: "exact", head: true })
-      .eq("teen_id", teenId)
+      .select("id, events!inner(event_date)", { count: "exact", head: true })
+      .eq("user_id", teenId)
       .eq("status", "confirmed")
-      .gte("event_date", new Date().toISOString())
+      .gte("events.event_date", new Date().toISOString().split("T")[0])
 
     // Get this month's spending
     const startOfMonth = new Date()
@@ -62,11 +64,11 @@ async function getTeenStats(teenIds: string[]) {
 
     const { data: monthlyBookings } = await supabase
       .from("bookings")
-      .select("total_price")
-      .eq("teen_id", teenId)
+      .select("total_amount")
+      .eq("user_id", teenId)
       .gte("created_at", startOfMonth.toISOString())
 
-    const monthlySpending = monthlyBookings?.reduce((sum, b) => sum + (b.total_price || 0), 0) || 0
+    const monthlySpending = monthlyBookings?.reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0
 
     stats[teenId] = {
       totalBookings: bookingsCount || 0,

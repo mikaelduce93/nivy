@@ -58,19 +58,19 @@ export async function submitBirthdayRequest(data: {
     .limit(1)
     .single()
 
+  // Schéma lean réel : anniv_orders(parent_id, teen_id, pack_id, party_date,
+  // guest_count, total_dh, status) — pas de order_type/celebration_date/
+  // pack_price/total_price/payment_status.
   const { data: order, error: orderError } = await supabase
     .from("anniv_orders")
     .insert({
       parent_id: relationship.parent_id,
       teen_id: teenRecord?.id || user.id, // Fallback to user.id if no teen record found
       pack_id: pack.id,
-      order_type: 'event', // Default for now
-      celebration_date: data.celebrationDate,
+      party_date: data.celebrationDate,
       guest_count: data.guestCount,
-      pack_price: data.totalPrice, // Simplified for the demo
-      total_price: data.totalPrice,
+      total_dh: data.totalPrice,
       status: 'pending',
-      payment_status: 'pending'
     })
     .select()
     .single()
@@ -80,22 +80,28 @@ export async function submitBirthdayRequest(data: {
     throw new Error("Failed to create birthday order")
   }
 
-  // 4. Create Parental Approval Request
+  // 4. Create Parental Approval Request — colonnes réelles : action_type/details
+  // (et non approval_type/request_data). details.type='birthday' pilote le libellé
+  // côté dashboard parent.
   const { error: approvalError } = await supabase
     .from("parental_approvals")
     .insert({
       teen_id: user.id,
       parent_id: relationship.parent_id,
-      approval_type: 'purchase',
-      request_data: {
+      action_type: 'booking',
+      resource_type: 'anniv_order',
+      resource_id: order.id,
+      amount: data.totalPrice,
+      details: {
         type: 'birthday',
         order_id: order.id,
         pack_name: data.packSlug,
         date: data.celebrationDate,
         price: data.totalPrice,
-        guests: data.guestCount
+        guests: data.guestCount,
       },
-      status: 'pending'
+      status: 'pending',
+      requested_at: new Date().toISOString(),
     })
 
   if (approvalError) {

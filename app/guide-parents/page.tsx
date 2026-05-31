@@ -134,7 +134,7 @@ export default function ParentsPage() {
             <p className="mb-8 text-mute">Notre équipe répond à toutes vos préoccupations.</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button asChild size="lg" variant="pink">
-                <Link href="/support">
+                <Link href="/aide">
                   <Phone className="mr-2 size-5" aria-hidden="true" />
                   Nous contacter
                 </Link>

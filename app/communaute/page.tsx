@@ -64,7 +64,7 @@ export default async function CommunautePage() {
 
               {user && (
                 <Button asChild size="lg" variant="pink" className="mt-6">
-                  <Link href="/communaute/creer">Créer un post</Link>
+                  <Link href="/teen/create">Créer un post</Link>
                 </Button>
               )}
             </div>
@@ -146,7 +146,7 @@ export default async function CommunautePage() {
                 action={
                   user ? (
                     <Button asChild variant="pink">
-                      <Link href="/communaute/creer">Créer un post</Link>
+                      <Link href="/teen/create">Créer un post</Link>
                     </Button>
                   ) : undefined
                 }

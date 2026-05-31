@@ -219,7 +219,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
     }
   }
 
-  const handleExport = async (format: "json" | "csv") => {
+  const handleExport = async () => {
     if (!selectedEvent) {
       toast.error("Veuillez sélectionner un événement")
       return
@@ -228,7 +228,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
     setIsExporting(true)
     try {
       const response = await fetch(
-        `/api/check-in/export?eventId=${selectedEvent}&format=${format}`
+        `/api/check-in/export?eventId=${selectedEvent}&format=csv`
       )
 
       if (!response.ok) {
@@ -236,30 +236,16 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
         throw new Error(data.error || "Erreur lors de l'export")
       }
 
-      if (format === "csv") {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `checkin-export-${new Date().toISOString().split("T")[0]}.csv`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        toast.success("Export CSV téléchargé")
-      } else {
-        const data = await response.json()
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `checkin-export-${new Date().toISOString().split("T")[0]}.json`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        toast.success("Export JSON téléchargé")
-      }
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `checkin-export-${new Date().toISOString().split("T")[0]}.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+      toast.success("Export CSV téléchargé")
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de l'export")
     } finally {
@@ -391,7 +377,7 @@ export function CheckInInterface({ events, adminId }: CheckInInterfaceProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleExport("csv")}
+                  onClick={() => handleExport()}
                   disabled={isExporting}
                 >
                   {isExporting ? (

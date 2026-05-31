@@ -136,9 +136,9 @@ export default async function AdminDashboardPage() {
     .select("*", { count: "exact", head: true })
     .eq("status", "pending")
 
-  const { data: totalRevenue } = await supabase.from("bookings").select("total_price").eq("status", "confirmed")
+  const { data: totalRevenue } = await supabase.from("bookings").select("total_amount").eq("status", "confirmed")
 
-  const revenue = totalRevenue?.reduce((sum, booking) => sum + (booking.total_price || 0), 0) || 0
+  const revenue = totalRevenue?.reduce((sum, booking) => sum + (booking.total_amount || 0), 0) || 0
 
   const eventsWithStats = await Promise.all(
     (upcomingEvents || []).map(async (event) => {
@@ -323,7 +323,7 @@ export default async function AdminDashboardPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-mono font-bold text-ink tabular-nums">{booking.total_price} DH</p>
+                        <p className="font-mono font-bold text-ink tabular-nums">{booking.total_amount} DH</p>
                         <span
                           className={`mt-1 inline-block rounded-full border-2 border-ink px-2 py-0.5 font-mono text-xs font-bold ${status.className}`}
                         >

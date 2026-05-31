@@ -24,8 +24,29 @@ const SKINS = [
   { id: "neon-night", label: "Neon Night", unlocked: false, cost: 2500 },
 ]
 
+// NivMood (mascotte) → humeur persistée côté avatars.mood (taxonomie DB).
+const MOOD_TO_AVATAR: Record<NivMood, string> = {
+  happy: "happy",
+  hype: "celebrating",
+  proud: "focused",
+  calm: "neutral",
+  wink: "happy",
+}
+
 export function AvatarClient() {
   const [mood, setMood] = useState<NivMood>("happy")
+
+  // Optimistic UI + best-effort persistence to /api/teen/avatar (set_mood).
+  const selectMood = (m: NivMood) => {
+    setMood(m)
+    void fetch("/api/teen/avatar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "set_mood", mood: MOOD_TO_AVATAR[m] }),
+    }).catch(() => {
+      /* humeur affichée tout de suite ; persistance best-effort */
+    })
+  }
 
   return (
     <div className="space-y-8 pt-6">
@@ -59,7 +80,7 @@ export function AvatarClient() {
               {MOODS.map((m) => (
                 <button
                   key={m.id}
-                  onClick={() => setMood(m.id)}
+                  onClick={() => selectMood(m.id)}
                   className={cn(
                     "flex items-center gap-2 rounded-xl border-2 border-ink px-4 py-2.5 text-sm font-bold transition-all",
                     "motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5",

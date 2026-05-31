@@ -382,7 +382,9 @@ export default function DailyChallengesPage() {
                                         ...prev,
                                         [userChallenge.id]: { photo: file.name }
                                       }))
-                                      toast.success("Photo ajoutée !")
+                                      // Upload réel encore à brancher (sign-upload) — pas de
+                                      // faux « ajoutée ! ». On confirme seulement la sélection.
+                                      toast("Photo sélectionnée")
                                     }
                                   }}
                                 />

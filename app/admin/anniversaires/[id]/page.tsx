@@ -313,7 +313,7 @@ export default async function AdminAnnivOrderDetailPage({
                 <p className="eyebrow tracking-[0.14em] text-gold">Acompte versé</p>
                 <p className="font-mono text-lg font-bold text-gold tabular-nums">{order.deposit_amount.toLocaleString()} DH</p>
                 <p className="text-xs text-paper/60">
-                  Reste à payer : {(order.total_price - order.deposit_amount).toLocaleString()} DH
+                  Reste à payer : {((order.total_price ?? 0) - order.deposit_amount).toLocaleString()} DH
                 </p>
               </div>
             )}

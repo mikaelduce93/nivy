@@ -131,9 +131,9 @@ export function GamesClient({ games, stats }: Props) {
                   </div>
                 </div>
 
-                <Button variant="pink" className="w-full">
+                <Button variant="pink" className="w-full" disabled title="Bientôt disponible">
                   <Play className="mr-2 size-4" aria-hidden="true" />
-                  {t("teen.games.play")}
+                  {t("teen.games.play")} · bientôt
                 </Button>
               </StickerCard>
             ))}
@@ -166,7 +166,7 @@ export function GamesClient({ games, stats }: Props) {
                       {t("teen.games.maxPlayers", { count: game.max_players })}
                     </span>
                   </div>
-                  <Button variant="outline">{t("teen.games.join")}</Button>
+                  <Button variant="outline" disabled title="Bientôt disponible">{t("teen.games.join")} · bientôt</Button>
                 </div>
               </StickerCard>
             ))}

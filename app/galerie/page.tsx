@@ -26,8 +26,7 @@ export default async function GaleriePage() {
       .order("created_at", { ascending: false })
       .limit(20)
     galleries = data
-  } catch (error) {
-    console.log("[v0] Photo galleries table not found, showing empty state")
+  } catch {
     galleries = []
   }
 
@@ -55,10 +54,9 @@ export default async function GaleriePage() {
         {galleries && galleries.length > 0 ? (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {galleries.map((gallery) => (
-              <a
+              <div
                 key={gallery.id}
-                href={`/galerie/${gallery.id}`}
-                className="group relative block aspect-square overflow-hidden rounded-2xl border-2 border-ink shadow-stkr-sm transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                className="group relative block aspect-square overflow-hidden rounded-2xl border-2 border-ink shadow-stkr-sm"
               >
                 <OptimizedImage
                   src={gallery.cover_photo}
@@ -86,7 +84,7 @@ export default async function GaleriePage() {
                     <span>{gallery.photo_count || 0} photos</span>
                   </div>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         ) : (

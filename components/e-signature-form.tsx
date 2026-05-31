@@ -114,8 +114,7 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
 
       toast.success("Signature enregistrée avec succès")
       onComplete(result)
-    } catch (error) {
-      console.error("[v0] E-signature error:", error)
+    } catch {
       toast.error("Erreur lors de l'enregistrement de la signature")
     } finally {
       setLoading(false)
@@ -292,7 +291,7 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
               }
               label={
                 <>
-                  J'accepte les <a href="/legal/conditions" className="text-pink hover:underline">conditions générales</a> et la <a href="/legal/confidentialite" className="text-pink hover:underline">politique de confidentialité</a> *
+                  J'accepte les <a href="/legal/cgu" className="text-pink hover:underline">conditions générales</a> et la <a href="/legal/confidentialite" className="text-pink hover:underline">politique de confidentialité</a> *
                 </>
               }
             />

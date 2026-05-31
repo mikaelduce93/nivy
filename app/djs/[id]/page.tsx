@@ -6,16 +6,24 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DjTabs } from "./dj-tabs"
 import { Star, Calendar, Clock, Users } from "lucide-react"
-import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
-export default async function DJProfilePage({ params }: { params: { id: string } }) {
+export default async function DJProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  // Next 15/16: params is a Promise and must be awaited before use, otherwise
+  // dj.id resolves to undefined and every DJ profile 404s.
+  const { id } = await params
   const supabase = await createClient()
+  const { contactEmail } = getPublicAppConfig()
 
-  const { data: dj } = await supabase.from("djs").select("*").eq("id", params.id).single()
+  const { data: dj } = await supabase.from("djs").select("*").eq("id", id).single()
 
   if (!dj) notFound()
+
+  // No DJ-booking backend exists yet; "Réserver"/"Devis" open a real quote
+  // request by email rather than linking to a dangling /djs/[id]/reserver route.
+  const quoteHref = `mailto:${contactEmail}?subject=${encodeURIComponent(`Réservation DJ — ${dj.stage_name}`)}`
 
   return (
     <>
@@ -49,15 +57,16 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                     </Badge>
                   </div>
                 </div>
-                <Link href={`/djs/${dj.id}/reserver`}>
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-lime to-coral-600 hover:from-lime hover:to-coral-700 text-lg px-8"
-                  >
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-lime to-coral-600 hover:from-lime hover:to-coral-700 text-lg px-8"
+                >
+                  <a href={quoteHref}>
                     <Calendar className="mr-2 h-5 w-5" />
                     Réserver
-                  </Button>
-                </Link>
+                  </a>
+                </Button>
               </div>
             </div>
           </div>
@@ -98,11 +107,11 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                         <span>Matériel professionnel inclus</span>
                       </div>
                     </div>
-                    <Link href={`/djs/${dj.id}/reserver`} className="block">
-                      <Button className="w-full" size="lg">
+                    <Button asChild className="w-full" size="lg">
+                      <a href={quoteHref}>
                         Demander un Devis
-                      </Button>
-                    </Link>
+                      </a>
+                    </Button>
                   </CardContent>
                 </Card>
 

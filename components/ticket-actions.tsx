@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Wallet, Calendar, Navigation, Download, Share2 } from 'lucide-react'
+import { Calendar, Navigation, Download, Share2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
 interface TicketActionsProps {
@@ -23,40 +23,6 @@ interface TicketActionsProps {
 export function TicketActions({ booking }: TicketActionsProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState<string | null>(null)
-
-  const addToWallet = async () => {
-    setLoading('wallet')
-    try {
-      // Generate Apple Wallet / Google Wallet pass
-      const response = await fetch('/api/tickets/generate-wallet-pass', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: booking.id }),
-      })
-
-      if (!response.ok) throw new Error('Failed to generate wallet pass')
-
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `ticket-${booking.booking_reference}.pkpass`
-      a.click()
-
-      toast({
-        title: 'Ajouté au Wallet',
-        description: 'Votre billet a été téléchargé',
-      })
-    } catch (error) {
-      toast({
-        title: 'Erreur',
-        description: 'Impossible d\'ajouter au Wallet',
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(null)
-    }
-  }
 
   const addToCalendar = () => {
     const event = booking.events
@@ -149,16 +115,7 @@ export function TicketActions({ booking }: TicketActionsProps) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-4">
-        <Button
-          variant="outline"
-          className="flex flex-col h-auto py-4 gap-2"
-          onClick={addToWallet}
-          disabled={loading === 'wallet'}
-        >
-          <Wallet className="w-5 h-5" />
-          <span className="text-xs">Wallet</span>
-        </Button>
+      <div className="grid grid-cols-2 gap-4">
         <Button
           variant="outline"
           className="flex flex-col h-auto py-4 gap-2"

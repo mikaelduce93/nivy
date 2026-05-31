@@ -194,16 +194,25 @@ export function QuestDetailClient({ quest, teenId }: QuestDetailClientProps) {
   }
 
   const handleShare = async () => {
+    const url = window.location.href
     if (navigator.share) {
       try {
         await navigator.share({
           title: `Je fais la quête: ${quest.title}`,
           text: `Rejoins-moi sur cette quête et gagne ${quest.xp_reward} XP!`,
-          url: window.location.href,
+          url,
         })
-      } catch (err) {
-        console.log('Share cancelled')
+      } catch {
+        /* user cancelled the native share sheet — expected, no-op */
       }
+      return
+    }
+    // Desktop fallback (no Web Share API): copy the link to the clipboard.
+    try {
+      await navigator.clipboard.writeText(url)
+      toast.success("Lien copié dans le presse-papier")
+    } catch {
+      toast.error("Impossible de copier le lien")
     }
   }
 

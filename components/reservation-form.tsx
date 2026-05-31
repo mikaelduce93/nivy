@@ -81,7 +81,7 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
 
       if (bookingError) throw bookingError
 
-      router.push(`/mes-reservations?success=true`)
+      router.push(`/agenda?success=true`)
     } catch (err: any) {
       setError(err.message || "Une erreur est survenue")
     } finally {

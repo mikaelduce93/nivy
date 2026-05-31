@@ -99,10 +99,8 @@ export default async function RecompensesPage() {
                           <span className="font-display text-xl font-extrabold tabular-nums text-teal">{reward.points_cost} pts</span>
                         </div>
 
-                        <Button asChild variant={canAfford && !isOutOfStock ? "pink" : "outline"} disabled={!canAfford || isOutOfStock}>
-                          <Link href={`/carte-vip/recompenses/${reward.id}`}>
-                            {canAfford && !isOutOfStock ? "Échanger" : !canAfford ? "Pas assez de points" : "Indisponible"}
-                          </Link>
+                        <Button variant={canAfford && !isOutOfStock ? "pink" : "outline"} disabled>
+                          {canAfford && !isOutOfStock ? "Échange bientôt" : !canAfford ? "Pas assez de points" : "Indisponible"}
                         </Button>
                       </div>
                     </div>

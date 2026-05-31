@@ -3,6 +3,15 @@ import { createClient } from "@/lib/supabase/server"
 import { formatPriceFromStripe } from "@/lib/stripe"
 
 /**
+ * ⚠️ INACTIF — Stripe n'est pas le PSP actif (CMI / hybride est canonique au Maroc).
+ * Ce dispatcher n'est pas câblé en production. Plusieurs handlers visent un schéma
+ * `bookings` plus riche (stripe_session_id, stripe_payment_intent, parent_id) + une
+ * table `notifications` / `profiles.coins` qui n'existent pas dans la DB live — code
+ * mort conservé tel quel. À réaligner sur le schéma réel (bookings.user_id,
+ * user_notifications, user_coins) SI Stripe est un jour activé.
+ */
+
+/**
  * Stripe Event Handlers
  */
 export const StripeHandlers = {

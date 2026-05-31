@@ -22,7 +22,8 @@ export default function PartnerEventNew() {
         <FormField label="Date"><Input type="date" /></FormField>
         <FormField label="Lieu"><Input placeholder="Adresse / salle" /></FormField>
         <FormField label="Capacité"><Input type="number" placeholder="200" /></FormField>
-        <Button variant="pink"><CalendarPlus className="w-4 h-4 mr-2" />Soumettre à modération</Button>
+        <Button variant="pink" disabled title="Bientôt disponible"><CalendarPlus className="w-4 h-4 mr-2" />Soumettre (bientôt)</Button>
+        <p className="text-sm text-mute">La création d'événement par les partenaires arrive bientôt — ton espace sera notifié dès l'ouverture.</p>
       </StickerCard>
     </div>
   )

@@ -155,7 +155,6 @@ export function useOnboarding() {
       trackEvent('onboarding_validation_failed', { step: state.currentStep, errors: state.validations[state.currentStep].errors })
       return
     }
-    const nextStep = getPreviousStep(state.currentStep, state.data.userType) // Fixed in reducer GO_NEXT
     dispatch({ type: 'GO_NEXT' })
     trackEvent('onboarding_step_completed', { step: state.currentStep })
   }, [state.currentStep, state.data.userType, state.validations])

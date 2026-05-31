@@ -30,7 +30,7 @@ export function OptimizedImage({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const imageSrc = error ? "/teens-party-event.jpg" : src
+  const imageSrc = error ? "/og-image.jpg" : src
 
   return (
     <div className={cn("relative overflow-hidden", className)}>

@@ -225,9 +225,6 @@ export default async function ShopHistoryPage() {
                           {purchase.redemption_code}
                         </span>
                       </div>
-                      <Button size="sm" variant="pink" className="shrink-0">
-                        Afficher
-                      </Button>
                     </div>
                   )}
                 </DarkSurface>

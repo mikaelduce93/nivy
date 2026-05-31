@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Shield, Users, Crown, Zap, Trophy, Search, Plus, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -69,8 +71,32 @@ const ROLE_LABEL: Record<Member["role"], string> = {
 }
 
 export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props) {
+  const router = useRouter()
   const [tab, setTab] = useState<"crew" | "discover">("crew")
   const [searchQuery, setSearchQuery] = useState("")
+  const [crewName, setCrewName] = useState("")
+  const [creating, setCreating] = useState(false)
+
+  const createCrew = async () => {
+    const name = crewName.trim()
+    if (!name || creating) return
+    setCreating(true)
+    try {
+      const res = await fetch("/api/teen/crew", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create", name }),
+      })
+      const data = await res.json().catch(() => null)
+      if (res.ok && data?.crew?.id) {
+        router.push(`/teen/circles/${data.crew.id}`)
+        return
+      }
+    } catch {
+      /* fall through to re-enable the button */
+    }
+    setCreating(false)
+  }
 
   const hasCrew = !!myCrew?.has_crew && !!myCrew.crew
   const crew = myCrew?.crew
@@ -135,9 +161,9 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
             <section className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="eyebrow">Membres</p>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" disabled title="Bientôt disponible">
                   <UserPlus className="w-4 h-4 mr-2" />
-                  Inviter
+                  Inviter (bientôt)
                 </Button>
               </div>
 
@@ -247,7 +273,9 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
                           <p className="text-xs text-mute mt-2 line-clamp-1">{c.description}</p>
                         )}
                       </div>
-                      <Button>Voir</Button>
+                      <Button asChild>
+                        <Link href={`/teen/circles/${c.id}`}>Voir</Link>
+                      </Button>
                     </StickerCard>
                   )
                 })}
@@ -262,8 +290,16 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
             <div className="flex-1">
               <h3 className="font-extrabold text-ink">Crée ta propre crew</h3>
               <p className="text-sm text-mute">Invite tes amis et domine le classement.</p>
+              <Input
+                value={crewName}
+                onChange={(e) => setCrewName(e.target.value)}
+                placeholder="Nom de ta crew…"
+                className="mt-3 h-10 rounded-xl border-2 border-ink"
+              />
             </div>
-            <Button variant="pink">Créer</Button>
+            <Button variant="pink" onClick={createCrew} disabled={creating || !crewName.trim()}>
+              {creating ? "Création…" : "Créer"}
+            </Button>
           </StickerCard>
         </>
       )}

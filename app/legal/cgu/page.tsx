@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default function CGUPage() {
-  const { contactEmail } = getPublicAppConfig()
+  const { appUrl, contactEmail, supportPhone } = getPublicAppConfig()
   return (
     <>
       <Navbar />
@@ -17,7 +17,7 @@ export default function CGUPage() {
               <h2 className="text-2xl font-semibold mb-4">1. Objet</h2>
               <p className="leading-relaxed">
                 Les présentes Conditions Générales d'Utilisation (CGU) régissent l'utilisation de la plateforme Teens
-                Party Morocco, accessible à l'adresse [votre-domaine.com]. En utilisant nos services, vous acceptez sans
+                Party Morocco, accessible à l'adresse {appUrl}. En utilisant nos services, vous acceptez sans
                 réserve les présentes CGU.
               </p>
             </section>
@@ -237,7 +237,7 @@ export default function CGUPage() {
                     {contactEmail}
                   </a>
                 </p>
-                <p>Téléphone : +212 5XX-XXXXXX</p>
+                <p>Téléphone : {supportPhone}</p>
                 <p>Service client : Lun-Ven 9h-18h</p>
               </div>
             </section>

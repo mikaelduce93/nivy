@@ -45,20 +45,21 @@ async function getParentBudgetData(profileId: string) {
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
+  // bookings owner column is user_id (no teen_id); amount is total_amount.
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("teen_id, total_price, created_at")
-    .in("teen_id", teenIds)
+    .select("user_id, total_amount, created_at")
+    .in("user_id", teenIds)
     .gte("created_at", startOfMonth.toISOString())
 
   // Calculate spending per teen
   const spendingByTeen = new Map<string, number>()
   bookings?.forEach((b: any) => {
-    const current = spendingByTeen.get(b.teen_id) || 0
-    spendingByTeen.set(b.teen_id, current + (b.total_price || 0))
+    const current = spendingByTeen.get(b.user_id) || 0
+    spendingByTeen.set(b.user_id, current + (b.total_amount || 0))
   })
 
-  const totalSpentThisMonth = bookings?.reduce((sum: number, b: any) => sum + (b.total_price || 0), 0) || 0
+  const totalSpentThisMonth = bookings?.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0) || 0
 
   // Merge data
   const teensWithBudget = teens.map((teen: any) => {
