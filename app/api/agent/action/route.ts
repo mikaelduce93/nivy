@@ -1,4 +1,4 @@
-import { streamText, tool } from 'ai';
+import { streamText, tool, stepCountIs } from 'ai';
 import { z } from 'zod';
 import { getDefaultModel } from '@/lib/ai/provider';
 import { performCheckIn, updateBudgetLimit, createFlashOffer, shareReferralCode } from '@/lib/ai/agent-actions';
@@ -291,6 +291,9 @@ ${JSON.stringify(safeContext, null, 2)}
       messages,
       system: systemPrompt,
       tools,
+      // #202 — ferme la boucle tool→résultat→réponse (l'absence de limite de
+      // pas laissait l'agent legacy en boucle ouverte). Filet legacy parent/partner.
+      stopWhen: stepCountIs(5),
     });
 
     // Return streaming response with rate limit header

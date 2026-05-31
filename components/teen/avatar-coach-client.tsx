@@ -287,7 +287,7 @@ function AvatarCoachChat({
     sending: false,
     turns: [],
     remaining: null,
-    cap: 5,
+    cap: 20,
     draft: "",
     error: null,
   })
@@ -309,7 +309,7 @@ function AvatarCoachChat({
         loadingHistory: false,
         turns: Array.isArray(data.history) ? data.history : [],
         remaining: typeof data.remainingTurns === "number" ? data.remainingTurns : null,
-        cap: typeof data.cap === "number" ? data.cap : 5,
+        cap: typeof data.cap === "number" ? data.cap : 20,
       }))
     } catch {
       setState((s) => ({
@@ -354,7 +354,7 @@ function AvatarCoachChat({
     if (state.remaining === 0) {
       setState((s) => ({
         ...s,
-        error: "Tu as atteint ta limite de 5 questions pour aujourd'hui.",
+        error: `Tu as atteint ta limite de ${s.cap} questions pour aujourd'hui.`,
       }))
       return
     }
@@ -387,7 +387,7 @@ function AvatarCoachChat({
             ...s,
             sending: false,
             remaining: 0,
-            error: "Tu as atteint ta limite de 5 questions pour aujourd'hui.",
+            error: `Tu as atteint ta limite de ${s.cap} questions pour aujourd'hui.`,
           }))
           return
         }
@@ -535,9 +535,15 @@ function AvatarCoachChat({
               {state.error}
             </p>
           ) : null}
-          <p className="mt-1 text-[10px] text-ink/30">
-            {state.draft.length}/{MAX_INPUT_CHARS_CLIENT}
-          </p>
+          <div className="mt-1 flex items-center justify-between gap-2">
+            {/* #202 — transparence IA (amorce AI Act art. 50, applicable 2026-08-02). */}
+            <p className="text-[10px] text-ink/40">
+              {coachName} est une IA, pas un humain.
+            </p>
+            <p className="text-[10px] text-ink/30">
+              {state.draft.length}/{MAX_INPUT_CHARS_CLIENT}
+            </p>
+          </div>
         </div>
       ) : null}
     </div>

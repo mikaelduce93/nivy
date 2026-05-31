@@ -74,9 +74,10 @@ export async function updateBudgetLimit(category: string, amount: number) {
       }, { onConflict: 'parent_id, category' })
 
     if (error) {
-      // Fallback si la table n'existe pas encore (pour ne pas casser la démo totalement)
-      console.warn("Table budget_limits missing, using settings fallback")
-      return { success: true, message: `Plafond '${category}' mis à jour à ${amount} MAD (Simulé - Table manquante).` }
+      // #202 — échec honnête : on ne renvoie plus un faux succès « Simulé » qui
+      // ment au parent. Si l'écriture échoue, on le dit.
+      console.error("[agent-actions] updateBudgetLimit failed:", error)
+      return { success: false, message: `Impossible de mettre à jour le plafond '${category}' pour le moment.` }
     }
 
     revalidatePath('/parent')

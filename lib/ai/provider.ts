@@ -10,7 +10,11 @@ export const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// #202 — modèle env-driven (plus de hardcode). Aligne /api/agent/action sur le
+// routing par variable d'env déjà utilisé ailleurs (content-generator).
+const DEFAULT_OPENAI_MODEL = 'gpt-4o-mini';
+
 // Helper to get the default model
 export const getDefaultModel = () => {
-  return openai('gpt-4o-mini'); // Cost-effective, fast, smart enough for agents
+  return openai(process.env.OPENAI_MODEL_ID || DEFAULT_OPENAI_MODEL);
 };

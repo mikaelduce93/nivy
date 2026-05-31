@@ -46,7 +46,9 @@ import { createClient } from "@/lib/supabase/server"
 import { AIProviderFactory, type AIProviderType } from "@/lib/ai/providers/factory"
 import { resolveModelId } from "@/lib/ai/content-generator"
 
-const DAILY_TURN_CAP = 5
+// #202 — le 5/jour codé en dur tuait tout usage « coach ». Configurable via env,
+// défaut 20 (le routage Claude + caching de #210 réduit le coût marginal).
+const DAILY_TURN_CAP = Number(process.env.COACH_DAILY_TURN_CAP) || 20
 const MAX_INPUT_CHARS = 280
 const MAX_REPLY_CHARS = 600
 const RECENT_HISTORY_PAIRS = 3 // last N user+assistant pairs to include as context
@@ -98,8 +100,13 @@ function isReplySafe(text: string): boolean {
  * Kept short to stay within tight token budgets — model receives recent
  * history as messages, not as system context.
  */
-function buildSystemPrompt(coachName: string, teenFirstName: string): string {
-  return `Tu es ${coachName}, le coach personnel virtuel de ${teenFirstName} (un ado marocain de 13 à 17 ans) sur l'app Nivy.
+function buildSystemPrompt(coachName: string, teenFirstName: string, profileLine?: string): string {
+  // #202 — contexte profil réel injecté (niveau, XP, série, intérêts, humeur)
+  // pour personnaliser. PII-safe : aucun vrai nom (on utilise le pseudo).
+  const contextBlock = profileLine
+    ? `\n\nCONTEXTE ${teenFirstName} (pour personnaliser, ne pas réciter mot à mot): ${profileLine}`
+    : ""
+  return `Tu es ${coachName}, le coach personnel virtuel de ${teenFirstName} (un ado marocain de 13 à 17 ans) sur l'app Nivy.${contextBlock}
 
 LANGUE: réponds UNIQUEMENT en français standard. Pas d'anglais, pas de Darija, pas d'arabe classique. Tutoiement chaleureux mais respectueux.
 
@@ -275,6 +282,30 @@ export async function POST(request: Request) {
     // explicit to future readers.
     const teenFirstName = teenHandle
 
+    // #202 — profil réel léger pour personnaliser le coach (PII-safe : niveau,
+    // XP, série, intérêts, humeur — jamais le vrai nom). Best-effort.
+    let profileLine: string | undefined
+    try {
+      const { data: prof } = await supabase
+        .from("teen_full_profile")
+        .select("level, total_xp, streak, interests")
+        .eq("id", user.id)
+        .maybeSingle<{
+          level: number | null
+          total_xp: number | null
+          streak: number | null
+          interests: string[] | null
+        }>()
+      if (prof) {
+        const interests = Array.isArray(prof.interests)
+          ? prof.interests.slice(0, 5).join(", ")
+          : ""
+        profileLine = `Niveau ${prof.level ?? 1}, ${prof.total_xp ?? 0} XP, série ${prof.streak ?? 0} jours${interests ? `, centres d'intérêt : ${interests}` : ""}. Humeur : ${avatar?.mood || "neutral"}.`
+      }
+    } catch {
+      // best-effort : pas de contexte si la lecture échoue.
+    }
+
     // Always persist the teen turn first so the cap counter advances atomically.
     const nowIso = new Date().toISOString()
     await supabase.from("avatar_messages").insert({
@@ -318,7 +349,7 @@ export async function POST(request: Request) {
             : `${teenFirstName}: ${raw}\n\n${coachName}:`
 
           const { content } = await provider.call(
-            buildSystemPrompt(coachName, teenFirstName),
+            buildSystemPrompt(coachName, teenFirstName, profileLine),
             userPrompt,
           )
           const candidate = (content || "").trim().slice(0, MAX_REPLY_CHARS)

@@ -21,7 +21,6 @@ import { redirect } from "next/navigation"
 import { TeenSidebar } from "@/components/dashboard/teen/sidebar"
 import { TeenHeader } from "@/components/dashboard/teen/header"
 import { GamificationProvider } from "@/components/gamification/gamification-provider"
-import { EliteAICompanion } from "@/components/ai/elite-ai-companion"
 import { ClientErrorBoundary } from "@/components/common/client-error-boundary"
 import { PushPermissionPrompt } from "@/components/teen/push-permission-prompt"
 import { SkipToContent } from "@/components/ui/skip-to-content"
@@ -69,14 +68,11 @@ export default async function TeenLayout({
             {children}
           </main>
         </div>
-        <ClientErrorBoundary>
-          <EliteAICompanion
-            role="teen"
-            teenName={userInfo.fullName?.split(' ')[0] || 'Champ'}
-            userId={userInfo.teenData?.id}
-            context={userInfo.teenData}
-          />
-        </ClientErrorBoundary>
+        {/* #202 Coach Niv — Phase 0 : EliteAICompanion (« Kai ») DÉMONTÉ.
+            C'était un composant @deprecated (#83) à profil de risque mineurs
+            (vrai prénom envoyé au LLM, aucun garde-fou, hors charte). Le coach
+            canonique est « Niv » (components/teen/avatar-coach.tsx, chat gardé).
+            Le launcher flottant unifié <NivCoachLauncher> arrive en #210. */}
         {/*
           V1.2 Wave 3 U3 — deferred push permission prompt. Mounts globally for
           the teen domain, but only renders after the user has demonstrated
