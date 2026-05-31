@@ -15,13 +15,13 @@
  * admin_roles here (matching app/admin/partners + app/admin/proofs).
  */
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
-import { H1, H2 } from "@/components/ui/headings"
+import { H1 } from "@/components/ui/headings"
 import { MentorReviewRow } from "./mentor-review-row"
-import { EmptyState } from "@/components/ui/states/empty-state"
-import { GraduationCap } from "lucide-react"
+import { NivEmpty } from "@/components/brand"
+import { StatCard } from "@/components/admin/stat-card"
+import BackButton from "@/components/admin/BackButton"
 
 export const dynamic = "force-dynamic"
 
@@ -191,94 +191,65 @@ export default async function AdminMentorsPage() {
 
   return (
     <main className="container mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-6 flex items-center gap-3">
-        <Link
-          href="/admin"
-          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-        >
-          ← Retour
-        </Link>
-      </div>
+      <BackButton href="/admin" />
 
       <header className="mb-8">
-        <H1>Mentors · KYC</H1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Validez les dossiers mentors. Les pièces justificatives sont signées 15 min.
+        <span className="eyebrow tracking-[0.16em] text-mute">Mentors · KYC</span>
+        <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink">
+          Dossiers <em className="font-semibold italic text-pink">mentors</em>
+        </h1>
+        <p className="mt-1 text-sm text-mute">
+          Valide les dossiers mentors. Les pièces justificatives sont signées 15 min.
         </p>
       </header>
 
       <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <StatCard label="Total" value={stats.total} tone="neutral" />
-        <StatCard label="En attente" value={stats.pending} tone="warning" />
-        <StatCard label="Actifs" value={stats.active} tone="success" />
-        <StatCard label="Pause/susp." value={stats.paused} tone="info" />
-        <StatCard label="Rejetés" value={stats.rejected} tone="danger" />
+        <StatCard label="En attente" value={stats.pending} tone="gold" />
+        <StatCard label="Actifs" value={stats.active} tone="lime" />
+        <StatCard label="Pause/susp." value={stats.paused} tone="teal" />
+        <StatCard label="Rejetés" value={stats.rejected} tone="coral" />
+        <StatCard label="Total" value={stats.total} tone="paper" />
       </section>
 
       <section className="mb-10">
-        <H2 className="mb-3 text-base">
+        <h2 className="mb-3 font-display text-lg font-extrabold tracking-tight text-ink">
           File en attente ({pendingView.length})
-        </H2>
+        </h2>
 
-        {pendingView.length === 0 && (
-          <EmptyState
-            size="small"
-            icon={GraduationCap}
-            title="Aucun mentor en attente"
-            description="Aucun mentor en attente d'approbation."
+        {pendingView.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Aucun dossier en attente"
+            description="Aucun mentor en attente d'approbation pour le moment."
           />
+        ) : (
+          <ul className="space-y-3">
+            {pendingView.map((m) => (
+              <MentorReviewRow key={m.id} mentor={m} actionable />
+            ))}
+          </ul>
         )}
-
-        <ul className="space-y-3">
-          {pendingView.map((m) => (
-            <MentorReviewRow key={m.id} mentor={m} actionable />
-          ))}
-        </ul>
       </section>
 
       <section>
-        <H2 className="mb-3 text-base">
+        <h2 className="mb-3 font-display text-lg font-extrabold tracking-tight text-ink">
           Mentors actifs ({activeView.length})
-        </H2>
+        </h2>
 
-        {activeView.length === 0 && (
-          <p className="rounded border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-            Aucun mentor actif.
-          </p>
+        {activeView.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Pas encore de mentor actif"
+            description="Les mentors approuvés apparaîtront ici."
+          />
+        ) : (
+          <ul className="space-y-3">
+            {activeView.map((m) => (
+              <MentorReviewRow key={m.id} mentor={m} actionable={false} />
+            ))}
+          </ul>
         )}
-
-        <ul className="space-y-3">
-          {activeView.map((m) => (
-            <MentorReviewRow key={m.id} mentor={m} actionable={false} />
-          ))}
-        </ul>
       </section>
     </main>
-  )
-}
-
-type StatTone = "neutral" | "warning" | "info" | "success" | "danger"
-
-function StatCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: number
-  tone: StatTone
-}) {
-  const palette: Record<StatTone, string> = {
-    neutral: "border-border bg-card text-muted-foreground",
-    warning: "border-warning/30 bg-warning/10 text-warning",
-    info: "border-info/30 bg-info/10 text-info",
-    success: "border-success/30 bg-success/10 text-success",
-    danger: "border-destructive/30 bg-destructive/10 text-destructive",
-  }
-  return (
-    <div className={`rounded border p-3 ${palette[tone]}`}>
-      <div className="text-xs uppercase tracking-wide opacity-80">{label}</div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
-    </div>
   )
 }
