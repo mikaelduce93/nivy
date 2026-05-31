@@ -85,7 +85,7 @@ export function ParentSetupStep({ onNext: _onNext, onBack }: ParentSetupStepProp
         </div>
         <p className="eyebrow tracking-[0.18em] text-mute mb-3">Compte parent</p>
         <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-balance text-ink">
-          Prêt à créer votre compte parent ?
+          Prêt à créer votre compte <em className="font-semibold italic text-pink">parent</em> ?
         </h2>
         <p className="text-mute max-w-2xl mx-auto text-balance">
           Vous allez maintenant rejoindre la page d&apos;inscription officielle.

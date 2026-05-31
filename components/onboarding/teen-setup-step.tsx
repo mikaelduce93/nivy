@@ -271,7 +271,7 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
           <Niv mood="happy" size={80} float />
         </div>
         <p className="eyebrow tracking-[0.18em] text-mute mb-3">Compte ado</p>
-        <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-balance text-ink">Crée ton compte ado</h2>
+        <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-balance text-ink">Crée ton compte <em className="font-semibold italic text-pink">ado</em></h2>
         <p className="text-mute max-w-2xl mx-auto text-balance">
           Tes parents vont recevoir un email pour valider ton inscription
         </p>

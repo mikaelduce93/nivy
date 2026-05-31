@@ -80,7 +80,7 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
       {/* Header */}
       <div className="text-center">
         <p className="eyebrow tracking-[0.18em] text-mute mb-3">Type de compte</p>
-        <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-ink">C'est parti !</h2>
+        <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-ink">C&apos;est <em className="font-semibold italic text-pink">parti</em> !</h2>
         <p className="text-mute max-w-2xl mx-auto">
           Choisissez votre type de compte pour personnaliser votre expérience
         </p>
