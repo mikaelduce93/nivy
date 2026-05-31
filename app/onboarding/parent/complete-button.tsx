@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 
 /**
  * Finalises parent onboarding after the e-signature step (#51).
@@ -42,13 +43,15 @@ export function ParentOnboardingCompleteButton() {
   }
 
   return (
-    <button
+    <Button
       type="button"
       onClick={handleClick}
       disabled={pending}
-      className="rounded-lg bg-pink px-6 py-3 text-ink font-medium shadow-sm hover:bg-pink disabled:opacity-60 disabled:cursor-not-allowed"
+      variant="pink"
+      size="lg"
+      className="w-full"
     >
       {pending ? "Enregistrement…" : "Continuer vers mon espace parent"}
-    </button>
+    </Button>
   )
 }

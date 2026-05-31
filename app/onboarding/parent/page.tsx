@@ -1,5 +1,11 @@
 import { redirect } from "next/navigation"
+import { ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { CheckRound } from "@/components/ui/check-round"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
+import { Niv, DarkSurface } from "@/components/brand"
 import { ParentOnboardingCompleteButton } from "./complete-button"
 
 /**
@@ -50,15 +56,60 @@ export default async function ParentOnboardingStubPage() {
   if (!signature) redirect("/onboarding/parent/e-signature")
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-8 text-center space-y-6">
-      <h1 className="text-2xl font-bold">
-        {firstName ? `Bienvenue, ${firstName} ! Autorisation signée ✓` : "Autorisation signée ✓"}
-      </h1>
-      <p className="text-mute max-w-md">
-        Merci, votre consentement parental (loi 09-08 / CNDP) est enregistré.
-        Vous pouvez maintenant accéder à votre espace parent.
-      </p>
-      <ParentOnboardingCompleteButton />
+    <main className="relative flex min-h-screen flex-col items-center justify-center bg-paper p-6">
+      <MeshBackground />
+
+      <StickerCard className="relative z-10 w-full max-w-md gap-6 p-8">
+        <div className="space-y-3">
+          <span className="eyebrow tracking-[0.16em] text-teal">Espace parent</span>
+          <SegmentedProgress steps={2} current={1} />
+          <div className="flex justify-between font-mono text-[11px] uppercase tracking-[0.12em] text-mute">
+            <span>1 · Signature</span>
+            <span>2 · Finalisation</span>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-4">
+          <Niv mood="proud" size={88} className="shrink-0" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <CheckRound checked disabled aria-hidden />
+              <h1 className="font-display text-2xl font-extrabold leading-tight tracking-tight text-ink">
+                {firstName ? (
+                  <>
+                    Bravo, <em className="font-semibold italic text-pink">{firstName}</em> !
+                  </>
+                ) : (
+                  <>
+                    Autorisation <em className="font-semibold italic text-pink">signée</em>
+                  </>
+                )}
+              </h1>
+            </div>
+            <p className="text-sm text-mute">
+              Votre consentement parental est enregistré. Plus qu&apos;une étape
+              pour ouvrir votre espace parent.
+            </p>
+          </div>
+        </div>
+
+        <DarkSurface tone="teal" shadow className="p-4">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-teal" />
+            <div>
+              <span className="eyebrow tracking-[0.14em] text-paper/60">
+                Valeur juridique
+              </span>
+              <p className="mt-1 text-sm text-paper/90">
+                Votre autorisation a la même valeur qu&apos;une signature
+                manuscrite et est conservée conformément à la loi 09-08 / CNDP.
+              </p>
+            </div>
+          </div>
+        </DarkSurface>
+
+        <ParentOnboardingCompleteButton />
+      </StickerCard>
     </main>
   )
 }
