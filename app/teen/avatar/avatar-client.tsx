@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Niv, type NivMood } from "@/components/brand/niv"
+import { Niv, DarkSurface, type NivMood } from "@/components/brand"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -40,13 +40,16 @@ export function AvatarClient() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-        {/* Aperçu — surface sombre charte */}
-        <Card className="bg-[linear-gradient(135deg,var(--night-2),var(--night))] border-ink items-center justify-center py-10">
+        {/* Aperçu — surface sombre charte, héro réservé à la mascotte */}
+        <DarkSurface
+          shadow
+          className="flex flex-col items-center justify-center py-10"
+        >
           <Niv size={200} mood={mood} float />
-          <p className="text-paper/70 text-sm mt-4 font-mono uppercase tracking-widest">
+          <p className="mt-4 font-mono text-sm uppercase tracking-widest text-paper/70">
             humeur · {mood}
           </p>
-        </Card>
+        </DarkSurface>
 
         {/* Sélecteurs */}
         <div className="space-y-6">
@@ -59,9 +62,10 @@ export function AvatarClient() {
                   onClick={() => setMood(m.id)}
                   className={cn(
                     "flex items-center gap-2 rounded-xl border-2 border-ink px-4 py-2.5 text-sm font-bold transition-all",
+                    "motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5",
                     mood === m.id
                       ? "bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink"
-                      : "bg-card hover:bg-accent",
+                      : "bg-card hover:shadow-stkr-sm",
                   )}
                 >
                   <span>{m.emoji}</span> {m.label}
@@ -78,7 +82,7 @@ export function AvatarClient() {
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-ink">{s.label}</span>
                     {s.unlocked ? (
-                      <span className="rounded-full border border-ink bg-success-soft px-2 py-0.5 text-[10px] font-black uppercase">
+                      <span className="rounded-full border border-ink bg-success-soft px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide">
                         Actif
                       </span>
                     ) : (

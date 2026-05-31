@@ -61,39 +61,80 @@ export default async function CreatorLeaderboardPage({
       loadError = "Impossible de charger le classement pour le moment."
     } else {
       entries = (data ?? []) as Row[]
+      // Enrichissement de lecture : joindre pseudo + avatar depuis `profiles`
+      // (iso-données — on remplace le hash user_id par une identité lisible).
+      const ids = Array.from(new Set(entries.map((e) => e.user_id))).filter(Boolean)
+      if (ids.length) {
+        const { data: profiles } = await sr
+          .from("profiles")
+          .select("id, pseudo, avatar_url")
+          .in("id", ids)
+        const byId = new Map(
+          (profiles ?? []).map((p: any) => [p.id as string, p]),
+        )
+        entries = entries.map((e) => {
+          const p = byId.get(e.user_id)
+          return {
+            ...e,
+            pseudo: (p?.pseudo as string | null) ?? null,
+            avatar_url: (p?.avatar_url as string | null) ?? null,
+          }
+        })
+      }
     }
   } catch (err) {
     console.error("[teen/leaderboard] threw:", err)
     loadError = "Impossible de charger le classement pour le moment."
   }
 
+  // Libellés FR des catégories (l'enum reste la valeur de filtre BDD).
+  const CATEGORY_LABELS: Record<string, string> = {
+    all: "Tous",
+    sport: "Sport",
+    art: "Art",
+    tech: "Tech",
+    academic: "Études",
+    food: "Food",
+    lifestyle: "Lifestyle",
+  }
+
   return (
     <PullToRefresh>
-    <div className="container mx-auto max-w-2xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Top Créateurs · {monthStart.slice(0, 7)}</h1>
-        <div className="flex gap-3 text-sm">
-          <Link href="/teen/feed" className="text-teal hover:underline">
-            Feed
-          </Link>
-          <Link href="/teen/leaderboard" className="text-teal hover:underline">
-            XP global
-          </Link>
+    <div className="container mx-auto max-w-2xl space-y-6 px-4 py-6">
+      <header className="space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <p className="eyebrow">Classement · {monthStart.slice(0, 7)}</p>
+          <div className="flex gap-3 font-mono text-xs">
+            <Link href="/teen/feed" className="text-teal hover:underline">
+              Feed
+            </Link>
+            <Link href="/teen/leaderboard" className="text-teal hover:underline">
+              XP global
+            </Link>
+          </div>
         </div>
-      </div>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          Top <em className="font-semibold italic text-pink not-italic">créateurs</em>
+        </h1>
+        <p className="max-w-md text-mute">
+          Les ados qui font vibrer le feed ce mois-ci. Publie pour grimper.
+        </p>
+      </header>
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         {CATEGORIES.map((c) => {
           const active = (category ?? "all") === c
           return (
             <Link
               key={c}
               href={c === "all" ? "/teen/leaderboard" : `/teen/leaderboard?category=${c}`}
-              className={`rounded px-3 py-1 text-xs ${
-                active ? "bg-teal text-ink" : "bg-paper-2 text-ink hover:bg-paper-2"
+              className={`rounded-full border-2 border-ink px-3.5 py-1 font-mono text-xs font-semibold uppercase tracking-wide transition-all ${
+                active
+                  ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                  : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm"
               }`}
             >
-              {c}
+              {CATEGORY_LABELS[c] ?? c}
             </Link>
           )
         })}
@@ -102,7 +143,7 @@ export default async function CreatorLeaderboardPage({
       {loadError && (
         <div
           role="alert"
-          className="mb-3 rounded border border-destructive bg-destructive px-3 py-2 text-sm text-destructive"
+          className="rounded-xl border-2 border-coral bg-white px-3.5 py-2.5 text-sm font-medium text-coral shadow-stkr-sm"
         >
           {loadError}
         </div>
@@ -116,7 +157,7 @@ export default async function CreatorLeaderboardPage({
           action={{ label: "Créer un post", href: "/teen/create" }}
         />
       ) : (
-        <LeaderboardList entries={entries} />
+        <LeaderboardList entries={entries} currentUserId={user.id} />
       )}
     </div>
     </PullToRefresh>
