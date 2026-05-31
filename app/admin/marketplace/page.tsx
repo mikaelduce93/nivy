@@ -6,6 +6,19 @@ import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { ModerateRow } from "./moderate-row"
+import { StatCard } from "@/components/admin/stat-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { NivEmpty } from "@/components/brand"
+
+const DISPUTE_STATUS_VARIANT: Record<string, StatusVariant> = {
+  open: "pending",
+  investigating: "warning",
+}
+
+const DISPUTE_STATUS_LABEL: Record<string, string> = {
+  open: "Ouvert",
+  investigating: "En cours",
+}
 
 export const dynamic = "force-dynamic"
 
@@ -73,41 +86,83 @@ export default async function AdminMarketplacePage() {
 
   return (
     <main className="min-h-screen mx-auto max-w-4xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">Marketplace · Modération & litiges</h1>
+      <header className="mb-8">
+        <p className="eyebrow tracking-[0.16em]">Marketplace · Modération</p>
+        <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
+          Annonces &amp; <em className="font-semibold italic text-pink">litiges</em>
+        </h1>
+        <p className="mt-2 text-sm text-mute">
+          Modérez les nouvelles annonces et arbitrez les litiges en cours.
+        </p>
+      </header>
 
       {loadError && (
         <div
           role="alert"
-          className="mb-4 rounded border border-destructive bg-destructive px-3 py-2 text-sm text-destructive"
+          className="mb-6 rounded-2xl border-2 border-ink bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive shadow-stkr-sm"
         >
           {loadError}
         </div>
       )}
 
+      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <StatCard label="Annonces en attente" value={pending.length} tone="gold" />
+        <StatCard label="Litiges ouverts" value={disputes.length} tone="coral" />
+      </section>
+
       <section className="mb-8">
-        <h2 className="font-semibold mb-2">Annonces en attente ({pending.length})</h2>
-        {pending.length === 0 && <p className="text-sm text-mute">File vide.</p>}
-        <ul className="space-y-2">
-          {pending.map((l) => (
-            <ModerateRow key={l.id} listing={l} />
-          ))}
-        </ul>
+        <h2 className="mb-3 font-semibold text-ink">Annonces en attente ({pending.length})</h2>
+        {pending.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="File vide"
+            description="Aucune annonce en attente de modération."
+          />
+        ) : (
+          <ul className="space-y-2">
+            {pending.map((l) => (
+              <ModerateRow key={l.id} listing={l} />
+            ))}
+          </ul>
+        )}
       </section>
 
       <section>
-        <h2 className="font-semibold mb-2">Litiges ouverts ({disputes.length})</h2>
-        <ul className="space-y-2">
-          {disputes.length === 0 && (
-            <li className="text-sm text-mute">Aucun litige ouvert.</li>
-          )}
-          {disputes.map((d) => (
-            <li key={d.id} className="border rounded p-3">
-              <div className="font-mono text-xs">tx {d.transaction_id}</div>
-              <div className="text-sm">{d.reason}</div>
-              <div className="text-xs text-mute">{d.status} · {d.created_at ? new Date(d.created_at).toLocaleString() : ""}</div>
-            </li>
-          ))}
-        </ul>
+        <h2 className="mb-3 font-semibold text-ink">Litiges ouverts ({disputes.length})</h2>
+        {disputes.length === 0 ? (
+          <NivEmpty
+            mood="proud"
+            title="Aucun litige"
+            description="Tout roule — aucun litige ouvert à arbitrer."
+          />
+        ) : (
+          <ul className="space-y-2">
+            {disputes.map((d) => (
+              <li
+                key={d.id}
+                className="flex flex-col gap-1 rounded-2xl border-2 border-ink bg-white p-3 text-ink shadow-stkr-md"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-xs text-mute">
+                    tx {d.transaction_id}
+                  </span>
+                  {d.status && (
+                    <StatusBadge
+                      variant={DISPUTE_STATUS_VARIANT[d.status] ?? "neutral"}
+                      label={DISPUTE_STATUS_LABEL[d.status] ?? d.status}
+                      size="sm"
+                      className="font-mono uppercase tracking-[0.16em]"
+                    />
+                  )}
+                </div>
+                <div className="text-sm">{d.reason}</div>
+                <div className="font-mono text-xs text-mute">
+                  {d.created_at ? new Date(d.created_at).toLocaleString("fr-FR") : ""}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </main>
   )

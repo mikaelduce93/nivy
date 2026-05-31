@@ -20,6 +20,10 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { TagAliasRow } from "./tag-alias-row"
+import { StatCard } from "@/components/admin/stat-card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge } from "@/components/ui/status-badge"
+import { NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
@@ -199,49 +203,59 @@ export default async function AdminTagNormalizePage() {
       </div>
 
       <header className="mb-6">
-        <h1 className="text-3xl font-bold text-ink">
-          Tag normalize · file non-mappée
+        <p className="eyebrow tracking-[0.16em]">Ops · Tags</p>
+        <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
+          Normalisation des <em className="font-semibold italic text-pink">tags</em>
+          <span className="block text-base font-normal text-mute">file non-mappée</span>
         </h1>
-        <p className="mt-1 text-sm text-mute">
-          Tags free-text rejetés par le cron de normalisation. Approuvez (alias
-          → canonique existant ou nouveau) ou rejetez.
+        <p className="mt-2 text-sm text-mute">
+          Tags libres rejetés par la normalisation. Approuvez (alias → canonique
+          existant ou nouveau) ou rejetez.
         </p>
       </header>
 
-      <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat
-          label="Dernier run"
-          value={lastRunAt ? new Date(lastRunAt).toLocaleString("fr-FR") : "—"}
-          tone="zinc"
-        />
-        <Stat
-          label="Mode"
-          value={payload?.dry_run === false ? "COMMIT" : "DRY-RUN"}
-          tone={payload?.dry_run === false ? "green" : "yellow"}
-        />
-        <Stat
+      <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
           label="Drift rows"
           value={String(totals?.rows_with_drift ?? 0)}
-          tone="zinc"
+          mono
         />
-        <Stat
+        <StatCard
           label="Tags droppés"
           value={String(totals?.tags_dropped ?? 0)}
-          tone="red"
+          tone="coral"
+          mono
         />
+        <StickerCard className="gap-2 p-6 sm:col-span-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="eyebrow tracking-[0.14em]">Dernier run</span>
+            <StatusBadge
+              variant={payload?.dry_run === false ? "success" : "pending"}
+              label={payload?.dry_run === false ? "COMMIT" : "DRY-RUN"}
+              size="sm"
+              className="font-mono uppercase tracking-[0.16em]"
+            />
+          </div>
+          <p className="font-mono text-lg font-semibold tabular-nums text-ink">
+            {lastRunAt ? new Date(lastRunAt).toLocaleString("fr-FR") : "—"}
+          </p>
+        </StickerCard>
       </section>
 
       {!latest && (
-        <p className="rounded border border-ink bg-card p-6 text-center text-sm text-mute">
-          Aucun run du cron <code>tag-normalize</code> trouvé dans
-          admin_audit_logs.
-        </p>
+        <NivEmpty
+          mood="calm"
+          title="Aucun run trouvé"
+          description="La normalisation n'a pas encore produit de rapport à traiter."
+        />
       )}
 
       {rows.length === 0 && latest && (
-        <p className="rounded border border-ink bg-card p-6 text-center text-sm text-mute">
-          Aucun tag non-mappé dans le dernier run.
-        </p>
+        <NivEmpty
+          mood="proud"
+          title="Tout est mappé"
+          description="Aucun tag non-mappé dans le dernier run."
+        />
       )}
 
       <ul className="space-y-2">
@@ -259,28 +273,5 @@ export default async function AdminTagNormalizePage() {
         ))}
       </ul>
     </main>
-  )
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: string
-  tone: "zinc" | "green" | "yellow" | "red"
-}) {
-  const palette: Record<typeof tone, string> = {
-    zinc: "border-ink bg-card text-ink-2",
-    green: "border-lime/30 bg-lime/10 text-lime",
-    yellow: "border-gold/30 bg-gold/10 text-gold",
-    red: "border-destructive/30 bg-destructive/10 text-destructive",
-  }
-  return (
-    <div className={`rounded border p-3 ${palette[tone]}`}>
-      <div className="text-xs uppercase tracking-wide opacity-80">{label}</div>
-      <div className="mt-1 text-base font-semibold">{value}</div>
-    </div>
   )
 }

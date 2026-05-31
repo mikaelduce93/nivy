@@ -32,9 +32,15 @@ export function ModerateRow({ listing }: { listing: ListingRow }) {
     <li className="flex flex-col rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md p-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <div className="font-semibold">{listing.title}</div>
-          <div className="text-xs text-mute">
-            {listing.category} · <span className="font-mono">{listing.price_coins} coins</span> · {new Date(listing.created_at).toLocaleString("fr-FR")}
+          <div className="font-display font-extrabold text-ink">{listing.title}</div>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-mute">
+            <span className="rounded-md border-2 border-ink bg-paper px-2 py-0.5 font-mono uppercase tracking-[0.12em] text-ink-2">
+              {listing.category}
+            </span>
+            <span className="font-mono font-semibold text-coral">
+              ⊙ {listing.price_coins ?? 0}
+            </span>
+            <span className="font-mono">{new Date(listing.created_at).toLocaleString("fr-FR")}</span>
           </div>
         </div>
         <div className="flex gap-2">

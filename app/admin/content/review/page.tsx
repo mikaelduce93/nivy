@@ -14,6 +14,8 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { ReviewQuizRow } from "./review-quiz-row"
+import { StatCard } from "@/components/admin/stat-card"
+import { NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
@@ -96,17 +98,20 @@ export default async function AdminContentReviewPage() {
       </div>
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-ink">Modération · Quiz générés par IA</h1>
-        <p className="mt-1 text-sm text-mute">
-          Approuvez les quiz pédagogiquement valides. Les rejets sont loggés
-          dans <code className="rounded bg-card px-1">admin_audit_logs</code>.
+        <p className="eyebrow tracking-[0.16em]">Contenu · Quiz IA</p>
+        <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
+          Revue des <em className="font-semibold italic text-pink">quiz IA</em>
+        </h1>
+        <p className="mt-2 text-sm text-mute">
+          Approuvez les quiz pédagogiquement valides avant leur passage en live.
+          Chaque rejet est tracé et historisé.
         </p>
       </header>
 
-      <section className="mb-8 grid grid-cols-3 gap-3">
-        <StatCard label="En attente" value={stats.pending} tone="yellow" />
-        <StatCard label="Approuvés (live)" value={stats.approved} tone="green" />
-        <StatCard label="Total IA générés" value={stats.total} tone="blue" />
+      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label="En attente" value={stats.pending} tone="gold" />
+        <StatCard label="Approuvés (live)" value={stats.approved} tone="lime" />
+        <StatCard label="Total IA générés" value={stats.total} tone="teal" />
       </section>
 
       <section>
@@ -121,9 +126,11 @@ export default async function AdminContentReviewPage() {
         )}
 
         {pending.length === 0 && !error && (
-          <p className="rounded border border-ink bg-card p-6 text-center text-sm text-mute">
-            Aucun quiz IA en attente de revue pédagogique.
-          </p>
+          <NivEmpty
+            mood="calm"
+            title="File au clair"
+            description="Aucun quiz IA en attente de revue pédagogique."
+          />
         )}
 
         <ul className="space-y-3">
@@ -133,28 +140,5 @@ export default async function AdminContentReviewPage() {
         </ul>
       </section>
     </main>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: number
-  tone: "yellow" | "green" | "red" | "blue"
-}) {
-  const palette: Record<typeof tone, string> = {
-    yellow: "border-gold/30 bg-gold/10 text-gold",
-    green: "border-lime/30 bg-lime/10 text-lime",
-    red: "border-destructive/30 bg-destructive/10 text-destructive",
-    blue: "border-teal/30 bg-teal/10 text-teal",
-  }
-  return (
-    <div className={`rounded border p-3 ${palette[tone]}`}>
-      <div className="text-xs uppercase tracking-wide opacity-80">{label}</div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
-    </div>
   )
 }
