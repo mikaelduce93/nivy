@@ -26,8 +26,7 @@ export default async function GaleriePage() {
       .order("created_at", { ascending: false })
       .limit(20)
     galleries = data
-  } catch (error) {
-    console.log("[v0] Photo galleries table not found, showing empty state")
+  } catch {
     galleries = []
   }
 

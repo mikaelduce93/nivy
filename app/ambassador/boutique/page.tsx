@@ -1,11 +1,7 @@
-// @deprecated — Hors périmètre de la refonte V2 « paper néo-brutaliste » (issue #182).
-// Cette route est candidate à la suppression : aucun reskin n'est appliqué ici (iso).
-// V1.2 TODO: Per FRONTEND_REDO §5 this route is recommended for DELETE.
-// The whitepaper §12 commission model is cash-based (DH withdrawals) +
-// optional XP-only for under-18 ambassadors — there is no separate
-// "ambassador rewards shop". Either redirect to /ambassador/withdrawals
-// or fold the few experience-rewards into /teen/shop. Kept live for now
-// so the existing `ambassador_rewards` data isn't stranded.
+// Boutique de récompenses ambassadeur — CONSERVÉE (V3 #197, fin du marquage « DELETE »).
+// Route fonctionnelle, câblée sur les tables `ambassador_rewards` réelles et le RPC
+// `redeem_ambassador_reward`. La supprimer stranderait la donnée + la feature de
+// redemption ; décision assumée : on garde.
 "use client"
 
 import { useEffect, useState } from "react"

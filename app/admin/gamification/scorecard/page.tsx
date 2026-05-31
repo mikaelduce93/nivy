@@ -11,20 +11,45 @@ import { TrendingUp, Users, Zap, DollarSign } from 'lucide-react'
 
 export default function AdminScorecardPage() {
   const [metrics, setMetrics] = useState<ScorecardMetrics | null>(null)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
+    let active = true
     async function load() {
-      const data = await getLiveScorecard()
-      setMetrics(data)
+      try {
+        const data = await getLiveScorecard()
+        if (active) setMetrics(data)
+      } catch {
+        if (active) setMetrics(null)
+      } finally {
+        if (active) setLoaded(true)
+      }
     }
     load()
+    return () => {
+      active = false
+    }
   }, [])
+
+  if (!loaded) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-6 py-32">
+          <NivCoach mood="calm" message="Je calcule le pouls de la plateforme…" className="max-w-md" />
+        </div>
+      </div>
+    )
+  }
 
   if (!metrics) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-6 py-32">
-          <NivCoach mood="calm" message="Je calcule le pouls de la plateforme…" className="max-w-md" />
+          <NivCoach
+            mood="calm"
+            message="Données indisponibles pour le moment — réessaie dans un instant."
+            className="max-w-md"
+          />
         </div>
       </div>
     )

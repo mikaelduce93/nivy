@@ -76,18 +76,24 @@ export function SellForm() {
       neighborhood: String(fd.get("neighborhood") ?? ""),
       images,
     }
-    const res = await fetch("/api/marketplace/listings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-    const json = await res.json()
-    setBusy(false)
-    if (!json.success) {
-      setErr(json.error ?? "unknown_error")
-      return
+    try {
+      const res = await fetch("/api/marketplace/listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+      const json = await res.json()
+      setBusy(false)
+      if (!json.success) {
+        setErr(json.error ?? "unknown_error")
+        return
+      }
+      router.push("/marketplace/my-listings")
+    } catch {
+      // Réseau KO : ne pas laisser le formulaire bloqué sur « Envoi… ».
+      setErr("network_error")
+      setBusy(false)
     }
-    router.push("/marketplace/my-listings")
   }
 
   return (

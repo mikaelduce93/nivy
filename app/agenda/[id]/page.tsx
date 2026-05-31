@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Calendar, MapPin, Clock, Users, Shirt, Check, Shield, Music, Gift, ArrowRight, MapPinned, Share2, Bus, Car, TrendingUp, Sparkles } from 'lucide-react'
 import Link from "next/link"
 import Image from 'next/image'
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
@@ -99,11 +100,23 @@ export default function EventDetailPage() {
 
   const shareEvent = async () => {
     if (navigator.share) {
-      await navigator.share({
-        title: event.title,
-        text: event.description,
-        url: window.location.href,
-      })
+      try {
+        await navigator.share({
+          title: event.title,
+          text: event.description,
+          url: window.location.href,
+        })
+      } catch {
+        /* user cancelled the native share sheet — expected, no-op */
+      }
+      return
+    }
+    // Desktop fallback (no Web Share API): copy the link + honest toast.
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      toast.success("Lien copié dans le presse-papier")
+    } catch {
+      toast.error("Impossible de copier le lien")
     }
   }
 

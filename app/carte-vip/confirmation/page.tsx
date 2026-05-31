@@ -67,10 +67,17 @@ export default function PassConfirmationPage() {
     confirmSubscription()
   }, [sessionId])
 
-  const getTierConfig = (tier: string) =>
-    tier === 'platinum'
-      ? { name: "Platinum", icon: Crown, tone: "pink" as const }
-      : { name: "Gold", icon: Star, tone: "gold" as const }
+  const getTierConfig = (tier: string) => {
+    switch (tier) {
+      case "platinum":
+        return { name: "Platinum", icon: Crown, tone: "pink" as const }
+      case "gold":
+        return { name: "Gold", icon: Star, tone: "gold" as const }
+      default:
+        // Ne plus étiqueter par défaut un palier standard comme « Gold ».
+        return { name: "Standard", icon: Star, tone: "teal" as const }
+    }
+  }
 
   if (loading) {
     return (

@@ -31,16 +31,9 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching activities:', error)
-      // Return fallback data
-      return NextResponse.json({
-        activities: [
-          { id: '1', type: 'streak', text: 'Day streak active!', time: 'Now' },
-          { id: '2', type: 'quest', text: 'Completed daily quiz', time: '2h ago' },
-          { id: '3', type: 'social', text: 'Made a new friend', time: 'Yesterday' },
-        ],
-        total: 3,
-        hasMore: false,
-      })
+      // Honest empty payload — the UI renders NivEmpty for []. No fake EN mock
+      // that would mask a real DB error behind plausible-looking activity.
+      return NextResponse.json({ activities: [], total: 0, hasMore: false })
     }
 
     const formattedActivities = activities?.map(activity => {

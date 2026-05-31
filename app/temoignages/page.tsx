@@ -22,8 +22,7 @@ export default async function TemoignagesPage() {
       .order("created_at", { ascending: false })
       .limit(20)
     testimonials = data
-  } catch (error) {
-    console.log("[v0] Testimonials table not found, showing empty state")
+  } catch {
     testimonials = []
   }
 

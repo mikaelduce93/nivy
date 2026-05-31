@@ -10,8 +10,6 @@ import {
   AlertCircle,
   Loader2,
   FlipHorizontal,
-  ZoomIn,
-  Flashlight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 

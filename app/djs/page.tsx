@@ -19,8 +19,7 @@ export default async function DJsPage() {
       .eq("is_active", true)
       .order("rating", { ascending: false })
     djs = data
-  } catch (error) {
-    console.log("[v0] DJs table not found, showing empty state")
+  } catch {
     djs = []
   }
 

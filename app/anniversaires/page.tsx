@@ -29,6 +29,7 @@ export default function AnniversairesPage() {
   const [extras, setExtras] = useState<any[]>([])
   const [teens, setTeens] = useState<any[]>([])
   const [loadingData, setLoadingData] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
   // Step 1: Date & Guests
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
@@ -55,6 +56,7 @@ export default function AnniversairesPage() {
   useEffect(() => {
     async function loadData() {
       setLoadingData(true)
+      setLoadError(false)
       try {
         const [packsResult, extrasResult, teensResult] = await Promise.all([
           getAnnivPacks('event'),
@@ -65,6 +67,7 @@ export default function AnniversairesPage() {
         if (packsResult.success && packsResult.data) {
           setPacks(packsResult.data)
         } else {
+          setLoadError(true)
           toast.error("Impossible de charger les formules")
         }
 
@@ -79,6 +82,7 @@ export default function AnniversairesPage() {
         }
       } catch (error) {
         console.error('Error loading data:', error)
+        setLoadError(true)
         toast.error("Chargement raté. On retente ?")
       } finally {
         setLoadingData(false)
@@ -180,6 +184,20 @@ export default function AnniversairesPage() {
         <div className="text-center">
           <Loader2 className="mx-auto mb-4 size-12 animate-spin text-ink" aria-hidden="true" />
           <p className="text-mute">Chargement des formules…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-paper px-6">
+        <div className="max-w-md space-y-4 text-center">
+          <p className="font-display text-xl font-extrabold text-ink">Chargement impossible</p>
+          <p className="text-mute">
+            On n'a pas pu charger les formules anniversaire. Vérifie ta connexion et réessaie.
+          </p>
+          <Button variant="pink" onClick={() => window.location.reload()}>Réessayer</Button>
         </div>
       </div>
     )
@@ -689,7 +707,7 @@ export default function AnniversairesPage() {
                 <DarkSurface tone="pink" shadow className="p-8">
                   <div className="text-center">
                     <p className="eyebrow tracking-[0.16em] text-paper/60">Référence de commande</p>
-                    <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-pink">{orderCreated.reference_code}</p>
+                    <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-pink">{orderCreated.id}</p>
                   </div>
 
                   {orderCreated.qr_code && (
@@ -713,7 +731,7 @@ export default function AnniversairesPage() {
                   <div className="mt-6 space-y-3 border-t-2 border-paper/15 pt-6 font-mono text-sm">
                     <div className="flex justify-between">
                       <span className="text-paper/60">Date</span>
-                      <span className="font-bold text-paper">{new Date(orderCreated.event_date).toLocaleDateString('fr-FR')}</span>
+                      <span className="font-bold text-paper">{orderCreated.party_date ? new Date(orderCreated.party_date).toLocaleDateString('fr-FR') : "—"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-paper/60">Invités</span>

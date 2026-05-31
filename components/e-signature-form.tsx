@@ -114,8 +114,7 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
 
       toast.success("Signature enregistrée avec succès")
       onComplete(result)
-    } catch (error) {
-      console.error("[v0] E-signature error:", error)
+    } catch {
       toast.error("Erreur lors de l'enregistrement de la signature")
     } finally {
       setLoading(false)

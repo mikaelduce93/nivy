@@ -32,9 +32,8 @@ export default async function BlogPage() {
       .eq("published", true)
       .order("published_at", { ascending: false })
       .limit(12)
-    posts = postsData
-  } catch (error) {
-    console.log("[v0] Blog posts table not found, showing empty state")
+    posts = postsData ?? []
+  } catch {
     posts = []
   }
 
@@ -42,9 +41,8 @@ export default async function BlogPage() {
     const { data: categoriesData } = await supabase
       .from("post_categories")
       .select("*")
-    categories = categoriesData
-  } catch (error) {
-    console.log("[v0] Post categories table not found")
+    categories = categoriesData ?? []
+  } catch {
     categories = []
   }
 
