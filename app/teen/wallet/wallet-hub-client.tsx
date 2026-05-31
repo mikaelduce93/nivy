@@ -98,7 +98,7 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
               {walletData.currency.xpToDhRate.toFixed(2)} DH
             </span>{" "}
             de remise (10 XP = 1 DH).{" "}
-            <a href="/docs/economy" className="underline hover:text-ink-2">
+            <a href="/teen/xp-value" className="underline hover:text-ink-2">
               Voir le modèle d&apos;économie
             </a>
           </p>

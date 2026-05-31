@@ -743,7 +743,7 @@ export default function AnniversairesPage() {
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={() => router.push('/profile/commandes')}
+                    onClick={() => router.push('/parent/history')}
                   >
                     Mes commandes
                   </Button>

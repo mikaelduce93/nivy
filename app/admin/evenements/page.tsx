@@ -180,7 +180,7 @@ export default async function AdminEventsPage() {
                           variant="outline"
                           className="border-2 border-ink bg-transparent text-ink"
                         >
-                          <Link href={`/agenda/${event.slug}`}>
+                          <Link href={`/agenda/${event.id}`}>
                             <Eye className="w-4 h-4 mr-2" />
                             Voir
                           </Link>

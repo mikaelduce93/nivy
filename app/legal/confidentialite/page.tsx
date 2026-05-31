@@ -125,7 +125,7 @@ export default function ConfidentialitePage() {
                 <li><strong>Droit de retrait du consentement :</strong> à tout moment, sans justification</li>
               </ul>
               <p className="mt-4 leading-relaxed">
-                Pour exercer ces droits depuis ton compte : <Link href="/parametres/donnees" className="text-primary hover:underline">/parametres/donnees</Link> (export + demande de suppression). Pour toute question :{" "}
+                Pour exercer ces droits depuis ton compte : <Link href="/account/export" className="text-primary hover:underline">exporter tes données</Link> ou <Link href="/account/delete" className="text-primary hover:underline">demander leur suppression</Link>. Pour toute question :{" "}
                 <a href={`mailto:${privacyEmail}`} className="text-primary hover:underline">{privacyEmail}</a>.
               </p>
               <p className="mt-3 text-sm text-muted-foreground">

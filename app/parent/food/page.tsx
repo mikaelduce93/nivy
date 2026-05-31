@@ -79,7 +79,7 @@ function NutritionTargets({ targets }: { targets: unknown }) {
 export default async function ParentFoodPage() {
   const userInfo = await getUserRole()
   if (!userInfo || userInfo.role !== "parent") {
-    redirect("/auth/connexion")
+    redirect("/auth/login")
   }
   const parentId = userInfo!.profileId
   const sb = createServiceRoleClient()

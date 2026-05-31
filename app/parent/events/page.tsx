@@ -287,7 +287,7 @@ export default async function ParentEventsPage() {
                   <div className="mt-3 flex items-center justify-between">
                     <span className="font-mono text-sm font-bold tabular-nums text-ink">{event.price} DH</span>
                     <Button size="sm" variant="outline" asChild>
-                      <Link href={`/events/${event.id}`}>Voir</Link>
+                      <Link href={`/agenda/${event.id}`}>Voir</Link>
                     </Button>
                   </div>
                 </StickerCard>

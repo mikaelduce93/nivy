@@ -249,7 +249,7 @@ export default function HomePage() {
                     { icon: "👥", title: "Multi-parent", desc: "Le 1er qui valide gagne" },
                   ]}
                   primary={{ label: "Créer un compte parent", href: "/auth/sign-up" }}
-                  secondary={{ label: "Voir le guide parents", href: "/parents" }}
+                  secondary={{ label: "Voir le guide parents", href: "/guide-parents" }}
                 />
               )}
               {audience === "ado" && (

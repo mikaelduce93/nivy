@@ -82,7 +82,7 @@ function SignUpForm() {
         email,
         password,
         options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/redirect`,
           data: {
             nom,
             prenom,
@@ -223,7 +223,7 @@ function SignUpForm() {
                   label={
                     <>
                       {t("auth.signup.termsLabel")}{" "}
-                      <Link href="/conditions" className="font-semibold text-pink underline">
+                      <Link href="/legal/cgu" className="font-semibold text-pink underline">
                         ({t("auth.signup.termsLink")})
                       </Link>
                     </>

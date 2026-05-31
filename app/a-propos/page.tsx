@@ -153,7 +153,7 @@ export default function AProposPage() {
             </div>
             <div className="mt-8">
               <Button asChild size="lg" variant="pink">
-                <Link href="/support">Nous contacter</Link>
+                <Link href="/aide">Nous contacter</Link>
               </Button>
             </div>
           </div>

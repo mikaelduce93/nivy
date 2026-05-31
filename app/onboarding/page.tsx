@@ -100,8 +100,8 @@ export default function OnboardingPage() {
       } = await supabase.auth.getUser()
 
       if (user) {
-        // User is authenticated, redirect to dashboard
-        router.push('/dashboard')
+        // User is authenticated — hand off to the role router (no /dashboard route).
+        router.push('/auth/redirect')
       }
     }
 
@@ -125,11 +125,11 @@ export default function OnboardingPage() {
       // Final juice — confetti + sound + haptic
       play('level_up')
       completeOnboarding()
-      // Wave 1.3: teens go through personalization steps before landing on dashboard.
-      // Parents/partners and other roles continue to /dashboard as before.
+      // Wave 1.3: teens go through personalization steps before landing.
+      // Parents/partners and other roles go to the role router (no /dashboard route).
       const personalizeNext = data.userType === 'teen'
         ? '/onboarding/interests'
-        : '/dashboard'
+        : '/auth/redirect'
       // Delay redirect to show celebration
       setTimeout(() => {
         router.push(personalizeNext)

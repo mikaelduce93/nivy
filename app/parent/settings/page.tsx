@@ -33,7 +33,7 @@ export default async function ParentSettingsPage() {
     {
       title: "Compte",
       items: [
-        { label: "Modifier le profil", icon: User, href: "/profile/modifier" },
+        { label: "Modifier le profil", icon: User, href: "/parent/profile" },
         { label: "Notifications", icon: Bell, href: "/parent/notifications" },
         { label: "Confidentialité & sécurité", icon: Lock, href: "/parent/e-signature" },
       ]
