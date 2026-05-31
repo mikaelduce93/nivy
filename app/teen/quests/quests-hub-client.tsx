@@ -35,6 +35,24 @@ interface QuestsHubClientProps {
   teenId: string
 }
 
+// #208 — chaque quête unifiée route vers sa VRAIE destination. La page détail
+// /teen/quests/[id] interrogeait des tables inexistantes (`quests`,
+// `daily_challenges`) → 404 systématique. On route par type vers l'écran réel.
+function questTarget(type: string, id: string): string {
+  switch (type) {
+    case "quiz":
+      return `/teen/quiz/${id}`
+    case "challenge":
+      return "/teen/defis-physiques"
+    case "passion":
+      return "/teen/passions"
+    case "event":
+      return "/teen/events"
+    default:
+      return "/teen/quests"
+  }
+}
+
 const QUEST_TABS: HubTab[] = [
   { id: "daily", label: "Quotidien", icon: Zap },
   { id: "brain", label: "Cerveau", icon: Brain },
@@ -197,23 +215,24 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
       {/* Quest Grid */}
       {filteredQuests.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filteredQuests.map((quest) => (
-            <DefiCard
-              key={quest.id}
-              type={pickDefiType(currentTab)}
-              title={quest.title}
-              description={quest.description}
-              xpReward={quest.xp_reward}
-              status={mapQuestStatus(quest.status)}
-              href={`/teen/quests/${quest.id}`}
-              ctaHref={`/teen/quests/${quest.id}`}
-              ctaLabel={quest.status === "completed" ? "Terminé" : quest.status === "in_progress" ? "Continuer" : "Commencer"}
-              imageUrl={quest.image_url}
-              // TICKET-024 — morph anchor for View Transitions API.
-              // Pairs with the hero on /teen/quests/[id].
-              morphId={`vt-quest-${quest.id}`}
-            />
-          ))}
+          {filteredQuests.map((quest) => {
+            const target = questTarget(quest.type, quest.id)
+            return (
+              <DefiCard
+                key={quest.id}
+                type={pickDefiType(currentTab)}
+                title={quest.title}
+                description={quest.description}
+                xpReward={quest.xp_reward}
+                status={mapQuestStatus(quest.status)}
+                href={target}
+                ctaHref={target}
+                ctaLabel={quest.status === "completed" ? "Terminé" : quest.status === "in_progress" ? "Continuer" : "Commencer"}
+                imageUrl={quest.image_url}
+                morphId={`vt-quest-${quest.id}`}
+              />
+            )
+          })}
         </div>
       ) : (
         <EmptyState tab={currentTab} />

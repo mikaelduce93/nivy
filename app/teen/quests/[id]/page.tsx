@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getUserRole } from '@/lib/auth/get-user-role'
 import { createClient } from '@/lib/supabase/server'
 import { QuestDetailClient } from './quest-detail-client'
@@ -72,7 +72,10 @@ export default async function QuestDetailPage({ params }: QuestDetailPageProps) 
   const quest = await getQuestData(id, teenId)
 
   if (!quest) {
-    notFound()
+    // #208 — les quêtes unifiées routent désormais vers leur vraie page (quiz/
+    // défi/passion/event). Cette route legacy interroge des tables qui n'existent
+    // pas (`quests`/`daily_challenges`) ; en repli on renvoie au hub plutôt qu'un 404.
+    redirect('/teen/quests')
   }
 
   return (
