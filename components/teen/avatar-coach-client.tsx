@@ -22,6 +22,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { NivCoach } from "@/components/brand/niv-usage"
 
 /**
  * Daily quiz teaser surfaced by the server component when the recommender
@@ -374,14 +375,9 @@ function AvatarCoachChat({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: draft }),
       })
-      const data = (await res.json().catch(() => null)) as {
-        reply?: string
-        remainingTurns?: number
-        cap?: number
-        error?: string
-      } | null
 
-      if (!res.ok) {
+      if (!res.ok || !res.body) {
+        const data = (await res.json().catch(() => null)) as { error?: string } | null
         if (res.status === 429) {
           setState((s) => ({
             ...s,
@@ -399,14 +395,69 @@ function AvatarCoachChat({
         return
       }
 
-      setState((s) => ({
-        ...s,
-        sending: false,
-        turns: [...s.turns, { role: "assistant", content: data?.reply || "..." }],
-        remaining:
-          typeof data?.remainingTurns === "number" ? data.remainingTurns : s.remaining,
-        cap: typeof data?.cap === "number" ? data.cap : s.cap,
-      }))
+      // #210 — lecture du flux NDJSON token-par-token (1 objet JSON par ligne).
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buf = ""
+      let assistantText = ""
+      let started = false
+
+      const setLastAssistant = (content: string) => {
+        setState((s) => {
+          const turns = [...s.turns]
+          for (let i = turns.length - 1; i >= 0; i--) {
+            if (turns[i].role === "assistant") {
+              turns[i] = { ...turns[i], content }
+              return { ...s, turns }
+            }
+          }
+          return s
+        })
+      }
+
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        let nl: number
+        while ((nl = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, nl).trim()
+          buf = buf.slice(nl + 1)
+          if (!line) continue
+          let parsed: { type?: string; text?: string; remainingTurns?: number; cap?: number }
+          try {
+            parsed = JSON.parse(line)
+          } catch {
+            continue
+          }
+          if (
+            (parsed.type === "delta" || parsed.type === "replace") &&
+            typeof parsed.text === "string"
+          ) {
+            if (!started) {
+              started = true
+              setState((s) => ({
+                ...s,
+                sending: false,
+                turns: [...s.turns, { role: "assistant", content: "" }],
+              }))
+            }
+            assistantText =
+              parsed.type === "replace" ? parsed.text : assistantText + parsed.text
+            setLastAssistant(assistantText)
+          } else if (parsed.type === "done") {
+            setState((s) => ({
+              ...s,
+              sending: false,
+              remaining:
+                typeof parsed.remainingTurns === "number" ? parsed.remainingTurns : s.remaining,
+              cap: typeof parsed.cap === "number" ? parsed.cap : s.cap,
+            }))
+          }
+        }
+      }
+      // Filet : flux terminé sans frame 'done' → on arrête le spinner.
+      setState((s) => (s.sending ? { ...s, sending: false } : s))
     } catch {
       setState((s) => ({
         ...s,
@@ -480,9 +531,20 @@ function AvatarCoachChat({
                 ton mentor.
               </p>
             ) : (
-              state.turns.map((t, i) => (
-                <ChatBubble key={i} role={t.role} content={t.content} color={color} />
-              ))
+              state.turns.map((t, i) =>
+                t.role === "assistant" ? (
+                  // #210 — identité Niv rendue via le composant charte <NivCoach>.
+                  <NivCoach
+                    key={i}
+                    message={t.content || "…"}
+                    tone="paper"
+                    size={28}
+                    className="max-w-[90%] self-start p-3"
+                  />
+                ) : (
+                  <ChatBubble key={i} role={t.role} content={t.content} color={color} />
+                ),
+              )
             )}
             {state.sending ? (
               <ChatBubble role="assistant" content="..." color={color} typing />
