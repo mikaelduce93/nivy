@@ -1,84 +1,27 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { DarkSurface, NivEmpty } from "@/components/brand"
 import { getT } from "@/lib/i18n/server"
 import { purchaseStatusLabel } from "@/lib/i18n/status-labels"
+import { getUserPurchases } from "@/gamification-system/features/shop/actions"
+import type { UserPurchase } from "@/gamification-system/features/shop/schema"
 import {
   ShoppingBag,
   ArrowLeft,
   Calendar,
   Gift,
   QrCode,
+  Zap,
 } from "lucide-react"
 import Link from "next/link"
 
-async function getPurchaseHistory(teenId: string) {
-  const supabase = await createClient()
-
-  const { data: purchases, error } = await supabase
-    .from("shop_purchases")
-    .select(`
-      *,
-      reward:reward_id (
-        name,
-        description,
-        image_url,
-        category
-      )
-    `)
-    .eq("teen_id", teenId)
-    .order("created_at", { ascending: false })
-
-  if (error) {
-    console.error("Error fetching purchases:", error)
-    return []
-  }
-
-  return purchases || []
-}
-
-async function getPurchaseStats(teenId: string) {
-  const supabase = await createClient()
-
-  const { data: purchases } = await supabase
-    .from("shop_purchases")
-    .select("coins_spent, status")
-    .eq("teen_id", teenId)
-
-  if (!purchases) return { total: 0, coinsSpent: 0, pending: 0, used: 0 }
-
-  return {
-    total: purchases.length,
-    coinsSpent: purchases.reduce((sum, p) => sum + (p.coins_spent || 0), 0),
-    pending: purchases.filter(p => p.status === "pending" || p.status === "ready").length,
-    used: purchases.filter(p => p.status === "used" || p.status === "claimed").length
-  }
-}
-
-// Vrai chemin d'image (Supabase storage / http) vs emoji fallback stocké en BDD.
-function isImageUrl(value?: string | null): value is string {
-  return !!value && /^(https?:\/\/|\/)/.test(value)
-}
-
-function RewardThumb({ image, className }: { image?: string | null; className: string }) {
-  if (isImageUrl(image)) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={image}
-        alt=""
-        className={`${className} object-cover`}
-      />
-    )
-  }
-  return (
-    <div className={`${className} flex items-center justify-center text-3xl`}>
-      {image || "🎁"}
-    </div>
-  )
+// Code de retrait : le système canonique (table user_purchases) n'a pas de
+// colonne dédiée — on dérive un code de référence des 8 premiers caractères du
+// purchase_id (uppercase), affiché à l'ado comme le code à présenter.
+function refCode(purchaseId: string): string {
+  return purchaseId.slice(0, 8).toUpperCase()
 }
 
 export default async function ShopHistoryPage() {
@@ -94,59 +37,67 @@ export default async function ShopHistoryPage() {
   }
 
   const t = await getT()
-  const purchases = await getPurchaseHistory(teenId)
-  const stats = await getPurchaseStats(teenId)
+  const { data: purchases } = await getUserPurchases(undefined, true)
+
+  const stats = {
+    total: purchases.length,
+    xpSpent: purchases.reduce((sum, p) => sum + (p.xp_spent || 0), 0),
+    usable: purchases.filter((p) => p.is_usable).length,
+    used: purchases.filter((p) => p.status === "used").length,
+  }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     })
   }
 
-  // Pills statut mono UPPERCASE charte (lime ✓ utilisé, gold en cours, coral expiré).
-  // Libellé centralisé via purchaseStatusLabel() ; ici on ne mappe que la couleur.
-  const getStatusBadge = (status: string) => {
-    const text = purchaseStatusLabel(status, t)
+  // Pills statut mono UPPERCASE charte. Libellé centralisé via
+  // purchaseStatusLabel() pour les statuts connus ; les statuts canoniques
+  // absents du bundle i18n (completed/refunded) ont un libellé FR local.
+  const STATUS_FR: Partial<Record<UserPurchase["status"], string>> = {
+    completed: "Disponible",
+    refunded: "Remboursé",
+  }
+  const statusText = (status: UserPurchase["status"]) =>
+    STATUS_FR[status] ?? purchaseStatusLabel(status, t)
+
+  // completed/used → lime, pending → gold, expired/refunded → coral/mute.
+  const getStatusClass = (status: UserPurchase["status"]) => {
     switch (status) {
-      case "ready":
-        return { text, class: "border-lime bg-lime/15 text-ink" }
-      case "pending":
-        return { text, class: "border-gold bg-gold/15 text-ink" }
+      case "completed":
       case "used":
-      case "claimed":
-        return { text, class: "border-lime bg-lime/15 text-ink" }
+        return "border-lime bg-lime/15 text-ink"
+      case "pending":
+        return "border-gold bg-gold/15 text-ink"
       case "expired":
-        return { text, class: "border-coral bg-coral/15 text-ink" }
+      case "refunded":
+        return "border-coral bg-coral/15 text-ink"
       default:
-        return { text, class: "border-line bg-paper-2 text-mute" }
+        return "border-line bg-paper-2 text-mute"
     }
   }
 
-  const StatusPill = ({ status }: { status: string }) => {
-    const s = getStatusBadge(status)
-    return (
-      <span
-        className={`inline-flex items-center rounded-full border-2 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider ${s.class}`}
-      >
-        {s.text}
-      </span>
-    )
-  }
-
-  const activeRewards = purchases.filter(
-    (p: any) => p.status === "ready" || p.status === "pending"
+  const StatusPill = ({ status }: { status: UserPurchase["status"] }) => (
+    <span
+      className={`inline-flex items-center rounded-full border-2 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider ${getStatusClass(status)}`}
+    >
+      {statusText(status)}
+    </span>
   )
+
+  const usableRewards = purchases.filter((p) => p.is_usable)
 
   return (
     <div className="min-h-screen bg-paper">
       <div className="container-wide py-12 space-y-8">
         {/* Back button */}
         <Button variant="ghost" asChild className="text-mute hover:text-ink">
-          <Link href="/teen/wallet?tab=shop">
+          <Link href="/teen/wallet?tab=history">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Retour à la boutique
+            Retour au wallet
           </Link>
         </Button>
 
@@ -169,16 +120,16 @@ export default async function ShopHistoryPage() {
           </StickerCard>
 
           <StickerCard variant="panel" className="p-5">
-            <p className="eyebrow text-mute">Coins dépensés</p>
-            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-coral">
-              ⊙ {stats.coinsSpent.toLocaleString("fr-FR")}
+            <p className="eyebrow text-mute">XP dépensés</p>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-gold">
+              {stats.xpSpent.toLocaleString("fr-FR")}
             </p>
           </StickerCard>
 
           <StickerCard variant="panel" className="p-5">
             <p className="eyebrow text-mute">À utiliser</p>
             <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-gold">
-              {stats.pending}
+              {stats.usable}
             </p>
           </StickerCard>
 
@@ -191,42 +142,42 @@ export default async function ShopHistoryPage() {
         </div>
 
         {/* Récompenses à utiliser — codes de retrait en avant */}
-        {activeRewards.length > 0 && (
+        {usableRewards.length > 0 && (
           <div className="space-y-4">
             <h2 className="flex items-center gap-2 font-display text-lg font-extrabold text-ink">
               <Gift className="h-5 w-5 text-pink" />
               Récompenses à utiliser
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
-              {activeRewards.map((purchase: any) => (
-                <DarkSurface key={purchase.id} tone="pink" shadow className="p-5">
+              {usableRewards.map((purchase) => (
+                <DarkSurface key={purchase.purchase_id} tone="pink" shadow className="p-5">
                   <div className="flex items-start gap-4">
-                    <RewardThumb
-                      image={purchase.reward?.image_url}
-                      className="h-14 w-14 shrink-0 rounded-xl border-2 border-paper/30 bg-white/10"
-                    />
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 border-paper/30 bg-white/10 text-3xl">
+                      {purchase.reward_icon || "🎁"}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-display font-bold text-paper">
-                        {purchase.reward?.name || "Récompense"}
+                        {purchase.reward_name || "Récompense"}
                       </h3>
                       <p className="font-mono text-xs text-paper/60 mt-1">
-                        Acheté le {formatDate(purchase.created_at)}
+                        Acheté le {formatDate(purchase.purchased_at)}
                       </p>
                       <div className="mt-2">
                         <StatusPill status={purchase.status} />
                       </div>
                     </div>
                   </div>
-                  {purchase.redemption_code && (
-                    <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border-2 border-paper/30 bg-white/5 p-3">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <QrCode className="h-5 w-5 shrink-0 text-pink" />
-                        <span className="font-mono text-sm font-bold tracking-wider text-paper truncate">
-                          {purchase.redemption_code}
-                        </span>
-                      </div>
+                  <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border-2 border-paper/30 bg-white/5 p-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <QrCode className="h-5 w-5 shrink-0 text-pink" />
+                      <span className="font-mono text-sm font-bold tracking-wider text-paper truncate">
+                        {refCode(purchase.purchase_id)}
+                      </span>
                     </div>
-                  )}
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-paper/60">
+                      Code à présenter
+                    </span>
+                  </div>
                 </DarkSurface>
               ))}
             </div>
@@ -241,33 +192,27 @@ export default async function ShopHistoryPage() {
           </h2>
           {purchases.length > 0 ? (
             <div className="space-y-3">
-              {purchases.map((purchase: any) => (
-                <StickerCard key={purchase.id} variant="panel" className="p-4">
+              {purchases.map((purchase) => (
+                <StickerCard key={purchase.purchase_id} variant="panel" className="p-4">
                   <div className="flex items-center justify-between gap-4 flex-wrap">
                     <div className="flex items-center gap-4 min-w-0">
-                      <RewardThumb
-                        image={purchase.reward?.image_url}
-                        className="h-12 w-12 shrink-0 rounded-xl border-2 border-ink bg-paper-2"
-                      />
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-paper-2 text-2xl">
+                        {purchase.reward_icon || "🎁"}
+                      </div>
                       <div className="min-w-0">
                         <h3 className="font-display font-medium text-ink truncate">
-                          {purchase.reward?.name || "Récompense"}
+                          {purchase.reward_name || "Récompense"}
                         </h3>
                         <div className="flex items-center gap-2 font-mono text-xs text-mute">
                           <Calendar className="h-3 w-3" />
-                          <span>{formatDate(purchase.created_at)}</span>
-                          {purchase.reward?.category && (
-                            <>
-                              <span>•</span>
-                              <span>{purchase.reward.category}</span>
-                            </>
-                          )}
+                          <span>{formatDate(purchase.purchased_at)}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-mono text-base font-bold tabular-nums text-coral">
-                        ⊙ {(purchase.coins_spent || 0).toLocaleString("fr-FR")}
+                      <span className="flex items-center gap-1 font-mono text-base font-bold tabular-nums text-gold">
+                        <Zap className="h-4 w-4" />
+                        −{(purchase.xp_spent || 0).toLocaleString("fr-FR")} XP
                       </span>
                       <StatusPill status={purchase.status} />
                     </div>

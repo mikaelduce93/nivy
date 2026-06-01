@@ -54,14 +54,14 @@ export function XPPaymentSelector({
   }, [xpToUse, isEnabled, totalPrice])
 
   const handleSliderChange = (value: number[]) => {
-    // Round to nearest 100 XP for cleaner values
-    const rounded = Math.round(value[0] / 100) * 100
+    // Round to nearest 10 XP (= 1 DH at the unified peg) for cleaner values.
+    const rounded = Math.round(value[0] / 10) * 10
     setXpToUse(Math.min(rounded, maxXPUsable))
   }
 
   const handleQuickSelect = (percentage: number) => {
     const xpAmount = Math.floor(maxXPUsable * percentage)
-    const rounded = Math.round(xpAmount / 100) * 100
+    const rounded = Math.round(xpAmount / 10) * 10
     setXpToUse(rounded)
   }
 
@@ -159,7 +159,7 @@ export function XPPaymentSelector({
               value={[xpToUse]}
               min={0}
               max={maxXPUsable}
-              step={100}
+              step={10}
               onValueChange={handleSliderChange}
               disabled={disabled}
               className="py-2"
@@ -181,7 +181,7 @@ export function XPPaymentSelector({
                 onClick={() => handleQuickSelect(pct)}
                 disabled={disabled}
                 className={`flex-1 text-xs ${
-                  xpToUse === Math.round(Math.floor(maxXPUsable * pct) / 100) * 100
+                  xpToUse === Math.round(Math.floor(maxXPUsable * pct) / 10) * 10
                     ? "border-pink bg-pink/10 text-pink"
                     : "border-ink"
                 }`}

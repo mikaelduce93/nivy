@@ -32,7 +32,6 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
   const [name, setName] = useState<string>("")
   const [target, setTarget] = useState<string>("100")
   const [duration, setDuration] = useState<string>("168")
-  const [stake, setStake] = useState<string>("50")
   const [expires, setExpires] = useState<string>("48")
   const [submitting, setSubmitting] = useState(false)
 
@@ -53,7 +52,6 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
           name: name.trim() || null,
           targetValue: target ? Math.max(1, parseInt(target, 10)) : null,
           durationHours: duration ? Math.max(1, parseInt(duration, 10)) : 168,
-          xpStake: stake ? Math.max(0, parseInt(stake, 10)) : 0,
           expiresInHours: expires ? Math.max(1, parseInt(expires, 10)) : 48,
         }),
       })
@@ -72,13 +70,12 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
   }
 
   // Preview live — le défi se construit sous les yeux de l'ado au fil de la
-  // saisie (adversaire / type / mise / objectif). Purement présentationnel.
+  // saisie (adversaire / type / objectif). Purement présentationnel.
   const opponentPseudo =
     friends.find((f) => f.id === opponentId)?.pseudo ?? null
   const kindLabel = KIND_OPTIONS.find((k) => k.id === kind)?.label ?? "Défi"
   const previewTitle = name.trim() || kindLabel
   const previewTarget = target ? Math.max(1, parseInt(target, 10)) : 0
-  const previewStake = stake ? Math.max(0, parseInt(stake, 10)) : 0
   const previewDescription = opponentPseudo
     ? `Tu défies ${opponentPseudo} · ${kindLabel}`
     : `Choisis un adversaire · ${kindLabel}`
@@ -93,7 +90,7 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
             type="friend"
             title={previewTitle}
             description={previewDescription}
-            xpReward={previewStake}
+            xpReward={0}
             status="active"
             progress={previewTarget > 0 ? { current: 0, target: previewTarget } : undefined}
           />
@@ -154,14 +151,6 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
               onChange={(e) => setDuration(e.target.value)}
             />
             <FieldInput
-              label="Mise XP"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              value={stake}
-              onChange={(e) => setStake(e.target.value)}
-            />
-            <FieldInput
               label="Expiration invitation (h)"
               type="number"
               inputMode="numeric"
@@ -187,8 +176,8 @@ export function NewFriendDefiForm({ friends }: { friends: FriendOption[] }) {
           </Button>
 
           <p className="text-xs text-mute">
-            Ta mise XP est débitée immédiatement et placée en escrow. Si ton ami
-            refuse ou laisse expirer l&apos;invitation, ta mise t&apos;est rendue.
+            Les défis entre amis se jouent pour l&apos;honneur : pas de mise, pas
+            de transfert d&apos;XP. Le gagnant prend la couronne, c&apos;est tout.
           </p>
         </form>
       </StickerCard>

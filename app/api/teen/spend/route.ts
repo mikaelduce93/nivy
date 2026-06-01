@@ -32,6 +32,17 @@ interface SpendBody {
   offerId?: string
   partnerId?: string
   amountCoins?: number
+  /** Optional client-generated UUID; dedupes double-taps/retries (#206 — mig 124). */
+  idempotencyKey?: string
+}
+
+/** RFC-4122 UUID guard — the idempotency key maps to a uuid column, so a
+ *  malformed value would abort the spend RPC. Reject early, treat as absent. */
+function asUuidOrNull(value: unknown): string | null {
+  return typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+    ? value
+    : null
 }
 
 export async function POST(request: Request) {
@@ -160,12 +171,14 @@ export async function POST(request: Request) {
       })
     }
 
-    // Autonomous path — atomic RPC.
+    // Autonomous path — atomic RPC. p_idempotency_key (when provided) makes the
+    // debit replay-safe against double-taps/retries (#206 — mig 124).
     const { data, error } = await admin.rpc("spend_teen_coins", {
       p_teen_id: teenId,
       p_amount_coins: amountCoins,
       p_partner_id: body.partnerId || null,
       p_reward_id: body.rewardId || null,
+      p_idempotency_key: asUuidOrNull(body.idempotencyKey),
     })
 
     if (error) {

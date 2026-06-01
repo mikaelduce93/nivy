@@ -1,17 +1,28 @@
 /**
  * XP Payment System Utilities
  * ==========================
- * Configuration and helpers for hybrid XP + DH payment
+ * Configuration and helpers for hybrid XP + DH payment.
+ *
+ * #206 — Single source of truth for the XP↔DH peg is
+ * `lib/payments/xp-converter.ts` (1 XP = XP_DH_PER_XP DH = 0.10, i.e. 10 XP =
+ * 1 DH). This module re-derives its "XP per DH" rate + minimum from that
+ * module so the two helpers can never drift again (the old hard-coded 100
+ * here was the source of the 10-vs-100 divergence flagged in the audit).
  */
+import {
+  XP_TO_DH_RATE as XP_DH_PER_XP,
+  MIN_XP_FOR_PAYMENT as CANONICAL_MIN_XP,
+} from "@/lib/payments/xp-converter"
 
-// Conversion rate: 100 XP = 1 DH
-export const XP_TO_DH_RATE = 100
+// Conversion rate expressed as "XP per DH" (10) — derived from the canonical
+// 0.10 DH/XP peg so there is exactly one rate across the codebase.
+export const XP_TO_DH_RATE = Math.round(1 / XP_DH_PER_XP)
 
 // Maximum percentage of payment that can be covered by XP
 export const MAX_XP_PAYMENT_PERCENTAGE = 0.5 // 50% max
 
-// Minimum XP required to use XP payment
-export const MIN_XP_FOR_PAYMENT = 500 // 5 DH equivalent
+// Minimum XP required to use XP payment (5 DH equivalent, single-sourced)
+export const MIN_XP_FOR_PAYMENT = CANONICAL_MIN_XP
 
 /**
  * Convert XP to DH value

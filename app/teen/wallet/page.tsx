@@ -3,8 +3,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { WalletHubClient } from "./wallet-hub-client"
 import { getTeenDashboardData } from "@/lib/server/teen-dashboard"
-import { getRewards, getCategories } from "@/gamification-system/features/shop/actions"
-import { XP_TO_DH_RATE, convertXPToDH } from "@/lib/payments/xp-converter"
+import { getRewards, getCategories, getUserPurchases } from "@/gamification-system/features/shop/actions"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function WalletHubPage() {
@@ -19,35 +18,39 @@ export default async function WalletHubPage() {
     redirect("/teen")
   }
 
+  const supabase = await createClient()
+
   // Fetch wallet data + canonical shop data (reward_categories + get_shop_rewards)
-  const [dashboardData, rewardsResult, categoriesResult] = await Promise.all([
+  // + épargne (user_coins_spendable view + savings_goals) + historique achats.
+  // Source unique des coins disponibles = vue user_coins_spendable (comme /teen/savings).
+  const [
+    dashboardData,
+    rewardsResult,
+    categoriesResult,
+    { data: spendableRow },
+    { data: goals },
+    purchasesResult,
+  ] = await Promise.all([
     getTeenDashboardData(),
     getRewards({ onlyAvailable: true, onlyAffordable: false }),
     getCategories(),
+    supabase
+      .from("user_coins_spendable")
+      .select("total, locked_in_goals, spendable")
+      .eq("teen_id", userInfo.profileId)
+      .maybeSingle(),
+    supabase
+      .from("savings_goals")
+      .select("id, title, description, current_saved_coins, target_coins, status, parent_match_pct")
+      .eq("teen_id", userInfo.profileId)
+      .order("created_at", { ascending: false }),
+    getUserPurchases(undefined, true),
   ])
 
-  const totalXp = dashboardData?.xp?.total || 0
-
-  // Spendable coins = balance - locked (active savings_goals.current_saved_coins).
-  // Twin-currency gauge surfaces both numbers when they differ.
   const balance = dashboardData?.coins?.balance ?? 0
-  let spendableCoins: number | undefined = undefined
-  try {
-    const supabase = await createClient()
-    const { data: lockedRows } = await supabase
-      .from("savings_goals")
-      .select("current_saved_coins")
-      .eq("teen_id", teenId)
-      .eq("status", "active")
-    const locked = (lockedRows || []).reduce(
-      (acc: number, row: { current_saved_coins?: number | null }) =>
-        acc + (row.current_saved_coins || 0),
-      0
-    )
-    spendableCoins = Math.max(0, balance - locked)
-  } catch {
-    spendableCoins = undefined
-  }
+  const spendable = spendableRow?.spendable ?? 0
+  const total = spendableRow?.total ?? balance
+  const locked = spendableRow?.locked_in_goals ?? 0
 
   // Serialize data
   const walletData = {
@@ -56,17 +59,16 @@ export default async function WalletHubPage() {
     // W3.1 — real balance from user_coins.balance (sourced via getTeenDashboardData).
     // Per whitepaper §5: 1 DH = 100 coins (locked). XP and coins NEVER convert.
     coins: balance,
-    spendableCoins,
+    spendableCoins: spendable,
     cashbackThisWeek: dashboardData?.coins?.cashbackThisWeek ?? 0,
     shopHighlights: dashboardData?.shopHighlights || {},
     // Canonical shop catalog (reward_categories + get_shop_rewards RPC)
     rewards: rewardsResult.data || [],
     categories: categoriesResult.data || [],
-    // Currency model — sourced from lib/payments/xp-converter.ts
-    currency: {
-      xpToDhRate: XP_TO_DH_RATE,
-      xpValueDH: convertXPToDH(totalXp),
-    },
+    // Onglet Épargne — vue source unique + objectifs.
+    savings: { spendable, total, locked, goals: goals || [] },
+    // Onglet Historique — achats canoniques (user_purchases via RPC).
+    purchases: purchasesResult.data || [],
   }
 
   return (

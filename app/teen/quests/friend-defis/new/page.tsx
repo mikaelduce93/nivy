@@ -3,7 +3,8 @@
  * Server component: loads the teen's friends and renders the client form.
  *
  * Submit hits POST /api/teen/friend-challenges → SECURITY DEFINER RPC
- * `create_friend_challenge_v2` (canon §2). XP escrow runs server-side.
+ * `create_friend_challenge_v2` (canon §2). #206 — défis entre amis pour
+ * l'honneur : aucune mise/escrow XP, aucun transfert d'XP entre ados.
  */
 import { redirect } from "next/navigation"
 import Link from "next/link"
@@ -69,15 +70,14 @@ export default async function NewFriendDefiPage() {
           Défie ton <em className="font-semibold italic text-pink">crew</em>
         </h1>
         <p className="text-sm text-mute">
-          Choisis un adversaire, un type de défi, ton enjeu en XP. La mise est
-          débitée à la création; ton adversaire est débité à l&apos;acceptation;
-          le pot va au gagnant.
+          Choisis un adversaire et un type de défi. Pas de mise, pas de transfert
+          d&apos;XP — le gagnant prend la couronne, c&apos;est tout.
         </p>
       </header>
 
       <NivCoach
-        mood="happy"
-        message="Choisis bien ton enjeu : pas de remboursement après acceptation."
+        mood="hype"
+        message="Yallah, défie ton crew et prends la couronne !"
       />
 
       {friends.length === 0 ? (

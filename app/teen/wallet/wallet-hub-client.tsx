@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react"
 import Link from "next/link"
-import { Coins, ShoppingBag, Award, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2, PiggyBank, Receipt } from "lucide-react"
+import { Coins, ShoppingBag, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2, PiggyBank, Receipt, QrCode } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -10,10 +10,21 @@ import { useSearchParams } from "next/navigation"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { toast } from "sonner"
 import { purchaseReward } from "@/gamification-system/features/shop/actions"
+import type { UserPurchase } from "@/gamification-system/features/shop/schema"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { StickerTabs } from "@/components/brand/sticker-tab"
 import { NivCoach, NivEmpty, DarkSurface, StatHero } from "@/components/brand"
+
+interface SavingsGoal {
+  id: string
+  title: string
+  description: string | null
+  current_saved_coins: number
+  target_coins: number
+  status: string
+  parent_match_pct: number
+}
 
 interface ShopReward {
   reward_id: string
@@ -48,14 +59,23 @@ interface WalletHubClientProps {
     shopHighlights: any
     rewards?: ShopReward[]
     categories?: Array<{ id: string; slug: string; name: string }>
-    currency?: { xpToDhRate: number; xpValueDH: number }
+    /** Onglet Épargne — vue user_coins_spendable (source unique) + objectifs. */
+    savings?: {
+      spendable: number
+      total: number
+      locked: number
+      goals: SavingsGoal[]
+    }
+    /** Onglet Historique — achats canoniques (user_purchases via RPC). */
+    purchases?: UserPurchase[]
   }
 }
 
 const WALLET_TABS: HubTab[] = [
-  { id: "coins", label: "Coins", icon: Coins },
+  { id: "coins", label: "Solde", icon: Coins },
   { id: "shop", label: "Boutique", icon: ShoppingBag },
-  { id: "badges", label: "Badges", icon: Award },
+  { id: "savings", label: "Épargne", icon: PiggyBank },
+  { id: "history", label: "Historique", icon: Receipt },
 ]
 
 export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
@@ -102,29 +122,14 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
 
         {/* Tabs (VIP routé vers /teen/vip-card, canon VIP) */}
         <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* #206 — Épargne et Historique sont désormais des onglets in-page. */}
           <HubTabs tabs={WALLET_TABS} defaultTab="coins" />
-          {/* #206 — accès aux surfaces économie absorbées par le hub Wallet :
-              Épargne (savings) et Historique/codes de retrait (shop/history). */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Link href="/teen/savings">
-              <Button variant="outline" size="sm">
-                <PiggyBank className="w-4 h-4" />
-                Épargne
-              </Button>
-            </Link>
-            <Link href="/teen/shop/history">
-              <Button variant="outline" size="sm">
-                <Receipt className="w-4 h-4" />
-                Historique
-              </Button>
-            </Link>
-            <Link href="/teen/vip-card">
-              <Button variant="outline" size="sm">
-                <Crown className="w-4 h-4" />
-                Carte VIP
-              </Button>
-            </Link>
-          </div>
+          <Link href="/teen/vip-card">
+            <Button variant="outline" size="sm">
+              <Crown className="w-4 h-4" />
+              Carte VIP
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -132,7 +137,8 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
       <div>
         {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
         {currentTab === "shop" && <ShopTab walletData={walletData} teenId={teenId} />}
-        {currentTab === "badges" && <BadgesTab teenId={teenId} />}
+        {currentTab === "savings" && <SavingsTab walletData={walletData} />}
+        {currentTab === "history" && <HistoryTab walletData={walletData} />}
       </div>
     </div>
   )
@@ -502,72 +508,208 @@ function ShopTab({
   )
 }
 
-function BadgesTab({ teenId }: { teenId?: string }) {
-  const [badges, setBadges] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+// #206 — Onglet Épargne : panneau compact en lecture seule. Lock/withdraw
+// restent sur /teen/savings (source des actions). Source coins = vue
+// user_coins_spendable passée par la page (single source of truth).
+function SavingsTab({ walletData }: { walletData: WalletHubClientProps["walletData"] }) {
+  const savings = walletData.savings
+  const spendable = savings?.spendable ?? 0
+  const total = savings?.total ?? 0
+  const locked = savings?.locked ?? 0
+  const goals = (savings?.goals ?? []).filter(
+    (g) => g.status === "active" || g.status === "achieved"
+  )
 
-  useEffect(() => {
-    const fetchBadges = async () => {
-      try {
-        const response = await fetch('/api/teen/wallet')
-        if (response.ok) {
-          const data = await response.json()
-          setBadges(data.badges || [])
+  return (
+    <div className="space-y-6">
+      <StatHero
+        eyebrow="Disponible"
+        tone="coral"
+        size="lg"
+        value={spendable.toLocaleString()}
+        unit="⊙ coins"
+        meta={
+          <div className="flex flex-wrap gap-x-6 gap-y-1 font-mono tabular-nums">
+            <span>Total : {total.toLocaleString()} ⊙</span>
+            <span>Bloqué (épargne) : {locked.toLocaleString()} ⊙</span>
+          </div>
         }
-      } catch (error) {
-        console.error('Failed to fetch badges:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchBadges()
-  }, [teenId])
+      />
 
-  // Vrais badges débloqués uniquement (les placeholders fictifs ont été retirés).
-  const unlockedBadges = badges
+      {goals.length === 0 ? (
+        <NivEmpty
+          mood="calm"
+          title="Aucun objectif d'épargne"
+          description="Crée ton premier objectif et commence à mettre tes coins de côté pour ce qui compte."
+          action={
+            <Link href="/teen/savings/new">
+              <Button variant="pink" size="sm">Créer un objectif</Button>
+            </Link>
+          }
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {goals.map((g) => {
+            const pct = Math.min(100, Math.round((g.current_saved_coins / g.target_coins) * 100))
+            const segments = 10
+            const current = Math.min(segments, Math.round((pct / 100) * segments))
+            return (
+              <StickerCard key={g.id} variant="default" className="p-5 space-y-3">
+                <h3 className="font-display text-base font-bold text-ink">{g.title}</h3>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between font-mono text-sm tabular-nums text-ink-2">
+                    <span>{g.current_saved_coins.toLocaleString()} / {g.target_coins.toLocaleString()} ⊙</span>
+                    <span>{pct}%</span>
+                  </div>
+                  <SegmentedProgress steps={segments} current={current} size="md" />
+                </div>
+              </StickerCard>
+            )
+          })}
+        </div>
+      )}
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-coral" />
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href="/teen/savings">
+          <Button variant="outline" size="sm">
+            <PiggyBank className="w-4 h-4" />
+            Gérer l&apos;épargne
+          </Button>
+        </Link>
+        <Link href="/teen/savings/new">
+          <Button variant="pink" size="sm">Nouvel objectif</Button>
+        </Link>
       </div>
-    )
+    </div>
+  )
+}
+
+// #206 — Onglet Historique : achats canoniques (user_purchases via RPC).
+// Code de retrait dérivé des 8 premiers caractères du purchase_id (uppercase)
+// — pas de colonne dédiée dans le système canonique.
+function HistoryTab({ walletData }: { walletData: WalletHubClientProps["walletData"] }) {
+  const purchases = walletData.purchases ?? []
+  const usable = purchases.filter((p) => p.is_usable)
+
+  const formatDate = (s: string) =>
+    new Date(s).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })
+
+  const statusClass = (status: UserPurchase["status"]) => {
+    switch (status) {
+      case "completed":
+      case "used":
+        return "border-lime bg-lime/15 text-ink"
+      case "pending":
+        return "border-gold bg-gold/15 text-ink"
+      case "expired":
+      case "refunded":
+        return "border-coral bg-coral/15 text-ink"
+      default:
+        return "border-line bg-paper-2 text-mute"
+    }
+  }
+  const statusText: Record<UserPurchase["status"], string> = {
+    pending: "En cours",
+    completed: "Disponible",
+    used: "Utilisé",
+    expired: "Expiré",
+    refunded: "Remboursé",
   }
 
-  if (unlockedBadges.length === 0) {
+  if (purchases.length === 0) {
     return (
       <NivEmpty
         mood="calm"
-        title="Pas encore de badge"
-        description="Continue tes quêtes et ton crew t'attend — tes badges débloqués apparaîtront ici."
+        title="Aucun achat"
+        description="Tu n'as pas encore effectué d'achats dans la boutique. Découvre les rewards disponibles !"
+        action={
+          <Link href="/teen/wallet?tab=shop">
+            <Button variant="pink" size="sm">Découvrir la boutique</Button>
+          </Link>
+        }
       />
     )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] rounded-full border-2 border-ink bg-lime px-3 py-1 text-on-bright">
-          {unlockedBadges.length} débloqué{unlockedBadges.length > 1 ? "s" : ""}
-        </span>
-      </div>
+      {/* Récompenses à utiliser — codes de retrait en avant */}
+      {usable.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <Gift className="h-5 w-5 text-pink" />
+            Récompenses à utiliser
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            {usable.map((p) => (
+              <DarkSurface key={p.purchase_id} tone="pink" shadow className="p-5">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 border-paper/30 bg-white/10 text-3xl">
+                    {p.reward_icon || "🎁"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-display font-bold text-paper">{p.reward_name || "Récompense"}</h4>
+                    <p className="font-mono text-xs text-paper/60 mt-1">
+                      Acheté le {formatDate(p.purchased_at)}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border-2 border-paper/30 bg-white/5 p-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <QrCode className="h-5 w-5 shrink-0 text-pink" />
+                    <span className="font-mono text-sm font-bold tracking-wider text-paper truncate">
+                      {p.purchase_id.slice(0, 8).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-paper/60">
+                    Code à présenter
+                  </span>
+                </div>
+              </DarkSurface>
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* Badges Grid — vrais badges en cartes sticker */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-        {unlockedBadges.map((badge, idx) => (
-          <StickerCard
-            key={badge.id || idx}
-            variant="default"
-            className="items-center p-6 text-center"
-          >
-            <div className="text-5xl mb-4">{badge.icon || "🏆"}</div>
-            <h4 className="font-display font-bold text-ink">{badge.name}</h4>
-            {badge.rarity && (
-              <p className="eyebrow mt-1 tracking-[0.14em] text-mute">{badge.rarity}</p>
-            )}
+      {/* Liste compacte — tous les achats */}
+      <div className="space-y-3">
+        {purchases.map((p) => (
+          <StickerCard key={p.purchase_id} variant="panel" className="p-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-paper-2 text-xl">
+                  {p.reward_icon || "🎁"}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-display font-medium text-ink truncate">{p.reward_name || "Récompense"}</p>
+                  <p className="font-mono text-xs text-mute">{formatDate(p.purchased_at)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 font-mono text-sm font-bold tabular-nums text-gold">
+                  <Zap className="h-4 w-4" />
+                  −{(p.xp_spent || 0).toLocaleString("fr-FR")} XP
+                </span>
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full border-2 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider",
+                    statusClass(p.status)
+                  )}
+                >
+                  {statusText[p.status]}
+                </span>
+              </div>
+            </div>
           </StickerCard>
         ))}
       </div>
+
+      <Link href="/teen/shop/history">
+        <Button variant="outline" size="sm">
+          <Receipt className="w-4 h-4" />
+          Voir tout l&apos;historique
+        </Button>
+      </Link>
     </div>
   )
 }

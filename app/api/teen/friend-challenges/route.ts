@@ -10,7 +10,7 @@
  *        Create a v2 friend challenge. Caller is the challenger.
  *        Body: {
  *          opponentId, challengeKind, rules?, name?, targetValue?,
- *          durationHours?, xpStake?, expiresInHours?
+ *          durationHours?, expiresInHours?
  *        }
  *
  * Mutations call SECURITY DEFINER RPC create_friend_challenge_v2 (mig 078)
@@ -36,7 +36,6 @@ interface CreateBody {
   name?: string | null
   targetValue?: number | null
   durationHours?: number | null
-  xpStake?: number | null
   expiresInHours?: number | null
 }
 
@@ -131,6 +130,8 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createClient()
+    // #206 — friend défis are bragging-rights only: no XP stake/transfer.
+    // p_xp_stake is omitted (RPC defaults to 0 and migration 123 ignores it).
     const { data, error } = await supabase.rpc("create_friend_challenge_v2", {
       p_opponent_id: body.opponentId,
       p_challenge_kind: body.challengeKind,
@@ -138,7 +139,6 @@ export async function POST(request: Request) {
       p_name: body.name ?? null,
       p_target_value: body.targetValue ?? null,
       p_duration_hours: body.durationHours ?? 168,
-      p_xp_stake: body.xpStake ?? 0,
       p_expires_in_hours: body.expiresInHours ?? 48,
     })
 

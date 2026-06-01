@@ -262,7 +262,7 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
                 Défis <em className="font-semibold italic text-pink underline decoration-pink/40 underline-offset-4">amis</em>
               </h1>
               <p className="text-mute text-sm">
-                Affronte ton crew, mise des XP, prends la couronne
+                Affronte ton crew et prends la couronne
               </p>
             </div>
           </div>
@@ -279,7 +279,7 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
         {/* Niv coach — pose hype */}
         <NivCoach
           mood="hype"
-          message="Yallah, défie ton crew ! Mise tes XP et prends la couronne."
+          message="Yallah, défie ton crew et prends la couronne !"
         />
 
         {/* Hub tabs (shared with /teen/quests) */}
@@ -402,8 +402,9 @@ function FriendDefiTile({
   const refDate = filter === "pending" && row.expires_at ? row.expires_at : row.ends_at
   const daysLeft = computeDaysLeft(refDate)
 
-  // Pot precedence: v2 xp_pot (sum of stakes) → v1 stake_xp → 0. Display
-  // the pot as the XP reward chip on the card so the stake stays visible.
+  // #206 — friend défis are bragging-rights only: no XP stake/transfer, so
+  // xp_pot/stake_xp are 0 for new challenges and the card shows no XP chip.
+  // Legacy rows (pre-#206) may still carry a pot; surface it for honesty.
   const xpReward = row.xp_pot && row.xp_pot > 0 ? row.xp_pot : row.stake_xp || 0
 
   const title = row.name || friendlyKindLabel(row.challenge_kind) || "Défi entre amis"
@@ -490,7 +491,7 @@ function CompletedSummary({
   if (row.is_draw) {
     return (
       <p className="text-xs font-bold uppercase tracking-wider text-gold">
-        Match nul — pot partagé
+        Match nul
       </p>
     )
   }
@@ -509,7 +510,7 @@ function CompletedSummary({
         won ? "text-lime" : "text-mute",
       )}
     >
-      {won ? `Victoire +${row.xp_pot ?? 0} XP` : "Défaite"}
+      {won ? "Victoire 👑" : "Défaite"}
     </p>
   )
 }

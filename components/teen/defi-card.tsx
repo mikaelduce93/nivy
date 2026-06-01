@@ -339,11 +339,14 @@ export function DefiCard({
             </div>
           </div>
 
-          {/* Reward chips */}
+          {/* Reward chips — XP chip hidden when there's no reward (e.g. a
+              no-stake friend défi after #206: bragging-rights, no XP transfer). */}
           <div className="flex shrink-0 flex-col items-end gap-1">
-            <span className="inline-flex items-center gap-1 rounded-full border border-ink bg-gold/15 px-2 py-0.5 text-[11px] font-black tabular-nums text-ink">
-              <Zap className="h-3 w-3" aria-hidden />+{safeXp.toLocaleString()} XP
-            </span>
+            {safeXp > 0 ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-ink bg-gold/15 px-2 py-0.5 text-[11px] font-black tabular-nums text-ink">
+                <Zap className="h-3 w-3" aria-hidden />+{safeXp.toLocaleString()} XP
+              </span>
+            ) : null}
             {safeCoins > 0 ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-ink bg-coral/15 px-2 py-0.5 text-[11px] font-black tabular-nums text-ink">
                 <Coins className="h-3 w-3" aria-hidden />+{safeCoins.toLocaleString()}
