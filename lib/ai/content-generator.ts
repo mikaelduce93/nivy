@@ -41,6 +41,27 @@ export function resolveModelId(providerType: AIProviderType): string {
   return ""
 }
 
+// #210 — sélection du modèle par tâche, env-driven : greeting → Haiku (rapide,
+// bon marché), chat → Sonnet (défaut), orientation → Opus (rare). OpenAI garde
+// son modèle unique. Chaque défaut est surchargeable par variable d'env.
+export const DEFAULT_CLAUDE_GREETING_MODEL = "claude-haiku-4-5"
+export const DEFAULT_CLAUDE_ORIENTATION_MODEL = "claude-opus-4-1"
+
+export type AITask = "chat" | "greeting" | "orientation"
+
+export function resolveModelForTask(providerType: AIProviderType, task: AITask): string {
+  if (providerType === "openai") {
+    return process.env.OPENAI_MODEL_ID || DEFAULT_OPENAI_MODEL
+  }
+  if (task === "greeting") {
+    return process.env.CLAUDE_GREETING_MODEL || DEFAULT_CLAUDE_GREETING_MODEL
+  }
+  if (task === "orientation") {
+    return process.env.CLAUDE_ORIENTATION_MODEL || DEFAULT_CLAUDE_ORIENTATION_MODEL
+  }
+  return process.env.CLAUDE_MODEL_ID || DEFAULT_CLAUDE_MODEL
+}
+
 export interface GenerationParams {
   contentType: ContentType
   category?: string
