@@ -42,3 +42,41 @@ export function supportsStreaming(
 ): provider is BaseAIProvider & StreamingAIProvider {
   return typeof (provider as Partial<StreamingAIProvider>).callStream === "function"
 }
+
+// #212 — boucle d'outils agentiques (closed tool loop). `input_schema` est un
+// JSON Schema au format Anthropic. L'executor renvoie un résultat HONNÊTE
+// (jamais de faux succès) ; `pendingApproval` = action gatée (confirmation parent).
+export interface AIToolDef {
+  name: string
+  description: string
+  input_schema: { type: "object"; properties: Record<string, unknown>; required?: string[] }
+}
+
+export interface AIToolResult {
+  success: boolean
+  message: string
+  data?: Record<string, unknown>
+  pendingApproval?: boolean
+}
+
+export interface ToolRunResult {
+  content: string
+  actions: Array<{ name: string; result: AIToolResult }>
+  metadata: AIProviderMetadata
+}
+
+export interface RunToolsAIProvider {
+  runTools(
+    systemPrompt: string,
+    userPrompt: string,
+    tools: AIToolDef[],
+    execute: (name: string, input: Record<string, unknown>) => Promise<AIToolResult>,
+    maxSteps?: number,
+  ): Promise<ToolRunResult>
+}
+
+export function supportsRunTools(
+  provider: BaseAIProvider,
+): provider is BaseAIProvider & RunToolsAIProvider {
+  return typeof (provider as Partial<RunToolsAIProvider>).runTools === "function"
+}

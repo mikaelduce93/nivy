@@ -75,6 +75,17 @@ function resolveDispatchRpc(actionType: string, decision: Decision): {
       deny: "parent_deny_content",
       denyReason: true,
     },
+    // #212 — actions gatées déclenchées par le coach Niv (migration 122).
+    savings_goal: {
+      approve: "parent_approve_savings_goal",
+      deny: "parent_deny_savings_goal",
+      denyReason: true,
+    },
+    event_booking: {
+      approve: "parent_approve_booking",
+      deny: "parent_deny_booking",
+      denyReason: true,
+    },
   }
   const entry = map[actionType]
   if (!entry) return null

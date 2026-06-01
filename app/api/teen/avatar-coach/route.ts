@@ -28,8 +28,9 @@ import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { AIProviderFactory, type AIProviderType } from "@/lib/ai/providers/factory"
 import { resolveModelForTask } from "@/lib/ai/content-generator"
-import { supportsStreaming, type AIProviderMetadata } from "@/lib/ai/providers/base"
+import { supportsStreaming, supportsRunTools, type AIProviderMetadata } from "@/lib/ai/providers/base"
 import { getCoachMemoryLine, extractAndPersistMemory } from "@/lib/ai/coach-memory"
+import { buildCoachTools } from "@/lib/ai/coach-tools"
 
 // #202 — le 5/jour codé en dur tuait tout usage « coach ». Configurable via env,
 // défaut 20 (le routage Claude + caching de #210 réduit le coût marginal).
@@ -265,14 +266,21 @@ export async function POST(request: Request) {
     // teen_full_profile uniquement (l'ancien `streak`/`interests` n'existaient pas
     // → drift schéma corrigé : on lit level/total_xp/coins_balance).
     let profileLine: string | undefined
+    let parentId: string | undefined
     try {
       const { data: prof } = await supabase
         .from("teen_full_profile")
-        .select("level, total_xp, coins_balance")
+        .select("level, total_xp, coins_balance, primary_parent_id")
         .eq("id", user.id)
-        .maybeSingle<{ level: number | null; total_xp: number | null; coins_balance: number | null }>()
+        .maybeSingle<{
+          level: number | null
+          total_xp: number | null
+          coins_balance: number | null
+          primary_parent_id: string | null
+        }>()
       if (prof) {
         profileLine = `Niveau ${prof.level ?? 1}, ${prof.total_xp ?? 0} XP, ${prof.coins_balance ?? 0} coins. Humeur : ${avatar?.mood || "neutral"}.`
+        parentId = prof.primary_parent_id ?? undefined
       }
     } catch {
       // best-effort : pas de contexte si la lecture échoue.
@@ -365,6 +373,33 @@ export async function POST(request: Request) {
         creation: meta.cacheCreationInputTokens ?? 0,
         model: meta.model,
       })
+    }
+
+    // #212 — boucle d'outils agentiques (closed loop), derrière COACH_TOOLS_ENABLED
+    // (off par défaut → la voie streaming reste le défaut : aucune régression #210).
+    // Tours outillés non-streamés : on émet la réponse finale sur le contrat NDJSON.
+    if (
+      process.env.COACH_TOOLS_ENABLED === "true" &&
+      providerType === "claude" &&
+      supportsRunTools(provider)
+    ) {
+      const tools = buildCoachTools(supabase, { teenId: user.id, parentId })
+      let reply = SAFE_REDIRECT
+      let acted = false
+      try {
+        const r = await provider.runTools(systemPrompt, userPrompt, tools.defs, tools.execute)
+        logCache(r.metadata)
+        acted = r.actions.length > 0
+        const cand = (r.content || "").trim().slice(0, MAX_REPLY_CHARS)
+        reply = cand && isReplySafe(cand) ? cand : acted ? "C'est noté, je m'en occupe 👍" : SAFE_REDIRECT
+      } catch (err) {
+        console.error("[avatar-coach] tools error:", err)
+        reply = `Petit souci de mon côté ${teenFirstName}. Réessaie ?`
+      }
+      if (reply !== SAFE_REDIRECT && isReplySafe(reply)) {
+        await extractAndPersistMemory(supabase, user.id, raw, reply, providerType)
+      }
+      return single(reply, acted)
     }
 
     // Provider sans streaming (OpenAI) → 1 appel atomique, 1 frame NDJSON.

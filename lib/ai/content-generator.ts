@@ -62,6 +62,21 @@ export function resolveModelForTask(providerType: AIProviderType, task: AITask):
   return process.env.CLAUDE_MODEL_ID || DEFAULT_CLAUDE_MODEL
 }
 
+/**
+ * #212 — extraction JSON robuste (fin du parsing regex fragile). Retire les
+ * fences markdown puis isole le premier objet {...}. Lève si invalide (capté
+ * par l'appelant qui retombe alors sur le fallback curaté).
+ */
+function extractJsonObject(response: string): Record<string, unknown> {
+  const cleaned = (response || "").replace(/```json/gi, "").replace(/```/g, "").trim()
+  const start = cleaned.indexOf("{")
+  const end = cleaned.lastIndexOf("}")
+  if (start < 0 || end <= start) {
+    throw new Error("no JSON object found in model response")
+  }
+  return JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>
+}
+
 export interface GenerationParams {
   contentType: ContentType
   category?: string
@@ -376,18 +391,17 @@ Format JSON requis:
 
   private parseMissionResponse(response: string, params: GenerationParams): GeneratedMission | null {
     try {
-      const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
-      const parsed = JSON.parse(cleaned)
-      
+      const parsed = extractJsonObject(response)
+      if (typeof parsed.name !== "string") return null
       return {
         name: parsed.name,
-        description: parsed.description || "",
-        mission_type: parsed.mission_type || "daily",
-        category: parsed.category || params.category || "participation",
-        objective_type: parsed.objective_type || "count",
-        objective_target: parsed.objective_target || 1,
-        xp_reward: parsed.xp_reward || 50,
-        difficulty: parsed.difficulty || params.difficulty || "normal",
+        description: typeof parsed.description === "string" ? parsed.description : "",
+        mission_type: (parsed.mission_type as GeneratedMission["mission_type"]) || "daily",
+        category: (parsed.category as string) || params.category || "participation",
+        objective_type: (parsed.objective_type as string) || "count",
+        objective_target: (parsed.objective_target as number) || 1,
+        xp_reward: (parsed.xp_reward as number) || 50,
+        difficulty: (parsed.difficulty as string) || params.difficulty || "normal",
       }
     } catch (error) {
       console.error("Error parsing mission response:", error)
@@ -397,17 +411,16 @@ Format JSON requis:
 
   private parseChallengeResponse(response: string, params: GenerationParams): GeneratedChallenge | null {
     try {
-      const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
-      const parsed = JSON.parse(cleaned)
-      
+      const parsed = extractJsonObject(response)
+      if (typeof parsed.title !== "string") return null
       return {
         title: parsed.title,
-        description: parsed.description || "",
-        category: parsed.category || params.category || "general",
-        challenge_type: parsed.challenge_type || "daily",
-        xp_reward: parsed.xp_reward || 50,
-        difficulty: parsed.difficulty || params.difficulty || "normal",
-        validation_type: parsed.validation_type || "self_report",
+        description: typeof parsed.description === "string" ? parsed.description : "",
+        category: (parsed.category as string) || params.category || "general",
+        challenge_type: (parsed.challenge_type as string) || "daily",
+        xp_reward: (parsed.xp_reward as number) || 50,
+        difficulty: (parsed.difficulty as string) || params.difficulty || "normal",
+        validation_type: (parsed.validation_type as string) || "self_report",
       }
     } catch (error) {
       console.error("Error parsing challenge response:", error)

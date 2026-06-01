@@ -1,9 +1,15 @@
+import Anthropic from "@anthropic-ai/sdk"
+
 import { getAnthropic } from "../anthropic"
 import {
   BaseAIProvider,
   type AIProviderMetadata,
   type AIProviderResponse,
+  type AIToolDef,
+  type AIToolResult,
+  type RunToolsAIProvider,
   type StreamingAIProvider,
+  type ToolRunResult,
 } from "./base"
 
 // #210 — provider Claude via le SDK officiel (@anthropic-ai/sdk), remplace le
@@ -20,7 +26,7 @@ type ClaudeUsage = {
   cache_creation_input_tokens?: number | null
 }
 
-export class ClaudeProvider extends BaseAIProvider implements StreamingAIProvider {
+export class ClaudeProvider extends BaseAIProvider implements StreamingAIProvider, RunToolsAIProvider {
   private resolveModel(): string {
     return this.model || process.env.CLAUDE_MODEL_ID || CLAUDE_FALLBACK_MODEL
   }
@@ -110,6 +116,72 @@ export class ClaudeProvider extends BaseAIProvider implements StreamingAIProvide
     return {
       content,
       metadata: this.buildMetadata(model, Date.now() - startTime, final.usage),
+    }
+  }
+
+  // #212 — boucle d'outils fermée (closed tool loop). Bornée par `maxSteps` →
+  // corrige par construction l'absence de limite de pas. Renvoie le texte final
+  // + les résultats des tools (jamais de faux succès : ils viennent des executors).
+  async runTools(
+    systemPrompt: string,
+    userPrompt: string,
+    tools: AIToolDef[],
+    execute: (name: string, input: Record<string, unknown>) => Promise<AIToolResult>,
+    maxSteps = 4,
+  ): Promise<ToolRunResult> {
+    if (!this.apiKey) {
+      throw new Error("ANTHROPIC_API_KEY is not configured")
+    }
+    const startTime = Date.now()
+    const model = this.resolveModel()
+    const client = getAnthropic()
+
+    const messages: Anthropic.MessageParam[] = [{ role: "user", content: userPrompt }]
+    const actions: ToolRunResult["actions"] = []
+    let finalText = ""
+    let usage: ClaudeUsage | null | undefined
+
+    for (let step = 0; step < maxSteps; step++) {
+      const resp = await client.messages.create({
+        model,
+        max_tokens: MAX_TOKENS,
+        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
+        tools: tools as Anthropic.Tool[],
+        messages,
+      })
+      usage = resp.usage
+
+      const text = resp.content
+        .filter((b): b is Anthropic.TextBlock => b.type === "text")
+        .map((b) => b.text)
+        .join("")
+      if (text) finalText = text
+
+      if (resp.stop_reason !== "tool_use") break
+
+      const toolUses = resp.content.filter(
+        (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+      )
+      if (toolUses.length === 0) break
+
+      messages.push({ role: "assistant", content: resp.content })
+      const toolResults: Anthropic.ToolResultBlockParam[] = []
+      for (const tu of toolUses) {
+        const result = await execute(tu.name, (tu.input ?? {}) as Record<string, unknown>)
+        actions.push({ name: tu.name, result })
+        toolResults.push({
+          type: "tool_result",
+          tool_use_id: tu.id,
+          content: JSON.stringify(result),
+        })
+      }
+      messages.push({ role: "user", content: toolResults })
+    }
+
+    return {
+      content: finalText,
+      actions,
+      metadata: this.buildMetadata(model, Date.now() - startTime, usage),
     }
   }
 }
