@@ -375,11 +375,14 @@ export async function POST(request: Request) {
       })
     }
 
-    // #212 — boucle d'outils agentiques (closed loop), derrière COACH_TOOLS_ENABLED
-    // (off par défaut → la voie streaming reste le défaut : aucune régression #210).
-    // Tours outillés non-streamés : on émet la réponse finale sur le contrat NDJSON.
+    // #212 — boucle d'outils agentiques (closed loop). ACTIVÉE PAR DÉFAUT dès que
+    // le provider sait fermer la boucle (Claude / supportsRunTools) → « un tour de
+    // chat peut agir » est le comportement par défaut. Opt-out explicite seulement
+    // via COACH_TOOLS_ENABLED='false'. Jamais de tool-calling pour un provider qui
+    // ne sait pas fermer la boucle. Tours outillés non-streamés : réponse finale
+    // émise sur le même contrat NDJSON.
     if (
-      process.env.COACH_TOOLS_ENABLED === "true" &&
+      process.env.COACH_TOOLS_ENABLED !== "false" &&
       providerType === "claude" &&
       supportsRunTools(provider)
     ) {
@@ -390,8 +393,25 @@ export async function POST(request: Request) {
         const r = await provider.runTools(systemPrompt, userPrompt, tools.defs, tools.execute)
         logCache(r.metadata)
         acted = r.actions.length > 0
+        const succeeded = r.actions.some((a) => a.result.success)
         const cand = (r.content || "").trim().slice(0, MAX_REPLY_CHARS)
-        reply = cand && isReplySafe(cand) ? cand : acted ? "C'est noté, je m'en occupe 👍" : SAFE_REDIRECT
+        if (cand && isReplySafe(cand)) {
+          reply = cand
+        } else if (acted) {
+          // Pas de texte final du modèle : on relaie le message HONNÊTE du dernier
+          // tool (succès OU échec) plutôt qu'une affirmation générique — une action
+          // échouée ne doit pas se lire comme un succès (#212 « aucun faux succès »).
+          const lastMsg = (r.actions[r.actions.length - 1]?.result.message || "")
+            .trim()
+            .slice(0, MAX_REPLY_CHARS)
+          reply = lastMsg && isReplySafe(lastMsg)
+            ? lastMsg
+            : succeeded
+              ? "C'est noté, je m'en occupe 👍"
+              : SAFE_REDIRECT
+        } else {
+          reply = SAFE_REDIRECT
+        }
       } catch (err) {
         console.error("[avatar-coach] tools error:", err)
         reply = `Petit souci de mon côté ${teenFirstName}. Réessaie ?`

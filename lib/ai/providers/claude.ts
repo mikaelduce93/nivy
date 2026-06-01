@@ -9,6 +9,8 @@ import {
   type AIToolResult,
   type RunToolsAIProvider,
   type StreamingAIProvider,
+  type StructuredAIProvider,
+  type StructuredSchema,
   type ToolRunResult,
 } from "./base"
 
@@ -26,7 +28,10 @@ type ClaudeUsage = {
   cache_creation_input_tokens?: number | null
 }
 
-export class ClaudeProvider extends BaseAIProvider implements StreamingAIProvider, RunToolsAIProvider {
+export class ClaudeProvider
+  extends BaseAIProvider
+  implements StreamingAIProvider, RunToolsAIProvider, StructuredAIProvider
+{
   private resolveModel(): string {
     return this.model || process.env.CLAUDE_MODEL_ID || CLAUDE_FALLBACK_MODEL
   }
@@ -182,6 +187,51 @@ export class ClaudeProvider extends BaseAIProvider implements StreamingAIProvide
       content: finalText,
       actions,
       metadata: this.buildMetadata(model, Date.now() - startTime, usage),
+    }
+  }
+
+  // #212 — sortie JSON structurée garantie conforme (DoD-5). On force le modèle à
+  // appeler un unique outil dont `input_schema` EST le schéma JSON voulu, via
+  // `tool_choice: { type: "tool" }`. Le bloc `tool_use.input` renvoyé est donc du
+  // JSON valide vis-à-vis du schéma — AUCUN parsing/réparation regex nécessaire.
+  // `null` si le modèle ne produit pas le tool_use attendu (l'appelant retombe
+  // alors sur son fallback curaté statique). Modèle env-driven, pas de temperature
+  // sur Opus (comme les autres appels).
+  async callStructured<T = Record<string, unknown>>(
+    systemPrompt: string,
+    userPrompt: string,
+    spec: StructuredSchema,
+  ): Promise<{ data: T | null; metadata: AIProviderMetadata }> {
+    if (!this.apiKey) {
+      throw new Error("ANTHROPIC_API_KEY is not configured")
+    }
+    const startTime = Date.now()
+    const model = this.resolveModel()
+    const client = getAnthropic()
+
+    const resp = await client.messages.create({
+      model,
+      max_tokens: MAX_TOKENS,
+      system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
+      tools: [
+        {
+          name: spec.name,
+          description: spec.description ?? "Renvoie le résultat structuré.",
+          input_schema: spec.schema as Anthropic.Tool.InputSchema,
+        },
+      ],
+      tool_choice: { type: "tool", name: spec.name },
+      messages: [{ role: "user", content: userPrompt }],
+    })
+
+    const toolUse = resp.content.find(
+      (b): b is Anthropic.ToolUseBlock => b.type === "tool_use" && b.name === spec.name,
+    )
+    const data = (toolUse?.input ?? null) as T | null
+
+    return {
+      data,
+      metadata: this.buildMetadata(model, Date.now() - startTime, resp.usage),
     }
   }
 }

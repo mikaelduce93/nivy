@@ -80,3 +80,28 @@ export function supportsRunTools(
 ): provider is BaseAIProvider & RunToolsAIProvider {
   return typeof (provider as Partial<RunToolsAIProvider>).runTools === "function"
 }
+
+// #212 — sortie JSON STRUCTURÉE garantie conforme (DoD-5 : « zéro fallback regex »).
+// `schema` est un JSON Schema (format objet). L'implémentation force le modèle à
+// remplir ce schéma (tool-forced JSON côté Claude) et renvoie l'objet typé : pas
+// de parsing/réparation regex. `null` = réponse modèle vide/malformée (l'appelant
+// retombe alors sur son fallback curaté statique, pas sur du regex).
+export interface StructuredSchema {
+  name: string
+  description?: string
+  schema: { type: "object"; properties: Record<string, unknown>; required?: string[] }
+}
+
+export interface StructuredAIProvider {
+  callStructured<T = Record<string, unknown>>(
+    systemPrompt: string,
+    userPrompt: string,
+    spec: StructuredSchema,
+  ): Promise<{ data: T | null; metadata: AIProviderMetadata }>
+}
+
+export function supportsStructured(
+  provider: BaseAIProvider,
+): provider is BaseAIProvider & StructuredAIProvider {
+  return typeof (provider as Partial<StructuredAIProvider>).callStructured === "function"
+}

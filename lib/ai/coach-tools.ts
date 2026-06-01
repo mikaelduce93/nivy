@@ -19,6 +19,19 @@ import type { AIToolDef, AIToolResult } from "./providers/base"
  *  - recommend_for_teen(p_teen_id, p_content_type, p_n, p_language)
  *  - parent_chore_completions(chore_id, teen_id, completed_at, evidence_url, parent_verified)
  *  - parental_approvals(parent_id, teen_id, action_type, resource_type, resource_id, amount, details, status, expires_at)
+ *  - challenges_templates(id, category('school'|'sport'|'crea'), title, description, xp_reward, is_active)  [migration 105]
+ *  - user_challenges(id, teen_id, challenge_id→challenges_templates, challenge_date, status('pending'|'completed'|'skipped'), metadata)  [migration 105]
+ *
+ * Choix des cibles d'écriture (DoD #212) :
+ *  - create_quest → user_challenges : c'est la VRAIE table d'instance par-ado,
+ *    self-assignable sous RLS (cf. features/gamification/actions.ts). Les tables
+ *    `quests`/`daily_challenges` référencées par d'anciennes routes N'EXISTENT PAS
+ *    en live (cf. app/teen/quests/[id]/page.tsx) ; `quests` serait de toute façon
+ *    un catalogue GLOBAL (écrire un état par-ado le corromprait). user_challenges
+ *    exige un challenge_id (FK template) → Niv s'auto-assigne un template actif.
+ *  - respond_parent_challenge → parent_chores + parent_chore_completions : le
+ *    « défi/corvée fixé par le parent » EST ce flux (même entité que complete_chore).
+ *    Répondre = soumettre une complétion en attente de validation parentale.
  */
 
 export interface CoachToolContext {
@@ -114,7 +127,86 @@ export function buildCoachTools(supabase: SupabaseClient, ctx: CoachToolContext)
         required: ["eventId", "price"],
       },
     },
+    {
+      name: "create_quest",
+      description:
+        "Crée une quête personnelle auto-assignée pour l'ado (un défi du jour à relever). À utiliser quand l'ado veut se lancer un défi école/sport/créa. Ne convertit jamais en argent.",
+      input_schema: {
+        type: "object",
+        properties: {
+          category: {
+            type: "string",
+            enum: ["school", "sport", "crea"],
+            description: "Domaine de la quête (défaut : school)",
+          },
+        },
+      },
+    },
+    {
+      name: "respond_parent_challenge",
+      description:
+        "Répond à un défi/corvée fixé par le parent : marque-le comme relevé (en attente de validation du parent — pas de récompense immédiate). À utiliser quand l'ado dit accepter ou avoir fait un défi de son parent.",
+      input_schema: {
+        type: "object",
+        properties: {
+          choreId: { type: "string", description: "id du défi/corvée parent" },
+        },
+        required: ["choreId"],
+      },
+    },
   ]
+
+  // #212 — soumission d'une corvée/défi parent (validation partagée par
+  // complete_chore ET respond_parent_challenge : même entité parent_chores).
+  // Vérifie l'attribution (directe ou via chore_targets) + l'exigence de preuve,
+  // puis insère une complétion en attente. Honnête : success=false si non assignée
+  // / preuve requise / erreur Supabase. AUCUNE conversion XP/argent.
+  const submitChoreCompletion = async (choreId: string): Promise<AIToolResult> => {
+    if (!choreId) return { success: false, message: "Quel défi/corvée veux-tu valider ?" }
+    const { data: chore } = await supabase
+      .from("parent_chores")
+      .select("id, teen_id, title, evidence_required, is_active")
+      .eq("id", choreId)
+      .maybeSingle<{
+        id: string
+        teen_id: string
+        title: string
+        evidence_required: boolean
+        is_active: boolean
+      }>()
+    let assigned = chore?.teen_id === ctx.teenId
+    if (chore && !assigned) {
+      const { data: tgt } = await supabase
+        .from("chore_targets")
+        .select("chore_id")
+        .eq("chore_id", choreId)
+        .eq("teen_id", ctx.teenId)
+        .maybeSingle()
+      assigned = Boolean(tgt)
+    }
+    if (!chore || !chore.is_active || !assigned) {
+      return { success: false, message: "Ce défi/corvée ne t'est pas attribué." }
+    }
+    if (chore.evidence_required) {
+      return {
+        success: false,
+        message: "Ce défi demande une preuve (photo). Ajoute-la depuis l'écran Corvées.",
+      }
+    }
+    const { error } = await supabase.from("parent_chore_completions").insert({
+      chore_id: choreId,
+      teen_id: ctx.teenId,
+      completed_at: new Date().toISOString(),
+      evidence_url: null,
+      parent_verified: false,
+    })
+    if (error) return { success: false, message: "Impossible de soumettre ce défi." }
+    return {
+      success: true,
+      message: `« ${chore.title} » relevé — en attente de validation de ton parent.`,
+      data: { choreId },
+    }
+  }
 
   const execute = async (name: string, input: Record<string, unknown>): Promise<AIToolResult> => {
     switch (name) {
@@ -263,6 +355,54 @@ export function buildCoachTools(supabase: SupabaseClient, ctx: CoachToolContext)
           message: "J'ai envoyé la demande de réservation à ton parent ✋",
           data: { eventId, price },
         }
+      }
+
+      case "create_quest": {
+        // Quête personnelle auto-assignée : on s'appuie sur la VRAIE table
+        // d'instance par-ado `user_challenges` (FK template obligatoire), comme
+        // l'assignation quotidienne existante. Niv choisit un template ACTIF de la
+        // catégorie demandée puis insère une ligne du jour en `pending`.
+        const allowed = ["school", "sport", "crea"] as const
+        const raw = str(input.category, 16).toLowerCase()
+        const category = (allowed as readonly string[]).includes(raw) ? raw : "school"
+        const { data: templates, error: tplError } = await supabase
+          .from("challenges_templates")
+          .select("id, title, xp_reward")
+          .eq("category", category)
+          .eq("is_active", true)
+          .limit(20)
+        if (tplError) return { success: false, message: "Je n'arrive pas à charger une quête là, réessaie." }
+        const pool = (templates ?? []) as Array<{ id: string; title: string | null; xp_reward: number | null }>
+        if (pool.length === 0) return { success: false, message: "Aucune quête dispo dans cette catégorie." }
+        const pick = pool[Math.floor(Math.random() * pool.length)]
+        const today = new Date().toISOString().slice(0, 10)
+        const { data: created, error } = await supabase
+          .from("user_challenges")
+          .insert({
+            teen_id: ctx.teenId,
+            challenge_id: pick.id,
+            challenge_date: today,
+            status: "pending",
+            metadata: { source: "coach_create_quest" },
+          })
+          .select("id")
+          .maybeSingle<{ id: string }>()
+        if (error) {
+          // 23505 = déjà auto-assignée aujourd'hui (contrainte unique teen/template/jour).
+          if ((error as { code?: string }).code === "23505") {
+            return { success: false, message: "Tu as déjà cette quête aujourd'hui — fonce la finir !" }
+          }
+          return { success: false, message: "La quête n'a pas pu être créée." }
+        }
+        return {
+          success: true,
+          message: `Quête créée : ${pick.title ?? "Défi du jour"} ! Tu la retrouves dans tes défis.`,
+          data: { userChallengeId: created?.id ?? null, title: pick.title, category },
+        }
+      }
+
+      case "respond_parent_challenge": {
+        return submitChoreCompletion(str(input.choreId, 64))
       }
 
       default:

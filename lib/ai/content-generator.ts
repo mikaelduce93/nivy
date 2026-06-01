@@ -8,10 +8,14 @@ import { createClient } from "@/lib/supabase/server"
 import { ContentValidator } from "./content-validator"
 import { EnhancedQuizPrompts, type TeenContext } from "./enhanced-quiz-prompts"
 import { InterestIntegration } from "./interest-integration"
-import { SmartJSONParser } from "./smart-json-parser"
 import { FactualValidator } from "./factual-validator"
 import { AIProviderFactory, type AIProviderType } from "./providers/factory"
-import type { BaseAIProvider } from "./providers/base"
+import {
+  supportsStructured,
+  type AIProviderMetadata,
+  type BaseAIProvider,
+  type StructuredSchema,
+} from "./providers/base"
 import { checkContentSafety, logSafetyOutcome } from "./content-safety"
 
 export type ContentType = "quiz" | "mission" | "challenge" | "daily_challenge" | "quest"
@@ -63,18 +67,102 @@ export function resolveModelForTask(providerType: AIProviderType, task: AITask):
 }
 
 /**
- * #212 — extraction JSON robuste (fin du parsing regex fragile). Retire les
- * fences markdown puis isole le premier objet {...}. Lève si invalide (capté
- * par l'appelant qui retombe alors sur le fallback curaté).
+ * #212 (DoD-5) — JSON garanti conforme, ZÉRO fallback regex.
+ *
+ * Chemin Claude (prod) : `callStructured` force le modèle à remplir le JSON
+ * Schema ci-dessous via un tool-use → `tool_use.input` est déjà conforme, aucun
+ * parsing. Chemin OpenAI (repli) : un SEUL `JSON.parse` du contenu (pas de
+ * SmartJSONParser, pas de réparation/scan regex). Un objet vide/malformé renvoie
+ * `null` → l'appelant retombe sur ses fallbacks curatés STATIQUES (non-regex).
  */
-function extractJsonObject(response: string): Record<string, unknown> {
-  const cleaned = (response || "").replace(/```json/gi, "").replace(/```/g, "").trim()
-  const start = cleaned.indexOf("{")
-  const end = cleaned.lastIndexOf("}")
-  if (start < 0 || end <= start) {
-    throw new Error("no JSON object found in model response")
+const QUIZ_SCHEMA: StructuredSchema = {
+  name: "emit_quiz",
+  description: "Émet un quiz éducatif conforme au format Nivy.",
+  schema: {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      description: { type: "string" },
+      subject: { type: "string" },
+      difficulty: { type: "string" },
+      grade_level: { type: "string" },
+      questions: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            type: { type: "string" },
+            question: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            // `correct` est hétérogène (index, booléen vrai/faux, ou liste
+            // d'index pour les questions à réponses multiples) — laissé permissif.
+            correct: {},
+            explanation: { type: "string" },
+          },
+          required: ["question", "correct"],
+        },
+      },
+      time_limit_minutes: { type: "number" },
+      passing_score: { type: "number" },
+      xp_reward: { type: "number" },
+    },
+    required: ["title", "subject", "questions"],
+  },
+}
+
+const MISSION_SCHEMA: StructuredSchema = {
+  name: "emit_mission",
+  description: "Émet une mission/quête conforme au format Nivy.",
+  schema: {
+    type: "object",
+    properties: {
+      name: { type: "string" },
+      description: { type: "string" },
+      mission_type: { type: "string", enum: ["daily", "weekly", "monthly"] },
+      category: { type: "string" },
+      objective_type: { type: "string" },
+      objective_target: { type: "number" },
+      xp_reward: { type: "number" },
+      difficulty: { type: "string" },
+    },
+    required: ["name"],
+  },
+}
+
+const CHALLENGE_SCHEMA: StructuredSchema = {
+  name: "emit_challenge",
+  description: "Émet un défi quotidien conforme au format Nivy.",
+  schema: {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      description: { type: "string" },
+      category: { type: "string" },
+      challenge_type: { type: "string" },
+      xp_reward: { type: "number" },
+      difficulty: { type: "string" },
+      validation_type: { type: "string" },
+    },
+    required: ["title"],
+  },
+}
+
+/**
+ * Repli OpenAI : un seul `JSON.parse` (aucune réparation regex). Retire au plus
+ * une paire de fences markdown ```…``` (nettoyage trivial, pas un scan d'accolades)
+ * avant de parser. `null` si la chaîne n'est pas du JSON valide.
+ */
+function parseJsonOnce(response: string): Record<string, unknown> | null {
+  const cleaned = (response || "")
+    .replace(/^```(?:json)?/i, "")
+    .replace(/```$/, "")
+    .trim()
+  try {
+    const parsed = JSON.parse(cleaned)
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : null
+  } catch {
+    return null
   }
-  return JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>
 }
 
 export interface GenerationParams {
@@ -131,7 +219,6 @@ export class ContentGenerator {
   private aiProvider: BaseAIProvider
   private validator: ContentValidator
   private factualValidator: FactualValidator
-  private jsonParser: SmartJSONParser
   private useFallback: boolean
 
   constructor(providerType: AIProviderType = "openai", useFallback: boolean = true) {
@@ -139,8 +226,29 @@ export class ContentGenerator {
     this.aiProvider = AIProviderFactory.getProvider(providerType, model)
     this.validator = new ContentValidator()
     this.factualValidator = new FactualValidator()
-    this.jsonParser = new SmartJSONParser()
     this.useFallback = useFallback
+  }
+
+  /**
+   * #212 (DoD-5) — génération JSON conforme sans regex. Claude → tool-forced JSON
+   * (objet déjà conforme au schéma). Repli OpenAI → un seul `JSON.parse`. Renvoie
+   * l'objet brut + les métadonnées du provider (ou `null` si réponse vide/malformée).
+   */
+  private async generateStructured(
+    systemPrompt: string,
+    userPrompt: string,
+    spec: StructuredSchema,
+  ): Promise<{ data: Record<string, unknown> | null; metadata?: AIProviderMetadata }> {
+    if (supportsStructured(this.aiProvider)) {
+      const { data, metadata } = await this.aiProvider.callStructured<Record<string, unknown>>(
+        systemPrompt,
+        userPrompt,
+        spec,
+      )
+      return { data: data && typeof data === "object" ? data : null, metadata }
+    }
+    const { content, metadata } = await this.aiProvider.call(systemPrompt, userPrompt)
+    return { data: parseJsonOnce(content), metadata }
   }
 
   /**
@@ -157,14 +265,9 @@ export class ContentGenerator {
     const startTime = Date.now()
 
     try {
-      const { content: response, metadata } = await this.aiProvider.call(systemPrompt, userPrompt)
-      
-      const quiz = this.jsonParser.parseQuizResponse(response, {
-        gradeLevel: params.gradeLevel,
-        difficulty: params.difficulty,
-        subject: params.subject,
-      }) as unknown as GeneratedQuiz
-      
+      const { data, metadata } = await this.generateStructured(systemPrompt, userPrompt, QUIZ_SCHEMA)
+      const quiz = this.normalizeQuiz(data, params)
+
       if (!quiz) {
         return this.useFallback ? this.getFallbackQuiz(params) : null
       }
@@ -223,9 +326,9 @@ export class ContentGenerator {
     const startTime = Date.now()
 
     try {
-      const { content: response, metadata } = await this.aiProvider.call(systemPrompt, userPrompt)
-      const mission = this.parseMissionResponse(response, params)
-      
+      const { data, metadata } = await this.generateStructured(systemPrompt, userPrompt, MISSION_SCHEMA)
+      const mission = this.normalizeMission(data, params)
+
       if (!mission) {
         return this.useFallback ? this.getFallbackMission(params) : null
       }
@@ -268,8 +371,8 @@ export class ContentGenerator {
     const startTime = Date.now()
 
     try {
-      const { content: response, metadata } = await this.aiProvider.call(systemPrompt, userPrompt)
-      const challenge = this.parseChallengeResponse(response, params)
+      const { data, metadata } = await this.generateStructured(systemPrompt, userPrompt, CHALLENGE_SCHEMA)
+      const challenge = this.normalizeChallenge(data, params)
 
       if (!challenge) {
         return this.useFallback ? this.getFallbackChallenge(params) : null
@@ -389,42 +492,70 @@ Format JSON requis:
 }`
   }
 
-  private parseMissionResponse(response: string, params: GenerationParams): GeneratedMission | null {
-    try {
-      const parsed = extractJsonObject(response)
-      if (typeof parsed.name !== "string") return null
-      return {
-        name: parsed.name,
-        description: typeof parsed.description === "string" ? parsed.description : "",
-        mission_type: (parsed.mission_type as GeneratedMission["mission_type"]) || "daily",
-        category: (parsed.category as string) || params.category || "participation",
-        objective_type: (parsed.objective_type as string) || "count",
-        objective_target: (parsed.objective_target as number) || 1,
-        xp_reward: (parsed.xp_reward as number) || 50,
-        difficulty: (parsed.difficulty as string) || params.difficulty || "normal",
-      }
-    } catch (error) {
-      console.error("Error parsing mission response:", error)
-      return null
+  // #212 — normalisation depuis l'OBJET déjà conforme (callStructured ou un seul
+  // JSON.parse). Plus aucun parsing/regex : on valide juste la forme minimale puis
+  // on complète les valeurs absentes par des défauts. `null` si invalide → fallback.
+  private normalizeQuiz(
+    parsed: Record<string, unknown> | null,
+    params: GenerationParams,
+  ): GeneratedQuiz | null {
+    if (!parsed || typeof parsed.title !== "string") return null
+    const rawQuestions = Array.isArray(parsed.questions) ? parsed.questions : []
+    const questions = rawQuestions
+      .filter(
+        (q): q is Record<string, unknown> =>
+          !!q && typeof q === "object" && typeof (q as Record<string, unknown>).question === "string",
+      )
+      .map((q) => ({
+        question: q.question as string,
+        options: Array.isArray(q.options) ? (q.options as string[]) : [],
+        correct: (q.correct as number) ?? 0,
+        explanation: typeof q.explanation === "string" ? q.explanation : undefined,
+      }))
+    if (questions.length === 0) return null
+    return {
+      title: parsed.title,
+      description: typeof parsed.description === "string" ? parsed.description : "",
+      subject: typeof parsed.subject === "string" ? parsed.subject : params.subject || "Général",
+      difficulty: (parsed.difficulty as string) || params.difficulty || "normal",
+      grade_level: typeof parsed.grade_level === "string" ? parsed.grade_level : params.gradeLevel,
+      questions,
+      time_limit_minutes: (parsed.time_limit_minutes as number) || 15,
+      passing_score: (parsed.passing_score as number) || 60,
+      xp_reward: (parsed.xp_reward as number) || 50,
     }
   }
 
-  private parseChallengeResponse(response: string, params: GenerationParams): GeneratedChallenge | null {
-    try {
-      const parsed = extractJsonObject(response)
-      if (typeof parsed.title !== "string") return null
-      return {
-        title: parsed.title,
-        description: typeof parsed.description === "string" ? parsed.description : "",
-        category: (parsed.category as string) || params.category || "general",
-        challenge_type: (parsed.challenge_type as string) || "daily",
-        xp_reward: (parsed.xp_reward as number) || 50,
-        difficulty: (parsed.difficulty as string) || params.difficulty || "normal",
-        validation_type: (parsed.validation_type as string) || "self_report",
-      }
-    } catch (error) {
-      console.error("Error parsing challenge response:", error)
-      return null
+  private normalizeMission(
+    parsed: Record<string, unknown> | null,
+    params: GenerationParams,
+  ): GeneratedMission | null {
+    if (!parsed || typeof parsed.name !== "string") return null
+    return {
+      name: parsed.name,
+      description: typeof parsed.description === "string" ? parsed.description : "",
+      mission_type: (parsed.mission_type as GeneratedMission["mission_type"]) || "daily",
+      category: (parsed.category as string) || params.category || "participation",
+      objective_type: (parsed.objective_type as string) || "count",
+      objective_target: (parsed.objective_target as number) || 1,
+      xp_reward: (parsed.xp_reward as number) || 50,
+      difficulty: (parsed.difficulty as string) || params.difficulty || "normal",
+    }
+  }
+
+  private normalizeChallenge(
+    parsed: Record<string, unknown> | null,
+    params: GenerationParams,
+  ): GeneratedChallenge | null {
+    if (!parsed || typeof parsed.title !== "string") return null
+    return {
+      title: parsed.title,
+      description: typeof parsed.description === "string" ? parsed.description : "",
+      category: (parsed.category as string) || params.category || "general",
+      challenge_type: (parsed.challenge_type as string) || "daily",
+      xp_reward: (parsed.xp_reward as number) || 50,
+      difficulty: (parsed.difficulty as string) || params.difficulty || "normal",
+      validation_type: (parsed.validation_type as string) || "self_report",
     }
   }
 
