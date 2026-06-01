@@ -9,6 +9,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js"
+import { AIProviderFactory, type AIProviderType } from "./providers/factory"
 
 /** Retire les PII évidentes avant de persister un texte de mémoire (mineurs). */
 export function scrubMemoryText(text: string): string {
@@ -82,5 +83,84 @@ export async function upsertCoachSummary(
       .upsert({ teen_id: teenId, long_summary: clean, updated_at: new Date().toISOString() }, { onConflict: "teen_id" })
   } catch {
     // best-effort
+  }
+}
+
+/** Persiste un objectif actif (best-effort, dédupliqué). */
+export async function recordCoachGoal(
+  supabase: SupabaseClient,
+  teenId: string,
+  goal: string,
+): Promise<void> {
+  const clean = scrubMemoryText(goal)
+  if (!clean) return
+  try {
+    const { data: existing } = await supabase
+      .from("coach_goals")
+      .select("id")
+      .eq("teen_id", teenId)
+      .eq("status", "active")
+      .eq("goal", clean)
+      .limit(1)
+    if (existing && existing.length) return
+    await supabase.from("coach_goals").insert({ teen_id: teenId, goal: clean, status: "active" })
+  } catch {
+    // best-effort
+  }
+}
+
+/**
+ * #211 — extraction LLM légère de la mémoire durable à partir d'un tour de chat.
+ * Persiste objectifs + faits (PII-scrubbés). Best-effort : ne jette jamais et
+ * ne fait RIEN si aucune clé n'est configurée (le coach reste fonctionnel).
+ */
+export async function extractAndPersistMemory(
+  supabase: SupabaseClient,
+  teenId: string,
+  userText: string,
+  replyText: string,
+  providerType: AIProviderType,
+): Promise<void> {
+  try {
+    const apiKey =
+      providerType === "claude" ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY
+    if (!apiKey) return
+    const model =
+      providerType === "claude"
+        ? process.env.CLAUDE_GREETING_MODEL || "claude-haiku-4-5"
+        : process.env.OPENAI_MODEL_ID || "gpt-4o-mini"
+    const provider = AIProviderFactory.getProvider(providerType, model)
+    const system =
+      "Tu extrais la mémoire durable d'un coach pour ado. Réponds UNIQUEMENT en JSON " +
+      '{"facts":[],"goals":[]} (français, 0 à 3 items courts chacun). ' +
+      "\"goals\" = objectifs explicites de l'ado (ex: progresser en maths). " +
+      "\"facts\" = préférences/infos durables utiles au coaching (ex: aime le foot). " +
+      "Aucune donnée personnelle (ni nom, ni téléphone, ni adresse). Si rien d'utile, renvoie des tableaux vides."
+    const user = `Échange:\nAdo: ${userText}\nCoach: ${replyText}\n\nJSON:`
+    const { content } = await provider.call(system, user)
+    const parsed = safeParseMemory(content)
+    if (!parsed) return
+    for (const g of parsed.goals.slice(0, 3)) await recordCoachGoal(supabase, teenId, g)
+    for (const f of parsed.facts.slice(0, 3)) await recordCoachFact(supabase, teenId, f)
+  } catch {
+    // best-effort
+  }
+}
+
+function safeParseMemory(text: string): { facts: string[]; goals: string[] } | null {
+  try {
+    const cleaned = (text || "").replace(/```json/gi, "").replace(/```/g, "").trim()
+    const start = cleaned.indexOf("{")
+    const end = cleaned.lastIndexOf("}")
+    if (start < 0 || end < 0 || end <= start) return null
+    const obj = JSON.parse(cleaned.slice(start, end + 1)) as {
+      facts?: unknown
+      goals?: unknown
+    }
+    const facts = Array.isArray(obj.facts) ? obj.facts.filter((x): x is string => typeof x === "string") : []
+    const goals = Array.isArray(obj.goals) ? obj.goals.filter((x): x is string => typeof x === "string") : []
+    return { facts, goals }
+  } catch {
+    return null
   }
 }

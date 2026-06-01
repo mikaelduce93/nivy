@@ -15,6 +15,7 @@
     { "path": "/api/cron/mentor-recording-retention", "schedule": "0 2 * * *" },
     { "path": "/api/cron/friend-challenge-resolve", "schedule": "30 * * * *" },
     { "path": "/api/cron/parent-chore-rollover", "schedule": "30 0 * * *" },
-    { "path": "/api/cron/recommendation-metrics-rollup", "schedule": "0 23 * * *" }
+    { "path": "/api/cron/recommendation-metrics-rollup", "schedule": "0 23 * * *" },
+    { "path": "/api/cron/coach-retention-purge", "schedule": "0 3 1 * *" }
   ]
 }

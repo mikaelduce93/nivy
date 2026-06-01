@@ -38,6 +38,26 @@ const MIN_AFFINITY_ROWS_FOR_NEIGHBOURS = 3
 // Top-K neighbours to keep per teen (matches teen_neighbours expected size).
 const NEIGHBOUR_TOP_K = 50
 
+// #211 — greeting proactif : 1 message/jour/teen actif, contextualisé par des
+// signaux réels (streak, quiz du jour). Mood inféré côté serveur (sans LLM).
+const GREETING_ACTIVE_WINDOW_DAYS = 21
+const MAX_GREETINGS_PER_RUN = 5000
+
+type InferredMood = "happy" | "tired" | "focused" | "neutral"
+
+function buildProactiveMessage(mood: InferredMood, currentStreak: number): string {
+  switch (mood) {
+    case "happy":
+      return "Bien joué pour ton quiz du jour ! On enchaîne sur une nouvelle quête ? 🔥"
+    case "tired":
+      return "Ta série s'est mise en pause — pas grave ! Un petit défi aujourd'hui et c'est reparti 💪"
+    case "focused":
+      return `Série de ${currentStreak} jours, tu assures ! On continue aujourd'hui ?`
+    default:
+      return "Salut ! Prêt pour ton défi du jour ? 🎯"
+  }
+}
+
 export async function GET(request: Request) {
   // ---- Authorization ------------------------------------------------------
   const isVercelCron = request.headers.get("x-vercel-cron") !== null
@@ -150,6 +170,96 @@ export async function GET(request: Request) {
     neighbourRowsUpserted += Number(nData ?? 0)
   }
 
+  // ---- Phase 3: greeting proactif + mood inféré (#211) -------------------
+  // 1 message/jour/teen actif, contextualisé (streak/quiz). Écrit un
+  // avatar_messages non-dismissed que AvatarCoach affiche en priorité — le
+  // defaultGreeting codé en dur ne sert plus que de filet. Service-role =
+  // bypass RLS (on écrit pour d'autres teens), comme les autres crons.
+  let greetingsWritten = 0
+  let greetingsSkipped = 0
+  let greetingCandidates = 0
+  try {
+    const now = new Date()
+    const todayStart = new Date(now)
+    todayStart.setUTCHours(0, 0, 0, 0)
+    const todayStartIso = todayStart.toISOString()
+    const yesterday = new Date(todayStart)
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1)
+    const activeFloor = new Date(todayStart)
+    activeFloor.setUTCDate(activeFloor.getUTCDate() - GREETING_ACTIVE_WINDOW_DAYS)
+    const yesterdayStr = yesterday.toISOString().slice(0, 10)
+    const activeFloorStr = activeFloor.toISOString().slice(0, 10)
+
+    const [{ data: streaks }, { data: passedRows }, { data: greetedRows }] =
+      await Promise.all([
+        supabase
+          .from("user_streaks")
+          .select("teen_id, current_streak, last_activity_date")
+          .gte("last_activity_date", activeFloorStr)
+          .limit(MAX_GREETINGS_PER_RUN + 1),
+        supabase
+          .from("quiz_attempts")
+          .select("teen_id")
+          .gte("completed_at", todayStartIso)
+          .eq("passed", true),
+        supabase
+          .from("avatar_messages")
+          .select("teen_id")
+          .gte("displayed_at", todayStartIso)
+          .is("dismissed_at", null),
+      ])
+
+    const passedToday = new Set(
+      (passedRows ?? []).map((r) => (r as { teen_id: string }).teen_id),
+    )
+    const alreadyGreeted = new Set(
+      (greetedRows ?? []).map((r) => (r as { teen_id: string }).teen_id),
+    )
+    const rows = (streaks ?? []) as Array<{
+      teen_id: string
+      current_streak: number | null
+      last_activity_date: string | null
+    }>
+    greetingCandidates = rows.length
+    if (greetingCandidates > MAX_GREETINGS_PER_RUN) {
+      console.warn(
+        `[cron/evolve-teen-profiles] greeting candidates ${greetingCandidates} > cap ${MAX_GREETINGS_PER_RUN}; tail skipped this run`,
+      )
+    }
+
+    for (const row of rows.slice(0, MAX_GREETINGS_PER_RUN)) {
+      if (alreadyGreeted.has(row.teen_id)) {
+        greetingsSkipped++
+        continue
+      }
+      const streak = row.current_streak ?? 0
+      const broken = !row.last_activity_date || row.last_activity_date < yesterdayStr || streak === 0
+      const mood: InferredMood = passedToday.has(row.teen_id)
+        ? "happy"
+        : broken
+          ? "tired"
+          : streak >= 3
+            ? "focused"
+            : "neutral"
+      const { error: insErr } = await supabase.from("avatar_messages").insert({
+        teen_id: row.teen_id,
+        message_text: buildProactiveMessage(mood, streak),
+        mood,
+        displayed_at: now.toISOString(),
+        dismissed_at: null,
+      })
+      if (insErr) continue
+      greetingsWritten++
+      // Mood inféré → persiste aussi sur l'avatar (remplace la saisie manuelle).
+      await supabase
+        .from("avatars")
+        .update({ mood, updated_at: now.toISOString() })
+        .eq("teen_id", row.teen_id)
+    }
+  } catch (greetErr) {
+    console.error("[cron/evolve-teen-profiles] phase 3 greetings failed:", greetErr)
+  }
+
   const durationMs = Date.now() - startedAt
 
   // ---- Audit log (best effort) -------------------------------------------
@@ -167,6 +277,9 @@ export async function GET(request: Request) {
         neighbour_teens_skipped: neighbourTeensSkipped,
         neighbour_rows_upserted: neighbourRowsUpserted,
         neighbour_errors: neighbourErrors.length,
+        greetings_written: greetingsWritten,
+        greetings_skipped: greetingsSkipped,
+        greeting_candidates: greetingCandidates,
         duration_ms: durationMs,
         triggered_by: isVercelCron ? "vercel-cron" : "bearer",
       },
@@ -185,6 +298,9 @@ export async function GET(request: Request) {
     neighbour_teens_skipped: neighbourTeensSkipped,
     neighbour_rows_upserted: neighbourRowsUpserted,
     neighbour_errors: neighbourErrors,
+    greetings_written: greetingsWritten,
+    greetings_skipped: greetingsSkipped,
+    greeting_candidates: greetingCandidates,
     duration_ms: durationMs,
   })
 }
