@@ -10,14 +10,33 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { AIProviderFactory, type AIProviderType } from "./providers/factory"
+import type { BaseAIProvider } from "./providers/base"
+import { scrubMemoryText } from "./safe-context"
 
-/** Retire les PII évidentes avant de persister un texte de mémoire (mineurs). */
-export function scrubMemoryText(text: string): string {
-  return (text || "")
-    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[email]")
-    .replace(/(\+?\d[\d\s().-]{7,}\d)/g, "[tel]")
-    .slice(0, 500)
-    .trim()
+// #211 — `scrubMemoryText` vit dans le module PII canonique (lib/ai/safe-context).
+// Ré-exporté ici pour les consommateurs historiques de coach-memory.
+export { scrubMemoryText }
+
+/** Borne dure par appel LLM (le SDK Anthropic a un timeout par défaut de 10 min
+ *  + 2 retries) : sans ça, le budget temps du cron ne plafonne que le DÉMARRAGE
+ *  d'un appel, pas sa durée. Un appel lent peut alors dépasser la limite
+ *  d'exécution de la fonction Vercel. */
+const COACH_LLM_TIMEOUT_MS = 8000
+
+/**
+ * #211 — Promise.race avec un timeout dur. Le timer est nettoyé dès que `p` se
+ * règle (pas de rejection orpheline). Sur timeout, rejette → l'appelant retombe
+ * sur son fallback (template greeting / skip compaction).
+ */
+export function withTimeout<T>(p: Promise<T>, ms: number = COACH_LLM_TIMEOUT_MS): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error("coach_llm_timeout")), ms)
+  })
+  return Promise.race([
+    p.finally(() => clearTimeout(timer)),
+    timeout,
+  ])
 }
 
 export interface CoachMemory {
@@ -144,6 +163,68 @@ export async function extractAndPersistMemory(
     for (const f of parsed.facts.slice(0, 3)) await recordCoachFact(supabase, teenId, f)
   } catch {
     // best-effort
+  }
+}
+
+/**
+ * #211 — Résout le provider pour les tâches « greeting » / résumé du coach
+ * (Haiku côté Claude). Préfère Claude si ANTHROPIC_API_KEY, sinon OpenAI, sinon
+ * null (l'appelant retombe alors sur un fallback — jamais d'échec dur).
+ */
+export function pickCoachProvider(): BaseAIProvider | null {
+  if (process.env.ANTHROPIC_API_KEY) {
+    return AIProviderFactory.getProvider(
+      "claude",
+      process.env.CLAUDE_GREETING_MODEL || "claude-haiku-4-5",
+    )
+  }
+  if (process.env.OPENAI_API_KEY) {
+    return AIProviderFactory.getProvider(
+      "openai",
+      process.env.OPENAI_MODEL_ID || "gpt-4o-mini",
+    )
+  }
+  return null
+}
+
+/**
+ * #211 — Compaction mémoire : résume objectifs + faits durables d'un teen en
+ * une ligne durable (`coach_profile.long_summary`) et journalise un
+ * `coach_conversation_summaries`. Borne la croissance de la mémoire (la purge
+ * mig 121 supprime l'ancien). Best-effort : renvoie false sans jeter si rien à
+ * compacter ou en cas d'erreur. PII-scrubbée à l'écriture.
+ */
+export async function compactCoachMemory(
+  supabase: SupabaseClient,
+  teenId: string,
+  provider: BaseAIProvider,
+): Promise<boolean> {
+  try {
+    const [{ data: goals }, { data: facts }] = await Promise.all([
+      supabase.from("coach_goals").select("goal").eq("teen_id", teenId).eq("status", "active").limit(10),
+      supabase.from("coach_facts").select("fact").eq("teen_id", teenId).order("created_at", { ascending: false }).limit(20),
+    ])
+    const goalList = (goals || []).map((g: { goal: string }) => g.goal).filter(Boolean)
+    const factList = (facts || []).map((f: { fact: string }) => f.fact).filter(Boolean)
+    if (!goalList.length && !factList.length) return false
+
+    const system =
+      "Tu compactes la mémoire durable d'un coach pour ado en UN résumé court " +
+      "(≤ 300 caractères, français, 3e personne, factuel). Garde objectifs + " +
+      "préférences durables utiles au coaching. Aucune donnée personnelle (ni nom, " +
+      "ni téléphone, ni adresse). Réponds par le seul résumé, sans préambule."
+    const user =
+      `Objectifs: ${goalList.join(" ; ") || "(aucun)"}\n` +
+      `Faits: ${factList.join(" ; ") || "(aucun)"}\n\nRésumé:`
+    const { content } = await withTimeout(provider.call(system, user))
+    const summary = scrubMemoryText(content)
+    if (!summary) return false
+
+    await upsertCoachSummary(supabase, teenId, summary)
+    await supabase.from("coach_conversation_summaries").insert({ teen_id: teenId, summary })
+    return true
+  } catch {
+    return false
   }
 }
 

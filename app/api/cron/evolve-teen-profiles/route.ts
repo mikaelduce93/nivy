@@ -26,9 +26,15 @@
 
 import { NextResponse } from "next/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { pickCoachProvider, compactCoachMemory } from "@/lib/ai/coach-memory"
+import { generateCoachGreeting } from "@/lib/ai/coach-greeting"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
+// #211 — plafond d'exécution explicite. Les budgets LLM (greeting 20s +
+// compaction 15s) + le timeout dur par appel (8s) restent confortablement en
+// dessous. (Ignoré sur Hobby qui plafonne plus bas — best-effort par design.)
+export const maxDuration = 60
 
 // Min affinity_scores rows before we compute neighbours for a teen. Mirrors
 // the in-RPC guard inside recompute_neighbours so the cron can short-circuit
@@ -42,6 +48,13 @@ const NEIGHBOUR_TOP_K = 50
 // signaux réels (streak, quiz du jour). Mood inféré côté serveur (sans LLM).
 const GREETING_ACTIVE_WINDOW_DAYS = 21
 const MAX_GREETINGS_PER_RUN = 5000
+
+// #211 — budgets LLM (Haiku) bornés pour rester sous la limite d'exécution du
+// cron quelle que soit la formule Vercel. Au-delà du budget temps OU du cap, on
+// retombe sur les templates (greeting) / on arrête la compaction. Best-effort.
+const GREETING_GEN_BUDGET_MS = 20_000
+const COMPACTION_BUDGET_MS = 15_000
+const COMPACTION_CAP = 200
 
 type InferredMood = "happy" | "tired" | "focused" | "neutral"
 
@@ -178,6 +191,11 @@ export async function GET(request: Request) {
   let greetingsWritten = 0
   let greetingsSkipped = 0
   let greetingCandidates = 0
+  let greetingsGenerated = 0
+  // #211 — greeting génératif : Haiku quand un provider est configuré (prod),
+  // sinon template codé en dur (filet). Provider résolu une seule fois.
+  const coachProvider = pickCoachProvider()
+  const greetingPhaseStart = Date.now()
   try {
     const now = new Date()
     const todayStart = new Date(now)
@@ -227,6 +245,26 @@ export async function GET(request: Request) {
       )
     }
 
+    // Batch-fetch active coach goals for the candidate teens (one query) to
+    // contextualise the generative greeting. PII-free (scrubbed on write).
+    const candidateIds = rows
+      .slice(0, MAX_GREETINGS_PER_RUN)
+      .map((r) => r.teen_id)
+      .filter((id) => !alreadyGreeted.has(id))
+    const goalsByTeen = new Map<string, string[]>()
+    if (coachProvider && candidateIds.length) {
+      const { data: goalRows } = await supabase
+        .from("coach_goals")
+        .select("teen_id, goal")
+        .in("teen_id", candidateIds.slice(0, MAX_GREETINGS_PER_RUN))
+        .eq("status", "active")
+      for (const g of (goalRows ?? []) as Array<{ teen_id: string; goal: string }>) {
+        const list = goalsByTeen.get(g.teen_id) ?? []
+        if (list.length < 3 && g.goal) list.push(g.goal)
+        goalsByTeen.set(g.teen_id, list)
+      }
+    }
+
     for (const row of rows.slice(0, MAX_GREETINGS_PER_RUN)) {
       if (alreadyGreeted.has(row.teen_id)) {
         greetingsSkipped++
@@ -241,9 +279,26 @@ export async function GET(request: Request) {
           : streak >= 3
             ? "focused"
             : "neutral"
+
+      // #211 — greeting génératif (Haiku) tant qu'un provider est dispo et que
+      // le budget temps n'est pas épuisé ; sinon template codé en dur (filet).
+      let messageText = buildProactiveMessage(mood, streak)
+      if (coachProvider && Date.now() - greetingPhaseStart < GREETING_GEN_BUDGET_MS) {
+        const generated = await generateCoachGreeting(coachProvider, {
+          mood,
+          streak,
+          passedQuizToday: passedToday.has(row.teen_id),
+          goals: goalsByTeen.get(row.teen_id) ?? [],
+        })
+        if (generated) {
+          messageText = generated
+          greetingsGenerated++
+        }
+      }
+
       const { error: insErr } = await supabase.from("avatar_messages").insert({
         teen_id: row.teen_id,
-        message_text: buildProactiveMessage(mood, streak),
+        message_text: messageText,
         mood,
         displayed_at: now.toISOString(),
         dismissed_at: null,
@@ -258,6 +313,38 @@ export async function GET(request: Request) {
     }
   } catch (greetErr) {
     console.error("[cron/evolve-teen-profiles] phase 3 greetings failed:", greetErr)
+  }
+
+  // ---- Phase 4: compaction mémoire coach (#211) --------------------------
+  // Résume objectifs + faits durables d'un teen en un long_summary borné et
+  // journalise un coach_conversation_summaries (la purge mig 121 supprime
+  // l'ancien). Best-effort, budget + cap bornés. Sans provider LLM → on saute.
+  let compactionsWritten = 0
+  let compactionCandidates = 0
+  if (coachProvider) {
+    try {
+      const { data: factTeens } = await supabase
+        .from("coach_facts")
+        .select("teen_id")
+        .limit(50000)
+      const seen = new Set<string>()
+      const uniqueTeens: string[] = []
+      for (const r of (factTeens ?? []) as Array<{ teen_id: string }>) {
+        if (!seen.has(r.teen_id)) {
+          seen.add(r.teen_id)
+          uniqueTeens.push(r.teen_id)
+        }
+      }
+      compactionCandidates = uniqueTeens.length
+      const compactionStart = Date.now()
+      for (const teenId of uniqueTeens.slice(0, COMPACTION_CAP)) {
+        if (Date.now() - compactionStart > COMPACTION_BUDGET_MS) break
+        const ok = await compactCoachMemory(supabase, teenId, coachProvider)
+        if (ok) compactionsWritten++
+      }
+    } catch (compactErr) {
+      console.error("[cron/evolve-teen-profiles] phase 4 compaction failed:", compactErr)
+    }
   }
 
   const durationMs = Date.now() - startedAt
@@ -278,8 +365,11 @@ export async function GET(request: Request) {
         neighbour_rows_upserted: neighbourRowsUpserted,
         neighbour_errors: neighbourErrors.length,
         greetings_written: greetingsWritten,
+        greetings_generated: greetingsGenerated,
         greetings_skipped: greetingsSkipped,
         greeting_candidates: greetingCandidates,
+        compactions_written: compactionsWritten,
+        compaction_candidates: compactionCandidates,
         duration_ms: durationMs,
         triggered_by: isVercelCron ? "vercel-cron" : "bearer",
       },
@@ -299,8 +389,11 @@ export async function GET(request: Request) {
     neighbour_rows_upserted: neighbourRowsUpserted,
     neighbour_errors: neighbourErrors,
     greetings_written: greetingsWritten,
+    greetings_generated: greetingsGenerated,
     greetings_skipped: greetingsSkipped,
     greeting_candidates: greetingCandidates,
+    compactions_written: compactionsWritten,
+    compaction_candidates: compactionCandidates,
     duration_ms: durationMs,
   })
 }
