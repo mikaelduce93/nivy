@@ -355,35 +355,36 @@ export async function purchaseItem(
       return { success: false, error: "Non authentifié" }
     }
 
-    // Vérifier le solde de l'utilisateur
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("coins")
-      .eq("id", user.id)
-      .single()
-
-    if (profileError) throw profileError
-
-    if ((profile?.coins || 0) < price) {
-      return { success: false, error: "Solde insuffisant" }
-    }
-
-    // Débiter les coins
-    const { error: debitError } = await supabase
-      .from("profiles")
-      .update({ coins: (profile?.coins || 0) - price })
-      .eq("id", user.id)
+    // Débiter les coins atomiquement via le wallet user_coins.
+    // add_coins_to_user gère la vérification du solde (renvoie success:false
+    // si insuffisant) et l'écriture dans coin_transactions.
+    const { data: debit, error: debitError } = await supabase.rpc("add_coins_to_user", {
+      p_teen_id: user.id,
+      p_amount: -price,
+      p_transaction_type: "spend",
+      p_source_type: "shop_purchase",
+      p_source_id: itemId,
+      p_description: `Achat ${itemType} (${itemId})`,
+    })
 
     if (debitError) throw debitError
+
+    if (!debit?.success) {
+      return { success: false, error: debit?.error || "Solde insuffisant" }
+    }
 
     // Débloquer l'item
     const unlockResult = await unlockItem(itemType, itemId, "purchase")
     if (!unlockResult.success) {
       // Rembourser si l'unlock échoue
-      await supabase
-        .from("profiles")
-        .update({ coins: profile?.coins || 0 })
-        .eq("id", user.id)
+      await supabase.rpc("add_coins_to_user", {
+        p_teen_id: user.id,
+        p_amount: price,
+        p_transaction_type: "refund",
+        p_source_type: "shop_purchase_refund",
+        p_source_id: itemId,
+        p_description: `Remboursement achat ${itemType} (${itemId})`,
+      })
 
       return unlockResult
     }
