@@ -105,6 +105,29 @@ export function ServiceWorkerRegistration({ children }: ServiceWorkerRegistratio
     }
 
     const registerSW = async () => {
+      // Hors production (dev local), un Service Worker met en cache les chunks
+      // JS. En dev, les noms de chunks Turbopack sont stables → le SW sert du
+      // code obsolète, masque les changements et peut crasher sur un bundle
+      // périmé. On ne registre JAMAIS le SW hors prod, et on désinscrit tout SW
+      // existant + purge ses caches pour que les navigateurs déjà « infectés »
+      // se réparent seuls au prochain chargement.
+      if (process.env.NODE_ENV !== "production") {
+        try {
+          const regs = await navigator.serviceWorker.getRegistrations()
+          await Promise.all(regs.map((r) => r.unregister()))
+          if ("caches" in window) {
+            const keys = await caches.keys()
+            await Promise.all(keys.map((k) => caches.delete(k)))
+          }
+          if (regs.length > 0) {
+            console.log("[PWA] Service Worker désinscrit (dev) — purge du cache")
+          }
+        } catch (error) {
+          console.warn("[PWA] Nettoyage SW dev échoué:", error)
+        }
+        return
+      }
+
       try {
         const registration = await navigator.serviceWorker.register("/sw.js", {
           scope: "/",

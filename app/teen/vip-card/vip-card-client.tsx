@@ -100,7 +100,7 @@ export function VipCardClient({ userXP, tierSlug, memberSince }: VipCardClientPr
         <div className="flex items-start justify-between">
           <div>
             <p className="eyebrow tracking-[0.16em] text-paper/60">Membre VIP Nivy</p>
-            <h2 className="mt-1 font-display text-5xl font-extrabold uppercase text-gold">{currentTier.name}</h2>
+            <h2 className="mt-1 break-words font-display text-3xl font-extrabold uppercase text-gold sm:text-5xl">{currentTier.name}</h2>
             <p className="mt-2 text-sm text-paper/60">
               {memberSince ? `Membre depuis ${new Date(memberSince).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}` : "Teen Nivy"}
             </p>

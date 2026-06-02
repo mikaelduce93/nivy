@@ -154,7 +154,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <div className="container mx-auto px-6 py-32">
+      <div className="container mx-auto px-6 py-12 md:py-32">
         {/* Header éditorial */}
         <header className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>

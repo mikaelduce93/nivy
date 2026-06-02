@@ -149,15 +149,17 @@ export function GamesClient({ games, stats }: Props) {
           <div className="space-y-4">
             {challengeGames.map((game) => (
               <StickerCard key={game.id} variant="hover" className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="text-5xl" aria-hidden="true">
-                    {game.icon || "🎮"}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="text-5xl" aria-hidden="true">
+                      {game.icon || "🎮"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-display text-lg font-extrabold text-ink">{game.name}</h3>
+                      <p className="text-sm text-mute">{game.description}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-display text-lg font-extrabold text-ink">{game.name}</h3>
-                    <p className="text-sm text-mute">{game.description}</p>
-                  </div>
-                  <div className="text-right">
+                  <div className="text-right sm:ml-auto">
                     <span className="flex items-center justify-end gap-1.5 font-mono font-bold text-gold">
                       <Zap className="size-4" aria-hidden="true" />+{game.base_xp} XP
                     </span>
@@ -166,7 +168,7 @@ export function GamesClient({ games, stats }: Props) {
                       {t("teen.games.maxPlayers", { count: game.max_players })}
                     </span>
                   </div>
-                  <Button variant="outline" disabled title="Bientôt disponible">{t("teen.games.join")} · bientôt</Button>
+                  <Button variant="outline" disabled title="Bientôt disponible" className="w-full sm:w-auto">{t("teen.games.join")} · bientôt</Button>
                 </div>
               </StickerCard>
             ))}

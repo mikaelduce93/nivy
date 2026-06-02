@@ -139,7 +139,7 @@ export default async function AdminAmbassadorDetail({ params }: { params: Promis
           </StickerCard>
 
           {/* Stats */}
-          <section className="grid grid-cols-3 gap-3">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StatCard label="Filleuls" value={referralCount} tone="teal" icon={<Users className="h-5 w-5" />} />
             <StatCard label="Total gagné" value={`${totalEarnings.toLocaleString()} DH`} tone="lime" mono />
             <StatCard label="Retraits" value={`${committedPayouts.toLocaleString()} DH`} tone="coral" mono />

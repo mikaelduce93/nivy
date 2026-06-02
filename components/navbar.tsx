@@ -75,6 +75,20 @@ export function Navbar() {
     }
 
     checkUser()
+
+    // S'abonner aux SIGNED_IN / SIGNED_OUT : la navbar vit dans le root layout
+    // persistant (app/layout.tsx) et ne se re-monte pas pendant les navigations
+    // soft du login → sans abonnement, `user` reste figé sur l'état déconnecté
+    // jusqu'à un refresh manuel. Garde le mock client (lib/supabase/client.ts)
+    // qui n'expose pas onAuthStateChange.
+    if (typeof supabase.auth.onAuthStateChange === "function") {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(
+        (_event: string, session: { user?: { id: string } } | null) => setUser(session?.user ?? null),
+      )
+      return () => subscription?.unsubscribe()
+    }
   }, [])
 
   // Keyboard shortcut for search (Ctrl+K or Cmd+K)
@@ -387,7 +401,7 @@ export function Navbar() {
                         <div className="space-y-1">
                           {section.items.map((subItem) => (
                             <Link
-                              key={subItem.href}
+                              key={subItem.label}
                               href={subItem.href}
                               prefetch={subItem.href === "/auth/login" || subItem.href === "/auth/sign-up" || subItem.href === "/onboarding" || subItem.href.startsWith("/espace")}
                               className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:bg-muted"
@@ -506,7 +520,7 @@ export function Navbar() {
                         </p>
                         {section.items.map((subItem) => (
                           <Link
-                            key={subItem.href}
+                            key={subItem.label}
                             href={subItem.href}
                             className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground text-sm"
                             onClick={() => setMobileMenuOpen(false)}

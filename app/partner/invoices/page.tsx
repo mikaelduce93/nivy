@@ -306,7 +306,7 @@ export default async function PartnerInvoicesPage() {
             </div>
 
             {/* md+ : table charte (en-têtes mono) */}
-            <StickerCard className="hidden p-0 md:block">
+            <StickerCard className="hidden overflow-x-auto p-0 md:block">
               <Table>
                 <TableHeader>
                   <TableRow className="border-ink">

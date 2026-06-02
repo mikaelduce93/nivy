@@ -100,7 +100,7 @@ export default function GamificationSetupPage() {
 
   return (
     <div className="min-h-screen bg-background text-ink">
-      <div className="container mx-auto max-w-4xl px-6 py-32">
+      <div className="container mx-auto max-w-4xl px-6 py-12 md:py-32">
         <BackButton href="/admin" label="Retour au dashboard" />
 
         {/* Header */}

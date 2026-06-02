@@ -50,8 +50,8 @@ export function FinancialOverview({
       {/* LE chiffre hero : dépenses du mois (domine) */}
       <div>
         <p className="eyebrow">Dépenses du mois</p>
-        <p className="font-display text-5xl font-extrabold leading-none tabular-nums">
-          {monthlySpending.toLocaleString("fr-FR")} <span className="font-mono text-xl font-medium text-mute">{currency}</span>
+        <p className="font-display text-4xl font-extrabold leading-none tabular-nums sm:text-5xl">
+          {monthlySpending.toLocaleString("fr-FR")} <span className="font-mono text-lg font-medium text-mute sm:text-xl">{currency}</span>
         </p>
         {previousMonthSpending > 0 && (
           <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-0.5 font-mono text-xs font-bold uppercase tracking-[0.1em]">

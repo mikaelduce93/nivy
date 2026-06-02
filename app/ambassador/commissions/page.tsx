@@ -188,8 +188,8 @@ export default async function AmbassadorCommissionsPage() {
     : 0
 
   return (
-    <div className="min-h-screen bg-paper">
-      <div className="container mx-auto px-6 py-32">
+    <div className="bg-paper">
+      <div className="container mx-auto px-6 py-20 md:py-32">
         {/* Back button */}
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">
@@ -281,20 +281,20 @@ export default async function AmbassadorCommissionsPage() {
                 return (
                   <div
                     key={transaction.id}
-                    className="flex items-center justify-between rounded-xl border-2 border-line bg-white p-4"
+                    className="flex flex-col gap-3 rounded-xl border-2 border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink ${
+                    <div className="flex min-w-0 items-center gap-4">
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-ink ${
                         isPositive ? "bg-lime/15" : "bg-destructive/12"
                       }`}>
                         {getTransactionIcon(transaction.type, transaction.amount)}
                       </div>
-                      <div>
-                        <p className="font-medium text-ink">{transaction.description}</p>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-ink">{transaction.description}</p>
                         <p className="font-mono text-xs text-mute">{formatDateTime(transaction.date)}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex shrink-0 items-center gap-4">
                       <p className={`font-mono text-lg font-bold tabular-nums ${isPositive ? "text-lime" : "text-destructive"}`}>
                         {isPositive ? "+" : ""}{transaction.amount} DH
                       </p>

@@ -8,13 +8,7 @@ import { FieldInput } from "@/components/ui/field-input"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { Award, Send } from "lucide-react"
-
-// Catégories d'attribution XP — partagées avec le détail /partner/awards/[id].
-export const CATS = [
-  { id: "school", label: "École 📚" },
-  { id: "sport", label: "Sport 💪" },
-  { id: "crea", label: "Créa 🎨" },
-]
+import { CATS } from "./awards-categories"
 
 const WEEKLY_CAP = 500 // Plafond hebdo par ado (teacher-coach-xp §9).
 
@@ -114,7 +108,7 @@ export function AwardsClient() {
 
           <div className="space-y-2">
             <p className="eyebrow">Catégorie</p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {CATS.map((c) => (
                 <button
                   type="button"

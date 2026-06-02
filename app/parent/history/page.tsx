@@ -334,7 +334,7 @@ export default async function ParentHistoryPage() {
                         variant="hover"
                         className="p-4"
                       >
-                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                         <div className="flex items-center gap-4">
                           <div className="grid h-12 w-12 place-items-center rounded-xl border-2 border-ink bg-paper">
                             {getTypeIcon(tx.type, tx.coinType)}

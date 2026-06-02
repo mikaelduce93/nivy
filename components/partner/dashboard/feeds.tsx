@@ -142,7 +142,7 @@ export function PartnerLiveTransactionsFeed({
             return (
               <div
                 key={tx.id}
-                className="flex items-center justify-between p-6 rounded-[2rem] bg-white/[0.03] border border-ink hover:border-info-soft/30 transition-all duration-500"
+                className="flex items-center justify-between gap-3 p-4 sm:p-6 rounded-[2rem] bg-white/[0.03] border border-ink hover:border-info-soft/30 transition-all duration-500"
               >
                 <div className="flex items-center gap-5">
                   <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-info-soft via-brand-soft to-accent-soft flex items-center justify-center text-ink font-black text-2xl shadow-xl">

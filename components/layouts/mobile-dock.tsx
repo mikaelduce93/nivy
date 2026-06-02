@@ -20,6 +20,9 @@ import {
   Store,
   Banknote,
   Share2,
+  CalendarCheck,
+  UserCog,
+  Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
@@ -95,6 +98,7 @@ export function MobileDock() {
   const isAdminArea = pathname?.startsWith("/admin")
   const isPartnerArea = pathname?.startsWith("/partner")
   const isAmbassadorArea = pathname?.startsWith("/ambassador")
+  const isMentorArea = pathname?.startsWith("/mentor")
 
   useEffect(() => {
     setMounted(true)
@@ -268,6 +272,41 @@ export function MobileDock() {
     },
   ]
 
+  // #221 — mentor mobile nav. The MentorSidebar is hidden md:flex and the
+  // MentorHeader has no hamburger, so without a dedicated branch the dock fell
+  // back to publicNavItems on /mentor/* → mentor nav unreachable on mobile.
+  // Mirrors components/dashboard/mentor/sidebar.tsx (same hrefs).
+  const mentorNavItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      href: "/mentor/dashboard",
+      icon: Home,
+      color: "rgb(125, 211, 252)",
+      glowColor: "rgba(125, 211, 252, 0.5)",
+    },
+    {
+      label: "Sessions",
+      href: "/mentor/sessions",
+      icon: CalendarCheck,
+      color: "rgb(196, 181, 253)",
+      glowColor: "rgba(196, 181, 253, 0.5)",
+    },
+    {
+      label: "Profil",
+      href: "/mentor/profile/edit",
+      icon: UserCog,
+      color: "rgb(253, 164, 175)",
+      glowColor: "rgba(253, 164, 175, 0.5)",
+    },
+    {
+      label: "Dispo",
+      href: "/mentor/availability",
+      icon: Clock,
+      color: "rgb(190, 242, 100)",
+      glowColor: "rgba(190, 242, 100, 0.5)",
+    },
+  ]
+
   const publicNavItems: NavItem[] = [
     {
       label: "Agenda",
@@ -320,9 +359,11 @@ export function MobileDock() {
       ? partnerNavItems
       : isAmbassadorArea
         ? ambassadorNavItems
-        : isTeenArea
-          ? teenNavItems
-          : publicNavItems
+        : isMentorArea
+          ? mentorNavItems
+          : isTeenArea
+            ? teenNavItems
+            : publicNavItems
 
   // Compute the "home" path of the active zone so we don't mark the home
   // tab as active for every nested route. Default `/teen` was hardcoded.
@@ -332,9 +373,11 @@ export function MobileDock() {
       ? "/partner"
       : isAmbassadorArea
         ? "/ambassador"
-        : isTeenArea
-          ? "/teen"
-          : "/"
+        : isMentorArea
+          ? "/mentor/dashboard"
+          : isTeenArea
+            ? "/teen"
+            : "/"
 
   // SSR safety - render a placeholder on server
   if (!mounted) {

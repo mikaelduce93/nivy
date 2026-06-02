@@ -459,7 +459,7 @@ export default function TeenSharePage() {
 
                 <div className="border-t-2 border-line pt-4">
                   <Label className="mb-3 block eyebrow tracking-[0.16em]">Partager sur</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Button
                       variant="outline"
                       className="flex-1"

@@ -100,7 +100,9 @@ export function AdminSidebar({ subRole, sqlConsoleEnabled = false }: AdminSideba
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-40 h-screen bg-paper border-r-2 border-ink transition-all duration-300',
+        // Masquée sous md : en `w-64` fixe non gardée, elle recouvrait ~70% de
+        // l'écran mobile sans aucun moyen de la fermer (aucun drawer admin).
+        'hidden md:block fixed left-0 top-0 z-40 h-screen bg-paper border-r-2 border-ink transition-all duration-300',
         collapsed ? 'w-16' : 'w-64'
       )}
     >

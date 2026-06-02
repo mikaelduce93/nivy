@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { submitPartnerWizard } from '@/lib/partners/wizard-submit'
 import { PartnerPasswordPanel, isPasswordValid } from '@/components/partners/PartnerPasswordPanel'
+import { WizardSteps } from '@/components/partners/WizardSteps'
 
 interface EducationPartnerFormProps {
   onBack: () => void
@@ -236,33 +237,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
     <div className="max-w-4xl mx-auto">
 
       {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
-                  currentStep >= step.id
-                    ? 'bg-gold border-gold text-ink'
-                    : 'bg-card border-ink text-mute'
-                }`}>
-                  <step.icon className="w-6 h-6" />
-                </div>
-                <span className={`text-xs mt-2 text-center ${
-                  currentStep >= step.id ? 'text-gold' : 'text-mute'
-                }`}>
-                  {step.title}
-                </span>
-              </div>
-              {index < STEPS.length - 1 && (
-                <div className={`h-0.5 flex-1 mx-2 transition-all ${
-                  currentStep > step.id ? 'bg-gold' : 'bg-card'
-                }`} />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      <WizardSteps steps={STEPS} currentStep={currentStep} accent="lime" />
 
       {/* Step Content */}
       <motion.div

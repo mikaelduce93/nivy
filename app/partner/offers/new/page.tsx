@@ -517,7 +517,7 @@ export default function NewOfferPage() {
         </StickerCard>
 
         {/* Actions — barre sticky sur mobile, inline sur desktop */}
-        <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t-2 border-ink bg-paper p-4 sm:static sm:border-0 sm:bg-transparent sm:p-0">
+        <div className="fixed inset-x-0 bottom-dock z-30 flex gap-3 border-t-2 border-ink bg-paper p-4 sm:static sm:bottom-0 sm:border-0 sm:bg-transparent sm:p-0">
           <Button type="button" variant="outline" asChild className="flex-1 sm:flex-none">
             <Link href="/partner/offers">Annuler</Link>
           </Button>

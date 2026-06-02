@@ -47,8 +47,8 @@ const EARNING_ACTIONS = [
 
 export default function CommentGagnerPage() {
   return (
-    <div className="min-h-screen bg-paper">
-      <div className="container mx-auto max-w-4xl space-y-8 px-6 py-32">
+    <div className="bg-paper">
+      <div className="container mx-auto max-w-4xl space-y-8 px-6 py-20 md:py-32">
         {/* Header éditorial */}
         <div>
           <span className="eyebrow tracking-[0.16em] text-pink">Comment gagner</span>

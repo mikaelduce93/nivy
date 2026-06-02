@@ -709,7 +709,7 @@ export function CircleChat({
   }
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-[calc(100dvh-4rem-2rem)] md:h-full flex flex-col bg-background">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b-2 border-ink bg-white">
         <button

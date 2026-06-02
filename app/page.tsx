@@ -283,7 +283,7 @@ export default function HomePage() {
             </div>
 
             {/* Écran téléphone */}
-            <div className="flex justify-center">
+            <div className="flex justify-center overflow-hidden">
               <PhoneMockup>
                 <PhoneScreen>
                   <div className="h-full overflow-hidden px-[18px] pb-[18px] pt-[50px]">
@@ -316,7 +316,7 @@ export default function HomePage() {
             <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
               <div>
                 <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-gold">XP · l'effort</p>
-                <p className="mt-2 font-display text-[54px] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
+                <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
                   2 480 <span className="ml-1 text-lg font-medium text-paper/60">niv. 7</span>
                 </p>
                 <p className="mt-3 text-sm text-paper/75">
@@ -339,7 +339,7 @@ export default function HomePage() {
             <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
               <div>
                 <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-coral">Coins · le pouvoir d'achat</p>
-                <p className="mt-2 font-display text-[54px] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
+                <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
                   12 500 <span className="ml-1 text-lg font-medium text-paper/60">≈ 125 DH</span>
                 </p>
                 <p className="mt-3 text-sm text-paper/75">

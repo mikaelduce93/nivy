@@ -31,6 +31,7 @@ interface Event {
   has_aefe_discount: boolean
   image_url?: string
   created_at: string
+  isNew: boolean
 }
 
 interface EventsClientProps {
@@ -372,7 +373,7 @@ function EventCardGrid({ event, onAddToCalendar }: { event: Event; onAddToCalend
   const isAlmostFull = spotsLeft <= 10 && spotsLeft > 0
   const isFull = spotsLeft <= 0
   const isPopular = event.current_attendees > event.capacity * 0.7
-  const isNew = new Date().getTime() - new Date(event.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
+  const isNew = event.isNew
 
   return (
     <StickerCard variant="hover" className="overflow-hidden p-0">
@@ -396,7 +397,7 @@ function EventCardGrid({ event, onAddToCalendar }: { event: Event; onAddToCalend
         <div className="absolute right-3 top-3 overflow-hidden rounded-lg border-2 border-ink bg-pink text-center font-display text-ink">
           <div className="px-3 py-1 text-2xl font-extrabold">{eventDate.getDate()}</div>
           <div className="border-t-2 border-ink px-3 py-0.5 font-mono text-[10px] font-bold uppercase">
-            {eventDate.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase()}
+            {eventDate.toLocaleDateString("fr-FR", { timeZone: "Africa/Casablanca", month: "short" }).toUpperCase()}
           </div>
         </div>
       </div>
@@ -405,7 +406,7 @@ function EventCardGrid({ event, onAddToCalendar }: { event: Event; onAddToCalend
         <h3 className="mb-3 line-clamp-2 font-display text-xl font-bold text-ink">{event.title}</h3>
 
         <div className="mb-4 space-y-2">
-          <CardMeta icon={Clock}>{eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</CardMeta>
+          <CardMeta icon={Clock}>{eventDate.toLocaleTimeString("fr-FR", { timeZone: "Africa/Casablanca", hour: "2-digit", minute: "2-digit" })}</CardMeta>
           <CardMeta icon={MapPin}>{event.city}</CardMeta>
           <CardMeta icon={Users}>{event.age_min}-{event.age_max} ans • {spotsLeft} places</CardMeta>
         </div>
@@ -439,7 +440,7 @@ function EventCardList({ event, onAddToCalendar }: { event: Event; onAddToCalend
   const isAlmostFull = spotsLeft <= 10 && spotsLeft > 0
   const isFull = spotsLeft <= 0
   const isPopular = event.current_attendees > event.capacity * 0.7
-  const isNew = new Date().getTime() - new Date(event.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
+  const isNew = event.isNew
 
   return (
     <StickerCard variant="hover" className="overflow-hidden p-0">
@@ -467,8 +468,8 @@ function EventCardList({ event, onAddToCalendar }: { event: Event; onAddToCalend
             <p className="mb-4 line-clamp-2 text-sm text-mute">{event.description}</p>
 
             <div className="mb-4 grid grid-cols-2 gap-4">
-              <CardMeta icon={Calendar}>{eventDate.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}</CardMeta>
-              <CardMeta icon={Clock}>{eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</CardMeta>
+              <CardMeta icon={Calendar}>{eventDate.toLocaleDateString("fr-FR", { timeZone: "Africa/Casablanca", weekday: "short", day: "numeric", month: "short" })}</CardMeta>
+              <CardMeta icon={Clock}>{eventDate.toLocaleTimeString("fr-FR", { timeZone: "Africa/Casablanca", hour: "2-digit", minute: "2-digit" })}</CardMeta>
               <CardMeta icon={MapPin}>{event.city}</CardMeta>
               <CardMeta icon={Users}>{event.age_min}-{event.age_max} ans • {spotsLeft} places</CardMeta>
             </div>

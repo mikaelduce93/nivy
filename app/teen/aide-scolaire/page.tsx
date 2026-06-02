@@ -131,7 +131,7 @@ function AideScolaireSkeleton() {
   return (
     <div className="space-y-8 pt-6 animate-pulse">
       <div className="h-14 bg-card rounded-2xl w-64" />
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <div key={i} className="h-24 bg-card rounded-2xl" />
         ))}

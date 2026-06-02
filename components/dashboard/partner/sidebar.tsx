@@ -65,13 +65,13 @@ const ALWAYS: NavItem[] = [
   { name: "Support", href: "/partner/support", icon: HelpCircle },
 ]
 
-const PENDING_NAV: NavItem[] = [
+export const PENDING_NAV: NavItem[] = [
   { name: "Dashboard", href: "/partner", icon: Home },
   { name: "KYC", href: "/partner/kyc", icon: ShieldCheck },
   { name: "Support", href: "/partner/support", icon: HelpCircle },
 ]
 
-function buildActiveNav(partnerType: PartnerType): NavItem[] {
+export function buildActiveNav(partnerType: PartnerType): NavItem[] {
   const core: NavItem[] = [
     { name: "Mes Offres", href: "/partner/offers", icon: Tag },
     { name: "Transactions", href: "/partner/transactions", icon: ShoppingBag },

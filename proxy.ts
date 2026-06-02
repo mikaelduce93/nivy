@@ -1,5 +1,4 @@
 import { updateSession } from "@/lib/supabase/middleware"
-import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 import { rateLimitDistributed } from "@/lib/security/rate-limiter-redis"
 import { RATE_LIMITS } from "@/lib/security/rate-limiter"
@@ -169,8 +168,14 @@ export async function proxy(request: NextRequest) {
     return response
   }
 
+  let user: Awaited<ReturnType<typeof updateSession>>["user"] = null
+  let supabase: Awaited<ReturnType<typeof updateSession>>["supabase"] = null
+
   try {
-    response = await updateSession(request)
+    const { response: sessionResponse, user: sessionUser, supabase: sessionSupabase } = await updateSession(request)
+    response = sessionResponse
+    user = sessionUser
+    supabase = sessionSupabase
 
     // Copier les headers de sécurité (including nonce)
     response.headers.set('Content-Security-Policy', cspHeader)
@@ -188,21 +193,6 @@ export async function proxy(request: NextRequest) {
   // Admin routes protection
   if (request.nextUrl.pathname.startsWith("/admin")) {
     try {
-      const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          },
-        },
-      })
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
       if (!user) {
         const url = request.nextUrl.clone()
         url.pathname = "/auth/login"
@@ -210,12 +200,16 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(url)
       }
 
-      const { data: adminRole } = await supabase.from("admin_roles").select("role").eq("profile_id", user.id).single()
+      // Skip the admin role check when credentials are missing (supabase is
+      // null) — matches the prior fail-soft behavior.
+      if (supabase) {
+        const { data: adminRole } = await supabase.from("admin_roles").select("role").eq("profile_id", user.id).single()
 
-      if (!adminRole) {
-        const url = request.nextUrl.clone()
-        url.pathname = "/"
-        return NextResponse.redirect(url)
+        if (!adminRole) {
+          const url = request.nextUrl.clone()
+          url.pathname = "/"
+          return NextResponse.redirect(url)
+        }
       }
     } catch (error) {
       console.error("[v0] Error checking admin access:", error)
@@ -241,21 +235,6 @@ export async function proxy(request: NextRequest) {
 
   if (isProtectedRoute) {
     try {
-      const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          },
-        },
-      })
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
       if (!user) {
         const url = request.nextUrl.clone()
         url.pathname = "/auth/login"
@@ -263,6 +242,9 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(url)
       }
 
+      // Skip the profile/onboarding gate when credentials are missing
+      // (supabase is null) — matches the prior fail-soft behavior.
+      if (supabase) {
       // ────────────────────────────────────────────────────────────────────
       // Wave 1A.5 — AUTH-006: is_onboarded gate
       // Canon: docs/canon/auth-onboarding.locked.md §4 LOCKED.
@@ -390,6 +372,7 @@ export async function proxy(request: NextRequest) {
         const url = request.nextUrl.clone()
         url.pathname = correctPath
         return NextResponse.redirect(url)
+      }
       }
 
     } catch (error) {

@@ -218,7 +218,7 @@ export default async function PartnerEventsPage() {
 
               return (
                 <StickerCard key={event.id} variant="hover" className="p-5">
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex items-start gap-4">
                       <div className="min-w-[60px] rounded-xl border-2 border-ink bg-ink p-3 text-center text-paper">
                         <p className="font-mono text-xs uppercase tracking-wider text-paper/70">{monthLabel}</p>
@@ -289,9 +289,9 @@ export default async function PartnerEventsPage() {
               const fullDate = start ? DATE_FMT.format(start) : ""
               return (
                 <StickerCard key={event.id} variant="default" className="p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-display font-bold text-ink">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="font-display font-bold text-ink truncate">
                         {event.title || "Événement sans titre"}
                       </p>
                       <p className="text-sm text-mute">{fullDate}</p>

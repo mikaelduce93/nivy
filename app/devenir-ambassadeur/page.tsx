@@ -62,7 +62,7 @@ export default async function AmbassadeursPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-7xl font-black text-ink mb-6">Programme Ambassadeurs</h1>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-ink mb-6">Programme Ambassadeurs</h1>
           <p className="text-xl text-teal mb-4">Rejoins notre équipe et gagne de l'argent</p>
           <p className="text-mute max-w-3xl mx-auto leading-relaxed">
             Deviens ambassadeur Nivy et partage ta passion tout en gagnant des commissions sur chaque réservation

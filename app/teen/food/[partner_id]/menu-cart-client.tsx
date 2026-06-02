@@ -288,7 +288,7 @@ export default function MenuCartClient({
                   type="button"
                   onClick={() => removeFromCart(it.id)}
                   aria-label={`Diminuer la quantité de ${it.name}`}
-                  className="grid h-9 w-9 place-items-center rounded-xl border-2 border-ink bg-white text-base font-bold text-ink transition-colors hover:bg-paper-2 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+                  className="grid h-11 w-11 place-items-center rounded-xl border-2 border-ink bg-white text-base font-bold text-ink transition-colors hover:bg-paper-2 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
                 >
                   <span aria-hidden="true">−</span>
                 </button>
@@ -303,7 +303,7 @@ export default function MenuCartClient({
                   type="button"
                   onClick={() => addToCart(it.id)}
                   aria-label={`Augmenter la quantité de ${it.name}`}
-                  className="grid h-9 w-9 place-items-center rounded-xl border-2 border-ink bg-pink text-base font-bold text-ink transition-colors hover:bg-pink/80 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+                  className="grid h-11 w-11 place-items-center rounded-xl border-2 border-ink bg-pink text-base font-bold text-ink transition-colors hover:bg-pink/80 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
                 >
                   <span aria-hidden="true">+</span>
                 </button>
@@ -381,7 +381,7 @@ export default function MenuCartClient({
           )}
         </div>
 
-        <div className="sticky bottom-0 flex items-center justify-between rounded-xl border-2 border-ink bg-coral/10 p-3">
+        <div className="sticky bottom-dock md:bottom-0 flex items-center justify-between rounded-xl border-2 border-ink bg-coral/10 p-3">
           <div className="text-sm text-ink">
             Total :{" "}
             <strong className="font-mono text-base font-bold tabular-nums text-coral">

@@ -15,7 +15,7 @@ export default function AmbassadeursProgrammePage() {
             <div className="text-center mb-16">
               <div className="inline-block mb-6">
                 <div className="absolute -inset-2 bg-gradient-to-r from-pink via-pink to-teal rounded-2xl blur-2xl opacity-30" />
-                <h1 className="relative text-5xl md:text-7xl font-black text-ink">
+                <h1 className="relative text-4xl sm:text-5xl md:text-7xl font-black text-ink">
                   Programme Ambassadeurs
                 </h1>
               </div>

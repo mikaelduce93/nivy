@@ -34,7 +34,7 @@ export default function AdminScorecardPage() {
   if (!loaded) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-6 py-32">
+        <div className="container mx-auto px-6 py-12 md:py-32">
           <NivCoach mood="calm" message="Je calcule le pouls de la plateforme…" className="max-w-md" />
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function AdminScorecardPage() {
   if (!metrics) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-6 py-32">
+        <div className="container mx-auto px-6 py-12 md:py-32">
           <NivCoach
             mood="calm"
             message="Données indisponibles pour le moment — réessaie dans un instant."
@@ -57,7 +57,7 @@ export default function AdminScorecardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
+      <div className="container mx-auto px-6 py-12 md:py-32">
         <BackButton href="/admin" label="Retour au dashboard" />
 
         <header className="mb-8 space-y-2">

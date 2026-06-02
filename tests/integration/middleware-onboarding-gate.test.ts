@@ -43,10 +43,33 @@ vi.mock("@/lib/monitoring/sentry-server", () => ({
   setEnvironmentTag: () => {},
 }))
 
+// #217 — updateSession now returns { response, user, supabase } so proxy.ts can
+// reuse a SINGLE remote getUser() + client (no duplicate auth round-trips). The
+// fake supabase here mirrors the @supabase/ssr stub below and reads `fakeState`
+// lazily (the factory body runs on first import, after fakeState is initialised).
 vi.mock("@/lib/supabase/middleware", () => ({
   updateSession: async (_req: unknown) => {
     const { NextResponse } = await import("next/server")
-    return NextResponse.next()
+    const resolve = async (table: string) => {
+      if (table === "admin_roles") return { data: fakeState.adminRole, error: null }
+      if (table === "profiles") return { data: fakeState.profile, error: null }
+      return { data: null, error: null }
+    }
+    const supabase = {
+      auth: {
+        getUser: async () => ({ data: { user: fakeState.user } }),
+      },
+      from: (table: string) => ({
+        select: () => ({
+          eq: () => ({
+            eq: () => ({ maybeSingle: () => resolve(table), single: () => resolve(table) }),
+            maybeSingle: () => resolve(table),
+            single: () => resolve(table),
+          }),
+        }),
+      }),
+    }
+    return { response: NextResponse.next(), user: fakeState.user, supabase }
   },
 }))
 

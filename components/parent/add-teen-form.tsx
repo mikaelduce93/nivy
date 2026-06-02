@@ -709,7 +709,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           {!newTeen.avatarUrl && (
             <div className="space-y-2">
               <Label className="eyebrow tracking-[0.16em]">Ou choisir un avatar</Label>
-              <div className="grid grid-cols-8 gap-2">
+              <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
                 {avatarOptions.map((emoji) => (
                   <button
                     key={emoji}

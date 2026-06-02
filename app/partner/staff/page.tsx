@@ -36,8 +36,8 @@ export default async function PartnerStaffPage() {
 
   return (
     <div className="space-y-8 pt-6">
-      <header className="flex items-end justify-between gap-4">
-        <div className="space-y-2">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0 space-y-2">
           <p className="eyebrow">Équipe</p>
           <h1 className="font-display text-4xl font-extrabold tracking-tight">
             Mon <em className="font-semibold italic text-pink">staff</em>

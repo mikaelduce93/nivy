@@ -14,11 +14,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Menu, LogOut, User, Settings, Copy } from "lucide-react"
 import { NotificationBell } from "@/components/notifications/notification-bell"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { toast } from "sonner"
 import { getSocialBaseUrl } from "@/lib/config/app-config"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
+import { ambassadorNavigation } from "@/components/dashboard/ambassador/sidebar"
 
 interface AmbassadorHeaderProps {
   userInfo: UserRoleInfo
@@ -26,6 +29,8 @@ interface AmbassadorHeaderProps {
 
 export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const [menuOpen, setMenuOpen] = useState(false)
   const initials = userInfo.fullName
     .split(" ")
     .map((n) => n[0])
@@ -48,8 +53,9 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-paper border-b-2 border-ink">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Mobile menu */}
-        <Sheet>
+        {/* Mobile menu — #221: drawer now carries the full ambassador nav
+            (was an empty title-only Sheet). Controlled so it closes on navigate. */}
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild className="md:hidden">
             <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
               <Menu className="h-5 w-5" aria-hidden="true" />
@@ -61,6 +67,33 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
                 <span className="eyebrow tracking-[0.16em] text-pink">Espace ambassadeur</span>
                 <h2 className="font-display text-lg font-extrabold text-ink mt-1">Nivy</h2>
               </div>
+              <nav className="px-3 space-y-1">
+                {ambassadorNavigation.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl border-2 transition-all duration-200",
+                        isActive
+                          ? "border-ink bg-ink text-paper"
+                          : "border-transparent text-ink-2 hover:border-ink hover:bg-white"
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          "mr-3 h-5 w-5 flex-shrink-0",
+                          isActive ? "text-paper" : "text-mute group-hover:text-ink"
+                        )}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  )
+                })}
+              </nav>
             </div>
           </SheetContent>
         </Sheet>

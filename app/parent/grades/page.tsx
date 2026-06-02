@@ -351,7 +351,7 @@ export default function ParentGradesPage() {
             size="lg"
             meta={`${stats.totalValidated} note${stats.totalValidated > 1 ? "s" : ""} validée${stats.totalValidated > 1 ? "s" : ""}`}
           />
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StickerCard className="p-4">
               <p className="eyebrow text-mute">En attente</p>
               <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-gold">{stats.totalPending}</p>
@@ -378,7 +378,7 @@ export default function ParentGradesPage() {
               className="pl-10 border-2 border-ink bg-white text-ink"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(["pending", "approved", "rejected", "all"] as const).map((f) => (
               <Button
                 key={f}

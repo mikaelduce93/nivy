@@ -99,8 +99,8 @@ export default async function AmbassadorDashboardPage() {
   const firstName = userInfo.fullName.split(" ")[0]
 
   return (
-    <div className="min-h-screen bg-paper">
-      <div className="container mx-auto px-6 py-32">
+    <div className="bg-paper">
+      <div className="container mx-auto px-6 py-20 md:py-32">
         {/* Hero éditorial */}
         <div className="mb-8 grid gap-6 lg:grid-cols-[1.3fr_1fr] lg:items-stretch">
           <div className="flex flex-col justify-center">
@@ -199,17 +199,17 @@ export default async function AmbassadorDashboardPage() {
                   const dateText = diffDays === 0 ? "Aujourd'hui" : diffDays === 1 ? "Hier" : `Il y a ${diffDays} jours`
 
                   return (
-                    <div key={referral.id} className="flex items-center justify-between rounded-xl border-2 border-line bg-white p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-ink bg-pink font-display text-lg font-extrabold text-ink">
+                    <div key={referral.id} className="flex items-center justify-between gap-3 rounded-xl border-2 border-line bg-white p-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-pink font-display text-lg font-extrabold text-ink">
                           {userName.charAt(0)}
                         </div>
-                        <div>
-                          <p className="font-semibold text-ink">{userName}</p>
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-ink">{userName}</p>
                           <p className="font-mono text-xs text-mute">{dateText}</p>
                         </div>
                       </div>
-                      <span className="rounded-full border-2 border-ink bg-lime px-3 py-1 font-mono text-xs font-semibold text-on-bright">
+                      <span className="shrink-0 rounded-full border-2 border-ink bg-lime px-3 py-1 font-mono text-xs font-semibold text-on-bright">
                         actif
                       </span>
                     </div>
@@ -245,12 +245,12 @@ export default async function AmbassadorDashboardPage() {
                   const dateText = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 
                   return (
-                    <div key={referral.id} className="flex items-center justify-between rounded-xl border-2 border-line bg-white p-4">
-                      <div>
+                    <div key={referral.id} className="flex items-center justify-between gap-3 rounded-xl border-2 border-line bg-white p-4">
+                      <div className="min-w-0">
                         <p className="font-mono text-lg font-bold tabular-nums text-lime">+{referral.commission_amount || 0} DH</p>
-                        <p className="text-xs text-mute">Inscription {userName}</p>
+                        <p className="truncate text-xs text-mute">Inscription {userName}</p>
                       </div>
-                      <p className="font-mono text-sm text-mute">{dateText}</p>
+                      <p className="shrink-0 font-mono text-sm text-mute">{dateText}</p>
                     </div>
                   )
                 })

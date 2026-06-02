@@ -133,8 +133,8 @@ export default async function PartnerOffersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-end justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <p className="eyebrow tracking-[0.16em] text-mute">Tes offres</p>
           <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
             Tes <em className="font-semibold italic text-pink">deals</em>

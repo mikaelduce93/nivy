@@ -6,7 +6,7 @@ import { StatHero } from "@/components/brand"
 import { NivEmpty } from "@/components/brand"
 import { ArrowLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { CATS } from "../awards-client"
+import { CATS } from "../awards-categories"
 
 export const metadata: Metadata = { title: "Détail attribution — Partenaire" }
 

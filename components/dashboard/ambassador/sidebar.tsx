@@ -14,7 +14,9 @@ import {
   HelpCircle,
 } from "lucide-react"
 
-const navigation = [
+// #221 — exported so the mobile drawer in `header.tsx` reuses the SAME nav list
+// (single source), mirroring the partner header/sidebar pattern.
+export const ambassadorNavigation = [
   { name: "Dashboard", href: "/ambassador", icon: Home },
   { name: "Mes Filleuls", href: "/ambassador/referrals", icon: Users },
   { name: "Mes Commissions", href: "/ambassador/commissions", icon: Wallet },
@@ -32,7 +34,7 @@ export function AmbassadorSidebar() {
     <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-16 bg-paper border-r-2 border-ink">
       <div className="flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
         <nav className="flex-1 px-3 space-y-1">
-          {navigation.map((item) => {
+          {ambassadorNavigation.map((item) => {
             const isActive = pathname === item.href
             return (
               <Link

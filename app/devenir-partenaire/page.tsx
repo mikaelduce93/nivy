@@ -68,7 +68,7 @@ export default function DevenirPartenairePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-teal/10 via-pink/10 to-pink/10" />
         <div className="container mx-auto px-6 py-24 relative">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-black text-ink mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-ink mb-6">
               Devenez{" "}
               <span className="bg-gradient-to-r from-teal via-pink to-pink bg-clip-text text-transparent">
                 Partenaire

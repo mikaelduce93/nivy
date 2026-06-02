@@ -38,7 +38,11 @@ export default async function PartnerLayout({
     <div className="min-h-screen bg-background">
       {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
       <SkipToContent />
-      <PartnerHeader userInfo={userInfo} />
+      <PartnerHeader
+        userInfo={userInfo}
+        partnerType={(partner?.partner_type as PartnerType) ?? null}
+        partnerStatus={(partner?.status as any) ?? null}
+      />
       <div className="flex">
         <PartnerSidebar
           partnerType={(partner?.partner_type as PartnerType) ?? null}

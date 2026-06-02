@@ -352,7 +352,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
         </div>
 
         {/* Tabs */}
-        <div role="tablist" aria-label="Filtres amis" className="flex items-center gap-2">
+        <div role="tablist" aria-label="Filtres amis" className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map((t) => {
             const active = tab === t.id
             return (
@@ -362,7 +362,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                 aria-selected={active}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "px-4 py-2 rounded-xl border-2 border-ink font-mono text-xs font-bold uppercase tracking-wide transition-all focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
+                  "shrink-0 px-4 py-2 rounded-xl border-2 border-ink font-mono text-xs font-bold uppercase tracking-wide transition-all focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
                   active
                     ? "bg-ink text-paper shadow-stkr-pink"
                     : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm",

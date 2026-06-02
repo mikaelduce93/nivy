@@ -42,7 +42,7 @@ export default async function CheckInPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
+      <div className="container mx-auto px-6 py-12 md:py-32">
         <div className="max-w-6xl mx-auto">
           <BackButton href="/admin" label="Retour au dashboard" />
 

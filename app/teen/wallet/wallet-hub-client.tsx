@@ -88,7 +88,7 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
       <header className="space-y-6">
         <div className="space-y-1">
           <span className="eyebrow tracking-[0.16em] text-mute">Ton argent</span>
-          <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">
             Ton <em className="font-semibold italic text-pink">wallet</em>
           </h1>
           <p className="text-sm text-mute">Tes coins, tes badges et ta boutique au même endroit.</p>

@@ -3,7 +3,7 @@ import { SkeletonPresetStats, SkeletonPresetList } from '@/components/ui/skeleto
 export default function Loading() {
   return (
     <div className="container mx-auto space-y-6 p-4 md:p-6">
-      <SkeletonPresetStats count={3} columns="grid-cols-3" />
+      <SkeletonPresetStats count={3} columns="grid-cols-2 sm:grid-cols-3" />
       <SkeletonPresetList count={5} />
     </div>
   )

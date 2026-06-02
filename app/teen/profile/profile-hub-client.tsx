@@ -115,7 +115,7 @@ export function ProfileHubClient({ data }: ProfileHubClientProps) {
         </Button>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: t("teen.profile.statLevel"), value: stats.level, icon: Star, color: "text-teal" },
             { label: t("teen.profile.statCoins"), value: stats.coins.toLocaleString(), icon: Coins, color: "text-coral" },

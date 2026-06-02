@@ -923,6 +923,21 @@
   }
 }
 
+/* --------------------------------------------------------------------------
+   Mobile dock clearance — single source (V5 #222).
+   The ~6rem md:hidden bottom dock requires fixed/sticky surfaces to clear
+   it. These utilities centralize the previously copy-pasted
+   calc(6rem + env(safe-area-inset-bottom)) literal. Tailwind v4 @utility
+   must live at top level (not inside @layer).
+   -------------------------------------------------------------------------- */
+@utility pb-dock {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+}
+
+@utility bottom-dock {
+  bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+}
+
 /* ============================================================================
    7. ANIMATIONS
    ============================================================================ */

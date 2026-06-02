@@ -1,0 +1,858 @@
+{
+  "summary": "Diagnostique le crash hooks à la connexion + la responsivité mobile sur toutes les zones de comptes, vérifie chaque trouvaille, et synthétise un rapport priorisé.",
+  "agentCount": 38,
+  "logs": [
+    "Lancement des 11 finders (4 crash + 7 responsive)...",
+    "59 trouvailles uniques après déduplication.",
+    "Vérification adversariale de 26 trouvailles (crash + critical/high). 33 medium/low passent sans vérif.",
+    "Vérifié: 13 confirmées, 13 réfutées."
+  ],
+  "result": {
+    "report": "# Diagnostic — Crash connexion & Responsivité mobile (Nivy)\n\n## Résumé exécutif\n\n- **Aucun crash « Rendered more hooks than during the previous render » n'existe réellement.** Les cinq trouvailles initialement étiquetées `crash` ont toutes été réfutées sur ce point précis après lecture du code : dans chaque composant, tous les hooks sont appelés inconditionnellement avant le premier `return`, donc le nombre de hooks ne varie jamais entre deux rendus.\n- **Deux vrais défauts « build-time / page blanche » subsistent**, de classe Next.js App Router et non « hooks » : `useSearchParams()` sans `<Suspense>` sur `app/carte-vip/confirmation/page.tsx` (post-paiement VIP) et `app/auth/validate-teen/page.tsx` (activation du compte ado). Ce sont les seuls candidats sérieux à un échec de prérendu / page blanche.\n- **La cause racine la plus probable du symptôme « il faut rafraîchir pour que la connexion fonctionne »** est `components/navbar.tsx` : la navbar lit l'auth une seule fois (`getUser()` au montage, sans `onAuthStateChange`) et persiste dans le root layout, donc l'UI globale reste figée sur l'état déconnecté tant qu'on ne recharge pas. C'est de l'UX/cohérence, pas un crash.\n- **Responsivité — zones les plus touchées (vérifiées) :** espace **Partner** (cul-de-sac total de navigation sur mobile : drawer vide + sidebar `hidden md:flex`) et espace **Admin** (sidebar `w-64` fixe non masquée + `pl-64` non responsive sur le `<main>`). Bien que sévères, ces deux zones sont du back-office (staff/partenaires), pas le cœur de cible ado.\n- **Zone Teen (cœur de cible) :** deux défauts responsive vérifiés et certains — stats profil en `grid-cols-4` fixe (débordement des coins) et barre « Commander » `sticky bottom-0` passant sous le dock — plus le défaut navbar et un remontage bénin du dashboard.\n- **Le reste (medium/low) est non vérifié** : essentiellement des titres `text-5xl` sans base mobile, des grilles à colonnes fixes, des paddings verticaux excessifs et quelques drawers de nav vides (Ambassadeur/Mentor). À traiter en lot, faible risque.\n\n## 1. Crash « Rendered more hooks » à la connexion\n\n**Verdict : ce crash n'est pas reproductible dans le code audité.** Les cinq composants soupçonnés ont été lus intégralement ; dans chacun, l'ordre et le nombre de hooks sont stables entre rendus (tous les hooks précèdent le premier `return`, aucun hook conditionnel, aucun early-return avant un hook). L'erreur React « Rendered more hooks than during the previous render » exige un nombre de hooks variable au sein d'une même instance — condition absente partout ici.\n\nCe qui a probablement été pris pour ce crash est en réalité **deux défauts Next.js App Router distincts** (échec de prérendu / page forcée en CSR avec page blanche), à corriger en priorité car ils touchent des flux critiques :\n\n### Cause la plus probable d'une page blanche au chargement — `useSearchParams()` sans `<Suspense>`\n\n1. **`app/carte-vip/confirmation/page.tsx:20-22`** (flux retour de paiement VIP). Le composant page `\"use client\"` appelle `useSearchParams()` (l.21) puis `.get('session_id')` (l.22) sans aucune frontière `<Suspense>` (absente du fichier, du dossier `app/carte-vip/` et du root layout). Mécanisme réel : bailout de prérendu Next 16 `missing-suspense-with-csr-bailout` au build (pas un crash de hooks). **Correctif exact :**\n   - l.3 : `import { useEffect, useState, Suspense } from \"react\"`\n   - l.20 : renommer `export default function PassConfirmationPage()` → `function PassConfirmationInner()`\n   - après la `}` finale (l.201), ajouter un wrapper exporté :\n     ```tsx\n     export default function PassConfirmationPage() {\n       return (\n         <Suspense fallback={null}>\n           <PassConfirmationInner />\n         </Suspense>\n       )\n     }\n     ```\n   C'est le pattern déjà utilisé dans `app/auth/sign-up/page.tsx:284-291` et `app/partenaires/merci/page.tsx:208-214`.\n\n2. **`app/auth/validate-teen/page.tsx:24-27`** (lien email parent → activation du compte ado). Même classe : `useSearchParams()` (l.26) puis `.get('token')` (l.27) sans `<Suspense>` (l.3 n'importe pas `Suspense`, pas de `app/auth/layout.tsx`). **Correctif exact :**\n   - l.3 : `import { useEffect, useState, Suspense } from \"react\"`\n   - l.24 : `export default function ValidateTeenPage()` → `function ValidateTeenInner()`\n   - en fin de fichier (après l.295) : `export default function ValidateTeenPage() { return (<Suspense fallback={null}><ValidateTeenInner /></Suspense>) }`\n\n### Candidats secondaires (réfutés comme « crash », conservés pour info)\n\n- `components/navbar.tsx:62-78` — défaut d'auth périmé réel mais **UX, pas crash** (voir §2).\n- `proxy.ts:172-264` — double `getUser()` + footgun cookies : **perf/SSR de basse sévérité**, aucun hook React (middleware serveur).\n- `components/teen/dashboard/teen-dashboard-content.tsx:42-93` — remontage de sous-arbre dû au wrapper `<PullToRefresh>` conditionné par `mounted` : **flash + double fetch bénin**, pas un crash (voir §3 Teen).\n- `components/agenda/events-client.tsx:375,408` — risque de mismatch d'hydratation (fuseau / `isNew`) : **warning console**, pas un crash (voir §3 Composants partagés).\n\n## 2. Bug « il faut rafraîchir pour se connecter »\n\n**Cause racine (distincte du §1) — `components/navbar.tsx:62-78`.** La navbar lit l'état d'auth une seule fois au montage : `useEffect(() => { checkUser() }, [])` appelle `supabase.auth.getUser()` puis `setUser(user)`, sans jamais s'abonner via `supabase.auth.onAuthStateChange(...)`. Or la navbar est rendue dans le root layout persistant (`app/layout.tsx:251-258`, desktop + mobile) et le flux de login est en soft-navigation (`app/auth/login/page.tsx:62` `router.push` → `app/auth/redirect/page.tsx` server `redirect()`), donc la navbar ne se re-monte pas et `user` reste `null`. Conséquences figées : `href: user ? \"/espace\" : \"/auth/login\"` (l.254), megaMenu « Se connecter/S'inscrire » (l.255-281), CTA desktop (l.436-451) et mobile (l.527-537). C'est de l'UX/cohérence (sévérité **high**), pas un crash.\n\n**Correctif exact** — s'abonner après le `getUser` initial, en gardant le mock client (qui n'expose pas `onAuthStateChange`, cf. `lib/supabase/client.ts:9-23`). Pattern déjà appliqué dans `components/monitoring/sentry-user-context.tsx:60-74`. Remplacer le corps du `useEffect` (l.62-78) par :\n\n```tsx\nuseEffect(() => {\n  const checkUser = async () => {\n    try {\n      const { data: { user } } = await supabase.auth.getUser()\n      setUser(user)\n    } catch (error) {\n      console.warn(\"[v0] Auth check failed:\", error)\n      setUser(null)\n    } finally {\n      setLoading(false)\n    }\n  }\n  checkUser()\n\n  if (typeof supabase.auth.onAuthStateChange === \"function\") {\n    const { data: { subscription } } = supabase.auth.onAuthStateChange(\n      (_event, session) => setUser(session?.user ?? null)\n    )\n    return () => subscription?.unsubscribe()\n  }\n}, [])\n```\n\nNe pas introduire de return anticipé (préserver l'ordre inconditionnel des hooks). Ce seul changement corrige aussi le href « Mon Espace » et les CTA desktop/mobile.\n\n**Race secondaire (basse sévérité) — `proxy.ts:172-264`.** `updateSession` (`lib/supabase/middleware.ts:34-36`) appelle déjà `getUser()`, puis `proxy.ts` reconstruit un `createServerClient` (l.244-253) et refait `getUser()` (l.255-257) + lecture `profiles` (l.282-286) : double aller-retour auth distant par navigation protégée → TTFB accru sur mobile, amplifie la fenêtre de race au login. De plus le `setAll` du 2e client (l.249-251) et du client admin (l.196-198) n'écrit que `request.cookies`, jamais `response.cookies` → un refresh de token déclenché ici ne reviendrait pas au navigateur. **Correctif :** corriger `setAll` pour écrire sur `request.cookies` ET `response.cookies`, n'appeler `getUser()` qu'une fois et réutiliser `user` + `profiles`, idéalement faire retourner `{ response, user }` par `updateSession`.\n\n## 3. Responsivité mobile — par zone\n\n### Teen (cœur de cible)\n\n| Fichier:ligne | Sévérité | Problème | Correctif (classes) |\n|---|---|---|---|\n| `app/teen/profile/profile-hub-client.tsx:118` | high | 4 cartes stats en `grid-cols-4` fixe → coins (`12 500`) débordent sous 430px | `grid grid-cols-2 sm:grid-cols-4 gap-4` (pattern déjà utilisé l.213) |\n| `app/teen/food/[partner_id]/menu-cart-client.tsx:384` | medium | Barre « Commander » `sticky bottom-0` passe sous le dock mobile (`fixed bottom-0 z-50`) | `sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] md:bottom-0 ...` (6rem aligné sur `app/teen/layout.tsx:67`) |\n| `components/teen/dashboard/teen-dashboard-content.tsx:87-93` | low | Forme d'arbre change (`<PullToRefresh>` conditionné par `mounted`) → remontage + double fetch | Toujours monter : `return (<PullToRefresh onRefresh={handleRefresh} disabled={!mobile}>{content}</PullToRefresh>)` |\n| `app/teen/vip-card/vip-card-client.tsx:103` | medium *(non vérifié)* | Titre palier `text-5xl uppercase` non responsive (« LÉGENDAIRE » déborde) | `text-3xl sm:text-5xl` + `break-words` ; `p-6 sm:p-8` sur la DarkSurface |\n| `components/circles/circle-chat.tsx:712` | medium *(non vérifié)* | `h-full` dans `<main>` sans hauteur fixe → input non collé, zone messages non bornée | `h-[calc(100dvh-4rem-5rem)]` au lieu de `h-full` (dvh, pas vh) |\n| `app/teen/food/[partner_id]/menu-cart-client.tsx:291,306` | medium *(non vérifié)* | Boutons +/- panier à 36px (`h-9 w-9`) < cible tactile 44px | `h-11 w-11` |\n| `app/teen/defis-physiques/defis-physiques-client.tsx:154-176` | low *(non vérifié)* | Stats `grid-cols-3` fixe → gros XP déborde (idem games/streak/circles) | `grid-cols-2 sm:grid-cols-3` et/ou `text-xl sm:text-2xl` |\n| `app/teen/friends/friends-client.tsx:355` | low *(non vérifié)* | Onglets `flex gap-2` sans overflow ni wrap | `flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden` |\n| `app/teen/academic/academic-client.tsx:248-260` | low *(non vérifié)* | Header titre + bouton sans wrap (code mort : redirect vers /teen/aide-scolaire) | `flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between` (sinon marquer dead code) |\n\n### Parent\n\n| Fichier:ligne | Sévérité | Problème | Correctif (classes) |\n|---|---|---|---|\n| `app/parent/grades/page.tsx:354-367` | medium *(non vérifié)* | 3 stickers en `grid-cols-3` fixe écrasés à 360px | `grid grid-cols-1 gap-3 sm:grid-cols-3` |\n| `app/parent/grades/page.tsx:381-395` | medium *(non vérifié)* | 4 boutons filtre `flex gap-2` non-wrap débordent | `flex flex-wrap gap-2` |\n| `app/parent/page.tsx:252-254` | medium *(non vérifié)* | H1 « Centre de contrôle » `text-5xl` sans base mobile (conteneur overflow-x-hidden) | `text-3xl sm:text-4xl md:text-6xl` |\n| `components/parent/dashboard/financial-overview.tsx:53-55` | low *(non vérifié)* | Montant `text-5xl` frôle le bord à 360px | `text-4xl sm:text-5xl` ; suffixe `text-lg sm:text-xl` |\n| `app/parent/history/page.tsx:337-382` | low *(non vérifié)* | Lignes transaction `flex justify-between` sans wrap/truncate | `flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between` + `min-w-0`/`truncate` sur la description |\n\n### Partner\n\n| Fichier:ligne | Sévérité | Problème | Correctif (classes) |\n|---|---|---|---|\n| `components/dashboard/partner/header.tsx:54-68` | critical | **Cul-de-sac mobile** : drawer mobile vide (titre seul) + sidebar `hidden md:flex`, aucun MobileDock → aucune page atteignable | Remplir le `SheetContent` avec la nav (réutiliser `buildActiveNav`/`PENDING_NAV` de `sidebar.tsx`) ; Sheet contrôlé + `onClick={() => setOpen(false)}` sur chaque `<Link>` ; passer `partnerType`/`partnerStatus` depuis `app/partner/layout.tsx:41` |\n| `components/partners/RetailPartnerForm.tsx:261-285` | medium *(non vérifié)* | 4 libellés d'étapes complets compressés dans `flex justify-between` à 360px | Libellés `hidden sm:block` + titre étape courante `sm:hidden` ; pastilles `size-9 sm:size-12` |\n| `components/partners/VenuePartnerForm.tsx:286-309` | medium *(non vérifié)* | Idem (dupliqué Club/Education) | Même correctif ; idéalement extraire un `<WizardSteps>` partagé |\n| `components/partner/dashboard/feeds.tsx:45-54` | medium *(non vérifié)* | `p-8` (64px horizontal) étrangle le contenu à 360px ; nom client non tronqué écrase le montant | `p-5 sm:p-8` / `px-5 sm:px-8` / lignes `p-4 sm:p-6` + `min-w-0`+`truncate` sur le nom |\n| `app/partner/events/page.tsx:220-266` | medium *(non vérifié)* | Header carte `flex justify-between` sans wrap (titre vs colonne boutons) | Wrapper `flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between` ; actions `flex-row sm:flex-col sm:items-end` ; `min-w-0` sur le titre |\n\n### Ambassadeur / Mentor\n\n| Fichier:ligne | Sévérité | Problème | Correctif (classes) |\n|---|---|---|---|\n| `app/ambassador/layout.tsx:32-41` | medium *(non vérifié)* | Sidebar `hidden md:flex` + drawer hamburger vide (le MobileDock couvre la nav, mais le tiroir est creux) | Retirer le hamburger OU remplir le `SheetContent` avec les liens de la sidebar |\n| `components/dashboard/mentor/sidebar.tsx:24` | medium *(non vérifié)* | Sidebar `hidden md:flex`, header sans hamburger, MobileDock retombe sur `publicNavItems` pour `/mentor/*` | Ajouter `isMentorArea` + `mentorNavItems` au MobileDock OU hamburger + Sheet de nav dans `MentorHeader` |\n| `app/ambassador/page.tsx:103` | low *(non vérifié)* | `py-32` (128px) excessif sur mobile (idem marketing/withdrawals/referrals/commissions/comment-gagner) | `py-20 md:py-32` |\n| `app/ambassador/marketing/page.tsx:103` | low *(non vérifié)* | `min-h-screen` imbriqué dans un main déjà plein hauteur → vide en bas (idem withdrawals/referrals/commissions) | Retirer `min-h-screen` des pages enfant |\n| `app/mentor/dashboard/page.tsx:130` | low *(non vérifié)* | Full-bleed par marges négatives `-m-4 md:-m-8 lg:-m-10` couplé au padding du layout (fragile ; idem sessions:49, profile/edit:37) | Layout sans padding pour ces routes, ou garder marge/padding strictement appariés |\n\n### Admin\n\n| Fichier:ligne | Sévérité | Problème | Correctif (classes) |\n|---|---|---|---|\n| `components/layouts/admin-sidebar.tsx:101-105` | high | Sidebar `w-64` fixe **jamais masquée** sous md → recouvre ~70% de l'écran à 360px, aucun drawer | Ajouter `hidden md:block` ; préfixer largeurs `md:w-16`/`md:w-64` |\n| `app/admin/layout.tsx:38-42` | high | `pl-64` inconditionnel sur le `<main>` → contenu démarre à 256px du bord sur mobile (~104px utiles) | `pl-64` → `pl-0 md:pl-64` (à coupler au masquage de la sidebar ci-dessus) |\n| `app/admin/permissions/page.tsx:133` | low *(non vérifié)* | `py-32` excessif sur mobile (idem scripts-sql:92, check-in:45, gamification/scorecard:60, gamification-setup:103) | `px-6 py-12 md:py-32` |\n\n### Public\n\n| Fichier:ligne | Sévérité | Problème | Correctif (classes) |\n|---|---|---|---|\n| `app/devenir-partenaire/page.tsx:71` | medium *(non vérifié)* | H1 « Devenez Partenaire » `text-5xl` sans base mobile (risque débordement « Partenaire ») | `text-4xl sm:text-5xl md:text-7xl` |\n| `app/devenir-ambassadeur/page.tsx:65` | medium *(non vérifié)* | H1 « Programme Ambassadeurs » `text-5xl` sans base mobile | `text-4xl sm:text-5xl md:text-7xl` + `break-words` |\n| `app/devenir-ambassadeur/programme/page.tsx:18` | medium *(non vérifié)* | Même H1 `text-5xl` sans base mobile | `text-4xl sm:text-5xl md:text-7xl` |\n| `app/devenir-ambassadeur/programme/page.tsx:16-21` | low *(non vérifié)* | Halo `absolute -inset-2` dans wrapper `inline-block` non positionné → halo décalé | `relative inline-block mb-6` sur le wrapper du titre |\n| `app/devenir-partenaire/page.tsx:69-80` | low *(non vérifié)* | Hero `py-24` + `text-5xl` + `text-xl` lourds sur mobile | `py-14 sm:py-24` ; `text-4xl sm:text-5xl md:text-7xl` ; `text-lg sm:text-xl` |\n| `app/page.tsx:286-296` | low *(non vérifié)* | PhoneMockup 312px + halo `-inset-8` sans clip → scroll horizontal parasite à 360px | `overflow-hidden` sur la section/wrapper, ou réduire la largeur du mockup en mobile |\n| `app/page.tsx:319,342` | low *(non vérifié)* | Montants « deux monnaies » `text-[54px]` fixe sans variante mobile | `text-[clamp(2.25rem,9vw,54px)]` (ou `text-4xl sm:text-[54px]`) |\n\n### Composants partagés\n\n| Fichier:ligne | Sévérité | Problème | Correctif (classes) |\n|---|---|---|---|\n| `components/parent/add-teen-form.tsx:712-727` | high | Sélecteur avatar `grid-cols-8` + boutons `h-10 w-10` figés (376px) déborde sous ~208px dispo à 360px | Cellules fluides l.718 : `aspect-square w-full` (au lieu de `h-10 w-10`) ; grille l.712 : `grid grid-cols-6 gap-2 sm:grid-cols-8` |\n| `components/cookie-banner.tsx:32` | medium | Bandeau `fixed bottom-0 z-50` recouvre le dock mobile (1re visite, transitoire) | `pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-[calc(1.5rem+env(safe-area-inset-bottom))]` |\n| `components/ui/carousel.tsx:189-191, 219-221` | medium *(non vérifié)* | Flèches `-left-12`/`-right-12` hors écran sur mobile (invisibles ou scroll parasite) | `left-2 sm:-left-12` / `right-2 sm:-right-12` (ou `hidden sm:flex`) + `overflow-hidden` sur le conteneur |\n| `components/notifications/notification-center.tsx:202-205` | medium *(non vérifié)* | Popover notifications `w-[380px]` > 360px → collé aux bords / rogné | `w-[calc(100vw-1.5rem)] max-w-[380px] p-0` |\n| `components/agenda/events-client.tsx:375,408` | low | Mismatch d'hydratation : `toLocaleTimeString`/`toLocaleDateString` sans timeZone (+ l.399,470,471) et `isNew` lu à l'horloge du render (l.375,442) | Ajouter `timeZone: \"Africa/Casablanca\"` aux formats ; calculer `isNew` côté serveur (`app/agenda/page.tsx`) ou via `useState`/`useEffect` post-mount |\n| `components/ui/primitives/grid.tsx:59` | low *(non vérifié)* | Preset `bento` = `grid-cols-4` dès le mobile (~80px/colonne à 360px) | `grid-cols-2 sm:grid-cols-4 md:grid-cols-8 lg:grid-cols-12` |\n\n## 4. Plan d'action priorisé\n\n### P0 — Stabilité (build-time / page blanche + connexion)\n\n1. `app/carte-vip/confirmation/page.tsx:20-22` → extraire `PassConfirmationInner` + wrapper `<Suspense>` (import `Suspense` l.3). Débloque le flux retour de paiement VIP.\n2. `app/auth/validate-teen/page.tsx:24-27` → extraire `ValidateTeenInner` + wrapper `<Suspense>` (import `Suspense` l.3). Débloque l'activation parent → ado.\n3. `components/navbar.tsx:62-78` → ajouter l'abonnement `onAuthStateChange` (avec garde mock client) pour que l'UI globale reflète la connexion sans reload. **Corrige directement le symptôme « il faut rafraîchir ».**\n\n### P1 — Responsive critique mobile (priorité zone Teen, puis back-office)\n\n1. `app/teen/profile/profile-hub-client.tsx:118` → `grid grid-cols-2 sm:grid-cols-4 gap-4`.\n2. `app/teen/food/[partner_id]/menu-cart-client.tsx:384` → `sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] md:bottom-0`.\n3. `components/parent/add-teen-form.tsx:712,718` → cellules `aspect-square w-full` + grille `grid-cols-6 sm:grid-cols-8` (sinon création de compte teen quasi inutilisable sous 375px).\n4. `components/dashboard/partner/header.tsx:54-68` (+ `app/partner/layout.tsx:41`, exports dans `sidebar.tsx`) → remplir le drawer mobile avec la nav (Sheet contrôlé + fermeture au clic). Lève le cul-de-sac partenaire mobile.\n5. `components/layouts/admin-sidebar.tsx:101-105` + `app/admin/layout.tsx:41` → `hidden md:block` sur l'aside et `pl-0 md:pl-64` sur le `<main>` (les deux ensemble, sinon le contenu passe sous la sidebar).\n6. `components/cookie-banner.tsx:32` → `pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-[calc(1.5rem+env(safe-area-inset-bottom))]`.\n\n### P2 — Responsive medium/low + nettoyages (en lot, faible risque, *non vérifiés sauf mention*)\n\n- **Teen :** `teen-dashboard-content.tsx:87-93` (toujours monter `<PullToRefresh disabled={!mobile}>`, vérifié) ; `vip-card-client.tsx:103` ; `circle-chat.tsx:712` ; `menu-cart-client.tsx:291,306` (boutons `h-11 w-11`) ; `defis-physiques-client.tsx:154-176` (+ games/streak/circles) ; `friends-client.tsx:355` ; `academic-client.tsx:248-260` (dead code).\n- **Parent :** `grades/page.tsx:354-367` et `:381-395` ; `page.tsx:252-254` ; `financial-overview.tsx:53-55` ; `history/page.tsx:337-382`.\n- **Partner :** wizards `RetailPartnerForm.tsx:261-285` / `VenuePartnerForm.tsx:286-309` (+ Club/Education, extraire `<WizardSteps>`) ; `feeds.tsx:45-54` ; `events/page.tsx:220-266`.\n- **Ambassadeur/Mentor :** `ambassador/layout.tsx:32-41` (drawer vide) ; `mentor/sidebar.tsx:24` (+ branche MobileDock) ; paddings `py-32` et `min-h-screen` imbriqués ; full-bleed par marges négatives `mentor/dashboard/page.tsx:130`.\n- **Admin :** `permissions/page.tsx:133` et autres `py-32` (`scripts-sql:92`, `check-in:45`, `gamification/scorecard:60`, `gamification-setup:103`).\n- **Public :** titres hero `text-5xl` → base mobile réduite (`devenir-partenaire/page.tsx:71`, `devenir-ambassadeur/page.tsx:65`, `programme/page.tsx:18`) ; halo `inline-block` → `relative inline-block` ; `page.tsx:286-296` clip + `page.tsx:319,342` taille fluide.\n- **Composants partagés :** `carousel.tsx:189-191,219-221` (flèches dans l'écran) ; `notification-center.tsx:202-205` (largeur plafonnée) ; `events-client.tsx:375,408` (timeZone + `isNew` serveur, vérifié low) ; `primitives/grid.tsx:59` (preset `bento`).\n- **Perf/SSR (hors responsive) :** `proxy.ts:172-264` → dédupliquer `getUser()` et corriger `setAll` (écrire sur `response.cookies`).",
+    "stats": {
+      "total": 59,
+      "verifies": 26,
+      "confirmes": 13,
+      "refutes": 13,
+      "nonVerifies": 33,
+      "crash": 6,
+      "responsive": 40,
+      "parSeverite": {
+        "critical": 1,
+        "high": 7,
+        "medium": 19,
+        "low": 19
+      }
+    },
+    "findings": [
+      {
+        "title": "Navbar lit l'auth UNE SEULE FOIS (getUser sans onAuthStateChange) → l'UI ne se met pas à jour après login sans reload",
+        "file": "components/navbar.tsx",
+        "lines": "62-78",
+        "category": "crash",
+        "severity": "critical",
+        "symptom": "Après connexion, la barre de navigation continue d'afficher « Se connecter / S'inscrire » et le menu « Mon Espace » pointe toujours vers /auth/login. L'ado doit rafraîchir manuellement la page pour que la navbar reflète son état connecté. C'est exactement le bug « il faut rafraîchir pour que la connexion fonctionne » côté UI globale.",
+        "evidence": "L'état `user` est lu une seule fois au montage : `useEffect(() => { checkUser() }, [])` (l.62-78) appelle `supabase.auth.getUser()` puis `setUser(user)`. Aucun `supabase.auth.onAuthStateChange(...)` n'abonne le composant aux événements SIGNED_IN/SIGNED_OUT. Comme la navbar est rendue dans le root layout (app/layout.tsx l.251-258) et persiste pendant les navigations client (router.push), elle ne se re-monte pas après le login → `user` reste `null`. Le rendu conditionnel `{!user && (...login/signup...)}` (l.436-451) et `href: user ? \"/espace\" : \"/auth/login\"` (l.254) restent figés sur l'état déconnecté.",
+        "proposedFix": "Dans le useEffect, après le getUser initial, s'abonner : `const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null)); return () => subscription.unsubscribe()`. C'est le même pattern déjà correctement implémenté dans components/monitoring/sentry-user-context.tsx (l.60-74).",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "high",
+          "fixConfirmed": false,
+          "reproNotes": "VÉRIFIÉ EN LISANT LE CODE.\n\n1) Bug d'auth périmé = RÉEL.\n- components/navbar.tsx l.62-78 : `useEffect(() => { checkUser() }, [])` appelle `supabase.auth.getUser()` puis `setUser(user)` UNE SEULE FOIS au montage. Aucun `supabase.auth.onAuthStateChange(...)` (confirmé : grep/lecture du fichier complet, l.1-560).\n- La navbar vit dans le root layout app/layout.tsx l.251-258 (rendue DEUX fois : desktop l.253 + mobile l.256). Le root layout persiste sur toutes les navigations soft → la navbar ne se re-monte pas.\n- Le flux login est 100% soft-navigation : app/auth/login/page.tsx l.62 `router.push(\"/auth/redirect\")`, et app/auth/redirect/page.tsx est un server component qui fait `redirect(...)` (l.27/45/49/...). Ni l'un ni l'autre ne déclenche un full reload. Donc après connexion, `user` reste `null` dans la navbar.\n- Conséquences figées : l.254 `href: user ? \"/espace\" : \"/auth/login\"` (Mon Espace pointe vers login), l.255-281 megaMenu reste sur \"Se connecter/S'inscrire\", l.436-451 (desktop CTA) et l.527-537 (mobile) affichent encore Se connecter/S'inscrire. usePathname() (l.57) provoque bien un re-render à la navigation, mais re-render ≠ re-fetch : le useEffect [] ne se relance pas, `user` reste null. handleLogout (l.93-101) ne corrige que SA propre instance via setUser(null) ; une déconnexion ailleurs ne se reflète pas non plus.\n- Repro concret mobile (iPhone Safari/Android Chrome 360-430px) : ouvrir l'app déconnecté → menu mobile montre Se connecter/S'inscrire → se connecter (redirigé vers /teen) → rouvrir le menu hamburger : il montre TOUJOURS Se connecter/S'inscrire et \"Mon Espace\" mène à /auth/login. Il faut tirer pour rafraîchir pour corriger. C'est bien le symptôme « il faut rafraîchir pour que la connexion fonctionne » côté nav globale.\n\n2) Catégorie \"crash\" = FAUX.\n- Tous les hooks sont appelés inconditionnellement AVANT l'unique `return` (l.314) : useT l.50, 6×useState l.51-55, useRouter l.56, usePathname l.57, useEffect l.62, useEffect l.81. Aucun return anticipé, aucun hook conditionnel. Le NOMBRE de hooks ne change jamais entre deux rendus → l'erreur \"Rendered more hooks than during the previous render\" NE se produit PAS ici. `loading` (l.55) est posé mais ne gate aucun return. Donc ce n'est pas un crash, c'est un défaut UX/cohérence.\n\n3) Fix proposé = bonne direction mais NI minimal NI sûr tel quel.\n- lib/supabase/client.ts l.9-23 : le mock client (retourné quand window absent OU env Supabase non configurée, l.45-54) n'expose PAS onAuthStateChange → appel direct = TypeError. Le pattern correct existant garde déjà ce cas : components/monitoring/sentry-user-context.tsx l.60 vérifie `typeof supabase.auth.onAuthStateChange === 'function'`. Le fix doit reprendre ce garde.",
+          "refinedFix": "Dans components/navbar.tsx, modifier le useEffect l.62-78 pour s'abonner aux changements d'auth après le getUser initial, en gardant le mock client (motif déjà utilisé en components/monitoring/sentry-user-context.tsx l.60-74).\n\nRemplacer le corps actuel (l.62-78) par :\n\n  useEffect(() => {\n    const checkUser = async () => {\n      try {\n        const { data: { user } } = await supabase.auth.getUser()\n        setUser(user)\n      } catch (error) {\n        console.warn(\"[v0] Auth check failed:\", error)\n        setUser(null)\n      } finally {\n        setLoading(false)\n      }\n    }\n    checkUser()\n\n    // S'abonner aux SIGNED_IN/SIGNED_OUT pour que la navbar (root layout persistant)\n    // reflète l'auth sans reload. Garde le mock client (pas d'onAuthStateChange).\n    if (typeof supabase.auth.onAuthStateChange === \"function\") {\n      const { data: { subscription } } = supabase.auth.onAuthStateChange(\n        (_event, session) => setUser(session?.user ?? null)\n      )\n      return () => subscription?.unsubscribe()\n    }\n  }, [])\n\nNotes:\n- `supabase` est créé une fois (createClient() est un singleton window, lib/supabase/client.ts l.56-58/104-107), donc le référencer dans le useEffect [] est sûr et n'est pas une dépendance changeante.\n- Cela corrige aussi le href de \"Mon Espace\" (l.254) et les CTA desktop/mobile (l.436-451, l.527-537) sans toucher au reste.\n- Aucun autre changement requis ; ne PAS introduire de return anticipé (préserver l'ordre inconditionnel des hooks)."
+        }
+      },
+      {
+        "title": "Le middleware (proxy.ts) refait getUser() + lecture profiles APRÈS updateSession, mais updateSession appelle déjà getUser() : double appel auth séquentiel sur chaque route protégée",
+        "file": "proxy.ts",
+        "lines": "172-264",
+        "category": "crash",
+        "severity": "medium",
+        "symptom": "Latence TTFB élevée sur mobile (3 appels auth Supabase séquentiels par navigation /teen : updateSession.getUser + getUser protected-route + fetch profiles), ce qui amplifie la fenêtre de race au login et donne l'impression que « ça ne répond pas / il faut rafraîchir ».",
+        "evidence": "proxy.ts l.173 `response = await updateSession(request)` ; or lib/supabase/middleware.ts l.34-36 fait déjà `await supabase.auth.getUser()`. Puis proxy.ts crée un NOUVEAU createServerClient (l.244-253) et refait `await supabase.auth.getUser()` (l.255-257) suivi d'un `from('profiles').select('role,is_onboarded')` (l.282-286). C'est le travail d'auth dupliqué documenté dans docs/vision/audit-ui-ux-2026/W4-A2-perf-audit.md (R2). De plus, le 2e client construit dans le bloc protected-route ne propage PAS les cookies rafraîchis dans `response` (son setAll écrit seulement request.cookies, pas supabaseResponse.cookies, l.249-251) : un refresh de token déclenché ici ne serait pas renvoyé au navigateur.",
+        "proposedFix": "Réutiliser l'objet `user` produit par updateSession au lieu de rappeler getUser(). Si un nouveau client est nécessaire, son setAll doit aussi écrire sur la réponse (response.cookies.set) pour propager un éventuel refresh. Cela réduit la latence et ferme une fenêtre de désynchro cookie.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "Vérifié en lisant proxy.ts et lib/supabase/middleware.ts.\n\nCE QUI EST CONFIRMÉ (réel):\n- Double appel getUser() séquentiel sur chaque route protégée: lib/supabase/middleware.ts:34-36 (await supabase.auth.getUser() dans updateSession) PUIS proxy.ts:255-257 (2e getUser via un nouveau createServerClient construit l.244-253). getUser() est un round-trip réseau vers le serveur Auth Supabase (validation JWT distante), donc c'est bien 2 allers-retours auth + 1 lecture DB profiles (proxy.ts:282-286 select role,is_onboarded). Sur /teen mobile cela ajoute du TTFB réel.\n- Bug propagation cookies: le setAll du 2e client (proxy.ts:249-251) n'écrit QUE request.cookies.set(...), jamais response.cookies — donc un refresh de token déclenché ici ne reviendrait pas au navigateur. Idem pour le client admin (proxy.ts:196-198). En revanche updateSession (middleware.ts:26-29) propage correctement, lui, sur supabaseResponse.cookies. Comme updateSession tourne en premier et vient de rafraîchir la session, un 2e refresh dans la même requête est rare → impact faible en pratique.\n- Le doc d'audit cité existe bien: docs/vision/audit-ui-ux-2026/W4-A2-perf-audit.md.\n\nCE QUI EST FAUX:\n- La CATÉGORIE 'crash' ne tient pas. proxy.ts est du middleware côté serveur: AUCUN hook React n'y existe. Cela ne peut pas produire 'Rendered more hooks than during the previous render'. Le symptôme 'il faut rafraîchir' est spéculatif: aucune logique ici ne force un refresh navigateur; au pire une latence accrue. Ce n'est pas un crash mais une perf + micro-fenêtre de désynchro cookie.\n\nManifestation concrète: léger surcoût de latence à chaque navigation authentifiée (un getUser() distant superflu). Le bug cookie ne se manifeste que dans le cas limite où getUser() du 2e/3e client déclenche un refresh de token non couvert par updateSession.",
+          "refinedFix": "Le fix proposé n'est ni minimal ni complet tel quel: updateSession (lib/supabase/middleware.ts:51) ne retourne QUE supabaseResponse et jette l'objet user (middleware.ts:36) — on ne peut donc pas \"réutiliser le user d'updateSession\" sans changer sa signature.\n\nFix recommandé (minimal, correct):\n1) Dans proxy.ts, ne PAS reconstruire un client jeté. Construire UN SEUL createServerClient dont le setAll écrit sur les DEUX: request.cookies ET response.cookies, afin de propager un éventuel refresh. Concrètement, corriger setAll proxy.ts:249-251 (et l'admin proxy.ts:196-198) en:\n   setAll(cookiesToSet) {\n     cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))\n     cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))\n   }\n2) Appeler getUser() une seule fois et réutiliser user + le résultat profiles dans les blocs admin et protected-route.\n3) Optionnel (vraie suppression du doublon): faire retourner par updateSession { response, user } et réutiliser ce user dans proxy.ts au lieu d'un nouveau getUser() (middleware.ts:36 + 51 ; proxy.ts:255-257). Cela supprime un round-trip auth distant par navigation.\n\nÀ NE PAS faire: garder le setAll qui n'écrit que request.cookies (proxy.ts:196-198 et 249-251) — c'est le footgun SSR Supabase qui peut perdre un refresh de token.\n\nPriorité: optimisation perf de basse sévérité, PAS un crash."
+        }
+      },
+      {
+        "title": "teen-dashboard-content.tsx : la structure de l'arbre change entre 2 rendus (wrapper <PullToRefresh> conditionné par `mounted`) — remontage de tout le sous-arbre dashboard post-login",
+        "file": "components/teen/dashboard/teen-dashboard-content.tsx",
+        "lines": "42-93",
+        "category": "crash",
+        "severity": "medium",
+        "symptom": "Sur mobile (iPhone Safari / Android Chrome, le public cible), juste après login, le contenu below-the-fold du dashboard teen est d'abord rendu SANS wrapper, puis (après l'effet `setMounted(true)`) re-rendu AVEC <PullToRefresh> inséré au-dessus du MÊME sous-arbre `content`. React voit un changement de forme d'arbre au même slot : il DÉMONTE puis REMONTE tout le sous-arbre (MeshBackground + QuickAccessGrid + ProfileQuest dans leurs <Suspense>), provoquant un flash/refetch et, combiné aux frontières Suspense/dynamic, un terrain propice aux erreurs de réconciliation React.",
+        "evidence": "Ligne 43 `const { isMobile, mounted } = useDashboardContext()` ; ligne 46 `const mobile = mounted ? isMobile : false` ; lignes 87-93 `return mobile ? (<PullToRefresh ...>{content}</PullToRefresh>) : (content)`. Premier rendu: mounted=false -> mobile=false -> branche `content` nu. Après effet sur mobile: mobile=true -> branche `<PullToRefresh>` qui réenveloppe `content`.",
+        "proposedFix": "Toujours monter <PullToRefresh> et lui passer la désactivation via la prop existante `disabled`, sans changer la forme de l'arbre : `return (<PullToRefresh onRefresh={handleRefresh} disabled={!mobile}>{content}</PullToRefresh>)`. PullToRefresh gère déjà `disabled` (composant ligne 39/61/75/91) — l'arbre reste stable entre rendus, plus de remontage.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "low",
+          "fixConfirmed": true,
+          "reproNotes": "La catégorie \"crash\" est FAUSSE / mal qualifiée. J'ai lu components/teen/dashboard/teen-dashboard-content.tsx en entier. TOUS les hooks de TeenDashboardContent sont appelés inconditionnellement AVANT l'unique return :\n- ligne 43 useDashboardContext() (qui appelle en interne useMobileDetection = 2 useState + 1 useEffect, useReducedMotion = 1 useState + 1 useEffect, puis 1 useMemo — voir lib/hooks/teen-dashboard.ts:351-363)\n- ligne 44 useRouter()\n- ligne 49 React.useCallback()\nL'unique return est ligne 87, APRÈS tous les hooks. Le nombre de hooks de ce composant ne change donc JAMAIS entre deux rendus. L'erreur \"Rendered more hooks than during the previous render\" exige que le compte de hooks change DANS une même instance de composant ; ce n'est pas le cas ici. Monter/démonter le composant séparé <PullToRefresh> est un mount/unmount normal, géré par React, qui ne déclenche aucune violation de règle des hooks ni aucun crash, ni aucune obligation de rafraîchir la page.\n\nEN REVANCHE le comportement de fond est RÉEL mais bénin (sévérité low, pas medium). Aux lignes 87-93 : `return mobile ? (<PullToRefresh ...>{content}</PullToRefresh>) : (content)`. Render 1 (mounted=false → mobile=false ligne 46) rend `content` nu. Render 2 post-effet sur mobile (mounted=true, isMobile=true → mobile=true) rend `<PullToRefresh>` qui réenveloppe `content`. React voit un type d'élément différent au même slot (div PullToRefresh vs div content) → il démonte/remonte le sous-arbre, re-déclenche les frontières <Suspense> (QuickAccessGrid refetch useNotificationCounts, ProfileQuest refetch) → un flash + double fetch au premier paint mobile. Aucun next/dynamic ici (la trouvaille se trompe sur \"dynamic\") : ce sont de simples <Suspense> client. Manifestation concrète : sur iPhone Safari / Android Chrome, au premier affichage du below-the-fold du dashboard teen, bref flash des blocs \"Accès rapide\" et \"Complète ton profil\" + une requête notifications jouée deux fois. Pas de crash, pas d'écran blanc, pas de refresh manuel requis.",
+          "refinedFix": "components/teen/dashboard/teen-dashboard-content.tsx:87-93 — Toujours monter <PullToRefresh> et piloter la désactivation par la prop existante `disabled`, sans changer la forme de l'arbre. Remplacer le ternary :\n\n  // Mobile: wrap in pull-to-refresh so a downward swipe revalidates dashboard data.\n  return mobile ? (\n    <PullToRefresh onRefresh={handleRefresh} disabled={!mounted}>\n      {content}\n    </PullToRefresh>\n  ) : (\n    content\n  )\n\npar :\n\n  // Always mount PullToRefresh so the tree shape stays stable between renders.\n  // Gesture stays disabled off-mobile (and pre-mount) via `disabled`.\n  return (\n    <PullToRefresh onRefresh={handleRefresh} disabled={!mobile}>\n      {content}\n    </PullToRefresh>\n  )\n\nPullToRefresh gère déjà `disabled` (components/ui/pull-to-refresh.tsx:39 valeur par défaut, et lignes 61/75/91 court-circuit des handlers tactiles ; ses propres hooks lignes 42-46 + useEffect 48 restent inconditionnels). `mobile` (ligne 46 = `mounted ? isMobile : false`) vaut déjà false avant mount et hors mobile, donc `disabled={!mobile}` préserve exactement le comportement \"geste uniquement sur mobile\" sans démontage. Note : la trouvaille proposait `disabled={!mobile}` alors que le code actuel passe `disabled={!mounted}` ; `!mobile` est le bon choix (couvre à la fois desktop ET pré-mount). Fix minimal et correct."
+        }
+      },
+      {
+        "title": "useSearchParams() sans <Suspense> sur /carte-vip/confirmation (page client = crash au chargement)",
+        "file": "app/carte-vip/confirmation/page.tsx",
+        "lines": "20-22",
+        "category": "crash",
+        "severity": "critical",
+        "symptom": "Au retour du paiement VIP (Stripe/CMI), la page reste blanche / affiche 'Application error' tant que l'ado ne rafraichit pas. C'est la page de confirmation d'achat du Pass : un echec ici fait croire que le paiement a echoue.",
+        "evidence": "Le composant page (export default 'use client') appelle directement `const searchParams = useSearchParams()` puis `searchParams.get('session_id')` (l.21-22) SANS aucun <Suspense> parent dans le fichier. Contrairement a app/partenaires/merci/page.tsx (l.208-214) et app/auth/sign-up/page.tsx (l.284-290) qui isolent leur useSearchParams dans un sous-composant enveloppe de <Suspense>, ici il n'y a pas de wrapper. En App Router (Next 16), un useSearchParams non enveloppe dans une route sans rendu dynamique declenche l'erreur de prerender 'missing-suspense-with-csr-bailout'.",
+        "proposedFix": "Extraire le contenu dans un sous-composant (ex. PassConfirmationInner) et faire de l'export default un wrapper: `export default function PassConfirmationPage(){ return <Suspense fallback={<LoaderPlein/>}><PassConfirmationInner/></Suspense> }` — exactement le pattern deja utilise dans app/auth/sign-up/page.tsx et app/partenaires/merci/page.tsx.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "high",
+          "fixConfirmed": true,
+          "reproNotes": "Vérifié en lisant app/carte-vip/confirmation/page.tsx. Le composant est `\"use client\"` (l.1). L'export default PassConfirmationPage (l.20) appelle `useSearchParams()` (l.21) puis `.get('session_id')` (l.22) SANS aucun <Suspense> : absent du fichier, absent du dossier app/carte-vip/ (pas de layout.tsx local), absent du root layout. Les deux références citées font bien le pattern wrapper : app/auth/sign-up/page.tsx:284-291 (avec commentaire #52 « useSearchParams requires a Suspense boundary at build time ») et app/partenaires/merci/page.tsx:208-214.\n\nIMPORTANT — la théorie « Rendered more hooks than during the previous render » NE s'applique PAS : useSearchParams() est appelé inconditionnellement en l.21, AVANT tout return anticipé (les returns conditionnels sont en l.82 `if(loading)`, l.93 `if(error)`, l.112 `if(!passData)` — tous après l'ensemble des hooks). Le nombre de hooks est stable entre rendus. Le vrai mécanisme est le bailout de prérendu Next.js au BUILD : `missing-suspense-with-csr-bailout`.\n\nManifestation réelle : `next build` échoue (ou la route est forcée en CSR avec page blanche au prérendu) sur /carte-vip/confirmation. Le symptôme « Application error tant que l'ado ne rafraîchit pas » décrit dans la trouvaille est partiellement spéculatif — le point dur certain est l'échec de build/prérendu, pas un crash de logique runtime. Sévérité ramenée critical → high (build-time déterministe, sur le flux post-paiement VIP, mais exigence Next.js connue plutôt que crash logique).",
+          "refinedFix": "app/carte-vip/confirmation/page.tsx — 2 modifications minimales :\n\n1) l.3 : ajouter Suspense à l'import react.\nRemplacer : `import { useEffect, useState } from \"react\"`\nPar : `import { useEffect, useState, Suspense } from \"react\"`\n\n2) Renommer l'export default actuel (l.20) en sous-composant, et ajouter un nouveau wrapper. Concrètement :\n- l.20 : `export default function PassConfirmationPage() {` → `function PassConfirmationInner() {`\n- juste après la fin de ce composant (après la `}` de l.201), ajouter :\n```\nexport default function PassConfirmationPage() {\n  return (\n    <Suspense fallback={\n      <div className=\"flex min-h-screen items-center justify-center bg-paper\">\n        <div className=\"text-center\">\n          <Loader2 className=\"mx-auto mb-4 size-12 animate-spin text-ink\" aria-hidden=\"true\" />\n          <p className=\"text-mute\">Activation de ton Pass VIP…</p>\n        </div>\n      </div>\n    }>\n      <PassConfirmationInner />\n    </Suspense>\n  )\n}\n```\n(fallback={null} suffit aussi, comme dans merci/sign-up ; le loader réutilise le rendu loading existant l.82-90 et `Loader2` est déjà importé l.7.) C'est exactement le pattern de app/auth/sign-up/page.tsx:284-291 et app/partenaires/merci/page.tsx:208-214."
+        }
+      },
+      {
+        "title": "useSearchParams() sans <Suspense> sur /auth/validate-teen (page client = crash au chargement)",
+        "file": "app/auth/validate-teen/page.tsx",
+        "lines": "24-27",
+        "category": "crash",
+        "severity": "critical",
+        "symptom": "Quand le parent clique le lien d'email pour valider le compte de l'ado, la page peut rester blanche / 'Application error' jusqu'a un rafraichissement manuel — exactement sur le flux critique d'activation du compte ado.",
+        "evidence": "`export default function ValidateTeenPage()` est lui-meme le composant page 'use client' et appelle `const searchParams = useSearchParams()` puis `searchParams.get('token')` (l.26-27) SANS <Suspense> enveloppant. Aucun sous-composant isole comme dans sign-up/merci. Meme classe d'erreur App Router (CSR bailout non enveloppe). Le fichier importe d'ailleurs `useEffect, useState` mais PAS `Suspense`, confirmant l'absence de garde.",
+        "proposedFix": "Renommer le contenu en ValidateTeenInner et exporter un wrapper Suspense: `export default function ValidateTeenPage(){ return <Suspense fallback={null}><ValidateTeenInner/></Suspense> }`. Reutiliser le meme etat de chargement que le bloc `if (loading)` existant comme fallback.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "high",
+          "fixConfirmed": true,
+          "reproNotes": "Le DÉFAUT est réel et vérifiable: app/auth/validate-teen/page.tsx est un composant page 'use client' qui appelle useSearchParams() ligne 26 (puis .get('token') l.27) SANS boundary <Suspense> — ni dans ce fichier (l.3 importe seulement useEffect/useState, pas Suspense), ni dans un layout parent (aucun app/auth/layout.tsx; seul app/layout.tsx existe). C'est exactement le pattern que l'équipe a déjà corrigé pour #52 dans app/auth/sign-up/page.tsx, qui isole SignUpForm et l'enveloppe d'un <Suspense fallback={null}> (l.284-291) avec le commentaire littéral « useSearchParams requires a Suspense boundary at build time ».\n\nMAIS le SYMPTÔME décrit dans la trouvaille est FAUX. La théorie « Rendered more hooks than during the previous render » / nombre de hooks variable / obligation de rafraîchir ne s'applique pas: TOUS les hooks (useRouter, useSearchParams, 7 useState — l.25-37) sont appelés inconditionnellement EN TÊTE du composant, AVANT tout return. Les early-returns if(loading)/if(error)/if(success) sont tous APRÈS les hooks (l.161, 173, 190), donc le compte de hooks est stable entre rendus: pas d'erreur d'ordre de hooks, pas de page blanche runtime résolue par refresh.\n\nLa vraie manifestation sur Next 16.1.1: la page n'a pas de `export const dynamic='force-dynamic'`, donc Next tente de la prérendre statiquement et `next build` ÉCHOUE avec l'erreur CSR-bailout « useSearchParams() should be wrapped in a suspense boundary » pour cette route. À noter: app/auth/login/page.tsx (cité comme comparatif) n'utilise PAS useSearchParams — ce n'est pas un contre-exemple valide. Repro concret: lancer `next build`; le build casse sur /auth/validate-teen tant que le boundary manque, ce qui empêcherait le déploiement du flux d'activation parent→ado. (Si le build passe aujourd'hui, c'est que la route échappe au prérendu, mais le boundary manquant reste un défaut latent identique à #52.)",
+          "refinedFix": "app/auth/validate-teen/page.tsx — appliquer le même pattern que app/auth/sign-up/page.tsx (#52):\n1. Ligne 3: ajouter Suspense à l'import React → `import { useEffect, useState, Suspense } from \"react\"`.\n2. Ligne 24: renommer la fonction page interne `export default function ValidateTeenPage()` en `function ValidateTeenInner()` (retirer `export default`).\n3. À la fin du fichier (après l.295), ajouter le wrapper exporté:\n`export default function ValidateTeenPage() { return (<Suspense fallback={null}><ValidateTeenInner /></Suspense>) }`\nFix correct et minimal; fallback={null} suffit puisque l'état `if (loading)` interne (l.161-170) gère déjà l'écran de chargement une fois le composant monté."
+        }
+      },
+      {
+        "title": "Risque de mismatch d'hydratation: toLocaleTimeString + new Date() pendant le render des cartes events",
+        "file": "components/agenda/events-client.tsx",
+        "lines": "375, 408",
+        "category": "crash",
+        "severity": "low",
+        "symptom": "Sur l'agenda, un avertissement/erreur d'hydratation intermittent peut survenir (heure d'event ou badge 'Nouveau' differant entre SSR et client), pouvant forcer un re-render/rafraichissement.",
+        "evidence": "Dans EventCardGrid, `eventDate.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })` (l.408, idem EventCardList l.471) est calcule pendant le render sans timeZone explicite: si le serveur (UTC) et le client (ex. Europe/Casablanca) different, l'heure rendue cote serveur != cote client. De plus `const isNew = new Date().getTime() - new Date(event.created_at).getTime() < 7j` (l.375, l.442) lit l'horloge au moment du render: une divergence SSR/CSR au bord des 7 jours produit un markup different. Severite faible car non systematique et la page agenda est probablement rendue dynamiquement.",
+        "proposedFix": "Fixer un fuseau stable (`toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit', timeZone:'Africa/Casablanca' })`) et/ou calculer `isNew` cote serveur et le passer en prop, ou le derefer apres mount via un useState/useEffect pour qu'il ne participe pas au 1er render hydrate.",
+        "confidence": "low",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "CATÉGORIE MAL ÉTIQUETÉE: ce n'est PAS un crash. J'ai lu tout le fichier. Dans EventsClient (l.42), TOUS les hooks sont appelés inconditionnellement au sommet, dans le même ordre à chaque rendu: 11 useState (l.43-53), 1 useMemo (l.57), 1 useEffect (l.113), avant le 1er return (l.156). Aucune branche auth/loading ne change le NOMBRE de hooks. EventCardGrid (l.369) et EventCardList (l.436) n'utilisent AUCUN hook (ce sont de simples const). Donc l'erreur « Rendered more hooks than during the previous render » et l'« obligation de rafraîchir » ne s'appliquent PAS ici — réfuté.\n\nCE QUI EST RÉEL = un risque de MISMATCH D'HYDRATATION (warning console + patch DOM localisé, pas un crash):\n- l.408 (EventCardGrid) et l.471 (EventCardList): eventDate.toLocaleTimeString(\"fr-FR\", { hour:\"2-digit\", minute:\"2-digit\" }) sans timeZone -> dépend du fuseau du runtime. SSR (UTC sur Vercel) vs client (Africa/Casablanca, UTC+1) => heure différente.\n- l.399 et l.470: toLocaleDateString sans timeZone (mois/jour-semaine) + l.397 eventDate.getDate() => même exposition au fuseau, NON listées par la trouvaille mais réelles.\n- l.375 et l.442: isNew = new Date().getTime() - new Date(event.created_at).getTime() < 7j lit l'horloge au render -> au bord des 7 jours, SSR != CSR.\n\nLa page agenda est rendue dynamiquement (app/agenda/page.tsx:19 utilise new Date().toISOString() dans la requête), mais un composant \"use client\" est quand même SSR au 1er chargement App Router, donc l'hydratation s'applique. Manifestation concrète: warning « Hydration failed » / « Text content did not match » dans la console au chargement de /agenda, intermittent selon le fuseau réel du navigateur. Aucun crash, aucune perte de fonctionnalité.",
+          "refinedFix": "Fix minimal et correct (timeZone fixe pour une app centrée Maroc):\n- components/agenda/events-client.tsx:399 -> ajouter timeZone:\"Africa/Casablanca\" dans toLocaleDateString({ month:\"short\" })\n- components/agenda/events-client.tsx:408 -> toLocaleTimeString(\"fr-FR\", { hour:\"2-digit\", minute:\"2-digit\", timeZone:\"Africa/Casablanca\" })\n- components/agenda/events-client.tsx:470 -> ajouter timeZone:\"Africa/Casablanca\" dans toLocaleDateString({ weekday/day/month })\n- components/agenda/events-client.tsx:471 -> idem l.408 (timeZone:\"Africa/Casablanca\")\n- l.397 getDate(): si rigueur totale, utiliser un format avec timeZone explicite; sinon impact marginal.\n\nPour isNew (l.375, l.442) le fix « timeZone » proposé par la trouvaille NE corrige PAS ce point (c'est l'horloge courante, pas le fuseau). Calculer isNew côté serveur dans app/agenda/page.tsx:getEvents (ex: ajouter un champ is_new = Date.now()-created_at<7j au mapping) et le passer en prop, OU le dériver dans un useState initialisé à false + useEffect(()=>setIsNew(...),[]) pour qu'il ne participe pas au 1er rendu hydraté. Le fix proposé est donc incomplet => fixConfirmed=false."
+        }
+      },
+      {
+        "title": "Bouton « Commander » collé en bas (sticky bottom-0) passe SOUS le dock mobile",
+        "file": "app/teen/food/[partner_id]/menu-cart-client.tsx",
+        "lines": "384",
+        "category": "responsive",
+        "severity": "high",
+        "symptom": "Sur la page menu d'un partenaire (commande food), la barre de total + bouton « Commander » est collée tout en bas de l'écran (sticky bottom-0). Le dock mobile fixe (~80px, fixed bottom-0 monté dans le layout teen) se superpose à cette barre : l'ado voit la barre de commande masquée par la navigation du bas et a du mal à toucher le bouton « Commander ».",
+        "evidence": "<div className=\"sticky bottom-0 flex items-center justify-between rounded-xl border-2 border-ink bg-coral/10 p-3\">  — aucune marge basse pour libérer le dock (le composant MobileBottomNav est fixed bottom-0 z-50).",
+        "proposedFix": "Décaler le sticky au-dessus du dock : className=\"sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-0 ...\" (le dock fait ~80px et n'existe qu'en mobile, d'où le md:bottom-0).",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "Confirmé partiellement. Le dock mobile EST réel et fixe : components/teen/dashboard/mobile-nav.tsx:214 monte la nav en `fixed bottom-0 left-0 right-0 z-50 md:hidden`, et il est monté au niveau du layout teen (app/teen/layout.tsx:93) donc présent sur la page food. La barre « Commander » est bien `sticky bottom-0` (app/teen/food/[partner_id]/menu-cart-client.tsx:384), dernier enfant du formulaire, sans conteneur overflow intermédiaire — le scrollport est donc le viewport.\n\nNUANCE importante (la sévérité high est exagérée) : 1) Le `<main>` a déjà `pb-[calc(6rem+env(safe-area-inset-bottom))]` md:pb-6 (app/teen/layout.tsx:67), ajouté précisément comme garde anti-dock systémique (commentaire lignes 57-62). Cette padding empêche le sticky de descendre sous ~96px du bas QUAND on est scrollé tout en bas (le sticky ne peut pas sortir de son bloc conteneur), donc à l'arrêt en fin de page la barre repose AU-DESSUS du dock — pas masquée. 2) Le dock s'auto-cache au scroll vers le bas (mobile-nav.tsx:190-191).\n\nLe bug réel/intermittent : pendant le scroll (pas tout en bas), `sticky bottom-0` épingle la barre à bottom:0 du viewport, sous le dock (z-50). Si l'ado remonte légèrement (le dock réapparaît, lignes 192-194) sans être en fin de page, la barre est recouverte par le dock sur ~80px. C'est réel et reproductible mais atténué par la padding du main + l'auto-hide, d'où medium et non high.",
+          "refinedFix": "app/teen/food/[partner_id]/menu-cart-client.tsx:384 — décaler l'offset sticky au-dessus du dock sur mobile, le ramener à 0 sur desktop (dock md:hidden). Pour rester cohérent avec la constante de garde du layout (6rem, cf app/teen/layout.tsx:67 et :85 `[&>div]:!bottom-24`), utiliser 6rem plutôt que 5rem : className=\"sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] md:bottom-0 flex items-center justify-between rounded-xl border-2 border-ink bg-coral/10 p-3\". L'esprit du fix proposé est juste ; seule la valeur (5rem -> 6rem) est ajustée pour matcher la constante existante et garantir le dépassement."
+        }
+      },
+      {
+        "title": "Stats profil en grid-cols-4 fixe (sans fallback) — 4 colonnes écrasées sous 430px",
+        "file": "app/teen/profile/profile-hub-client.tsx",
+        "lines": "118",
+        "category": "responsive",
+        "severity": "high",
+        "symptom": "Les 4 cartes de stats (Niveau, Coins, Rang, Amis) sont forcées sur 4 colonnes même à 360px. Chaque cellule fait ~70px de large avec p-4 (32px de padding) : il ne reste ~38px pour un nombre text-xl comme le solde de coins (« 12 500 ») qui déborde / se coupe. Icône + nombre + label tassés et illisibles.",
+        "evidence": "<div className=\"grid grid-cols-4 gap-4\"> contenant des StickerCard variant=\"panel\" p-4 avec <p className=\"font-mono text-xl font-bold ... tabular-nums\">{stat.value}</p> (value = coins.toLocaleString()).",
+        "proposedFix": "Passer en grid-cols-2 sur mobile : className=\"grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4\" (le même fichier utilise déjà ce pattern grid-cols-2 md:grid-cols-4 ligne 213).",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "high",
+          "fixConfirmed": true,
+          "reproNotes": "Confirmé en lisant app/teen/profile/profile-hub-client.tsx. Ligne 118 : `<div className=\"grid grid-cols-4 gap-4\">` — grille fixe à 4 colonnes SANS aucune variante responsive (pas de sm:/md:/lg:/hidden) ; elle s'applique donc telle quelle de 360px à desktop. Les 4 StickerCard (lignes 119-130) ont `variant=\"panel\" className=\"p-4\"` (ligne 125 = 16px de padding par côté, soit 32px horizontal/cellule), et la valeur est rendue en `font-mono text-xl font-bold tabular-nums` (ligne 127). La cellule Coins affiche `stats.coins.toLocaleString()` (ligne 121).\n\nCalcul à 360px : conteneur de grille ~312px (après padding de page), moins 3 gaps × 16px (gap-4) = 48px → ~264px pour 4 cellules → ~66px/cellule. Moins p-4 (32px) → ~34px de largeur de contenu utile. Un nombre comme « 12 500 » en font-mono 20px (≈12px/glyphe, ~6 glyphes) demande ~70px+ → débordement/troncature inévitable. Icône + nombre + label tassés et illisibles sur iPhone Safari / Android Chrome.\n\nPreuve de l'incohérence interne : le MÊME fichier, ligne 213, utilise déjà `<div className=\"grid grid-cols-2 md:grid-cols-4 gap-4\">` pour la grille de stats du StatsTab. Le fix proposé reprend exactement ce pattern maison. Sévérité high maintenue : c'est l'écran profil, vu par tous les ados sur mobile, et la donnée monétaire (coins) est précisément celle qui déborde.",
+          "refinedFix": "app/teen/profile/profile-hub-client.tsx:118 — remplacer `<div className=\"grid grid-cols-4 gap-4\">` par `<div className=\"grid grid-cols-2 sm:grid-cols-4 gap-4\">`. Cela aligne sur le pattern déjà présent ligne 213 et donne 2 colonnes sous le breakpoint sm (640px), ~150px/cellule à 360px, largement assez pour `text-xl tabular-nums`. La réduction de gap (`gap-3 sm:gap-4`) proposée dans la trouvaille est facultative et inoffensive mais non nécessaire ; le changement strictement requis et minimal est l'ajout de `grid-cols-2 sm:` avant `grid-cols-4`."
+        }
+      },
+      {
+        "title": "Sélecteur d'avatar emoji en grid-cols-8 fixe déborde sous 376px",
+        "file": "components/parent/add-teen-form.tsx",
+        "lines": "712-727",
+        "category": "responsive",
+        "severity": "high",
+        "symptom": "Sur la grille d'ajout d'un teen, la rangée de 8 emojis-avatars (boutons 40px) déborde horizontalement sur iPhone SE / petits Android (360-375px) : la 8e colonne sort de la carte ou pousse un scroll horizontal.",
+        "evidence": "<div className=\"grid grid-cols-8 gap-2\"> avec des boutons className=\"h-10 w-10 ...\" (8×40px + 7×8px gap = 376px de contenu, à l'intérieur d'une carte p-6 dans un container px-6 → largeur dispo ≈ 312px à 360px)",
+        "proposedFix": "Réduire le nombre de colonnes sur mobile : grid grid-cols-6 sm:grid-cols-8 (6×40 + 5×8 = 280px tient), ou rendre les cases fluides : grid grid-cols-8 gap-2 + boutons aspect-square w-full h-auto au lieu de h-10 w-10.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "high",
+          "fixConfirmed": false,
+          "reproNotes": "Confirmé en lisant le code. components/parent/add-teen-form.tsx:712 `grid grid-cols-8 gap-2` ; :718 boutons `h-10 w-10` (40px) ; :37-41 `avatarOptions` = 24 emojis (3 rangées de 8). Aucune variante responsive ne neutralise grid-cols-8 (pas de sm:/md:/hidden) — la grille est figée à 8 colonnes sur TOUTES les tailles.\n\nImbrication réelle (vérifiée) :\n- app/parent/teens/add/page.tsx:19 `container mx-auto px-6` (-48px)\n- page.tsx:46 `<StickerCard className=\"p-6\">` (-48px) + StickerCard a `border-2` intrinsèque (components/ui/sticker-card.tsx:47, -4px)\n- add-teen-form.tsx:642 `<form ... p-6 border-2>` (-48px -4px)\nLargeur dispo pour la grille à 360px (iPhone SE / petit Android) ≈ 360 − 48 − 52 − 52 = ~208px. À 430px (iPhone Pro Max) ≈ ~278px. La grille n'apparaît que si aucune photo n'est uploadée (add-teen-form.tsx:709 `!newTeen.avatarUrl`), donc c'est l'état par défaut à l'ouverture du formulaire « Créer un compte teen ».\n\nContenu requis : 8×40px + 7×8px gap = 376px FIXE. Comme les boutons sont `w-10` (largeur figée non fluide), ils dépassent largement les ~208px dispo. En CSS grid `grid-cols-8` = repeat(8, minmax(0,1fr)) : les pistes se compriment à ~19px chacune, mais chaque bouton reste à 40px → les boutons débordent/chevauchent leur piste et la rangée crève le bord droit de la carte (ou déclenche un scroll horizontal de page). Manifestation : sur 360-375px, emojis qui se chevauchent + 8e colonne hors carte. Sur md+ (page.tsx:44 grid à 2 colonnes) le problème persiste car la grille des emojis reste figée 8 colonnes dans une colonne plus étroite encore.",
+          "refinedFix": "Le fix proposé en option 1 (`grid grid-cols-6 sm:grid-cols-8` en gardant `h-10 w-10`) est INCORRECT : avec des cellules figées 40px, 6 colonnes = 6×40 + 5×8 = 280px, ce qui dépasse toujours les ~208px dispo à 360px → déborde encore. Seul le rendu fluide des cellules résout vraiment le débordement.\n\nFix EXACT (rendre les cellules fluides), components/parent/add-teen-form.tsx:718 — remplacer `h-10 w-10` par `aspect-square w-full` :\n\n  className={`aspect-square w-full rounded-lg text-xl flex items-center justify-center border-2 transition-all ${ ... }`}\n\nEt idéalement réduire les colonnes pour garder des cibles tactiles correctes, ligne 712 :\n  <div className=\"grid grid-cols-6 gap-2 sm:grid-cols-8\">\n(6 cellules fluides à 360px = (208−40)/6 ≈ 28px ; passe à 8 colonnes dès sm). `aspect-square w-full` garantit qu'aucune cellule ne dépasse sa piste, donc plus de débordement quel que soit le nombre de colonnes."
+        }
+      },
+      {
+        "title": "Navigation partenaire totalement absente sur mobile (drawer vide + sidebar hidden md:flex, aucun MobileDock)",
+        "file": "components/dashboard/partner/header.tsx",
+        "lines": "54-68",
+        "category": "responsive",
+        "severity": "critical",
+        "symptom": "Sur iPhone/Android (360-430px) le partenaire ne peut atteindre AUCUNE page de son espace (Offres, Transactions, Stats, Scanner, KYC, Payouts, Factures, Support...). Le bouton hamburger ouvre un tiroir qui n'affiche que le titre 'Teen Club / Espace Partenaire' sans un seul lien de navigation. La sidebar latérale est masquée en mobile (hidden md:flex) et il n'existe pas de MobileDock dans /partner. L'espace partenaire est donc un cul-de-sac sur mobile.",
+        "evidence": "<SheetContent side=\"left\" className=\"w-64 p-0 bg-card border-ink\"> ... <div className=\"px-4 mb-4\"><h2>Teen Club</h2><p>Espace Partenaire</p></div> ... </SheetContent>  — le drawer ne contient AUCUN <Link>/nav. Côté sidebar.tsx L122: <aside className=\"hidden md:flex md:flex-col md:w-64 md:fixed ...\">. Aucun composant MobileDock dans app/partner (grep MobileDock = 0 résultat).",
+        "proposedFix": "Rendre la navigation dans le SheetContent: passer partnerType/partnerStatus au PartnerHeader puis mapper le même buildActiveNav/PENDING_NAV que la sidebar à l'intérieur du tiroir (liste de <Link> avec onClick fermant le Sheet). Ex: <SheetContent side=\"left\" className=\"w-72 ...\"><nav className=\"px-3 space-y-1\">{navigation.map(item => <Link ... className=\"flex items-center gap-3 px-3 py-2.5 min-h-11 rounded-lg\">...)}</nav></SheetContent>. Réutiliser la même source d'items que sidebar.tsx pour éviter la divergence.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "critical",
+          "fixConfirmed": true,
+          "reproNotes": "Vérifié sur 4 fichiers. Reproduction: se connecter en partenaire, ouvrir n'importe quelle page sous /partner sur une largeur < 768px (md breakpoint Tailwind, donc tout iPhone/Android 360-430px). La sidebar (components/dashboard/partner/sidebar.tsx:122 `aside className=\"hidden md:flex ...\"`) est totalement masquée. Le seul point d'entrée mobile est le hamburger (components/dashboard/partner/header.tsx:55 `SheetTrigger ... className=\"md:hidden\"`) qui ouvre un Sheet dont le contenu (header.tsx:60-67) ne contient QUE le bloc titre `<h2>Teen Club</h2><p>Espace Partenaire</p>` — zéro `<Link>`, zéro `<nav>`. app/partner/layout.tsx:41-46 confirme que Header + Sidebar sont bien les seuls éléments de navigation; aucun MobileDock/BottomNav n'existe (grep MobileDock|MobileNav|BottomNav = 0 résultat dans app/partner et components/dashboard/partner). Résultat: aucune des pages Offres/Transactions/Stats/Scanner/KYC/Payouts/Factures/Support n'est atteignable au doigt sur mobile — cul-de-sac total. Le menu déroulant avatar (header.tsx:94-133) n'expose que Profil/Paramètres/Déconnexion, ce qui ne sauve pas la nav. La classe fautive `hidden md:flex` n'est PAS neutralisée par une variante responsive: c'est bien l'état mobile. Faux positif écarté: le drawer mobile EST censé porter la nav mais ne la porte pas. Severité critical justifiée pour une app majoritairement mobile.",
+          "refinedFix": "Rendre la nav dans le drawer mobile, en réutilisant la MÊME source d'items que la sidebar pour éviter toute divergence.\n\n1) Exporter la logique de nav depuis components/dashboard/partner/sidebar.tsx (rendre `buildActiveNav`, `PENDING_NAV` et le type `NavItem` exportés — actuellement privés aux lignes 48-72). Ex: `export function buildActiveNav(...)`, `export const PENDING_NAV`, `export interface NavItem`.\n\n2) Passer partnerType ET partnerStatus au PartnerHeader. Attention: `userInfo.partnerData` (lib/auth/get-user-role.ts:52-56) contient `partnerType` mais PAS `status` — le status n'est récupéré que par la requête `partners` du layout (app/partner/layout.tsx:28-32). Donc dans app/partner/layout.tsx:41 modifier:\n   `<PartnerHeader userInfo={userInfo} partnerType={(partner?.partner_type as PartnerType) ?? null} partnerStatus={(partner?.status as any) ?? null} />`\n   et étendre PartnerHeaderProps (header.tsx:21-23) avec ces deux props.\n\n3) Dans components/dashboard/partner/header.tsx, contrôler l'ouverture du Sheet (`const [open, setOpen] = useState(false)` + `<Sheet open={open} onOpenChange={setOpen}>`) et remplir le SheetContent (lignes 60-67) après le bloc titre:\n   ```\n   const navigation = partnerStatus !== \"active\" ? PENDING_NAV : buildActiveNav(partnerType)\n   ...\n   <nav className=\"px-3 space-y-1\">\n     {navigation.map((item) => (\n       <Link key={item.name} href={item.href} onClick={() => setOpen(false)}\n         className=\"flex items-center gap-3 px-3 py-2.5 min-h-11 rounded-lg text-sm font-medium text-mute hover:bg-card hover:text-ink\">\n         <item.icon className=\"h-5 w-5 flex-shrink-0\" /> {item.name}\n       </Link>\n     ))}\n   </nav>\n   ```\n   Élargir le SheetContent (header.tsx:60) de `w-64` à `w-72` est optionnel. Le `onClick={() => setOpen(false)}` est nécessaire car la navigation client Next ne ferme pas le Sheet Radix automatiquement."
+        }
+      },
+      {
+        "title": "Sidebar admin fixe w-64 toujours visible sur mobile (aucun hidden/drawer) — recouvre l'écran 360-430px",
+        "file": "components/layouts/admin-sidebar.tsx",
+        "lines": "101-105",
+        "category": "responsive",
+        "severity": "critical",
+        "symptom": "Sur mobile, la barre latérale admin recouvre en permanence 256px (16rem) de gauche de l'écran. Sur un iPhone 360-390px, elle masque ~70% de la largeur. Il n'y a aucun bouton hamburger ni drawer : seul le bouton 'replier' la réduit à 64px (w-16), qui chevauche encore le contenu. L'admin est donc inutilisable au doigt sur mobile.",
+        "evidence": "<aside className={cn('fixed left-0 top-0 z-40 h-screen bg-paper border-r-2 border-ink transition-all duration-300', collapsed ? 'w-16' : 'w-64')}> — aucune classe `hidden` / `md:` / `lg:` ne masque l'aside sous le breakpoint desktop.",
+        "proposedFix": "Masquer l'aside sous md et la transformer en drawer mobile : ajouter `hidden md:flex` (ou `-translate-x-full md:translate-x-0`) sur l'<aside>, et exposer un bouton hamburger fixe (header mobile) qui bascule un état `open` pilotant `translate-x-0`/`-translate-x-full` avec overlay. A minima : `className={cn('fixed left-0 top-0 z-40 h-screen ... hidden md:block transition-all', collapsed ? 'md:w-16' : 'md:w-64')}`.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "high",
+          "fixConfirmed": false,
+          "reproNotes": "Vérifié en lisant components/layouts/admin-sidebar.tsx:101-105 et app/admin/layout.tsx:41.\n\nL'<aside> a className `fixed left-0 top-0 z-40 h-screen bg-paper border-r-2 border-ink transition-all duration-300` + (collapsed ? 'w-16' : 'w-64'). AUCUNE variante responsive (hidden/sm:/md:/lg:) ne masque ou ne décale l'aside : il est rendu inconditionnellement à 256px (w-64) à toutes les largeurs. Le seul état est `collapsed` (useState ligne 81) qui réduit à 64px (w-16) — il chevauche toujours le contenu, et le bouton bascule est À L'INTÉRIEUR de l'aside (lignes 116-129). Aucun hamburger, aucun overlay, aucun drawer.\n\nDEUXIÈME défaut, non mentionné dans la trouvaille mais essentiel pour le repro et le fix : le <main> dans app/admin/layout.tsx:41 a `pl-64` SANS variante responsive non plus. Donc le contenu est poussé de 256px à droite à TOUTES les largeurs.\n\nManifestation concrète sur iPhone 360-390px : l'aside fixe couvre les 256px de gauche (~67-71% de la largeur) ET le contenu est décalé de pl-64 → il ne reste qu'environ 104px exploitables, en grande partie sous/à côté de la barre fixe. L'admin est inutilisable au doigt sur mobile.\n\nNuance de sévérité : c'est le layout /admin (opérateurs/staff via getAdminInfo, app/admin/layout.tsx:14-19), PAS l'app teen 13-17 (cœur de cible mobile de l'audit). Réel et cassant en mobile, mais surface interne staff → high, pas critical.",
+          "refinedFix": "Le fix proposé est correct sur la direction (masquer l'aside sous md + drawer) mais INCOMPLET : il oublie le `pl-64` du <main>. Fix minimal complet sur 2 fichiers :\n\n1) components/layouts/admin-sidebar.tsx:101-105 — masquer l'aside sous md (ou le transformer en drawer translaté). A minima :\n   className={cn('fixed left-0 top-0 z-40 h-screen bg-paper border-r-2 border-ink transition-all duration-300 hidden md:block', collapsed ? 'md:w-16' : 'md:w-64')}\n   (le bouton replier reste alors une fonctionnalité desktop ; les classes w-16/w-64 doivent être préfixées md: pour cohérence.)\n\n2) app/admin/layout.tsx:41 — rendre le décalage responsive, sinon gutter mort de 256px sur mobile :\n   className=\"md:pl-64 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 transition-all duration-300 outline-none\"\n   (remplacer `pl-64` par `md:pl-64`.)\n\nPour une vraie nav mobile (recommandé, pas strictement minimal) : ajouter un header mobile avec bouton hamburger qui pilote un état `open` → l'aside passe `-translate-x-full md:translate-x-0` / `translate-x-0` + overlay. Sinon, avec le fix minimal ci-dessus, la nav admin disparaît simplement sous md (acceptable si surface staff-only, mais l'admin n'aurait alors aucune navigation sur mobile)."
+        }
+      },
+      {
+        "title": "pl-64 inconditionnel sur le <main> admin : le contenu démarre à 256px du bord sur mobile",
+        "file": "app/admin/layout.tsx",
+        "lines": "38-42",
+        "category": "responsive",
+        "severity": "critical",
+        "symptom": "Tout le contenu admin (toutes les sous-pages) est décalé de 256px vers la droite sur mobile car le padding-left n'a pas de reset mobile. Sur un écran 360px, il ne reste que ~104px de largeur utile : titres, cartes, tableaux et StatCard sont écrasés/illisibles. Combiné à la sidebar fixe, l'espace de lecture est quasi nul.",
+        "evidence": "<main ... className=\"pl-64 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 transition-all duration-300 outline-none\"> — `pl-64` n'est jamais réinitialisé (pas de `pl-0 md:pl-64`).",
+        "proposedFix": "Rendre l'offset responsive en miroir de la sidebar masquée sous md : remplacer `pl-64` par `pl-0 md:pl-64` (et, si la sidebar repliable doit être prise en compte, gérer l'offset 16/64 côté desktop uniquement). Cela rend toute largeur d'écran au contenu sous md.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "high",
+          "fixConfirmed": false,
+          "reproNotes": "Vérifié en lisant les 2 fichiers. app/admin/layout.tsx:41 — le <main> porte className=\"pl-64 ... md:pb-0 transition-all duration-300 outline-none\". `pl-64` n'a AUCUNE variante responsive (pas de pl-0, pas de md:pl-*). components/layouts/admin-sidebar.tsx:101-106 — l'<aside> est `fixed left-0 top-0 z-40 h-screen` avec largeur `w-16`(collapsed)/`w-64`(défaut), et N'A AUCUNE classe hidden/md:/sm:/lg: (grep confirmé : zéro variante responsive sur la sidebar). Donc la sidebar de 256px est TOUJOURS affichée, y compris à 360px, ET le pl-64 pousse le contenu de 256px de plus. Repro : ouvrir n'importe quelle page /admin/* sur iPhone Safari 360-430px → la sidebar fixe recouvre la gauche et le contenu démarre à 256px → reste ~104px utiles à 360px ; titres, StatCard, tableaux écrasés/illisibles. La trouvaille tient. Réserve sur la sévérité : c'est le back-office admin, pas la surface teen mobile qui est le cœur de cible (ados 13-17). L'impact est réel et sévère mais limité aux admins → high, pas critical. Note secondaire (hors périmètre direct) : pl-64 est statique et ne suit pas l'état `collapsed` de la sidebar (state local non remonté), donc même en desktop replié (w-16) il reste un trou de 192px — bug pré-existant distinct.",
+          "refinedFix": "app/admin/layout.tsx:41 — remplacer `pl-64` par `pl-0 md:pl-64` pour restaurer toute la largeur sous md (corrige exactement le symptôme rapporté). ATTENTION : ce fix N'EST PAS suffisant à lui seul car la sidebar (components/layouts/admin-sidebar.tsx:101-106) n'a aucune variante de masquage mobile — avec `pl-0`, le contenu passerait SOUS la sidebar fixe de 256px qui reste affichée. Fix complet et cohérent (le pattern md:pb-0 suggère une bottom-nav mobile et une sidebar voulue desktop-only) : (1) admin/layout.tsx:41 `pl-64` → `pl-0 md:pl-64` ; (2) admin-sidebar.tsx:103 ajouter `hidden md:block` (ou `md:flex`) à la classe de l'<aside> pour la masquer sous md. Le fix proposé d'origine (`pl-0 md:pl-64` seul) est correct mais incomplet → fixConfirmed=false."
+        }
+      },
+      {
+        "title": "Bandeau cookies fixe recouvre le dock mobile (chevauchement bas d'écran)",
+        "file": "components/cookie-banner.tsx",
+        "lines": "32",
+        "category": "responsive",
+        "severity": "high",
+        "symptom": "À la première visite de N'IMPORTE quelle page publique (accueil, agenda, clubs, etc.) sur mobile, le bandeau cookies se colle au tout bas de l'écran et se superpose au dock de navigation mobile (Agenda/Anniv/Clubs/XP/Espace). Les boutons Refuser/Accepter et le dock se chevauchent : on touche l'un en visant l'autre.",
+        "evidence": "Bandeau : className=\"fixed bottom-0 left-0 right-0 z-50 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] ...\" — MobileDock (components/layouts/mobile-dock.tsx:370) est lui aussi \"fixed bottom-0 left-0 right-0 z-50 ... md:hidden\". Les deux occupent bottom-0 z-50 sur mobile, sans marge mutuelle.",
+        "proposedFix": "Sur mobile, décaler le bandeau au-dessus du dock : ajouter une marge basse égale à la hauteur du dock, ex. remplacer pb-[calc(1rem+env(safe-area-inset-bottom))] par bottom-[5.5rem] md:bottom-0 (ou pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6) pour dégager les ~96px du dock. Vérifier z-index si on veut le bandeau au-dessus.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": true,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "Confirmé en lisant le code. CookieBanner (components/cookie-banner.tsx:32) = `fixed bottom-0 left-0 right-0 z-50 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-6 md:pb-[calc(1.5rem+...)]` — AUCUNE variante md:hidden, donc le bandeau s'affiche aussi sur mobile. La Card interne (p-6, layout flex-col sur mobile) contient titre + paragraphe + 2 boutons (Refuser/Accepter en flex-1 pleine largeur), c'est un bloc haut collé en bas.\n\nMobileDock : variante mobile réelle au render (mobile-dock.tsx:369-370) ET le placeholder SSR (mobile-dock.tsx:342-343) utilisent tous deux `fixed bottom-0 left-0 right-0 z-50 ... md:hidden`. Le dock ne retourne null QUE dans /parent (isParentArea, ligne 315) ; sur les pages publiques c'est publicNavItems = Agenda/Anniv/Clubs/XP/Espace (lignes 271-311) — donc bien rendu. Hauteur du dock : nav p-3 + carte interne (border-2, p-2, icône h-6 + label + py-2.5/min-h-touch 44px) ≈ 70-90px collés tout en bas.\n\nLes deux composants sont montés ensemble dans le MÊME root layout app/layout.tsx (CookieBanner ligne 272, MobileDock ligne 275). Sur mobile, les deux sont fixed bottom-0 z-50 sans décalage mutuel : le `pb-[calc(1rem+...)]` du bandeau ne fait que padder l'INTÉRIEUR du conteneur fixe, il ne remonte pas le bandeau au-dessus du dock. Résultat : à la 1re visite d'une page publique/teen sur mobile (iPhone Safari / Android Chrome 360-430px), les boutons Refuser/Accepter du bandeau se superposent aux pastilles du dock dans la zone basse ~80-90px → mis-taps (on touche le dock en visant Accepter et inversement).\n\nPourquoi MEDIUM et non HIGH : le chevauchement est réel et touche deux surfaces interactives, MAIS il est transitoire (bandeau supprimé définitivement après 1 clic via localStorage `cookies-accepted`) et n'apparaît qu'à la toute 1re visite. Le contenu reste lisible et le dock reste atteignable. Impact ponctuel, pas page-breaking.",
+          "refinedFix": "Décaler le bandeau au-dessus du dock UNIQUEMENT sur mobile (le dock est md:hidden, donc rien à corriger en md+). Le fix proposé `bottom-[5.5rem] md:bottom-0` n'est PAS équivalent (bottom-* ≠ pb-*) et sous-estime la hauteur du dock une fois env(safe-area-inset-bottom) ajouté sur iPhone. Fix minimal et correct = augmenter le padding bas sur mobile pour dégager les ~96px du dock + safe-area, en laissant md inchangé.\n\ncomponents/cookie-banner.tsx:32 — remplacer la classe:\n  `pb-[calc(1rem+env(safe-area-inset-bottom))]`\npar:\n  `pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-[calc(1.5rem+env(safe-area-inset-bottom))]`\n\nSoit la ligne 32 complète:\n  className=\"fixed bottom-0 left-0 right-0 z-50 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-6 md:pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom\"\n\n(z-50 identique des deux côtés : le bandeau étant après le dock dans le DOM, il passe au-dessus, ce qui est acceptable une fois le padding ajouté car ils ne se chevauchent plus.)"
+        }
+      },
+      {
+        "title": "Titre de palier VIP en text-5xl uppercase non responsive — déborde pour « LÉGENDAIRE »/« DIAMANT »",
+        "file": "app/teen/vip-card/vip-card-client.tsx",
+        "lines": "103",
+        "category": "responsive",
+        "symptom": "Sur la carte VIP, le nom du palier (text-5xl ≈ 48px, uppercase) est dans un bloc flex justify-between avec un badge couronne size-20 à droite, dans une DarkSurface p-8. À 360px il ne reste ~200px pour le titre : « LÉGENDAIRE » (10 lettres) ou « PLATINE »/« DIAMANT » débordent ou cassent en plusieurs lignes désordonnées sur la couronne.",
+        "severity": "medium",
+        "evidence": "<h2 className=\"mt-1 font-display text-5xl font-extrabold uppercase text-gold\">{currentTier.name}</h2> — noms réels: Standard/Bronze/Argent/Or/Platine/Diamant/Légendaire (cfg.name).",
+        "proposedFix": "Rendre la taille responsive : className=\"... text-3xl sm:text-5xl ...\" (et idéalement ajouter break-words / réduire le p-8 de la DarkSurface en p-6 sm:p-8 sur cet écran).",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Rendre la taille responsive : className=\"... text-3xl sm:text-5xl ...\" (et idéalement ajouter break-words / réduire le p-8 de la DarkSurface en p-6 sm:p-8 sur cet écran)."
+        }
+      },
+      {
+        "title": "CircleChat en h-full dans un <main> non contraint en hauteur : zone messages non bornée + input non collé",
+        "file": "components/circles/circle-chat.tsx",
+        "lines": "712",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Le chat de cercle (écran /teen/circles/[circleId]) est conçu comme une colonne h-full flex avec une zone messages flex-1 overflow-y-auto et un input en bas. Mais il est monté directement dans le <main> du layout teen qui n'a PAS de hauteur fixe (juste flex-1 + padding). h-full se résout donc à hauteur=contenu : la zone messages ne se borne pas, l'input « Message… » descend tout en bas de la page au lieu de rester fixe, et le bouton « scroll to bottom » positionné en absolute bottom-24 flotte de façon imprévisible.",
+        "evidence": "<div className=\"h-full flex flex-col bg-background\"> ... <div ref=... className=\"flex-1 overflow-y-auto p-4 space-y-4\"> ... <button ... className=\"absolute bottom-24 right-4 ...\"> — le parent (layout <main className=\"relative flex-1 p-4 pb-[calc(6rem+...)] ...\">) n'impose aucune hauteur.",
+        "proposedFix": "Contraindre la hauteur du conteneur de chat sur mobile, par ex. h-[calc(100dvh-4rem-5rem)] (header app ~4rem + dock ~5rem) au lieu de h-full, ou monter ce chat dans un sous-layout à hauteur fixe. Utiliser dvh (pas vh) pour la barre d'adresse iOS.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Contraindre la hauteur du conteneur de chat sur mobile, par ex. h-[calc(100dvh-4rem-5rem)] (header app ~4rem + dock ~5rem) au lieu de h-full, ou monter ce chat dans un sous-layout à hauteur fixe. Utiliser dvh (pas vh) pour la barre d'adresse iOS."
+        }
+      },
+      {
+        "title": "Boutons +/- du panier food à 36px (h-9 w-9) — cible tactile sous 44px",
+        "file": "app/teen/food/[partner_id]/menu-cart-client.tsx",
+        "lines": "291,306",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Les boutons d'ajout/retrait de quantité dans le panier food font 36×36px (h-9 w-9). Sous le seuil tactile recommandé (44px) : difficile à toucher précisément sur mobile, surtout collés l'un à l'autre avec un compteur de 24px entre eux.",
+        "evidence": "className=\"grid h-9 w-9 place-items-center rounded-xl border-2 border-ink ...\" (bouton − ligne 291 et bouton + ligne 306).",
+        "proposedFix": "Agrandir à h-11 w-11 (44px) : className=\"grid h-11 w-11 place-items-center ...\" (le reste du fichier utilise déjà min-h-11 pour les filtres ligne 233).",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Agrandir à h-11 w-11 (44px) : className=\"grid h-11 w-11 place-items-center ...\" (le reste du fichier utilise déjà min-h-11 pour les filtres ligne 233)."
+        }
+      },
+      {
+        "title": "Header academic : h1 + bouton « Ajouter une note » sur une seule ligne sans wrap (code mort mais présent)",
+        "file": "app/teen/academic/academic-client.tsx",
+        "lines": "248-260",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Le header met le titre « Aide Scolaire » (h1 text-3xl + icône) et le bouton « Ajouter une note » côte à côte en flex justify-between sans flex-wrap : à 360px le titre et le bouton se compriment et peuvent déborder. NB : academic/page.tsx redirige vers /teen/aide-scolaire, donc ce client n'est pas rendu en prod — bug réel dans le code mais non atteignable par l'utilisateur.",
+        "evidence": "<div className=\"flex items-center justify-between mb-8\"> ... <h1 className=\"text-3xl font-black ...\"> ... <Button ...>Ajouter une note</Button> — pas de flex-col / flex-wrap mobile. Aussi: wrapper ligne 246 utilise md:pl-72 qui double-décale par rapport au md:ml-64 du layout (desktop).",
+        "proposedFix": "Si ce composant était remis en service : <div className=\"flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8\">. Sinon, le marquer comme dead code (déjà signalé par le redirect).",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Si ce composant était remis en service : <div className=\"flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8\">. Sinon, le marquer comme dead code (déjà signalé par le redirect)."
+        }
+      },
+      {
+        "title": "Stats grid-cols-3 (games/défis/streak/circles) : nombres tabular-nums peuvent déborder une cellule de ~110px sur gros XP",
+        "file": "app/teen/defis-physiques/defis-physiques-client.tsx",
+        "lines": "154-176",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Les blocs de stats sur 3 colonnes fixes (Défis réussis / XP total / Aujourd'hui) affichent text-2xl avec icône inline + nombre formaté (XP total = totalXPEarned.toLocaleString()). À 360px chaque cellule fait ~110px ; pour un XP à 5-6 chiffres (« 123 456 ») l'icône + le nombre dépassent la largeur de la StickerCard et peuvent se chevaucher/tronquer. Même schéma dans games-client (ligne 72-95), streak-client (ligne 135), circles-client (ligne 168).",
+        "evidence": "<div className=\"grid grid-cols-3 gap-3\"> avec <span className=\"flex items-center gap-1.5 font-display text-2xl font-extrabold tabular-nums ...\"><Zap className=\"size-4\" />{totalXPEarned.toLocaleString()}</span>",
+        "proposedFix": "Réduire la taille sur mobile (text-xl sm:text-2xl) et/ou empiler icône au-dessus du nombre, ou passer en grid-cols-2 sm:grid-cols-3 pour donner plus de largeur par cellule sous 430px.",
+        "confidence": "low",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Réduire la taille sur mobile (text-xl sm:text-2xl) et/ou empiler icône au-dessus du nombre, ou passer en grid-cols-2 sm:grid-cols-3 pour donner plus de largeur par cellule sous 430px."
+        }
+      },
+      {
+        "title": "Onglets amis en flex sans overflow-x-auto ni wrap",
+        "file": "app/teen/friends/friends-client.tsx",
+        "lines": "355",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "La rangée d'onglets de filtre (role=tablist) est un flex gap-2 simple, sans overflow-x-auto ni flex-wrap. Avec des labels longs ou un badge de demandes, les onglets peuvent déborder horizontalement à 360px (contrairement au composant charte StickerTabs utilisé ailleurs qui gère overflow-x-auto).",
+        "evidence": "<div role=\"tablist\" aria-label=\"Filtres amis\" className=\"flex items-center gap-2\"> — boutons px-4 py-2 avec badge conditionnel, aucune gestion de débordement.",
+        "proposedFix": "Ajouter le défilement horizontal charte : className=\"flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden\", ou réutiliser <StickerTabs> qui gère déjà overflow-x-auto + min-h-touch.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Ajouter le défilement horizontal charte : className=\"flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden\", ou réutiliser <StickerTabs> qui gère déjà overflow-x-auto + min-h-touch."
+        }
+      },
+      {
+        "title": "Grille de 3 stats en grid-cols-3 fixe sur mobile (notes)",
+        "file": "app/parent/grades/page.tsx",
+        "lines": "354-367",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Sur la page Notes, le bloc des 3 stickers (En attente / Validées / Rejetées) reste en 3 colonnes même à 360px : chaque carte fait ~60px de large, les libellés eyebrow compressés et les chiffres sont à l'étroit, peu lisibles.",
+        "evidence": "<div className=\"grid grid-cols-3 gap-4\"> (parent: grid gap-4 md:grid-cols-2) — aucune variante mobile, les 3 colonnes sont forcées dès 360px",
+        "proposedFix": "Ajouter une base 1 colonne ou réduire le gap : grid grid-cols-1 gap-3 sm:grid-cols-3 (les 3 stickers s'empilent sous mobile) ou grid grid-cols-3 gap-2 sm:gap-4 pour gagner de la place.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Ajouter une base 1 colonne ou réduire le gap : grid grid-cols-1 gap-3 sm:grid-cols-3 (les 3 stickers s'empilent sous mobile) ou grid grid-cols-3 gap-2 sm:gap-4 pour gagner de la place."
+        }
+      },
+      {
+        "title": "Rangée de 4 boutons de filtre non-wrap peut déborder (notes)",
+        "file": "app/parent/grades/page.tsx",
+        "lines": "381-395",
+        "category": "responsive",
+        "symptom": "Sur la page Notes en mobile, les 4 boutons de filtre (En attente / Validées / Rejetées / Toutes) sont dans un flex non-wrappant : la somme des libellés FR + paddings dépasse la largeur utile (~312px à 360px), provoquant un débordement ou un rognage du dernier bouton.",
+        "severity": "medium",
+        "evidence": "<div className=\"flex gap-2\"> contenant 4 <Button size=\"sm\"> avec libellés « En attente », « Validées », « Rejetées », « Toutes » — pas de flex-wrap ni de scroll",
+        "proposedFix": "Permettre le retour à la ligne : className=\"flex flex-wrap gap-2\" ; ou activer un scroll horizontal contrôlé : flex gap-2 overflow-x-auto [scrollbar-width:none].",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Permettre le retour à la ligne : className=\"flex flex-wrap gap-2\" ; ou activer un scroll horizontal contrôlé : flex gap-2 overflow-x-auto [scrollbar-width:none]."
+        }
+      },
+      {
+        "title": "Titre dashboard en text-5xl sans variante plus petite sur mobile",
+        "file": "app/parent/page.tsx",
+        "lines": "252-254",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Le H1 « Centre de contrôle » s'affiche en text-5xl (48px) dès 360px avec un interligne très serré (leading-[1.02]). Sur petits écrans le mot « contrôle » occupe quasi toute la largeur ; comme le conteneur est en overflow-x-hidden, un mot trop large serait rogné plutôt que de scroller.",
+        "evidence": "<h1 className=\"mt-2 font-display text-5xl font-extrabold leading-[1.02] tracking-tight md:text-6xl\"> — la base mobile est text-5xl, aucune réduction type text-3xl/text-4xl avant md",
+        "proposedFix": "Échelonner depuis une taille mobile raisonnable : text-3xl sm:text-4xl md:text-6xl (aligné sur les autres pages parent qui utilisent text-3xl ... sm:text-4xl).",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Échelonner depuis une taille mobile raisonnable : text-3xl sm:text-4xl md:text-6xl (aligné sur les autres pages parent qui utilisent text-3xl ... sm:text-4xl)."
+        }
+      },
+      {
+        "title": "Chiffre dépenses en text-5xl peut serrer dans la colonne financière étroite",
+        "file": "components/parent/dashboard/financial-overview.tsx",
+        "lines": "53-55",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Le montant « Dépenses du mois » est rendu en text-5xl (48px). Dans le dashboard cette carte occupe toute la largeur sur mobile, mais avec un montant à 6 chiffres + suffixe « DH » le nombre frôle le bord à 360px ; pas de réduction de taille mobile.",
+        "evidence": "<p className=\"font-display text-5xl font-extrabold leading-none tabular-nums\"> {montant} <span className=\"...text-xl...\">{currency}</span> — taille fixe text-5xl, padding p-6 sm:p-8 du conteneur",
+        "proposedFix": "Réduire sur mobile : text-4xl sm:text-5xl, le suffixe DH restant en text-lg sm:text-xl.",
+        "confidence": "low",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Réduire sur mobile : text-4xl sm:text-5xl, le suffixe DH restant en text-lg sm:text-xl."
+        }
+      },
+      {
+        "title": "Lignes de transaction en flex justify-between sans wrap (historique)",
+        "file": "app/parent/history/page.tsx",
+        "lines": "337-382",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Chaque ligne d'historique met à gauche l'icône + description longue et à droite montant + StatusBadge + bouton facture dans un flex non-wrappant. Sur 360px une description longue compresse fortement la zone droite (montant/badge/bouton) ; rien n'est tronqué côté gauche donc le bloc droit peut être serré.",
+        "evidence": "<div className=\"flex items-center justify-between gap-4\"> ... bloc gauche (icône + <p>{tx.description}</p> sans truncate) ... bloc droit (montant + StatusBadge + InvoiceButton) — pas de flex-wrap, pas de min-w-0/truncate sur la description",
+        "proposedFix": "Ajouter min-w-0 + truncate sur le conteneur de description et/ou autoriser le wrap : flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between, et donner min-w-0 au bloc gauche.",
+        "confidence": "low",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Ajouter min-w-0 + truncate sur le conteneur de description et/ou autoriser le wrap : flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between, et donner min-w-0 au bloc gauche."
+        }
+      },
+      {
+        "title": "Indicateur d'étapes du wizard d'inscription: 4 titres complets compressés dans un flex justify-between (illisible en 360px)",
+        "file": "components/partners/RetailPartnerForm.tsx",
+        "lines": "261-285",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Sur la première page d'inscription partenaire (mobile), les 4 étapes ('Informations entreprise', 'Points de vente', 'Configuration réductions', 'Confirmation') se partagent ~80px chacune. Les libellés text-xs s'enroulent sur 2-3 lignes et se chevauchent visuellement, rendant la barre de progression confuse au premier écran que voit le prospect.",
+        "evidence": "<div className=\"flex items-center justify-between\"> {STEPS.map(... <div className=\"flex flex-col items-center flex-1\"><div className=\"w-12 h-12 rounded-full ...\"> ... <span className=\"text-xs mt-2 text-center\">{step.title}</span> ...) — labels longs non tronqués, 4 colonnes flex-1.",
+        "proposedFix": "Masquer les libellés texte en mobile et n'afficher que les pastilles numérotées + le titre de l'étape courante au-dessus: ajouter className=\"hidden sm:block text-xs ...\" sur le <span>{step.title}</span>, et afficher séparément <p className=\"sm:hidden text-center text-sm font-bold\">Étape {currentStep}/{STEPS.length} — {STEPS[currentStep-1].title}</p>. Réduire les pastilles à size-9 en mobile (size-9 sm:size-12).",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Masquer les libellés texte en mobile et n'afficher que les pastilles numérotées + le titre de l'étape courante au-dessus: ajouter className=\"hidden sm:block text-xs ...\" sur le <span>{step.title}</span>, et afficher séparément <p className=\"sm:hidden text-center text-sm font-bold\">Étape {currentStep}/{STEPS.length} — {STEPS[currentStep-1].title}</p>. Réduire les pastilles à size-9 en mobile (size-9 sm:size-12)."
+        }
+      },
+      {
+        "title": "Même indicateur d'étapes cramé dans le wizard Venue (et Club/Education identiques)",
+        "file": "components/partners/VenuePartnerForm.tsx",
+        "lines": "286-309",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Identique au Retail: la barre de progression du parcours d'inscription 'Restaurants & Lieux' comprime les libellés d'étapes complets dans un flex justify-between, illisibles en 360-430px. Le même motif est dupliqué dans ClubPartnerForm et EducationPartnerForm.",
+        "evidence": "<div className=\"flex items-center justify-between\">{STEPS.map(... <div className=\"w-12 h-12 rounded-full ...\"> ... <span className=\"text-xs mt-2 text-center\">{step.title}</span>",
+        "proposedFix": "Appliquer le même correctif que RetailPartnerForm (libellés en hidden sm:block + titre d'étape courante en sm:hidden, pastilles size-9 sm:size-12). Idéalement extraire un composant <WizardSteps> partagé pour les 4 formulaires afin de corriger une seule fois.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Appliquer le même correctif que RetailPartnerForm (libellés en hidden sm:block + titre d'étape courante en sm:hidden, pastilles size-9 sm:size-12). Idéalement extraire un composant <WizardSteps> partagé pour les 4 formulaires afin de corriger une seule fois."
+        }
+      },
+      {
+        "title": "Feeds du dashboard partenaire: padding p-8 (64px horizontal) qui étrangle le contenu en 360px",
+        "file": "components/partner/dashboard/feeds.tsx",
+        "lines": "45-54",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Dans les cartes 'Offres actives' et 'Fil en direct' du dashboard partenaire, le padding p-8 (32px de chaque côté) laisse ~296px de contenu sur un écran de 360px. Combiné aux lignes de transaction (avatar h-14 w-14 + gap-5 + nom non tronqué + montant via justify-between), les noms de clients un peu longs poussent le montant et tassent fortement la ligne.",
+        "evidence": "<div className=\"p-8 pb-4 flex items-center justify-between\"> et <div className=\"flex-1 overflow-y-auto px-8 pb-8 space-y-4 ...\"> ; lignes: <div className=\"flex items-center justify-between p-6 ...\"><div className=\"flex items-center gap-5\"><div className=\"h-14 w-14 ...\"/>...<p className=\"font-black text-ink text-lg\">{customerName}</p>",
+        "proposedFix": "Réduire le padding en mobile: p-5 sm:p-8 sur l'en-tête, px-5 sm:px-8 pb-6 sm:pb-8 sur la liste, et p-4 sm:p-6 sur chaque ligne. Ajouter min-w-0 + truncate sur le bloc nom (<div className=\"min-w-0\"><p className=\"... truncate\">{customerName}</p>) pour empêcher l'écrasement du montant.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Réduire le padding en mobile: p-5 sm:p-8 sur l'en-tête, px-5 sm:px-8 pb-6 sm:pb-8 sur la liste, et p-4 sm:p-6 sur chaque ligne. Ajouter min-w-0 + truncate sur le bloc nom (<div className=\"min-w-0\"><p className=\"... truncate\">{customerName}</p>) pour empêcher l'écrasement du montant."
+        }
+      },
+      {
+        "title": "Carte d'événement à venir: header en flex justify-between sans wrap (titre + colonne d'actions se disputent l'espace)",
+        "file": "app/partner/events/page.tsx",
+        "lines": "220-266",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Dans /partner/events sur mobile, chaque carte d'événement à venir place à gauche un badge date (min-w-[60px]) + le titre, et à droite une colonne 'Voir l'event' + 'Détails', le tout dans un flex items-start justify-between SANS flex-wrap. Sur 360px la colonne de boutons à droite réduit fortement la largeur du titre/métadonnées, qui se cassent sur de nombreuses lignes.",
+        "evidence": "<div className=\"flex items-start justify-between gap-4\"><div className=\"flex items-start gap-4\"><div className=\"min-w-[60px] ...\">...</div><div><h3 className=\"font-display text-lg ...\">{event.title}</h3>...</div></div><div className=\"flex flex-col items-end gap-2\"><Button asChild variant=\"pink\">...</div></div> — le wrapper externe ne wrappe pas.",
+        "proposedFix": "Laisser le bloc actions passer dessous en mobile: <div className=\"flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between\"> sur le wrapper externe, et passer la colonne de boutons en <div className=\"flex flex-row items-center gap-2 sm:flex-col sm:items-end\"> pour qu'elle s'étale horizontalement sous le titre en mobile. Ajouter min-w-0 sur le bloc titre.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Laisser le bloc actions passer dessous en mobile: <div className=\"flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between\"> sur le wrapper externe, et passer la colonne de boutons en <div className=\"flex flex-row items-center gap-2 sm:flex-col sm:items-end\"> pour qu'elle s'étale horizontalement sous le titre en mobile. Ajouter min-w-0 sur le bloc titre."
+        }
+      },
+      {
+        "title": "Hero /devenir-partenaire: titre text-5xl + padding py-24 lourds en mobile",
+        "file": "app/devenir-partenaire/page.tsx",
+        "lines": "69-80",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Le hero public 'Devenez Partenaire' applique un padding vertical py-24 (96px haut/bas) et un titre text-5xl (48px) dès le mobile. Sur 360px le titre reste lisible (il s'enroule) mais l'espace vertical perdu pousse le contenu utile très bas; le sous-titre text-xl est également non réduit en mobile.",
+        "evidence": "<div className=\"container mx-auto px-6 py-24 relative\"> ... <h1 className=\"text-5xl md:text-7xl font-black ...\">Devenez <span ...>Partenaire</span></h1> <p className=\"text-xl text-mute ...\">",
+        "proposedFix": "Réduire les valeurs en mobile: py-14 sm:py-24 sur le conteneur, text-4xl sm:text-5xl md:text-7xl sur le h1, et text-lg sm:text-xl sur le paragraphe. Non bloquant mais améliore l'above-the-fold mobile.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Réduire les valeurs en mobile: py-14 sm:py-24 sur le conteneur, text-4xl sm:text-5xl md:text-7xl sur le h1, et text-lg sm:text-xl sur le paragraphe. Non bloquant mais améliore l'above-the-fold mobile."
+        }
+      },
+      {
+        "title": "Titre hero text-5xl md:text-7xl serré sur 360px (Programme Ambassadeurs)",
+        "file": "app/devenir-ambassadeur/page.tsx",
+        "lines": "65",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Sur iPhone SE / petits Android (360px), le H1 « Programme Ambassadeurs » en text-5xl (48px) extra-bold prend presque toute la largeur utile (≈312px après px-6) et se coupe en lignes serrées peu lisibles. Il y a déjà une variante mobile (text-5xl) donc ça déborde pas franchement, mais c'est trop gros pour la cible mobile ados.",
+        "evidence": "className=\"text-5xl md:text-7xl font-black text-ink mb-6\"",
+        "proposedFix": "Réduire la base mobile : text-3xl sm:text-5xl md:text-7xl (ou text-4xl). Le md:text-7xl reste pour desktop.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Réduire la base mobile : text-3xl sm:text-5xl md:text-7xl (ou text-4xl). Le md:text-7xl reste pour desktop."
+        }
+      },
+      {
+        "title": "Titre hero text-5xl md:text-7xl serré sur 360px (programme)",
+        "file": "app/devenir-ambassadeur/programme/page.tsx",
+        "lines": "18",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Même H1 « Programme Ambassadeurs » en text-5xl sur la page /programme : trop gros sur 360-390px, lignes serrées. Variante mobile présente mais sous-optimale.",
+        "evidence": "className=\"relative text-5xl md:text-7xl font-black text-ink\"",
+        "proposedFix": "Base mobile plus petite : text-3xl sm:text-5xl md:text-7xl.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Base mobile plus petite : text-3xl sm:text-5xl md:text-7xl."
+        }
+      },
+      {
+        "title": "Élément absolu (blur) hors de son conteneur inline-block — peut élargir la zone peinte",
+        "file": "app/devenir-ambassadeur/programme/page.tsx",
+        "lines": "16-21",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Le wrapper du titre est inline-block (non positionné), donc le div absolu -inset-2 blur-2xl se cale sur l'ancêtre .relative (le container), pas sur le titre. Visuellement le halo est décalé/étalé sur mobile. Pas de débordement dur (le parent py-32 est overflow-hidden), purement cosmétique.",
+        "evidence": "<div className=\"inline-block mb-6\"> ... <div className=\"absolute -inset-2 bg-gradient-to-r ... blur-2xl opacity-30\" /> <h1 className=\"relative text-5xl md:text-7xl ...\">",
+        "proposedFix": "Ajouter relative au wrapper du titre : className=\"relative inline-block mb-6\" pour que le halo absolu se cale bien derrière le H1.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Ajouter relative au wrapper du titre : className=\"relative inline-block mb-6\" pour que le halo absolu se cale bien derrière le H1."
+        }
+      },
+      {
+        "title": "Padding vertical py-32 excessif sur mobile (pages ambassadeur)",
+        "file": "app/ambassador/page.tsx",
+        "lines": "103",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "py-32 = 8rem (128px) de padding haut ET bas appliqué dès le mobile, alors que le layout ambassadeur a déjà un header sticky h-16 et le root main a pb-24. Sur 360px de large × écran court, l'utilisateur doit scroller beaucoup avant le contenu (128px de vide en haut). Pas un débordement horizontal mais coût d'espace vertical fort sur mobile. Présent à l'identique sur marketing/withdrawals/referrals/commissions/comment-gagner.",
+        "evidence": "className=\"container mx-auto px-6 py-32\"",
+        "proposedFix": "Réduire le padding mobile : py-20 md:py-32 (ou pt-24 pb-12 md:py-32) pour garder l'air desktop sans gaspiller la hauteur mobile.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Réduire le padding mobile : py-20 md:py-32 (ou pt-24 pb-12 md:py-32) pour garder l'air desktop sans gaspiller la hauteur mobile."
+        }
+      },
+      {
+        "title": "Espace ambassadeur sans nav latérale ni dock sur mobile : navigation incomplète",
+        "file": "app/ambassador/layout.tsx",
+        "lines": "32-41",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "La AmbassadorSidebar est hidden md:flex (invisible mobile) et le bouton menu mobile du header ouvre un Sheet VIDE (juste un titre, aucun lien — voir header.tsx lignes 58-64). Le MobileDock global affiche bien 5 onglets ambassadeur, donc la nav existe, mais le tiroir mobile promis par le bouton hamburger est creux : l'ado clique « menu » et ne voit aucun lien. Incohérence de nav mobile.",
+        "evidence": "<aside className=\"hidden md:flex md:flex-col md:w-64 ...\">  + header.tsx: <SheetContent side=\"left\" className=\"w-64 p-0\"><div className=\"py-4\"><div className=\"px-4 mb-4\"><span...>Espace ambassadeur</span>...</div></div></SheetContent> (aucun <Link> de navigation)",
+        "proposedFix": "Soit retirer le bouton hamburger mobile (le MobileDock suffit), soit remplir le SheetContent avec la liste navigation de la sidebar (mapper le même tableau de liens) pour que le tiroir mobile soit fonctionnel.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Soit retirer le bouton hamburger mobile (le MobileDock suffit), soit remplir le SheetContent avec la liste navigation de la sidebar (mapper le même tableau de liens) pour que le tiroir mobile soit fonctionnel."
+        }
+      },
+      {
+        "title": "min-h-screen + py-32 imbriqués dans un main déjà haut (double hauteur d'écran)",
+        "file": "app/ambassador/marketing/page.tsx",
+        "lines": "103",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Le contenu de page est min-h-screen (100vh) à l'intérieur du <main> du layout qui suit déjà le header sticky h-16 et impose son propre p-4 + le root main min-h-screen pb-24. Empiler min-h-screen dans un conteneur déjà plein hauteur force au minimum 100vh de zone même quand le contenu est court, ajoutant du vide en bas sur mobile (sous le dernier bloc). Identique sur withdrawals/referrals/commissions.",
+        "evidence": "className=\"min-h-screen bg-paper\" (page) imbriqué sous <main className=\"flex-1 p-4 md:p-6 md:ml-64 ...\"> (layout) lui-même sous <main className=\"min-h-screen pb-24 md:pb-0\"> (root)",
+        "proposedFix": "Retirer min-h-screen des pages enfant de l'espace ambassadeur (le layout/root gère déjà la hauteur), ou le remplacer par un simple bg sur le conteneur.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Retirer min-h-screen des pages enfant de l'espace ambassadeur (le layout/root gère déjà la hauteur), ou le remplacer par un simple bg sur le conteneur."
+        }
+      },
+      {
+        "title": "Page mentor full-bleed via marges négatives : risque de scroll horizontal si padding désynchronisé",
+        "file": "app/mentor/dashboard/page.tsx",
+        "lines": "130",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Le pattern -m-4 md:-m-8 lg:-m-10 ... p-4 md:p-8 lg:p-10 -mt-24 pt-24 annule le padding du layout pour faire du full-bleed. Sur mobile les valeurs (-m-4 vs layout p-4) se compensent exactement donc pas d'overflow observé, mais le couplage est fragile : toute désynchro future entre le padding du layout (p-4) et la marge négative (-m-4) crée un débordement horizontal sur mobile. Même pattern sur sessions/page.tsx (l.49) et profile/edit/page.tsx (l.37).",
+        "evidence": "className=\"min-h-screen bg-background text-ink -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24\"",
+        "proposedFix": "Préférer un layout sans padding pour ces routes (ex. main sans p-4) plutôt que de l'annuler par marge négative, ou documenter le couplage. À court terme, vérifier que layout p-4/md:p-8/lg:p-10 et la marge -m-4/md:-m-8/lg:-m-10 restent strictement appariés.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Préférer un layout sans padding pour ces routes (ex. main sans p-4) plutôt que de l'annuler par marge négative, ou documenter le couplage. À court terme, vérifier que layout p-4/md:p-8/lg:p-10 et la marge -m-4/md:-m-8/lg:-m-10 restent strictement appariés."
+        }
+      },
+      {
+        "title": "Sidebar mentor masquée mobile sans tiroir de remplacement",
+        "file": "components/dashboard/mentor/sidebar.tsx",
+        "lines": "24",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "La MentorSidebar est hidden md:flex (cachée mobile) et le MentorHeader (header.tsx) n'a AUCUN bouton menu mobile ni Sheet — contrairement au header ambassadeur. Le MobileDock global affiche un dock générique (publicNavItems) car le pathname /mentor n'a pas de branche dédiée dans mobile-dock.tsx : un mentor sur mobile voit le dock public (Agenda/Anniv/Clubs/XP/Espace), pas ses liens Dashboard/Sessions/Profil/Dispo. Navigation mentor quasi inaccessible sur mobile.",
+        "evidence": "<aside className=\"hidden md:flex md:flex-col md:w-64 ...\"> ; mobile-dock.tsx n'a pas de isMentorArea → navItems retombe sur publicNavItems pour /mentor/*",
+        "proposedFix": "Ajouter une branche mentor au MobileDock (isMentorArea = pathname.startsWith('/mentor') + mentorNavItems) OU ajouter un bouton hamburger + Sheet de navigation dans MentorHeader reprenant le tableau navigation de la sidebar.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Ajouter une branche mentor au MobileDock (isMentorArea = pathname.startsWith('/mentor') + mentorNavItems) OU ajouter un bouton hamburger + Sheet de navigation dans MentorHeader reprenant le tableau navigation de la sidebar."
+        }
+      },
+      {
+        "title": "Padding vertical py-32 (8rem) excessif sur les pages admin pleine page — pousse le contenu très bas sur mobile",
+        "file": "app/admin/permissions/page.tsx",
+        "lines": "133",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Sur mobile (hauteur utile réduite par la barre d'adresse iOS Safari), un padding vertical de 8rem en haut et en bas fait que l'utilisateur doit scroller longuement avant de voir le premier contenu utile (header/StatCards). Plusieurs pages admin plein écran partagent ce `py-32`.",
+        "evidence": "<div className=\"container mx-auto px-6 py-32\"> — 8rem haut+bas, non réduit en mobile (pas de `py-12 md:py-32`). Même motif dans app/admin/scripts-sql/page.tsx:92, app/admin/check-in/page.tsx:45, app/admin/gamification/scorecard/page.tsx:60, app/admin/gamification-setup/page.tsx:103.",
+        "proposedFix": "Réduire l'espacement vertical en mobile : `px-6 py-12 md:py-32` (ou `py-16`). Purement vertical : pas de débordement horizontal, donc severity faible.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Réduire l'espacement vertical en mobile : `px-6 py-12 md:py-32` (ou `py-16`). Purement vertical : pas de débordement horizontal, donc severity faible."
+        }
+      },
+      {
+        "title": "Titres landing text-5xl md:text-7xl font-black sans réduction sur très petit écran",
+        "file": "app/devenir-ambassadeur/page.tsx",
+        "lines": "65",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Sur iPhone SE / petits Android (360px), le titre « Programme Ambassadeurs » en 48px ultra-gras (font-black) ne tient pas dans la largeur de contenu (≈312px après px-6) ; le mot « Ambassadeurs » déborde / provoque un scroll horizontal ou une coupe disgracieuse.",
+        "evidence": "<h1 className=\"text-5xl md:text-7xl font-black text-ink mb-6\">Programme Ambassadeurs</h1> — base mobile text-5xl (3rem/48px) sans variante plus petite ; conteneur parent container mx-auto px-6.",
+        "proposedFix": "Ajouter une base mobile plus petite : className=\"text-4xl sm:text-5xl md:text-7xl font-black ...\" (ou text-[clamp(2rem,8vw,4.5rem)]) et au besoin break-words.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Ajouter une base mobile plus petite : className=\"text-4xl sm:text-5xl md:text-7xl font-black ...\" (ou text-[clamp(2rem,8vw,4.5rem)]) et au besoin break-words."
+        }
+      },
+      {
+        "title": "Titre hero Devenir Partenaire text-5xl md:text-7xl sans base mobile réduite",
+        "file": "app/devenir-partenaire/page.tsx",
+        "lines": "71",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Même problème : « Devenez Partenaire » en 48px font-black sur 360px tient à peine ; « Partenaire » (en dégradé) peut déborder la largeur de contenu (≈312px après px-6) sur les écrans les plus étroits.",
+        "evidence": "<h1 className=\"text-5xl md:text-7xl font-black text-ink mb-6\">Devenez{...}<span ...>Partenaire</span></h1> — base mobile text-5xl sans variante < lg ; section sous container mx-auto px-6.",
+        "proposedFix": "Réduire la base mobile : className=\"text-4xl sm:text-5xl md:text-7xl font-black ...\".",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Réduire la base mobile : className=\"text-4xl sm:text-5xl md:text-7xl font-black ...\"."
+        }
+      },
+      {
+        "title": "Titre Programme Ambassadeurs (page programme) text-5xl md:text-7xl sans base mobile",
+        "file": "app/devenir-ambassadeur/programme/page.tsx",
+        "lines": "18",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Le hero « Programme Ambassadeurs » en 48px font-black déborde la largeur sur 360px (mot « Ambassadeurs » trop large), risque de scroll horizontal.",
+        "evidence": "<h1 className=\"relative text-5xl md:text-7xl font-black text-ink\">Programme Ambassadeurs</h1> — aucune variante mobile sous md ; conteneur container mx-auto px-6.",
+        "proposedFix": "className=\"relative text-4xl sm:text-5xl md:text-7xl font-black text-ink\".",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "className=\"relative text-4xl sm:text-5xl md:text-7xl font-black text-ink\"."
+        }
+      },
+      {
+        "title": "Maquette téléphone (312px) + halo -inset-8 sans clip provoque un léger scroll horizontal sur l'accueil",
+        "file": "app/page.tsx",
+        "lines": "286-296",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Sur l'accueil à 360px, la colonne « écran téléphone » mesure exactement 312px (PhoneMockup width par défaut) et tient tout juste dans la zone de contenu (≈312px après px-6 = zéro marge), mais son halo décoratif déborde de 32px de chaque côté, ce qui peut introduire un défilement horizontal parasite de la page.",
+        "evidence": "Section <section className=\"px-6 py-24\"> (app/page.tsx:213) ; PhoneMockup par défaut width=312 (components/kit/phone-mockup.tsx:62-65) ; halo glow className=\"pointer-events-none absolute -inset-8 -z-10\" (phone-mockup.tsx:71). Aucun ancêtre overflow-hidden entre la section et le mockup.",
+        "proposedFix": "Clipper le débordement (ajouter overflow-hidden sur la section ou sur le wrapper flex justify-center du mockup ligne 286), et/ou réduire la largeur du mockup sur mobile via une prop responsive (ex. width 280) pour garder une marge latérale.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Clipper le débordement (ajouter overflow-hidden sur la section ou sur le wrapper flex justify-center du mockup ligne 286), et/ou réduire la largeur du mockup sur mobile via une prop responsive (ex. width 280) pour garder une marge latérale."
+        }
+      },
+      {
+        "title": "Montants « deux monnaies » en text-[54px] fixe sans variante mobile",
+        "file": "app/page.tsx",
+        "lines": "319,342",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Dans la section sombre « Deux monnaies » sur mobile, les chiffres (« 2 480 niv. 7 », « 12 500 ≈ 125 DH ») sont rendus en 54px fixe ; sur 360px, avec le suffixe inline, la ligne peut être serrée dans la carte (p-8 = 32px de padding chaque côté) et frôler le débordement, surtout en arabe/traductions plus longues.",
+        "evidence": "<p className=\"mt-2 font-display text-[54px] font-extrabold leading-none tracking-[-0.05em] tabular-nums\">2 480 <span ...>niv. 7</span></p> (idem 12 500 ligne 342). Taille px figée, aucune variante < sm. Carte bg-night-2 p-8.",
+        "proposedFix": "Rendre la taille fluide : remplacer text-[54px] par text-[clamp(2.25rem,9vw,54px)] (ou text-4xl sm:text-[54px]) pour réduire sur mobile.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Rendre la taille fluide : remplacer text-[54px] par text-[clamp(2.25rem,9vw,54px)] (ou text-4xl sm:text-[54px]) pour réduire sur mobile."
+        }
+      },
+      {
+        "title": "Carousel: boutons Précédent/Suivant positionnés hors écran sur mobile (-left-12 / -right-12)",
+        "file": "components/ui/carousel.tsx",
+        "lines": "189-191, 219-221",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Sur un carrousel qui occupe toute la largeur de l'écran (cas par défaut sur 360-430px), les flèches de navigation sont décalées de 48px à l'extérieur du conteneur. Elles sont donc soit invisibles/coupées par le bord de l'écran, soit elles provoquent un débordement horizontal (scroll latéral parasite). L'ado ne peut pas naviguer au doigt via les flèches.",
+        "evidence": "CarouselPrevious: 'top-1/2 -left-12 -translate-y-1/2' ; CarouselNext: 'top-1/2 -right-12 -translate-y-1/2' (le carrousel s'appuie aussi sur le swipe Embla, mais les boutons restent rendus et débordent).",
+        "proposedFix": "Repositionner les flèches À L'INTÉRIEUR sur mobile et à l'extérieur seulement à partir de sm: ex. CarouselPrevious 'left-2 sm:-left-12' et CarouselNext 'right-2 sm:-right-12', ou masquer les flèches sur mobile ('hidden sm:flex') puisque le swipe gère la navigation tactile. Vérifier aussi 'overflow-hidden' sur le conteneur racine pour éviter le scroll parasite.",
+        "confidence": "medium",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Repositionner les flèches À L'INTÉRIEUR sur mobile et à l'extérieur seulement à partir de sm: ex. CarouselPrevious 'left-2 sm:-left-12' et CarouselNext 'right-2 sm:-right-12', ou masquer les flèches sur mobile ('hidden sm:flex') puisque le swipe gère la navigation tactile. Vérifier aussi 'overflow-hidden' sur le conteneur racine pour éviter le scroll parasite."
+        }
+      },
+      {
+        "title": "Popover de notifications (gamification) à largeur fixe w-[380px] > largeur écran 360px",
+        "file": "components/notifications/notification-center.tsx",
+        "lines": "202-205",
+        "category": "responsive",
+        "severity": "medium",
+        "symptom": "Le menu déroulant des notifications a une largeur fixe de 380px. Sur un iPhone SE / petit Android (360px), il est plus large que l'écran : Radix le repositionne par collision mais il occupe 100% de la largeur sans aucune marge, colle aux bords et peut être rogné. Aucune réduction responsive n'est prévue.",
+        "evidence": "<DropdownMenuContent align=\"end\" className=\"w-[380px] p-0\" sideOffset={8}> — largeur 380px non gardée par un breakpoint ni plafonnée à la largeur du viewport.",
+        "proposedFix": "Plafonner sur mobile : className=\"w-[calc(100vw-1.5rem)] max-w-[380px] p-0\" (ou 'w-[min(380px,calc(100vw-1.5rem))]') pour garder une marge des deux côtés sur petits écrans.",
+        "confidence": "high",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "medium",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Plafonner sur mobile : className=\"w-[calc(100vw-1.5rem)] max-w-[380px] p-0\" (ou 'w-[min(380px,calc(100vw-1.5rem))]') pour garder une marge des deux côtés sur petits écrans."
+        }
+      },
+      {
+        "title": "Preset de grille 'bento' = grid-cols-4 dès le mobile (colonnes ~80px à 360px)",
+        "file": "components/ui/primitives/grid.tsx",
+        "lines": "59",
+        "category": "responsive",
+        "severity": "low",
+        "symptom": "Le preset partagé 'bento' force 4 colonnes sur mobile sans variante grid-cols-1/2. À 360px, chaque colonne fait ~80px (moins le gap), ce qui écrase tout contenu textuel et peut faire déborder les cartes/labels. Étant une primitive partagée, tout écran qui choisit columns=\"bento\" hérite du problème.",
+        "evidence": "bento: 'grid-cols-4 md:grid-cols-8 lg:grid-cols-12' — base à 4 colonnes, pas de point de rupture mobile en dessous.",
+        "proposedFix": "Démarrer plus bas sur mobile, ex. 'grid-cols-2 sm:grid-cols-4 md:grid-cols-8 lg:grid-cols-12'. (Le preset 'cards-lg' a le même schéma grid-cols-2 en base — acceptable pour des cartes, mais 'bento' à 4 colonnes est trop dense pour 360px.)",
+        "confidence": "low",
+        "verdict": {
+          "isReal": null,
+          "correctedSeverity": "low",
+          "fixConfirmed": false,
+          "reproNotes": "non vérifié (sévérité medium/low)",
+          "refinedFix": "Démarrer plus bas sur mobile, ex. 'grid-cols-2 sm:grid-cols-4 md:grid-cols-8 lg:grid-cols-12'. (Le preset 'cards-lg' a le même schéma grid-cols-2 en base — acceptable pour des cartes, mais 'bento' à 4 colonnes est trop dense pour 360px.)"
+        }
+      }
+    ]
+  }
+}

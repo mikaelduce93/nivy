@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -21,7 +21,7 @@ interface RegistrationData {
   status: string
 }
 
-export default function ValidateTeenPage() {
+function ValidateTeenInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
@@ -291,5 +291,16 @@ export default function ValidateTeenPage() {
         </div>
       </StickerCard>
     </Shell>
+  )
+}
+
+// useSearchParams() impose une frontière <Suspense> au build (Next App Router) :
+// sans elle, le prérendu bascule en CSR bailout (page blanche / crash AppRouter
+// résolu par un refresh) — ici sur le flux d'activation parent → ado.
+export default function ValidateTeenPage() {
+  return (
+    <Suspense fallback={null}>
+      <ValidateTeenInner />
+    </Suspense>
   )
 }

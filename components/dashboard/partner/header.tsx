@@ -14,18 +14,28 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Menu, LogOut, User, Settings, Building2 } from "lucide-react"
 import { NotificationBell } from "@/components/notifications/notification-bell"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { buildActiveNav, PENDING_NAV, type PartnerType } from "@/components/dashboard/partner/sidebar"
 
 interface PartnerHeaderProps {
   userInfo: UserRoleInfo
+  partnerType?: PartnerType
+  partnerStatus?: "pending" | "in_review" | "active" | "rejected" | "suspended" | "offboarded" | null
 }
 
-export function PartnerHeader({ userInfo }: PartnerHeaderProps) {
+export function PartnerHeader({ userInfo, partnerType = null, partnerStatus = null }: PartnerHeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const companyName = userInfo.partnerData?.companyName || "Entreprise"
-  const partnerType = userInfo.partnerData?.partnerType || "retail"
+
+  // Drawer mobile : mêmes liens que la sidebar (cf. sidebar.tsx). Sans ça, le
+  // hamburger ouvrait un tiroir VIDE → cul-de-sac de navigation sur mobile.
+  const mobileNav = partnerStatus !== "active" ? PENDING_NAV : buildActiveNav(partnerType)
 
   const initials = companyName
     .split(" ")
@@ -51,7 +61,7 @@ export function PartnerHeader({ userInfo }: PartnerHeaderProps) {
     <header className="sticky top-0 z-50 bg-card  border-b border-ink">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         {/* Mobile menu */}
-        <Sheet>
+        <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
           <SheetTrigger asChild className="md:hidden">
             <Button variant="ghost" size="icon" className="text-mute hover:text-ink hover:bg-card" aria-label="Ouvrir le menu">
               <Menu className="h-5 w-5" aria-hidden="true" />
@@ -63,6 +73,33 @@ export function PartnerHeader({ userInfo }: PartnerHeaderProps) {
                 <h2 className="text-lg font-bold text-ink">Teen Club</h2>
                 <p className="text-sm text-mute">Espace Partenaire</p>
               </div>
+              <nav className="px-3 space-y-1">
+                {mobileNav.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setMobileNavOpen(false)}
+                      className={cn(
+                        "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
+                        isActive
+                          ? "bg-gradient-to-r from-lime/20 to-teal/20 text-lime border border-lime/30"
+                          : "text-mute hover:bg-card hover:text-ink",
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          "mr-3 h-5 w-5 flex-shrink-0",
+                          isActive ? "text-lime" : "text-mute group-hover:text-ink-2",
+                        )}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  )
+                })}
+              </nav>
             </div>
           </SheetContent>
         </Sheet>
@@ -82,7 +119,7 @@ export function PartnerHeader({ userInfo }: PartnerHeaderProps) {
         <div className="hidden md:flex items-center gap-4">
           <div className="text-right">
             <p className="font-medium text-sm text-ink">{companyName}</p>
-            <p className="text-xs text-mute">{typeLabels[partnerType]}</p>
+            <p className="text-xs text-mute">{typeLabels[partnerType ?? "retail"] ?? "Partenaire"}</p>
           </div>
         </div>
 
@@ -107,7 +144,7 @@ export function PartnerHeader({ userInfo }: PartnerHeaderProps) {
                   <p className="text-sm font-medium text-ink">{companyName}</p>
                   <p className="text-xs text-mute">{userInfo.email}</p>
                   <p className="text-xs text-lime font-medium mt-1">
-                    {typeLabels[partnerType]}
+                    {typeLabels[partnerType ?? "retail"] ?? "Partenaire"}
                   </p>
                 </div>
               </DropdownMenuLabel>

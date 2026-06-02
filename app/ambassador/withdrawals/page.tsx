@@ -99,8 +99,8 @@ export default async function AmbassadorWithdrawalsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-paper">
-      <div className="container mx-auto px-6 py-32">
+    <div className="bg-paper">
+      <div className="container mx-auto px-6 py-20 md:py-32">
         {/* Back button */}
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">

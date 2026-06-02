@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import {
@@ -17,7 +17,7 @@ import { Niv, NivCelebration, DarkSurface } from "@/components/brand"
 import { Confetti } from "@/components/ui/effects/confetti"
 import { confirmPassSubscription, getMyPass } from "@/features/pass"
 
-export default function PassConfirmationPage() {
+function PassConfirmationInner() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
 
@@ -197,6 +197,17 @@ export default function PassConfirmationPage() {
 
       <Footer />
     </div>
+  )
+}
+
+// useSearchParams() impose une frontière <Suspense> au build (Next App Router) :
+// sans elle, le prérendu bascule en CSR bailout (page blanche / crash AppRouter
+// résolu par un refresh). Cf. app/auth/sign-up/page.tsx, app/partenaires/merci.
+export default function PassConfirmationPage() {
+  return (
+    <Suspense fallback={null}>
+      <PassConfirmationInner />
+    </Suspense>
   )
 }
 

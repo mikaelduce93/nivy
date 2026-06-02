@@ -161,7 +161,7 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
           </StickerCard>
 
           <StickerCard className="items-center gap-1 p-4 text-center">
-            <span className="flex items-center gap-1.5 font-display text-2xl font-extrabold tabular-nums text-gold">
+            <span className="flex items-center gap-1.5 font-display text-xl sm:text-2xl font-extrabold tabular-nums text-gold">
               <Zap className="size-4 text-gold" aria-hidden="true" />
               {totalXPEarned.toLocaleString()}
             </span>

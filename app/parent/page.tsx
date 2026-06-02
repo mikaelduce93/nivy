@@ -249,7 +249,7 @@ export default async function ParentDashboardPage() {
           <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
             <div>
               <p className="eyebrow tracking-[0.16em]">Espace parent</p>
-              <h1 className="mt-2 font-display text-5xl font-extrabold leading-[1.02] tracking-tight md:text-6xl">
+              <h1 className="mt-2 font-display text-3xl font-extrabold leading-[1.05] tracking-tight sm:text-4xl md:text-6xl">
                 Centre de <em className="font-semibold italic text-pink">contrôle</em>
               </h1>
               <p className="mt-2 text-lg text-mute">

@@ -159,8 +159,8 @@ export default async function AmbassadorReferralsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-paper">
-      <div className="container mx-auto px-6 py-32">
+    <div className="bg-paper">
+      <div className="container mx-auto px-6 py-20 md:py-32">
         {/* Back button */}
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">
@@ -224,14 +224,14 @@ export default async function AmbassadorReferralsPage() {
                     key={referral.id}
                     className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-line bg-white p-5 md:flex-row md:items-center"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink bg-pink font-display text-xl font-extrabold text-ink">
+                    <div className="flex min-w-0 items-center gap-4">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-pink font-display text-xl font-extrabold text-ink">
                         {userName.charAt(0)}
                       </div>
-                      <div>
-                        <h3 className="font-display text-lg font-extrabold text-ink">{userName}</h3>
+                      <div className="min-w-0">
+                        <h3 className="truncate font-display text-lg font-extrabold text-ink">{userName}</h3>
                         {userEmail && (
-                          <p className="font-mono text-xs text-mute">{maskEmail(userEmail)}</p>
+                          <p className="truncate font-mono text-xs text-mute">{maskEmail(userEmail)}</p>
                         )}
                         <div className="mt-1 flex items-center gap-2">
                           <span className="rounded-full border-2 border-line px-2 py-0.5 font-mono text-[11px] text-mute">

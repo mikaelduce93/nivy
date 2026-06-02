@@ -66,7 +66,7 @@ export default async function QuizHistoryPage() {
           </div>
         </StickerCard>
         <StickerCard className="items-center p-4 text-center">
-          <div className="font-mono text-2xl font-bold tabular-nums text-gold">
+          <div className="font-mono text-xl sm:text-2xl font-bold tabular-nums text-gold">
             {stats.totalXpEarned.toLocaleString()}
           </div>
           <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">

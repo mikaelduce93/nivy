@@ -148,7 +148,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
             <p className="eyebrow mt-4 tracking-[0.16em] text-paper/60">
               {result.passed ? "Réussi" : "Continue comme ça"}
             </p>
-            <h1 className="mt-2 font-display text-5xl font-extrabold tracking-tight text-paper">
+            <h1 className="mt-2 font-display text-4xl sm:text-5xl font-extrabold tracking-tight text-paper break-words">
               {result.passed ? "Bravo !" : "Pas mal..."}
             </h1>
             <p className="mt-3 text-paper/70">
@@ -158,7 +158,7 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
               <div className="rounded-2xl border-2 border-paper/20 bg-paper/5 p-4">
                 <div
                   className={cn(
-                    "font-display text-5xl font-extrabold leading-none tabular-nums",
+                    "font-display text-4xl sm:text-5xl font-extrabold leading-none tabular-nums",
                     result.passed ? "text-lime" : "text-coral",
                   )}
                 >
@@ -169,8 +169,8 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                 </div>
               </div>
               <div className="rounded-2xl border-2 border-paper/20 bg-paper/5 p-4">
-                <div className="flex items-center justify-center gap-1 font-display text-5xl font-extrabold leading-none tabular-nums text-gold">
-                  <Zap className="size-7" aria-hidden="true" />+{result.xpEarned}
+                <div className="flex items-center justify-center gap-1 font-display text-4xl sm:text-5xl font-extrabold leading-none tabular-nums text-gold">
+                  <Zap className="size-6 sm:size-7" aria-hidden="true" />+{result.xpEarned}
                 </div>
                 <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">
                   XP gagnés
