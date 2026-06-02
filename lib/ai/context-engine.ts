@@ -81,9 +81,11 @@ export class ContextEngine {
       eventsResult,
       presenceResult
     ] = await Promise.all([
-      // 1. Basic profile (no PII).
+      // 1. Basic profile (no PII). Drift schéma corrigé : pseudo/city/
+      // date_of_birth/archetype vivent sur `teens` (profiles n'expose que
+      // avatar_url). canon-allow: doc.
       supabase
-        .from('profiles')
+        .from('teens')
         .select('pseudo, city, avatar_url, date_of_birth, archetype')
         .eq('id', userId)
         .limit(1)
@@ -141,6 +143,12 @@ export class ContextEngine {
         .catch(() => ({ data: [] }))
     ])
 
+    // Le query builder ne *rejette* pas sur erreur SQL (42703…) — il résout
+    // { data, error }. Le `.catch` ne couvre que le réseau ; on inspecte donc
+    // result.error pour rendre tout drift résiduel visible en logs.
+    if (profileResult?.error) {
+      console.error('[ContextEngine] teen profile fetch error:', profileResult.error)
+    }
     const profile = profileResult?.data
     const teenProfile = teenProfileResult?.data
     const xpData = xpResult?.data
@@ -240,9 +248,10 @@ export class ContextEngine {
 
       // 4. Teen pseudos + DOB only — children full names are FORBIDDEN
       // in any AI prompt. See docs/canon/personalization-ai.locked.md.
+      // Drift schéma corrigé : pseudo/date_of_birth vivent sur `teens`.
       teenIds.length
         ? supabase
-            .from('profiles')
+            .from('teens')
             .select('id, pseudo, date_of_birth')
             .in('id', teenIds)
             .catch(() => ({ data: [] }))
