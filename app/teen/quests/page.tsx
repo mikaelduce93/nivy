@@ -35,8 +35,15 @@ export default async function QuestsHubPage() {
     }
   })()
   const [quests, dailyChallenges, xpData, coinsRow] = await Promise.all([
-    getUnifiedQuests(),
-    getDailyChallenges(teenId).catch(() => []),
+    // B4 — robustesse : getUnifiedQuests ne doit jamais vider tout le hub sur
+    // une exception (c'était le seul appel sans .catch du Promise.all).
+    getUnifiedQuests().catch(() => []),
+    // B5 — getDailyChallenges renvoie un ActionResult {success,data}, pas un
+    // tableau. On déballe vers data : sinon côté client `dailyChallenges.length`
+    // valait `undefined` et les vrais défis du jour ne s'affichaient jamais.
+    getDailyChallenges(teenId)
+      .then((r) => (r.success ? r.data : []))
+      .catch(() => []),
     getTeenXP(teenId).catch(() => null),
     coinsPromise,
   ])

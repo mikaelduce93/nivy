@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react"
 import Link from "next/link"
-import { Coins, ShoppingBag, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2, PiggyBank, Receipt, QrCode } from "lucide-react"
+import { Coins, ShoppingBag, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2, PiggyBank, Receipt, QrCode, Award, Lock } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -68,12 +68,24 @@ interface WalletHubClientProps {
     }
     /** Onglet Historique — achats canoniques (user_purchases via RPC). */
     purchases?: UserPurchase[]
+    /** Onglet Badges — achievements + progression (get_user_achievements). */
+    achievements?: Array<{
+      id?: string
+      code?: string
+      name: string
+      description?: string
+      icon?: string | null
+      rarity?: string
+      xp_reward?: number
+      is_unlocked?: boolean
+    }>
   }
 }
 
 const WALLET_TABS: HubTab[] = [
   { id: "coins", label: "Solde", icon: Coins },
   { id: "shop", label: "Boutique", icon: ShoppingBag },
+  { id: "badges", label: "Badges", icon: Award },
   { id: "savings", label: "Épargne", icon: PiggyBank },
   { id: "history", label: "Historique", icon: Receipt },
 ]
@@ -137,6 +149,7 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
       <div>
         {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
         {currentTab === "shop" && <ShopTab walletData={walletData} teenId={teenId} />}
+        {currentTab === "badges" && <BadgesTab walletData={walletData} />}
         {currentTab === "savings" && <SavingsTab walletData={walletData} />}
         {currentTab === "history" && <HistoryTab walletData={walletData} />}
       </div>
@@ -504,6 +517,70 @@ function ShopTab({
           })}
         </div>
       )}
+    </div>
+  )
+}
+
+// Onglet Badges — cible canonique des « achievements » (les redirects
+// /teen/achievements et /gamification/collections pointent ici). Affiche les
+// achievements du teen, débloqués en couleur, verrouillés en grisé.
+function BadgesTab({ walletData }: { walletData: WalletHubClientProps["walletData"] }) {
+  const achievements = walletData.achievements ?? []
+  const unlocked = achievements.filter((a) => a.is_unlocked)
+
+  if (achievements.length === 0) {
+    return (
+      <NivEmpty
+        mood="calm"
+        title="Pas encore de badges"
+        description="Complète des quêtes et des défis pour débloquer tes premiers badges."
+        action={
+          <Link href="/teen/quests">
+            <Button variant="pink" size="sm">Voir les quêtes</Button>
+          </Link>
+        }
+      />
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <StickerCard variant="panel" className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Award className="h-5 w-5 text-gold" />
+            <span className="font-display font-extrabold text-ink">Tes badges</span>
+          </div>
+          <span className="font-mono text-sm font-bold tabular-nums text-mute">
+            {unlocked.length}/{achievements.length} débloqués
+          </span>
+        </div>
+      </StickerCard>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {achievements.map((a, idx) => (
+          <StickerCard
+            key={a.id || a.code || idx}
+            variant={a.is_unlocked ? "default" : "panel"}
+            className={cn("p-4 text-center", !a.is_unlocked && "opacity-50 saturate-50")}
+          >
+            {/* `icon` en base = nom lucide minuscule ("zap"/"flame"…), pas un
+                emoji — on n'affiche donc pas sa valeur brute. Trophée pour les
+                badges débloqués, cadenas pour les verrouillés. */}
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-ink bg-paper-2 text-2xl">
+              {a.is_unlocked ? "🏆" : <Lock className="h-5 w-5 text-mute" />}
+            </div>
+            <h4 className="mt-2 line-clamp-2 font-display text-sm font-bold leading-snug text-ink">
+              {a.name}
+            </h4>
+            {a.xp_reward ? (
+              <p className="mt-1 font-mono text-[11px] font-bold tabular-nums text-gold">
+                +{a.xp_reward.toLocaleString()} XP
+              </p>
+            ) : null}
+          </StickerCard>
+        ))}
+      </div>
     </div>
   )
 }

@@ -314,11 +314,13 @@ export async function claimAllMissionRewards(): Promise<{
       return { claimed: 0, total_xp: 0, bonuses: [], error: "Non authentifié" }
     }
 
-    // Récupérer toutes les missions complétées
+    // Récupérer toutes les missions complétées. La colonne d'appartenance de
+    // user_missions est `teen_id` (= auth.uid()), pas `user_id` — l'ancien
+    // filtre `.eq("user_id", …)` levait « column does not exist » → requête morte.
     const { data: completedMissions, error: fetchError } = await supabase
       .from("user_missions")
       .select("id")
-      .eq("user_id", user.id)
+      .eq("teen_id", user.id)
       .eq("status", "completed")
 
     if (fetchError) {

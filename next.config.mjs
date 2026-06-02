@@ -230,6 +230,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'i.pravatar.cc',
       },
+      // Unsplash — utilisé comme source d'images de démo dans plusieurs
+      // catalogues (events, boutique…). Sans cet hôte, next/image lève
+      // « hostname not configured » → crash capté par l'ErrorBoundary teen.
+      // Hostname exact (pas de wildcard) pour rester narrow.
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
     // dicebear emits SVG; allow it but keep CSP via Next's dangerouslyAllowSVG.
     // We only render avatars from the allow-listed hostnames above, so the

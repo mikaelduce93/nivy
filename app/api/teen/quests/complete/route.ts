@@ -195,10 +195,17 @@ export async function POST(request: NextRequest) {
     // entry and inflate the user's "quest_completed" history.
     if (!alreadyCompleted) {
       try {
-        await supabase.from('activities').insert({
+        // Canonical table `user_activities` (mig 018): no `type`/`metadata`
+        // columns — the semantic type + payload live in the `data` jsonb. We
+        // keep quest_id inside `data` rather than `target_id` (uuid) to avoid a
+        // cast failure when questId isn't a uuid.
+        await supabase.from('user_activities').insert({
           user_id: teenId,
-          type: 'quest_completed',
-          metadata: {
+          title: 'Quête complétée',
+          description: `Quête ${questType} complétée (+${xpAwarded} XP)`,
+          target_type: 'quest',
+          data: {
+            type: 'quest_completed',
             quest_id: questId,
             quest_type: questType,
             xp_earned: xpAwarded,

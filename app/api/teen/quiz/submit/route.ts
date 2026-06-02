@@ -101,7 +101,9 @@ export async function POST(request: NextRequest) {
         total_questions: questions.length,
         completed_at: new Date().toISOString(),
         time_spent_seconds: timeSpentSeconds ?? null,
-        passed,
+        // `passed` est une colonne GENERATED ALWAYS (score >= 60) en base —
+        // l'insérer explicitement lève 428C9. La DB la calcule. Le `passed`
+        // JS ci-dessus reste utilisé pour l'XP et la réponse.
         xp_earned: xpEarned,
       })
       .select("id")

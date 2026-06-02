@@ -176,10 +176,15 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
 
   if (!user) return null
 
+  // Colonnes RÉELLES de la vue teen_full_profile uniquement. L'ancien select
+  // demandait full_name/interests/coins_earned/coins_topup/streak/city —
+  // inexistantes sur la vue → PostgREST 400 → teenProfile=null → pilier Social
+  // + données profil cassés. interests reste [] (vraie source = teen_interests,
+  // hors scope ici) ; streak retombe sur user_lifetime_stats (cf. plus bas).
   const { data: teenProfile } = await supabase
     .from("teen_full_profile")
     .select(
-      "id, full_name, interests, level, total_xp, coins_balance, coins_earned, coins_topup, streak, primary_parent_id, city"
+      "id, first_name, last_name, pseudo, avatar_url, level, title, title_icon, coins_balance, total_xp, primary_parent_id"
     )
     .eq("id", user.id)
     .limit(1)
@@ -187,7 +192,9 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
 
   const teenId = teenProfile?.id || null
   const parentId = teenProfile?.primary_parent_id || null
-  const interests = Array.isArray(teenProfile?.interests) ? teenProfile.interests : []
+  // La vue teen_full_profile ne porte pas les centres d'intérêt ; la vraie
+  // source est la table teen_interests (câblage du ranking = hors scope B1).
+  const interests: string[] = []
 
   // #40 — render is read-only. The login-streak WRITE (updateLoginStreak) moved
   // out of this Promise.all to the StreakPinger client trigger; currentStreak
@@ -235,7 +242,8 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
   } catch {
     cashbackThisWeek = 0
   }
-  const currentStreak = teenProfile?.streak ?? lifetimeStats?.current_login_streak ?? 0
+  // teen_full_profile n'expose pas de colonne streak — source = user_lifetime_stats.
+  const currentStreak = lifetimeStats?.current_login_streak ?? 0
 
   const rewards = rewardsResult.data || []
   const nextRewardCandidate = rewards

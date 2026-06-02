@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import { WalletHubClient } from "./wallet-hub-client"
 import { getTeenDashboardData } from "@/lib/server/teen-dashboard"
 import { getRewards, getCategories, getUserPurchases } from "@/gamification-system/features/shop/actions"
+import { getAchievements } from "@/gamification-system/features/achievements/actions"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function WalletHubPage() {
@@ -30,6 +31,7 @@ export default async function WalletHubPage() {
     { data: spendableRow },
     { data: goals },
     purchasesResult,
+    achievementsResult,
   ] = await Promise.all([
     getTeenDashboardData(),
     getRewards({ onlyAvailable: true, onlyAffordable: false }),
@@ -45,6 +47,8 @@ export default async function WalletHubPage() {
       .eq("teen_id", userInfo.profileId)
       .order("created_at", { ascending: false }),
     getUserPurchases(undefined, true),
+    // Onglet Badges — tous les achievements + progression (RPC get_user_achievements).
+    getAchievements({ teenId }).catch(() => ({ success: false as const, data: [] })),
   ])
 
   const balance = dashboardData?.coins?.balance ?? 0
@@ -69,6 +73,8 @@ export default async function WalletHubPage() {
     savings: { spendable, total, locked, goals: goals || [] },
     // Onglet Historique — achats canoniques (user_purchases via RPC).
     purchases: purchasesResult.data || [],
+    // Onglet Badges — achievements + progression du teen.
+    achievements: (achievementsResult as { data?: unknown[] }).data || [],
   }
 
   return (

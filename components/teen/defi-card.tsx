@@ -417,17 +417,33 @@ export function DefiCard({
             )}
 
             {showCta ? (
-              <Link
-                href={effectiveCtaHref!}
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-3 py-1.5 text-[11px] font-black text-paper",
-                  "transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink",
-                  "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[color:var(--focus-ring-color,var(--ring))]",
-                )}
-              >
-                {ctaLabel}
-                <ArrowRight className="h-3 w-3" aria-hidden />
-              </Link>
+              cardHref ? (
+                // The whole card is already an <a> (cardHref set). A nested
+                // <Link> here would emit invalid <a> inside <a> → hydration
+                // error. Render the CTA as a visual-only pill; the parent
+                // anchor handles navigation (same destination).
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-3 py-1.5 text-[11px] font-black text-paper",
+                    "transition-all group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-stkr-pink",
+                  )}
+                >
+                  {ctaLabel}
+                  <ArrowRight className="h-3 w-3" aria-hidden />
+                </span>
+              ) : (
+                <Link
+                  href={effectiveCtaHref!}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-3 py-1.5 text-[11px] font-black text-paper",
+                    "transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink",
+                    "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[color:var(--focus-ring-color,var(--ring))]",
+                  )}
+                >
+                  {ctaLabel}
+                  <ArrowRight className="h-3 w-3" aria-hidden />
+                </Link>
+              )
             ) : null}
           </div>
         ) : null}

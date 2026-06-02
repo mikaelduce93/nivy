@@ -21,9 +21,12 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Get activities
+    // Get activities. Canonical table is `user_activities` (migration 018) —
+    // the old `.from('activities')` hit a non-existent table → permanent empty
+    // screen. The semantic activity type lives in the `data` jsonb (set on
+    // insert), not in a `type`/`metadata` column.
     const { data: activities, error, count } = await supabase
-      .from('activities')
+      .from('user_activities')
       .select('*', { count: 'exact' })
       .eq('user_id', teenId)
       .order('created_at', { ascending: false })
@@ -37,15 +40,17 @@ export async function GET(request: NextRequest) {
     }
 
     const formattedActivities = activities?.map(activity => {
-      const metadata = activity.metadata || {}
-      
+      // user_activities stores the payload in the `data` jsonb column; the
+      // semantic type is `data.type` (written on insert by quest-complete etc.).
+      const metadata = activity.data || {}
+
       // Determine activity type and text
       let type = 'general'
-      let text = activity.description || 'Activity'
+      let text = activity.title || activity.description || 'Activity'
       let icon = 'Activity'
       let color = 'text-zinc-400'
 
-      switch (activity.type) {
+      switch (metadata.type) {
         case 'quest_completed':
           type = 'quest'
           text = `Completed quest: ${metadata.quest_name || 'Quest'}`

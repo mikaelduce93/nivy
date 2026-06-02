@@ -228,8 +228,8 @@ export function Navbar() {
           items: [
             { label: "Mon niveau", href: "/gamification", icon: Zap },
             { label: "Missions du jour", href: "/teen/quests", icon: Target },
-            { label: "Mes badges", href: "/teen/profile?tab=achievements", icon: Award },
-            { label: "Ma collection", href: "/teen/profile?tab=achievements", icon: Gift },
+            { label: "Mes badges", href: "/teen/wallet?tab=badges", icon: Award },
+            { label: "Ma collection", href: "/teen/wallet?tab=badges", icon: Gift },
           ],
         },
         {
