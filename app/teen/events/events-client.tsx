@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { MapPin, Users } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { StickerTabs } from "@/components/brand/sticker-tab"
@@ -10,17 +11,54 @@ import { Niv, DarkSurface, NivEmpty } from "@/components/brand"
 
 export function TeenEventsClient({ initialEvents }: { initialEvents: any[] }) {
   const [filter, setFilter] = useState<"all" | "confirmed" | "pending" | "featured">("all")
+  // État local : on réserve sans recharger ; le badge passe à « Inscrit ».
+  const [events, setEvents] = useState<any[]>(initialEvents)
+  const [pendingId, setPendingId] = useState<string | null>(null)
 
-  const filteredEvents = initialEvents.filter(event => {
+  // Réservation côté ado (modèle opt-out : confirmé direct, le parent peut s'opposer).
+  const book = async (eventId: string) => {
+    if (pendingId) return
+    setPendingId(eventId)
+    try {
+      const r = await fetch("/api/teen/events/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId }),
+      })
+      const j = await r.json().catch(() => ({}))
+      if (j.success) {
+        setEvents((prev) =>
+          prev.map((e) =>
+            e.id === eventId ? { ...e, rsvpStatus: "confirmed", rsvpLabel: "Inscrit" } : e
+          )
+        )
+        toast.success(
+          j.can_be_opposed
+            ? "Réservé ! Tes parents peuvent encore s'y opposer."
+            : "Réservé !"
+        )
+      } else if (j.needsPayment) {
+        toast.message("Cet évènement est payant — réservation via le parcours paiement.")
+      } else {
+        toast.error(j.error === "event_introuvable" ? "Évènement introuvable" : "Réservation impossible")
+      }
+    } catch {
+      toast.error("Erreur réseau")
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  const filteredEvents = events.filter(event => {
     if (filter === "confirmed") return event.rsvpStatus === "confirmed"
     if (filter === "pending") return event.rsvpStatus === "pending"
     if (filter === "featured") return event.isFeatured
     return true
   })
 
-  const confirmedCount = initialEvents.filter((event) => event.rsvpStatus === "confirmed").length
-  const pendingCount = initialEvents.filter((event) => event.rsvpStatus === "pending").length
-  const featuredCount = initialEvents.filter((event) => event.isFeatured).length
+  const confirmedCount = events.filter((event) => event.rsvpStatus === "confirmed").length
+  const pendingCount = events.filter((event) => event.rsvpStatus === "pending").length
+  const featuredCount = events.filter((event) => event.isFeatured).length
 
   const sectionTitle =
     filter === "all"
@@ -113,11 +151,22 @@ export function TeenEventsClient({ initialEvents }: { initialEvents: any[] }) {
                         )}
                       </div>
                     </div>
-                    <span
-                      className={`rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.08em] ${statusTone}`}
-                    >
-                      {event.rsvpLabel}
-                    </span>
+                    {event.rsvpStatus === "none" ? (
+                      <Button
+                        size="sm"
+                        variant="pink"
+                        disabled={pendingId === event.id}
+                        onClick={() => book(event.id)}
+                      >
+                        {pendingId === event.id ? "…" : "Réserver"}
+                      </Button>
+                    ) : (
+                      <span
+                        className={`rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.08em] ${statusTone}`}
+                      >
+                        {event.rsvpLabel}
+                      </span>
+                    )}
                   </div>
                 </StickerCard>
               )

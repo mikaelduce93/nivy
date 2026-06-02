@@ -271,19 +271,19 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
 
   let bookingsData: any[] = []
   if (eventIds.length > 0) {
-    let query = supabase
-      .from("bookings")
-      .select("id, status, event_id, teen_id, parent_id")
-      .in("event_id", eventIds)
-
-    if (teenId) {
-      query = query.eq("teen_id", teenId)
-    } else if (parentId) {
-      query = query.eq("parent_id", parentId)
+    // La table bookings n'a PAS de teen_id/parent_id : la colonne propriétaire
+    // est user_id (= auth.uid()). L'ancien filtre .eq("teen_id"/"parent_id")
+    // référençait des colonnes inexistantes → la requête échouait → statut RSVP
+    // toujours 'none' même après réservation (l'ado revoyait « Réserver »).
+    const ownerId = teenId || parentId
+    if (ownerId) {
+      const { data } = await supabase
+        .from("bookings")
+        .select("id, status, event_id, user_id")
+        .in("event_id", eventIds)
+        .eq("user_id", ownerId)
+      bookingsData = data || []
     }
-
-    const { data } = await query
-    bookingsData = data || []
   }
 
   const bookingsByEvent = new Map<string, any>()
