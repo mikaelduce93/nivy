@@ -12,6 +12,9 @@ import {
   GraduationCap,
   Tag,
   ArrowRight,
+  MapPin,
+  Store,
+  ShoppingBag,
 } from "lucide-react"
 
 export const metadata: Metadata = { title: "Services" }
@@ -92,6 +95,49 @@ const SERVICES: Service[] = [
     description: "Profite des réductions de nos partenaires.",
     icon: Tag,
     tint: "bg-pink/15",
+  },
+  // V6 — le collectif : organiser, payer ensemble, débloquer par taille.
+  {
+    href: "/teen/rides/groups",
+    label: "Sorties groupées",
+    description: "Organise une sortie, invite tes amis, payez chacun sa part.",
+    icon: Users,
+    tint: "bg-teal/15",
+  },
+  {
+    href: "/teen/food/groups",
+    label: "Resto en groupe",
+    description: "Commandez ensemble, le coût se partage (et se remise).",
+    icon: UtensilsCrossed,
+    tint: "bg-gold/15",
+  },
+  {
+    href: "/teen/venues",
+    label: "Lieux à réserver",
+    description: "Réserve un créneau partenaire, à plusieurs.",
+    icon: MapPin,
+    tint: "bg-pink/15",
+  },
+  {
+    href: "/teen/clubs",
+    label: "Clubs",
+    description: "Crée un club, gère cotisations et sessions.",
+    icon: Users,
+    tint: "bg-lime/15",
+  },
+  {
+    href: "/teen/partenaires",
+    label: "Boutiques partenaires",
+    description: "Parcours et achète chez nos partenaires avec tes coins.",
+    icon: Store,
+    tint: "bg-teal/15",
+  },
+  {
+    href: "/teen/marketplace",
+    label: "Marketplace",
+    description: "Les bons plans des vendeurs partenaires.",
+    icon: ShoppingBag,
+    tint: "bg-gold/15",
   },
 ]
 
