@@ -7,6 +7,7 @@ import { rateLimitDistributed, RATE_LIMITS } from "@/lib/security/rate-limiter-r
 import { checkTeenBudget } from "@/lib/budget/check-budget"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
 import { recordSignalAsync } from "@/lib/analytics/signals"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
 export const runtime = "nodejs"
 
@@ -69,7 +70,10 @@ export async function POST(request: NextRequest) {
           .insert({
             parent_id: user.id,
             teen_id: childId,
-            action_type: "booking",
+            // Over-budget = cas « validation préalable » (≠ opposition) : type
+            // canonique dispatchable via parent_approve_purchase / parent_deny_purchase.
+            // L'ancien 'booking' n'était dans aucun map de dispatch → ingérable.
+            action_type: "purchase_above_ceiling",
             resource_type: "booking",
             resource_id: eventId,
             amount: price,
@@ -145,6 +149,36 @@ export async function POST(request: NextRequest) {
     })
 
     if (ticketError) throw ticketError
+
+    // OPPOSITION parentale (modèle opt-out) : le booking est confirmé ; chaque
+    // tuteur ACTIF de l'ado — sauf celui qui a réservé — peut s'y opposer via
+    // /api/parent/approvals (action_type 'event_booking' → parent_deny_booking
+    // annule le booking, migration 129). Best-effort, non bloquant. Service-role
+    // car on insère des lignes pour d'AUTRES parents (hors auth.uid()).
+    try {
+      const sr = createServiceRoleClient()
+      const { data: guardians } = await sr
+        .from("parent_teen_links")
+        .select("parent_id")
+        .eq("teen_id", childId)
+        .eq("status", "active")
+      for (const g of (guardians ?? []) as { parent_id: string }[]) {
+        if (g.parent_id === user.id) continue
+        await sr.from("parental_approvals").insert({
+          parent_id: g.parent_id,
+          teen_id: childId,
+          action_type: "event_booking",
+          resource_type: "booking",
+          resource_id: booking.id,
+          amount: price,
+          status: "pending",
+          details: { mode: "objection", auto_confirmed: true, event_id: eventId, booked_by: user.id },
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        })
+      }
+    } catch (oppErr) {
+      console.warn("[bookings/create] opposition record failed:", oppErr)
+    }
 
     // TICKET-033 — best-effort personalization signal for event_booked.
     // The DB-level record_signal RPC enforces a fixed signal_type enum; we
