@@ -19,7 +19,14 @@
 -- et aligne get_user_crew sur les autres RPC SECDEF du module crews.
 --
 -- Le reste de la fonction (lookup crew, achievements, JSON de sortie) est inchangé.
--- Idempotent: CREATE OR REPLACE FUNCTION.
+--
+-- Durcissement SECURITY DEFINER: comme la fonction contourne la RLS, on (a) garde
+-- self-only (elle ne renvoie QUE le crew de l'appelant -> pas d'énumération de roster
+-- par uuid deviné, ce qui re-protège les pseudo/full_name des membres après mig 147),
+-- et (b) on révoque EXECUTE à anon (un visiteur non connecté n'a pas de crew). Les deux
+-- seuls appelants (getUserCrew server action, crew-hub) passent toujours l'uid courant.
+--
+-- Idempotent: CREATE OR REPLACE FUNCTION + REVOKE/GRANT.
 
 CREATE OR REPLACE FUNCTION public.get_user_crew(p_user_id uuid)
 RETURNS jsonb
@@ -32,6 +39,11 @@ DECLARE
     v_members JSONB;
     v_achievements JSONB;
 BEGIN
+    -- Sécurité: self-only (SECURITY DEFINER => on empêche la lecture du crew d'autrui).
+    IF p_user_id IS NULL OR p_user_id IS DISTINCT FROM (SELECT auth.uid()) THEN
+        RETURN jsonb_build_object('has_crew', false);
+    END IF;
+
     -- Trouver le crew de l'utilisateur
     SELECT cm.*, c.*
     INTO v_member
@@ -110,3 +122,9 @@ BEGIN
     );
 END;
 $function$;
+
+-- Défense en profondeur: seul un utilisateur authentifié peut appeler la RPC.
+-- NB: Postgres accorde EXECUTE à PUBLIC par défaut, donc il faut révoquer PUBLIC
+-- (révoquer anon seul ne suffit pas, anon hérite du grant PUBLIC).
+REVOKE EXECUTE ON FUNCTION public.get_user_crew(uuid) FROM PUBLIC, anon;
+GRANT  EXECUTE ON FUNCTION public.get_user_crew(uuid) TO authenticated;
