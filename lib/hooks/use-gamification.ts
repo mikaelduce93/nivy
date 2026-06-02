@@ -162,7 +162,14 @@ export function useGamification(options: UseGamificationOptions = {}) {
 
       if (challengesError) throw challengesError
 
-      const xp: XPData = xpData || { total_xp: 0, level: 1, xp_to_next_level: 100 }
+      // user_xp expose `current_level` (pas `level`) — on mappe vers XPData.
+      const xp: XPData = xpData
+        ? {
+            total_xp: (xpData as any).total_xp ?? 0,
+            level: (xpData as any).current_level ?? 1,
+            xp_to_next_level: (xpData as any).xp_to_next_level ?? 100,
+          }
+        : { total_xp: 0, level: 1, xp_to_next_level: 100 }
       const streak: StreakData = streakData || {
         current_streak: 0,
         longest_streak: 0,
@@ -218,11 +225,17 @@ export function useGamification(options: UseGamificationOptions = {}) {
         },
         (payload: RealtimePayload) => {
           if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
-            const newXP = payload.new as unknown as XPData & { teen_id: string }
+            // Le payload realtime est la ligne user_xp brute → `current_level`.
+            const newXP = payload.new as unknown as {
+              teen_id: string
+              total_xp: number
+              current_level: number
+              xp_to_next_level: number
+            }
 
             setState((prev) => {
               const oldLevel = prev.xp?.level || 1
-              const newLevel = newXP.level
+              const newLevel = newXP.current_level
 
               // Détecter level up
               if (newLevel > oldLevel && onLevelUp) {
@@ -247,7 +260,7 @@ export function useGamification(options: UseGamificationOptions = {}) {
                 ...prev,
                 xp: {
                   total_xp: newXP.total_xp,
-                  level: newXP.level,
+                  level: newXP.current_level,
                   xp_to_next_level: newXP.xp_to_next_level,
                 },
               }
@@ -403,14 +416,19 @@ export function useXP(teenId?: string) {
     const supabase = createClient()
 
     async function loadXP() {
+      // user_xp expose `current_level` (pas `level`) — on mappe vers XPData.
       const { data, error } = await supabase
         .from("user_xp")
-        .select("total_xp, level, xp_to_next_level")
+        .select("total_xp, current_level, xp_to_next_level")
         .eq("teen_id", teenId)
         .maybeSingle()
 
       if (!error && data) {
-        setXP(data)
+        setXP({
+          total_xp: (data as any).total_xp,
+          level: (data as any).current_level,
+          xp_to_next_level: (data as any).xp_to_next_level,
+        })
       }
       setLoading(false)
     }
@@ -430,10 +448,15 @@ export function useXP(teenId?: string) {
         },
         (payload: RealtimePayload) => {
           if (payload.new) {
-            const row = payload.new as unknown as XPData
+            // Ligne user_xp brute → `current_level`.
+            const row = payload.new as unknown as {
+              total_xp: number
+              current_level: number
+              xp_to_next_level: number
+            }
             setXP({
               total_xp: row.total_xp,
-              level: row.level,
+              level: row.current_level,
               xp_to_next_level: row.xp_to_next_level,
             })
           }
