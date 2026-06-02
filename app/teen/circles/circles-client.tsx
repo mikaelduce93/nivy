@@ -60,6 +60,7 @@ interface Props {
   myCrew: UserCrewData | null
   discoverCrews: DiscoverCrew[]
   leaderboard: LeaderboardEntry[]
+  hasLoadError?: boolean
 }
 
 // Libellés FR des rôles (fin du brut anglais owner/admin/member).
@@ -69,7 +70,7 @@ const ROLE_LABEL: Record<Member["role"], string> = {
   member: "Membre",
 }
 
-export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props) {
+export function CirclesPageClient({ myCrew, discoverCrews, leaderboard, hasLoadError }: Props) {
   const router = useRouter()
   const [tab, setTab] = useState<"crew" | "discover">("crew")
   const [searchQuery, setSearchQuery] = useState("")
@@ -133,6 +134,17 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
 
   return (
     <div className="min-h-screen pb-32 space-y-8 pt-6">
+      {hasLoadError && (
+        <div
+          role="alert"
+          className="rounded-2xl border border-pink/40 bg-pink/10 px-4 py-3 text-sm text-ink"
+        >
+          Certaines données n'ont pas pu être chargées.{" "}
+          <button onClick={() => router.refresh()} className="font-semibold underline">
+            Réessayer
+          </button>
+        </div>
+      )}
       <header className="space-y-5">
         <div className="space-y-1">
           <p className="eyebrow tracking-[0.16em]">Équipe</p>
