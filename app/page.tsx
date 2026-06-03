@@ -2,51 +2,53 @@
 
 import * as React from "react"
 import { useState, useEffect } from "react"
-import { TrustBanner } from "@/components/trust-banner"
 import {
-  Calendar,
   MapPin,
   ArrowRight,
-  Eye,
-  Flame,
-  Zap,
   Plus,
+  Wallet,
+  Ban,
+  RotateCcw,
+  Dumbbell,
+  GraduationCap,
+  Palette,
+  PartyPopper,
+  CreditCard,
+  Zap,
+  QrCode,
+  Users,
+  Trophy,
+  MessagesSquare,
+  Split,
+  SlidersHorizontal,
+  CheckCheck,
+  ShieldCheck,
+  Lock,
+  ScrollText,
+  Moon,
+  Brain,
+  Home,
 } from "lucide-react"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
 import Image from "next/image"
-import { useT } from "@/lib/i18n"
+import { createClient } from "@/lib/supabase/client"
 import { StickerCard } from "@/components/ui/sticker-card"
-import { StickerTabs } from "@/components/brand/sticker-tab"
 import { Marquee } from "@/components/kit/marquee"
 import { PhoneMockup, PhoneScreen } from "@/components/kit/phone-mockup"
-import { PricingSticker, PricingGrid } from "@/components/sticker/pricing-sticker"
-import { Niv, DarkSurface, OrbitingTokens, NivEmpty } from "@/components/brand"
+import { Niv, DarkSurface, NivEmpty } from "@/components/brand"
+import { NivCoach } from "@/components/brand/niv-usage"
 import { Button } from "@/components/ui/button"
+import { getEscrowConfig } from "@/lib/config/app-config"
 
-// Partenaires affichés dans la barre marquee (vitrine — noms illustratifs du handoff).
-const PARTNERS = [
-  "Padel Sqala",
-  "Librairie Carrefour",
-  "BookResto",
-  "Sup'Cours",
-  "Anfa Place",
-  "Danse Fusion",
-  "Café 7",
-  "Skate Club Casa",
-]
-
-// Switcher 3 publics : contenu éditorial + écran téléphone correspondant.
-const AUDIENCES = ["parent", "ado", "partenaire"] as const
-type Audience = (typeof AUDIENCES)[number]
+// #289 — affirmation d'escrow centralisée (conditionnelle tant que le tiers
+// e-money agréé BAM n'est pas contractualisé).
+const ESCROW = getEscrowConfig()
 
 export default function HomePage() {
-  const t = useT()
-  const [audience, setAudience] = useState<Audience>("parent")
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([])
-  // Polish-F: track event-fetch lifecycle so the section can render a skeleton
-  // (instead of a blank flash) and a non-blocking error banner on failure.
+  // Track event-fetch lifecycle so the section can render a skeleton (instead of
+  // a blank flash) and a non-blocking error banner on failure.
   const [eventsLoading, setEventsLoading] = useState(true)
   const [eventsError, setEventsError] = useState<string | null>(null)
 
@@ -63,9 +65,6 @@ export default function HomePage() {
           .limit(3)
         if (!active) return
         if (error) {
-          // Polish-F: surface the failure instead of silently rendering an
-          // empty grid (the original code masked RLS / network errors as a
-          // permanently-empty "Aucun événement" state).
           console.error("[home] events fetch failed:", error)
           setEventsError("Impossible de charger les événements pour le moment.")
         } else if (events) {
@@ -87,500 +86,94 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-paper text-ink">
-      <TrustBanner />
-
-      {/* ═══════════════ HERO ═══════════════ */}
-      <section className="px-6 pb-20 pt-16" aria-label="Accueil">
+      {/* ═══════════════ HERO (ado-first + écran produit réel) ═══════════════ */}
+      <section className="px-6 pb-12 pt-14" aria-label="Accueil">
         <div className="container mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_.95fr]">
           {/* Colonne éditoriale */}
           <div className="text-center lg:text-left">
-            {/* Pill statique charte (point lime + libellé mono UPPERCASE) */}
             <span className="mb-6 inline-flex items-center gap-2 rounded-full bg-ink px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-paper">
               <span className="size-1.5 rounded-full bg-lime motion-safe:animate-pulse" aria-hidden="true" />
-              <span>Le hub lifestyle des 13–17 ans</span>
+              <span>Le hub des 13–17 ans</span>
             </span>
 
-            <h1 className="font-display text-[clamp(2.75rem,7.4vw,5.375rem)] font-extrabold leading-[0.92] tracking-[-0.03em] text-balance">
-              Le hub{" "}
+            <h1 className="font-display text-[clamp(2.5rem,7vw,5rem)] font-extrabold leading-[0.92] tracking-[-0.03em] text-balance">
+              Ton argent, tes sorties,{" "}
               <span className="relative inline-block">
-                lifestyle
+                ton crew
                 <svg
                   viewBox="0 0 100 8"
                   preserveAspectRatio="none"
                   aria-hidden="true"
                   className="absolute -bottom-1.5 left-[-4%] h-[18px] w-[108%] text-pink"
                 >
-                  <path
-                    d="M2 5 Q 25 1, 50 5 T 98 5"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
+                  <path d="M2 5 Q 25 1, 50 5 T 98 5" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" />
                 </svg>
-              </span>{" "}
-              des <em className="font-semibold italic text-pink">13&nbsp;–&nbsp;17&nbsp;ans.</em>
+              </span>
+              .{" "}
+              <em className="font-semibold italic text-pink">Sans quémander.</em>
             </h1>
 
             <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink-2 sm:text-lg lg:mx-0">
-              Sorties, sport, études, créativité, social, shopping.{" "}
-              <b className="font-bold text-ink">Les ados gagnent en autonomie</b>, les parents gardent l'œil,
-              les partenaires créent les expériences.
+              Gagne des <b className="font-bold text-ink">XP</b> par l'effort — quiz, sport, défis — puis dépense tes{" "}
+              <b className="font-bold text-ink">coins</b> chez les vrais spots, avec ton crew. Ton coach Niv suit le mouvement.
             </p>
 
-            <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
+            <div className="mt-7 flex justify-center lg:justify-start">
               <Button asChild variant="pink" size="lg">
                 <Link href="/onboarding" prefetch={true}>
-                  {t("hero.ctaPrimary")} <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href="/agenda" prefetch={true}>
-                  <Calendar className="size-4" /> {t("nav.agenda")}
+                  Rejoindre Nivy <ArrowRight className="size-4" />
                 </Link>
               </Button>
             </div>
-
-            <ul className="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-2 font-mono text-[12.5px] tracking-[0.02em] text-mute lg:justify-start">
-              {["13–17 ans uniquement", "Contrôle parental", "BAM-conforme", "CNDP 09-08"].map((claim) => (
-                <li key={claim} className="inline-flex items-center gap-1.5">
-                  <span className="grid size-3.5 place-items-center rounded-full bg-lime text-[9px] font-extrabold text-white" aria-hidden="true">
-                    ✓
-                  </span>
-                  {claim}
-                </li>
-              ))}
-            </ul>
           </div>
 
-          {/* Niv + tokens orbitants (signature hero) */}
-          <div className="hidden justify-center lg:flex">
-            <OrbitingTokens
-              nivMood="hype"
-              size={420}
-              xp="+ 2 480"
-              coins="12 500"
-              level="Lvl 7"
-              streak="21 j"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ MARQUEE PARTENAIRES ═══════════════ */}
-      <Marquee items={PARTNERS} aria-label="Nos partenaires" />
-
-      {/* ═══════════════ 4 PILIERS ═══════════════ */}
-      <section className="px-6 py-24" aria-labelledby="pillars-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">L'écosystème lifestyle</p>
-            <h2 id="pillars-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Tout ce qui fait <em className="italic font-semibold text-pink">une vie d'ado</em>. Au même endroit.
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Chaque action devient une quête. Chaque effort rapporte des XP. Chaque sortie passe par tes coins.
-              C'est ça, vivre dans l'app.
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {PILLARS.map((p, i) => (
-              <StickerCard
-                key={p.tag}
-                variant="hover"
-                style={{ background: `color-mix(in oklch, var(--${p.tint}) 22%, var(--paper))` }}
-                className="relative min-h-[280px] justify-between overflow-hidden border-2 p-6"
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-4 top-3 font-display text-[88px] font-extrabold leading-none tracking-[-0.1em] text-ink/10"
-                >
-                  {p.num}
-                </span>
-                <div className="relative">
-                  <p className="mb-3 font-mono text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink-2">{p.tag}</p>
-                  <h3 className="font-display text-[30px] font-extrabold leading-none tracking-[-0.04em]">{p.title}</h3>
-                  <p className="mt-2 text-[13.5px] leading-snug text-ink-2">{p.desc}</p>
+          {/* Écran produit réel (Niv + XP/coins + quêtes) — visible mobile ET desktop */}
+          <div className="flex justify-center">
+            <PhoneMockup width={280}>
+              <PhoneScreen>
+                <div className="h-full overflow-hidden px-[18px] pb-[18px] pt-[50px]">
+                  <AdoScreen />
                 </div>
-                <div className="relative flex flex-wrap gap-1.5">
-                  {p.examples.map((ex) => (
-                    <span key={ex} className="rounded-full bg-ink/10 px-2.5 py-1 font-mono text-[11px] font-semibold">{ex}</span>
-                  ))}
-                </div>
-              </StickerCard>
-            ))}
+              </PhoneScreen>
+            </PhoneMockup>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════ EXPÉRIENCES ═══════════════ */}
-      <section className="px-6 py-24" aria-labelledby="experiences-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">Ce qui t'attend</p>
-            <h2 id="experiences-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Passe à <em className="italic font-semibold text-pink">l'action.</em>
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Tu n'entres pas par un menu, tu entres par une envie. Choisis ton truc, ton crew suit.
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {EXPERIENCES.map((xp) => (
-              <StickerCard key={xp.title} variant="hover" className="justify-between gap-4 p-6">
-                <div>
-                  <span className="grid size-[46px] place-items-center rounded-[13px] bg-ink text-[22px] text-paper" aria-hidden="true">
-                    {xp.icon}
-                  </span>
-                  <h3 className="mt-3.5 font-display text-2xl font-extrabold leading-tight tracking-[-0.03em]">{xp.title}</h3>
-                  <p className="mt-1.5 text-[14px] leading-relaxed text-ink-2">{xp.desc}</p>
-                </div>
-                <Button asChild variant="outline" className="w-full">
-                  <Link href={xp.href} prefetch={true}>
-                    {xp.cta} <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
-              </StickerCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ COMMENT ÇA TOURNE ═══════════════ */}
-      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="how-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">Comment ça tourne</p>
-            <h2 id="how-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Trois mouvements. Une seule <em className="italic font-semibold text-pink">économie.</em>
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Le parent finance, l'ado gagne et dépense, le partenaire encaisse — et 10 % du paiement revient en XP.
-              La boucle de fidélité tourne toute seule.
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {HOW_STEPS.map((s, i) => (
-              <StickerCard key={s.title} className="relative gap-3.5 p-7">
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-6 top-5 font-display text-[54px] font-extrabold leading-none tracking-[-0.05em] text-paper-2"
-                >
-                  0{i + 1}
-                </span>
-                <span className={`grid size-[46px] place-items-center rounded-[13px] text-[22px] text-white ${s.iconBg}`} aria-hidden="true">
-                  {s.icon}
-                </span>
-                <h3 className="font-display text-2xl font-extrabold leading-tight tracking-[-0.03em]">{s.title}</h3>
-                <p className="text-[14.5px] leading-relaxed text-ink-2">{s.desc}</p>
-                <p className="flex flex-wrap items-center gap-2 rounded-xl bg-paper px-3.5 py-2.5 font-mono text-xs font-semibold text-ink">
-                  {s.demo}
-                </p>
-              </StickerCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ DEUX MONNAIES (surface sombre) ═══════════════ */}
-      <section className="px-6 py-24 bg-ink text-paper" aria-labelledby="curr-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow text-paper/50">Le cœur du système</p>
-            <h2 id="curr-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Deux monnaies. Aucune <em className="italic font-semibold text-pink">conversion.</em>
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-paper/70 sm:text-lg">
-              L'XP récompense l'effort. Les coins paient les achats. Les deux ne se mélangent jamais —
-              c'est ce qui empêche que tout devienne un casino.
-            </p>
-          </div>
-
-          <div className="grid items-stretch gap-5 lg:grid-cols-[1fr_auto_1fr]">
-            <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
+      {/* ═══════════════ BARRE DE GARANTIE PARENT (vouvoyée) ═══════════════ */}
+      <section className="border-y-2 border-ink bg-paper-2" aria-label="Garanties parents">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 px-6 py-4 sm:grid-cols-3">
+          {[
+            { icon: Wallet, title: "Vos coins = vos dirhams", sub: ESCROW.short },
+            { icon: Ban, title: "L'XP ne devient jamais de l'argent", sub: "Aucun jeu d'argent, aucune crypto" },
+            { icon: RotateCcw, title: "Remboursé sous 30 jours", sub: "En DH, si vous arrêtez" },
+          ].map(({ icon: Icon, title, sub }) => (
+            <div key={title} className="flex items-center gap-3">
+              <span className="grid size-10 shrink-0 place-items-center rounded-lg border-2 border-ink bg-white text-ink" aria-hidden="true">
+                <Icon className="size-5" />
+              </span>
               <div>
-                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-gold">XP · l'effort</p>
-                <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
-                  2 480 <span className="ml-1 text-lg font-medium text-paper/60">niv. 7</span>
-                </p>
-                <p className="mt-3 text-sm text-paper/75">
-                  Se gagne par les quiz, défis sport, anniversaires, tâches maison, notes scolaires.
-                  Débloque skins, statuts, événements exclusifs.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5 font-mono text-[11.5px] font-semibold">
-                {["🧠 Quiz", "💪 Défis", "🎓 Notes", "🎂 Anniv", "⊙ Cashback"].map((g) => (
-                  <span key={g} className="rounded-full border border-paper/15 bg-paper/5 px-3 py-1.5">{g}</span>
-                ))}
+                <p className="text-sm font-semibold text-ink">{title}</p>
+                <p className="text-xs text-mute">{sub}</p>
               </div>
             </div>
-
-            <div className="flex flex-col items-center justify-center gap-3 text-center font-mono text-[11px] font-semibold tracking-[0.04em] text-paper/70">
-              <ArrowRight className="size-9 rotate-90 text-lime lg:rotate-0" aria-hidden="true" />
-              <span><b className="text-lime">Cashback 10 %</b><br />la seule passerelle</span>
-            </div>
-
-            <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
-              <div>
-                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-coral">Coins · le pouvoir d'achat</p>
-                <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
-                  12 500 <span className="ml-1 text-lg font-medium text-paper/60">≈ 125 DH</span>
-                </p>
-                <p className="mt-3 text-sm text-paper/75">
-                  Adossés au dirham, gardés en escrow chez un partenaire e-money agréé BAM.
-                  Se dépensent uniquement chez nos partenaires marocains.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5 font-mono text-[11.5px] font-semibold">
-                {["🛍 Boutiques", "🎟 Lieux", "⚽ Sport", "📚 Cours"].map((g) => (
-                  <span key={g} className="rounded-full border border-paper/15 bg-paper/5 px-3 py-1.5">{g}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <p className="mt-9 flex items-center gap-3.5 rounded-2xl border border-dashed border-pink/50 bg-pink/10 px-5 py-4 font-mono text-[13px] leading-relaxed text-pink-soft">
-            <b className="shrink-0 font-bold text-pink">RÈGLE D'OR ·</b>
-            Les XP ne se convertissent jamais en argent. Pas de jeu d'argent, pas de crypto.
-            Conformité BAM &amp; CNDP loi 09-08.
-          </p>
+          ))}
         </div>
       </section>
 
-      {/* ═══════════════ SÉCURITÉ / CONFIANCE ═══════════════ */}
-      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="trust-heading">
+      {/* ═══════════════ MARQUEE CATÉGORIES (honnête, pas d'enseignes inventées) ═══════════════ */}
+      <Marquee items={MARQUEE_CATEGORIES} aria-label="Catégories de partenaires, bientôt près de toi" />
+
+      {/* ═══════════════ AGENDA LIVE (remonté) ═══════════════ */}
+      <section className="px-6 py-20" aria-labelledby="events-heading">
         <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">Construit au Maroc</p>
-            <h2 id="trust-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Vos données. Notre <em className="italic font-semibold text-pink">obsession.</em>
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Nivy n'est pas une crypto, ni un jeu d'argent. C'est un produit financier marocain,
-              conçu avec les bonnes lois en tête.
-            </p>
-          </div>
-
-          <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-4">
-            {TRUST_CARDS.map((c) => (
-              <StickerCard key={c.title} variant="panel" className="gap-0 p-6">
-                <span className="mb-3.5 grid size-[38px] place-items-center rounded-[11px] bg-ink text-lg text-paper" aria-hidden="true">
-                  {c.icon}
-                </span>
-                <h4 className="font-display text-lg font-extrabold tracking-[-0.02em]">{c.title}</h4>
-                <p className="mt-1.5 text-[13px] leading-snug text-mute">{c.desc}</p>
-              </StickerCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ SWITCHER 3 PUBLICS ═══════════════ */}
-      <section className="px-6 py-24" aria-labelledby="audience-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mx-auto mb-10 max-w-2xl text-center">
-            <p className="eyebrow">Trois personnes, une seule app</p>
-            <h2 id="audience-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Choisis ton <em className="italic font-semibold text-pink">angle.</em>
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Le produit reste le même. Ce que tu vois, ce que tu fais, change selon qui tu es.
-            </p>
-          </div>
-
-          <div className="mb-9 flex justify-center">
-            <StickerTabs
-              ariaLabel="Choisir un public"
-              value={audience}
-              onValueChange={(v) => setAudience(v as Audience)}
-              tabs={[
-                { value: "parent", label: "Parent", icon: <Eye /> },
-                { value: "ado", label: "Ado · 13-17", icon: <Flame /> },
-                { value: "partenaire", label: "Partenaire", icon: <Zap /> },
-              ]}
-            />
-          </div>
-
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            {/* Colonne info */}
+          <div className="mb-10 flex flex-col items-end justify-between gap-4 md:flex-row">
             <div>
-              {audience === "parent" && (
-                <AudienceInfo
-                  title={<>L'autonomie de ton ado, <em className="italic font-semibold text-pink">sans le stress</em>.</>}
-                  lead="Recharge en DH, fixe les plafonds, valide ou laisse faire. Tu vois tout, tu choisis tout — et tu n'es plus le DAB de la maison."
-                  features={[
-                    { icon: "🎚", title: "Plafonds par enfant", desc: "Par transaction · jour · mois" },
-                    { icon: "🏠", title: "Tâches maison", desc: "« Vaisselle 5 jours = 100 DH »" },
-                    { icon: "📊", title: "Historique tracé", desc: "Audit 7 ans · catégorisé" },
-                    { icon: "👥", title: "Multi-parent", desc: "Le 1er qui valide gagne" },
-                  ]}
-                  primary={{ label: "Créer un compte parent", href: "/auth/sign-up" }}
-                  secondary={{ label: "Voir le guide parents", href: "/guide-parents" }}
-                />
-              )}
-              {audience === "ado" && (
-                <AudienceInfo
-                  title={<>Ton argent. Tes choix. <em className="italic font-semibold text-pink">Tes preuves.</em></>}
-                  lead="Plus besoin de quémander 50 DH. Tu as ton solde, ton coach Niv qui te connaît, des défis qui paient, un crew, un statut. Chaque effort compte — même IRL."
-                  features={[
-                    { icon: "🐼", title: "Niv, ton coach", desc: "5 humeurs · adapté à ton rythme" },
-                    { icon: "🧠", title: "Quiz à ton bac", desc: "Public · mission FR · British · IB" },
-                    { icon: "🤝", title: "Amis · Cercles · Crews", desc: "Joue en équipe, défie d'autres" },
-                    { icon: "🎂", title: "Anniv = +500 XP", desc: "Tes potes peuvent t'envoyer des vœux" },
-                  ]}
-                  primary={{ label: "Rejoindre Nivy", href: "/onboarding" }}
-                  secondary={{ label: "Voir l'agenda", href: "/agenda" }}
-                />
-              )}
-              {audience === "partenaire" && (
-                <AudienceInfo
-                  title={<>Une clientèle ado <em className="italic font-semibold text-pink">fidèle</em>. Qu'on t'amène.</>}
-                  lead="Quatre formules selon ton activité. Tu paies une commission par vente, jamais d'abonnement. Le cashback fait revenir tes clients — c'est tout l'intérêt."
-                  features={[
-                    { icon: "🛍", title: "Retail · 8 %", desc: "Mode, beauté, e-shops" },
-                    { icon: "🎟", title: "Venue · 10 %", desc: "Cafés, ciné, escape games" },
-                    { icon: "⚽", title: "Club · 12 %", desc: "Padel, danse, musique, scout" },
-                    { icon: "📚", title: "Éducation · 15 %", desc: "Soutien, tutorat, langues" },
-                  ]}
-                  primary={{ label: "Devenir partenaire", href: "/devenir-partenaire" }}
-                  secondary={{ label: "Calculer mon ROI", href: "/devenir-partenaire" }}
-                />
-              )}
-            </div>
-
-            {/* Écran téléphone */}
-            <div className="flex justify-center overflow-hidden">
-              <PhoneMockup>
-                <PhoneScreen>
-                  <div className="h-full overflow-hidden px-[18px] pb-[18px] pt-[50px]">
-                    {audience === "parent" && <ParentScreen />}
-                    {audience === "ado" && <AdoScreen />}
-                    {audience === "partenaire" && <PartnerScreen />}
-                  </div>
-                </PhoneScreen>
-              </PhoneMockup>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ TARIFS ═══════════════ */}
-      <section className="px-6 py-24" aria-labelledby="pricing-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">Tarifs famille</p>
-            <h2 id="pricing-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Plus tu donnes, plus tu <em className="italic font-semibold text-pink">économises.</em>
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Quatre paliers, des remises sur chaque recharge, zéro engagement. Free reste gratuit pour toujours.
-            </p>
-          </div>
-
-          <PricingGrid className="lg:grid-cols-4">
-            {PRICING_PLANS.map((plan) => (
-              <PricingSticker
-                key={plan.name}
-                name={plan.name}
-                price={plan.price}
-                per="/mois"
-                features={[...plan.features]}
-                popular={plan.popular}
-                niv={plan.popular ? "proud" : undefined}
-                cta={{ label: plan.cta, href: "/auth/sign-up" }}
-              />
-            ))}
-          </PricingGrid>
-        </div>
-      </section>
-
-      {/* ═══════════════ TÉMOIGNAGES (bêta) ═══════════════ */}
-      <section className="px-6 py-24" aria-labelledby="testi-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">Bêta · 200 familles · Casa &amp; Rabat</p>
-            <h2 id="testi-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Ce qu'ils <em className="italic font-semibold text-pink">en disent</em>.
-            </h2>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {TESTIMONIALS.map((tst, i) => (
-              <StickerCard
-                key={tst.name}
-                className={`relative gap-4 p-6 ${TESTI_TILT[i]}`}
-              >
-                <span className="absolute right-5 top-5 text-sm tracking-[1px] text-gold" aria-hidden="true">★★★★★</span>
-                <p className="flex-1 font-display text-lg font-semibold leading-snug tracking-[-0.01em] text-balance">
-                  {tst.quote}
-                </p>
-                <div className="flex items-center gap-3 border-t border-dashed border-line pt-3.5">
-                  <span className={`grid size-[42px] place-items-center rounded-full border-2 border-ink text-sm font-extrabold text-white ${tst.avBg}`} aria-hidden="true">
-                    {tst.initial}
-                  </span>
-                  <div className="text-[12.5px] leading-tight">
-                    <b className="block font-bold">{tst.name}</b>
-                    <span className="text-[11.5px] text-mute">{tst.role}</span>
-                  </div>
-                </div>
-              </StickerCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ FAQ ═══════════════ */}
-      <section className="px-6 py-24" aria-labelledby="faq-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="eyebrow">Questions fréquentes</p>
-            <h2 id="faq-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              On vous <em className="italic font-semibold text-pink">répond.</em>
-            </h2>
-          </div>
-
-          <div className="mx-auto max-w-3xl">
-            {FAQ.map((item, i) => {
-              const open = openFaq === i
-              return (
-                <div key={item.q} className="mb-2.5 overflow-hidden rounded-2xl border-2 border-ink bg-white shadow-stkr-sm">
-                  <button
-                    type="button"
-                    aria-expanded={open}
-                    onClick={() => setOpenFaq(open ? null : i)}
-                    className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left font-display text-lg font-bold leading-snug tracking-[-0.02em]"
-                  >
-                    {item.q}
-                    <span
-                      className={`grid size-[30px] shrink-0 place-items-center rounded-full border-2 border-ink text-lg font-bold transition-all ${open ? "rotate-45 bg-ink text-paper" : "text-ink"}`}
-                      aria-hidden="true"
-                    >
-                      <Plus className="size-4" />
-                    </span>
-                  </button>
-                  {open && (
-                    <p className="px-5 pb-5 text-[15px] leading-relaxed text-ink-2">{item.a}</p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ EVENTS ═══════════════ */}
-      <section className="border-y-2 border-ink bg-paper-2 px-6 py-20" aria-labelledby="events-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 flex flex-col items-end justify-between gap-4 md:flex-row">
-            <div>
-              <p className="eyebrow">Agenda</p>
-              <h2 id="events-heading" className="mt-3 font-display text-4xl font-extrabold tracking-[-0.04em] text-balance">
-                Events à venir
+              <p className="eyebrow">Agenda live</p>
+              <h2 id="events-heading" className="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-extrabold tracking-[-0.04em] text-balance">
+                Ce qui t'attend cette semaine
               </h2>
-              <p className="mt-1.5 text-mute">Ne rate pas les prochaines dates</p>
+              <p className="mt-1.5 text-mute">Les vraies prochaines dates près de chez toi</p>
             </div>
             <Button asChild variant="outline">
               <Link href="/agenda">
@@ -590,17 +183,13 @@ export default function HomePage() {
           </div>
 
           {eventsError && (
-            <div
-              role="alert"
-              className="mb-6 rounded-2xl border-2 border-ink bg-coral/15 px-4 py-3 text-sm font-medium text-ink"
-            >
+            <div role="alert" className="mb-6 rounded-2xl border-2 border-ink bg-coral/15 px-4 py-3 text-sm font-medium text-ink">
               {eventsError}
             </div>
           )}
 
           <div className="grid gap-6 md:grid-cols-3">
             {eventsLoading ? (
-              // Polish-F: skeleton placeholders while the client fetch resolves.
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={`evt-skel-${i}`}
@@ -651,6 +240,329 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ═══════════════ CE QUE TU FAIS DANS L'APP (piliers + expériences fusionnés) ═══════════════ */}
+      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="do-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="eyebrow">Ce que tu fais dans l'app</p>
+            <h2 id="do-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              Tu n'entres pas par un menu, <em className="italic font-semibold text-pink">tu entres par une envie.</em>
+            </h2>
+            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
+              Chaque action devient une quête. Chaque effort rapporte des XP. Chaque sortie passe par tes coins.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {DO_THINGS.map((p) => (
+              <StickerCard
+                key={p.title}
+                variant="hover"
+                style={{ background: `color-mix(in oklch, var(--${p.tint}) 22%, var(--paper))` }}
+                className="relative justify-between gap-4 overflow-hidden border-2 p-6"
+              >
+                <div className="relative">
+                  <span className="grid size-[46px] place-items-center rounded-[13px] border-2 border-ink bg-ink text-paper" aria-hidden="true">
+                    <p.icon className="size-5" />
+                  </span>
+                  <p className="mt-3.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink-2">{p.tag}</p>
+                  <h3 className="mt-1 font-display text-[26px] font-extrabold leading-none tracking-[-0.04em]">{p.title}</h3>
+                  <p className="mt-2 text-[13.5px] leading-snug text-ink-2">{p.desc}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {p.examples.map((ex) => (
+                      <span key={ex} className="rounded-full bg-ink/10 px-2.5 py-1 font-mono text-[11px] font-semibold">{ex}</span>
+                    ))}
+                  </div>
+                </div>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href={p.href} prefetch={true}>
+                    {p.cta} <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              </StickerCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ NIV, TON COACH ═══════════════ */}
+      <section className="px-6 py-24" aria-labelledby="niv-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid items-center gap-12 lg:grid-cols-[.85fr_1.15fr]">
+            <div>
+              <p className="eyebrow">Ton coach</p>
+              <h2 id="niv-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+                Niv te connaît, <em className="italic font-semibold text-pink">et te pousse.</em>
+              </h2>
+              <p className="mt-4 max-w-md text-base text-ink-2 sm:text-lg">
+                Ce n'est pas un menu de plus. C'est un panda à 5 humeurs qui te lance le quiz du jour,
+                te rappelle ton défi, célèbre tes level-up et t'aide quand tu bloques.
+              </p>
+              <div className="mt-7 flex justify-center lg:justify-start">
+                <Niv mood="hype" float size={132} />
+              </div>
+            </div>
+
+            <div className="grid gap-3.5 sm:grid-cols-2">
+              {NIV_USES.map((u) => (
+                <NivCoach key={u.label} mood={u.mood} tone={u.tone} message={
+                  <>
+                    <b className="mb-0.5 block font-mono text-[10.5px] font-bold uppercase tracking-[0.12em] text-pink">{u.label}</b>
+                    {u.message}
+                  </>
+                } />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ TON CREW ═══════════════ */}
+      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="crew-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="eyebrow">Jamais seul</p>
+            <h2 id="crew-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              Ton <em className="italic font-semibold text-pink">crew.</em> Ton quartier dans l'app.
+            </h2>
+            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
+              Rejoins ou crée ton crew, suis le feed, défie les autres cercles, grimpe les classements.
+              L'app a plus de saveur à plusieurs.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {CREW_FEATURES.map((c) => (
+              <StickerCard key={c.title} variant="hover" className="gap-3 p-6">
+                <span className="grid size-[46px] place-items-center rounded-[13px] border-2 border-ink bg-pink text-white" aria-hidden="true">
+                  <c.icon className="size-5" />
+                </span>
+                <h3 className="font-display text-xl font-extrabold leading-tight tracking-[-0.03em]">{c.title}</h3>
+                <p className="text-[13.5px] leading-relaxed text-ink-2">{c.desc}</p>
+              </StickerCard>
+            ))}
+          </div>
+
+          <DarkSurface tone="coral" shadow className="mt-5 flex flex-col items-start gap-5 p-7 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3.5">
+              <span className="grid size-12 shrink-0 place-items-center rounded-xl border-2 border-ink bg-night-2 text-coral" aria-hidden="true">
+                <Split className="size-6" />
+              </span>
+              <div>
+                <h3 className="font-display text-xl font-extrabold tracking-[-0.02em] text-paper">Une sortie groupée ? Chacun paie sa part.</h3>
+                <p className="mt-1 max-w-xl text-sm text-paper/70">
+                  Organise un plan avec ton crew : chacun met sa part, ça se débloque quand vous êtes assez.
+                  Pas un truc de paiement — un moment ensemble.
+                </p>
+              </div>
+            </div>
+            <Button asChild variant="pink">
+              <Link href="/teen/circles" prefetch={true}>
+                Rejoindre un crew <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </DarkSurface>
+        </div>
+      </section>
+
+      {/* ═══════════════ COMMENT ÇA MARCHE + DEUX MONNAIES ═══════════════ */}
+      <section className="px-6 py-24" aria-labelledby="how-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="eyebrow">Comment ça marche</p>
+            <h2 id="how-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              Trois mouvements. Une seule <em className="italic font-semibold text-pink">boucle.</em>
+            </h2>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {HOW_STEPS.map((s, i) => (
+              <StickerCard key={s.title} className="relative gap-3.5 p-7">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-6 top-5 font-display text-[54px] font-extrabold leading-none tracking-[-0.05em] text-paper-2"
+                >
+                  0{i + 1}
+                </span>
+                <span className={`grid size-[46px] place-items-center rounded-[13px] text-white ${s.iconBg}`} aria-hidden="true">
+                  <s.icon className="size-5" />
+                </span>
+                <h3 className="font-display text-2xl font-extrabold leading-tight tracking-[-0.03em]">{s.title}</h3>
+                <p className="text-[14.5px] leading-relaxed text-ink-2">{s.desc}</p>
+                <p className="flex flex-wrap items-center gap-2 rounded-xl bg-paper-2 px-3.5 py-2.5 font-mono text-xs font-semibold text-ink">
+                  {s.demo}
+                </p>
+              </StickerCard>
+            ))}
+          </div>
+
+          {/* Deux monnaies — surface sombre (rupture visuelle, dé-jargonnée) */}
+          <div className="mt-12 rounded-3xl border-2 border-ink bg-ink p-6 text-paper sm:p-10">
+            <div className="mb-8 max-w-2xl">
+              <p className="eyebrow text-paper/50">Le cœur du système</p>
+              <h3 className="mt-3 font-display text-[clamp(1.875rem,4vw,3rem)] font-extrabold leading-[0.97] tracking-[-0.03em] text-balance">
+                Deux monnaies. Aucune <em className="italic font-semibold text-pink">conversion.</em>
+              </h3>
+              <p className="mt-3 max-w-xl text-paper/70">
+                L'XP, c'est ce que tu gagnes par l'effort. Les coins, c'est ce que tu dépenses. Les deux ne se mélangent jamais.
+              </p>
+            </div>
+
+            <div className="grid items-stretch gap-5 lg:grid-cols-[1fr_auto_1fr]">
+              <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
+                <div>
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-gold">XP · l'effort</p>
+                  <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
+                    2 480 <span className="ml-1 text-lg font-medium text-paper/60">niv. 7</span>
+                  </p>
+                  <p className="mt-3 text-sm text-paper/75">
+                    Se gagne par les quiz, les défis sport, les anniversaires, les tâches maison et les notes.
+                    Débloque skins, statuts et events exclusifs.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-1.5 font-mono text-[11.5px] font-semibold">
+                  {["Quiz", "Défis", "Notes", "Anniv", "Cashback"].map((g) => (
+                    <span key={g} className="rounded-full border border-paper/15 bg-paper/5 px-3 py-1.5">{g}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-3 text-center font-mono text-[11px] font-semibold tracking-[0.04em] text-paper/70">
+                <ArrowRight className="size-9 rotate-90 text-lime lg:rotate-0" aria-hidden="true" />
+                <span><b className="text-lime">Cashback 10 %</b><br />la seule passerelle</span>
+              </div>
+
+              <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
+                <div>
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-coral">Coins · ton pouvoir d'achat</p>
+                  <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
+                    12 500 <span className="ml-1 text-lg font-medium text-paper/60">≈ 125 DH</span>
+                  </p>
+                  <p className="mt-3 text-sm text-paper/75">
+                    Tes vrais dirhams, gardés en sécurité. Se dépensent uniquement chez les spots partenaires marocains.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-1.5 font-mono text-[11.5px] font-semibold">
+                  {["Boutiques", "Lieux", "Sport", "Cours"].map((g) => (
+                    <span key={g} className="rounded-full border border-paper/15 bg-paper/5 px-3 py-1.5">{g}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-8 flex items-center gap-3.5 rounded-2xl border border-dashed border-pink/50 bg-pink/10 px-5 py-4 font-mono text-[13px] leading-relaxed text-pink-soft">
+              <b className="shrink-0 font-bold text-pink">RÈGLE D'OR ·</b>
+              L'XP ne se convertit jamais en argent. Pas de jeu d'argent, pas de crypto.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ PARENTS, VOUS GARDEZ LA MAIN (vouvoyé) ═══════════════ */}
+      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="parents-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <p className="eyebrow">Pour les parents</p>
+              <h2 id="parents-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+                Vous gardez <em className="italic font-semibold text-pink">la main.</em>
+              </h2>
+              <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
+                Vous rechargez en dirhams, vous fixez les plafonds, vous validez — ou vous laissez faire.
+                Vous voyez tout, vous choisissez tout.
+              </p>
+
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                {PARENT_CONTROLS.map((f) => (
+                  <StickerCard key={f.title} variant="panel" className="gap-1.5 p-4">
+                    <span className="grid size-[34px] place-items-center rounded-[9px] border-2 border-ink bg-pink text-white" aria-hidden="true">
+                      <f.icon className="size-4" />
+                    </span>
+                    <h4 className="text-[14.5px] font-bold leading-tight tracking-[-0.01em]">{f.title}</h4>
+                    <p className="text-[12.5px] leading-snug text-mute">{f.desc}</p>
+                  </StickerCard>
+                ))}
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                {PARENT_COMPLIANCE.map((c) => (
+                  <span key={c.label} className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-3 py-1.5 font-mono text-[11.5px] font-semibold">
+                    <c.icon className="size-3.5 text-ink-2" aria-hidden="true" />
+                    {c.label}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-7">
+                <Button asChild variant="pink" size="lg">
+                  <Link href="/parents" prefetch={true}>
+                    Tout savoir pour les parents <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* ParentScreen — preuve produit réelle */}
+            <div className="flex justify-center">
+              <PhoneMockup width={300}>
+                <PhoneScreen>
+                  <div className="h-full overflow-hidden px-[18px] pb-[18px] pt-[50px]">
+                    <ParentScreen />
+                  </div>
+                </PhoneScreen>
+              </PhoneMockup>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ FAQ (4 questions) ═══════════════ */}
+      <section className="px-6 py-24" aria-labelledby="faq-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="eyebrow">Questions fréquentes</p>
+            <h2 id="faq-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              On vous <em className="italic font-semibold text-pink">répond.</em>
+            </h2>
+          </div>
+
+          <div className="mx-auto max-w-3xl">
+            {FAQ.map((item, i) => {
+              const open = openFaq === i
+              return (
+                <div key={item.q} className="mb-2.5 overflow-hidden rounded-2xl border-2 border-ink bg-white shadow-stkr-sm">
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left font-display text-lg font-bold leading-snug tracking-[-0.02em]"
+                  >
+                    {item.q}
+                    <span
+                      className={`grid size-[30px] shrink-0 place-items-center rounded-full border-2 border-ink text-lg font-bold transition-all ${open ? "rotate-45 bg-ink text-paper" : "text-ink"}`}
+                      aria-hidden="true"
+                    >
+                      <Plus className="size-4" />
+                    </span>
+                  </button>
+                  {open && <p className="px-5 pb-5 text-[15px] leading-relaxed text-ink-2">{item.a}</p>}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ BÊTA (encart sobre, sans chiffre non vérifiable) ═══════════════ */}
+      <section className="px-6" aria-label="Bêta">
+        <div className="container mx-auto max-w-3xl text-center">
+          <p className="eyebrow">Bêta en cours</p>
+          <p className="mt-2 font-display text-xl font-bold tracking-[-0.02em] text-ink-2">
+            On démarre à Casablanca &amp; Rabat. Les premiers crews y construisent déjà leur quartier.
+          </p>
+        </div>
+      </section>
+
       {/* ═══════════════ CTA FINAL (surface sombre) ═══════════════ */}
       <section className="px-6 py-24" aria-labelledby="cta-heading">
         <div className="container mx-auto max-w-5xl">
@@ -661,21 +573,24 @@ export default function HomePage() {
                 Prêt·e à <em className="italic font-semibold text-pink">level up</em> ?
               </h2>
               <p className="mx-auto mt-5 max-w-lg text-base text-paper/75 sm:text-lg">
-                Une famille, deux monnaies, zéro galère. Inscris-toi en 60 secondes — l'app est gratuite,
-                et tu restes maître de tout.
+                Gagne tes premiers XP en 60 secondes. C'est gratuit, et c'est à toi.
               </p>
-              <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <div className="mt-8 flex justify-center">
                 <Button asChild variant="pink" size="lg">
-                  <Link href="/auth/sign-up" prefetch={true}>
-                    Créer mon profil <ArrowRight className="size-4" />
+                  <Link href="/onboarding" prefetch={true}>
+                    Rejoindre Nivy <ArrowRight className="size-4" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="border-paper text-paper hover:shadow-stkr-pink">
-                  <Link href="/a-propos" prefetch={true}>En savoir plus</Link>
-                </Button>
               </div>
-              <p className="mt-6 font-mono text-[12.5px] uppercase tracking-[0.1em] text-paper/50">
-                Parent ou ado · même inscription · bientôt sur l'App Store
+              <p className="mt-6 text-sm text-paper/70">
+                T'as un parent ?{" "}
+                <Link href="/parents" prefetch={true} className="font-semibold text-paper underline underline-offset-4 hover:text-pink">
+                  Tout est là pour le rassurer
+                </Link>
+                .
+              </p>
+              <p className="mt-4 font-mono text-[12.5px] uppercase tracking-[0.1em] text-paper/50">
+                Inscription unique · parent ou ado · bientôt sur l'App Store
               </p>
             </div>
           </DarkSurface>
@@ -687,195 +602,139 @@ export default function HomePage() {
 
 /* ════════════════════════ DONNÉES VITRINE (statiques) ════════════════════════ */
 
-const PILLARS = [
-  {
-    num: "01",
-    tag: "Glow Up",
-    title: "Sport & bien-être",
-    desc: "Padel, danse, yoga, salle, scout. Tes coachs certifient tes séances et te filent des XP en vrai.",
-    examples: ["Padel", "Danse", "Yoga", "Salle", "Scout"],
-    tint: "gold",
-  },
-  {
-    num: "02",
-    tag: "Big Brain",
-    title: "Études & quiz",
-    desc: "Public, mission FR, British, IB. Quiz du jour adapté à ton bac et à ta langue. Soutien et CPGE inclus.",
-    examples: ["Quiz", "Soutien", "CPGE", "Langues", "Mentor"],
-    tint: "lime",
-  },
-  {
-    num: "03",
-    tag: "Self-Express",
-    title: "Création & style",
-    desc: "Marketplace C2C, mode & beauté, ateliers musique, photo, design. Tu vends, tu shoppes, tu crées.",
-    examples: ["Marketplace", "Mode", "Musique", "Photo", "Design"],
-    tint: "pink",
-  },
-  {
-    num: "04",
-    tag: "Main Character",
-    title: "Sorties & crew",
-    desc: "Cafés, escape games, ciné, anniversaires, événements partenaires. Avec ton crew, jamais seul.",
-    examples: ["Cafés", "Ciné", "Escape", "Anniv", "Events"],
-    tint: "coral",
-  },
-] as const
+// Catégories honnêtes (pas de noms d'enseignes inventées). La primitive Marquee
+// est conservée pour réintroduire de VRAIS partenaires signés.
+const MARQUEE_CATEGORIES = [
+  "Padel",
+  "Cafés",
+  "Soutien scolaire",
+  "Events",
+  "Danse",
+  "Marketplace",
+  "Ciné",
+  "Anniversaires",
+]
 
-const EXPERIENCES = [
+// « Ce que tu fais » — fusion des anciens « 4 Piliers » et « Expériences ».
+const DO_THINGS = [
   {
-    icon: "🎟",
-    title: "Sorties & agenda",
-    desc: "Les prochaines dates près de chez toi. Cafés, ciné, events partenaires — tu repères, tu réserves.",
-    cta: "Voir l'agenda",
-    href: "/agenda",
-  },
-  {
-    icon: "⚽",
+    icon: Dumbbell,
+    tint: "gold",
+    tag: "Glow Up",
     title: "Sport & clubs",
-    desc: "Padel, danse, salle, scout. Trouve ton club, certifie tes séances, gagne des XP en vrai.",
+    desc: "Padel, danse, yoga, salle, scout. Tes coachs certifient tes séances et te filent des XP en vrai.",
+    examples: ["Padel", "Danse", "Salle", "Scout"],
     cta: "Explorer les clubs",
     href: "/clubs",
   },
   {
-    icon: "🤝",
-    title: "Le collectif",
-    desc: "Commandes groupées avec ton crew : chacun paie sa part, ça se débloque quand vous êtes assez.",
-    cta: "Lancer un plan",
+    icon: GraduationCap,
+    tint: "lime",
+    tag: "Big Brain",
+    title: "Études & quiz",
+    desc: "Quiz du jour adapté à ton bac et à ta langue. Soutien, langues et mentor inclus.",
+    examples: ["Quiz", "Soutien", "Langues", "Mentor"],
+    cta: "Voir les quiz",
+    href: "/teen/quiz",
+  },
+  {
+    icon: Palette,
+    tint: "pink",
+    tag: "Self-Express",
+    title: "Création & style",
+    desc: "Marketplace C2C, mode & beauté, musique, photo, design. Tu vends, tu shoppes, tu crées.",
+    examples: ["Marketplace", "Mode", "Musique", "Photo"],
+    cta: "Voir la marketplace",
+    href: "/marketplace",
+  },
+  {
+    icon: PartyPopper,
+    tint: "coral",
+    tag: "Main Character",
+    title: "Sorties & crew",
+    desc: "Cafés, escape games, ciné, anniversaires, events partenaires. Avec ton crew, jamais seul.",
+    examples: ["Cafés", "Ciné", "Escape", "Events"],
+    cta: "Voir l'agenda",
     href: "/agenda",
   },
 ] as const
 
+// « Niv, ton coach » — bulles de conversation réelles (≥3 usages, ≥2 humeurs).
+const NIV_USES = [
+  { label: "Quiz du jour", mood: "happy", tone: "dark", message: "Quiz d'histoire en 4 questions ce matin — t'es chaud ?" },
+  { label: "Ton défi", mood: "hype", tone: "paper", message: "Plus qu'une séance de padel pour boucler ton défi de la semaine. On y va ?" },
+  { label: "Level up", mood: "proud", tone: "paper", message: "Niveau 8 débloqué. Tu gères, vrai de vrai." },
+  { label: "Coup de main", mood: "calm", tone: "dark", message: "Bloqué sur tes maths ce soir ? Je te trouve un mentor en deux taps." },
+] as const
+
+// « Ton crew » — appartenance (distinct du collectif logistique).
+const CREW_FEATURES = [
+  { icon: Users, title: "Ton crew", desc: "Rejoins un cercle ou crée le tien. Tes potes, ton vibe, ton quartier dans l'app." },
+  { icon: MessagesSquare, title: "Feed & messages", desc: "Ce que fait ton crew en direct. On se chambre, on se motive, on s'organise." },
+  { icon: Trophy, title: "Défis entre cercles", desc: "Affronte d'autres crews, grimpe les classements, gagne du statut ensemble." },
+  { icon: PartyPopper, title: "Anniv = +500 XP", desc: "Le jour J, tes potes t'envoient leurs vœux et ça compte vraiment." },
+] as const
+
 const HOW_STEPS = [
   {
-    icon: "💳",
+    icon: CreditCard,
     iconBg: "bg-teal",
-    title: "Le parent recharge en DH",
-    desc: "Cash Plus, M2T, Wafacash ou carte bancaire. 1 DH = 100 coins, gardés en escrow chez un partenaire e-money agréé BAM.",
-    demo: <>+50 DH <b className="font-extrabold">→</b> 5 000 ⊙ <span className="text-mute">· escrow</span></>,
+    title: "Tu reçois des coins",
+    desc: "Tes parents rechargent en dirhams quand ils veulent. 1 DH = 100 coins, prêts à dépenser.",
+    demo: <>+50 DH <b className="font-extrabold">→</b> 5 000 ⊙</>,
   },
   {
-    icon: "⚡",
+    icon: Zap,
     iconBg: "bg-pink",
-    title: "L'ado joue, gagne, dépense",
-    desc: "Quiz adapté à son école, défis sport, tâches maison validées par les parents. Niv suit, conseille, célèbre.",
-    demo: <>Quiz du jour ✓ <b className="font-extrabold text-gold">+50 XP</b> <span className="text-mute">· niv. 7</span></>,
+    title: "Tu gagnes, tu joues",
+    desc: "Quiz à ton école, défis sport, tâches maison validées. Niv suit, te pousse et célèbre.",
+    demo: <>Quiz du jour <b className="font-extrabold text-gold">+50 XP</b> <span className="text-mute">· niv. 7</span></>,
   },
   {
-    icon: "🎯",
+    icon: QrCode,
     iconBg: "bg-coral",
-    title: "Le partenaire encaisse",
-    desc: "QR scanné, transaction validée, payout sous 7 jours. Le client repart avec du cashback en XP — et il revient.",
+    title: "Tu dépenses chez les vrais spots",
+    desc: "Padel, café, ciné, boutique. Tu scannes, tu profites — et tu récupères du cashback en XP.",
     demo: <>−120 ⊙ <b className="font-extrabold text-gold">+12 XP cashback</b></>,
   },
 ] as const
 
-const PRICING_PLANS = [
-  { name: "Free", price: "0 DH", popular: false, cta: "Commencer", features: ["1 enfant lié", "Plafonds & validation", "Historique 90 jours", "Notifications standard"] },
-  { name: "Silver", price: "29 DH", popular: false, cta: "Choisir Silver", features: ["3 enfants", "Push prioritaires", "Historique 1 an", "Co-parent inclus"] },
-  { name: "Gold", price: "79 DH", popular: true, cta: "Choisir Gold", features: ["5 enfants", "Aide scolaire incluse", "Skins exclusifs Niv", "Mode autonome avancé"] },
-  { name: "Platinum", price: "149 DH", popular: false, cta: "Choisir Platinum", features: ["Enfants illimités", "Mentor & coach dédié", "Anniversaires premium", "Conciergerie WhatsApp"] },
+// Contrôle parental (vouvoyé).
+const PARENT_CONTROLS = [
+  { icon: SlidersHorizontal, title: "Plafonds par enfant", desc: "Par transaction · jour · mois" },
+  { icon: CheckCheck, title: "Validation en un geste", desc: "Une notif, un tap pour approuver" },
+  { icon: Users, title: "Multi-parent", desc: "Le premier qui valide gagne" },
+  { icon: ScrollText, title: "Historique tracé", desc: "Chaque dépense, catégorisée" },
 ] as const
 
-const TRUST_CARDS = [
-  { icon: "🏦", title: "BAM-conforme", desc: "Coins en escrow chez un partenaire e-money agréé. Aucune crypto." },
-  { icon: "🛡", title: "CNDP loi 09-08", desc: "CIN privée, signed URLs 5 min, droit d'effacement." },
-  { icon: "📒", title: "Audit 7 ans", desc: "Comptabilité marocaine. Toute action admin tracée." },
-  { icon: "🌙", title: "Quiet hours", desc: "Aucune notif entre 22 h et 7 h. Ni à toi, ni à ton ado." },
+// Conformité (fusion de l'ancienne section Confiance).
+const PARENT_COMPLIANCE = [
+  { icon: ShieldCheck, label: "BAM-conforme" },
+  { icon: Lock, label: "CNDP loi 09-08" },
+  { icon: ScrollText, label: "Audit 7 ans" },
+  { icon: Moon, label: "Heures calmes 22 h–7 h" },
 ] as const
-
-const TESTIMONIALS = [
-  { quote: "« On ne se dispute plus pour 50 DH. Je vois où ça part, il a sa liberté. C'est exactement ce qu'il manquait. »", name: "Khadija B.", role: "Maman de 2 ados · Casa", initial: "K", avBg: "bg-teal" },
-  { quote: "« J'ai gagné 1 200 XP en deux semaines juste avec les quiz. Et avec mes coins j'ai pris ma première heure de padel sans demander. »", name: "Amine M.", role: "15 ans · 1ère bac · Rabat", initial: "A", avBg: "bg-pink" },
-  { quote: "« 35 nouveaux clients ados en 6 semaines, et la moitié sont revenus. Le QR scanner m'a pris 3 minutes à comprendre. »", name: "Yousra K.", role: "Librairie Carrefour · Casa", initial: "Y", avBg: "bg-coral" },
-] as const
-
-const TESTI_TILT = ["-rotate-1", "rotate-1", "-rotate-[0.5deg]"] as const
 
 const FAQ = [
   {
     q: "Mon ado peut-il convertir des XP en argent ?",
-    a: "Non, jamais. Les XP récompensent l'effort et débloquent du statut, des skins, des événements. Les coins, eux, sont adossés au dirham en escrow et se dépensent uniquement chez nos partenaires. Les deux ne se mélangent jamais — c'est volontaire.",
+    a: "Non, jamais. Les XP récompensent l'effort et débloquent du statut, des skins et des événements. Les coins, eux, sont adossés au dirham et se dépensent uniquement chez nos partenaires. Les deux ne se mélangent jamais — c'est volontaire.",
+  },
+  {
+    q: "Mon ado peut-il dépenser sans mon accord ?",
+    a: "Vous choisissez. Mode autonome avec plafonds (par transaction, jour et mois) ou validation systématique. Au-dessus du plafond, vous recevez une notification : un appui pour approuver. Si vous êtes deux parents, le premier qui répond valide.",
   },
   {
     q: "Que se passe-t-il si je supprime le compte ?",
     a: "Les coins non dépensés sont remboursés en DH sur votre moyen de paiement initial sous 30 jours. Les données personnelles sont anonymisées (CNDP loi 09-08, droit à l'oubli). Les écritures comptables sont conservées 7 ans, comme l'exige la loi marocaine.",
   },
   {
-    q: "Combien ça coûte vraiment ?",
-    a: "Free à vie : 0 DH. Silver 29, Gold 79, Platinum 149 DH/mois — chacun avec −2 / −5 / −8 % sur vos recharges. Aucun frais caché sur les transactions. Les partenaires paient une commission, pas vous.",
-  },
-  {
-    q: "Mon ado peut-il dépenser sans mon accord ?",
-    a: "Vous choisissez. Mode autonome avec plafonds (par transaction · jour · mois) ou validation systématique. Au-dessus du plafond, vous recevez une push : 1 tap pour approuver. Si vous êtes deux parents, le premier qui répond valide.",
-  },
-  {
     q: "C'est légal au Maroc ?",
-    a: "Oui. Les coins sont une balance comptable adossée à des dirhams gardés en escrow chez un partenaire e-money agréé BAM (Cash Plus / Wafacash / M2T). Pas de crypto (illégale au Maroc). CNDP loi 09-08 sur les données. Audit comptable 7 ans.",
-  },
-  {
-    q: "Comment devient-on partenaire ?",
-    a: "Inscription en ligne, KYC sous 48h, premier QR scanner activé sous 7 jours. Quatre formules selon l'activité (retail 8 %, venue 10 %, club 12 %, éducation 15 %). Aucun abonnement, juste une commission par vente.",
+    a: `Oui. ${ESCROW.statement} Pas de crypto (illégale au Maroc), pas de jeu d'argent. Protection des données conforme à la loi 09-08 (CNDP) et comptabilité auditée sur 7 ans.`,
   },
 ] as const
 
-/* ════════════════════════ SOUS-COMPOSANTS PRÉSENTATIONNELS ════════════════════════ */
-
-interface AudienceFeature {
-  icon: string
-  title: string
-  desc: string
-}
-interface AudienceCta {
-  label: string
-  href: string
-}
-
-function AudienceInfo({
-  title,
-  lead,
-  features,
-  primary,
-  secondary,
-}: {
-  title: React.ReactNode
-  lead: string
-  features: AudienceFeature[]
-  primary: AudienceCta
-  secondary: AudienceCta
-}) {
-  return (
-    <div>
-      <h3 className="font-display text-[clamp(1.875rem,4vw,2.875rem)] font-extrabold leading-none tracking-[-0.04em] text-balance">
-        {title}
-      </h3>
-      <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">{lead}</p>
-      <div className="mt-7 grid gap-3 sm:grid-cols-2">
-        {features.map((f) => (
-          <StickerCard key={f.title} variant="hover" className="gap-1.5 p-4">
-            <span className="grid size-[34px] place-items-center rounded-[9px] bg-ink text-base text-white" aria-hidden="true">
-              {f.icon}
-            </span>
-            <h4 className="font-bold leading-tight tracking-[-0.01em] text-[14.5px]">{f.title}</h4>
-            <p className="text-[12.5px] leading-snug text-mute">{f.desc}</p>
-          </StickerCard>
-        ))}
-      </div>
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Button asChild variant="pink">
-          <Link href={primary.href}>{primary.label}</Link>
-        </Button>
-        <Button asChild variant="ghost">
-          <Link href={secondary.href}>
-            {secondary.label} <ArrowRight className="size-4" />
-          </Link>
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-/* ── Écrans téléphone (UI vitrine illustrative, valeurs statiques du handoff) ── */
+/* ════════════════════════ ÉCRANS TÉLÉPHONE (preuve produit) ════════════════════════ */
 
 function ParentScreen() {
   return (
@@ -892,7 +751,7 @@ function ParentScreen() {
         <p className="my-1 font-display text-[34px] font-extrabold leading-none tracking-[-0.04em]">
           285 <span className="text-sm font-medium text-paper/75">DH</span>
         </p>
-        <p className="text-[11px] text-paper/75">28 500 coins · escrow Cash Plus</p>
+        <p className="text-[11px] text-paper/75">28 500 coins · prépayés en DH</p>
       </div>
       <ScreenKid avBg="bg-pink" initial="A" name="Amine, 15 ans" meta="Niv. 7 · 2 480 XP" bal="12 500 ⊙" sub="autonome" />
       <ScreenKid avBg="bg-coral" initial="Y" name="Yasmine, 13 ans" meta="Niv. 4 · 950 XP" bal="16 000 ⊙" sub="validation" />
@@ -900,7 +759,7 @@ function ParentScreen() {
         <div className="mb-1.5 flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-ink-2">
           <span>● Demande</span><span>il y a 2 min</span>
         </div>
-        <p className="mb-2 text-[13px] font-semibold leading-snug">Yasmine veut acheter un livre à <b>45 DH</b> chez Librairie Carrefour</p>
+        <p className="mb-2 text-[13px] font-semibold leading-snug">Yasmine veut acheter un livre à <b>45 DH</b></p>
         <div className="flex gap-1.5">
           <span className="flex-1 rounded-lg bg-ink py-2 text-center text-[11.5px] font-bold text-paper">Approuver</span>
           <span className="flex-1 rounded-lg border-2 border-ink-2 py-2 text-center text-[11.5px] font-bold text-ink-2">Refuser</span>
@@ -931,49 +790,9 @@ function AdoScreen() {
         <ScreenStat label="XP · Niv 7" value="2 480" valueColor="text-gold" barColor="bg-gold" barW="w-[62%]" />
         <ScreenStat label="Coins" value="12 500" valueColor="text-coral" barColor="bg-coral" barW="w-[38%]" />
       </div>
-      <ScreenQuest emoji="🧠" title="Quiz d'histoire 1ère bac" meta="Quotidien · expire à 23h59" reward="+50 XP" rewardColor="text-gold" />
-      <ScreenQuest emoji="💪" title="Padel avec ton crew" meta="Hebdo · 2/3 séances" reward="+250 XP" rewardColor="text-gold" />
-      <ScreenQuest emoji="🏠" title="Vaisselle 5 jours" meta="Maman · 3/5 jours" reward="+100 DH" rewardColor="text-lime" />
-    </>
-  )
-}
-
-function PartnerScreen() {
-  return (
-    <>
-      <div className="mb-3.5 flex items-center justify-between">
-        <div className="font-display text-[22px] font-bold leading-none tracking-[-0.02em]">
-          <small className="mb-0.5 block font-sans text-[11px] font-medium text-mute">Padel</small>
-          Sqala
-        </div>
-        <span className="grid size-[38px] place-items-center rounded-full bg-coral text-sm font-bold text-white" aria-hidden="true">P</span>
-      </div>
-      <div className="mb-2.5 rounded-2xl bg-ink p-4 text-center text-paper">
-        <span className="mx-auto mb-2.5 block size-[110px] rounded-xl border-4 border-white bg-[repeating-conic-gradient(#fff_0_25%,#000_0_50%)] bg-[length:18px_18px]" aria-hidden="true" />
-        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-paper/75">Scanner ouvert</p>
-        <p className="my-1 font-display text-2xl font-extrabold tracking-[-0.03em]">−120 ⊙</p>
-        <p className="text-[11px] text-paper/75">Amine M. · Pack 1h padel</p>
-      </div>
-      <div className="mb-2.5 rounded-2xl border-2 border-ink bg-white p-3">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-mute">Aujourd'hui</span>
-          <span className="font-display text-xl font-extrabold tracking-[-0.02em] text-lime">847 DH</span>
-        </div>
-        {[
-          ["14:20 · Amine M.", "120 ⊙"],
-          ["13:45 · Sara B.", "200 ⊙"],
-          ["12:10 · Crew Anfa", "450 ⊙"],
-          ["11:30 · Mehdi K.", "77 ⊙"],
-        ].map(([who, vv]) => (
-          <div key={who} className="flex justify-between border-b border-dashed border-line py-1 text-[11.5px] last:border-0">
-            <span className="text-ink-2">{who}</span>
-            <span className="font-mono font-bold">{vv}</span>
-          </div>
-        ))}
-      </div>
-      <div className="rounded-xl border-2 border-lime bg-lime/15 px-3 py-2.5 font-mono text-[11.5px] font-semibold text-ink">
-        <b>+12 % nouveaux clients</b> ce mois · payout vendredi
-      </div>
+      <ScreenQuest icon={<Brain className="size-4 text-ink" />} title="Quiz d'histoire 1ère bac" meta="Quotidien · expire à 23h59" reward="+50 XP" rewardColor="text-gold" />
+      <ScreenQuest icon={<Dumbbell className="size-4 text-ink" />} title="Padel avec ton crew" meta="Hebdo · 2/3 séances" reward="+250 XP" rewardColor="text-gold" />
+      <ScreenQuest icon={<Home className="size-4 text-ink" />} title="Vaisselle 5 jours" meta="Maman · 3/5 jours" reward="+100 DH" rewardColor="text-lime" />
     </>
   )
 }
@@ -1005,10 +824,10 @@ function ScreenStat({ label, value, valueColor, barColor, barW }: { label: strin
   )
 }
 
-function ScreenQuest({ emoji, title, meta, reward, rewardColor }: { emoji: string; title: string; meta: string; reward: string; rewardColor: string }) {
+function ScreenQuest({ icon, title, meta, reward, rewardColor }: { icon: React.ReactNode; title: string; meta: string; reward: string; rewardColor: string }) {
   return (
     <div className="mb-1.5 flex items-center justify-between gap-2.5 rounded-xl border border-line bg-white p-2.5">
-      <span className="text-lg" aria-hidden="true">{emoji}</span>
+      <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-paper-2" aria-hidden="true">{icon}</span>
       <div className="min-w-0 flex-1">
         <p className="text-[12px] font-bold leading-tight">{title}</p>
         <p className="mt-0.5 text-[10px] text-mute">{meta}</p>
