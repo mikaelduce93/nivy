@@ -1,7 +1,7 @@
 {
   "brand": {
     "name": "NIVY",
-    "tagline": "Teen life, unleashed.",
+    "tagline": "Le hub lifestyle des 13-17 ans.",
     "subtitle": "Le 1er Ecosysteme Lifestyle pour les 13-17 ans au Maroc."
   },
   "nav": {
@@ -25,16 +25,16 @@
     "ariaLogo": "NIVY - Accueil"
   },
   "hero": {
-    "live": "Prochaine soiree dans {days}j {hours}h",
-    "headlineLine1": "TEEN LIFE",
-    "headlineLine2": "UNLEASHED",
+    "live": "Le hub lifestyle des 13-17 ans",
+    "headlineLine1": "TON LIFESTYLE",
+    "headlineLine2": "TON TERRAIN",
     "subtitle": "Bienvenue dans le 1er Ecosysteme Lifestyle pour les 13-17 ans au Maroc.",
-    "pillars": "Soirees, sport, etudes, creativite. Choisis ta vibe.",
+    "pillars": "Sport & clubs, etudes, creation, sorties & crew. Choisis ta vibe.",
     "ctaPrimary": "Rejoins le club",
     "ctaSecondary": "Voir l'agenda",
     "trustSafe": "100% Securise",
     "trustAge": "13-17 ans",
-    "trustNoAlcohol": "0% Alcool",
+    "trustNoAlcohol": "Controle parental",
     "previewBadge": "Apercu",
     "previewTitle": "Ton tableau de bord",
     "previewDesc": "Voila a quoi ressemble ton dashboard une fois inscrit",
@@ -210,7 +210,7 @@
     "loading": "Chargement..."
   },
   "footer": {
-    "tagline": "L'app safe & fun pour les 13-17 ans au Maroc. Soirees, clubs et defis IRL, 0% alcool.",
+    "tagline": "L'ecosysteme lifestyle des 13-17 ans au Maroc : sport, etudes, creation, sorties — XP & coins, controle parental inclus.",
     "essentials": "Essentiels",
     "contact": "Contact",
     "navigation": "Navigation",

@@ -8,38 +8,22 @@ import {
   Calendar,
   Users,
   Trophy,
-  Ticket,
   User,
   LogOut,
-  Settings,
-  Gift,
-  Award,
-  ShieldCheck,
   HelpCircle,
   Cake,
-  CreditCard,
   Search,
   ChevronDown,
   Music,
-  Gamepad2,
   Palette,
   Dumbbell,
-  Theater,
-  MapPin,
-  Clock,
-  DollarSign,
   Star,
-  Heart,
   Sparkles,
-  Handshake,
-  Zap,
-  Target,
   Users2,
-  Coins,
 } from "lucide-react"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { SearchModal } from "@/components/search"
 import { PandaLogo } from "@/components/brand/panda-logo"
@@ -54,8 +38,6 @@ export function Navbar() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const pathname = usePathname()
-  const isHome = pathname === "/"
 
   const supabase = createClient()
 
@@ -131,199 +113,74 @@ export function Navbar() {
     megaMenu?: MenuSection[]
   }
 
-  const fullMenuItems: MenuItem[] = [
+  // Taxonomie lifestyle-first : 4 piliers identiques sur toutes les pages.
+  // On entre par CE QU'ON FAIT. Mêmes cibles dans navbar / footer / mobile-dock.
+  const menuItems: MenuItem[] = [
     {
-      id: "evenements",
-      label: "Agenda",
+      id: "sport-clubs",
+      label: "Sport & clubs",
+      icon: Dumbbell,
+      href: "/clubs",
+      megaMenu: [
+        {
+          title: "Explorer",
+          items: [
+            { label: "Clubs", href: "/clubs", icon: Trophy },
+            { label: "Agenda", href: "/agenda", icon: Calendar },
+            { label: "Devenir coach", href: "/devenir-coach", icon: Dumbbell },
+          ],
+        },
+      ],
+    },
+    {
+      id: "etudes",
+      label: "Études",
+      icon: HelpCircle,
+      href: "/aide",
+      megaMenu: [
+        {
+          title: "Explorer",
+          items: [
+            { label: "Trouver un mentor", href: "/devenir-mentor", icon: Users },
+            { label: "Trouver un prof", href: "/devenir-teacher", icon: Star },
+            { label: "Centre d'aide", href: "/aide", icon: HelpCircle },
+          ],
+        },
+      ],
+    },
+    {
+      id: "creation",
+      label: "Création",
+      icon: Palette,
+      href: "/galerie",
+      megaMenu: [
+        {
+          title: "Explorer",
+          items: [
+            { label: "Galerie", href: "/galerie", icon: Palette },
+            { label: "DJs", href: "/djs", icon: Music },
+            { label: "Devenir créateur", href: "/devenir-createur", icon: Sparkles },
+          ],
+        },
+      ],
+    },
+    {
+      id: "sorties-crew",
+      label: "Sorties & crew",
       icon: Calendar,
       href: "/agenda",
       megaMenu: [
         {
           title: "Explorer",
           items: [
-            { label: "Tous les événements", href: "/agenda", icon: Calendar },
-            { label: "Ce weekend", href: "/agenda?filter=weekend", icon: Clock },
-            { label: "Événements populaires", href: "/agenda?sort=popular", icon: Star },
-          ],
-        },
-        {
-          title: "Par ville",
-          items: [
-            { label: "Casablanca", href: "/agenda?city=casablanca", icon: MapPin },
-            { label: "Marrakech", href: "/agenda?city=marrakech", icon: MapPin },
-            { label: "Rabat", href: "/agenda?city=rabat", icon: MapPin },
-            { label: "Tanger", href: "/agenda?city=tanger", icon: MapPin },
-          ],
-        },
-        {
-          title: "Par type",
-          items: [
-            { label: "Soirées", href: "/agenda?type=party", icon: Sparkles },
-            { label: "Gaming", href: "/agenda?type=gaming", icon: Gamepad2 },
-            { label: "Sport", href: "/agenda?type=sport", icon: Dumbbell },
-            { label: "Culture", href: "/agenda?type=culture", icon: Theater },
+            { label: "Agenda", href: "/agenda", icon: Calendar },
+            { label: "Anniversaires", href: "/anniversaires", icon: Cake },
+            { label: "Communauté", href: "/communaute", icon: Users2 },
           ],
         },
       ],
-    },
-    {
-      id: "anniversaires",
-      label: "Anniversaires",
-      icon: Cake,
-      href: "/anniversaires",
-      megaMenu: [
-        {
-          title: "Formules",
-          items: [
-            { label: "Pack Essential", href: "/anniversaires#essential", icon: Cake },
-            { label: "Pack Gold", href: "/anniversaires#gold", icon: Award },
-            { label: "Pack Platinum", href: "/anniversaires#platinum", icon: Star },
-            { label: "Pack Diamond", href: "/anniversaires#diamond", icon: Sparkles },
-          ],
-        },
-        {
-          title: "Services",
-          items: [
-            { label: "Configurateur", href: "/anniversaires", icon: Settings },
-            { label: "Galerie photos", href: "/anniversaires#galerie", icon: MapPin },
-            { label: "Témoignages", href: "/anniversaires#temoignages", icon: Heart },
-            { label: "FAQ Anniversaires", href: "/anniversaires#faq", icon: HelpCircle },
-          ],
-        },
-      ],
-    },
-    {
-      id: "clubs",
-      label: "Clubs",
-      icon: Trophy,
-      href: "/clubs",
-      megaMenu: [
-        {
-          title: "Nos clubs",
-          items: [
-            { label: "Club Danse", href: "/clubs?category=dance", icon: Music },
-            { label: "Club Gaming", href: "/clubs?category=gaming", icon: Gamepad2 },
-            { label: "Club Créatif", href: "/clubs?category=creative", icon: Palette },
-            { label: "Club Sport", href: "/clubs?category=sport", icon: Dumbbell },
-          ],
-        },
-        {
-          title: "Inscription",
-          items: [
-            { label: "Essai gratuit", href: "/clubs#trial", icon: Gift },
-            { label: "Abonnements", href: "/clubs#pricing", icon: DollarSign },
-            { label: "Planning", href: "/clubs#planning", icon: Calendar },
-          ],
-        },
-      ],
-    },
-    {
-      id: "programmes",
-      label: "Programmes",
-      icon: Sparkles,
-      href: "/gamification",
-      megaMenu: [
-        {
-          title: "Level Up",
-          items: [
-            { label: "Mon niveau", href: "/gamification", icon: Zap },
-            { label: "Missions du jour", href: "/teen/quests", icon: Target },
-            { label: "Mes badges", href: "/teen/wallet?tab=badges", icon: Award },
-            { label: "Ma collection", href: "/teen/wallet?tab=badges", icon: Gift },
-          ],
-        },
-        {
-          title: "Carte VIP",
-          items: [
-            { label: "Silver (Gratuit)", href: "/carte-vip#silver", icon: Award },
-            { label: "Gold (299dh/an)", href: "/carte-vip#gold", icon: Star },
-            { label: "Platinum (599dh/an)", href: "/carte-vip#platinum", icon: Sparkles },
-            { label: "Récompenses", href: "/carte-vip/recompenses", icon: Gift },
-            { label: "Partenaires", href: "/carte-vip#partenaires", icon: Handshake },
-            { label: "Parrainage", href: "/carte-vip#parrainage", icon: Heart },
-          ],
-        },
-      ],
-    },
-    {
-      id: "opportunites",
-      label: "Opportunités",
-      icon: Handshake,
-      href: "/devenir-partenaire",
-      megaMenu: [
-        {
-          title: "Collabore avec nous",
-          items: [
-            { label: "Devenir Ambassadeur", href: "/devenir-ambassadeur", icon: Award },
-            { label: "Devenir Partenaire", href: "/devenir-partenaire", icon: Handshake },
-            { label: "Devenir Influenceur", href: "/devenir-influenceur", icon: Sparkles },
-          ],
-        },
-      ],
-    },
-    {
-      id: "mon-espace",
-      label: "Mon Espace",
-      icon: User,
-      href: user ? "/espace" : "/auth/login",
-      megaMenu: user
-        ? [
-            {
-              title: "Mon espace",
-              items: [
-                { label: "Tableau de bord", href: "/espace", icon: User },
-                { label: "Mes réservations", href: "/espace", icon: Ticket },
-                { label: "Mes clubs", href: "/espace", icon: Trophy },
-              ],
-            },
-            {
-              title: "Compte",
-              items: [
-                { label: "Mon profil", href: "/espace", icon: Settings },
-                { label: "Aide", href: "/aide", icon: HelpCircle },
-              ],
-            },
-          ]
-        : [
-            {
-              title: "Connexion",
-              items: [
-                { label: "Se connecter", href: "/auth/login", icon: User },
-                { label: "S'inscrire", href: "/auth/sign-up", icon: Sparkles },
-              ],
-            },
-          ],
     },
   ]
-
-  const homeMenuItems: MenuItem[] = [
-    {
-      id: "agenda",
-      label: "Agenda",
-      icon: Calendar,
-      href: "/agenda",
-    },
-    {
-      id: "anniversaires",
-      label: "Anniversaires",
-      icon: Cake,
-      href: "/anniversaires",
-    },
-    {
-      id: "clubs",
-      label: "Clubs",
-      icon: Trophy,
-      href: "/clubs",
-    },
-    {
-      id: "parents",
-      label: "Parents",
-      icon: ShieldCheck,
-      href: "/guide-parents",
-    },
-  ]
-
-  const menuItems = isHome ? homeMenuItems : fullMenuItems
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-paper/90 backdrop-blur-md border-b-2 border-ink">
@@ -428,21 +285,17 @@ export function Navbar() {
               </div>
             ))}
 
-            {!isHome && (
-              <>
-                {/* Search Button */}
-                <button
-                  onClick={() => setSearchOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors ml-2"
-                  aria-label="Rechercher (Ctrl+K)"
-                >
-                  <Search className="w-4 h-4" />
-                  <kbd className="hidden lg:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-                    <span className="text-xs">⌘</span>K
-                  </kbd>
-                </button>
-              </>
-            )}
+            {/* Search Button */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors ml-2"
+              aria-label="Rechercher (Ctrl+K)"
+            >
+              <Search className="w-4 h-4" />
+              <kbd className="hidden lg:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </button>
           </div>
 
           {/* Desktop CTA */}
@@ -458,21 +311,29 @@ export function Navbar() {
                     {t("nav.login")}
                   </Button>
                 </Link>
-                <Link href="/auth/sign-up" prefetch={true}>
+                <Link href="/onboarding" prefetch={true}>
                   <Button size="sm">{t("nav.signup")}</Button>
                 </Link>
               </>
             )}
             {user && (
-              <Button
-                onClick={handleLogout}
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive/80"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                {t("nav.logout")}
-              </Button>
+              <>
+                <Link href="/espace" prefetch={true}>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    <User className="w-4 h-4 mr-2" />
+                    Mon espace
+                  </Button>
+                </Link>
+                <Button
+                  onClick={handleLogout}
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive/80"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  {t("nav.logout")}
+                </Button>
+              </>
             )}
             {/* i18n: locale switcher (FR-only in V1; greyed-out for AR/Darija/EN). */}
             <LocaleSwitcher variant="compact" />
@@ -538,6 +399,17 @@ export function Navbar() {
 
             {/* Mobile User Actions */}
             <div className="pt-4 border-t border-border space-y-2">
+              <Button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  setSearchOpen(true)
+                }}
+                variant="outline"
+                className="w-full"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Rechercher
+              </Button>
               {!user ? (
                 <>
                   <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
@@ -545,22 +417,30 @@ export function Navbar() {
                       {t("nav.login")}
                     </Button>
                   </Link>
-                  <Link href="/auth/sign-up" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/onboarding" onClick={() => setMobileMenuOpen(false)}>
                     <Button className="w-full">{t("nav.signup")}</Button>
                   </Link>
                 </>
               ) : (
-                <Button
-                  onClick={() => {
-                    handleLogout()
-                    setMobileMenuOpen(false)
-                  }}
-                  variant="outline"
-                  className="w-full text-destructive border-destructive/20 hover:bg-destructive/10"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  {t("nav.logout")}
-                </Button>
+                <>
+                  <Link href="/espace" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      <User className="w-4 h-4 mr-2" />
+                      Mon espace
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={() => {
+                      handleLogout()
+                      setMobileMenuOpen(false)
+                    }}
+                    variant="outline"
+                    className="w-full text-destructive border-destructive/20 hover:bg-destructive/10"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    {t("nav.logout")}
+                  </Button>
+                </>
               )}
             </div>
           </div>

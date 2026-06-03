@@ -42,7 +42,6 @@ type Audience = (typeof AUDIENCES)[number]
 
 export default function HomePage() {
   const t = useT()
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [audience, setAudience] = useState<Audience>("parent")
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([])
@@ -50,40 +49,6 @@ export default function HomePage() {
   // (instead of a blank flash) and a non-blocking error banner on failure.
   const [eventsLoading, setEventsLoading] = useState(true)
   const [eventsError, setEventsError] = useState<string | null>(null)
-
-  useEffect(() => {
-    // Dynamically compute countdown to next event or fallback to next Saturday 17h
-    const getNextEventDate = () => {
-      if (upcomingEvents.length > 0 && upcomingEvents[0].event_date) {
-        return new Date(upcomingEvents[0].event_date)
-      }
-      // Fallback: next Saturday at 17h
-      const now = new Date()
-      const nextSaturday = new Date(now)
-      nextSaturday.setDate(now.getDate() + ((6 - now.getDay() + 7) % 7 || 7))
-      nextSaturday.setHours(17, 0, 0, 0)
-      return nextSaturday
-    }
-
-    const timer = setInterval(() => {
-      const targetDate = getNextEventDate()
-      const now = new Date().getTime()
-      const distance = targetDate.getTime() - now
-
-      if (distance < 0) {
-        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-        return
-      }
-
-      setCountdown({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      })
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [upcomingEvents])
 
   useEffect(() => {
     let active = true
@@ -129,14 +94,10 @@ export default function HomePage() {
         <div className="container mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_.95fr]">
           {/* Colonne éditoriale */}
           <div className="text-center lg:text-left">
-            {/* Pill countdown (réutilise l'i18n hero.live) */}
-            <span
-              className="mb-6 inline-flex items-center gap-2 rounded-full bg-ink px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-paper"
-              role="status"
-              aria-live="polite"
-            >
+            {/* Pill statique charte (point lime + libellé mono UPPERCASE) */}
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full bg-ink px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-paper">
               <span className="size-1.5 rounded-full bg-lime motion-safe:animate-pulse" aria-hidden="true" />
-              <span className="tabular-nums">{t("hero.live", { days: countdown.days, hours: countdown.hours })}</span>
+              <span>Le hub lifestyle des 13–17 ans</span>
             </span>
 
             <h1 className="font-display text-[clamp(2.75rem,7.4vw,5.375rem)] font-extrabold leading-[0.92] tracking-[-0.03em] text-balance">
@@ -181,7 +142,7 @@ export default function HomePage() {
             </div>
 
             <ul className="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-2 font-mono text-[12.5px] tracking-[0.02em] text-mute lg:justify-start">
-              {["13–17 ans uniquement", "Sans alcool", "BAM-conforme", "CNDP 09-08"].map((claim) => (
+              {["13–17 ans uniquement", "Contrôle parental", "BAM-conforme", "CNDP 09-08"].map((claim) => (
                 <li key={claim} className="inline-flex items-center gap-1.5">
                   <span className="grid size-3.5 place-items-center rounded-full bg-lime text-[9px] font-extrabold text-white" aria-hidden="true">
                     ✓
@@ -208,6 +169,214 @@ export default function HomePage() {
 
       {/* ═══════════════ MARQUEE PARTENAIRES ═══════════════ */}
       <Marquee items={PARTNERS} aria-label="Nos partenaires" />
+
+      {/* ═══════════════ 4 PILIERS ═══════════════ */}
+      <section className="px-6 py-24" aria-labelledby="pillars-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="eyebrow">L'écosystème lifestyle</p>
+            <h2 id="pillars-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              Tout ce qui fait <em className="italic font-semibold text-pink">une vie d'ado</em>. Au même endroit.
+            </h2>
+            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
+              Chaque action devient une quête. Chaque effort rapporte des XP. Chaque sortie passe par tes coins.
+              C'est ça, vivre dans l'app.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {PILLARS.map((p, i) => (
+              <StickerCard
+                key={p.tag}
+                variant="hover"
+                style={{ background: `color-mix(in oklch, var(--${p.tint}) 22%, var(--paper))` }}
+                className="relative min-h-[280px] justify-between overflow-hidden border-2 p-6"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-4 top-3 font-display text-[88px] font-extrabold leading-none tracking-[-0.1em] text-ink/10"
+                >
+                  {p.num}
+                </span>
+                <div className="relative">
+                  <p className="mb-3 font-mono text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink-2">{p.tag}</p>
+                  <h3 className="font-display text-[30px] font-extrabold leading-none tracking-[-0.04em]">{p.title}</h3>
+                  <p className="mt-2 text-[13.5px] leading-snug text-ink-2">{p.desc}</p>
+                </div>
+                <div className="relative flex flex-wrap gap-1.5">
+                  {p.examples.map((ex) => (
+                    <span key={ex} className="rounded-full bg-ink/10 px-2.5 py-1 font-mono text-[11px] font-semibold">{ex}</span>
+                  ))}
+                </div>
+              </StickerCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ EXPÉRIENCES ═══════════════ */}
+      <section className="px-6 py-24" aria-labelledby="experiences-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="eyebrow">Ce qui t'attend</p>
+            <h2 id="experiences-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              Passe à <em className="italic font-semibold text-pink">l'action.</em>
+            </h2>
+            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
+              Tu n'entres pas par un menu, tu entres par une envie. Choisis ton truc, ton crew suit.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {EXPERIENCES.map((xp) => (
+              <StickerCard key={xp.title} variant="hover" className="justify-between gap-4 p-6">
+                <div>
+                  <span className="grid size-[46px] place-items-center rounded-[13px] bg-ink text-[22px] text-paper" aria-hidden="true">
+                    {xp.icon}
+                  </span>
+                  <h3 className="mt-3.5 font-display text-2xl font-extrabold leading-tight tracking-[-0.03em]">{xp.title}</h3>
+                  <p className="mt-1.5 text-[14px] leading-relaxed text-ink-2">{xp.desc}</p>
+                </div>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href={xp.href} prefetch={true}>
+                    {xp.cta} <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              </StickerCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ COMMENT ÇA TOURNE ═══════════════ */}
+      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="how-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="eyebrow">Comment ça tourne</p>
+            <h2 id="how-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              Trois mouvements. Une seule <em className="italic font-semibold text-pink">économie.</em>
+            </h2>
+            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
+              Le parent finance, l'ado gagne et dépense, le partenaire encaisse — et 10 % du paiement revient en XP.
+              La boucle de fidélité tourne toute seule.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {HOW_STEPS.map((s, i) => (
+              <StickerCard key={s.title} className="relative gap-3.5 p-7">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-6 top-5 font-display text-[54px] font-extrabold leading-none tracking-[-0.05em] text-paper-2"
+                >
+                  0{i + 1}
+                </span>
+                <span className={`grid size-[46px] place-items-center rounded-[13px] text-[22px] text-white ${s.iconBg}`} aria-hidden="true">
+                  {s.icon}
+                </span>
+                <h3 className="font-display text-2xl font-extrabold leading-tight tracking-[-0.03em]">{s.title}</h3>
+                <p className="text-[14.5px] leading-relaxed text-ink-2">{s.desc}</p>
+                <p className="flex flex-wrap items-center gap-2 rounded-xl bg-paper px-3.5 py-2.5 font-mono text-xs font-semibold text-ink">
+                  {s.demo}
+                </p>
+              </StickerCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ DEUX MONNAIES (surface sombre) ═══════════════ */}
+      <section className="px-6 py-24 bg-ink text-paper" aria-labelledby="curr-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="eyebrow text-paper/50">Le cœur du système</p>
+            <h2 id="curr-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              Deux monnaies. Aucune <em className="italic font-semibold text-pink">conversion.</em>
+            </h2>
+            <p className="mt-4 max-w-xl text-base text-paper/70 sm:text-lg">
+              L'XP récompense l'effort. Les coins paient les achats. Les deux ne se mélangent jamais —
+              c'est ce qui empêche que tout devienne un casino.
+            </p>
+          </div>
+
+          <div className="grid items-stretch gap-5 lg:grid-cols-[1fr_auto_1fr]">
+            <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
+              <div>
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-gold">XP · l'effort</p>
+                <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
+                  2 480 <span className="ml-1 text-lg font-medium text-paper/60">niv. 7</span>
+                </p>
+                <p className="mt-3 text-sm text-paper/75">
+                  Se gagne par les quiz, défis sport, anniversaires, tâches maison, notes scolaires.
+                  Débloque skins, statuts, événements exclusifs.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5 font-mono text-[11.5px] font-semibold">
+                {["🧠 Quiz", "💪 Défis", "🎓 Notes", "🎂 Anniv", "⊙ Cashback"].map((g) => (
+                  <span key={g} className="rounded-full border border-paper/15 bg-paper/5 px-3 py-1.5">{g}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center justify-center gap-3 text-center font-mono text-[11px] font-semibold tracking-[0.04em] text-paper/70">
+              <ArrowRight className="size-9 rotate-90 text-lime lg:rotate-0" aria-hidden="true" />
+              <span><b className="text-lime">Cashback 10 %</b><br />la seule passerelle</span>
+            </div>
+
+            <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
+              <div>
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-coral">Coins · le pouvoir d'achat</p>
+                <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
+                  12 500 <span className="ml-1 text-lg font-medium text-paper/60">≈ 125 DH</span>
+                </p>
+                <p className="mt-3 text-sm text-paper/75">
+                  Adossés au dirham, gardés en escrow chez un partenaire e-money agréé BAM.
+                  Se dépensent uniquement chez nos partenaires marocains.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5 font-mono text-[11.5px] font-semibold">
+                {["🛍 Boutiques", "🎟 Lieux", "⚽ Sport", "📚 Cours"].map((g) => (
+                  <span key={g} className="rounded-full border border-paper/15 bg-paper/5 px-3 py-1.5">{g}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-9 flex items-center gap-3.5 rounded-2xl border border-dashed border-pink/50 bg-pink/10 px-5 py-4 font-mono text-[13px] leading-relaxed text-pink-soft">
+            <b className="shrink-0 font-bold text-pink">RÈGLE D'OR ·</b>
+            Les XP ne se convertissent jamais en argent. Pas de jeu d'argent, pas de crypto.
+            Conformité BAM &amp; CNDP loi 09-08.
+          </p>
+        </div>
+      </section>
+
+      {/* ═══════════════ SÉCURITÉ / CONFIANCE ═══════════════ */}
+      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="trust-heading">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="eyebrow">Construit au Maroc</p>
+            <h2 id="trust-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
+              Vos données. Notre <em className="italic font-semibold text-pink">obsession.</em>
+            </h2>
+            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
+              Nivy n'est pas une crypto, ni un jeu d'argent. C'est un produit financier marocain,
+              conçu avec les bonnes lois en tête.
+            </p>
+          </div>
+
+          <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-4">
+            {TRUST_CARDS.map((c) => (
+              <StickerCard key={c.title} variant="panel" className="gap-0 p-6">
+                <span className="mb-3.5 grid size-[38px] place-items-center rounded-[11px] bg-ink text-lg text-paper" aria-hidden="true">
+                  {c.icon}
+                </span>
+                <h4 className="font-display text-lg font-extrabold tracking-[-0.02em]">{c.title}</h4>
+                <p className="mt-1.5 text-[13px] leading-snug text-mute">{c.desc}</p>
+              </StickerCard>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ═══════════════ SWITCHER 3 PUBLICS ═══════════════ */}
       <section className="px-6 py-24" aria-labelledby="audience-heading">
@@ -298,152 +467,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════ DEUX MONNAIES (surface sombre) ═══════════════ */}
-      <section className="px-6 py-24 bg-ink text-paper" aria-labelledby="curr-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow text-paper/50">Le cœur du système</p>
-            <h2 id="curr-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Deux monnaies. Aucune <em className="italic font-semibold text-pink">conversion.</em>
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-paper/70 sm:text-lg">
-              L'XP récompense l'effort. Les coins paient les achats. Les deux ne se mélangent jamais —
-              c'est ce qui empêche que tout devienne un casino.
-            </p>
-          </div>
-
-          <div className="grid items-stretch gap-5 lg:grid-cols-[1fr_auto_1fr]">
-            <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
-              <div>
-                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-gold">XP · l'effort</p>
-                <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
-                  2 480 <span className="ml-1 text-lg font-medium text-paper/60">niv. 7</span>
-                </p>
-                <p className="mt-3 text-sm text-paper/75">
-                  Se gagne par les quiz, défis sport, anniversaires, tâches maison, notes scolaires.
-                  Débloque skins, statuts, événements exclusifs.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5 font-mono text-[11.5px] font-semibold">
-                {["🧠 Quiz", "💪 Défis", "🎓 Notes", "🎂 Anniv", "⊙ Cashback"].map((g) => (
-                  <span key={g} className="rounded-full border border-paper/15 bg-paper/5 px-3 py-1.5">{g}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center justify-center gap-3 text-center font-mono text-[11px] font-semibold tracking-[0.04em] text-paper/70">
-              <ArrowRight className="size-9 rotate-90 text-lime lg:rotate-0" aria-hidden="true" />
-              <span><b className="text-lime">Cashback 10 %</b><br />la seule passerelle</span>
-            </div>
-
-            <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-ink bg-night-2 p-8">
-              <div>
-                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-coral">Coins · le pouvoir d'achat</p>
-                <p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
-                  12 500 <span className="ml-1 text-lg font-medium text-paper/60">≈ 125 DH</span>
-                </p>
-                <p className="mt-3 text-sm text-paper/75">
-                  Adossés au dirham, gardés en escrow chez un partenaire e-money agréé BAM.
-                  Se dépensent uniquement chez nos partenaires marocains.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5 font-mono text-[11.5px] font-semibold">
-                {["🛍 Boutiques", "🎟 Lieux", "⚽ Sport", "📚 Cours"].map((g) => (
-                  <span key={g} className="rounded-full border border-paper/15 bg-paper/5 px-3 py-1.5">{g}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <p className="mt-9 flex items-center gap-3.5 rounded-2xl border border-dashed border-pink/50 bg-pink/10 px-5 py-4 font-mono text-[13px] leading-relaxed text-pink-soft">
-            <b className="shrink-0 font-bold text-pink">RÈGLE D'OR ·</b>
-            Les XP ne se convertissent jamais en argent. Pas de jeu d'argent, pas de crypto.
-            Conformité BAM &amp; CNDP loi 09-08.
-          </p>
-        </div>
-      </section>
-
-      {/* ═══════════════ 4 PILIERS ═══════════════ */}
-      <section className="px-6 py-24" aria-labelledby="pillars-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">L'écosystème lifestyle</p>
-            <h2 id="pillars-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Tout ce qui fait <em className="italic font-semibold text-pink">une vie d'ado</em>. Au même endroit.
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Chaque action devient une quête. Chaque effort rapporte des XP. Chaque sortie passe par tes coins.
-              C'est ça, vivre dans l'app.
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {PILLARS.map((p, i) => (
-              <StickerCard
-                key={p.tag}
-                variant="hover"
-                style={{ background: `color-mix(in oklch, var(--${p.tint}) 22%, var(--paper))` }}
-                className="relative min-h-[280px] justify-between overflow-hidden border-2 p-6"
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-4 top-3 font-display text-[88px] font-extrabold leading-none tracking-[-0.1em] text-ink/10"
-                >
-                  {p.num}
-                </span>
-                <div className="relative">
-                  <p className="mb-3 font-mono text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink-2">{p.tag}</p>
-                  <h3 className="font-display text-[30px] font-extrabold leading-none tracking-[-0.04em]">{p.title}</h3>
-                  <p className="mt-2 text-[13.5px] leading-snug text-ink-2">{p.desc}</p>
-                </div>
-                <div className="relative flex flex-wrap gap-1.5">
-                  {p.examples.map((ex) => (
-                    <span key={ex} className="rounded-full bg-ink/10 px-2.5 py-1 font-mono text-[11px] font-semibold">{ex}</span>
-                  ))}
-                </div>
-              </StickerCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ COMMENT ÇA TOURNE ═══════════════ */}
-      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="how-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">Comment ça tourne</p>
-            <h2 id="how-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Trois mouvements. Une seule <em className="italic font-semibold text-pink">économie.</em>
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Le parent finance, l'ado gagne et dépense, le partenaire encaisse — et 10 % du paiement revient en XP.
-              La boucle de fidélité tourne toute seule.
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {HOW_STEPS.map((s, i) => (
-              <StickerCard key={s.title} className="relative gap-3.5 p-7">
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-6 top-5 font-display text-[54px] font-extrabold leading-none tracking-[-0.05em] text-paper-2"
-                >
-                  0{i + 1}
-                </span>
-                <span className={`grid size-[46px] place-items-center rounded-[13px] text-[22px] text-white ${s.iconBg}`} aria-hidden="true">
-                  {s.icon}
-                </span>
-                <h3 className="font-display text-2xl font-extrabold leading-tight tracking-[-0.03em]">{s.title}</h3>
-                <p className="text-[14.5px] leading-relaxed text-ink-2">{s.desc}</p>
-                <p className="flex flex-wrap items-center gap-2 rounded-xl bg-paper px-3.5 py-2.5 font-mono text-xs font-semibold text-ink">
-                  {s.demo}
-                </p>
-              </StickerCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ═══════════════ TARIFS ═══════════════ */}
       <section className="px-6 py-24" aria-labelledby="pricing-heading">
         <div className="container mx-auto max-w-7xl">
@@ -471,34 +494,6 @@ export default function HomePage() {
               />
             ))}
           </PricingGrid>
-        </div>
-      </section>
-
-      {/* ═══════════════ SÉCURITÉ / CONFIANCE ═══════════════ */}
-      <section className="border-y-2 border-ink bg-paper-2 px-6 py-24" aria-labelledby="trust-heading">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow">Construit au Maroc</p>
-            <h2 id="trust-heading" className="mt-3 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-balance">
-              Vos données. Notre <em className="italic font-semibold text-pink">obsession.</em>
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-ink-2 sm:text-lg">
-              Nivy n'est pas une crypto, ni un jeu d'argent. C'est un produit financier marocain,
-              conçu avec les bonnes lois en tête.
-            </p>
-          </div>
-
-          <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-4">
-            {TRUST_CARDS.map((c) => (
-              <StickerCard key={c.title} variant="panel" className="gap-0 p-6">
-                <span className="mb-3.5 grid size-[38px] place-items-center rounded-[11px] bg-ink text-lg text-paper" aria-hidden="true">
-                  {c.icon}
-                </span>
-                <h4 className="font-display text-lg font-extrabold tracking-[-0.02em]">{c.title}</h4>
-                <p className="mt-1.5 text-[13px] leading-snug text-mute">{c.desc}</p>
-              </StickerCard>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -724,6 +719,30 @@ const PILLARS = [
     desc: "Cafés, escape games, ciné, anniversaires, événements partenaires. Avec ton crew, jamais seul.",
     examples: ["Cafés", "Ciné", "Escape", "Anniv", "Events"],
     tint: "coral",
+  },
+] as const
+
+const EXPERIENCES = [
+  {
+    icon: "🎟",
+    title: "Sorties & agenda",
+    desc: "Les prochaines dates près de chez toi. Cafés, ciné, events partenaires — tu repères, tu réserves.",
+    cta: "Voir l'agenda",
+    href: "/agenda",
+  },
+  {
+    icon: "⚽",
+    title: "Sport & clubs",
+    desc: "Padel, danse, salle, scout. Trouve ton club, certifie tes séances, gagne des XP en vrai.",
+    cta: "Explorer les clubs",
+    href: "/clubs",
+  },
+  {
+    icon: "🤝",
+    title: "Le collectif",
+    desc: "Commandes groupées avec ton crew : chacun paie sa part, ça se débloque quand vous êtes assez.",
+    cta: "Lancer un plan",
+    href: "/agenda",
   },
 ] as const
 

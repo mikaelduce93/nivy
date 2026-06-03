@@ -10,9 +10,6 @@ import {
   Wallet,
   User,
   Calendar,
-  Cake,
-  Trophy,
-  Sparkles,
   Tag,
   BarChart3,
   Settings,
@@ -23,6 +20,9 @@ import {
   CalendarCheck,
   UserCog,
   Clock,
+  Dumbbell,
+  GraduationCap,
+  Palette,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
@@ -307,40 +307,41 @@ export function MobileDock() {
     },
   ]
 
+  // Lifestyle-first — aligned 1:1 with the navbar's 4 piliers (Sport &
+  // clubs → /clubs, Études → /aide, Création → /galerie, Sorties & crew →
+  // /agenda) plus the Espace router CTA. Same taxonomy as navbar/footer.
   const publicNavItems: NavItem[] = [
     {
-      label: "Agenda",
-      href: "/agenda",
-      icon: Calendar,
-      color: "rgb(196, 181, 253)",
-      glowColor: "rgba(196, 181, 253, 0.5)",
-    },
-    {
-      label: "Anniv",
-      href: "/anniversaires",
-      icon: Cake,
-      color: "rgb(253, 164, 175)",
-      glowColor: "rgba(253, 164, 175, 0.5)",
-    },
-    {
-      label: "Clubs",
+      label: "Sport",
       href: "/clubs",
-      icon: Trophy,
+      icon: Dumbbell,
       color: "rgb(190, 242, 100)",
       glowColor: "rgba(190, 242, 100, 0.5)",
     },
     {
-      // Wave 5A — /gamification is a 308 redirect (canon §2 sunset).
-      // Point public dock straight at /teen so we don't bounce.
-      label: "XP",
-      href: "/teen",
-      icon: Sparkles,
+      label: "Études",
+      href: "/aide",
+      icon: GraduationCap,
       color: "rgb(125, 211, 252)",
       glowColor: "rgba(125, 211, 252, 0.5)",
     },
     {
-      // Wave 5A — /espace is a 308 redirect to /auth/redirect (role
-      // router). Point dock straight at the router.
+      label: "Création",
+      href: "/galerie",
+      icon: Palette,
+      color: "rgb(196, 181, 253)",
+      glowColor: "rgba(196, 181, 253, 0.5)",
+    },
+    {
+      label: "Sorties",
+      href: "/agenda",
+      icon: Calendar,
+      color: "rgb(253, 164, 175)",
+      glowColor: "rgba(253, 164, 175, 0.5)",
+    },
+    {
+      // /espace is a 308 redirect to /auth/redirect (role router). Point
+      // the dock straight at the router.
       label: "Espace",
       href: "/auth/redirect",
       icon: User,

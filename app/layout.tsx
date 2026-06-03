@@ -64,14 +64,13 @@ export const metadata: Metadata = {
   keywords: [
     "Nivy",
     "lifestyle ados Maroc",
+    "hub lifestyle adolescents",
     "gamification adolescents",
-    "soirées ados Maroc",
-    "événements adolescents sécurisés",
     "Nivy Casablanca",
     "Nivy Marrakech",
-    "sans alcool",
     "13-17 ans",
     "contrôle parental",
+    "wallet prépayé ados",
     "XP récompenses ados",
   ],
   authors: [{ name: "Nivy", url: APP_CONFIG.appUrl }],
@@ -190,34 +189,34 @@ export default async function RootLayout({
               "mainEntity": [
                 {
                   "@type": "Question",
-                  "name": "Quelle est la tranche d'âge acceptée ?",
+                  "name": "Qu'est-ce que NIVY ?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Nos soirées sont réservées aux adolescents de 13 à 17 ans inclus. Un contrôle d'identité est effectué à l'entrée."
+                    "text": "NIVY est le hub lifestyle gamifié des 13–17 ans au Maroc. On y entre par ce qu'on fait : 4 piliers — Sport & clubs, Études, Création, Sorties & crew. Tout est réuni dans une seule app, avec une progression par XP et un contrôle parental natif."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "Les soirées sont-elles sécurisées ?",
+                  "name": "Comment fonctionnent les XP et les coins ?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Absolument ! Nous disposons d'une équipe de sécurité professionnelle, de surveillants formés, et d'un encadrement permanent. Zéro alcool, sortie avant 23h."
+                    "text": "Les XP récompensent l'effort et la régularité : ils ne sont jamais convertibles en argent. Les coins sont une monnaie prépayée adossée au dirham (DH), conservée en escrow auprès d'un établissement de monnaie électronique agréé par Bank Al-Maghrib, et servent à payer les services de l'app."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "Y a-t-il de l'alcool ?",
+                  "name": "Quel contrôle les parents gardent-ils ?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Non, aucun alcool n'est servi. Nous proposons une large sélection de boissons sans alcool, jus de fruits et sodas à volonté."
+                    "text": "Les parents disposent d'un contrôle natif : plafonds de dépense, validation des actions sensibles et historique complet des dépenses et activités de leur ado. Rien n'échappe au compte parental lié."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "Comment réserver des billets ?",
+                  "name": "NIVY est-il légal et sûr au Maroc ?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Vous pouvez réserver vos billets directement en ligne via notre billetterie. Les billets électroniques sont envoyés par email avec un code QR."
+                    "text": "Oui. NIVY est conçu pour les 13–17 ans dans le respect du cadre marocain : monnaie électronique encadrée par Bank Al-Maghrib (BAM) et protection des données conforme à la loi 09-08 (CNDP). Aucune crypto-monnaie, aucun jeu d'argent — les coins restent une simple monnaie prépayée en dirhams."
                   }
                 }
               ]
@@ -247,28 +246,23 @@ export default async function RootLayout({
             {/* Global ambient background (mesh gradient + grain) */}
             <AmbientBackground />
 
-            {/* Main navigation */}
+            {/* Main navigation (responsive handled inside Navbar) */}
             <nav id="main-navigation" aria-label="Navigation principale">
-              <div className="hidden md:block">
-                <Navbar />
-              </div>
-              <div className="md:hidden">
-                <Navbar /> {/* Keep top navbar for logo/notifs on mobile but potentially simplified */}
-              </div>
+              <Navbar />
             </nav>
 
-            {/* Main content */}
+            {/* Main content — pb-24 clears the mobile dock, reset on md+ */}
             <main id="main-content" className="min-h-screen pb-24 md:pb-0" tabIndex={-1}>
               {children}
             </main>
 
-            <div className="hidden md:block">
+            {/* Footer rendu une seule fois (responsive géré dans le composant) ;
+                pb-dock dégage la barre de bas de page sous le dock mobile fixe,
+                annulé en md+ où le dock disparaît. */}
+            <div className="pb-dock md:pb-0">
               <Footer />
             </div>
-            <div className="md:hidden pb-24">
-              <Footer />
-            </div>
-            
+
             <CookieBanner />
 
             {/* Mobile Dock Navigation */}
