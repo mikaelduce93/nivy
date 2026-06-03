@@ -18,7 +18,7 @@ import { getT } from "@/lib/i18n/server"
 import { rideStatusLabel } from "@/lib/i18n/status-labels"
 import type { Translator } from "@/lib/i18n"
 import Link from "next/link"
-import { Plus, MapPin, Car } from "lucide-react"
+import { Plus, MapPin, Car, Users, ChevronRight } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -101,6 +101,21 @@ export default async function TeenRidesPage() {
           </Button>
         </Link>
       </div>
+
+      <Link href="/teen/rides/groups" className="block">
+        <StickerCard variant="hover" className="flex-row items-center gap-3 p-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-pink/20">
+            <Users className="h-5 w-5 text-ink" aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-ink">Sorties à plusieurs</p>
+            <p className="text-xs text-mute">
+              Organise un trajet groupé, invite tes amis et partagez la note.
+            </p>
+          </div>
+          <ChevronRight className="h-5 w-5 shrink-0 text-mute" aria-hidden />
+        </StickerCard>
+      </Link>
 
       <section className="space-y-3">
         <h2 className="font-mono text-[12px] font-bold uppercase tracking-[0.16em] text-mute">

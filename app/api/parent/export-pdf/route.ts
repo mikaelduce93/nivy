@@ -44,7 +44,7 @@ export const POST = withSecurity(
       // Verify user is a parent
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role, full_name, email, phone")
+        .select("role, full_name, email")
         .eq("id", user.id)
         .single()
 
@@ -73,22 +73,58 @@ export const POST = withSecurity(
       const effectiveStartDate = startDate || defaultStartDate.toISOString()
       const effectiveEndDate = endDate || defaultEndDate.toISOString()
 
-      // Get parent's teens
-      let teensQuery = supabase
-        .from("profiles")
-        .select("id, pseudo, full_name, avatar_url")
+      // Get parent's teens. profiles has no parent_id/pseudo (drift): resolve
+      // the linked teen ids via parent_teen_links, then read pseudo from teens
+      // (with full_name fallback from profiles, like get_user_crew).
+      const { data: links } = await supabase
+        .from("parent_teen_links")
+        .select("teen_id")
         .eq("parent_id", user.id)
-        .eq("role", "teen")
 
+      let linkedTeenIds = (links || []).map((l) => l.teen_id as string)
       if (teenId) {
-        teensQuery = teensQuery.eq("id", teenId)
+        linkedTeenIds = linkedTeenIds.filter((id) => id === teenId)
       }
 
-      const { data: teens } = await teensQuery
+      let teens: Array<{
+        id: string
+        pseudo: string | null
+        full_name: string | null
+        avatar_url: string | null
+      }> = []
+
+      if (linkedTeenIds.length > 0) {
+        const [{ data: teenRows }, { data: teenProfiles }] = await Promise.all([
+          supabase
+            .from("teens")
+            .select("id, pseudo, avatar_url")
+            .in("id", linkedTeenIds),
+          supabase
+            .from("profiles")
+            .select("id, full_name, avatar_url")
+            .in("id", linkedTeenIds),
+        ])
+
+        const profileById = new Map(
+          (teenProfiles || []).map((p) => [p.id as string, p])
+        )
+
+        teens = (teenRows || []).map((t) => {
+          const p = profileById.get(t.id as string)
+          return {
+            id: t.id as string,
+            pseudo: (t.pseudo as string | null) ?? p?.full_name ?? null,
+            full_name: p?.full_name ?? null,
+            avatar_url: (t.avatar_url as string | null) ?? p?.avatar_url ?? null,
+          }
+        })
+      }
 
       // Get bookings
       let bookingsData: any[] = []
       if (type === "bookings" || type === "full") {
+        // V9 #270 — bookings.parent_id n'existe pas ; filtrer par les teens liés (bookings.user_id)
+        const teenIds = teens?.map((t) => t.id) || []
         const { data: bookings } = await supabase
           .from("bookings")
           .select(`
@@ -110,12 +146,11 @@ export const POST = withSecurity(
             ),
             booking_tickets (
               profiles:child_id (
-                pseudo,
                 full_name
               )
             )
           `)
-          .eq("parent_id", user.id)
+          .in("user_id", teenIds)
           .gte("created_at", effectiveStartDate)
           .lte("created_at", effectiveEndDate)
           .order("created_at", { ascending: false })
@@ -139,7 +174,6 @@ export const POST = withSecurity(
               reference_type,
               created_at,
               profiles:teen_id (
-                pseudo,
                 full_name
               )
             `)
@@ -161,11 +195,10 @@ export const POST = withSecurity(
             description,
             created_at,
             profiles:teen_id (
-              pseudo,
               full_name
             )
           `)
-          .eq("parent_id", user.id)
+          .in("teen_id", teenIds)
           .gte("created_at", effectiveStartDate)
           .lte("created_at", effectiveEndDate)
           .order("created_at", { ascending: false })

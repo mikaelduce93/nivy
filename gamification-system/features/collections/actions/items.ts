@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type CollectibleItem, type Rarity } from "../schema"
 
 /**
@@ -19,7 +20,7 @@ export async function getCollectionItems(
     .order("item_number", { ascending: true })
 
   if (error) {
-    console.error("Error fetching collection items:", error)
+    logDbError("collections.getCollectionItems", error)
     return []
   }
 
@@ -41,7 +42,7 @@ export async function getCollectibleItem(
     .single()
 
   if (error) {
-    console.error("Error fetching collectible item:", error)
+    logDbError("collections.getCollectibleItem", error)
     return null
   }
 
@@ -70,7 +71,7 @@ export async function getItemsByRarity(
   const { data, error } = await query.order("item_number", { ascending: true })
 
   if (error) {
-    console.error("Error fetching items by rarity:", error)
+    logDbError("collections.getItemsByRarity", error)
     return []
   }
 

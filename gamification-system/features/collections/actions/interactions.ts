@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { revalidatePath } from "next/cache"
 import { type CollectibleItem } from "../schema"
 
@@ -20,7 +21,7 @@ export async function markCollectibleAsSeen(
     .eq("item_id", itemId)
 
   if (error) {
-    console.error("Error marking collectible as seen:", error)
+    logDbError("collections.markCollectibleAsSeen", error)
     return { success: false, error: error.message }
   }
 
@@ -42,7 +43,7 @@ export async function markAllCollectiblesAsSeen(
     .eq("is_new", true)
 
   if (error) {
-    console.error("Error marking all collectibles as seen:", error)
+    logDbError("collections.markAllCollectiblesAsSeen", error)
     return { success: false, error: error.message }
   }
 
@@ -68,7 +69,7 @@ export async function toggleCollectibleFavorite(
     .single()
 
   if (fetchError) {
-    console.error("Error fetching collectible:", fetchError)
+    logDbError("collections.toggleCollectibleFavorite", fetchError)
     return { success: false, error: fetchError.message }
   }
 
@@ -81,7 +82,7 @@ export async function toggleCollectibleFavorite(
     .eq("item_id", itemId)
 
   if (error) {
-    console.error("Error toggling favorite:", error)
+    logDbError("collections.toggleCollectibleFavorite", error)
     return { success: false, error: error.message }
   }
 
@@ -110,7 +111,7 @@ export async function getFavoriteCollectibles(
     .eq("is_favorite", true)
 
   if (error) {
-    console.error("Error fetching favorite collectibles:", error)
+    logDbError("collections.getFavoriteCollectibles", error)
     return []
   }
 

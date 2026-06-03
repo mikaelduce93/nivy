@@ -10,6 +10,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { getSocialBaseUrl } from "@/lib/config/app-config"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type PlatformSlug,
   type ContentType,
@@ -53,7 +54,7 @@ export async function getSharingPlatforms(): Promise<{
 
     return { success: true, platforms: data }
   } catch (error) {
-    console.error("Erreur getSharingPlatforms:", error)
+    logDbError("social-sharing.getSharingPlatforms", error)
     return { success: false, error: "Impossible de charger les plateformes" }
   }
 }
@@ -86,7 +87,7 @@ export async function getShareTemplates(
 
     return { success: true, templates: data }
   } catch (error) {
-    console.error("Erreur getShareTemplates:", error)
+    logDbError("social-sharing.getShareTemplates", error)
     return { success: false, error: "Impossible de charger les templates" }
   }
 }
@@ -138,7 +139,7 @@ export async function createShare(
       isFirstShare: data.is_first_share,
     }
   } catch (error) {
-    console.error("Erreur createShare:", error)
+    logDbError("social-sharing.createShare", error)
     return { success: false }
   }
 }
@@ -190,7 +191,7 @@ export async function getUserShares(
       hasMore: data.length === limit,
     }
   } catch (error) {
-    console.error("Erreur getUserShares:", error)
+    logDbError("social-sharing.getUserShares", error)
     return { success: false, error: "Impossible de charger l'historique" }
   }
 }
@@ -229,7 +230,7 @@ export async function trackShareClick(shareCode: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Erreur trackShareClick:", error)
+    logDbError("social-sharing.trackShareClick", error)
     return { success: false, error: "Erreur lors du tracking" }
   }
 }
@@ -283,7 +284,7 @@ export async function getSharingStats(): Promise<{
 
     return { success: true, stats }
   } catch (error) {
-    console.error("Erreur getSharingStats:", error)
+    logDbError("social-sharing.getSharingStats", error)
     return { success: false, error: "Impossible de charger les statistiques" }
   }
 }
@@ -336,7 +337,7 @@ export async function getSharingAchievements(): Promise<{
 
     return { success: true, achievements: result }
   } catch (error) {
-    console.error("Erreur getSharingAchievements:", error)
+    logDbError("social-sharing.getSharingAchievements", error)
     return { success: false, error: "Impossible de charger les achievements" }
   }
 }
@@ -385,7 +386,7 @@ export async function getReferralCode(): Promise<{
       },
     }
   } catch (error) {
-    console.error("Erreur getReferralCode:", error)
+    logDbError("social-sharing.getReferralCode", error)
     return { success: false, error: "Impossible de récupérer le code" }
   }
 }
@@ -433,7 +434,7 @@ export async function useReferralCode(code: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Erreur useReferralCode:", error)
+    logDbError("social-sharing.useReferralCode", error)
     return { success: false, error: "Impossible d'utiliser le code" }
   }
 }
@@ -501,7 +502,7 @@ export async function getReferredUsers(): Promise<{
 
     return { success: true, users }
   } catch (error) {
-    console.error("Erreur getReferredUsers:", error)
+    logDbError("social-sharing.getReferredUsers", error)
     return { success: false, error: "Impossible de charger les parrainés" }
   }
 }
@@ -541,7 +542,7 @@ export async function generateBadgeShareContent(badgeId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Erreur generateBadgeShareContent:", error)
+    logDbError("social-sharing.generateBadgeShareContent", error)
     return { success: false, error: "Impossible de générer le contenu" }
   }
 }
@@ -577,7 +578,7 @@ export async function generateEventShareContent(eventId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Erreur generateEventShareContent:", error)
+    logDbError("social-sharing.generateEventShareContent", error)
     return { success: false, error: "Impossible de générer le contenu" }
   }
 }

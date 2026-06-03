@@ -4,11 +4,16 @@ import { formatPriceFromStripe } from "@/lib/stripe"
 
 /**
  * ⚠️ INACTIF — Stripe n'est pas le PSP actif (CMI / hybride est canonique au Maroc).
- * Ce dispatcher n'est pas câblé en production. Plusieurs handlers visent un schéma
- * `bookings` plus riche (stripe_session_id, stripe_payment_intent, parent_id) + une
- * table `notifications` / `profiles.coins` qui n'existent pas dans la DB live — code
- * mort conservé tel quel. À réaligner sur le schéma réel (bookings.user_id,
- * user_notifications, user_coins) SI Stripe est un jour activé.
+ * Ce dispatcher n'est pas câblé en production.
+ *
+ * Câblé sur le schéma réel (C4/#252) : handleCoinTopup crédite désormais le wallet
+ * via la RPC add_coins_to_user (user_coins.balance + coin_transactions) et notifie
+ * via user_notifications.
+ *
+ * Drift résiduel ASSUMÉ (code mort, hors périmètre C4) : les autres handlers visent
+ * encore une table `notifications` inexistante et un schéma `bookings` plus riche
+ * (stripe_session_id, stripe_payment_intent, parent_id) / `payment_logs` non vérifiés
+ * en live. À réaligner (user_notifications, bookings.user_id) SI Stripe est activé.
  */
 
 /**
@@ -74,31 +79,25 @@ export const StripeHandlers = {
   },
 
   async handleCoinTopup(session: Stripe.Checkout.Session, supabase: any) {
-    const { teenId, parentId, coins, bonus } = session.metadata || {}
+    const { teenId, coins, bonus } = session.metadata || {}
     if (!teenId || !coins) return
 
     const totalCoins = parseInt(coins) + parseInt(bonus || "0")
-    const { data: teen } = await supabase.from("profiles").select("coins").eq("id", teenId).single()
 
-    await supabase.from("profiles").update({
-      coins: (teen?.coins || 0) + totalCoins,
-      updated_at: new Date().toISOString()
-    }).eq("id", teenId)
-
-    await supabase.from("coin_transactions").insert({
-      teen_id: teenId,
-      parent_id: parentId,
-      amount: totalCoins,
-      type: "topup",
-      description: `Recharge de ${coins} coins${bonus ? ` + ${bonus} bonus` : ""}`,
-      stripe_session_id: session.id,
+    // Créditer le wallet user_coins atomiquement (met aussi à jour coin_transactions).
+    await supabase.rpc("add_coins_to_user", {
+      p_teen_id: teenId,
+      p_amount: totalCoins,
+      p_transaction_type: "topup",
+      p_source_type: "stripe_topup",
+      p_source_id: null,
+      p_description: `Recharge de ${coins} coins${bonus ? ` + ${bonus} bonus` : ""}`,
     })
 
-    await supabase.from("notifications").insert({
+    await supabase.from("user_notifications").insert({
       user_id: teenId,
-      type: "coins_received",
       title: "Coins reçus !",
-      message: `Tu as reçu ${totalCoins} coins sur ton compte.`,
+      body: `Tu as reçu ${totalCoins} coins sur ton compte.`,
     })
   },
 

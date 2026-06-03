@@ -140,15 +140,19 @@ export async function shareReferralCode() {
     
     if (!user) return { success: false, message: "Non authentifié" }
 
-    // Récupérer le code réel
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('referral_code')
-      .eq('id', user.id)
-      .single()
+    // Drift schéma corrigé : `referral_code` n'est PAS une colonne (de profiles
+    // ou ailleurs). Le code canonique vient de la RPC get_or_create_referral_code
+    // (renvoie un jsonb { success, code, ... }).
+    const { data: referral, error: referralErr } = await supabase
+      .rpc('get_or_create_referral_code', { p_user_id: user.id })
 
-    const code = profile?.referral_code || "CODE-NON-DEFINI"
-    
+    if (referralErr) {
+      console.error("[agent-actions] shareReferralCode RPC error:", referralErr)
+      return { success: false, message: "Impossible de récupérer votre code pour le moment." }
+    }
+
+    const code = (referral as { code?: string } | null)?.code || "CODE-NON-DEFINI"
+
     // Dans un contexte serveur, on ne peut pas écrire dans le presse-papier client
     // On retourne le code pour que le client l'affiche/copie
     return { 

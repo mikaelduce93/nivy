@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type ActivityCategory } from "../schema"
 
 /**
@@ -82,7 +83,7 @@ export async function getActivityStats(userId?: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Erreur getActivityStats:", error)
+    logDbError("activityFeed.getActivityStats", error)
     return { success: false, error: "Impossible de charger les statistiques" }
   }
 }

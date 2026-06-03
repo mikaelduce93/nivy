@@ -10,6 +10,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logDbError } from '@/lib/observability/log-db-error'
 import {
   getAchievementsSchema,
   getAchievementStatsSchema,
@@ -71,7 +72,7 @@ export async function getAchievements(
 
     return { success: true, data: achievements }
   } catch (error: any) {
-    console.error('[achievements/getAchievements] Error:', error)
+    logDbError('achievements.getAchievements', error)
     return { success: false, error: error.message }
   }
 }
@@ -96,7 +97,7 @@ export async function getAchievementsByCategory(
 
     return { success: true, data: byCategory as Record<AchievementCategory, UserAchievement[]> }
   } catch (error: any) {
-    console.error('[achievements/getAchievementsByCategory] Error:', error)
+    logDbError('achievements.getAchievementsByCategory', error)
     return { success: false, error: error.message }
   }
 }
@@ -114,7 +115,7 @@ export async function getUnlockedAchievements(
     const unlocked = result.data.filter((a) => a.is_unlocked)
     return { success: true, data: unlocked }
   } catch (error: any) {
-    console.error('[achievements/getUnlockedAchievements] Error:', error)
+    logDbError('achievements.getUnlockedAchievements', error)
     return { success: false, error: error.message }
   }
 }
@@ -145,7 +146,7 @@ export async function getAchievementStats(
 
     return { success: true, data: data as AchievementStats }
   } catch (error: any) {
-    console.error('[achievements/getAchievementStats] Error:', error)
+    logDbError('achievements.getAchievementStats', error)
     return { success: false, error: error.message }
   }
 }
@@ -187,7 +188,7 @@ export async function updateAchievementProgress(
 
     return { success: true, data: result }
   } catch (error: any) {
-    console.error('[achievements/updateAchievementProgress] Error:', error)
+    logDbError('achievements.updateAchievementProgress', error)
     return { success: false, error: error.message }
   }
 }
@@ -223,7 +224,7 @@ export async function unlockAchievement(
 
     return { success: true, data: result }
   } catch (error: any) {
-    console.error('[achievements/unlockAchievement] Error:', error)
+    logDbError('achievements.unlockAchievement', error)
     return { success: false, error: error.message }
   }
 }
@@ -257,7 +258,7 @@ export async function checkAndUnlockAchievements(
 
     return { success: true, data: result }
   } catch (error: any) {
-    console.error('[achievements/checkAndUnlockAchievements] Error:', error)
+    logDbError('achievements.checkAndUnlockAchievements', error)
     return { success: false, error: error.message }
   }
 }
@@ -325,7 +326,7 @@ export async function getRecentlyUnlocked(
 
     return { success: true, data: achievements }
   } catch (error: any) {
-    console.error('[achievements/getRecentlyUnlocked] Error:', error)
+    logDbError('achievements.getRecentlyUnlocked', error)
     return { success: false, error: error.message }
   }
 }
@@ -354,7 +355,7 @@ export async function getNextAchievements(
 
     return { success: true, data: nextAchievements }
   } catch (error: any) {
-    console.error('[achievements/getNextAchievements] Error:', error)
+    logDbError('achievements.getNextAchievements', error)
     return { success: false, error: error.message }
   }
 }
@@ -599,7 +600,7 @@ export async function trackAchievementEvent(
 
     return { success: true, data: unlockedAchievements }
   } catch (error: any) {
-    console.error('[achievements/trackAchievementEvent] Error:', error)
+    logDbError('achievements.trackAchievementEvent', error)
     return { success: false, error: error.message }
   }
 }
@@ -625,7 +626,7 @@ export async function initializeAchievements(
 
     return { success: true, data: null }
   } catch (error: any) {
-    console.error('[achievements/initializeAchievements] Error:', error)
+    logDbError('achievements.initializeAchievements', error)
     return { success: false, error: error.message }
   }
 }

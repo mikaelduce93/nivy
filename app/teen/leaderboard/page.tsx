@@ -61,23 +61,34 @@ export default async function CreatorLeaderboardPage({
       loadError = "Impossible de charger le classement pour le moment."
     } else {
       entries = (data ?? []) as Row[]
-      // Enrichissement de lecture : joindre pseudo + avatar depuis `profiles`
-      // (iso-données — on remplace le hash user_id par une identité lisible).
+      // Enrichissement de lecture : joindre pseudo + avatar depuis `teens`
+      // (user_id == teen.id). Le pseudo est souvent NULL en seed → fallback
+      // sur profiles.full_name via COALESCE applicatif (cf. get_user_crew).
       const ids = Array.from(new Set(entries.map((e) => e.user_id))).filter(Boolean)
       if (ids.length) {
-        const { data: profiles } = await sr
-          .from("profiles")
+        const { data: teens } = await sr
+          .from("teens")
           .select("id, pseudo, avatar_url")
           .in("id", ids)
-        const byId = new Map(
-          (profiles ?? []).map((p: any) => [p.id as string, p]),
+        const { data: profiles } = await sr
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", ids)
+        const teenById = new Map(
+          (teens ?? []).map((t: any) => [t.id as string, t]),
+        )
+        const nameById = new Map(
+          (profiles ?? []).map((p: any) => [p.id as string, p.full_name as string | null]),
         )
         entries = entries.map((e) => {
-          const p = byId.get(e.user_id)
+          const t = teenById.get(e.user_id)
           return {
             ...e,
-            pseudo: (p?.pseudo as string | null) ?? null,
-            avatar_url: (p?.avatar_url as string | null) ?? null,
+            pseudo:
+              (t?.pseudo as string | null) ??
+              (nameById.get(e.user_id) as string | null) ??
+              null,
+            avatar_url: (t?.avatar_url as string | null) ?? null,
           }
         })
       }

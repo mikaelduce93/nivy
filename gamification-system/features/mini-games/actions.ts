@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type MiniGameType,
   type GameSession,
@@ -47,7 +48,7 @@ export async function getMiniGameTypes(): Promise<{
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching game types:", error)
+    logDbError("mini-games.getMiniGameTypes", error)
     return { success: false, error: "Impossible de charger les types de jeux" }
   }
 }
@@ -74,7 +75,7 @@ export async function getGameTypeBySlug(slug: string): Promise<{
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching game type:", error)
+    logDbError("mini-games.getGameTypeBySlug", error)
     return { success: false, error: "Type de jeu non trouvé" }
   }
 }
@@ -127,7 +128,7 @@ export async function createGameSession(
       },
     }
   } catch (error) {
-    console.error("Error creating game session:", error)
+    logDbError("mini-games.createGameSession", error)
     return { success: false, error: "Erreur lors de la création de la session" }
   }
 }
@@ -166,7 +167,7 @@ export async function joinGameSession(sessionId: string): Promise<{
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error joining game session:", error)
+    logDbError("mini-games.joinGameSession", error)
     return { success: false, error: "Erreur lors de la connexion à la session" }
   }
 }
@@ -205,7 +206,7 @@ export async function startGameSession(
 
     return { success: true }
   } catch (error) {
-    console.error("Error starting game session:", error)
+    logDbError("mini-games.startGameSession", error)
     return { success: false, error: "Erreur lors du démarrage" }
   }
 }
@@ -259,7 +260,7 @@ export async function submitGameScore(
       },
     }
   } catch (error) {
-    console.error("Error submitting score:", error)
+    logDbError("mini-games.submitGameScore", error)
     return { success: false, error: "Erreur lors de la soumission du score" }
   }
 }
@@ -300,7 +301,7 @@ export async function endGameSession(sessionId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error ending game session:", error)
+    logDbError("mini-games.endGameSession", error)
     return { success: false, error: "Erreur lors de la fin de partie" }
   }
 }
@@ -355,7 +356,7 @@ export async function getGameSession(sessionId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error fetching game session:", error)
+    logDbError("mini-games.getGameSession", error)
     return { success: false, error: "Session non trouvée" }
   }
 }
@@ -389,7 +390,7 @@ export async function getRandomQuizQuestions(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching quiz questions:", error)
+    logDbError("mini-games.getRandomQuizQuestions", error)
     return { success: false, error: "Erreur lors du chargement des questions" }
   }
 }
@@ -440,7 +441,7 @@ export async function checkQuizAnswer(
       },
     }
   } catch (error) {
-    console.error("Error checking answer:", error)
+    logDbError("mini-games.checkQuizAnswer", error)
     return { success: false, error: "Erreur lors de la vérification" }
   }
 }
@@ -474,7 +475,7 @@ export async function getMemoryCards(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching memory cards:", error)
+    logDbError("mini-games.getMemoryCards", error)
     return { success: false, error: "Erreur lors du chargement des cartes" }
   }
 }
@@ -543,7 +544,7 @@ export async function getOpenPredictions(eventId?: string): Promise<{
 
     return { success: true, data: enrichedQuestions }
   } catch (error) {
-    console.error("Error fetching predictions:", error)
+    logDbError("mini-games.getOpenPredictions", error)
     return { success: false, error: "Erreur lors du chargement des prédictions" }
   }
 }
@@ -596,7 +597,7 @@ export async function makePrediction(
       },
     }
   } catch (error) {
-    console.error("Error making prediction:", error)
+    logDbError("mini-games.makePrediction", error)
     return { success: false, error: "Erreur lors de la prédiction" }
   }
 }
@@ -634,7 +635,7 @@ export async function getUserPredictionResults(): Promise<{
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching prediction results:", error)
+    logDbError("mini-games.getUserPredictionResults", error)
     return { success: false, error: "Erreur lors du chargement des résultats" }
   }
 }
@@ -679,7 +680,7 @@ export async function getGameLeaderboard(
 
     return { success: true, data, userRank }
   } catch (error) {
-    console.error("Error fetching leaderboard:", error)
+    logDbError("mini-games.getGameLeaderboard", error)
     return { success: false, error: "Erreur lors du chargement du classement" }
   }
 }
@@ -738,7 +739,7 @@ export async function getUserDailyScores(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching daily scores:", error)
+    logDbError("mini-games.getUserDailyScores", error)
     return { success: false, error: "Erreur lors du chargement des scores" }
   }
 }
@@ -794,7 +795,7 @@ export async function getUserGameStats(): Promise<{
 
     return { success: true, data: stats }
   } catch (error) {
-    console.error("Error fetching game stats:", error)
+    logDbError("mini-games.getUserGameStats", error)
     return { success: false, error: "Erreur lors du chargement des stats" }
   }
 }

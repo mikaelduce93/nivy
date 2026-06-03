@@ -86,6 +86,28 @@ function resolveDispatchRpc(actionType: string, decision: Decision): {
       deny: "parent_deny_booking",
       denyReason: true,
     },
+    // #230 (V6) — opposition opt-out sur les actions de groupe. Le deny
+    // déclenche refund_group_split de la part de l'ado (pas de raison requise).
+    group_booking: {
+      approve: "parent_approve_group_action",
+      deny: "parent_deny_group_action",
+      denyReason: false,
+    },
+    event_creation: {
+      approve: "parent_approve_group_action",
+      deny: "parent_deny_group_action",
+      denyReason: false,
+    },
+    group_food_split: {
+      approve: "parent_approve_group_action",
+      deny: "parent_deny_group_action",
+      denyReason: false,
+    },
+    group_join: {
+      approve: "parent_approve_group_action",
+      deny: "parent_deny_group_action",
+      denyReason: false,
+    },
   }
   const entry = map[actionType]
   if (!entry) return null

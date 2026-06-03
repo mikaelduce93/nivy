@@ -1,0 +1,33 @@
+-- 147_realityfix_teens_pii_public_read.sql
+--
+-- BUG (sécurité / RLS): PII de mineurs lisible PRÉ-AUTH. La table public.teens
+-- (first_name, last_name, date_of_birth, city, region, school_type, gender,
+-- grade_level) porte une policy permissive `"Users can view all teens"` en SELECT
+-- pour le rôle {public} avec `qual = true`. Le rôle public inclut `anon`, qui détient
+-- le grant SELECT. Cette policy permissive est OR'd avec la restrictive `teens_self_read`
+-- et la neutralise : n'importe quel visiteur NON authentifié lit toutes les lignes.
+--
+-- Preuve (live): `SET ROLE anon; SELECT count(*) FROM public.teens;` -> 5/5 lignes.
+--
+-- Cause: policy d'amorçage trop permissive jamais resserrée. La visibilité légitime
+-- d'un teen (soi-même + via parent_teen_links) est déjà couverte par teens_self_read.
+--
+-- Fix: supprimer la policy `qual=true`. Conserver teens_self_read (authenticated,
+-- self/parent) et "Users can manage own teens" (parent_id = auth.uid()). Si crews/
+-- leaderboard ont besoin de pseudo/avatar d'autres teens, get_user_crew est désormais
+-- SECURITY DEFINER (mig 146) et les leaderboards passent par des vues dédiées —
+-- aucune lecture directe de la table brute par autrui n'est requise.
+--
+-- Balayage des autres policies `qual=true` (documenté, hors périmètre de ce fix):
+--   * Tables de CONTENU/RÉFÉRENCE (legitime public) : advent_*, seasons, mini_game_types,
+--     music_quiz_questions, vip_perks, prediction_questions, passion_path_levels, etc.
+--   * LEADERBOARDS (intentionnellement publics) : daily_game_scores, weekly_game_leaderboard,
+--     leaderboard_snapshots, xp_weekly, xp_monthly, crew_weekly_stats.
+--   * À ARBITRER ULTÉRIEUREMENT (activité utilisateur exposée à anon, PAS du PII d'identité
+--     de mineur, donc hors de ce P0) : mini_game_participants, mini_game_sessions,
+--     event_check_ins (public) ; public.users (authenticated qual=true). Aucune ne divulgue
+--     nom/date de naissance pré-auth comme teens — elles restent à revoir hors V7-A2.
+--
+-- Idempotent: DROP POLICY IF EXISTS.
+
+DROP POLICY IF EXISTS "Users can view all teens" ON public.teens;

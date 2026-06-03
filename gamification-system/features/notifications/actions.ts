@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type UserNotification,
   type NotificationPreferences,
@@ -43,7 +44,7 @@ export async function getUserNotifications(
   })
 
   if (error) {
-    console.error("Error fetching notifications:", error)
+    logDbError("notifications.getUserNotifications", error)
     return null
   }
 
@@ -64,7 +65,7 @@ export async function getUnreadCount(userId: string): Promise<number> {
     .eq("is_dismissed", false)
 
   if (error) {
-    console.error("Error counting unread:", error)
+    logDbError("notifications.getUnreadCount", error)
     return 0
   }
 
@@ -90,7 +91,7 @@ export async function getRecentNotifications(
     .limit(10)
 
   if (error) {
-    console.error("Error fetching recent notifications:", error)
+    logDbError("notifications.getRecentNotifications", error)
     return []
   }
 
@@ -123,7 +124,7 @@ export async function createNotificationFromTemplate(
   )
 
   if (error) {
-    console.error("Error creating notification:", error)
+    logDbError("notifications.createNotificationFromTemplate", error)
     return { success: false, error: error.message }
   }
 
@@ -180,7 +181,7 @@ export async function createCustomNotification(
   )
 
   if (error) {
-    console.error("Error creating custom notification:", error)
+    logDbError("notifications.createCustomNotification", error)
     return { success: false, error: error.message }
   }
 
@@ -230,7 +231,7 @@ export async function markNotificationsAsRead(
   })
 
   if (error) {
-    console.error("Error marking notifications as read:", error)
+    logDbError("notifications.markNotificationsAsRead", error)
     return { success: false, count: 0 }
   }
 
@@ -260,7 +261,7 @@ export async function markNotificationClicked(
     .eq("user_id", userId)
 
   if (error) {
-    console.error("Error marking notification clicked:", error)
+    logDbError("notifications.markNotificationClicked", error)
     return { success: false }
   }
 
@@ -288,7 +289,7 @@ export async function dismissNotification(
     .eq("user_id", userId)
 
   if (error) {
-    console.error("Error dismissing notification:", error)
+    logDbError("notifications.dismissNotification", error)
     return { success: false }
   }
 
@@ -317,7 +318,7 @@ export async function dismissReadNotifications(
     .select("id")
 
   if (error) {
-    console.error("Error dismissing read notifications:", error)
+    logDbError("notifications.dismissReadNotifications", error)
     return { success: false, count: 0 }
   }
 
@@ -350,7 +351,7 @@ export async function claimNotificationRewards(
   })
 
   if (error) {
-    console.error("Error claiming rewards:", error)
+    logDbError("notifications.claimNotificationRewards", error)
     return { success: false, error: error.message }
   }
 
@@ -428,7 +429,7 @@ export async function getNotificationPreferences(
     .single()
 
   if (error && error.code !== "PGRST116") {
-    console.error("Error fetching preferences:", error)
+    logDbError("notifications.getNotificationPreferences", error)
     return null
   }
 
@@ -441,7 +442,7 @@ export async function getNotificationPreferences(
       .single()
 
     if (insertError) {
-      console.error("Error creating default preferences:", insertError)
+      logDbError("notifications.getNotificationPreferences", insertError)
       return null
     }
 
@@ -472,7 +473,7 @@ export async function updateNotificationPreferences(
     .eq("user_id", userId)
 
   if (error) {
-    console.error("Error updating preferences:", error)
+    logDbError("notifications.updateNotificationPreferences", error)
     return { success: false, error: error.message }
   }
 
@@ -539,7 +540,7 @@ export async function registerPushSubscription(
   )
 
   if (error) {
-    console.error("Error registering push subscription:", error)
+    logDbError("notifications.registerPushSubscription", error)
     return { success: false, error: error.message }
   }
 
@@ -562,7 +563,7 @@ export async function unregisterPushSubscription(
     .eq("endpoint", endpoint)
 
   if (error) {
-    console.error("Error unregistering push subscription:", error)
+    logDbError("notifications.unregisterPushSubscription", error)
     return { success: false }
   }
 
@@ -584,7 +585,7 @@ export async function getPushSubscriptions(
     .eq("is_active", true)
 
   if (error) {
-    console.error("Error fetching push subscriptions:", error)
+    logDbError("notifications.getPushSubscriptions", error)
     return []
   }
 

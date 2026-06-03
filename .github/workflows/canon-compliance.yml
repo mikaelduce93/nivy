@@ -41,6 +41,9 @@ jobs:
       - name: Hierarchy enforce (refonte V2 #126 — fails on net-new flat-hierarchy)
         run: npm run lint:hierarchy
 
+      - name: Drift enforce (V8 #265 — fails on net-new ghost-profiles-column / empty-catch)
+        run: npm run lint:drift
+
       - name: TypeScript typecheck
         run: npm run typecheck
 

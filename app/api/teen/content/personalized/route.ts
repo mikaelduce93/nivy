@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     // Récupérer l'ID du teen
     const { data: teen } = await supabase
       .from("teens")
-      .select("id, grade_level, interests, profiles, school")
+      .select("id, grade_level")
       .eq("parent_id", user.id)
       .single()
 
@@ -140,8 +140,6 @@ export async function GET(request: NextRequest) {
       success: true,
       teen_profile: {
         grade_level: teen.grade_level,
-        interests: teen.interests,
-        profiles: teen.profiles,
       },
       content: results,
     })

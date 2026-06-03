@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type ReactionType, type ActivityLike } from "../schema"
 
 /**
@@ -42,7 +43,7 @@ export async function toggleActivityReaction(
       likesCount: data.likes_count,
     }
   } catch (error) {
-    console.error("Erreur toggleActivityReaction:", error)
+    logDbError("activity-feed.toggleActivityReaction", error)
     return { success: false, error: "Impossible de réagir" }
   }
 }
@@ -78,7 +79,7 @@ export async function getActivityReactions(activityId: string): Promise<{
 
     return { success: true, reactions }
   } catch (error) {
-    console.error("Erreur getActivityReactions:", error)
+    logDbError("activity-feed.getActivityReactions", error)
     return { success: false, error: "Impossible de charger les réactions" }
   }
 }

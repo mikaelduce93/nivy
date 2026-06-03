@@ -42,14 +42,26 @@ export default async function NewFriendDefiPage() {
 
   let friends: FriendOption[] = []
   if (friendIds.length) {
-    const { data: profiles } = await supabase
-      .from("profiles")
+    // pseudo source = teens.pseudo (souvent NULL en seed) → fallback
+    // profiles.full_name (cf. get_user_crew / drift schéma profiles).
+    const { data: teens } = await supabase
+      .from("teens")
       .select("id, pseudo, avatar_url")
       .in("id", friendIds)
-    friends = (profiles ?? []).map((p: any) => ({
-      id: p.id as string,
-      pseudo: (p.pseudo as string | null) ?? "Anonyme",
-      avatar_url: (p.avatar_url as string | null) ?? null,
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", friendIds)
+    const nameById = new Map(
+      (profiles ?? []).map((p: any) => [p.id as string, p.full_name as string | null]),
+    )
+    friends = (teens ?? []).map((t: any) => ({
+      id: t.id as string,
+      pseudo:
+        (t.pseudo as string | null) ??
+        (nameById.get(t.id) as string | null) ??
+        "Anonyme",
+      avatar_url: (t.avatar_url as string | null) ?? null,
     }))
   }
 
