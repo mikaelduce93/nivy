@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { revalidatePath } from "next/cache"
 import { type CollectionTrade } from "../schema"
 
@@ -50,7 +51,7 @@ export async function createTrade(
     .single()
 
   if (error) {
-    console.error("Error creating trade:", error)
+    logDbError("collections.createTrade", error)
     return { success: false, error: error.message }
   }
 
@@ -81,7 +82,7 @@ export async function getUserTrades(
   const { data, error } = await query
 
   if (error) {
-    console.error("Error fetching trades:", error)
+    logDbError("collections.getUserTrades", error)
     return []
   }
 
@@ -103,7 +104,7 @@ export async function getTradeById(
     .single()
 
   if (error) {
-    console.error("Error fetching trade:", error)
+    logDbError("collections.getTradeById", error)
     return null
   }
 
@@ -158,7 +159,7 @@ export async function acceptTrade(
     .eq("id", tradeId)
 
   if (error) {
-    console.error("Error completing trade:", error)
+    logDbError("collections.acceptTrade", error)
     return { success: false, error: error.message }
   }
 
@@ -195,7 +196,7 @@ export async function rejectTrade(
     .eq("id", tradeId)
 
   if (error) {
-    console.error("Error rejecting trade:", error)
+    logDbError("collections.rejectTrade", error)
     return { success: false, error: error.message }
   }
 
@@ -232,7 +233,7 @@ export async function cancelTrade(
     .eq("id", tradeId)
 
   if (error) {
-    console.error("Error cancelling trade:", error)
+    logDbError("collections.cancelTrade", error)
     return { success: false, error: error.message }
   }
 
@@ -254,7 +255,7 @@ export async function getPendingTradesCount(userId: string): Promise<number> {
     .eq("status", "pending")
 
   if (error) {
-    console.error("Error counting pending trades:", error)
+    logDbError("collections.getPendingTradesCount", error)
     return 0
   }
 

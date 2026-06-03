@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type CollectionSet } from "../schema"
 
 /**
@@ -16,7 +17,7 @@ export async function getCollectionSets(): Promise<CollectionSet[]> {
     .order("created_at", { ascending: false })
 
   if (error) {
-    console.error("Error fetching collection sets:", error)
+    logDbError("collections.getCollectionSets", error)
     return []
   }
 
@@ -39,7 +40,7 @@ export async function getCollectionSetBySlug(
     .single()
 
   if (error) {
-    console.error("Error fetching collection set:", error)
+    logDbError("collections.getCollectionSetBySlug", error)
     return null
   }
 
@@ -63,7 +64,7 @@ export async function getAvailableSets(): Promise<CollectionSet[]> {
     .order("created_at", { ascending: false })
 
   if (error) {
-    console.error("Error fetching available sets:", error)
+    logDbError("collections.getAvailableSets", error)
     return []
   }
 

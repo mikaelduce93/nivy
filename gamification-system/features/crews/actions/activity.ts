@@ -37,7 +37,7 @@ export async function getCrewLeaderboard(
 
     return { data: data as CrewLeaderboardEntry[], error: null }
   } catch (error) {
-    console.error("Error in getCrewLeaderboard:", error)
+    logDbError("crews.getCrewLeaderboard", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -82,7 +82,7 @@ export async function getCrewActivity(
 
     return { data: activities, error: null }
   } catch (error) {
-    console.error("Error in getCrewActivity:", error)
+    logDbError("crews.getCrewActivity", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -139,7 +139,7 @@ export async function getPendingCrewInvitations(): Promise<{
 
     return { data: invitations, error: null }
   } catch (error) {
-    console.error("Error in getPendingCrewInvitations:", error)
+    logDbError("crews.getPendingCrewInvitations", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -180,7 +180,7 @@ export async function getPendingJoinRequests(crewId: string): Promise<{
 
     return { data: requests, error: null }
   } catch (error) {
-    console.error("Error in getPendingJoinRequests:", error)
+    logDbError("crews.getPendingJoinRequests", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -207,13 +207,13 @@ export async function searchCrews(
       .limit(limit)
 
     if (error) {
-      console.error("Error searching crews:", error)
+      logDbError("crews.searchCrews", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as Crew[], error: null }
   } catch (error) {
-    console.error("Error in searchCrews:", error)
+    logDbError("crews.searchCrews", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -253,7 +253,7 @@ export async function getCrewMembers(crewId: string): Promise<{
 
     return { data: members, error: null }
   } catch (error) {
-    console.error("Error in getCrewMembers:", error)
+    logDbError("crews.getCrewMembers", error)
     return { data: [], error: "Erreur serveur" }
   }
 }

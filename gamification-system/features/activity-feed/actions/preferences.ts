@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type FeedPreferences, type VisibilitySettings } from "../schema"
 
 /**
@@ -50,7 +51,7 @@ export async function getFeedPreferences(): Promise<{
 
     return { success: true, preferences }
   } catch (error) {
-    console.error("Erreur getFeedPreferences:", error)
+    logDbError("activity-feed.getFeedPreferences", error)
     return { success: false, error: "Impossible de charger les préférences" }
   }
 }
@@ -89,7 +90,7 @@ export async function updateFeedPreferences(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur updateFeedPreferences:", error)
+    logDbError("activity-feed.updateFeedPreferences", error)
     return { success: false, error: "Impossible de sauvegarder les préférences" }
   }
 }
@@ -137,7 +138,7 @@ export async function getVisibilitySettings(): Promise<{
 
     return { success: true, settings }
   } catch (error) {
-    console.error("Erreur getVisibilitySettings:", error)
+    logDbError("activity-feed.getVisibilitySettings", error)
     return { success: false, error: "Impossible de charger les paramètres" }
   }
 }
@@ -175,7 +176,7 @@ export async function updateVisibilitySettings(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur updateVisibilitySettings:", error)
+    logDbError("activity-feed.updateVisibilitySettings", error)
     return { success: false, error: "Impossible de sauvegarder les paramètres" }
   }
 }

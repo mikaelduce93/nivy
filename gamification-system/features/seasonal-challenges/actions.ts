@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type Season,
   type SeasonalChallenge,
@@ -49,7 +50,7 @@ export async function getActiveSeason(): Promise<{
 
     return { success: true, data: data || undefined }
   } catch (error) {
-    console.error("Error fetching active season:", error)
+    logDbError("seasonal-challenges.getActiveSeason", error)
     return { success: false, error: "Impossible de charger la saison" }
   }
 }
@@ -74,7 +75,7 @@ export async function getAllSeasons(): Promise<{
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching seasons:", error)
+    logDbError("seasonal-challenges.getAllSeasons", error)
     return { success: false, error: "Impossible de charger les saisons" }
   }
 }
@@ -129,7 +130,7 @@ export async function getSeasonalChallenges(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching seasonal challenges:", error)
+    logDbError("seasonal-challenges.getSeasonalChallenges", error)
     return { success: false, error: "Impossible de charger les défis" }
   }
 }
@@ -173,7 +174,7 @@ export async function updateSeasonalProgress(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error updating seasonal progress:", error)
+    logDbError("seasonal-challenges.updateSeasonalProgress", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -222,7 +223,7 @@ export async function completeSeasonalChallenge(challengeId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error completing seasonal challenge:", error)
+    logDbError("seasonal-challenges.completeSeasonalChallenge", error)
     return { success: false, error: "Erreur lors de la complétion" }
   }
 }
@@ -283,7 +284,7 @@ export async function claimSeasonalReward(challengeId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error claiming seasonal reward:", error)
+    logDbError("seasonal-challenges.claimSeasonalReward", error)
     return { success: false, error: "Erreur lors de la réclamation" }
   }
 }
@@ -334,7 +335,7 @@ export async function getActiveAdventCalendar(): Promise<{
 
     return { success: true, data: result }
   } catch (error) {
-    console.error("Error fetching advent calendar:", error)
+    logDbError("seasonal-challenges.getActiveAdventCalendar", error)
     return { success: false, error: "Impossible de charger le calendrier" }
   }
 }
@@ -385,7 +386,7 @@ export async function openAdventDay(dayNumber: number): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error opening advent day:", error)
+    logDbError("seasonal-challenges.openAdventDay", error)
     return { success: false, error: "Erreur lors de l'ouverture" }
   }
 }
@@ -446,7 +447,7 @@ export async function canOpenTodayAdvent(): Promise<{
 
     return { success: true, canOpen, todayDay }
   } catch (error) {
-    console.error("Error checking advent availability:", error)
+    logDbError("seasonal-challenges.canOpenTodayAdvent", error)
     return { success: false, canOpen: false, error: "Erreur" }
   }
 }
@@ -482,7 +483,7 @@ export async function getSeasonalRewards(seasonId?: string): Promise<{
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching seasonal rewards:", error)
+    logDbError("seasonal-challenges.getSeasonalRewards", error)
     return { success: false, error: "Impossible de charger les récompenses" }
   }
 }
@@ -580,7 +581,7 @@ export async function claimSeasonalTierReward(rewardId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error claiming seasonal reward:", error)
+    logDbError("seasonal-challenges.claimSeasonalTierReward", error)
     return { success: false, error: "Erreur lors de la réclamation" }
   }
 }
@@ -698,7 +699,7 @@ export async function getUserSeasonalStats(seasonId?: string): Promise<{
 
     return { success: true, data: stats }
   } catch (error) {
-    console.error("Error fetching seasonal stats:", error)
+    logDbError("seasonal-challenges.getUserSeasonalStats", error)
     return { success: false, error: "Erreur lors de la récupération des stats" }
   }
 }

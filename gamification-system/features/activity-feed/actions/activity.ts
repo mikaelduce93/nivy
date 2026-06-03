@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type ActivityVisibility, type UserActivity } from "../schema"
 
 /**
@@ -52,7 +53,7 @@ export async function createActivity(
 
     return { success: true, activity }
   } catch (error) {
-    console.error("Erreur createActivity:", error)
+    logDbError("activity-feed.createActivity", error)
     return { success: false, error: "Impossible de créer l'activité" }
   }
 }
@@ -87,7 +88,7 @@ export async function deleteActivity(activityId: string): Promise<{
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur deleteActivity:", error)
+    logDbError("activity-feed.deleteActivity", error)
     return { success: false, error: "Impossible de supprimer l'activité" }
   }
 }
@@ -129,7 +130,7 @@ export async function hideActivity(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur hideActivity:", error)
+    logDbError("activity-feed.hideActivity", error)
     return { success: false, error: "Impossible de cacher l'activité" }
   }
 }
@@ -170,7 +171,7 @@ export async function updateActivityVisibility(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur updateActivityVisibility:", error)
+    logDbError("activity-feed.updateActivityVisibility", error)
     return { success: false, error: "Impossible de modifier la visibilité" }
   }
 }
@@ -221,7 +222,7 @@ export async function toggleActivityPin(activityId: string): Promise<{
 
     return { success: true, isPinned: newPinned }
   } catch (error) {
-    console.error("Erreur toggleActivityPin:", error)
+    logDbError("activity-feed.toggleActivityPin", error)
     return { success: false, error: "Impossible de modifier l'épingle" }
   }
 }

@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type VipTier,
   type VipPerk,
@@ -37,7 +38,7 @@ export async function getAllVipTiers(): Promise<VipTier[]> {
     .order("tier_level", { ascending: true })
 
   if (error) {
-    console.error("Error fetching VIP tiers:", error)
+    logDbError("vip-system.getAllVipTiers", error)
     return []
   }
 
@@ -58,7 +59,7 @@ export async function getVipTierBySlug(slug: VipTierSlug): Promise<VipTier | nul
     .single()
 
   if (error) {
-    console.error("Error fetching VIP tier:", error)
+    logDbError("vip-system.getVipTierBySlug", error)
     return null
   }
 
@@ -78,7 +79,7 @@ export async function getTierPerks(tierId: string): Promise<VipPerk[]> {
     .order("sort_order", { ascending: true })
 
   if (error) {
-    console.error("Error fetching tier perks:", error)
+    logDbError("vip-system.getTierPerks", error)
     return []
   }
 
@@ -98,7 +99,7 @@ export async function getUserVipStatus(
   })
 
   if (error) {
-    console.error("Error fetching VIP status:", error)
+    logDbError("vip-system.getUserVipStatus", error)
     return null
   }
 
@@ -132,7 +133,7 @@ export async function getUserVipTier(userId: string): Promise<{
     .single()
 
   if (error && error.code !== "PGRST116") {
-    console.error("Error fetching user VIP tier:", error)
+    logDbError("vip-system.getUserVipTier", error)
     return null
   }
 
@@ -184,7 +185,7 @@ export async function addVipXp(
   })
 
   if (error) {
-    console.error("Error adding VIP XP:", error)
+    logDbError("vip-system.addVipXp", error)
     return {
       success: false,
       baseXp: xp,
@@ -228,7 +229,7 @@ export async function recalculateVipTier(userId: string): Promise<{
   })
 
   if (error) {
-    console.error("Error recalculating VIP tier:", error)
+    logDbError("vip-system.recalculateVipTier", error)
     return { success: false, tierChanged: false, error: error.message }
   }
 
@@ -260,7 +261,7 @@ export async function incrementEventsAttended(
     .maybeSingle()
 
   if (currentError) {
-    console.error("Error fetching VIP status:", currentError)
+    logDbError("vip-system.incrementEventsAttended", currentError)
     return { success: false, newCount: 0 }
   }
 
@@ -279,7 +280,7 @@ export async function incrementEventsAttended(
       .single()
 
     if (insertError) {
-      console.error("Error inserting VIP status:", insertError)
+      logDbError("vip-system.incrementEventsAttended", insertError)
       return { success: false, newCount: 0 }
     }
 
@@ -305,7 +306,7 @@ export async function incrementEventsAttended(
     .single()
 
   if (error) {
-    console.error("Error incrementing events:", error)
+    logDbError("vip-system.incrementEventsAttended", error)
     return { success: false, newCount: 0 }
   }
 
@@ -334,7 +335,7 @@ export async function claimMonthlyCoins(userId: string): Promise<{
   })
 
   if (error) {
-    console.error("Error claiming monthly coins:", error)
+    logDbError("vip-system.claimMonthlyCoins", error)
     return { success: false, error: error.message }
   }
 
@@ -572,7 +573,7 @@ export async function logBenefitUsed(
   })
 
   if (error) {
-    console.error("Error logging benefit:", error)
+    logDbError("vip-system.logBenefitUsed", error)
     return { success: false }
   }
 
@@ -613,7 +614,7 @@ export async function getBenefitsHistory(
     .limit(limit)
 
   if (error) {
-    console.error("Error fetching benefits history:", error)
+    logDbError("vip-system.getBenefitsHistory", error)
     return []
   }
 
@@ -698,7 +699,7 @@ export async function getVipLeaderboard(
     .limit(limit)
 
   if (error) {
-    console.error("Error fetching VIP leaderboard:", error)
+    logDbError("vip-system.getVipLeaderboard", error)
     return []
   }
 

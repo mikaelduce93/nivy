@@ -9,6 +9,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logDbError } from '@/lib/observability/log-db-error'
 import {
   getLeaderboardSchema,
   getFriendsLeaderboardSchema,
@@ -126,7 +127,7 @@ export async function getLeaderboard(
       },
     }
   } catch (error: any) {
-    console.error('[leaderboard/getLeaderboard] Error:', error)
+    logDbError('leaderboard.getLeaderboard', error)
     return { success: false, error: error.message }
   }
 }
@@ -169,7 +170,7 @@ export async function getFriendsLeaderboard(
 
     return { success: true, data: entries }
   } catch (error: any) {
-    console.error('[leaderboard/getFriendsLeaderboard] Error:', error)
+    logDbError('leaderboard.getFriendsLeaderboard', error)
     return { success: false, error: error.message }
   }
 }
@@ -198,7 +199,7 @@ export async function getUserRank(
 
     return { success: true, data: data as UserRank }
   } catch (error: any) {
-    console.error('[leaderboard/getUserRank] Error:', error)
+    logDbError('leaderboard.getUserRank', error)
     return { success: false, error: error.message }
   }
 }
@@ -222,7 +223,7 @@ export async function getAllUserRanks(
 
     return { success: true, data: ranks as Record<LeaderboardType, UserRank> }
   } catch (error: any) {
-    console.error('[leaderboard/getAllUserRanks] Error:', error)
+    logDbError('leaderboard.getAllUserRanks', error)
     return { success: false, error: error.message }
   }
 }
@@ -260,7 +261,7 @@ export async function sendFriendRequest(
     revalidatePath('/friends')
     return { success: true, data: { message: data.message } }
   } catch (error: any) {
-    console.error('[leaderboard/sendFriendRequest] Error:', error)
+    logDbError('leaderboard.sendFriendRequest', error)
     return { success: false, error: error.message }
   }
 }
@@ -299,7 +300,7 @@ export async function acceptFriendRequest(
     revalidatePath('/leaderboard')
     return { success: true, data: { message: data.message } }
   } catch (error: any) {
-    console.error('[leaderboard/acceptFriendRequest] Error:', error)
+    logDbError('leaderboard.acceptFriendRequest', error)
     return { success: false, error: error.message }
   }
 }
@@ -337,7 +338,7 @@ export async function rejectFriendRequest(
     revalidatePath('/friends')
     return { success: true, data: null }
   } catch (error: any) {
-    console.error('[leaderboard/rejectFriendRequest] Error:', error)
+    logDbError('leaderboard.rejectFriendRequest', error)
     return { success: false, error: error.message }
   }
 }
@@ -364,7 +365,7 @@ export async function getFriendsList(
 
     return { success: true, data: data || [] }
   } catch (error: any) {
-    console.error('[leaderboard/getFriendsList] Error:', error)
+    logDbError('leaderboard.getFriendsList', error)
     return { success: false, error: error.message }
   }
 }
@@ -410,7 +411,7 @@ export async function getPendingFriendRequests(
 
     return { success: true, data: requests }
   } catch (error: any) {
-    console.error('[leaderboard/getPendingFriendRequests] Error:', error)
+    logDbError('leaderboard.getPendingFriendRequests', error)
     return { success: false, error: error.message }
   }
 }
@@ -437,7 +438,7 @@ export async function removeFriend(
     revalidatePath('/leaderboard')
     return { success: true, data: null }
   } catch (error: any) {
-    console.error('[leaderboard/removeFriend] Error:', error)
+    logDbError('leaderboard.removeFriend', error)
     return { success: false, error: error.message }
   }
 }
@@ -518,7 +519,7 @@ export async function searchUsers(
 
     return { success: true, data: results }
   } catch (error: any) {
-    console.error('[leaderboard/searchUsers] Error:', error)
+    logDbError('leaderboard.searchUsers', error)
     return { success: false, error: error.message }
   }
 }

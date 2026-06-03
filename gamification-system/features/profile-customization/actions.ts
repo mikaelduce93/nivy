@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type ProfileFrame,
   type ProfileTitle,
@@ -39,7 +40,7 @@ export async function getAllFrames(): Promise<ProfileFrame[]> {
 
     return data || []
   } catch (error) {
-    console.error("Erreur getAllFrames:", error)
+    logDbError("profile-customization.getAllFrames", error)
     return []
   }
 }
@@ -61,7 +62,7 @@ export async function getAllTitles(): Promise<ProfileTitle[]> {
 
     return data || []
   } catch (error) {
-    console.error("Erreur getAllTitles:", error)
+    logDbError("profile-customization.getAllTitles", error)
     return []
   }
 }
@@ -83,7 +84,7 @@ export async function getAllColors(): Promise<ProfileColor[]> {
 
     return data || []
   } catch (error) {
-    console.error("Erreur getAllColors:", error)
+    logDbError("profile-customization.getAllColors", error)
     return []
   }
 }
@@ -105,7 +106,7 @@ export async function getAllBackgrounds(): Promise<ProfileBackground[]> {
 
     return data || []
   } catch (error) {
-    console.error("Erreur getAllBackgrounds:", error)
+    logDbError("profile-customization.getAllBackgrounds", error)
     return []
   }
 }
@@ -134,7 +135,7 @@ export async function getUserCustomizationItems(): Promise<UserCustomizationItem
 
     return data
   } catch (error) {
-    console.error("Erreur getUserCustomizationItems:", error)
+    logDbError("profile-customization.getUserCustomizationItems", error)
     return null
   }
 }
@@ -205,7 +206,7 @@ export async function getPublicUserCustomization(
 
     return { frame, title, color, background }
   } catch (error) {
-    console.error("Erreur getPublicUserCustomization:", error)
+    logDbError("profile-customization.getPublicUserCustomization", error)
     return null
   }
 }
@@ -247,7 +248,7 @@ export async function equipItem(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur equipItem:", error)
+    logDbError("profile-customization.equipItem", error)
     return { success: false, error: "Erreur lors de l'équipement" }
   }
 }
@@ -291,7 +292,7 @@ export async function unequipItem(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur unequipItem:", error)
+    logDbError("profile-customization.unequipItem", error)
     return { success: false, error: "Erreur lors du déséquipement" }
   }
 }
@@ -332,7 +333,7 @@ export async function unlockItem(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur unlockItem:", error)
+    logDbError("profile-customization.unlockItem", error)
     return { success: false, error: "Erreur lors du déverrouillage" }
   }
 }
@@ -394,7 +395,7 @@ export async function purchaseItem(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur purchaseItem:", error)
+    logDbError("profile-customization.purchaseItem", error)
     return { success: false, error: "Erreur lors de l'achat" }
   }
 }
@@ -440,7 +441,7 @@ export async function updateProfileBio(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur updateProfileBio:", error)
+    logDbError("profile-customization.updateProfileBio", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -481,7 +482,7 @@ export async function updateProfileStatus(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur updateProfileStatus:", error)
+    logDbError("profile-customization.updateProfileStatus", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -523,7 +524,7 @@ export async function updateShowcaseBadges(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur updateShowcaseBadges:", error)
+    logDbError("profile-customization.updateShowcaseBadges", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -569,7 +570,7 @@ export async function updateProfilePreferences(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur updateProfilePreferences:", error)
+    logDbError("profile-customization.updateProfilePreferences", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -649,7 +650,7 @@ export async function checkLevelUnlocks(
 
     return { unlockedItems }
   } catch (error) {
-    console.error("Erreur checkLevelUnlocks:", error)
+    logDbError("profile-customization.checkLevelUnlocks", error)
     return { unlockedItems: [] }
   }
 }

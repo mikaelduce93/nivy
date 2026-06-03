@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type CreateCrewInput, type UpdateCrewInput } from "../schema"
 
 /**
@@ -35,7 +36,7 @@ export async function createCrew(input: CreateCrewInput): Promise<{
     })
 
     if (error) {
-      console.error("Error creating crew:", error)
+      logDbError("crews.createCrew", error)
       return { success: false, error: error.message }
     }
 
@@ -52,7 +53,7 @@ export async function createCrew(input: CreateCrewInput): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in createCrew:", error)
+    logDbError("crews.createCrew", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -97,7 +98,7 @@ export async function updateCrew(
       .eq("id", crewId)
 
     if (error) {
-      console.error("Error updating crew:", error)
+      logDbError("crews.updateCrew", error)
       return { success: false, error: error.message }
     }
 
@@ -105,7 +106,7 @@ export async function updateCrew(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in updateCrew:", error)
+    logDbError("crews.updateCrew", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -134,7 +135,7 @@ export async function leaveCrew(crewId: string): Promise<{
     })
 
     if (error) {
-      console.error("Error leaving crew:", error)
+      logDbError("crews.leaveCrew", error)
       return { success: false, error: error.message }
     }
 
@@ -146,7 +147,7 @@ export async function leaveCrew(crewId: string): Promise<{
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in leaveCrew:", error)
+    logDbError("crews.leaveCrew", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -206,7 +207,7 @@ export async function kickMember(
       .eq("user_id", memberId)
 
     if (error) {
-      console.error("Error kicking member:", error)
+      logDbError("crews.kickMember", error)
       return { success: false, error: error.message }
     }
 
@@ -221,7 +222,7 @@ export async function kickMember(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in kickMember:", error)
+    logDbError("crews.kickMember", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -265,7 +266,7 @@ export async function promoteMember(
       .eq("role", "member")
 
     if (error) {
-      console.error("Error promoting member:", error)
+      logDbError("crews.promoteMember", error)
       return { success: false, error: error.message }
     }
 
@@ -273,7 +274,7 @@ export async function promoteMember(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in promoteMember:", error)
+    logDbError("crews.promoteMember", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -317,7 +318,7 @@ export async function demoteMember(
       .eq("role", "admin")
 
     if (error) {
-      console.error("Error demoting member:", error)
+      logDbError("crews.demoteMember", error)
       return { success: false, error: error.message }
     }
 
@@ -325,7 +326,7 @@ export async function demoteMember(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in demoteMember:", error)
+    logDbError("crews.demoteMember", error)
     return { success: false, error: "Erreur serveur" }
   }
 }

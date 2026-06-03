@@ -8,6 +8,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { revalidatePath } from "next/cache"
 import { type UserWrapped } from "./schema"
 
@@ -40,7 +41,7 @@ export async function getUserWrapped(
 
     return data
   } catch (error) {
-    console.error("Erreur getUserWrapped:", error)
+    logDbError("annualWrapped.getUserWrapped", error)
     return null
   }
 }
@@ -78,7 +79,7 @@ export async function generateWrapped(
 
     return { success: true, wrappedId: data }
   } catch (error) {
-    console.error("Erreur generateWrapped:", error)
+    logDbError("annualWrapped.generateWrapped", error)
     return { success: false, error: "Erreur lors de la génération" }
   }
 }
@@ -137,7 +138,7 @@ export async function checkWrappedAvailability(
       hasData,
     }
   } catch (error) {
-    console.error("Erreur checkWrappedAvailability:", error)
+    logDbError("annualWrapped.checkWrappedAvailability", error)
     return { available: false, status: null, hasData: false }
   }
 }
@@ -163,7 +164,7 @@ export async function getPublicWrapped(
 
     return data
   } catch (error) {
-    console.error("Erreur getPublicWrapped:", error)
+    logDbError("annualWrapped.getPublicWrapped", error)
     return null
   }
 }
@@ -201,7 +202,7 @@ export async function toggleWrappedVisibility(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur toggleWrappedVisibility:", error)
+    logDbError("annualWrapped.toggleWrappedVisibility", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -250,7 +251,7 @@ export async function getWrappedShareUrl(
 
     return { success: true, url: shareUrl }
   } catch (error) {
-    console.error("Erreur getWrappedShareUrl:", error)
+    logDbError("annualWrapped.getWrappedShareUrl", error)
     return { success: false, error: "Erreur lors de la récupération" }
   }
 }
@@ -304,7 +305,7 @@ export async function getAvailableWrappedYears(): Promise<number[]> {
 
     return Array.from(allYears).sort((a, b) => b - a)
   } catch (error) {
-    console.error("Erreur getAvailableWrappedYears:", error)
+    logDbError("annualWrapped.getAvailableWrappedYears", error)
     return []
   }
 }
@@ -348,7 +349,7 @@ export async function incrementShareCount(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur incrementShareCount:", error)
+    logDbError("annualWrapped.incrementShareCount", error)
     return { success: false }
   }
 }
@@ -398,7 +399,7 @@ export async function getWrappedGlobalStats(
       averageXp,
     }
   } catch (error) {
-    console.error("Erreur getWrappedGlobalStats:", error)
+    logDbError("annualWrapped.getWrappedGlobalStats", error)
     return null
   }
 }

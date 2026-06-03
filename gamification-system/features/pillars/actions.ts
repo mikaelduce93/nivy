@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 
 export type ActionResult<T> = {
   success: boolean
@@ -115,7 +116,7 @@ export async function submitGrade(teenId: string, data: {
     revalidatePath("/teen/academic")
     return { success: true }
   } catch (error: any) {
-    console.error("Error submitting grade:", error)
+    logDbError("pillars.submitGrade", error)
     return { success: false, error: error.message }
   }
 }
@@ -240,7 +241,7 @@ export async function submitChallengeResult(teenId: string, data: {
     revalidatePath("/teen/challenges")
     return { success: true }
   } catch (error: any) {
-    console.error("Error submitting challenge:", error)
+    logDbError("pillars.submitChallengeResult", error)
     return { success: false, error: error.message }
   }
 }
@@ -342,7 +343,7 @@ export async function uploadCreation(teenId: string, data: {
     revalidatePath("/teen/passions")
     return { success: true }
   } catch (error: any) {
-    console.error("Error uploading creation:", error)
+    logDbError("pillars.uploadCreation", error)
     return { success: false, error: error.message }
   }
 }
@@ -379,7 +380,7 @@ export async function updatePrivacySettings(teenId: string, settings: Record<str
     revalidatePath("/teen/settings")
     return { success: true }
   } catch (error: any) {
-    console.error("Error updating privacy settings:", error)
+    logDbError("pillars.updatePrivacySettings", error)
     return { success: false, error: error.message }
   }
 }
