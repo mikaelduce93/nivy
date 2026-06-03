@@ -2,9 +2,10 @@
 
 import Image from 'next/image'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
-import { QrCode, Share2, Crown, Zap, Shield, Camera } from 'lucide-react'
+import { Share2, Crown, Zap, Shield, Camera } from 'lucide-react'
 import { DarkSurface } from '@/components/brand'
 import { Button } from '@/components/ui/button'
+import { ParentLinkQR } from '@/components/teen/parent-link-qr'
 import { toast } from 'sonner'
 
 interface TeenIDCardProps {
@@ -133,12 +134,9 @@ export function TeenIDCard({ user, xpData }: TeenIDCardProps) {
             </div>
           </div>
 
-          {/* QR Code Section */}
-          <div className="relative group">
-            <div className="absolute inset-0 bg-paper-2 blur-xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500 opacity-0 group-hover:opacity-50" />
-            <div className="relative p-4 rounded-2xl bg-white border border-ink shadow-stkr-md flex items-center justify-center">
-              <QrCode className="w-20 h-20 text-ink" />
-            </div>
+          {/* QR Code Section — real scannable parent-link QR (#297). */}
+          <div className="relative flex flex-col items-center">
+            <ParentLinkQR compact />
             <p className="mt-4 text-[10px] font-black uppercase tracking-[0.4em] text-mute">Scan to Link</p>
           </div>
         </div>

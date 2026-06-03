@@ -104,10 +104,17 @@ export default async function AddTeenPage() {
             <StickerCard variant="panel" className="p-5">
               <p className="eyebrow tracking-[0.14em] text-mute">Autres méthodes</p>
               <ul className="mt-3 space-y-2 text-sm text-mute">
-                <li className="flex items-center gap-3">
-                  <QrCode className="h-4 w-4 text-lime" aria-hidden="true" />
-                  <span>Scanner un QR Code</span>
-                  <span className="ml-auto font-mono text-[11px] uppercase tracking-wide">Bientôt</span>
+                <li>
+                  <Link
+                    href="/parent/scan-teen"
+                    className="flex items-center gap-3 rounded-xl px-1 py-1 text-ink transition-colors hover:text-pink"
+                  >
+                    <QrCode className="h-4 w-4 text-lime" aria-hidden="true" />
+                    <span>Scanner le QR de ton ado</span>
+                    <span className="ml-auto font-mono text-[11px] uppercase tracking-wide text-pink">
+                      Scanner
+                    </span>
+                  </Link>
                 </li>
                 <li className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-teal" aria-hidden="true" />
