@@ -171,6 +171,25 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
     return Object.keys(newErrors).length === 0
   }
 
+  // #295 — renvoi de l'email parent si le premier envoi a échoué.
+  const resendParentEmail = async (registrationId: string) => {
+    try {
+      const res = await fetch('/api/auth/register-teen/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registrationId }),
+      })
+      const d = await res.json()
+      if (d.success && d.data?.email_sent) {
+        toast.success("Email renvoyé à tes parents ✅")
+      } else {
+        toast.error(d.error || "Échec du renvoi. Réessaie plus tard.")
+      }
+    } catch {
+      toast.error("Échec du renvoi. Réessaie plus tard.")
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -201,9 +220,24 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
         throw new Error(data.error || "Erreur lors de l'inscription")
       }
 
-      toast.success("Demande envoyée !", {
-        description: "Tes parents vont recevoir un email pour valider ton inscription"
-      })
+      // #295 — refléter l'état réel d'envoi de l'email parent (le serveur
+      // renvoie success:true même si l'email n'est pas parti).
+      const emailSent = data.data?.email_sent !== false
+      const registrationId: string | undefined = data.data?.registrationId
+      if (emailSent) {
+        toast.success("Demande envoyée !", {
+          description: "Tes parents vont recevoir un email pour valider ton inscription"
+        })
+      } else {
+        toast.warning("Demande enregistrée — email non envoyé", {
+          description:
+            "On n'a pas réussi à envoyer l'email à tes parents. Tu peux réessayer l'envoi.",
+          duration: 10000,
+          action: registrationId
+            ? { label: "Renvoyer", onClick: () => resendParentEmail(registrationId) }
+            : undefined,
+        })
+      }
 
       // Store data in localStorage for reference
       localStorage.setItem('teen_onboarding_data', JSON.stringify({

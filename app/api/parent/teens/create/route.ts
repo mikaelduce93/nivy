@@ -255,14 +255,15 @@ export async function POST(request: Request) {
       }
     }
 
-    // 6. Notify parent (canonical user_notifications, NOT deprecated
-    //    `notifications`/`activity_logs`).
+    // 6. Notify parent (canonical user_notifications columns: title/body/
+    //    is_read/data — NOT the non-existent type/message/read, #295 — and
+    //    NOT deprecated `notifications`/`activity_logs`).
     await admin.from("user_notifications").insert({
       user_id: body.parentId,
-      type: "teen_created",
       title: "Compte Teen créé",
-      message: `Le compte de ${body.firstName} a été créé avec succès. Code de liaison : ${linkingCode}`,
-      read: false,
+      body: `Le compte de ${body.firstName} a été créé avec succès. Code de liaison : ${linkingCode}`,
+      is_read: false,
+      data: { type: "teen_created", teen_id: teenUid, linking_code: linkingCode },
     })
 
     // 7. Audit (singular).

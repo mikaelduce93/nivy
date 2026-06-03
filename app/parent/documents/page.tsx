@@ -27,9 +27,9 @@ async function getSignatures(parentId: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("e_signatures")
-    .select("id, parent_full_name, terms_accepted, created_at")
+    .select("id, parent_full_name, terms_accepted, signed_at")
     .eq("parent_id", parentId)
-    .order("created_at", { ascending: false })
+    .order("signed_at", { ascending: false })
 
   if (error) {
     console.warn("[parent/documents] e_signatures unavailable:", error.message)
@@ -148,7 +148,7 @@ export default async function ParentDocumentsPage() {
                         <p className="font-mono text-xs text-mute flex flex-wrap items-center gap-2 mt-1">
                           <Clock className="w-3 h-3" />
                           Signée le{" "}
-                          {new Date(sig.created_at).toLocaleDateString("fr-FR", {
+                          {new Date(sig.signed_at).toLocaleDateString("fr-FR", {
                             day: "numeric",
                             month: "long",
                             year: "numeric",

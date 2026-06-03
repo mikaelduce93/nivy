@@ -13,10 +13,10 @@ async function getExistingSignature(parentId: string) {
   const supabase = await createClient()
   const { data } = await supabase
     .from("e_signatures")
-    .select("id, created_at, parent_full_name")
+    .select("id, signed_at, parent_full_name")
     .eq("parent_id", parentId)
     .eq("terms_accepted", true)
-    .order("created_at", { ascending: false })
+    .order("signed_at", { ascending: false })
     .limit(1)
     .maybeSingle()
 
@@ -77,7 +77,7 @@ export default async function ParentESignaturePage({
                 <p className="text-sm text-paper/80 mt-2">
                   Une autorisation parentale a été signée
                   {existing.parent_full_name ? ` par ${existing.parent_full_name}` : ""}
-                  {" "}le {new Date(existing.created_at).toLocaleDateString("fr-FR", {
+                  {" "}le {new Date(existing.signed_at).toLocaleDateString("fr-FR", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",

@@ -28,10 +28,10 @@ export async function GET() {
     // signatures still flow through /api/e-signature/create with eventId.
     const { data: signature, error } = await supabase
       .from("e_signatures")
-      .select("id, created_at, terms_accepted")
+      .select("id, signed_at, terms_accepted")
       .eq("parent_id", userInfo.profileId)
       .eq("terms_accepted", true)
-      .order("created_at", { ascending: false })
+      .order("signed_at", { ascending: false })
       .limit(1)
       .maybeSingle()
 
@@ -45,7 +45,7 @@ export async function GET() {
 
     return NextResponse.json({
       signed: !!signature,
-      signedAt: signature?.created_at ?? null,
+      signedAt: signature?.signed_at ?? null,
       signatureId: signature?.id ?? null,
     })
   } catch (err) {
