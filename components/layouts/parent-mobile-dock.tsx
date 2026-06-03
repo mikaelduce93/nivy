@@ -95,10 +95,9 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
             justifyContent: 'space-around',
             alignItems: 'center',
             padding: '8px',
-            borderRadius: '24px',
-            backgroundColor: 'rgba(24, 24, 27, 0.95)',
-            backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '16px',
+            backgroundColor: 'var(--night)',
+            border: '2px solid var(--ink)',
           }}
         >
           {navItems.map((item) => {
@@ -117,8 +116,8 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
                   textDecoration: 'none',
                 }}
               >
-                <Icon style={{ width: '24px', height: '24px', color: '#71717a' }} />
-                <span style={{ fontSize: '10px', color: '#71717a', fontWeight: 600 }}>
+                <Icon style={{ width: '24px', height: '24px', color: 'color-mix(in oklch, var(--paper) 55%, transparent)' }} />
+                <span style={{ fontSize: '10px', color: 'color-mix(in oklch, var(--paper) 55%, transparent)', fontWeight: 600 }}>
                   {item.label}
                 </span>
               </Link>
@@ -135,22 +134,19 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
       role="navigation"
       aria-label="Navigation mobile parent"
     >
-      {/* Blur backdrop */}
-      <div 
-        className="absolute inset-0 pointer-events-none"
+      {/* Fondu paper sous le dock */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-24 -z-10 pointer-events-none"
         style={{
-          background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent)',
+          background: 'linear-gradient(to top, var(--paper), transparent)',
         }}
       />
-      
-      <div 
-        className="relative rounded-3xl p-2 flex justify-around items-center shadow-2xl"
+
+      <div
+        className="relative rounded-2xl p-2 flex justify-around items-center shadow-stkr-md"
         style={{
-          backgroundColor: 'rgba(24, 24, 27, 0.95)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'var(--night)',
+          border: '2px solid var(--ink)',
         }}
       >
         {navItems.map((item) => {
@@ -168,7 +164,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
               <motion.div
                 className={cn(
                   "relative flex flex-col items-center gap-0.5 py-2 rounded-xl",
-                  isActive ? "" : "hover:bg-white/5"
+                  isActive ? "" : "hover:bg-paper-2"
                 )}
                 // Tap feedback: 1 -> 0.92 -> 1 over ~80ms (TICKET-019).
                 whileTap={
@@ -185,7 +181,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
                     aria-hidden="true"
                     className="absolute inset-0 rounded-xl"
                     style={{
-                      background: `linear-gradient(to top, ${item.glowColor.replace('0.5', '0.18')}, transparent)`,
+                      background: 'linear-gradient(to top, color-mix(in oklch, var(--pink) 24%, transparent), transparent)',
                     }}
                     transition={
                       prefersReducedMotion
@@ -216,9 +212,8 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
                       style={{
                         width: '24px',
                         height: '24px',
-                        color: isActive ? item.color : '#71717a',
-                        filter: isActive ? `drop-shadow(0 0 8px ${item.glowColor})` : 'none',
-                        transition: 'color 0.3s ease, filter 0.3s ease',
+                        color: isActive ? 'var(--pink)' : 'color-mix(in oklch, var(--paper) 55%, transparent)',
+                        transition: 'color 0.3s ease',
                       }}
                     />
                   </motion.div>
@@ -237,11 +232,11 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
                         justifyContent: 'center',
                         padding: '0 4px',
                         borderRadius: '9999px',
-                        backgroundColor: '#ef4444',
-                        color: 'white',
+                        backgroundColor: 'var(--pink)',
+                        color: 'var(--ink)',
+                        border: '1px solid var(--ink)',
                         fontSize: '10px',
                         fontWeight: 'bold',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       }}
                     >
                       {item.badge > 9 ? '9+' : item.badge}
@@ -255,7 +250,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
                   style={{
                     fontSize: '10px',
                     fontWeight: 600,
-                    color: isActive ? 'white' : '#52525b',
+                    color: isActive ? 'var(--paper)' : 'color-mix(in oklch, var(--paper) 55%, transparent)',
                   }}
                   initial={false}
                   animate={{ opacity: isActive ? 1 : 0.6 }}
@@ -277,8 +272,7 @@ export function ParentMobileDock({ pendingCount = 0 }: { pendingCount?: number }
                       height: '4px',
                       borderRadius: '9999px',
                       marginTop: '2px',
-                      backgroundColor: item.color,
-                      boxShadow: `0 0 8px ${item.glowColor}`,
+                      backgroundColor: 'var(--pink)',
                     }}
                   />
                 )}

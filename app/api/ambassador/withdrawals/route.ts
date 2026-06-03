@@ -1,40 +1,78 @@
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
+
+/**
+ * #57 — session-gated ambassador withdrawals. The ambassador is resolved from
+ * the authenticated session (ambassadors.user_id === auth user, status
+ * 'approved'); any client-supplied ambassadorId is ignored. Money reads/writes
+ * use the service-role client with the SESSION-derived ambassador.id (no IDOR).
+ */
+async function resolveSessionAmbassador() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "Non authentifié", status: 401 as const, id: null }
+
+  // #57 — the ambassadors.status enum is {pending, active, suspended, rejected}
+  // (verified live); 'active' is the approved/usable state. The issue's
+  // 'approved' value does not exist on this table.
+  const { data: ambassador } = await supabase
+    .from("ambassadors")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .maybeSingle()
+
+  if (!ambassador) return { error: "Ambassadeur non autorisé", status: 403 as const, id: null }
+  return { error: null, status: 200 as const, id: ambassador.id as string }
+}
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const body = await request.json()
+    const session = await resolveSessionAmbassador()
+    if (!session.id) {
+      return NextResponse.json({ success: false, error: session.error }, { status: session.status })
+    }
+    const ambassadorId = session.id
 
-    const { ambassadorId, amount, paymentMethod, paymentDetails } = body
+    const body = await request.json()
+    // #57 — ambassadorId is NEVER read from the client; it comes from the session.
+    const { amount, paymentMethod, paymentDetails } = body
 
     // Validate input
-    if (!ambassadorId || !amount || !paymentMethod || !paymentDetails) {
+    if (!amount || !paymentMethod || !paymentDetails) {
       return NextResponse.json(
         { success: false, error: "Données manquantes" },
         { status: 400 }
       )
     }
 
-    // Verify ambassador exists and get balance
-    const { data: ambassador, error: ambassadorError } = await supabase
-      .from("ambassadors")
-      .select("id, total_earnings, pending_withdrawals, withdrawn_amount")
-      .eq("id", ambassadorId)
-      .single()
+    // #29 — balance from the real ledger; #57 — money ops via service-role with
+    // the session-derived ambassador id.
+    const sr = createServiceRoleClient()
+    const [{ data: commissionRows }, { data: payoutRows }] = await Promise.all([
+      sr
+        .from("ambassador_commissions")
+        .select("amount_dh")
+        .eq("ambassador_id", ambassadorId),
+      sr
+        .from("ambassador_payouts")
+        .select("amount_dh, status")
+        .eq("ambassador_id", ambassadorId),
+    ])
 
-    if (ambassadorError || !ambassador) {
-      return NextResponse.json(
-        { success: false, error: "Ambassadeur non trouvé" },
-        { status: 404 }
-      )
-    }
-
-    // Calculate available balance
-    const availableBalance =
-      (ambassador.total_earnings || 0) -
-      (ambassador.pending_withdrawals || 0) -
-      (ambassador.withdrawn_amount || 0)
+    const totalEarnings = (commissionRows || []).reduce(
+      (s, c) => s + (Number(c.amount_dh) || 0),
+      0,
+    )
+    // ambassador_payouts.status ∈ {pending, paid, failed}; pending + paid both
+    // consume the balance, failed does not.
+    const committedPayouts = (payoutRows || [])
+      .filter((p) => p.status === "pending" || p.status === "paid")
+      .reduce((s, p) => s + (Number(p.amount_dh) || 0), 0)
+    const availableBalance = totalEarnings - committedPayouts
 
     // Check minimum amount
     const minimumWithdrawal = 100
@@ -53,16 +91,16 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create withdrawal request
-    const { data: withdrawal, error: withdrawalError } = await supabase
-      .from("ambassador_withdrawals")
+    // Create the payout request. ambassador_payouts has no payment_details
+    // column; the destination (RIB / phone) is stored in `iban`.
+    const { data: withdrawal, error: withdrawalError } = await sr
+      .from("ambassador_payouts")
       .insert({
         ambassador_id: ambassadorId,
-        amount: amount,
-        payment_method: paymentMethod,
-        payment_details: paymentDetails,
+        amount_dh: amount,
+        method: paymentMethod,
+        iban: paymentDetails,
         status: "pending",
-        created_at: new Date().toISOString(),
       })
       .select()
       .single()
@@ -75,27 +113,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Update ambassador pending withdrawals
-    const { error: updateError } = await supabase
-      .from("ambassadors")
-      .update({
-        pending_withdrawals: (ambassador.pending_withdrawals || 0) + amount,
-      })
-      .eq("id", ambassadorId)
-
-    if (updateError) {
-      console.error("Ambassador update error:", updateError)
-      // Rollback withdrawal
-      await supabase
-        .from("ambassador_withdrawals")
-        .delete()
-        .eq("id", withdrawal.id)
-
-      return NextResponse.json(
-        { success: false, error: "Erreur lors de la mise à jour du solde" },
-        { status: 500 }
-      )
-    }
+    // No ambassadors-row counters to update: the new pending payout is itself
+    // part of the balance computation above on the next read.
 
     return NextResponse.json({
       success: true,
@@ -113,23 +132,20 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const supabase = await createClient()
-    const { searchParams } = new URL(request.url)
-    const ambassadorId = searchParams.get("ambassadorId")
-
-    if (!ambassadorId) {
-      return NextResponse.json(
-        { success: false, error: "ID ambassadeur requis" },
-        { status: 400 }
-      )
+    // #57 — only the session ambassador's history; any client ambassadorId is
+    // ignored (was an IDOR leaking others' payout details).
+    const session = await resolveSessionAmbassador()
+    if (!session.id) {
+      return NextResponse.json({ success: false, error: session.error }, { status: session.status })
     }
 
-    const { data: withdrawals, error } = await supabase
-      .from("ambassador_withdrawals")
+    const sr = createServiceRoleClient()
+    const { data: withdrawals, error } = await sr
+      .from("ambassador_payouts")
       .select("*")
-      .eq("ambassador_id", ambassadorId)
+      .eq("ambassador_id", session.id)
       .order("created_at", { ascending: false })
 
     if (error) {

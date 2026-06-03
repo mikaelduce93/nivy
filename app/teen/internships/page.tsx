@@ -19,11 +19,10 @@ import {
   Coins,
   Users,
   Search,
-  Building2,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { EmptyState } from "@/components/ui/states/empty-state"
-import { H1, H3 } from "@/components/ui/headings"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
+import { H3 } from "@/components/ui/headings"
 import { StatusBadge } from "@/components/ui/status-badge"
 
 export const dynamic = "force-dynamic"
@@ -51,8 +50,8 @@ const DURATION_LABELS: Record<string, string> = {
   "1_day": "1 jour",
   "1_week": "1 semaine",
   "2_weeks": "2 semaines",
-  summer: "Ete",
-  part_time_school_year: "Annee scolaire",
+  summer: "Été",
+  part_time_school_year: "Année scolaire",
 }
 
 export default async function TeenInternshipsPage({
@@ -93,32 +92,33 @@ export default async function TeenInternshipsPage({
   const list = (data ?? []) as Internship[]
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32 max-w-5xl">
+    <div className="min-h-screen bg-paper">
+      <div className="container mx-auto px-6 py-10 md:py-12 max-w-5xl">
         <Link
           href="/teen"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
+          className="inline-flex items-center gap-2 text-sm text-mute hover:text-ink mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
         </Link>
 
-        <header className="mb-8">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-success-soft to-info-soft flex items-center justify-center">
-              <Briefcase className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <H1 className="uppercase">Stages</H1>
-              <p className="text-muted-foreground text-sm font-medium">
-                Decouvre des stages chez nos partenaires verifies.
-              </p>
-            </div>
+        <header className="mb-8 flex items-start gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-lime/20">
+            <Briefcase className="h-7 w-7 text-ink" />
+          </div>
+          <div>
+            <p className="eyebrow tracking-[0.16em]">Stages partenaires</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight">
+              Tes <em className="font-semibold italic text-pink">stages</em>
+            </h1>
+            <p className="mt-1 text-sm text-mute">
+              Découvre des stages chez nos partenaires vérifiés.
+            </p>
           </div>
         </header>
 
         {error ? (
-          <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          <div className="mb-6 rounded-2xl border-2 border-ink bg-destructive/10 p-4 text-sm text-destructive">
             Impossible de charger les stages pour le moment.
           </div>
         ) : null}
@@ -126,11 +126,11 @@ export default async function TeenInternshipsPage({
         {/* Filters */}
         <form
           method="GET"
-          className="mb-8 rounded-3xl border border-border bg-card/40 backdrop-blur-md p-4 flex flex-wrap gap-3 items-end"
+          className="mb-8 flex flex-wrap items-end gap-3 rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm"
         >
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-              Mon age
+            <label className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+              Mon âge
             </label>
             <input
               type="number"
@@ -139,19 +139,19 @@ export default async function TeenInternshipsPage({
               max={18}
               defaultValue={sp.age ?? ""}
               placeholder="13-18"
-              className="rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground w-24 focus:outline-none focus:ring-2 focus:ring-success/40"
+              className="w-24 rounded-xl border-2 border-ink bg-white px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-              Duree
+            <label className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+              Durée
             </label>
             <select
               name="duration"
               defaultValue={duration}
-              className="rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-success/40"
+              className="rounded-xl border-2 border-ink bg-white px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
             >
-              <option value="">Toutes durees</option>
+              <option value="">Toutes les durées</option>
               {Object.entries(DURATION_LABELS).map(([slug, label]) => (
                 <option key={slug} value={slug}>
                   {label}
@@ -160,7 +160,7 @@ export default async function TeenInternshipsPage({
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+            <label className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
               Ville
             </label>
             <input
@@ -169,32 +169,32 @@ export default async function TeenInternshipsPage({
               defaultValue={city}
               maxLength={120}
               placeholder="Casablanca, Rabat..."
-              className="rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground w-44 focus:outline-none focus:ring-2 focus:ring-success/40"
+              className="w-44 rounded-xl border-2 border-ink bg-white px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
             />
           </div>
-          <label className="text-sm flex items-center gap-2 text-foreground/80">
+          <label className="flex items-center gap-2 text-sm text-ink">
             <input
               type="checkbox"
               name="paid"
               value="true"
               defaultChecked={paidOnly}
-              className="h-4 w-4 rounded bg-card border border-border accent-success"
+              className="h-4 w-4 rounded border-2 border-ink bg-white accent-pink"
             />
-            Remuneres uniquement
+            Rémunérés uniquement
           </label>
-          <label className="text-sm flex items-center gap-2 text-foreground/80">
+          <label className="flex items-center gap-2 text-sm text-ink">
             <input
               type="checkbox"
               name="remote"
               value="true"
               defaultChecked={remoteOnly}
-              className="h-4 w-4 rounded bg-card border border-border accent-success"
+              className="h-4 w-4 rounded border-2 border-ink bg-white accent-pink"
             />
-            A distance
+            À distance
           </label>
           <button
             type="submit"
-            className="ml-auto inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-black text-background hover:bg-foreground/90"
+            className="ml-auto inline-flex items-center gap-2 rounded-xl border-2 border-ink bg-pink px-4 py-2 text-sm font-bold text-ink transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
           >
             <Search className="h-4 w-4" />
             Filtrer
@@ -202,9 +202,9 @@ export default async function TeenInternshipsPage({
         </form>
 
         {list.length === 0 ? (
-          <EmptyState
-            icon={Briefcase}
-            title="Aucun stage disponible"
+          <NivEmpty
+            mood="proud"
+            title="Aucun stage dispo pour l'instant"
             description="De nouvelles offres seront publiées bientôt par nos partenaires. Reviens vite !"
           />
         ) : (
@@ -234,123 +234,94 @@ function InternshipCard({ internship }: { internship: Internship }) {
   const skills = (internship.required_skills ?? []).slice(0, 3)
 
   return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-3xl border border-border backdrop-blur-md p-5 sm:p-6",
-        "bg-gradient-to-br from-success-soft/10 via-success-soft/[0.03] to-transparent",
-        "hover:border-success/30 hover:shadow-2xl hover:shadow-background/40 transition-all"
-      )}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full blur-3xl bg-success-soft/40 opacity-50"
-      />
-      <div className="relative">
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-xl bg-success-soft/15 flex items-center justify-center">
-              <Briefcase className="h-4 w-4 text-success" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-success">
-                Stage
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-foreground/80">
-                {DURATION_LABELS[internship.duration] ?? internship.duration}
-              </span>
-            </div>
+    <StickerCard className="gap-0 p-5 sm:p-6">
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink bg-lime/15">
+            <Briefcase className="h-4 w-4 text-ink" />
           </div>
-          <div className="flex flex-col items-end gap-1">
-            {internship.paid ? (
-              <StatusBadge
-                variant="warning"
-                size="sm"
-                icon={Coins}
-                label={stipend > 0 ? `${stipend.toFixed(0)} DH` : "Remunere"}
-              />
-            ) : (
-              <StatusBadge variant="neutral" size="sm" icon={false} label="Non remunere" />
-            )}
-            {daysLeft !== null ? (
-              <StatusBadge
-                variant={daysLeft <= 7 ? "danger" : "neutral"}
-                size="sm"
-                icon={false}
-                label={daysLeft === 0 ? "Dernier jour" : `${daysLeft}j restants`}
-              />
-            ) : null}
+          <div className="flex flex-col gap-0.5">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-lime">
+              Stage
+            </span>
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+              {DURATION_LABELS[internship.duration] ?? internship.duration}
+            </span>
           </div>
         </div>
-
-        <H3 className="text-base font-black leading-snug text-foreground sm:text-lg">
-          {internship.title}
-        </H3>
-        {internship.description ? (
-          <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {internship.description}
-          </p>
-        ) : null}
-
-        {skills.length > 0 ? (
-          <div className="mt-3 flex flex-wrap gap-1">
-            {skills.map((s) => (
-              <span
-                key={s}
-                className="rounded-full bg-card/40 border border-border px-2 py-0.5 text-[10px] font-bold text-foreground/80"
-              >
-                {s}
-              </span>
-            ))}
-          </div>
-        ) : null}
-
-        <div className="mt-4 flex items-center justify-between gap-3 text-[11px] font-semibold text-muted-foreground flex-wrap">
-          <span className="inline-flex items-center gap-1">
-            <Users className="h-3 w-3" />
-            {internship.age_min}-{internship.age_max} ans
-          </span>
-          {internship.city || internship.remote_ok ? (
-            <span className="inline-flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              {internship.remote_ok && !internship.city
-                ? "A distance"
-                : internship.remote_ok
-                  ? `${internship.city} / Distance`
-                  : internship.city}
+        <div className="flex flex-col items-end gap-1.5">
+          {internship.paid ? (
+            <span className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-gold/20 px-2.5 py-0.5 font-mono text-[11px] font-bold tabular-nums text-ink">
+              <Coins className="h-3 w-3" aria-hidden />
+              {stipend > 0 ? `${stipend.toFixed(0)} DH` : "Rémunéré"}
             </span>
+          ) : (
+            <StatusBadge variant="neutral" size="sm" icon={false} label="Non rémunéré" />
+          )}
+          {daysLeft !== null ? (
+            <StatusBadge
+              variant={daysLeft <= 7 ? "danger" : "neutral"}
+              size="sm"
+              icon={false}
+              label={daysLeft === 0 ? "Dernier jour" : `${daysLeft}j restants`}
+            />
           ) : null}
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="h-3 w-3" />
-            {spotsLeft > 0
-              ? `${spotsLeft} place${spotsLeft > 1 ? "s" : ""} libre${spotsLeft > 1 ? "s" : ""}`
-              : "Complet"}
-          </span>
-          {deadline ? (
-            <span className="inline-flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {deadline.toLocaleDateString("fr-FR", {
-                day: "2-digit",
-                month: "short",
-              })}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="mt-4 flex justify-end">
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-black",
-              spotsLeft > 0
-                ? "bg-foreground text-background"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
-            )}
-            aria-disabled={spotsLeft === 0}
-          >
-            <Building2 className="h-3 w-3" />
-            {spotsLeft > 0 ? "Voir les details" : "Complet"}
-          </span>
         </div>
       </div>
-    </div>
+
+      <H3 className="font-display text-base font-bold leading-snug text-ink sm:text-lg">
+        {internship.title}
+      </H3>
+      {internship.description ? (
+        <p className="mt-1 line-clamp-2 text-sm leading-snug text-mute">
+          {internship.description}
+        </p>
+      ) : null}
+
+      {skills.length > 0 ? (
+        <div className="mt-3 flex flex-wrap gap-1">
+          {skills.map((s) => (
+            <span
+              key={s}
+              className="rounded-full border-2 border-ink bg-paper-2 px-2 py-0.5 font-mono text-[10px] font-bold text-ink"
+            >
+              {s}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] font-semibold text-mute">
+        <span className="inline-flex items-center gap-1">
+          <Users className="h-3 w-3" />
+          {internship.age_min}-{internship.age_max} ans
+        </span>
+        {internship.city || internship.remote_ok ? (
+          <span className="inline-flex items-center gap-1">
+            <MapPin className="h-3 w-3" />
+            {internship.remote_ok && !internship.city
+              ? "À distance"
+              : internship.remote_ok
+                ? `${internship.city} / Distance`
+                : internship.city}
+          </span>
+        ) : null}
+        <span className="inline-flex items-center gap-1">
+          <MapPin className="h-3 w-3" />
+          {spotsLeft > 0
+            ? `${spotsLeft} place${spotsLeft > 1 ? "s" : ""} libre${spotsLeft > 1 ? "s" : ""}`
+            : "Complet"}
+        </span>
+        {deadline ? (
+          <span className="inline-flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
+            {deadline.toLocaleDateString("fr-FR", {
+              day: "2-digit",
+              month: "short",
+            })}
+          </span>
+        ) : null}
+      </div>
+    </StickerCard>
   )
 }

@@ -92,80 +92,74 @@ const VARIANT_TOKENS: Record<
 > = {
   daily: {
     label: "Daily",
-    accentText: "text-cyan-300",
-    accentDot: "bg-cyan-300",
-    accentBg: "bg-cyan-500/15",
-    accentRing: "ring-cyan-400/30",
-    surface:
-      "bg-gradient-to-br from-cyan-500/10 via-cyan-500/[0.03] to-transparent",
-    progressFrom: "from-cyan-400",
-    progressTo: "to-sky-400",
-    glow: "bg-cyan-500/40",
+    accentText: "text-ink",
+    accentDot: "bg-gold",
+    accentBg: "bg-gold/15",
+    accentRing: "ring-gold/40",
+    surface: "bg-gold/5",
+    progressFrom: "from-gold",
+    progressTo: "to-gold",
+    glow: "bg-gold/30",
     defaultIcon: "Flame",
   },
   weekly: {
     label: "Weekly",
-    accentText: "text-indigo-300",
-    accentDot: "bg-indigo-300",
-    accentBg: "bg-indigo-500/15",
-    accentRing: "ring-indigo-400/30",
-    surface:
-      "bg-gradient-to-br from-indigo-500/10 via-indigo-500/[0.03] to-transparent",
-    progressFrom: "from-indigo-400",
-    progressTo: "to-violet-400",
-    glow: "bg-indigo-500/40",
+    accentText: "text-ink",
+    accentDot: "bg-teal",
+    accentBg: "bg-teal/15",
+    accentRing: "ring-teal/40",
+    surface: "bg-teal/5",
+    progressFrom: "from-teal",
+    progressTo: "to-teal",
+    glow: "bg-teal/30",
     defaultIcon: "Calendar",
   },
   monthly: {
     label: "Monthly",
-    accentText: "text-purple-300",
-    accentDot: "bg-purple-300",
-    accentBg: "bg-purple-500/15",
-    accentRing: "ring-purple-400/30",
-    surface:
-      "bg-gradient-to-br from-purple-500/10 via-purple-500/[0.03] to-transparent",
-    progressFrom: "from-purple-400",
-    progressTo: "to-fuchsia-400",
-    glow: "bg-purple-500/40",
+    accentText: "text-ink",
+    accentDot: "bg-pink",
+    accentBg: "bg-pink/15",
+    accentRing: "ring-pink/40",
+    surface: "bg-pink/5",
+    progressFrom: "from-pink",
+    progressTo: "to-pink",
+    glow: "bg-pink/30",
     defaultIcon: "Trophy",
   },
   seasonal: {
     label: "Seasonal",
-    accentText: "text-amber-300",
-    accentDot: "bg-amber-300",
-    accentBg: "bg-amber-500/15",
-    accentRing: "ring-amber-400/30",
-    surface:
-      "bg-gradient-to-br from-amber-500/10 via-amber-500/[0.03] to-transparent",
-    progressFrom: "from-amber-400",
-    progressTo: "to-orange-400",
-    glow: "bg-amber-500/40",
+    accentText: "text-ink",
+    accentDot: "bg-coral",
+    accentBg: "bg-coral/15",
+    accentRing: "ring-coral/40",
+    surface: "bg-coral/5",
+    progressFrom: "from-coral",
+    progressTo: "to-coral",
+    glow: "bg-coral/30",
     defaultIcon: "Sparkles",
   },
   physical: {
     label: "Physique",
-    accentText: "text-emerald-300",
-    accentDot: "bg-emerald-300",
-    accentBg: "bg-emerald-500/15",
-    accentRing: "ring-emerald-400/30",
-    surface:
-      "bg-gradient-to-br from-emerald-500/10 via-emerald-500/[0.03] to-transparent",
-    progressFrom: "from-emerald-400",
-    progressTo: "to-teal-400",
-    glow: "bg-emerald-500/40",
+    accentText: "text-ink",
+    accentDot: "bg-lime",
+    accentBg: "bg-lime/15",
+    accentRing: "ring-lime/40",
+    surface: "bg-lime/5",
+    progressFrom: "from-lime",
+    progressTo: "to-lime",
+    glow: "bg-lime/30",
     defaultIcon: "Dumbbell",
   },
   friend: {
     label: "Entre amis",
-    accentText: "text-pink-300",
-    accentDot: "bg-pink-300",
-    accentBg: "bg-pink-500/15",
-    accentRing: "ring-pink-400/30",
-    surface:
-      "bg-gradient-to-br from-pink-500/10 via-pink-500/[0.03] to-transparent",
-    progressFrom: "from-pink-400",
-    progressTo: "to-rose-400",
-    glow: "bg-pink-500/40",
+    accentText: "text-ink",
+    accentDot: "bg-pink",
+    accentBg: "bg-pink/15",
+    accentRing: "ring-pink/40",
+    surface: "bg-pink/5",
+    progressFrom: "from-pink",
+    progressTo: "to-pink",
+    glow: "bg-pink/30",
     defaultIcon: "Users",
   },
 }
@@ -247,7 +241,7 @@ export function DefiCard({
   const statusBadge = (() => {
     if (isCompleted) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/30">
+        <span className="inline-flex items-center gap-1 rounded-full border border-ink bg-success-soft px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-ink">
           <CheckCircle2 className="h-3 w-3" aria-hidden />
           Terminé
         </span>
@@ -255,7 +249,7 @@ export function DefiCard({
     }
     if (isLocked) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-zinc-700/40 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 ring-1 ring-zinc-500/30">
+        <span className="inline-flex items-center gap-1 rounded-full border border-line bg-muted px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-mute">
           <Lock className="h-3 w-3" aria-hidden />
           Verrouillé
         </span>
@@ -263,7 +257,7 @@ export function DefiCard({
     }
     if (isExpired) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-zinc-800/60 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-zinc-500 ring-1 ring-zinc-600/30">
+        <span className="inline-flex items-center gap-1 rounded-full border border-line bg-muted px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-mute">
           Expiré
         </span>
       )
@@ -302,8 +296,8 @@ export function DefiCard({
 
       {/* Top image (physical variant typically) */}
       {imageUrl ? (
-        <div className="relative overflow-hidden rounded-t-3xl">
-          <div className="relative h-36 w-full bg-zinc-800/60">
+        <div className="relative overflow-hidden rounded-t-2xl">
+          <div className="relative h-36 w-full bg-paper-2">
             <Image
               src={imageUrl}
               alt=""
@@ -315,7 +309,7 @@ export function DefiCard({
                 (isLocked || isExpired) && "opacity-40 grayscale",
               )}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-zinc-950/80" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink/50" />
           </div>
         </div>
       ) : null}
@@ -345,13 +339,16 @@ export function DefiCard({
             </div>
           </div>
 
-          {/* Reward chips */}
+          {/* Reward chips — XP chip hidden when there's no reward (e.g. a
+              no-stake friend défi after #206: bragging-rights, no XP transfer). */}
           <div className="flex shrink-0 flex-col items-end gap-1">
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-black tabular-nums text-amber-300 ring-1 ring-amber-400/30">
-              <Zap className="h-3 w-3" aria-hidden />+{safeXp.toLocaleString()} XP
-            </span>
+            {safeXp > 0 ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-ink bg-gold/15 px-2 py-0.5 text-[11px] font-black tabular-nums text-ink">
+                <Zap className="h-3 w-3" aria-hidden />+{safeXp.toLocaleString()} XP
+              </span>
+            ) : null}
             {safeCoins > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/15 px-2 py-0.5 text-[11px] font-black tabular-nums text-cyan-300 ring-1 ring-cyan-400/30">
+              <span className="inline-flex items-center gap-1 rounded-full border border-ink bg-coral/15 px-2 py-0.5 text-[11px] font-black tabular-nums text-ink">
                 <Coins className="h-3 w-3" aria-hidden />+{safeCoins.toLocaleString()}
               </span>
             ) : null}
@@ -361,8 +358,8 @@ export function DefiCard({
         {/* Title */}
         <h3
           className={cn(
-            "text-base font-black leading-snug text-white sm:text-lg",
-            (isLocked || isExpired) && "text-zinc-400",
+            "text-base font-black leading-snug text-ink sm:text-lg",
+            (isLocked || isExpired) && "text-mute",
           )}
         >
           {title}
@@ -372,8 +369,8 @@ export function DefiCard({
         {description ? (
           <p
             className={cn(
-              "mt-1 line-clamp-2 text-sm leading-snug text-zinc-400",
-              (isLocked || isExpired) && "text-zinc-500",
+              "mt-1 line-clamp-2 text-sm leading-snug text-mute",
+              (isLocked || isExpired) && "text-mute",
             )}
           >
             {description}
@@ -384,16 +381,16 @@ export function DefiCard({
         {showProgress ? (
           <div className="mt-4">
             <div className="mb-1 flex items-center justify-between text-[10px]">
-              <span className="font-bold uppercase tracking-wider text-zinc-500">
+              <span className="font-bold uppercase tracking-wider text-mute">
                 Progression
               </span>
-              <span className="font-black tabular-nums text-zinc-300">
+              <span className="font-black tabular-nums text-ink">
                 {progress!.current.toLocaleString()} /{" "}
                 {progress!.target.toLocaleString()}
-                <span className="ml-1 text-zinc-500">({progressPct}%)</span>
+                <span className="ml-1 text-mute">({progressPct}%)</span>
               </span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+            <div className="h-1.5 overflow-hidden rounded-full bg-paper-2">
               <div
                 className={cn(
                   "h-full rounded-full bg-gradient-to-r transition-[width] duration-500 ease-out",
@@ -411,7 +408,7 @@ export function DefiCard({
         {showDaysLeft || showCta ? (
           <div className="mt-4 flex items-center justify-between gap-3">
             {showDaysLeft ? (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-400">
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-mute">
                 <Clock className="h-3 w-3" aria-hidden />
                 {daysLeftLabel}
               </span>
@@ -420,17 +417,33 @@ export function DefiCard({
             )}
 
             {showCta ? (
-              <Link
-                href={effectiveCtaHref!}
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-black",
-                  "transition-colors hover:bg-white/90",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
-                )}
-              >
-                {ctaLabel}
-                <ArrowRight className="h-3 w-3" aria-hidden />
-              </Link>
+              cardHref ? (
+                // The whole card is already an <a> (cardHref set). A nested
+                // <Link> here would emit invalid <a> inside <a> → hydration
+                // error. Render the CTA as a visual-only pill; the parent
+                // anchor handles navigation (same destination).
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-3 py-1.5 text-[11px] font-black text-paper",
+                    "transition-all group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-stkr-pink",
+                  )}
+                >
+                  {ctaLabel}
+                  <ArrowRight className="h-3 w-3" aria-hidden />
+                </span>
+              ) : (
+                <Link
+                  href={effectiveCtaHref!}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-3 py-1.5 text-[11px] font-black text-paper",
+                    "transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink",
+                    "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[color:var(--focus-ring-color,var(--ring))]",
+                  )}
+                >
+                  {ctaLabel}
+                  <ArrowRight className="h-3 w-3" aria-hidden />
+                </Link>
+              )
             ) : null}
           </div>
         ) : null}
@@ -439,13 +452,12 @@ export function DefiCard({
   )
 
   const baseClasses = cn(
-    "group relative block overflow-hidden rounded-3xl border backdrop-blur-md transition-all duration-300",
-    tokens.surface,
-    "border-white/10",
+    "group relative block overflow-hidden rounded-2xl border-2 transition-all duration-200",
+    "bg-card border-ink shadow-stkr-md",
     isInteractive &&
-      "hover:-translate-y-0.5 hover:border-white/20 hover:shadow-2xl hover:shadow-black/40",
+      "hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr",
     isInteractive &&
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+      "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[color:var(--focus-ring-color,var(--ring))] focus-visible:ring-offset-2",
     (isLocked || isExpired) && "opacity-70 saturate-50",
     className,
   )

@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { PremiumButton } from "@/components/ui/button"
 import { FormKeyboardAware } from "@/lib/hooks/use-keyboard-aware"
 
@@ -99,8 +99,7 @@ export function RequestRideForm({ eventId }: Props) {
   }
 
   return (
-    <Card>
-      <CardContent className="p-6">
+    <StickerCard className="p-6">
         <FormKeyboardAware
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4"
@@ -171,7 +170,7 @@ export function RequestRideForm({ eventId }: Props) {
             <Label htmlFor="payment">Méthode de paiement</Label>
             <select
               id="payment"
-              className="w-full border border-border bg-background text-foreground rounded px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="w-full rounded-xl border-2 border-ink bg-white px-2 py-2 text-sm text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
               {...register("paymentMethod")}
             >
               <option value="coins">Coins</option>
@@ -199,7 +198,6 @@ export function RequestRideForm({ eventId }: Props) {
             {success ? "Envoyé !" : isSubmitting ? "Envoi…" : "Demander le trajet"}
           </PremiumButton>
         </FormKeyboardAware>
-      </CardContent>
-    </Card>
+    </StickerCard>
   )
 }

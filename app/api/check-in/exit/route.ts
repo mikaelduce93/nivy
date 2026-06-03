@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextRequest, NextResponse } from "next/server"
 import { withSecurity } from "@/lib/security/api-middleware"
 
@@ -27,15 +28,29 @@ export const POST = withSecurity(async (request: NextRequest) => {
       return NextResponse.json({ error: "Non autorisé" }, { status: 403 })
     }
 
-    const { data: ticket } = await supabase
-      .from("booking_tickets")
-      .select(`
-        *,
-        booking:bookings(booking_reference, parent_id),
-        child:children(prenom, nom, date_naissance)
-      `)
-      .eq("id", bookingTicketId)
-      .single()
+    // #36 — real schema; admin/staff isn't the owner → service-role for data ops.
+    const sr = createServiceRoleClient()
+
+    // #43 — accept a booking_tickets.id (uuid) OR the booking_reference the QR
+    // encodes; resolve identically to /entry.
+    const TICKET_COLS = "id, booking_id, child_id, ticket_type, checked_in"
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      String(bookingTicketId)
+    )
+    let ticket: any = null
+    if (isUuid) {
+      ;({ data: ticket } = await sr.from("booking_tickets").select(TICKET_COLS).eq("id", bookingTicketId).maybeSingle())
+    }
+    if (!ticket) {
+      const { data: refBooking } = await sr
+        .from("bookings")
+        .select("id")
+        .eq("booking_reference", bookingTicketId)
+        .maybeSingle()
+      if (refBooking) {
+        ;({ data: ticket } = await sr.from("booking_tickets").select(TICKET_COLS).eq("booking_id", refBooking.id).limit(1).maybeSingle())
+      }
+    }
 
     if (!ticket) {
       return NextResponse.json({ error: "Billet non trouvé" }, { status: 404 })
@@ -48,39 +63,52 @@ export const POST = withSecurity(async (request: NextRequest) => {
       )
     }
 
-    const { data: authorization } = await supabase
+    const { data: teen } = await sr
+      .from("teens")
+      .select("first_name, last_name, date_of_birth, parent_id")
+      .eq("id", ticket.child_id)
+      .maybeSingle()
+
+    // authorizations exists now (migration 109): pickup authorization for exit.
+    const { data: authorization } = await sr
       .from("authorizations")
-      .select("*")
+      .select("authorized_person_name, is_valid")
       .eq("child_id", ticket.child_id)
       .eq("event_id", eventId)
       .eq("is_valid", true)
-      .single()
+      .maybeSingle()
 
-    await supabase
+    // Close the open check-in for this teen at this event.
+    await sr
       .from("event_check_ins")
       .update({ checked_out_at: new Date().toISOString() })
-      .eq("booking_id", ticket.booking_id)
+      .eq("teen_id", ticket.child_id)
       .eq("event_id", eventId)
       .is("checked_out_at", null)
 
-    const { data: parent } = await supabase
-      .from("profiles")
-      .select("full_name, phone")
-      .eq("id", ticket.booking.parent_id)
-      .single()
+    let parentName: string | null = null
+    if (teen?.parent_id) {
+      const { data: parent } = await sr
+        .from("profiles")
+        .select("full_name")
+        .eq("id", teen.parent_id)
+        .maybeSingle()
+      parentName = parent?.full_name ?? null
+    }
 
-    const age = Math.floor(
-      (new Date().getTime() - new Date(ticket.child.date_naissance).getTime()) /
-        (1000 * 60 * 60 * 24 * 365)
-    )
+    const age = teen?.date_of_birth
+      ? Math.floor(
+          (Date.now() - new Date(teen.date_of_birth).getTime()) /
+            (1000 * 60 * 60 * 24 * 365)
+        )
+      : null
 
     return NextResponse.json({
       success: true,
-      childName: `${ticket.child.prenom} ${ticket.child.nom}`,
+      childName: teen ? `${teen.first_name ?? ""} ${teen.last_name ?? ""}`.trim() : "Teen",
       age,
       ticketType: ticket.ticket_type,
-      parentName: parent?.full_name,
-      parentPhone: parent?.phone,
+      parentName,
       hasAuthorization: !!authorization,
       authorizedPerson: authorization?.authorized_person_name,
     })

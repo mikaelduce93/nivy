@@ -1,13 +1,30 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { DarkSurface, NivEmpty } from "@/components/brand"
 import Link from "next/link"
-import { Eye, MapPin } from "lucide-react"
+import { MapPin } from "lucide-react"
 
 export const dynamic = "force-dynamic"
+
+// Charte : statut DB → libellé FR + variante <StatusBadge>. Le live (en cours)
+// porte le pulse.
+const RIDE_STATUS: Record<string, { label: string; variant: StatusVariant; pulse?: boolean }> = {
+  requested: { label: "En attente", variant: "warning" },
+  approved: { label: "Validé", variant: "info" },
+  dispatched: { label: "En route", variant: "info", pulse: true },
+  in_progress: { label: "En cours", variant: "info", pulse: true },
+  completed: { label: "Terminé", variant: "success" },
+  cancelled: { label: "Annulé", variant: "neutral" },
+  denied: { label: "Refusé", variant: "danger" },
+}
+
+function rideStatus(raw: string) {
+  return RIDE_STATUS[raw] ?? { label: raw.replace(/_/g, " "), variant: "neutral" as StatusVariant }
+}
 
 export default async function ParentRidesPage() {
   const userInfo = await getUserRole()
@@ -58,56 +75,52 @@ export default async function ParentRidesPage() {
   )
 
   return (
-    <div className="container mx-auto p-4 md:p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Trajets de mes ados</h1>
-        <p className="text-muted-foreground text-sm">
-          Suivez les trajets en direct, validez les demandes en attente.
+    <div className="container mx-auto p-4 md:p-8 space-y-8">
+      {/* Header éditorial */}
+      <header>
+        <p className="eyebrow text-pink">TRANSPORT · TRAJETS</p>
+        <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+          Où est <em className="font-semibold italic text-pink">ton ado</em> ?
+        </h1>
+        <p className="mt-2 text-sm text-mute">
+          Suis les trajets en direct, valide les demandes en attente.
         </p>
-      </div>
+      </header>
 
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-xl border-2 border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Actifs</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {active.length === 0 ? (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Aucun trajet actif.</p>
-              <Link
-                href="/parent/teens"
-                className="inline-block text-xs text-emerald-400 hover:underline"
-              >
-                Configurer les autorisations transport →
-              </Link>
-            </div>
-          ) : (
-            active.map((r) => <ParentRow key={r.id} ride={r} />)
-          )}
-        </CardContent>
-      </Card>
+      <section className="space-y-3">
+        <h2 className="eyebrow text-mute">Trajets actifs</h2>
+        {active.length === 0 ? (
+          <NivEmpty
+            title="Aucun trajet actif"
+            description="Tout est calme — ton crew est bien arrivé 🚗"
+            action={
+              <Button asChild variant="pink">
+                <Link href="/parent/teens">Configurer les autorisations transport</Link>
+              </Button>
+            }
+          />
+        ) : (
+          active.map((r) => <ParentRow key={r.id} ride={r} live />)
+        )}
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Historique</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {past.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun trajet passé.</p>
-          ) : (
-            past.map((r) => <ParentRow key={r.id} ride={r} />)
-          )}
-        </CardContent>
-      </Card>
+      <section className="space-y-3">
+        <h2 className="eyebrow text-mute">Historique</h2>
+        {past.length === 0 ? (
+          <NivEmpty title="Aucun trajet passé" description="L'historique des trajets s'affichera ici." />
+        ) : (
+          past.map((r) => <ParentRow key={r.id} ride={r} />)
+        )}
+      </section>
     </div>
   )
 }
@@ -122,29 +135,60 @@ interface RowProps {
     estimated_dh: number | null
     actual_dh: number | null
   }
+  live?: boolean
 }
 
-function ParentRow({ ride }: RowProps) {
+function ParentRow({ ride, live = false }: RowProps) {
   const dt = new Date(ride.scheduled_for)
-  return (
-    <div className="flex items-start justify-between border rounded-md p-3">
-      <div>
-        <div className="text-sm font-medium flex items-center gap-2">
-          <MapPin className="w-4 h-4" /> {ride.pickup_address} → {ride.dropoff_address}
+  const status = rideStatus(ride.status)
+  const amount = ride.actual_dh ?? ride.estimated_dh
+
+  // Trajet actif = surface sombre night, itinéraire en gros, bouton « Suivre ».
+  if (live) {
+    return (
+      <DarkSurface tone="lime" shadow className="p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 space-y-2">
+            <StatusBadge variant={status.variant} label={status.label} pulse={status.pulse} size="sm" />
+            <p className="flex items-center gap-2 font-display text-base font-bold text-paper">
+              <MapPin className="h-4 w-4 shrink-0 text-lime" aria-hidden="true" />
+              <span className="truncate">{ride.pickup_address} → {ride.dropoff_address}</span>
+            </p>
+            <p className="font-mono text-xs text-paper/60">{dt.toLocaleString("fr-FR")}</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-base font-semibold tabular-nums text-paper">
+              {amount ?? "—"} DH
+            </span>
+            <Button asChild variant="pink" size="sm">
+              <Link href={`/parent/rides/${ride.id}`}>Suivre en direct</Link>
+            </Button>
+          </div>
         </div>
-        <div className="text-xs text-muted-foreground mt-1">{dt.toLocaleString("fr-FR")}</div>
-      </div>
-      <div className="flex items-center gap-2">
-        <Badge variant="outline">{ride.status}</Badge>
-        <span className="text-sm font-semibold">
-          {ride.actual_dh ?? ride.estimated_dh ?? "—"} DH
-        </span>
-        <Link href={`/parent/rides/${ride.id}`}>
-          <Button size="sm" variant="ghost">
-            <Eye className="w-4 h-4" />
+      </DarkSurface>
+    )
+  }
+
+  return (
+    <StickerCard variant="hover" className="p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <MapPin className="h-4 w-4 shrink-0 text-mute" aria-hidden="true" />
+            <span className="truncate">{ride.pickup_address} → {ride.dropoff_address}</span>
+          </p>
+          <p className="mt-1 font-mono text-xs text-mute">{dt.toLocaleString("fr-FR")}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <StatusBadge variant={status.variant} label={status.label} size="sm" />
+          <span className="font-mono text-sm font-semibold tabular-nums text-ink">
+            {amount ?? "—"} DH
+          </span>
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/parent/rides/${ride.id}`}>Voir</Link>
           </Button>
-        </Link>
+        </div>
       </div>
-    </div>
+    </StickerCard>
   )
 }

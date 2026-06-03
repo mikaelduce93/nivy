@@ -12,12 +12,12 @@
  *   - POST /api/admin/moderation/:id/reject
  */
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { ModerationReviewRow } from "./moderation-review-row"
-import { EmptyState } from "@/components/ui/states/empty-state"
-import { ShieldCheck } from "lucide-react"
+import { NivEmpty } from "@/components/brand"
+import { StatCard } from "@/components/admin/stat-card"
+import BackButton from "@/components/admin/BackButton"
 
 export const dynamic = "force-dynamic"
 
@@ -61,8 +61,8 @@ export default async function AdminProofsPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Modération</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <h1 className="mb-2 text-2xl font-bold text-ink">Modération</h1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -140,70 +140,43 @@ export default async function AdminProofsPage() {
 
   return (
     <main className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="mb-6 flex items-center gap-3">
-        <Link
-          href="/admin"
-          className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline"
-        >
-          ← Retour
-        </Link>
-      </div>
+      <BackButton href="/admin" />
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Modération · Contenu</h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Validez les preuves et contenus signalés. Les médias privés sont signés 15 min.
+        <span className="eyebrow tracking-[0.16em] text-mute">Modération · Preuves</span>
+        <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink">
+          Preuves &amp; contenus <em className="font-semibold italic text-pink">signalés</em>
+        </h1>
+        <p className="mt-1 text-sm text-mute">
+          Valide les preuves et les contenus signalés. Les médias privés sont signés 15 min.
         </p>
       </header>
 
-      <section className="mb-8 grid grid-cols-3 gap-3">
-        <StatCard label="En attente" value={stats.pending} tone="yellow" />
-        <StatCard label="Approuvés" value={stats.approved} tone="green" />
-        <StatCard label="Rejetés" value={stats.rejected} tone="red" />
+      <section className="mb-8 grid gap-3 sm:grid-cols-3">
+        <StatCard label="En attente" value={stats.pending} tone="gold" />
+        <StatCard label="Approuvés" value={stats.approved} tone="lime" />
+        <StatCard label="Rejetés" value={stats.rejected} tone="coral" />
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold text-white">
+        <h2 className="mb-3 font-display text-lg font-extrabold tracking-tight text-ink">
           File en attente ({rows.length})
         </h2>
 
-        {rows.length === 0 && (
-          <EmptyState
-            size="small"
-            icon={ShieldCheck}
-            title="File vide"
+        {rows.length === 0 ? (
+          <NivEmpty
+            mood="proud"
+            title="File vide, le crew assure"
             description="Aucun contenu en attente de modération."
           />
+        ) : (
+          <ul className="space-y-3">
+            {rows.map((r) => (
+              <ModerationReviewRow key={r.id} row={r} />
+            ))}
+          </ul>
         )}
-
-        <ul className="space-y-3">
-          {rows.map((r) => (
-            <ModerationReviewRow key={r.id} row={r} />
-          ))}
-        </ul>
       </section>
     </main>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: number
-  tone: "yellow" | "green" | "red"
-}) {
-  const palette: Record<typeof tone, string> = {
-    yellow: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
-    green: "border-green-500/30 bg-green-500/10 text-green-300",
-    red: "border-red-500/30 bg-red-500/10 text-red-300",
-  }
-  return (
-    <div className={`rounded border p-3 ${palette[tone]}`}>
-      <div className="text-xs uppercase tracking-wide opacity-80">{label}</div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
-    </div>
   )
 }

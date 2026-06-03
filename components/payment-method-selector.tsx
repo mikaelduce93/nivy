@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CreditCard, Smartphone, Wallet, CheckCircle2, Loader2, Sparkles, ArrowLeft } from 'lucide-react'
+import { StickerCard } from '@/components/ui/sticker-card'
+import { CheckRound } from '@/components/ui/check-round'
+import { CreditCard, Smartphone, Wallet, Loader2, Sparkles, ArrowLeft } from 'lucide-react'
 import { XPPaymentSelector } from '@/components/xp-payment-selector'
 import { MobileMoneyPayment } from '@/components/mobile-money-payment'
 import { useXP } from '@/lib/hooks/use-gamification'
@@ -29,18 +30,32 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
   const { xp, loading: xpLoading } = useXP(teenId)
 
   // Feature flags pour les méthodes de paiement
+  // #46 — Stripe is gated too (the gateway may be unconfigured); off at launch.
+  const stripeEnabled = useFeatureFlag('stripe_payment', false)
   const cmiEnabled = useFeatureFlag('cmi_payment', false)
   const mobileMoneyEnabled = useFeatureFlag('mobile_money_payment', false)
+
+  // #46 — never leave a disabled method selected (Stripe was the hardcoded
+  // default). Fall back to the first actually-available method.
+  useEffect(() => {
+    const available = [
+      stripeEnabled && 'stripe',
+      cmiEnabled && 'cmi',
+      mobileMoneyEnabled && 'mobile',
+      'cash',
+    ].filter(Boolean) as Array<'stripe' | 'cmi' | 'mobile' | 'cash'>
+    if (!available.includes(selectedMethod)) {
+      setSelectedMethod(available[0])
+    }
+  }, [stripeEnabled, cmiEnabled, mobileMoneyEnabled, selectedMethod])
 
   useEffect(() => {
     async function fetchBooking() {
       const supabase = createClient()
+      // #42 — booking_tickets relation doesn't exist in the live schema.
       const { data } = await supabase
         .from('bookings')
-        .select(`
-          *,
-          booking_tickets (child_id)
-        `)
+        .select('*')
         .eq('id', bookingId)
         .single()
 
@@ -70,7 +85,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
           body: JSON.stringify({
             bookingId,
             xpAmount: xpToUse,
-            teenId: bookingData?.booking_tickets?.[0]?.child_id || teenId,
+            teenId,
           }),
         })
 
@@ -121,15 +136,11 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
           return
 
         case 'cash': {
-          // Register cash payment intent
-          const cashResponse = await fetch('/api/payments/cash/register', {
+          // #42 — real route is /api/payments/cash/create (cash/register never existed).
+          const cashResponse = await fetch('/api/payments/cash/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              bookingId,
-              amount: dhToPay,
-              xpUsed: xpToUse,
-            }),
+            body: JSON.stringify({ bookingId }),
           })
 
           if (cashResponse.ok) {
@@ -153,15 +164,15 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       name: 'Carte bancaire',
       description: 'Visa, Mastercard',
       icon: CreditCard,
-      color: 'text-blue-500',
-      enabled: true, // Stripe toujours disponible
+      color: 'text-teal',
+      enabled: stripeEnabled, // #46 — gated; not unconditional
     },
     {
       id: 'cmi' as const,
       name: 'CMI',
       description: 'Cartes marocaines',
       icon: CreditCard,
-      color: 'text-green-500',
+      color: 'text-lime',
       enabled: cmiEnabled,
     },
     {
@@ -169,7 +180,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       name: 'Mobile Money',
       description: 'Orange, inwi, Maroc Telecom',
       icon: Smartphone,
-      color: 'text-purple-500',
+      color: 'text-pink',
       enabled: mobileMoneyEnabled,
     },
     {
@@ -177,13 +188,13 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       name: 'Cash ambassadeur',
       description: 'Paiement en espèces',
       icon: Wallet,
-      color: 'text-orange-500',
+      color: 'text-coral',
       enabled: true, // Cash toujours disponible
     },
   ].filter((method) => method.enabled) // Filtrer les méthodes non activées
 
   const actualTotalAmount = bookingData?.total_amount || totalAmount
-  const childTeenId = bookingData?.booking_tickets?.[0]?.child_id || teenId
+  const childTeenId = teenId
 
   // Show Mobile Money flow
   if (showMobileMoney) {
@@ -192,7 +203,7 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
         <Button
           variant="ghost"
           onClick={() => setShowMobileMoney(false)}
-          className="text-zinc-400 hover:text-white"
+          className="text-mute hover:text-ink"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Retour aux modes de paiement
@@ -215,8 +226,8 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       {/* XP Payment Option */}
       {childTeenId && !xpLoading && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-zinc-400 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-400" />
+          <h3 className="text-sm font-semibold text-mute flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-pink" />
             Réduction XP
           </h3>
           <XPPaymentSelector
@@ -231,7 +242,15 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       {/* Payment Methods */}
       {dhToPay > 0 && (
         <>
-          <h3 className="text-sm font-semibold text-zinc-400">
+          {/* #46 — fallback notice when no card rail is active (Stripe/CMI off). */}
+          {!stripeEnabled && !cmiEnabled && (
+            <div className="rounded-xl border border-gold/30 bg-gold/10 p-3 text-sm text-gold">
+              Le paiement par carte (Stripe / CMI) sera activé prochainement. En
+              attendant, règle ta réservation via <strong>Cash ambassadeur</strong>
+              {mobileMoneyEnabled ? " ou Mobile Money" : ""}.
+            </div>
+          )}
+          <h3 className="text-sm font-semibold text-mute">
             Mode de paiement {xpToUse > 0 && `(${dhToPay} DH restants)`}
           </h3>
           <div className="grid grid-cols-2 gap-4">
@@ -239,24 +258,28 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
               const Icon = method.icon
               const isSelected = selectedMethod === method.id
               return (
-                <Card
+                <StickerCard
                   key={method.id}
-                  className={`p-4 cursor-pointer transition-all ${
+                  role="button"
+                  tabIndex={isProcessing ? -1 : 0}
+                  aria-pressed={isSelected}
+                  variant="hover"
+                  className={`p-4 ${
                     isSelected
-                      ? 'border-primary bg-primary/5'
-                      : 'border-zinc-800 hover:border-zinc-700'
+                      ? 'border-ink bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink'
+                      : ''
                   } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
                   onClick={() => !isProcessing && setSelectedMethod(method.id)}
                 >
                   <div className="flex items-start gap-3">
-                    <Icon className={`w-6 h-6 ${method.color}`} />
+                    <Icon className={`w-6 h-6 ${isSelected ? 'text-paper' : method.color}`} />
                     <div className="flex-1">
                       <p className="font-semibold text-sm mb-0.5">{method.name}</p>
-                      <p className="text-xs text-muted-foreground">{method.description}</p>
+                      <p className={`text-xs ${isSelected ? 'text-paper/70' : 'text-mute'}`}>{method.description}</p>
                     </div>
-                    {isSelected && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                    {isSelected && <CheckRound checked disabled aria-hidden />}
                   </div>
-                </Card>
+                </StickerCard>
               )
             })}
           </div>
@@ -264,30 +287,31 @@ export function PaymentMethodSelector({ bookingId, totalAmount = 0, teenId }: Pa
       )}
 
       {/* Payment Summary */}
-      <Card className="p-4 bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+      <StickerCard className="p-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-zinc-400">Total</span>
-            <span className="text-white">{actualTotalAmount} DH</span>
+            <span className="text-mute">Total</span>
+            <span className="font-mono text-ink tabular-nums">{actualTotalAmount} DH</span>
           </div>
           {xpToUse > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-purple-400">Réduction XP ({xpToUse} XP)</span>
-              <span className="text-purple-400">-{actualTotalAmount - dhToPay} DH</span>
+              <span className="text-pink">Réduction XP ({xpToUse} XP)</span>
+              <span className="font-mono text-pink tabular-nums">-{actualTotalAmount - dhToPay} DH</span>
             </div>
           )}
-          <div className="flex justify-between text-lg font-bold pt-2 border-t border-zinc-800">
-            <span className="text-white">À payer</span>
-            <span className="text-cyan-400">{dhToPay} DH</span>
+          <div className="flex justify-between text-lg font-bold pt-2 border-t-2 border-ink">
+            <span className="text-ink">À payer</span>
+            <span className="font-mono text-ink tabular-nums">{dhToPay} DH</span>
           </div>
         </div>
-      </Card>
+      </StickerCard>
 
       {/* Pay Button */}
       <Button
         onClick={handlePayment}
         disabled={isProcessing}
-        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 text-lg py-6"
+        variant="default"
+        className="w-full text-lg py-6"
         size="lg"
       >
         {isProcessing ? (

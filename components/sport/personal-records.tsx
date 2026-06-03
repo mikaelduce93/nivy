@@ -92,7 +92,7 @@ interface MiniChartProps {
 function MiniChart({ data, isTimeBased = false }: MiniChartProps) {
   if (!data || data.length < 2) {
     return (
-      <div className="h-12 flex items-center justify-center text-xs text-zinc-600">
+      <div className="h-12 flex items-center justify-center text-xs text-mute">
         Pas assez de donnees
       </div>
     )
@@ -173,11 +173,11 @@ function RecordCard({ record, history, onEdit }: RecordCardProps) {
   const isTimeBased = ["minutes", "seconds"].includes(record.unit)
 
   const categoryColors: Record<string, { bg: string; text: string; border: string }> = {
-    strength: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/30" },
-    cardio: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30" },
-    flexibility: { bg: "bg-purple-500/10", text: "text-purple-400", border: "border-purple-500/30" },
-    speed: { bg: "bg-yellow-500/10", text: "text-yellow-400", border: "border-yellow-500/30" },
-    power: { bg: "bg-orange-500/10", text: "text-orange-400", border: "border-orange-500/30" },
+    strength: { bg: "bg-destructive/10", text: "text-destructive", border: "border-destructive/30" },
+    cardio: { bg: "bg-teal/10", text: "text-teal", border: "border-teal/30" },
+    flexibility: { bg: "bg-pink/10", text: "text-pink", border: "border-pink/30" },
+    speed: { bg: "bg-gold/10", text: "text-gold", border: "border-gold/30" },
+    power: { bg: "bg-coral/10", text: "text-coral", border: "border-coral/30" },
   }
 
   const colors = categoryColors[record.record_category] || categoryColors.strength
@@ -210,8 +210,8 @@ function RecordCard({ record, history, onEdit }: RecordCardProps) {
     <motion.div layout>
       <Card
         className={cn(
-          "overflow-hidden transition-all cursor-pointer hover:border-zinc-700",
-          "bg-zinc-900 border-zinc-800"
+          "overflow-hidden transition-all cursor-pointer hover:border-ink",
+          "bg-card border-ink"
         )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -235,22 +235,22 @@ function RecordCard({ record, history, onEdit }: RecordCardProps) {
                   {record.record_category}
                 </span>
                 {record.verified && (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-500/10 text-green-400">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-lime/10 text-lime">
                     Verifie
                   </span>
                 )}
               </div>
 
-              <h3 className="font-bold text-white">{record.type_info.label}</h3>
+              <h3 className="font-bold text-ink">{record.type_info.label}</h3>
 
               <div className="flex items-center gap-3 mt-1">
-                <span className="text-2xl font-bold text-white">
+                <span className="text-2xl font-bold text-ink">
                   {formatValue(record.value, record.unit)}
                 </span>
                 {record.improvement_percent !== undefined && record.improvement_percent !== 0 && (
                   <span className={cn(
                     "flex items-center gap-1 text-sm font-medium",
-                    record.improvement_percent > 0 ? "text-green-400" : "text-red-400"
+                    record.improvement_percent > 0 ? "text-lime" : "text-destructive"
                   )}>
                     {record.improvement_percent > 0 ? (
                       <TrendingUp className="w-4 h-4" />
@@ -269,7 +269,7 @@ function RecordCard({ record, history, onEdit }: RecordCardProps) {
             </div>
 
             {/* Expand indicator */}
-            <div className="text-zinc-600">
+            <div className="text-mute">
               {isExpanded ? (
                 <ChevronUp className="w-5 h-5" />
               ) : (
@@ -288,31 +288,31 @@ function RecordCard({ record, history, onEdit }: RecordCardProps) {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-4 border-t border-zinc-800 pt-4">
+              <div className="px-4 pb-4 border-t border-ink pt-4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-                  <div className="text-center p-3 bg-zinc-800/50 rounded-xl">
-                    <p className="text-xs text-zinc-500 mb-1">Record actuel</p>
-                    <p className="font-bold text-white">
+                  <div className="text-center p-3 bg-card rounded-xl">
+                    <p className="text-xs text-mute mb-1">Record actuel</p>
+                    <p className="font-bold text-ink">
                       {formatValue(record.value, record.unit)}
                     </p>
                   </div>
                   {record.previous_value && (
-                    <div className="text-center p-3 bg-zinc-800/50 rounded-xl">
-                      <p className="text-xs text-zinc-500 mb-1">Precedent</p>
-                      <p className="font-bold text-zinc-400">
+                    <div className="text-center p-3 bg-card rounded-xl">
+                      <p className="text-xs text-mute mb-1">Precedent</p>
+                      <p className="font-bold text-mute">
                         {formatValue(record.previous_value, record.unit)}
                       </p>
                     </div>
                   )}
-                  <div className="text-center p-3 bg-zinc-800/50 rounded-xl">
-                    <p className="text-xs text-zinc-500 mb-1">XP gagnes</p>
-                    <p className="font-bold text-cyan-400">
+                  <div className="text-center p-3 bg-card rounded-xl">
+                    <p className="text-xs text-mute mb-1">XP gagnes</p>
+                    <p className="font-bold text-teal">
                       +{record.xp_awarded || 0} XP
                     </p>
                   </div>
-                  <div className="text-center p-3 bg-zinc-800/50 rounded-xl">
-                    <p className="text-xs text-zinc-500 mb-1">Date</p>
-                    <p className="font-bold text-white">
+                  <div className="text-center p-3 bg-card rounded-xl">
+                    <p className="text-xs text-mute mb-1">Date</p>
+                    <p className="font-bold text-ink">
                       {new Date(record.achieved_at).toLocaleDateString("fr-FR", {
                         day: "numeric",
                         month: "short",
@@ -322,8 +322,8 @@ function RecordCard({ record, history, onEdit }: RecordCardProps) {
                 </div>
 
                 {/* Full chart */}
-                <div className="h-32 bg-zinc-800/50 rounded-xl p-4">
-                  <p className="text-xs text-zinc-500 mb-2">Evolution</p>
+                <div className="h-32 bg-card rounded-xl p-4">
+                  <p className="text-xs text-mute mb-2">Evolution</p>
                   <div className="h-20">
                     <MiniChart data={history || []} isTimeBased={isTimeBased} />
                   </div>
@@ -335,7 +335,7 @@ function RecordCard({ record, history, onEdit }: RecordCardProps) {
                       e.stopPropagation()
                       onEdit()
                     }}
-                    className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-500"
+                    className="w-full mt-4 bg-gradient-to-r from-teal to-teal"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Ajouter un nouveau record
@@ -397,28 +397,28 @@ function AddRecordModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/80"
+        className="absolute inset-0 bg-ink/80"
         onClick={onClose}
       />
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="relative bg-zinc-900 rounded-2xl p-6 max-w-md w-full border border-zinc-800 max-h-[90vh] overflow-y-auto"
+        className="relative bg-card rounded-2xl p-6 max-w-md w-full border border-ink max-h-[90vh] overflow-y-auto"
       >
-        <h3 className="text-xl font-bold text-white mb-6">Nouveau record personnel</h3>
+        <h3 className="text-xl font-bold text-ink mb-6">Nouveau record personnel</h3>
 
         {/* Category filter */}
         <div className="mb-4">
-          <label className="text-sm text-zinc-400 mb-2 block">Categorie</label>
+          <label className="text-sm text-mute mb-2 block">Categorie</label>
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setCategory("")}
               className={cn(
                 "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
                 !category
-                  ? "bg-cyan-500 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                  ? "bg-teal text-ink"
+                  : "bg-card text-mute hover:bg-muted"
               )}
             >
               Toutes
@@ -430,8 +430,8 @@ function AddRecordModal({
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-all",
                   category === cat
-                    ? "bg-cyan-500 text-white"
-                    : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                    ? "bg-teal text-ink"
+                    : "bg-card text-mute hover:bg-muted"
                 )}
               >
                 {cat}
@@ -442,7 +442,7 @@ function AddRecordModal({
 
         {/* Record type selection */}
         <div className="mb-4">
-          <label className="text-sm text-zinc-400 mb-2 block">Type de record</label>
+          <label className="text-sm text-mute mb-2 block">Type de record</label>
           <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
             {filteredTypes.map((type) => {
               const Icon = iconMap[type.icon] || Target
@@ -453,17 +453,17 @@ function AddRecordModal({
                   className={cn(
                     "p-3 rounded-xl flex items-center gap-2 transition-all text-left",
                     recordType === type.id
-                      ? "bg-cyan-500/20 border-2 border-cyan-500"
-                      : "bg-zinc-800 border-2 border-transparent hover:border-zinc-700"
+                      ? "bg-teal/20 border-2 border-teal"
+                      : "bg-card border-2 border-transparent hover:border-ink"
                   )}
                 >
                   <Icon className={cn(
                     "w-5 h-5 flex-shrink-0",
-                    recordType === type.id ? "text-cyan-400" : "text-zinc-400"
+                    recordType === type.id ? "text-teal" : "text-mute"
                   )} />
                   <span className={cn(
                     "text-sm truncate",
-                    recordType === type.id ? "text-cyan-400" : "text-zinc-400"
+                    recordType === type.id ? "text-teal" : "text-mute"
                   )}>
                     {type.label}
                   </span>
@@ -475,7 +475,7 @@ function AddRecordModal({
 
         {/* Value input */}
         <div className="mb-6">
-          <label className="text-sm text-zinc-400 mb-2 block">
+          <label className="text-sm text-mute mb-2 block">
             Valeur {selectedTypeInfo && `(${selectedTypeInfo.unit})`}
           </label>
           <input
@@ -483,7 +483,7 @@ function AddRecordModal({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder={selectedTypeInfo ? `Ex: 50 ${selectedTypeInfo.unit}` : "Entrez votre record"}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-lg"
+            className="w-full bg-card border border-ink rounded-xl px-4 py-3 text-ink text-lg"
             step="any"
           />
         </div>
@@ -493,14 +493,14 @@ function AddRecordModal({
           <Button
             onClick={onClose}
             variant="outline"
-            className="flex-1 border-zinc-700"
+            className="flex-1 border-ink"
           >
             Annuler
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!recordType || !value}
-            className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="flex-1 bg-gradient-to-r from-teal to-teal"
           >
             <Plus className="w-4 h-4 mr-2" />
             Enregistrer
@@ -583,7 +583,7 @@ export function PersonalRecordsDashboard({ teenId }: PersonalRecordsDashboardPro
     return (
       <div className="space-y-4 animate-pulse">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-24 bg-zinc-800 rounded-2xl" />
+          <div key={i} className="h-24 bg-card rounded-2xl" />
         ))}
       </div>
     )
@@ -594,25 +594,25 @@ export function PersonalRecordsDashboard({ teenId }: PersonalRecordsDashboardPro
       {/* Stats header */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Trophy className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.total_records}</p>
-            <p className="text-xs text-zinc-500">Records</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Trophy className="w-6 h-6 text-gold mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.total_records}</p>
+            <p className="text-xs text-mute">Records</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <TrendingUp className="w-6 h-6 text-green-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.recent_improvements}</p>
-            <p className="text-xs text-zinc-500">Ameliorations</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <TrendingUp className="w-6 h-6 text-lime mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.recent_improvements}</p>
+            <p className="text-xs text-mute">Ameliorations</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Zap className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.total_xp_earned}</p>
-            <p className="text-xs text-zinc-500">XP gagnes</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Zap className="w-6 h-6 text-teal mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.total_xp_earned}</p>
+            <p className="text-xs text-mute">XP gagnes</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Award className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.by_category.length}</p>
-            <p className="text-xs text-zinc-500">Categories</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Award className="w-6 h-6 text-pink mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.by_category.length}</p>
+            <p className="text-xs text-mute">Categories</p>
           </Card>
         </div>
       )}
@@ -626,8 +626,8 @@ export function PersonalRecordsDashboard({ teenId }: PersonalRecordsDashboardPro
             className={cn(
               "px-4 py-2 rounded-xl text-sm font-medium transition-all",
               !filterCategory
-                ? "bg-cyan-500 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                ? "bg-teal text-ink"
+                : "bg-card text-mute hover:bg-muted"
             )}
           >
             Toutes
@@ -639,8 +639,8 @@ export function PersonalRecordsDashboard({ teenId }: PersonalRecordsDashboardPro
               className={cn(
                 "px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all",
                 filterCategory === cat
-                  ? "bg-cyan-500 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                  ? "bg-teal text-ink"
+                  : "bg-card text-mute hover:bg-muted"
               )}
             >
               {cat}
@@ -654,7 +654,7 @@ export function PersonalRecordsDashboard({ teenId }: PersonalRecordsDashboardPro
             setSelectedTypeForEdit(undefined)
             setShowAddModal(true)
           }}
-          className="bg-gradient-to-r from-cyan-500 to-blue-500"
+          className="bg-gradient-to-r from-teal to-teal"
         >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau record
@@ -678,15 +678,15 @@ export function PersonalRecordsDashboard({ teenId }: PersonalRecordsDashboardPro
 
       {/* Empty state */}
       {records.length === 0 && (
-        <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-          <Trophy className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">Aucun record</h3>
-          <p className="text-zinc-400 mb-4">
+        <Card className="p-8 bg-card border-ink text-center">
+          <Trophy className="w-12 h-12 text-mute mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-ink mb-2">Aucun record</h3>
+          <p className="text-mute mb-4">
             Commence a enregistrer tes performances personnelles !
           </p>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="bg-gradient-to-r from-teal to-teal"
           >
             <Plus className="w-4 h-4 mr-2" />
             Ajouter mon premier record
@@ -747,7 +747,7 @@ export function RecordsWidget({ teenId, limit = 3, onSeeAll }: RecordsWidgetProp
     return (
       <div className="space-y-3 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 bg-zinc-800 rounded-xl" />
+          <div key={i} className="h-16 bg-card rounded-xl" />
         ))}
       </div>
     )
@@ -758,16 +758,16 @@ export function RecordsWidget({ teenId, limit = 3, onSeeAll }: RecordsWidgetProp
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-white flex items-center gap-2">
-          <Trophy className="w-4 h-4 text-yellow-400" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-gold" />
           Records personnels
         </h3>
         {onSeeAll && (
           <button
             onClick={onSeeAll}
-            className="text-sm text-cyan-400 hover:underline"
+            className="text-sm text-teal hover:underline"
           >
             Voir tout
           </button>
@@ -780,21 +780,21 @@ export function RecordsWidget({ teenId, limit = 3, onSeeAll }: RecordsWidgetProp
           return (
             <div
               key={record.id}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-card transition-colors"
             >
-              <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-yellow-400" />
+              <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                <Icon className="w-5 h-5 text-gold" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white font-medium truncate">
+                <p className="text-sm text-ink font-medium truncate">
                   {record.type_info.label}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-mute">
                   {record.value} {record.unit}
                 </p>
               </div>
               {record.improvement_percent !== undefined && record.improvement_percent > 0 && (
-                <span className="flex items-center gap-1 text-xs text-green-400">
+                <span className="flex items-center gap-1 text-xs text-lime">
                   <TrendingUp className="w-3 h-3" />
                   +{record.improvement_percent.toFixed(0)}%
                 </span>

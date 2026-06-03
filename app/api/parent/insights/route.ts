@@ -56,9 +56,11 @@ export async function GET() {
         .from('teen_budget_limits')
         .select('teen_id, monthly_limit')
         .in('teen_id', teenIds),
+      // #25 — booking_approval_requests never existed; canonical table is
+      // parental_approvals (resource_id holds the event id; no embeddable FK).
       supabase
-        .from('booking_approval_requests')
-        .select('id, event:event_id(title)')
+        .from('parental_approvals')
+        .select('id, resource_id')
         .eq('parent_id', user.id)
         .eq('status', 'pending')
         .limit(5)
@@ -79,9 +81,7 @@ export async function GET() {
         type: 'warning',
         priority: 9,
         message: `${pendingApprovals.length} demande${pendingApprovals.length > 1 ? 's' : ''} d'approbation en attente`,
-        detail: pendingApprovals.length === 1 
-          ? (pendingApprovals[0].event as unknown as { title?: string } | null)?.title
-          : undefined,
+        detail: undefined,
         action: { label: 'Voir', href: '/parent/approvals' }
       })
     }

@@ -1,57 +1,88 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { DarkSurface, StatHero, NivCoach, NivEmpty } from "@/components/brand"
 import {
   Users,
   ArrowLeft,
-  TrendingUp,
-  Calendar,
-  Filter,
-  Search,
-  Star,
   CheckCircle,
-  Clock,
-  UserPlus
 } from "lucide-react"
 import Link from "next/link"
 
 async function getAmbassadorReferrals(profileId: string) {
   const supabase = await createClient()
 
-  // Get ambassador data
+  // #29 — ambassadors is keyed on user_id; totals are no longer stored on the
+  // row (commission_pct lives there, counts are recomputed from source tables).
   const { data: ambassador } = await supabase
     .from("ambassadors")
-    .select("id, total_referrals, total_earnings")
-    .eq("profile_id", profileId)
-    .single()
+    .select("id, commission_pct")
+    .eq("user_id", profileId)
+    .maybeSingle()
 
   if (!ambassador) return { referrals: [], stats: null }
 
-  // Get all referrals with user details
-  const { data: referrals, error } = await supabase
-    .from("referral_usage")
-    .select(`
-      id,
-      commission_amount,
-      status,
-      created_at,
-      user:user_id (
-        id,
-        full_name,
-        email,
-        role,
-        created_at
-      )
-    `)
+  // #29/#33 — referral_attribution is the canonical ambassador→filleul link
+  // (keyed on ambassador_id). referral_uses/referral_usage carry no
+  // ambassador_id; #67 will consolidate the two referral systems.
+  const { data: attributions, error } = await supabase
+    .from("referral_attribution")
+    .select("id, referred_user_id, attributed_at")
     .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
+    .order("attributed_at", { ascending: false })
 
   if (error) {
     console.error("Error fetching referrals:", error)
     return { referrals: [], stats: { totalReferrals: 0, totalEarnings: 0 } }
   }
+
+  const rows = attributions || []
+
+  // Resolve filleul profiles + per-filleul commission totals.
+  const referredIds = [...new Set(rows.map((r) => r.referred_user_id).filter(Boolean))]
+  const profileById = new Map<string, { full_name: string; email: string; role: string }>()
+  const earningsByUser = new Map<string, number>()
+  let totalEarnings = 0
+
+  if (referredIds.length > 0) {
+    const [{ data: profs }, { data: commissions }] = await Promise.all([
+      supabase.from("profiles").select("id, full_name, email, role").in("id", referredIds),
+      supabase
+        .from("ambassador_commissions")
+        .select("referred_user_id, amount_dh")
+        .eq("ambassador_id", ambassador.id),
+    ])
+    for (const p of profs || []) {
+      profileById.set(p.id, {
+        full_name: p.full_name || "Utilisateur",
+        email: p.email || "",
+        role: p.role || "user",
+      })
+    }
+    for (const c of commissions || []) {
+      const amt = Number(c.amount_dh) || 0
+      totalEarnings += amt
+      if (c.referred_user_id) {
+        earningsByUser.set(
+          c.referred_user_id,
+          (earningsByUser.get(c.referred_user_id) || 0) + amt,
+        )
+      }
+    }
+  }
+
+  const referrals = rows.map((r) => ({
+    id: r.id,
+    created_at: r.attributed_at,
+    // referral_attribution has no status column → an attributed filleul is active.
+    status: "active" as const,
+    commission_amount: earningsByUser.get(r.referred_user_id) || 0,
+    user:
+      profileById.get(r.referred_user_id) || { full_name: "Utilisateur", email: "", role: "user" },
+  }))
 
   // Calculate stats
   const now = new Date()
@@ -59,19 +90,18 @@ async function getAmbassadorReferrals(profileId: string) {
   const startOfWeek = new Date(now)
   startOfWeek.setDate(now.getDate() - now.getDay())
 
-  const monthlyReferrals = referrals?.filter(r => new Date(r.created_at) >= startOfMonth).length || 0
-  const weeklyReferrals = referrals?.filter(r => new Date(r.created_at) >= startOfWeek).length || 0
-  const activeReferrals = referrals?.filter(r => r.status === "active" || !r.status).length || 0
+  const monthlyReferrals = referrals.filter((r) => new Date(r.created_at) >= startOfMonth).length
+  const weeklyReferrals = referrals.filter((r) => new Date(r.created_at) >= startOfWeek).length
 
   return {
-    referrals: referrals || [],
+    referrals,
     stats: {
-      totalReferrals: ambassador.total_referrals || referrals?.length || 0,
-      totalEarnings: ambassador.total_earnings || 0,
+      totalReferrals: referrals.length,
+      totalEarnings,
       monthlyReferrals,
       weeklyReferrals,
-      activeReferrals
-    }
+      activeReferrals: referrals.length,
+    },
   }
 }
 
@@ -105,228 +135,147 @@ export default async function AmbassadorReferralsPage() {
     return formatDate(dateString)
   }
 
-  const getStatusBadge = (status: string | null) => {
+  const getStatus = (status: string | null): { variant: StatusVariant; label: string } => {
     switch (status) {
       case "active":
       case null:
       case undefined:
-        return {
-          icon: CheckCircle,
-          text: "Actif",
-          class: "bg-emerald-500/20 text-emerald-400"
-        }
+        return { variant: "success", label: "Actif" }
       case "pending":
-        return {
-          icon: Clock,
-          text: "En attente",
-          class: "bg-amber-500/20 text-amber-400"
-        }
+        return { variant: "pending", label: "En attente" }
       case "inactive":
-        return {
-          icon: Clock,
-          text: "Inactif",
-          class: "bg-zinc-500/20 text-zinc-400"
-        }
+        return { variant: "neutral", label: "Inactif" }
       default:
-        return {
-          icon: CheckCircle,
-          text: status,
-          class: "bg-zinc-500/20 text-zinc-400"
-        }
+        return { variant: "neutral", label: "Inconnu" }
     }
   }
 
+  // Privacy mineurs : on masque l'email, on ne montre que prénom + initiale.
+  const maskEmail = (email: string) => {
+    if (!email || !email.includes("@")) return ""
+    const [local, domain] = email.split("@")
+    const head = local.slice(0, 2)
+    return `${head}${"•".repeat(Math.max(local.length - 2, 1))}@${domain}`
+  }
+
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="container mx-auto px-6 py-32">
+    <div className="bg-paper">
+      <div className="container mx-auto px-6 py-20 md:py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-white">Mes Filleuls</h1>
-            <p className="text-zinc-400">Suivez tous vos parrainages</p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
-              <Search className="h-4 w-4 mr-2" />
-              Rechercher
-            </Button>
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
-              <Filter className="h-4 w-4 mr-2" />
-              Filtrer
-            </Button>
-          </div>
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <span className="eyebrow tracking-[0.16em] text-pink">Mes filleuls</span>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Ton <em className="font-semibold italic text-pink">crew</em>, tout ton réseau Nivy.
+          </h1>
+          <p className="mt-2 text-mute">Suis tous tes parrainages.</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-blue-400 font-medium">Total</p>
-                  <p className="text-3xl font-black text-white">{stats?.totalReferrals || 0}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-blue-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* 3 KPI forts : Total · Actifs · Gains (surface sombre) */}
+        <div className="mb-8 grid gap-4 sm:grid-cols-3">
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <span className="eyebrow tracking-[0.16em] text-mute">Total filleuls</span>
+              <Users className="h-5 w-5 text-teal" />
+            </div>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-ink">{stats?.totalReferrals || 0}</p>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-emerald-400 font-medium">Actifs</p>
-                  <p className="text-3xl font-black text-white">{stats?.activeReferrals || 0}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-emerald-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <span className="eyebrow tracking-[0.16em] text-mute">Actifs</span>
+              <CheckCircle className="h-5 w-5 text-lime" />
+            </div>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-ink">{stats?.activeReferrals || 0}</p>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-purple-400 font-medium">Ce mois</p>
-                  <p className="text-3xl font-black text-white">+{stats?.monthlyReferrals || 0}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-purple-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-amber-400 font-medium">Cette semaine</p>
-                  <p className="text-3xl font-black text-white">+{stats?.weeklyReferrals || 0}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-amber-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-green-400 font-medium">Gains totaux</p>
-                  <p className="text-3xl font-black text-white">{stats?.totalEarnings || 0} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <Star className="h-6 w-6 text-green-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Gains — surface sombre (argent) */}
+          <DarkSurface tone="lime" shadow className="p-5">
+            <span className="eyebrow tracking-[0.16em] text-paper/60">Gains DH</span>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-lime">
+              {(stats?.totalEarnings || 0).toLocaleString()} <span className="font-mono text-sm text-paper/60">DH</span>
+            </p>
+          </DarkSurface>
         </div>
 
         {/* Referrals List */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Users className="h-5 w-5 text-amber-400" />
-              Liste des filleuls ({referrals.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {referrals.length > 0 ? (
-              <div className="space-y-3">
-                {referrals.map((referral: any) => {
-                  const status = getStatusBadge(referral.status)
-                  const StatusIcon = status.icon
-                  const userName = referral.user?.full_name || "Utilisateur"
-                  const userEmail = referral.user?.email || ""
-                  const userRole = referral.user?.role || "user"
+        <StickerCard className="p-6">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <Users className="h-5 w-5 text-gold" />
+            Liste des filleuls ({referrals.length})
+          </h2>
+          {referrals.length > 0 ? (
+            <div className="space-y-3">
+              {referrals.map((referral: any) => {
+                const status = getStatus(referral.status)
+                const userName = referral.user?.full_name || "Utilisateur"
+                const userEmail = referral.user?.email || ""
+                const userRole = referral.user?.role || "user"
 
-                  return (
-                    <div
-                      key={referral.id}
-                      className="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/30 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-black text-xl">
-                          {userName.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-white">{userName}</h3>
-                          <p className="text-sm text-zinc-400">{userEmail}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded">
-                              {userRole === "teen" ? "Teen" : userRole === "parent" ? "Parent" : "Utilisateur"}
-                            </span>
-                            <span className="text-xs text-zinc-500">
-                              Inscrit {getRelativeTime(referral.created_at)}
-                            </span>
-                          </div>
-                        </div>
+                return (
+                  <div
+                    key={referral.id}
+                    className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-line bg-white p-5 md:flex-row md:items-center"
+                  >
+                    <div className="flex min-w-0 items-center gap-4">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-pink font-display text-xl font-extrabold text-ink">
+                        {userName.charAt(0)}
                       </div>
-
-                      <div className="flex items-center gap-4 mt-4 md:mt-0">
-                        <div className="text-right">
-                          <p className="text-lg font-black text-emerald-400">
-                            +{referral.commission_amount || 0} DH
-                          </p>
-                          <p className="text-xs text-zinc-500">Commission</p>
+                      <div className="min-w-0">
+                        <h3 className="truncate font-display text-lg font-extrabold text-ink">{userName}</h3>
+                        {userEmail && (
+                          <p className="truncate font-mono text-xs text-mute">{maskEmail(userEmail)}</p>
+                        )}
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="rounded-full border-2 border-line px-2 py-0.5 font-mono text-[11px] text-mute">
+                            {userRole === "teen" ? "Ado" : userRole === "parent" ? "Parent" : "Membre"}
+                          </span>
+                          <span className="font-mono text-xs text-mute">
+                            Inscrit {getRelativeTime(referral.created_at)}
+                          </span>
                         </div>
-                        <span className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full ${status.class}`}>
-                          <StatusIcon className="h-3 w-3" />
-                          {status.text}
-                        </span>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <UserPlus className="h-20 w-20 mx-auto mb-6 text-zinc-700" />
-                <h3 className="text-2xl font-bold text-white mb-2">Pas encore de filleuls</h3>
-                <p className="text-zinc-400 mb-6 max-w-md mx-auto">
-                  Partagez votre code de parrainage pour commencer à gagner des commissions
-                </p>
-                <Button asChild className="bg-amber-500 hover:bg-amber-600 text-white">
-                  <Link href="/ambassador">
-                    Partager mon code
-                  </Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
-        {/* Info Box */}
-        <div className="mt-8 p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-2xl">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
-              <Star className="h-6 w-6 text-amber-400" />
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="font-mono text-lg font-bold tabular-nums text-lime">
+                          +{referral.commission_amount || 0} DH
+                        </p>
+                        <p className="font-mono text-[11px] text-mute">Commission</p>
+                      </div>
+                      <StatusBadge variant={status.variant} label={status.label} />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-            <div>
-              <h3 className="font-bold text-white mb-1">Comment gagner plus ?</h3>
-              <p className="text-sm text-zinc-400">
-                Plus vos filleuls sont actifs (réservations, achats), plus vous gagnez de commissions récurrentes.
-                Partagez votre code sur les réseaux sociaux et auprès de votre entourage pour maximiser vos gains.
-              </p>
-            </div>
-          </div>
-        </div>
+          ) : (
+            <NivEmpty
+              title="Pas encore de filleuls"
+              description="Partage ton code de parrainage pour ramener ton premier filleul et commencer à gagner."
+              action={
+                <Button asChild variant="pink">
+                  <Link href="/ambassador">Partager mon code</Link>
+                </Button>
+              }
+            />
+          )}
+        </StickerCard>
+
+        {/* Coach Niv — comment gagner plus */}
+        <NivCoach
+          className="mt-8"
+          mood="happy"
+          message="Plus tes filleuls sont actifs (réservations, achats), plus tu touches de commissions récurrentes. Partage ton code sur tes réseaux et autour de toi pour maximiser tes gains."
+        />
       </div>
     </div>
   )

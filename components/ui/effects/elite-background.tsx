@@ -38,6 +38,10 @@ interface AnimatedMeshGradientProps {
   blur?: number
 }
 
+/**
+ * @deprecated Charte §3 — blobs `filter: blur()` + couleurs hors-charte
+ * (interdit). Remplacer par `<MeshBackground>` (F11, mesh radial sans blur).
+ */
 export function AnimatedMeshGradient({
   className,
   color1 = '#8b5cf6',
@@ -130,6 +134,10 @@ interface AuroraEffectProps {
   opacity?: number
 }
 
+/**
+ * @deprecated Charte §3 — `blur()` + `mixBlendMode` (interdit). Remplacer par
+ * `<MeshBackground>` (F11).
+ */
 export function AuroraEffect({
   className,
   colors = ['#22d3ee', '#8b5cf6', '#ec4899', '#22d3ee'],
@@ -195,6 +203,10 @@ interface FlowingOrbsProps {
   speed?: number
 }
 
+/**
+ * @deprecated Charte §3 — orbes `blur(60px)` (interdit). Remplacer par
+ * `<MeshBackground>` (F11).
+ */
 export function FlowingOrbs({
   className,
   count = 5,
@@ -501,6 +513,10 @@ interface SpotlightAmbientProps {
   animate?: boolean
 }
 
+/**
+ * @deprecated Charte §3 — spotlight flou (interdit). Remplacer par
+ * `<MeshBackground>` (F11).
+ */
 export function SpotlightAmbient({
   className,
   color = 'rgba(139, 92, 246, 0.15)',
@@ -546,6 +562,10 @@ interface EliteBackgroundProps {
   accentColor?: string
 }
 
+/**
+ * @deprecated Charte §3 — preset full-blur (interdit). Remplacer par
+ * `<MeshBackground>` (F11).
+ */
 export function EliteBackground({
   className,
   preset = 'default',
@@ -598,7 +618,7 @@ export function EliteBackground({
   }
 
   return (
-    <div className={cn('fixed inset-0 z-0 overflow-hidden bg-[#020203]', className)}>
+    <div className={cn('fixed inset-0 z-0 overflow-hidden bg-background', className)}>
       {presets[preset]}
     </div>
   )

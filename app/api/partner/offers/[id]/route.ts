@@ -21,16 +21,18 @@ export async function PATCH(
     const body = await request.json()
     const {
       partnerId,
-      name,
+      title,
       description,
       offerType,
       discountValue,
-      minPurchase,
-      maxUsage,
+      minPurchaseAmount,
+      maxTotalUses,
+      maxUsesPerUser,
+      requiresVip,
+      minVipLevel,
       validFrom,
       validUntil,
       status,
-      eligibleLevels
     } = body
 
     // Verify partner owns this offer
@@ -57,27 +59,57 @@ export async function PATCH(
       )
     }
 
-    // Validate name
-    if (!name || name.trim().length === 0) {
+    // Validate title
+    if (!title || title.trim().length === 0) {
       return NextResponse.json(
         { success: false, error: "Le nom de l'offre est requis" },
         { status: 400 }
       )
     }
 
-    // Build update object
-    const updateData: any = {
-      name: name.trim(),
+    // #50 — clamp to the canonical CHECK domains and the moderation model.
+    // offer_type ∈ {discount, reduction, challenge}; status is a partner-settable
+    // subset (never 'approved'/'rejected' — that is admin moderation, #58);
+    // min_vip_level ∈ {free, silver, gold, platinum}.
+    const OFFER_TYPES = new Set(["discount", "reduction", "challenge"])
+    const VIP_LEVELS = new Set(["free", "silver", "gold", "platinum"])
+    const PARTNER_STATUS: Record<string, string> = {
+      draft: "draft",
+      pending_approval: "pending_approval",
+      paused: "paused",
+      archived: "archived",
+      // legacy UI vocabulary
+      inactive: "paused",
+      pending: "pending_approval",
+      active: "pending_approval",
+    }
+    const safeStatus = PARTNER_STATUS[status as string] ?? "pending_approval"
+    const safeOfferType = OFFER_TYPES.has(offerType) ? offerType : "reduction"
+    const safeVipLevel =
+      requiresVip && VIP_LEVELS.has(minVipLevel)
+        ? minVipLevel
+        : requiresVip
+          ? "silver"
+          : null
+
+    // Build update object — canonical partner_offers columns only.
+    const updateData: Record<string, unknown> = {
+      title: title.trim(),
       description: description?.trim() || null,
-      offer_type: offerType || "reduction",
-      discount_value: discountValue || 0,
-      min_purchase: minPurchase || 0,
-      max_usage: maxUsage || null,
+      offer_type: safeOfferType,
+      discount_value: discountValue ?? 0,
+      min_purchase_amount: minPurchaseAmount ?? null,
+      max_total_uses: maxTotalUses ?? null,
+      max_uses_per_user: maxUsesPerUser ?? null,
+      requires_vip: !!requiresVip,
+      min_vip_level: safeVipLevel,
       valid_from: validFrom || null,
       valid_until: validUntil || null,
-      status: status || "active",
-      eligible_levels: eligibleLevels?.length > 0 ? eligibleLevels : null,
-      updated_at: new Date().toISOString()
+      status: safeStatus,
+      // Wave 3A invariant: is_active requires status='approved'. A partner edit
+      // never self-approves, so the offer goes offline pending (re)moderation.
+      is_active: false,
+      updated_at: new Date().toISOString(),
     }
 
     // Update offer
@@ -94,15 +126,18 @@ export async function PATCH(
       )
     }
 
-    // Log activity
-    await supabase.from("activity_logs").insert({
-      user_id: userInfo.profileId,
-      action: "update",
-      description: `Offre mise à jour: ${name}`,
-      resource_type: "partner_offer",
-      resource_id: id,
-      created_at: new Date().toISOString()
-    })
+    // #50 — canonical audit_log (activity_logs was dropped in Wave 1C).
+    try {
+      await supabase.from("audit_log").insert({
+        actor_id: userInfo.profileId,
+        action: "partner_offer.update",
+        resource_type: "partner_offer",
+        resource_id: id,
+        metadata: { partner_id: partnerId, title: title.trim(), status: safeStatus },
+      })
+    } catch {
+      // non-critical
+    }
 
     return NextResponse.json({
       success: true,
@@ -138,7 +173,7 @@ export async function DELETE(
     // Verify offer belongs to partner
     const { data: existingOffer, error: fetchError } = await supabase
       .from("partner_offers")
-      .select("id, name")
+      .select("id, title")
       .eq("id", id)
       .eq("partner_id", partnerId)
       .single()
@@ -164,15 +199,18 @@ export async function DELETE(
       )
     }
 
-    // Log activity
-    await supabase.from("activity_logs").insert({
-      user_id: userInfo.profileId,
-      action: "delete",
-      description: `Offre supprimée: ${existingOffer.name}`,
-      resource_type: "partner_offer",
-      resource_id: id,
-      created_at: new Date().toISOString()
-    })
+    // #50 — canonical audit_log (activity_logs was dropped in Wave 1C).
+    try {
+      await supabase.from("audit_log").insert({
+        actor_id: userInfo.profileId,
+        action: "partner_offer.delete",
+        resource_type: "partner_offer",
+        resource_id: id,
+        metadata: { partner_id: partnerId, title: existingOffer.title },
+      })
+    } catch {
+      // non-critical
+    }
 
     return NextResponse.json({
       success: true,

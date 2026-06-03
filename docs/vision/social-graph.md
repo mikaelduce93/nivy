@@ -1,5 +1,10 @@
 # Social Graph — Friends, Circles, Crews
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 Audit date: 2026-05-07. Read-only audit by social-graph-auditor against active Supabase project `imchornjvmgmaovhypco` and the working tree at `C:\Users\Shadow\Desktop\NIVY`.
 
 ## 1. Vision recap (what we want)

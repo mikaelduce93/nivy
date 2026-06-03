@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { Shield, Users, Crown, Zap, Trophy, MessageCircle, Search, Plus, UserPlus } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Shield, Users, Crown, Zap, Trophy, Search, Plus, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StickerTabs } from "@/components/brand/sticker-tab"
+import { StatHero, NivEmpty } from "@/components/brand"
 
 type Member = {
   user_id: string
@@ -58,11 +60,66 @@ interface Props {
   myCrew: UserCrewData | null
   discoverCrews: DiscoverCrew[]
   leaderboard: LeaderboardEntry[]
+  hasLoadError?: boolean
 }
 
-export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props) {
+// Libellés FR des rôles (fin du brut anglais owner/admin/member).
+const ROLE_LABEL: Record<Member["role"], string> = {
+  owner: "Chef",
+  admin: "Admin",
+  member: "Membre",
+}
+
+export function CirclesPageClient({ myCrew, discoverCrews, leaderboard, hasLoadError }: Props) {
+  const router = useRouter()
   const [tab, setTab] = useState<"crew" | "discover">("crew")
   const [searchQuery, setSearchQuery] = useState("")
+  const [crewName, setCrewName] = useState("")
+  const [creating, setCreating] = useState(false)
+  const [joiningId, setJoiningId] = useState<string | null>(null)
+
+  // #207 — « Voir » menait /teen/circles/{id} → redirect (non-membre). On
+  // rejoint vraiment la crew, puis on ouvre son détail (le créateur/membre y a
+  // désormais accès, cf. fix d'adhésion owner côté API).
+  const joinCrew = async (id: string) => {
+    if (joiningId) return
+    setJoiningId(id)
+    try {
+      const res = await fetch("/api/teen/crew", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "join", crewId: id }),
+      })
+      if (res.ok) {
+        router.push(`/teen/circles/${id}`)
+        return
+      }
+    } catch {
+      /* re-enable below */
+    }
+    setJoiningId(null)
+  }
+
+  const createCrew = async () => {
+    const name = crewName.trim()
+    if (!name || creating) return
+    setCreating(true)
+    try {
+      const res = await fetch("/api/teen/crew", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create", name }),
+      })
+      const data = await res.json().catch(() => null)
+      if (res.ok && data?.crew?.id) {
+        router.push(`/teen/circles/${data.crew.id}`)
+        return
+      }
+    } catch {
+      /* fall through to re-enable the button */
+    }
+    setCreating(false)
+  }
 
   const hasCrew = !!myCrew?.has_crew && !!myCrew.crew
   const crew = myCrew?.crew
@@ -77,254 +134,207 @@ export function CirclesPageClient({ myCrew, discoverCrews, leaderboard }: Props)
 
   return (
     <div className="min-h-screen pb-32 space-y-8 pt-6">
-      <header className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-black" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Circles</h1>
-                <p className="text-zinc-500 text-sm font-medium">Tes crews et communautés</p>
-              </div>
-            </div>
-          </div>
+      {hasLoadError && (
+        <div
+          role="alert"
+          className="rounded-2xl border border-pink/40 bg-pink/10 px-4 py-3 text-sm text-ink"
+        >
+          Certaines données n'ont pas pu être chargées.{" "}
+          <button onClick={() => router.refresh()} className="font-semibold underline">
+            Réessayer
+          </button>
+        </div>
+      )}
+      <header className="space-y-5">
+        <div className="space-y-1">
+          <p className="eyebrow tracking-[0.16em]">Équipe</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight">
+            Tes <em className="font-semibold italic text-pink">crews</em>
+          </h1>
+          <p className="text-sm text-mute">Joue en équipe et débloque le bonus XP collectif.</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setTab("crew")}
-            className={cn(
-              "px-4 py-2 rounded-xl font-bold text-sm transition-all",
-              tab === "crew" ? "bg-accent-soft text-black" : "bg-zinc-900/50 text-zinc-400 hover:text-white"
-            )}
-          >
-            Ma Crew
-          </button>
-          <button
-            onClick={() => setTab("discover")}
-            className={cn(
-              "px-4 py-2 rounded-xl font-bold text-sm transition-all",
-              tab === "discover" ? "bg-accent-soft text-black" : "bg-zinc-900/50 text-zinc-400 hover:text-white"
-            )}
-          >
-            Découvrir
-          </button>
-        </div>
+        <StickerTabs
+          ariaLabel="Sections crews"
+          value={tab}
+          onValueChange={(v) => setTab(v as "crew" | "discover")}
+          tabs={[
+            { value: "crew", label: "Ma crew", icon: <Shield /> },
+            { value: "discover", label: "Découvrir", icon: <Search /> },
+          ]}
+        />
       </header>
 
       {tab === "crew" ? (
         hasCrew && crew ? (
           <>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="relative overflow-hidden rounded-3xl p-8 border border-accent-soft/20 bg-gradient-to-br from-accent-soft/10 to-pink-500/5"
-            >
-              <div className="flex items-center gap-6 mb-8">
-                <div
-                  className="w-20 h-20 rounded-2xl flex items-center justify-center"
-                  style={{ backgroundColor: crew.color || "#06b6d4" }}
-                >
-                  <Shield className="w-10 h-10 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-black text-white">{crew.name}</h2>
-                  <p className="text-zinc-400">
-                    {members.length} membres • Lvl moy. {Math.round(crew.average_level)}
-                  </p>
-                </div>
-              </div>
+            <StatHero
+              eyebrow={`${crew.name} · ${members.length} membres · Lvl moy. ${Math.round(crew.average_level)}`}
+              value={crew.total_xp.toLocaleString()}
+              unit="XP"
+              tone="gold"
+              size="lg"
+              meta="+20% XP sur les défis hebdo"
+            />
 
-              <div className="grid grid-cols-4 gap-4 mb-8">
-                <div className="text-center p-4 rounded-2xl bg-black/20">
-                  <p className="text-2xl font-black text-accent-soft">{crew.total_xp.toLocaleString()}</p>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Total XP</p>
-                </div>
-                <div className="text-center p-4 rounded-2xl bg-black/20">
-                  <p className="text-2xl font-black text-success-soft">{crew.total_challenges_won}</p>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Défis gagnés</p>
-                </div>
-                <div className="text-center p-4 rounded-2xl bg-black/20">
-                  <p className="text-2xl font-black text-brand-soft">
-                    {myRank ? `#${myRank}` : "—"}
-                  </p>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Rang</p>
-                </div>
-                <div className="text-center p-4 rounded-2xl bg-black/20">
-                  <p className="text-2xl font-black text-yellow-500">{crew.total_events_attended}</p>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Events</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <Button className="flex-1 bg-accent-soft text-black font-bold" disabled>
-                  <Trophy className="w-4 h-4 mr-2" />
-                  Défi (bientôt)
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Chat Crew
-                </Button>
-              </div>
-            </motion.div>
-
-            {/* TODO(data): crew_battles table is not implemented yet — see report. */}
+            <div className="grid grid-cols-3 gap-3">
+              <StickerCard className="items-center p-4 text-center">
+                <p className="font-display text-2xl font-extrabold tabular-nums text-lime">{crew.total_challenges_won}</p>
+                <p className="eyebrow mt-1 text-mute">Défis gagnés</p>
+              </StickerCard>
+              <StickerCard className="items-center p-4 text-center">
+                <p className="font-display text-2xl font-extrabold tabular-nums text-teal">{myRank ? `#${myRank}` : "—"}</p>
+                <p className="eyebrow mt-1 text-mute">Rang</p>
+              </StickerCard>
+              <StickerCard className="items-center p-4 text-center">
+                <p className="font-display text-2xl font-extrabold tabular-nums text-gold">{crew.total_events_attended}</p>
+                <p className="eyebrow mt-1 text-mute">Events</p>
+              </StickerCard>
+            </div>
 
             <section className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-black uppercase">Membres</h2>
-                <Button variant="outline" size="sm">
+                <p className="eyebrow">Membres</p>
+                <Button variant="outline" size="sm" disabled title="Bientôt disponible">
                   <UserPlus className="w-4 h-4 mr-2" />
-                  Inviter
+                  Inviter (bientôt)
                 </Button>
               </div>
 
               <div className="space-y-3">
-                {members.map((member, idx) => (
-                  <motion.div
+                {members.map((member) => (
+                  <StickerCard
                     key={member.user_id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
+                    className="flex-row items-center gap-4 p-4"
                   >
                     <div className="relative">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-lg font-bold text-white">
+                      <div className="w-12 h-12 rounded-full border-2 border-ink bg-paper flex items-center justify-center text-lg font-bold text-ink">
                         {member.pseudo.charAt(0).toUpperCase()}
                       </div>
                       {member.role === "owner" && (
-                        <Crown className="absolute -top-1 -right-1 w-5 h-5 text-yellow-500 fill-current" />
+                        <Crown className="absolute -top-1 -right-1 w-5 h-5 text-gold fill-current" />
                       )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-white">{member.pseudo}</h4>
+                        <h4 className="font-bold text-ink">{member.pseudo}</h4>
                         <span
                           className={cn(
-                            "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                            "rounded-full border-2 border-ink px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em]",
                             member.role === "owner"
-                              ? "bg-yellow-500/20 text-yellow-500"
+                              ? "bg-gold text-ink"
                               : member.role === "admin"
-                              ? "bg-brand-soft/20 text-brand-soft"
-                              : "bg-zinc-800 text-zinc-400"
+                              ? "bg-teal text-paper"
+                              : "bg-paper text-mute"
                           )}
                         >
-                          {member.role}
+                          {ROLE_LABEL[member.role]}
                         </span>
                       </div>
-                      <p className="text-xs text-zinc-500">Lvl {member.level}</p>
+                      <p className="text-xs text-mute">Lvl {member.level}</p>
                     </div>
-                    <div className="flex items-center gap-1 text-brand-soft">
+                    <div className="flex items-center gap-1 text-gold">
                       <Zap className="w-4 h-4" />
-                      <span className="font-bold">{member.xp_contributed.toLocaleString()}</span>
+                      <span className="font-mono font-bold tabular-nums">{member.xp_contributed.toLocaleString()}</span>
                     </div>
-                  </motion.div>
+                  </StickerCard>
                 ))}
               </div>
             </section>
           </>
         ) : (
-          <EmptyState
-            size="large"
-            icon={Shield}
-            title="Pas encore de Crew"
-            description="Rejoins ou crée une crew pour participer aux défis et gagner des bonus XP !"
-            secondaryAction={{ label: "Trouver une Crew", onClick: () => setTab("discover"), variant: "outline" }}
+          <NivEmpty
+            mood="hype"
+            title="Pas encore de crew"
+            description="Rejoins ou crée une crew pour participer aux défis et gagner des bonus XP."
+            action={
+              <Button variant="pink" onClick={() => setTab("discover")}>
+                <Search className="w-4 h-4 mr-2" />
+                Trouver une crew
+              </Button>
+            }
           />
         )
       ) : (
         <>
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher une crew..."
-              className="pl-12 h-12 rounded-xl bg-zinc-900/50 border-white/10"
+              placeholder="Rechercher une crew…"
+              className="pl-12 h-12 rounded-xl border-2 border-ink"
             />
           </div>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-black uppercase">Crews populaires</h2>
+            <p className="eyebrow">Crews populaires</p>
 
             {filteredCrews.length === 0 ? (
-              <EmptyState
-                size="small"
-                icon={Users}
+              <NivEmpty
                 title="Aucune crew publique"
                 description="Aucune crew ne correspond à ta recherche pour le moment."
               />
             ) : (
               <div className="space-y-4">
-                {filteredCrews.map((c, idx) => {
+                {filteredCrews.map((c) => {
                   const lbEntry = leaderboard.find((l) => l.crew_id === c.id)
                   const rank = lbEntry?.rank ?? lbEntry?.position
                   return (
-                    <motion.div
-                      key={c.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="p-6 rounded-3xl border transition-all cursor-pointer hover:border-white/20 bg-zinc-900/50 border-white/5"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div
-                          className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                          style={{ backgroundColor: c.color || "#06b6d4" }}
-                        >
-                          <Shield className="w-8 h-8 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-1">
-                            <h3 className="font-black text-lg text-white">{c.name}</h3>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-zinc-400">
-                            <span className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              max {c.max_members}
-                            </span>
-                            {rank && (
-                              <span className="flex items-center gap-1">
-                                <Trophy className="w-3 h-3" />
-                                Rang #{rank}
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1 text-brand-soft">
-                              <Zap className="w-3 h-3" />
-                              {c.total_xp.toLocaleString()} XP
-                            </span>
-                          </div>
-                          {c.description && (
-                            <p className="text-xs text-zinc-500 mt-2 line-clamp-1">{c.description}</p>
-                          )}
-                        </div>
-                        <Button>Voir</Button>
+                    <StickerCard key={c.id} variant="hover" className="flex-row items-center gap-4 p-6">
+                      <div className="w-16 h-16 rounded-2xl border-2 border-ink bg-paper flex items-center justify-center text-2xl">
+                        {c.badge_icon || <Shield className="w-8 h-8 text-ink" />}
                       </div>
-                    </motion.div>
+                      <div className="flex-1">
+                        <h3 className="font-extrabold text-lg text-ink">{c.name}</h3>
+                        <div className="flex items-center gap-4 text-sm text-mute">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            max {c.max_members}
+                          </span>
+                          {rank && (
+                            <span className="flex items-center gap-1">
+                              <Trophy className="w-3 h-3" />
+                              Rang #{rank}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1 text-gold">
+                            <Zap className="w-3 h-3" />
+                            {c.total_xp.toLocaleString()} XP
+                          </span>
+                        </div>
+                        {c.description && (
+                          <p className="text-xs text-mute mt-2 line-clamp-1">{c.description}</p>
+                        )}
+                      </div>
+                      <Button onClick={() => joinCrew(c.id)} disabled={joiningId === c.id}>
+                        {joiningId === c.id ? "…" : "Rejoindre"}
+                      </Button>
+                    </StickerCard>
                   )
                 })}
               </div>
             )}
           </section>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-6 rounded-3xl bg-gradient-to-r from-accent-soft/10 to-pink-500/5 border border-accent-soft/20"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-accent-soft/20 flex items-center justify-center">
-                <Plus className="w-7 h-7 text-accent-soft" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-black text-white">Crée ta propre Crew!</h3>
-                <p className="text-sm text-zinc-400">Invite tes amis et domine le classement</p>
-              </div>
-              <Button className="bg-accent-soft text-black font-bold">Créer</Button>
+          <StickerCard className="flex-row items-center gap-4 p-6">
+            <div className="w-14 h-14 rounded-2xl border-2 border-ink bg-pink flex items-center justify-center">
+              <Plus className="w-7 h-7 text-ink" />
             </div>
-          </motion.div>
+            <div className="flex-1">
+              <h3 className="font-extrabold text-ink">Crée ta propre crew</h3>
+              <p className="text-sm text-mute">Invite tes amis et domine le classement.</p>
+              <Input
+                value={crewName}
+                onChange={(e) => setCrewName(e.target.value)}
+                placeholder="Nom de ta crew…"
+                className="mt-3 h-10 rounded-xl border-2 border-ink"
+              />
+            </div>
+            <Button variant="pink" onClick={createCrew} disabled={creating || !crewName.trim()}>
+              {creating ? "Création…" : "Créer"}
+            </Button>
+          </StickerCard>
         </>
       )}
     </div>

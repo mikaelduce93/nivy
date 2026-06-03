@@ -3,20 +3,17 @@
 import { useEffect, useState, useCallback } from "react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Niv, DarkSurface } from "@/components/brand"
 import {
-  Activity,
   Clock,
   MapPin,
   CheckCircle2,
   LogOut,
   AlertCircle,
   RefreshCw,
-  Camera,
   ArrowLeft,
-  Users,
   Calendar,
   Phone,
   Shield,
@@ -39,6 +36,7 @@ interface TeenStatus {
   teenId: string
   teenName: string
   pseudo: string
+  avatarUrl: string | null
   eventId: string | null
   eventTitle: string | null
   eventVenue: string | null
@@ -88,20 +86,22 @@ export default function ParentLiveDashboardPage() {
 
       if (!profile) return
 
-      // Get linked teens (incluant photo_consent pour respecter le consentement reel)
+      // #35 — teens real columns (no user_id/photo_consent; name is
+      // first_name/last_name; no profiles:user_id join).
       const { data: parentTeens } = await supabase
         .from("parent_teen_links")
         .select(`
           teen_id,
           teens:teen_id(
             id,
-            user_id,
+            first_name,
+            last_name,
             pseudo,
-            photo_consent,
-            profiles:user_id(full_name)
+            avatar_url
           )
         `)
         .eq("parent_id", profile.id)
+        .eq("status", "active")
 
       if (!parentTeens || parentTeens.length === 0) {
         setTeenStatuses([])
@@ -122,7 +122,7 @@ export default function ParentLiveDashboardPage() {
           event_id,
           checked_in_at,
           checked_out_at,
-          events:event_id(title, venue_name)
+          events:event_id(title, address, city)
         `)
         .in("teen_id", teenIds)
         .gte("checked_in_at", `${today}T00:00:00`)
@@ -131,17 +131,20 @@ export default function ParentLiveDashboardPage() {
       // Build teen statuses
       const statuses: TeenStatus[] = parentTeens.map((pt: any) => {
         const teenCheckIn = checkIns?.find((c: any) => c.teen_id === pt.teen_id)
-        const teenName = pt.teens?.profiles?.full_name || "Inconnu"
+        const teenName =
+          `${pt.teens?.first_name ?? ""} ${pt.teens?.last_name ?? ""}`.trim() || "Inconnu"
         const pseudo = pt.teens?.pseudo || ""
-        // Lecture du consentement photo reel depuis le profil teen.
-        // Defaut: false si la colonne est null/absente (principe du moins-disant).
-        const photoConsent = Boolean(pt.teens?.photo_consent)
+        const avatarUrl = pt.teens?.avatar_url || null
+        // #35 — teens has no photo_consent column; default to false
+        // (least-privilege) until a real consent source is wired.
+        const photoConsent = false
 
         if (!teenCheckIn) {
           return {
             teenId: pt.teen_id,
             teenName,
             pseudo,
+            avatarUrl,
             eventId: null,
             eventTitle: null,
             eventVenue: null,
@@ -156,9 +159,10 @@ export default function ParentLiveDashboardPage() {
           teenId: pt.teen_id,
           teenName,
           pseudo,
+          avatarUrl,
           eventId: teenCheckIn.event_id,
           eventTitle: teenCheckIn.events?.title || "Événement",
-          eventVenue: teenCheckIn.events?.venue_name || "",
+          eventVenue: [teenCheckIn.events?.address, teenCheckIn.events?.city].filter(Boolean).join(", "),
           status: teenCheckIn.checked_out_at ? "checked_out" as const : "checked_in" as const,
           checkedInAt: teenCheckIn.checked_in_at,
           checkedOutAt: teenCheckIn.checked_out_at,
@@ -172,7 +176,8 @@ export default function ParentLiveDashboardPage() {
       const timelineEvents: TimelineEvent[] = []
       checkIns?.forEach((checkIn: any) => {
         const teen = parentTeens.find((pt: any) => pt.teen_id === checkIn.teen_id)
-        const teenName = teen?.teens?.profiles?.full_name || "Inconnu"
+        const teenName =
+          `${teen?.teens?.first_name ?? ""} ${teen?.teens?.last_name ?? ""}`.trim() || "Inconnu"
 
         if (checkIn.checked_in_at) {
           timelineEvents.push({
@@ -211,41 +216,12 @@ export default function ParentLiveDashboardPage() {
         )
       )
 
-      if (consentedTeenHasActiveEvent && activeEventIds.length > 0) {
-        try {
-          const { data: galleries } = await supabase
-            .from("photo_galleries")
-            .select("id, event_id, created_at")
-            .in("event_id", activeEventIds)
-            .eq("is_public", true)
-
-          const galleryIds = (galleries || []).map((g: any) => g.id)
-          if (galleryIds.length === 0) {
-            setPhotos([])
-          } else {
-            const { data: galleryPhotos } = await supabase
-              .from("photo_gallery_items")
-              .select("id, image_url, created_at")
-              .in("gallery_id", galleryIds)
-              .order("created_at", { ascending: false })
-              .limit(20)
-
-            setPhotos(
-              (galleryPhotos || []).map((p: any) => ({
-                id: p.id,
-                url: p.image_url,
-                timestamp: p.created_at,
-              }))
-            )
-          }
-        } catch (photoError) {
-          // Pas de table ou erreur de schema -> afficher vide proprement
-          console.warn("[parent/live] photos non disponibles:", photoError)
-          setPhotos([])
-        }
-      } else {
-        setPhotos([])
-      }
+      // #35 — @deprecated: the event photo gallery (photo_galleries /
+      // photo_gallery_items) has no tables in the schema. Keep the empty state
+      // until a real gallery model exists; do not query phantom tables.
+      void consentedTeenHasActiveEvent
+      void activeEventIds
+      setPhotos([])
 
     } catch (error) {
       console.error("Error fetching live data:", error)
@@ -281,13 +257,16 @@ export default function ParentLiveDashboardPage() {
 
     setRequestingCheckout(true)
     try {
-      // Create notification for staff
-      const { error } = await supabase.from("notifications").insert({
+      // #35 — canonical table is user_notifications (real columns
+      // user_id/title/body/data/priority); the old `notifications` table
+      // doesn't exist.
+      const { error } = await supabase.from("user_notifications").insert({
         user_id: selectedTeen.teenId,
-        type: "early_checkout_request",
         title: "Demande de sortie anticipée",
-        message: `Le parent de ${selectedTeen.teenName} demande une sortie anticipée`,
+        body: `Le parent de ${selectedTeen.teenName} demande une sortie anticipée`,
+        priority: "high",
         data: {
+          kind: "early_checkout_request",
           teenId: selectedTeen.teenId,
           eventId: selectedTeen.eventId,
           requestedAt: new Date().toISOString(),
@@ -332,36 +311,30 @@ export default function ParentLiveDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="container mx-auto px-6 py-32">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-6 pt-10 pb-20 sm:pt-16">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" className="text-zinc-400 hover:text-white">
-              <Link href="/parent">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour
-              </Link>
-            </Button>
+            <Niv size={72} mood="hype" />
             <div>
-              <h1 className="text-3xl font-black text-white flex items-center gap-3">
-                <Activity className="w-8 h-8 text-emerald-400" />
-                Suivi en Direct
+              <p className="eyebrow">Suivi · Temps réel</p>
+              <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">
+                Où est <em className="font-semibold italic text-pink">ton crew</em> là ?
               </h1>
-              <p className="text-zinc-400">Suivez vos teens en temps réel</p>
+              <p className="text-mute mt-1">Suis tes teens en temps réel</p>
             </div>
           </div>
           <Button
             onClick={handleRefresh}
             variant="outline"
-            className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
             disabled={refreshing}
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
@@ -371,81 +344,81 @@ export default function ParentLiveDashboardPage() {
 
         {/* Live Status Indicator */}
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-sm text-emerald-400">
+          <div className="w-3 h-3 rounded-full bg-lime animate-pulse" />
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-mute">
             Mise à jour automatique toutes les 30 secondes
           </span>
         </div>
 
         {teenStatuses.length === 0 ? (
           <EmptyState
-            icon={Users}
+            nivMood="calm"
             title="Aucun teen lié"
-            description="Aucun teen lié à votre compte."
+            description="Aucun teen lié à ton compte."
             action={{ label: "Ajouter un teen", href: "/parent/teens/add" }}
           />
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Teen Status Cards */}
             <div className="lg:col-span-2 space-y-4">
-              <h2 className="text-xl font-bold text-white mb-4">Statut de vos teens</h2>
+              <p className="eyebrow mb-4">Statut de tes teens</p>
 
-              {teenStatuses.map((teen) => (
-                <Card
-                  key={teen.teenId}
-                  className={`bg-gradient-to-br border transition-all ${
-                    teen.status === "checked_in"
-                      ? "from-emerald-500/20 to-teal-500/20 border-emerald-500/30"
-                      : teen.status === "checked_out"
-                      ? "from-blue-500/20 to-cyan-500/20 border-blue-500/30"
-                      : "from-zinc-900 to-zinc-950 border-zinc-800"
-                  }`}
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
+              {teenStatuses.map((teen) => {
+                const isLive = teen.status === "checked_in"
+                const avatar = teen.avatarUrl ? (
+                  <span className="relative block w-16 h-16 shrink-0 overflow-hidden rounded-full border-2 border-ink">
+                    <Image
+                      src={teen.avatarUrl}
+                      alt={teen.teenName}
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
+                  </span>
+                ) : (
+                  <Niv size={56} mood={isLive ? "hype" : "calm"} className="shrink-0" />
+                )
+
+                const cardBody = (
+                  <>
+                    <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold ${
-                          teen.status === "checked_in"
-                            ? "bg-emerald-500"
-                            : teen.status === "checked_out"
-                            ? "bg-blue-500"
-                            : "bg-zinc-700"
-                        } text-white`}>
-                          {teen.teenName.charAt(0)}
-                        </div>
+                        {avatar}
                         <div>
-                          <h3 className="text-xl font-bold text-white">{teen.teenName}</h3>
+                          <h3 className={`font-display text-xl font-extrabold ${isLive ? "text-paper" : "text-ink"}`}>
+                            {teen.teenName}
+                          </h3>
                           {teen.pseudo && (
-                            <p className="text-zinc-400">@{teen.pseudo}</p>
+                            <p className={`font-mono text-xs ${isLive ? "text-paper/60" : "text-mute"}`}>@{teen.pseudo}</p>
                           )}
 
-                          {/* Status Badge */}
+                          {/* Status pill */}
                           <div className="mt-2">
-                            {teen.status === "checked_in" ? (
-                              <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
-                                <CheckCircle2 className="w-3 h-3 mr-1" />
-                                En activité
-                              </Badge>
+                            {isLive ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-lime bg-lime/15 px-2 py-0.5 font-mono text-[11px] font-extrabold uppercase tracking-[0.1em] text-lime">
+                                <span className="size-1.5 rounded-full bg-lime animate-pulse" />
+                                En direct
+                              </span>
                             ) : teen.status === "checked_out" ? (
-                              <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                                <LogOut className="w-3 h-3 mr-1" />
+                              <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-ink bg-teal/15 px-2 py-0.5 font-mono text-[11px] font-extrabold uppercase tracking-[0.1em] text-teal">
+                                <LogOut className="w-3 h-3" />
                                 Sorti(e)
-                              </Badge>
+                              </span>
                             ) : (
-                              <Badge className="bg-zinc-700 text-zinc-400">
-                                <Clock className="w-3 h-3 mr-1" />
+                              <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-line bg-paper px-2 py-0.5 font-mono text-[11px] font-extrabold uppercase tracking-[0.1em] text-mute">
+                                <Clock className="w-3 h-3" />
                                 Pas d'événement
-                              </Badge>
+                              </span>
                             )}
                           </div>
                         </div>
                       </div>
 
                       {/* Duration */}
-                      {teen.status === "checked_in" && teen.checkedInAt && (
+                      {isLive && teen.checkedInAt && (
                         <div className="text-right">
-                          <p className="text-sm text-zinc-400">Présent depuis</p>
-                          <p className="text-2xl font-black text-emerald-400">
+                          <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-paper/60">Présent depuis</p>
+                          <p className="font-display text-2xl font-extrabold text-lime tabular-nums">
                             {formatDuration(teen.checkedInAt)}
                           </p>
                         </div>
@@ -454,34 +427,34 @@ export default function ParentLiveDashboardPage() {
 
                     {/* Event Info */}
                     {teen.eventTitle && (
-                      <div className="mt-4 p-4 rounded-xl bg-black/20">
+                      <div className={`mt-4 p-4 rounded-xl border-2 ${isLive ? "border-paper/20 bg-paper/5" : "border-line bg-paper"}`}>
                         <div className="flex items-center gap-3 mb-2">
-                          <Calendar className="w-4 h-4 text-zinc-400" />
-                          <span className="text-white font-medium">{teen.eventTitle}</span>
+                          <Calendar className={`w-4 h-4 ${isLive ? "text-paper/60" : "text-mute"}`} />
+                          <span className={`font-medium ${isLive ? "text-paper" : "text-ink"}`}>{teen.eventTitle}</span>
                         </div>
                         {teen.eventVenue && (
-                          <div className="flex items-center gap-3 text-sm text-zinc-400">
+                          <div className={`flex items-center gap-3 text-sm ${isLive ? "text-paper/60" : "text-mute"}`}>
                             <MapPin className="w-4 h-4" />
                             <span>{teen.eventVenue}</span>
                           </div>
                         )}
 
                         {/* Check-in/out times */}
-                        <div className="mt-3 flex items-center gap-6 text-sm">
+                        <div className="mt-3 flex flex-wrap items-center gap-6 text-sm">
                           {teen.checkedInAt && (
                             <div className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                              <span className="text-zinc-400">Entrée:</span>
-                              <span className="text-white font-medium">
+                              <CheckCircle2 className="w-4 h-4 text-lime" />
+                              <span className={isLive ? "text-paper/60" : "text-mute"}>Entrée :</span>
+                              <span className={`font-mono ${isLive ? "text-paper" : "text-ink"}`}>
                                 {formatTime(teen.checkedInAt)}
                               </span>
                             </div>
                           )}
                           {teen.checkedOutAt && (
                             <div className="flex items-center gap-2">
-                              <LogOut className="w-4 h-4 text-blue-400" />
-                              <span className="text-zinc-400">Sortie:</span>
-                              <span className="text-white font-medium">
+                              <LogOut className="w-4 h-4 text-teal" />
+                              <span className={isLive ? "text-paper/60" : "text-mute"}>Sortie :</span>
+                              <span className={`font-mono ${isLive ? "text-paper" : "text-ink"}`}>
                                 {formatTime(teen.checkedOutAt)}
                               </span>
                             </div>
@@ -491,50 +464,52 @@ export default function ParentLiveDashboardPage() {
                     )}
 
                     {/* Early Checkout Button */}
-                    {teen.status === "checked_in" && (
+                    {isLive && (
                       <div className="mt-4">
                         <Dialog open={earlyCheckoutDialogOpen && selectedTeen?.teenId === teen.teenId} onOpenChange={setEarlyCheckoutDialogOpen}>
                           <DialogTrigger asChild>
                             <Button
-                              variant="outline"
-                              className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                              variant="coral"
+                              className="w-full"
                               onClick={() => setSelectedTeen(teen)}
                             >
                               <AlertCircle className="w-4 h-4 mr-2" />
                               Demander sortie anticipée
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="bg-zinc-900 border-zinc-800">
+                          <DialogContent className="bg-white border-2 border-ink">
                             <DialogHeader>
-                              <DialogTitle className="text-white">Demande de sortie anticipée</DialogTitle>
-                              <DialogDescription className="text-zinc-400">
+                              <DialogTitle className="font-display text-ink">Demande de sortie anticipée</DialogTitle>
+                              <DialogDescription className="text-mute">
                                 Cette demande sera envoyée au staff de l'événement.
                                 Ils prépareront la sortie de {teen.teenName}.
                               </DialogDescription>
                             </DialogHeader>
                             <div className="py-4">
-                              <div className="flex items-center gap-3 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
-                                <Shield className="w-8 h-8 text-orange-400" />
-                                <div>
-                                  <p className="text-white font-medium">Procédure de sécurité</p>
-                                  <p className="text-sm text-zinc-400">
-                                    Vous devrez présenter une pièce d'identité à la sortie
-                                  </p>
+                              <StickerCard variant="panel" className="p-4 bg-coral/10">
+                                <div className="flex items-center gap-3">
+                                  <Shield className="w-8 h-8 text-coral shrink-0" />
+                                  <div>
+                                    <p className="text-ink font-bold">Procédure de sécurité</p>
+                                    <p className="text-sm text-mute">
+                                      Tu devras présenter une pièce d'identité à la sortie
+                                    </p>
+                                  </div>
                                 </div>
-                              </div>
+                              </StickerCard>
                             </div>
                             <DialogFooter>
                               <Button
                                 variant="ghost"
                                 onClick={() => setEarlyCheckoutDialogOpen(false)}
-                                className="text-zinc-400"
+                                className="text-mute"
                               >
                                 Annuler
                               </Button>
                               <Button
                                 onClick={handleEarlyCheckoutRequest}
                                 disabled={requestingCheckout}
-                                className="bg-orange-500 hover:bg-orange-600"
+                                variant="coral"
                               >
                                 {requestingCheckout ? "Envoi..." : "Envoyer la demande"}
                               </Button>
@@ -543,109 +518,77 @@ export default function ParentLiveDashboardPage() {
                         </Dialog>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
-              ))}
+                  </>
+                )
+
+                return isLive ? (
+                  <DarkSurface key={teen.teenId} tone="lime" shadow className="p-6">
+                    {cardBody}
+                  </DarkSurface>
+                ) : (
+                  <StickerCard key={teen.teenId} className="p-6">
+                    {cardBody}
+                  </StickerCard>
+                )
+              })}
             </div>
 
-            {/* Timeline & Photos */}
+            {/* Timeline */}
             <div className="space-y-6">
-              {/* Timeline */}
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-emerald-400" />
-                    Timeline du jour
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {timeline.length > 0 ? (
-                    <div className="space-y-4">
-                      {timeline.map((event) => (
-                        <div key={event.id} className="flex items-start gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            event.type === "check_in"
-                              ? "bg-emerald-500/20"
-                              : "bg-blue-500/20"
-                          }`}>
-                            {event.type === "check_in" ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                            ) : (
-                              <LogOut className="w-4 h-4 text-blue-400" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-white text-sm font-medium">
-                              {event.teenName}
-                            </p>
-                            <p className="text-zinc-400 text-xs">
-                              {event.description}
-                            </p>
-                            <p className="text-zinc-500 text-xs mt-1">
-                              {formatTime(event.time)}
-                            </p>
-                          </div>
+              <StickerCard className="p-6">
+                <h2 className="font-display text-lg font-extrabold text-ink flex items-center gap-2 mb-4">
+                  <Clock className="w-5 h-5 text-lime" />
+                  Timeline du jour
+                </h2>
+                {timeline.length > 0 ? (
+                  <div className="space-y-4">
+                    {timeline.map((event) => (
+                      <div key={event.id} className="flex items-start gap-3">
+                        <div className={`w-8 h-8 rounded-full border-2 border-ink flex items-center justify-center flex-shrink-0 ${
+                          event.type === "check_in" ? "bg-lime" : "bg-teal"
+                        }`}>
+                          {event.type === "check_in" ? (
+                            <CheckCircle2 className="w-4 h-4 text-ink" />
+                          ) : (
+                            <LogOut className="w-4 h-4 text-ink" />
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-zinc-500">
-                      <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p>Aucune activité aujourd'hui</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Photo Gallery */}
-              <Card className="bg-zinc-900 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Camera className="w-5 h-5 text-purple-400" />
-                    Photos de l'événement
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {photos.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      {photos.map((photo) => (
-                        <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden">
-                          <Image
-                            src={photo.url}
-                            alt="Event photo"
-                            fill
-                            className="object-cover"
-                          />
+                        <div className="flex-1">
+                          <p className="text-ink text-sm font-bold">
+                            {event.teenName}
+                          </p>
+                          <p className="text-mute text-xs">
+                            {event.description}
+                          </p>
+                          <p className="font-mono text-mute text-xs mt-1">
+                            {formatTime(event.time)}
+                          </p>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-zinc-500">
-                      <Camera className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p className="text-sm">
-                        Photos disponibles si consentement accordé
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Niv size={64} mood="calm" className="mx-auto mb-3" />
+                    <p className="text-sm text-mute">Aucune activité aujourd'hui</p>
+                  </div>
+                )}
+              </StickerCard>
 
               {/* Emergency Contact */}
-              <Card className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/20">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-red-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">Urgence</p>
-                      <p className="text-sm text-zinc-400">
-                        Contactez le staff: <span className="text-red-400">+212 6 00 00 00 00</span>
-                      </p>
-                    </div>
+              <StickerCard className="p-4 bg-coral/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full border-2 border-ink bg-coral flex items-center justify-center shrink-0">
+                    <Phone className="w-5 h-5 text-ink" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <p className="text-ink font-bold">Urgence</p>
+                    <p className="text-sm text-mute">
+                      Contacte le staff : <span className="font-mono font-semibold text-coral">+212 6 00 00 00 00</span>
+                    </p>
+                  </div>
+                </div>
+              </StickerCard>
             </div>
           </div>
         )}

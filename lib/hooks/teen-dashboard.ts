@@ -119,10 +119,10 @@ export function useTeenData(userId: string | undefined): UseTeenDataResult {
       
       if (profileError) throw profileError
 
-      // Fetch teen-specific data
+      // Fetch teen-specific data — la vue expose `pseudo` (pas `username`).
       const { data: teenData } = await supabase
         .from('teen_full_profile')
-        .select('username, level')
+        .select('pseudo, level')
         .eq('id', userId)
         .single()
 
@@ -152,7 +152,7 @@ export function useTeenData(userId: string | undefined): UseTeenDataResult {
       setProfile({
         id: userId,
         full_name: profileData?.full_name || 'Teen',
-        username: teenData?.username,
+        username: teenData?.pseudo,
         avatar_url: profileData?.avatar_url,
         level: teenData?.level || 1,
         total_xp: xpData?.total_xp || 0,
@@ -244,23 +244,38 @@ export function useNotificationCounts(userId: string | undefined): NotificationC
     const fetchCounts = async () => {
       const supabase = createClient()
       
-      // Fetch unread notifications by type
+      // #70 — canonical table is user_notifications (is_read), not the phantom
+      // `notifications`. Category buckets come from notification_templates.
+      const { data: templates } = await supabase
+        .from('notification_templates')
+        .select('id, category')
+        .in('category', ['challenge', 'social', 'reward'])
+      const catById = new Map<string, string>(
+        (templates || []).map((t: { id: string; category: string }) => [t.id, t.category])
+      )
+
       const { data } = await supabase
-        .from('notifications')
-        .select('type')
+        .from('user_notifications')
+        .select('template_id')
         .eq('user_id', userId)
-        .eq('read', false)
+        .eq('is_read', false)
+        .eq('is_dismissed', false)
 
       if (data) {
-        const quests = data.filter((n: { type: string }) => n.type === 'quest' || n.type === 'challenge').length
-        const social = data.filter((n: { type: string }) => n.type === 'friend' || n.type === 'crew').length
-        const wallet = data.filter((n: { type: string }) => n.type === 'reward' || n.type === 'purchase').length
-        
+        let quests = 0
+        let social = 0
+        let wallet = 0
+        for (const n of data as { template_id: string | null }[]) {
+          const cat = n.template_id ? catById.get(n.template_id) : undefined
+          if (cat === 'challenge') quests++
+          else if (cat === 'social') social++
+          else if (cat === 'reward') wallet++
+        }
         setCounts({
           quests,
           social,
           wallet,
-          total: quests + social + wallet,
+          total: data.length,
         })
       }
     }

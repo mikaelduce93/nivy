@@ -16,6 +16,13 @@ function formatDate(dateString: string) {
   })
 }
 
+/**
+ * @deprecated #73 — Orphelin depuis le redirect `/teen/coins` → `/teen/wallet`
+ * (`app/teen/coins/page.tsx`). Plus aucun importeur. Lit en plus des colonnes
+ * inexistantes (`profile.coins_balance` / `coins_earned` / `coins_topup` — cf.
+ * docs/canon/economy-payments.locked.md). Surface canonique : `/teen/wallet`.
+ * Conservé pour l'historique git — ne pas réutiliser.
+ */
 export function TeenCoinsClient({ initialTransactions, profile, teenId }: { initialTransactions: any[], profile: any, teenId: string }) {
   const [transactions, setTransactions] = useState(initialTransactions)
   const [page, setPage] = useState(1)

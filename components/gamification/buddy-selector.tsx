@@ -39,7 +39,7 @@ export function BuddySelector({ questId }: { questId: string }) {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30 hover:bg-indigo-500/30 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink/20 text-pink text-xs font-bold border border-pink/30 hover:bg-pink/30 transition-colors"
       >
         <User className="w-3 h-3" />
         Inviter un Duo
@@ -51,15 +51,15 @@ export function BuddySelector({ questId }: { questId: string }) {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute top-full left-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-50 p-2"
+            className="absolute top-full left-0 mt-2 w-64 bg-card border border-ink rounded-xl shadow-xl z-50 p-2"
           >
-            <div className="text-xs font-medium text-zinc-500 px-2 py-1 mb-1">Amis disponibles</div>
+            <div className="text-xs font-medium text-mute px-2 py-1 mb-1">Amis disponibles</div>
             <div className="space-y-1">
               {MOCK_FRIENDS.map(friend => (
-                <div key={friend.id} className="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg">
+                <div key={friend.id} className="flex items-center justify-between p-2 hover:bg-paper-2 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Image src={friend.avatar} alt={friend.name} width={24} height={24} className="w-6 h-6 rounded-full bg-zinc-800" />
-                    <span className="text-sm text-zinc-200">{friend.name}</span>
+                    <Image src={friend.avatar} alt={friend.name} width={24} height={24} className="w-6 h-6 rounded-full bg-card" />
+                    <span className="text-sm text-ink-2">{friend.name}</span>
                   </div>
                   <button
                     onClick={() => handleInvite(friend.id)}
@@ -67,8 +67,8 @@ export function BuddySelector({ questId }: { questId: string }) {
                     className={cn(
                       "w-6 h-6 flex items-center justify-center rounded-full transition-colors",
                       invited.includes(friend.id) 
-                        ? "bg-green-500/20 text-green-400" 
-                        : "bg-white/10 text-white hover:bg-white/20"
+                        ? "bg-lime/20 text-lime" 
+                        : "bg-paper-2 text-ink hover:bg-paper-2"
                     )}
                   >
                     {invited.includes(friend.id) ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}

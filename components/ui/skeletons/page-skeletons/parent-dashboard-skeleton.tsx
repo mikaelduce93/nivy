@@ -191,7 +191,7 @@ export function ParentDashboardSkeleton() {
       role="status"
       aria-label="Chargement du tableau de bord parent"
       aria-busy="true"
-      className="relative min-h-screen bg-[#020408] text-white overflow-x-hidden"
+      className="relative min-h-screen bg-background text-white overflow-x-hidden"
     >
       <div className="relative z-10 container-wide py-16 px-4 md:px-8 max-w-[1600px] mx-auto space-y-16 pb-32">
         {/* SECTION 1 */}

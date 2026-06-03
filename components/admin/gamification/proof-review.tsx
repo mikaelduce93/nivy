@@ -68,7 +68,7 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
         if (info.offset.x > 100) handleSwipe('right')
         else if (info.offset.x < -100) handleSwipe('left')
       }}
-      className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden shadow-2xl border border-zinc-800 touch-none mx-auto"
+      className="relative w-full max-w-sm aspect-[9/16] bg-ink rounded-2xl overflow-hidden shadow-2xl border border-ink touch-none mx-auto"
     >
       {/* Video Layer */}
       <div className="absolute inset-0" onClick={togglePlay}>
@@ -82,9 +82,9 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
           <track kind="captions" srcLang="fr" label="Francais" />
         </video>
         {!isPlaying && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px]">
-            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
-              <Play className="w-8 h-8 text-white ml-1" />
+          <div className="absolute inset-0 flex items-center justify-center bg-ink/20 -[2px]">
+            <div className="w-16 h-16 rounded-full bg-paper-2  flex items-center justify-center">
+              <Play className="w-8 h-8 text-ink ml-1" />
             </div>
           </div>
         )}
@@ -95,20 +95,20 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <Avatar className="border-2 border-white/20">
+            <Avatar className="border-2 border-ink">
               <AvatarImage src={proof.user.avatar_url} />
               <AvatarFallback>{proof.user.username[0]}</AvatarFallback>
             </Avatar>
-            <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full">
-              <p className="text-white font-bold text-sm shadow-black drop-shadow-md">
-                {proof.user.username} <span className="text-purple-400">Lvl {proof.user.level}</span>
+            <div className="bg-ink/40  px-3 py-1.5 rounded-full">
+              <p className="text-ink font-bold text-sm shadow-black drop-shadow-md">
+                {proof.user.username} <span className="text-pink">Lvl {proof.user.level}</span>
               </p>
             </div>
           </div>
           <Button
             size="icon"
             variant="ghost"
-            className="text-white hover:bg-white/20 pointer-events-auto rounded-full"
+            className="text-ink hover:bg-paper-2 pointer-events-auto rounded-full"
             aria-label="Plus d'options"
           >
             <MoreHorizontal aria-hidden="true" />
@@ -117,13 +117,13 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
 
         {/* Challenge Criteria & Actions */}
         <div className="space-y-4">
-          <div className="bg-black/60 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-            <h3 className="text-white font-bold mb-2 flex items-center gap-2">
-              <span className="text-yellow-400">🏆</span> {proof.challenge.title}
+          <div className="bg-ink/60  rounded-2xl p-4 border border-ink">
+            <h3 className="text-ink font-bold mb-2 flex items-center gap-2">
+              <span className="text-gold">🏆</span> {proof.challenge.title}
             </h3>
             <ul className="space-y-1">
               {proof.challenge.criteria.map((c, i) => (
-                <li key={i} className="text-xs text-zinc-300 flex items-start gap-2">
+                <li key={i} className="text-xs text-ink-2 flex items-start gap-2">
                   <span className="mt-0.5">•</span> {c}
                 </li>
               ))}
@@ -134,14 +134,14 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
             <Button
               size="lg"
               variant="outline"
-              className="flex-1 bg-black/40 border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white h-14 rounded-2xl text-lg font-bold transition-all hover:scale-105"
+              className="flex-1 bg-ink/40 border-destructive/50 text-destructive hover:bg-destructive hover:text-ink h-14 rounded-2xl text-lg font-bold transition-all hover:scale-105"
               onClick={() => handleSwipe('left')}
             >
               <X className="w-6 h-6 mr-2" /> Rejeter
             </Button>
             <Button
               size="lg"
-              className="flex-1 bg-green-500 hover:bg-green-400 text-white h-14 rounded-2xl text-lg font-bold transition-all hover:scale-105 shadow-lg shadow-green-500/20"
+              className="flex-1 bg-lime hover:bg-lime text-ink h-14 rounded-2xl text-lg font-bold transition-all hover:scale-105 shadow-lg shadow-lime/20"
               onClick={() => handleSwipe('right')}
             >
               <Check className="w-6 h-6 mr-2" /> Valider
@@ -156,9 +156,9 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-green-500/30 flex items-center justify-center z-50 pointer-events-none"
+            className="absolute inset-0 bg-lime/30 flex items-center justify-center z-50 pointer-events-none"
           >
-            <div className="bg-white text-green-600 p-4 rounded-full shadow-xl rotate-12 border-4 border-green-500">
+            <div className="bg-white text-lime p-4 rounded-full shadow-xl rotate-12 border-4 border-lime">
               <Check className="w-16 h-16" strokeWidth={4} />
             </div>
           </motion.div>
@@ -167,9 +167,9 @@ export function ProofReviewCard({ proof, onReview }: ProofReviewCardProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-red-500/30 flex items-center justify-center z-50 pointer-events-none"
+            className="absolute inset-0 bg-destructive/30 flex items-center justify-center z-50 pointer-events-none"
           >
-            <div className="bg-white text-red-600 p-4 rounded-full shadow-xl -rotate-12 border-4 border-red-500">
+            <div className="bg-white text-destructive p-4 rounded-full shadow-xl -rotate-12 border-4 border-destructive">
               <X className="w-16 h-16" strokeWidth={4} />
             </div>
           </motion.div>

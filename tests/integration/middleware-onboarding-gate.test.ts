@@ -43,10 +43,33 @@ vi.mock("@/lib/monitoring/sentry-server", () => ({
   setEnvironmentTag: () => {},
 }))
 
+// #217 — updateSession now returns { response, user, supabase } so proxy.ts can
+// reuse a SINGLE remote getUser() + client (no duplicate auth round-trips). The
+// fake supabase here mirrors the @supabase/ssr stub below and reads `fakeState`
+// lazily (the factory body runs on first import, after fakeState is initialised).
 vi.mock("@/lib/supabase/middleware", () => ({
   updateSession: async (_req: unknown) => {
     const { NextResponse } = await import("next/server")
-    return NextResponse.next()
+    const resolve = async (table: string) => {
+      if (table === "admin_roles") return { data: fakeState.adminRole, error: null }
+      if (table === "profiles") return { data: fakeState.profile, error: null }
+      return { data: null, error: null }
+    }
+    const supabase = {
+      auth: {
+        getUser: async () => ({ data: { user: fakeState.user } }),
+      },
+      from: (table: string) => ({
+        select: () => ({
+          eq: () => ({
+            eq: () => ({ maybeSingle: () => resolve(table), single: () => resolve(table) }),
+            maybeSingle: () => resolve(table),
+            single: () => resolve(table),
+          }),
+        }),
+      }),
+    }
+    return { response: NextResponse.next(), user: fakeState.user, supabase }
   },
 }))
 
@@ -107,10 +130,10 @@ process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key-for-tests"
 
 async function callMiddleware(path: string) {
   // Lazy-import after vi.mock has been registered.
-  const mod = await import("@/middleware")
+  const mod = await import("@/proxy")
   const url = `http://localhost${path}`
   const req = new NextRequest(url, { method: "GET" })
-  const res = await mod.middleware(req)
+  const res = await mod.proxy(req)
   return res
 }
 
@@ -131,12 +154,13 @@ afterEach(() => {
 // ─── Tests ────────────────────────────────────────────────────────────────
 
 describe("middleware — AUTH-006 is_onboarded gate", () => {
-  it("redirects parent with is_onboarded=false hitting /parent → /onboarding/parent", async () => {
+  it("redirects parent with is_onboarded=false hitting /parent → /onboarding/parent/e-signature", async () => {
+    // #51 — the parent onboarding entry point is now the e-signature step.
     fakeState.user = { id: "p-1" }
     fakeState.profile = { role: "parent", is_onboarded: false }
     const res = await callMiddleware("/parent")
     expect(res.status).toBe(307)
-    expect(locationOf(res)).toMatch(/\/onboarding\/parent$/)
+    expect(locationOf(res)).toMatch(/\/onboarding\/parent\/e-signature$/)
   })
 
   it("lets parent with is_onboarded=true reach /parent (no redirect)", async () => {

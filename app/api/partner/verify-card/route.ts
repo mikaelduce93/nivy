@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 
@@ -76,15 +77,19 @@ export async function POST(request: Request) {
       )
     }
 
-    const { data: vipCard, error: cardError } = await supabase
+    // #27 — read the card with the service-role client: the partner is not the
+    // card owner, and vip_cards RLS is self-read-only. Columns aligned to the
+    // canonical schema (card_type/issue_date/expiry_date).
+    const sr = createServiceRoleClient()
+    const { data: vipCard, error: cardError } = await sr
       .from("vip_cards")
       .select(`
         id,
         card_number,
-        tier,
+        card_type,
         status,
-        start_date,
-        end_date,
+        issue_date,
+        expiry_date,
         profile_id,
         profiles!inner (
           id,
@@ -113,7 +118,7 @@ export async function POST(request: Request) {
     }
 
     const now = new Date()
-    const endDate = new Date(vipCard.end_date)
+    const endDate = new Date(vipCard.expiry_date)
     if (endDate < now) {
       return NextResponse.json({
         success: false,
@@ -135,7 +140,7 @@ export async function POST(request: Request) {
       platinum: 3,
     }
 
-    const userTierLevel = tierPriority[vipCard.tier.toLowerCase()] || 0
+    const userTierLevel = tierPriority[(vipCard.card_type || "free").toLowerCase()] || 0
 
     // Pull eligible offers from partner_offers. We use OR for valid_from
     // (some legacy rows have NULL valid_from) and only apply the
@@ -178,7 +183,7 @@ export async function POST(request: Request) {
       applicableOffers.map(async (offer) => {
         let usedByUser = 0
         try {
-          const { count } = await supabase
+          const { count } = await sr
             .from("discount_usage")
             .select("*", { count: "exact", head: true })
             .eq("discount_id", offer.id)
@@ -209,9 +214,9 @@ export async function POST(request: Request) {
       card: {
         id: vipCard.id,
         cardNumber: vipCard.card_number,
-        tier: vipCard.tier,
+        tier: vipCard.card_type,
         status: vipCard.status,
-        expiresAt: vipCard.end_date,
+        expiresAt: vipCard.expiry_date,
       },
       points: {
         total: userPoints?.total_points || 0,

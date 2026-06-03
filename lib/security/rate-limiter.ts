@@ -33,6 +33,12 @@ const DEFAULT_CONFIG: RateLimitConfig = {
   window: 60000, // 1 minute
 }
 
+/**
+ * @deprecated #71 — direct use is unsafe in multi-instance prod (the in-memory
+ * store is per-lambda, so limits are bypassable). Prefer `rateLimitDistributed`
+ * from `./rate-limiter-redis`. This in-memory backend remains the sanctioned
+ * fallback that rate-limiter-redis itself uses when Redis is not configured.
+ */
 export async function rateLimit(
   request: NextRequest,
   config: RateLimitConfig = DEFAULT_CONFIG

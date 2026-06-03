@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { Brain, Loader2, SkipForward } from "lucide-react"
+import { Loader2, SkipForward } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { NivCoach, NivCelebration } from "@/components/brand"
 import { cn } from "@/lib/utils"
 
 type Style = "visual" | "auditory" | "kinesthetic" | "reading"
@@ -61,6 +62,13 @@ const QUESTIONS: QuizQuestion[] = [
   },
 ]
 
+const STYLE_LABEL: Record<Style, string> = {
+  visual: "Visuel",
+  auditory: "Auditif",
+  kinesthetic: "Kinesthésique",
+  reading: "Lecture / écriture",
+}
+
 interface LearningStyleQuizProps {
   nextHref?: string
 }
@@ -71,12 +79,24 @@ export function LearningStyleQuiz({
   const router = useRouter()
   const [answers, setAnswers] = useState<Record<string, Style>>({})
   const [submitting, setSubmitting] = useState<"confirm" | "skip" | null>(null)
+  const [result, setResult] = useState<Style | null>(null)
 
   function pick(qid: string, style: Style) {
     setAnswers((prev) => ({ ...prev, [qid]: style }))
   }
 
   const allAnswered = QUESTIONS.every((q) => answers[q.id])
+
+  // Archetype dominant calculé côté client pour la célébration uniquement —
+  // le scoring canonique reste serveur (POST ci-dessous).
+  function dominantStyle(): Style {
+    const counts: Record<Style, number> = { visual: 0, auditory: 0, kinesthetic: 0, reading: 0 }
+    for (const q of QUESTIONS) {
+      const s = answers[q.id]
+      if (s) counts[s] += 1
+    }
+    return (Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] as Style) ?? "visual"
+  }
 
   async function submit(action: "confirm" | "skip") {
     setSubmitting(action)
@@ -97,7 +117,13 @@ export function LearningStyleQuiz({
         setSubmitting(null)
         return
       }
-      router.push(nextHref)
+      if (action === "confirm") {
+        // Beat de célébration (Niv proud + confettis) avant la redirection.
+        setResult(dominantStyle())
+        setTimeout(() => router.push(nextHref), 2600)
+      } else {
+        router.push(nextHref)
+      }
     } catch (err) {
       console.error("Learning-style submit error:", err)
       toast.error("Erreur réseau")
@@ -105,77 +131,92 @@ export function LearningStyleQuiz({
     }
   }
 
+  if (result) {
+    return (
+      <div className="mx-auto w-full max-w-2xl">
+        <NivCelebration
+          tone="teal"
+          title="Ton style d'apprentissage"
+          value={STYLE_LABEL[result]}
+          caption="Je vais adapter le contenu à ton cerveau. On finalise ton profil…"
+        />
+      </div>
+    )
+  }
+
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-          <Brain className="w-3.5 h-3.5" />
-          Étape Style d'apprentissage
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Comment tu apprends le mieux ?
+    <div className="mx-auto w-full max-w-2xl space-y-6">
+      <div className="space-y-3 text-center">
+        <p className="eyebrow tracking-[0.16em]">Étape 3 / 4 · Apprentissage</p>
+        <SegmentedProgress steps={4} current={2} className="mx-auto max-w-xs" />
+        <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+          Comment tu <em className="font-semibold italic text-pink">apprends</em> le mieux ?
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        <p className="text-sm text-mute sm:text-base">
           4 questions rapides pour qu'on adapte le contenu à ton cerveau.
         </p>
       </div>
 
+      <NivCoach
+        mood="calm"
+        message="Réponds au feeling — y'a pas de mauvaise réponse, je veux juste te connaître."
+      />
+
       <div className="space-y-4">
         {QUESTIONS.map((q, qi) => (
-          <Card key={q.id} className="p-4 sm:p-5">
+          <StickerCard key={q.id} className="p-4 sm:p-5">
             <div className="space-y-3">
-              <h2 className="text-base font-semibold">
-                <span className="text-primary mr-2">{qi + 1}.</span>
+              <h2 className="font-display text-base font-bold">
+                <span className="mr-2 text-pink">{qi + 1}.</span>
                 {q.prompt}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {q.choices.map((c) => {
                   const isOn = answers[q.id] === c.style
                   return (
-                    <motion.button
+                    <button
                       key={c.style}
                       type="button"
-                      whileTap={{ scale: 0.97 }}
                       onClick={() => pick(q.id, c.style)}
                       aria-pressed={isOn}
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-2xl border text-left text-sm font-medium",
-                        "transition-all duration-150",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                        "flex items-center gap-3 rounded-2xl border-2 p-3 text-left text-sm font-medium transition-all duration-150",
+                        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
                         isOn
-                          ? "bg-primary/10 border-primary text-foreground shadow-sm"
-                          : "bg-background hover:bg-muted border-border"
+                          ? "-translate-x-0.5 -translate-y-0.5 border-ink bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                          : "border-line bg-white text-ink hover:border-ink"
                       )}
                     >
-                      <span className="text-xl shrink-0" aria-hidden>
+                      <span className="shrink-0 text-xl" aria-hidden>
                         {c.emoji}
                       </span>
                       <span>{c.label}</span>
-                    </motion.button>
+                    </button>
                   )
                 })}
               </div>
             </div>
-          </Card>
+          </StickerCard>
         ))}
       </div>
 
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Button
           variant="ghost"
           size="lg"
           onClick={() => submit("skip")}
           disabled={submitting !== null}
-          className="text-muted-foreground"
+          className="text-mute"
         >
           {submitting === "skip" ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
-            <SkipForward className="w-4 h-4" />
+            <SkipForward className="size-4" aria-hidden="true" />
           )}
           Passer cette étape
         </Button>
         <Button
+          variant="pink"
           size="lg"
           onClick={() => submit("confirm")}
           disabled={!allAnswered || submitting !== null}
@@ -183,11 +224,11 @@ export function LearningStyleQuiz({
         >
           {submitting === "confirm" ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
               Sauvegarde…
             </>
           ) : (
-            <>Terminer</>
+            "Terminer"
           )}
         </Button>
       </div>

@@ -213,7 +213,7 @@ export function PartnerDashboardSkeleton() {
       role="status"
       aria-label="Chargement du tableau de bord partenaire"
       aria-busy="true"
-      className="min-h-screen bg-[#030303] text-white overflow-hidden"
+      className="min-h-screen bg-background text-white overflow-hidden"
     >
       <div className="relative z-10 max-w-7xl mx-auto p-6 md:p-10 space-y-10">
         <HeaderSilhouette />

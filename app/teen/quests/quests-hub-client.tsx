@@ -1,15 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { usePrefersReducedMotion } from "@/lib/hooks/use-reduced-motion"
-import { EASE_STANDARD, DURATION_NORMAL } from "@/lib/motion/easing"
-import { Brain, Dumbbell, Palette, Zap, Swords, Sparkles, ArrowRight, Trophy, Flame, Target, Clock, Users } from "lucide-react"
+import { useEffect, useMemo } from "react"
+import { Brain, Dumbbell, Palette, Zap, ArrowRight, Trophy, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { HubTabs, useHubTab, type HubTab } from "@/components/teen/hub-tabs"
+import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { DefiCard, type DefiCardProps } from "@/components/teen/defi-card"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach, OrbitingTokens, StatHero } from "@/components/brand"
 import type { UnifiedQuest } from "@/lib/server/unified-quest-engine"
 
 // Map UnifiedQuest.status → DefiCard.status. UnifiedQuest has no "expired"
@@ -27,7 +24,7 @@ function pickDefiType(tab: string): DefiCardProps["type"] {
 }
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { EmptyState as SharedEmptyState } from "@/components/ui/states/empty-state"
+import { NivEmpty } from "@/components/brand"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
 
 interface QuestsHubClientProps {
@@ -38,11 +35,29 @@ interface QuestsHubClientProps {
   teenId: string
 }
 
+// #208 — chaque quête unifiée route vers sa VRAIE destination. La page détail
+// /teen/quests/[id] interrogeait des tables inexistantes (`quests`,
+// `daily_challenges`) → 404 systématique. On route par type vers l'écran réel.
+function questTarget(type: string, id: string): string {
+  switch (type) {
+    case "quiz":
+      return `/teen/quiz/${id}`
+    case "challenge":
+      return "/teen/defis-physiques"
+    case "passion":
+      return "/teen/passions"
+    case "event":
+      return "/teen/events"
+    default:
+      return "/teen/quests"
+  }
+}
+
 const QUEST_TABS: HubTab[] = [
-  { id: "daily", label: "Daily", icon: Zap },
-  { id: "brain", label: "Brain", icon: Brain },
-  { id: "body", label: "Body", icon: Dumbbell },
-  { id: "creative", label: "Creative", icon: Palette },
+  { id: "daily", label: "Quotidien", icon: Zap },
+  { id: "brain", label: "Cerveau", icon: Brain },
+  { id: "body", label: "Corps", icon: Dumbbell },
+  { id: "creative", label: "Créa", icon: Palette },
   // TICKET-020 — friend-défis tab. Selecting this tab navigates to the
   // dedicated /teen/quests/friend-defis route (see effect below). The tab
   // sits beside the four pillar tabs so it stays discoverable while the
@@ -50,36 +65,32 @@ const QUEST_TABS: HubTab[] = [
   { id: "friends", label: "Défis amis", icon: Users },
 ]
 
+// Pastels charte par pilier (token économique dédié). Plus aucun
+// gradient/glow : la bannière pilier est une StickerCard à ombre dure.
 const PILLAR_CONFIG = {
   daily: {
-    title: "Daily Quests",
-    subtitle: "Complete these for bonus XP",
-    gradient: "from-gen-z-yellow via-accent-soft to-brand-soft",
-    bgGlow: "bg-gen-z-yellow/20",
+    title: "Quêtes du jour",
+    subtitle: "Boucle-les pour un bonus d'XP",
+    accent: "text-gold",
   },
   brain: {
-    title: "Brain Challenges",
-    subtitle: "Quizzes, puzzles & academic quests",
-    gradient: "from-brand-soft via-info-soft to-success-soft",
-    bgGlow: "bg-brand-soft/20",
+    title: "Défis cerveau",
+    subtitle: "Quiz, énigmes et quêtes scolaires",
+    accent: "text-teal",
   },
   body: {
-    title: "Body Challenges",
-    subtitle: "Physical activities & sports",
-    gradient: "from-accent-soft via-orange-500 to-red-500",
-    bgGlow: "bg-accent-soft/20",
+    title: "Défis corps",
+    subtitle: "Activités physiques et sport",
+    accent: "text-coral",
   },
   creative: {
-    title: "Creative Quests",
-    subtitle: "Art, music, passion projects",
-    gradient: "from-success-soft via-info-soft to-brand-soft",
-    bgGlow: "bg-success-soft/20",
+    title: "Quêtes créa",
+    subtitle: "Art, musique, projets passion",
+    accent: "text-lime",
   },
 }
 
 export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance = 0, teenId }: QuestsHubClientProps) {
-  // TICKET-026 (Wave 3 / W3-A9) — quest reorder / completion FLIP support.
-  const reduced = usePrefersReducedMotion()
   const searchParams = useSearchParams()
   const router = useRouter()
   const currentTab = searchParams.get("tab") || "daily"
@@ -103,7 +114,7 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
           ? dailyChallenges.map((c: any): UnifiedQuest => ({
               id: c.id,
               type: "challenge" as const,
-              title: c.challenge?.title || "Daily Challenge",
+              title: c.challenge?.title || "Quête du jour",
               description: c.challenge?.description || "",
               xp_reward: c.challenge?.xp_reward || 50,
               pillar: "vitality" as const,
@@ -129,153 +140,117 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
 
   return (
     <div className="space-y-8 pt-6">
-      {/* Header */}
+      {/* Header éditorial + Niv coach */}
       <header className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center",
-                "bg-gradient-to-br", config.gradient
-              )}>
-                <Swords className="w-6 h-6 text-black" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Quests</h1>
-                <p className="text-zinc-500 text-sm font-medium">Level up your life</p>
-              </div>
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div className="space-y-3">
+            <span className="eyebrow tracking-[0.16em] text-pink">Ton crew · Défis</span>
+            <h1 className="font-display text-4xl font-extrabold leading-[0.95] tracking-tight text-ink sm:text-5xl">
+              Tes <em className="font-semibold italic text-pink">quêtes</em>
+            </h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-3 py-1 font-mono text-xs font-bold text-ink shadow-stkr-sm">
+                {completedCount} faites
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-3 py-1 font-mono text-xs font-bold text-gold shadow-stkr-sm">
+                {totalXpAvailable} XP à gagner
+              </span>
             </div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="font-bold text-sm">{completedCount} Done</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-soft/10 border border-brand-soft/20">
-              <Zap className="w-4 h-4 text-brand-soft" />
-              <span className="font-bold text-sm">{totalXpAvailable} XP</span>
-            </div>
+          {/* Niv coach — pose hype + tokens orbitants XP / streak / niveau / coins */}
+          <div className="flex flex-col items-center gap-4">
+            <OrbitingTokens
+              xp={(xpData.total_xp || 0).toLocaleString("fr-FR")}
+              coins={coinsBalance.toLocaleString("fr-FR")}
+              level={xpData.level || 1}
+              streak={completedCount}
+              nivMood="hype"
+              size={240}
+            />
+            <NivCoach
+              mood="hype"
+              message="Yallah, enchaîne tes quêtes et fais grimper ton XP !"
+              className="max-w-xs"
+            />
           </div>
         </div>
 
         {/*
-          Twin-currency gauge (compact) — keeps both currencies visible while
-          the teen browses quests so XP/coin distinction stays cognitively clear
-          (whitepaper §5).
+          Twin-currency gauge (full) — îlot sombre en tête de hub : garde les
+          deux monnaies visibles pendant que l'ado parcourt les quêtes pour que
+          la distinction XP/coins reste claire (whitepaper §5).
         */}
         <TwinCurrencyGauge
           xp={xpData.total_xp || 0}
           level={xpData.level || 1}
           coins={coinsBalance}
-          variant="compact"
+          variant="full"
         />
 
         {/* Tabs */}
         <HubTabs tabs={QUEST_TABS} defaultTab="daily" />
       </header>
 
-      {/* Pillar Header */}
-      <motion.div
-        key={currentTab}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl p-8 border border-white/10"
-      >
-        {/* Background Glow */}
-        <div className={cn("absolute inset-0 opacity-30", config.bgGlow)} />
-        <div className={cn("absolute inset-0 bg-gradient-to-r opacity-10", config.gradient)} />
-        
-        <div className="relative z-10 flex items-center justify-between">
+      {/* Bannière pilier — StickerCard + chiffre hero */}
+      <StickerCard className="p-6 sm:p-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight">{config.title}</h2>
-            <p className="text-zinc-400 mt-1">{config.subtitle}</p>
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">
+              {config.title}
+            </h2>
+            <p className="mt-1 text-mute">{config.subtitle}</p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-3xl font-black">{filteredQuests.length}</p>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Available</p>
-            </div>
-            <div className={cn(
-              "w-16 h-16 rounded-2xl flex items-center justify-center",
-              "bg-gradient-to-br", config.gradient
-            )}>
-              <Target className="w-8 h-8 text-black" />
-            </div>
-          </div>
+          <StatHero
+            eyebrow="Disponibles"
+            value={filteredQuests.length}
+            tone="pink"
+            size="sm"
+            className="w-full sm:w-44"
+          />
         </div>
-      </motion.div>
+      </StickerCard>
 
       {/* Quest Grid */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentTab}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {filteredQuests.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {/* TICKET-026 — inner AnimatePresence with `layout` so quests
-                  reorder smoothly when their status changes (e.g. one
-                  completes and slides to the bottom of the list). The
-                  outer `mode="wait"` AnimatePresence still owns the whole-
-                  grid swap when the user switches tabs. */}
-              <AnimatePresence mode="popLayout" initial={false}>
-                {filteredQuests.map((quest) => (
-                  <motion.div
-                    key={quest.id}
-                    layout={reduced ? false : true}
-                    initial={reduced ? false : { opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
-                    transition={{
-                      duration: reduced ? 0 : DURATION_NORMAL,
-                      ease: EASE_STANDARD,
-                    }}
-                  >
-                    <DefiCard
-                      type={pickDefiType(currentTab)}
-                      title={quest.title}
-                      description={quest.description}
-                      xpReward={quest.xp_reward}
-                      status={mapQuestStatus(quest.status)}
-                      href={`/teen/quests/${quest.id}`}
-                      ctaHref={`/teen/quests/${quest.id}`}
-                      ctaLabel={quest.status === "completed" ? "DONE" : quest.status === "in_progress" ? "CONTINUE" : "START"}
-                      imageUrl={quest.image_url}
-                      // TICKET-024 — morph anchor for View Transitions API.
-                      // Pairs with the hero on /teen/quests/[id].
-                      morphId={`vt-quest-${quest.id}`}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          ) : (
-            <EmptyState tab={currentTab} />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      {filteredQuests.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {filteredQuests.map((quest) => {
+            const target = questTarget(quest.type, quest.id)
+            return (
+              <DefiCard
+                key={quest.id}
+                type={pickDefiType(currentTab)}
+                title={quest.title}
+                description={quest.description}
+                xpReward={quest.xp_reward}
+                status={mapQuestStatus(quest.status)}
+                href={target}
+                ctaHref={target}
+                ctaLabel={quest.status === "completed" ? "Terminé" : quest.status === "in_progress" ? "Continuer" : "Commencer"}
+                imageUrl={quest.image_url}
+                morphId={`vt-quest-${quest.id}`}
+              />
+            )
+          })}
+        </div>
+      ) : (
+        <EmptyState tab={currentTab} />
+      )}
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
+      {/* Actions rapides — StickerCard FR */}
+      <div className="grid grid-cols-1 gap-6 border-t-2 border-ink pt-8 md:grid-cols-2">
         <QuickActionCard
           icon={Brain}
-          title="Generate AI Quiz"
-          description="Create a personalized quiz based on your interests"
-          href="/teen/quests?tab=brain"
-          color="lavender"
+          title="Joue à un quiz"
+          description="Teste tes connaissances et gagne de l'XP"
+          href="/teen/quiz"
         />
         <QuickActionCard
           icon={Trophy}
-          title="Challenge a Friend"
-          description="Start a competitive quest with your crew"
+          title="Défie un ami"
+          description="Lance une quête compétitive avec ton crew"
           href="/teen/social?tab=crew"
-          color="coral"
         />
       </div>
     </div>
@@ -283,7 +258,7 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
 }
 
 function EmptyState({ tab }: { tab: string }) {
-  // Per-tab messaging on top of the shared `quests` preset.
+  // Per-tab messaging — Niv pose calm sur les listes vides.
   const messages: Record<string, { title: string; desc: string }> = {
     daily: {
       title: "Aucune quête quotidienne",
@@ -305,60 +280,36 @@ function EmptyState({ tab }: { tab: string }) {
 
   const msg = messages[tab] || messages.daily
 
-  return (
-    <SharedEmptyState
-      preset="quests"
-      size="default"
-      title={msg.title}
-      description={msg.desc}
-    />
-  )
+  return <NivEmpty mood="calm" title={msg.title} description={msg.desc} />
 }
 
-function QuickActionCard({ 
-  icon: Icon, 
-  title, 
-  description, 
-  href, 
-  color 
-}: { 
+function QuickActionCard({
+  icon: Icon,
+  title,
+  description,
+  href,
+}: {
   icon: any
   title: string
   description: string
   href: string
-  color: "lavender" | "coral" | "mint" | "yellow"
 }) {
-  const colorClasses = {
-    lavender: "from-brand-soft/20 to-brand-soft/5 border-brand-soft/30 hover:border-brand-soft/50",
-    coral: "from-accent-soft/20 to-accent-soft/5 border-accent-soft/30 hover:border-accent-soft/50",
-    mint: "from-success-soft/20 to-success-soft/5 border-success-soft/30 hover:border-success-soft/50",
-    yellow: "from-gen-z-yellow/20 to-gen-z-yellow/5 border-gen-z-yellow/30 hover:border-gen-z-yellow/50",
-  }
-
   return (
-    <Link href={href}>
-      <motion.div
-        whileHover={{ scale: 1.02, y: -4 }}
-        whileTap={{ scale: 0.98 }}
-        className={cn(
-          "relative overflow-hidden rounded-3xl p-6 border transition-all cursor-pointer",
-          "bg-gradient-to-br",
-          colorClasses[color]
-        )}
-      >
-        <div className="flex items-center justify-between">
+    <Link href={href} className="block">
+      <StickerCard variant="hover" className="p-6">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-              <Icon className="w-6 h-6 text-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink bg-white">
+              <Icon className="h-6 w-6 text-ink" />
             </div>
             <div>
-              <h4 className="font-bold text-white">{title}</h4>
-              <p className="text-sm text-zinc-400">{description}</p>
+              <h4 className="font-display font-bold text-ink">{title}</h4>
+              <p className="text-sm text-mute">{description}</p>
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-zinc-500" />
+          <ArrowRight className="h-5 w-5 text-pink" />
         </div>
-      </motion.div>
+      </StickerCard>
     </Link>
   )
 }

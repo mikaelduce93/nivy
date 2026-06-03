@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type EventChallengeType,
   type EventChallenge,
@@ -47,7 +48,7 @@ export async function getEventChallengeTypes(): Promise<{
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching event challenge types:", error)
+    logDbError("event-challenges.getEventChallengeTypes", error)
     return { success: false, error: "Impossible de charger les types de défis" }
   }
 }
@@ -110,7 +111,7 @@ export async function getEventChallenges(eventId: string): Promise<{
 
     return { success: true, data: enrichedChallenges, checkIn }
   } catch (error) {
-    console.error("Error fetching event challenges:", error)
+    logDbError("event-challenges.getEventChallenges", error)
     return { success: false, error: "Impossible de charger les défis" }
   }
 }
@@ -164,7 +165,7 @@ export async function checkInToEvent(
       challengesUnlocked: data.challenges_unlocked,
     }
   } catch (error) {
-    console.error("Error checking in:", error)
+    logDbError("event-challenges.checkInToEvent", error)
     return { success: false, error: "Erreur lors du check-in" }
   }
 }
@@ -206,7 +207,7 @@ export async function checkOutFromEvent(eventId: string): Promise<{
       bonusXp: data.bonus_xp,
     }
   } catch (error) {
-    console.error("Error checking out:", error)
+    logDbError("event-challenges.checkOutFromEvent", error)
     return { success: false, error: "Erreur lors du check-out" }
   }
 }
@@ -241,7 +242,7 @@ export async function getActiveCheckIn(eventId: string): Promise<{
 
     return { success: true, data: data || null }
   } catch (error) {
-    console.error("Error fetching active check-in:", error)
+    logDbError("event-challenges.getActiveCheckIn", error)
     return { success: false, error: "Erreur lors de la récupération du check-in" }
   }
 }
@@ -288,7 +289,7 @@ export async function completeEventChallenge(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error completing challenge:", error)
+    logDbError("event-challenges.completeEventChallenge", error)
     return { success: false, error: "Erreur lors de la complétion du défi" }
   }
 }
@@ -378,7 +379,7 @@ export async function updateChallengeProgress(
 
     return { success: true, data: updated, completed: false }
   } catch (error) {
-    console.error("Error updating challenge progress:", error)
+    logDbError("event-challenges.updateChallengeProgress", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -438,7 +439,7 @@ export async function submitEventReview(
       xpEarned: data.xp_earned,
     }
   } catch (error) {
-    console.error("Error submitting review:", error)
+    logDbError("event-challenges.submitEventReview", error)
     return { success: false, error: "Erreur lors de l'envoi de l'avis" }
   }
 }
@@ -472,7 +473,7 @@ export async function getUserEventReview(eventId: string): Promise<{
 
     return { success: true, data: data || null }
   } catch (error) {
-    console.error("Error fetching user review:", error)
+    logDbError("event-challenges.getUserEventReview", error)
     return { success: false, error: "Erreur lors de la récupération de l'avis" }
   }
 }
@@ -507,7 +508,7 @@ export async function getUserEventStats(): Promise<{
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error fetching user event stats:", error)
+    logDbError("event-challenges.getUserEventStats", error)
     return { success: false, error: "Erreur lors de la récupération des stats" }
   }
 }
@@ -549,7 +550,7 @@ export async function getUserCheckInHistory(
 
     return { success: true, data, total: count || 0 }
   } catch (error) {
-    console.error("Error fetching check-in history:", error)
+    logDbError("event-challenges.getUserCheckInHistory", error)
     return { success: false, error: "Erreur lors de la récupération de l'historique" }
   }
 }
@@ -597,7 +598,7 @@ export async function getCompletedEventChallenges(
 
     return { success: true, data, total: count || 0 }
   } catch (error) {
-    console.error("Error fetching completed challenges:", error)
+    logDbError("event-challenges.getCompletedEventChallenges", error)
     return { success: false, error: "Erreur lors de la récupération des défis" }
   }
 }
@@ -649,7 +650,7 @@ export async function getEventLeaderboard(
 
     return { success: true, data, userRank }
   } catch (error) {
-    console.error("Error fetching event leaderboard:", error)
+    logDbError("event-challenges.getEventLeaderboard", error)
     return { success: false, error: "Erreur lors de la récupération du classement" }
   }
 }
@@ -713,7 +714,7 @@ export async function verifyLocationForChallenge(
 
     return { success: true, isInZone, distance: Math.round(distance) }
   } catch (error) {
-    console.error("Error verifying location:", error)
+    logDbError("event-challenges.verifyLocationForChallenge", error)
     return { success: false, error: "Erreur lors de la vérification de position" }
   }
 }
@@ -761,7 +762,7 @@ export async function uploadChallengeProof(
 
     return { success: true, url: publicUrl }
   } catch (error) {
-    console.error("Error uploading proof:", error)
+    logDbError("event-challenges.uploadChallengeProof", error)
     return { success: false, error: "Erreur lors de l'upload" }
   }
 }

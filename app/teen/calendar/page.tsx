@@ -41,10 +41,10 @@ export default async function CalendarPage() {
 function CalendarSkeleton() {
   return (
     <div className="space-y-8 pt-6 animate-pulse">
-      <div className="h-14 bg-zinc-800/50 rounded-2xl w-64" />
+      <div className="h-14 bg-card rounded-2xl w-64" />
       <div className="grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-6">
-        <div className="h-96 bg-zinc-800/30 rounded-3xl" />
-        <div className="h-96 bg-zinc-800/30 rounded-3xl" />
+        <div className="h-96 bg-card rounded-2xl" />
+        <div className="h-96 bg-card rounded-2xl" />
       </div>
     </div>
   )

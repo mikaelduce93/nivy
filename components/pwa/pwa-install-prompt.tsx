@@ -174,26 +174,26 @@ export function PWAInstallBanner({ className, onDismiss }: PWAInstallBannerProps
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          <div className="max-w-lg mx-auto bg-gradient-to-r from-zinc-900 to-zinc-800 rounded-2xl p-4 shadow-xl border border-zinc-700">
+          <div className="max-w-lg mx-auto bg-gradient-to-r from-paper-2 to-card rounded-2xl p-4 shadow-xl border border-ink">
             <div className="flex items-start gap-4">
               {/* Icon */}
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                <Smartphone className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center flex-shrink-0">
+                <Smartphone className="w-6 h-6 text-ink" />
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-bold mb-1">
+                <h3 className="text-ink font-bold mb-1">
                   Installe l'app Teens Party
                 </h3>
-                <p className="text-zinc-400 text-sm mb-3">
+                <p className="text-mute text-sm mb-3">
                   Accès rapide, notifications et mode hors ligne !
                 </p>
 
                 {/* Actions */}
                 <div className="flex gap-2">
                   <motion.button
-                    className="flex-1 py-2.5 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl font-medium text-white text-sm flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 px-4 bg-gradient-to-r from-teal to-teal rounded-xl font-medium text-ink text-sm flex items-center justify-center gap-2"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleInstall}
@@ -203,7 +203,7 @@ export function PWAInstallBanner({ className, onDismiss }: PWAInstallBannerProps
                   </motion.button>
 
                   <motion.button
-                    className="py-2.5 px-4 bg-zinc-700 hover:bg-zinc-600 rounded-xl text-zinc-300 text-sm transition-colors"
+                    className="py-2.5 px-4 bg-muted hover:bg-muted rounded-xl text-ink-2 text-sm transition-colors"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleDismiss}
@@ -215,7 +215,7 @@ export function PWAInstallBanner({ className, onDismiss }: PWAInstallBannerProps
 
               {/* Close button */}
               <button
-                className="text-zinc-500 hover:text-white transition-colors"
+                className="text-mute hover:text-ink transition-colors"
                 onClick={handleDismiss}
               >
                 <X className="w-5 h-5" />
@@ -264,14 +264,14 @@ function IOSInstallInstructions({ onClose }: IOSInstallInstructionsProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/60  p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="w-full max-w-md bg-zinc-900 rounded-2xl overflow-hidden"
+        className="w-full max-w-md bg-card rounded-2xl overflow-hidden"
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
@@ -280,20 +280,20 @@ function IOSInstallInstructions({ onClose }: IOSInstallInstructionsProps) {
         {/* Header */}
         <div className="relative p-6 pb-4 text-center">
           <button
-            className="absolute top-4 right-4 text-zinc-500 hover:text-white"
+            className="absolute top-4 right-4 text-mute hover:text-ink"
             onClick={onClose}
           >
             <X className="w-6 h-6" />
           </button>
 
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-            <Smartphone className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+            <Smartphone className="w-8 h-8 text-ink" />
           </div>
 
-          <h2 className="text-xl font-bold text-white mb-2">
+          <h2 className="text-xl font-bold text-ink mb-2">
             Installer sur iPhone
           </h2>
-          <p className="text-zinc-400 text-sm">
+          <p className="text-mute text-sm">
             Ajoute Teens Party à ton écran d'accueil en 3 étapes
           </p>
         </div>
@@ -306,21 +306,21 @@ function IOSInstallInstructions({ onClose }: IOSInstallInstructionsProps) {
             return (
               <motion.div
                 key={index}
-                className="flex items-center gap-4 p-4 bg-zinc-800 rounded-xl"
+                className="flex items-center gap-4 p-4 bg-card rounded-xl"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold">{index + 1}</span>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center flex-shrink-0">
+                  <span className="text-ink font-bold">{index + 1}</span>
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <Icon className="w-4 h-4 text-cyan-400" />
-                    <span className="text-white font-medium">{step.title}</span>
+                    <Icon className="w-4 h-4 text-teal" />
+                    <span className="text-ink font-medium">{step.title}</span>
                   </div>
-                  <p className="text-zinc-400 text-sm">{step.description}</p>
+                  <p className="text-mute text-sm">{step.description}</p>
                 </div>
               </motion.div>
             )
@@ -330,7 +330,7 @@ function IOSInstallInstructions({ onClose }: IOSInstallInstructionsProps) {
         {/* Footer */}
         <div className="px-6 pb-6">
           <motion.button
-            className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl font-medium text-white"
+            className="w-full py-3 bg-gradient-to-r from-teal to-teal rounded-xl font-medium text-ink"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onClose}
@@ -364,7 +364,7 @@ export function PWAInstallButton({
   if (isInstalled) {
     return (
       <div className={cn(
-        "flex items-center gap-2 text-green-400",
+        "flex items-center gap-2 text-lime",
         size === "sm" && "text-sm",
         className
       )}>
@@ -393,9 +393,9 @@ export function PWAInstallButton({
   }
 
   const variantClasses = {
-    default: "bg-gradient-to-r from-cyan-500 to-blue-500 text-white",
-    outline: "border border-cyan-500 text-cyan-400 hover:bg-cyan-500/10",
-    ghost: "text-cyan-400 hover:bg-cyan-500/10",
+    default: "bg-gradient-to-r from-teal to-teal text-ink",
+    outline: "border border-teal text-teal hover:bg-teal/10",
+    ghost: "text-teal hover:bg-teal/10",
   }
 
   return (
@@ -468,19 +468,19 @@ export function PWAFeaturesCard({ className }: PWAFeaturesCardProps) {
     <>
       <motion.div
         className={cn(
-          "bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl p-6 border border-zinc-700",
+          "bg-gradient-to-br from-paper-2 to-card rounded-2xl p-6 border border-ink",
           className
         )}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal to-teal flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-ink" />
           </div>
           <div>
-            <h3 className="text-white font-bold">Installe l'app</h3>
-            <p className="text-zinc-400 text-sm">Meilleure expérience</p>
+            <h3 className="text-ink font-bold">Installe l'app</h3>
+            <p className="text-mute text-sm">Meilleure expérience</p>
           </div>
         </div>
 
@@ -492,11 +492,11 @@ export function PWAFeaturesCard({ className }: PWAFeaturesCardProps) {
             return (
               <div
                 key={index}
-                className="text-center p-3 bg-zinc-800/50 rounded-xl"
+                className="text-center p-3 bg-card rounded-xl"
               >
-                <Icon className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
-                <p className="text-white text-xs font-medium">{feature.title}</p>
-                <p className="text-zinc-500 text-xs">{feature.description}</p>
+                <Icon className="w-5 h-5 text-teal mx-auto mb-1" />
+                <p className="text-ink text-xs font-medium">{feature.title}</p>
+                <p className="text-mute text-xs">{feature.description}</p>
               </div>
             )
           })}
@@ -505,7 +505,7 @@ export function PWAFeaturesCard({ className }: PWAFeaturesCardProps) {
         {/* Install button */}
         {(isInstallable || isIOS) && (
           <motion.button
-            className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl font-medium text-white flex items-center justify-center gap-2"
+            className="w-full py-3 bg-gradient-to-r from-teal to-teal rounded-xl font-medium text-ink flex items-center justify-center gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleInstall}

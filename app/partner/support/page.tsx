@@ -6,23 +6,15 @@
  * grants SELECT to the requester). Ticket creation goes through a server
  * action (./actions.ts) because no INSERT RLS policy exists.
  */
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import {
-  HelpCircle,
-  MessageSquare,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  Mail,
-  ChevronRight,
-} from "lucide-react"
+import { Mail, ChevronRight } from "lucide-react"
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 import { NewTicketForm } from "./new-ticket-form"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { NivCoach, NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
@@ -41,39 +33,20 @@ function formatDate(value: string | null): string {
   return DATE_FMT.format(d)
 }
 
-function statusBadge(status: string) {
+/** Mapping statut → pill mono UPPERCASE charte (mapping inchangé). */
+function ticketStatus(status: string): { label: string; variant: StatusVariant } {
   switch (status) {
     case "resolved":
     case "closed":
-      return (
-        <Badge className="bg-green-500/20 text-green-400">
-          <CheckCircle2 className="w-3 h-3 mr-1" />
-          Résolu
-        </Badge>
-      )
+      return { label: "RÉSOLU", variant: "success" }
     case "in_progress":
-    case "pending":
-      return (
-        <Badge className="bg-blue-500/20 text-blue-400">
-          <Clock className="w-3 h-3 mr-1" />
-          En cours
-        </Badge>
-      )
+      return { label: "EN COURS", variant: "info" }
     case "rejected":
-      return (
-        <Badge className="bg-red-500/20 text-red-400">
-          <XCircle className="w-3 h-3 mr-1" />
-          Refusé
-        </Badge>
-      )
+      return { label: "REFUSÉ", variant: "danger" }
+    case "pending":
     case "open":
     default:
-      return (
-        <Badge className="bg-yellow-500/20 text-yellow-400">
-          <Clock className="w-3 h-3 mr-1" />
-          Ouvert
-        </Badge>
-      )
+      return { label: "OUVERT", variant: "warning" }
   }
 }
 
@@ -84,12 +57,10 @@ export default async function PartnerSupportPage() {
   if (userInfo.role !== "partner") {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Support</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-red-400">
-            Accès refusé — espace réservé aux partenaires.
-          </CardContent>
-        </Card>
+        <h1 className="font-display text-3xl font-extrabold text-ink">Support</h1>
+        <StickerCard className="p-10 text-center text-coral">
+          Accès refusé — espace réservé aux partenaires.
+        </StickerCard>
       </div>
     )
   }
@@ -120,154 +91,153 @@ export default async function PartnerSupportPage() {
   const faqs = [
     {
       q: "Comment scanner un QR code membre ?",
-      a: "Accédez à la page Scanner, activez la caméra et pointez vers le QR code de la carte membre.",
+      a: "Va sur la page Scanner, active la caméra et vise le QR code de la carte membre. C'est tout, ça valide direct.",
     },
     {
       q: "Comment créer une nouvelle offre ?",
-      a: "Rendez-vous dans Mes Offres > Nouvelle offre et remplissez le formulaire.",
+      a: "Direction Mes Offres > Nouvelle offre, tu remplis le formulaire et c'est parti.",
     },
     {
       q: "Quand sont versées les commissions ?",
-      a: "Les versements sont calculés mensuellement par le cron partner-payout-monthly et apparaissent dans la page Paiements.",
+      a: "Les versements sont calculés chaque mois par le cron partner-payout-monthly et apparaissent dans ta page Paiements.",
     },
     {
       q: "Comment modifier mes documents KYC ?",
-      a: "Pour le moment, ouvrez une demande de support depuis cette page : un administrateur vous contactera pour le re-dépôt.",
+      a: "Pour l'instant, ouvre une demande de support ici : un admin te recontacte pour le re-dépôt.",
     },
   ]
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <MessageSquare className="w-7 h-7 text-emerald-400" />
-          Support
+    <div className="max-w-4xl space-y-6">
+      {/* Header éditorial */}
+      <header>
+        <span className="eyebrow tracking-[0.16em] text-mute">Support</span>
+        <h1 className="mt-1 font-display text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
+          Un <em className="font-semibold italic text-pink">souci</em> ? On gère
         </h1>
-        <p className="text-zinc-400 mt-1">Vos demandes de support et contacts directs</p>
+        <p className="mt-2 text-mute">
+          Balance ta demande, l&apos;équipe te répond. On trace chaque ticket de bout en bout.
+        </p>
+      </header>
+
+      {/* Coach Niv */}
+      <NivCoach
+        mood="calm"
+        message="Balance ton souci ici, l'équipe répond sous 24h ouvrables, wllah. Plus c'est détaillé, plus c'est rapide."
+      />
+
+      {/* Stats — sticker cards différenciées */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StickerCard className="p-5">
+          <span className="eyebrow tracking-[0.16em] text-mute">Total</span>
+          <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-ink">
+            {tickets.length}
+          </p>
+        </StickerCard>
+        <StickerCard className="bg-warning-soft p-5">
+          <span className="eyebrow tracking-[0.16em] text-ink-2">Ouverts</span>
+          <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-ink">
+            {open}
+          </p>
+        </StickerCard>
+        <StickerCard className="bg-info-soft p-5">
+          <span className="eyebrow tracking-[0.16em] text-ink-2">En cours</span>
+          <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-ink">
+            {inProgress}
+          </p>
+        </StickerCard>
+        <StickerCard className="bg-success-soft p-5">
+          <span className="eyebrow tracking-[0.16em] text-ink-2">Résolus</span>
+          <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-ink">
+            {resolved}
+          </p>
+        </StickerCard>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-5">
-            <p className="text-xs text-zinc-400">Total</p>
-            <p className="text-2xl font-black text-white">{tickets.length}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-5">
-            <p className="text-xs text-yellow-400 font-medium">Ouverts</p>
-            <p className="text-2xl font-black text-white">{open}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-5">
-            <p className="text-xs text-blue-400 font-medium">En cours</p>
-            <p className="text-2xl font-black text-white">{inProgress}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-5">
-            <p className="text-xs text-green-400 font-medium">Résolus</p>
-            <p className="text-2xl font-black text-white">{resolved}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Direct contact email */}
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+      {/* Contact direct */}
+      <StickerCard className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-              <Mail className="h-5 w-5 text-purple-400" />
-            </div>
+            <span className="grid size-10 place-items-center rounded-xl border-2 border-ink bg-pink/15">
+              <Mail className="size-5 text-pink" aria-hidden="true" />
+            </span>
             <div>
-              <p className="font-bold text-white">Contact direct</p>
-              <p className="text-sm text-zinc-400">Réponse sous 24h ouvrables</p>
+              <p className="font-display font-bold text-ink">Contact direct</p>
+              <p className="text-sm text-mute">Réponse sous 24h ouvrables</p>
             </div>
           </div>
           <a
             href={`mailto:${PARTNERS_EMAIL}`}
-            className="text-sm font-mono text-purple-400 hover:underline"
+            className="font-mono text-sm text-pink hover:underline"
           >
             {PARTNERS_EMAIL}
           </a>
-        </CardContent>
-      </Card>
+        </div>
+      </StickerCard>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* New ticket */}
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white">Nouvelle demande</CardTitle>
-            <CardDescription className="text-zinc-400">
-              Décrivez votre problème — nous traçons chaque ticket.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <NewTicketForm />
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Nouvelle demande */}
+        <StickerCard className="gap-4 p-6">
+          <div>
+            <h2 className="font-display text-lg font-extrabold text-ink">Nouvelle demande</h2>
+            <p className="mt-1 text-sm text-mute">
+              Décris ton souci — on te répond vite, promis.
+            </p>
+          </div>
+          <NewTicketForm />
+        </StickerCard>
 
-        {/* My tickets */}
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white">Mes demandes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {tickets.length === 0 ? (
-              <EmptyState
-                icon={MessageSquare}
-                title="Aucune demande de support"
-                description="Vos tickets apparaîtront ici une fois soumis."
-              />
-            ) : (
-              <div className="space-y-3">
-                {tickets.map((t) => (
+        {/* Mes demandes */}
+        <StickerCard className="gap-4 p-6">
+          <h2 className="font-display text-lg font-extrabold text-ink">Mes demandes</h2>
+          {tickets.length === 0 ? (
+            <NivEmpty
+              title="Aucune demande pour l'instant"
+              description="Tes tickets s'afficheront ici dès que tu en ouvres un."
+            />
+          ) : (
+            <div className="space-y-3">
+              {tickets.map((t) => {
+                const s = ticketStatus(t.status)
+                return (
                   <div
                     key={t.id}
-                    className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-800"
+                    className="rounded-xl border-2 border-ink bg-paper-2 p-4"
                   >
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <p className="font-semibold text-white truncate">{t.subject}</p>
-                      {statusBadge(t.status)}
+                    <div className="mb-2 flex items-start justify-between gap-3">
+                      <p className="truncate font-semibold text-ink">{t.subject}</p>
+                      <StatusBadge variant={s.variant} label={s.label} size="sm" />
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="font-mono text-xs text-mute">
                       Ouvert le {formatDate(t.created_at)}
                       {t.updated_at && t.updated_at !== t.created_at
                         ? ` · MAJ ${formatDate(t.updated_at)}`
                         : ""}
                     </p>
-                    <p className="text-sm text-zinc-400 mt-2 line-clamp-2">{t.body}</p>
+                    <p className="mt-2 line-clamp-2 text-sm text-mute">{t.body}</p>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                )
+              })}
+            </div>
+          )}
+        </StickerCard>
       </div>
 
       {/* FAQ */}
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <HelpCircle className="h-5 w-5 text-amber-400" />
-            Questions fréquentes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
+      <StickerCard className="gap-4 p-6">
+        <h2 className="font-display text-lg font-extrabold text-ink">Questions fréquentes</h2>
+        <div className="space-y-3">
           {faqs.map((faq, i) => (
             <details key={i} className="group">
-              <summary className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700 cursor-pointer list-none hover:border-zinc-600 transition-all">
-                <span className="font-semibold text-white">{faq.q}</span>
-                <ChevronRight className="h-5 w-5 text-zinc-400 group-open:rotate-90 transition-transform" />
+              <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl border-2 border-ink bg-paper-2 p-4 transition-colors group-open:bg-white">
+                <span className="font-semibold text-ink">{faq.q}</span>
+                <ChevronRight className="size-5 text-mute transition-transform group-open:rotate-90" aria-hidden="true" />
               </summary>
-              <div className="p-4 text-zinc-400 text-sm">{faq.a}</div>
+              <div className="p-4 text-sm text-mute">{faq.a}</div>
             </details>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </StickerCard>
     </div>
   )
 }

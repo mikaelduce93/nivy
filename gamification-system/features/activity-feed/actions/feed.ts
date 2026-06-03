@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type ActivityCategory,
   type FeedOrder,
@@ -97,7 +98,7 @@ export async function getActivityFeed(options: {
       hasMore: data.length === (options.limit || 20),
     }
   } catch (error) {
-    console.error("Erreur getActivityFeed:", error)
+    logDbError("activity-feed.getActivityFeed", error)
     return { success: false, error: "Impossible de charger le fil d'activité" }
   }
 }
@@ -195,7 +196,7 @@ export async function getUserActivities(
       hasMore: data.length === limit,
     }
   } catch (error) {
-    console.error("Erreur getUserActivities:", error)
+    logDbError("activity-feed.getUserActivities", error)
     return { success: false, error: "Impossible de charger les activités" }
   }
 }

@@ -1,10 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from 'next/navigation'
-import { TrendingUp, DollarSign, Users, Calendar, Ticket } from 'lucide-react'
-import { Card } from "@/components/ui/card"
+import { Users, Calendar, Ticket, Coins } from 'lucide-react'
 import { AnalyticsChart } from "@/components/analytics-chart-lazy"
 import BackButton from "@/components/admin/BackButton"
 import { RealtimeKPIs } from "@/components/admin/realtime-kpis"
+import { StatCard } from "@/components/admin/stat-card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, Niv } from "@/components/brand"
+import { SegmentedProgress } from "@/components/ui/progress"
 
 export default async function AdminAnalyticsPage() {
   const supabase = await createClient()
@@ -210,61 +213,79 @@ export default async function AdminAnalyticsPage() {
     }) || []
   )
 
+  const maxTopBookings = Math.max(1, ...topEvents.map((e) => e.bookings))
+
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="container mx-auto px-6 py-32">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-6 py-16">
         <BackButton href="/admin" label="Retour au dashboard" />
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4">Analytics & Statistiques</h1>
-          <p className="text-zinc-400">Vue d'ensemble des performances de la plateforme</p>
+
+        {/* Hero éditorial */}
+        <header className="mb-10 mt-4">
+          <p className="eyebrow tracking-[0.16em] text-pink">Admin · Pulse</p>
+          <h1 className="mt-2 font-display text-4xl md:text-5xl font-extrabold tracking-tight text-ink">
+            Vue d'ensemble en <em className="font-semibold italic text-pink">temps réel</em>
+          </h1>
+          <p className="mt-3 text-mute">Les performances de la plateforme, d'un coup d'œil.</p>
+        </header>
+
+        {/* Revenus du mois — chiffre hero sur surface sombre */}
+        <div className="mb-8 grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <StatHero
+            eyebrow="Revenus ce mois"
+            value={monthlyRevenue.toLocaleString("fr-FR")}
+            unit="DH"
+            tone="lime"
+            size="lg"
+            meta={
+              <span className={revenueGrowth >= 0 ? "text-lime" : "text-coral"}>
+                {revenueGrowth >= 0 ? "+" : ""}
+                {revenueGrowth}% vs mois dernier · {totalRevenue.toLocaleString("fr-FR")} DH au total
+              </span>
+            }
+          />
+          <StickerCard className="items-center justify-center gap-3 p-6 text-center">
+            <Niv mood="proud" size={88} />
+            <p className="text-sm text-mute">
+              {averageBookingValue.toFixed(0)} DH de panier moyen par réservation
+            </p>
+          </StickerCard>
         </div>
 
-        {/* Realtime KPIs */}
+        {/* Realtime KPIs — rail KPI unique */}
         <RealtimeKPIs initialData={kpisData} />
 
-        {/* Key Metrics */}
+        {/* Totaux plateforme */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <Card className="p-6 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/30">
-            <div className="flex items-center justify-between mb-4">
-              <DollarSign className="w-8 h-8 text-green-400" />
-              <TrendingUp className="w-5 h-5 text-green-400" />
-            </div>
-            <p className="text-3xl font-black text-white mb-1">{totalRevenue.toFixed(0)} DH</p>
-            <p className="text-green-400 font-semibold">Revenus totaux</p>
-            <p className="text-zinc-400 text-xs mt-2">Moyenne: {averageBookingValue.toFixed(0)} DH/résa</p>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30">
-            <div className="flex items-center justify-between mb-4">
-              <Ticket className="w-8 h-8 text-blue-400" />
-              <TrendingUp className="w-5 h-5 text-blue-400" />
-            </div>
-            <p className="text-3xl font-black text-white mb-1">{totalBookings}</p>
-            <p className="text-blue-400 font-semibold">Réservations totales</p>
-            <p className="text-zinc-400 text-xs mt-2">{confirmedBookings} confirmées</p>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30">
-            <div className="flex items-center justify-between mb-4">
-              <Calendar className="w-8 h-8 text-purple-400" />
-              <TrendingUp className="w-5 h-5 text-purple-400" />
-            </div>
-            <p className="text-3xl font-black text-white mb-1">{allEvents?.length || 0}</p>
-            <p className="text-purple-400 font-semibold">Événements créés</p>
-            <p className="text-zinc-400 text-xs mt-2">
-              {upcomingEvents} à venir • {pastEvents} passés
-            </p>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-orange-500/20 to-red-500/20 border-orange-500/30">
-            <div className="flex items-center justify-between mb-4">
-              <Users className="w-8 h-8 text-orange-400" />
-              <TrendingUp className="w-5 h-5 text-orange-400" />
-            </div>
-            <p className="text-3xl font-black text-white mb-1">{allUsers?.length || 0}</p>
-            <p className="text-orange-400 font-semibold">Utilisateurs inscrits</p>
-            <p className="text-zinc-400 text-xs mt-2">Base utilisateurs totale</p>
-          </Card>
+          <StatCard
+            label="Réservations totales"
+            value={totalBookings}
+            tone="teal"
+            icon={<Ticket className="h-5 w-5" />}
+            hint={`${confirmedBookings} confirmées`}
+          />
+          <StatCard
+            label="Événements créés"
+            value={allEvents?.length || 0}
+            tone="gold"
+            icon={<Calendar className="h-5 w-5" />}
+            hint={`${upcomingEvents} à venir · ${pastEvents} passés`}
+          />
+          <StatCard
+            label="Utilisateurs inscrits"
+            value={allUsers?.length || 0}
+            tone="coral"
+            icon={<Users className="h-5 w-5" />}
+            hint="Base utilisateurs totale"
+          />
+          <StatCard
+            label="Revenus totaux"
+            value={totalRevenue.toFixed(0)}
+            tone="lime"
+            mono
+            icon={<Coins className="h-5 w-5" />}
+            hint={`${averageBookingValue.toFixed(0)} DH / résa en moyenne`}
+          />
         </div>
 
         {/* Revenue and Bookings Chart */}
@@ -277,7 +298,7 @@ export default async function AdminAnalyticsPage() {
               xAxisKey="name"
               title="Évolution des revenus"
               description="Revenus mensuels sur les 12 derniers mois"
-              color="#10b981"
+              color="#7dac3e"
             />
 
             <AnalyticsChart
@@ -287,7 +308,7 @@ export default async function AdminAnalyticsPage() {
               xAxisKey="name"
               title="Réservations par mois"
               description="Nombre de réservations mensuelles"
-              color="#3b82f6"
+              color="#0f8a8a"
             />
           </div>
         )}
@@ -312,7 +333,7 @@ export default async function AdminAnalyticsPage() {
               xAxisKey="name"
               title="Réservations par ville"
               description="Top 6 des villes les plus actives"
-              color="#a855f7"
+              color="#ff3d80"
             />
           )}
         </div>
@@ -327,23 +348,47 @@ export default async function AdminAnalyticsPage() {
               xAxisKey="name"
               title="Croissance des utilisateurs"
               description="Nouvelles inscriptions mensuelles"
-              color="#f59e0b"
+              color="#e0a82e"
             />
           </div>
         )}
 
-        {/* Top Events */}
-        <Card className="p-6 bg-zinc-900 border-zinc-800">
-          <h3 className="text-xl font-bold text-white mb-4">Top événements par réservations</h3>
-          <div className="space-y-3">
-            {topEvents.map((event) => (
-              <div key={event.id} className="flex justify-between items-center">
-                <p className="text-white">{event.name}</p>
-                <p className="text-zinc-400 text-xs">{event.bookings} réservations</p>
-              </div>
+        {/* Top événements */}
+        <section>
+          <div className="mb-4 flex items-center gap-3">
+            <Niv mood="proud" size={48} />
+            <div>
+              <p className="eyebrow tracking-[0.16em] text-mute">Classement</p>
+              <h3 className="font-display text-xl font-extrabold tracking-tight text-ink">
+                Top événements par réservations
+              </h3>
+            </div>
+          </div>
+          <div className="grid gap-4">
+            {topEvents.map((event, index) => (
+              <StickerCard key={event.id} className="gap-3 p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="font-mono text-sm font-bold text-mute">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <p className="truncate font-display text-lg font-extrabold tracking-tight text-ink">
+                      {event.name}
+                    </p>
+                  </div>
+                  <p className="shrink-0 font-mono text-sm font-semibold text-teal">
+                    {event.bookings} résas
+                  </p>
+                </div>
+                <SegmentedProgress
+                  steps={10}
+                  current={Math.round((event.bookings / maxTopBookings) * 10)}
+                  size="md"
+                />
+              </StickerCard>
             ))}
           </div>
-        </Card>
+        </section>
       </div>
     </div>
   )

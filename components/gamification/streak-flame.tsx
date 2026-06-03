@@ -34,10 +34,10 @@ export function StreakFlame({
 
   // Couleur de la flamme selon le streak
   const flameColor = (() => {
-    if (currentStreak >= 30) return "from-purple-500 via-pink-500 to-red-500"
-    if (currentStreak >= 14) return "from-orange-500 via-red-500 to-pink-500"
-    if (currentStreak >= 7) return "from-yellow-500 via-orange-500 to-red-500"
-    return "from-orange-400 via-orange-500 to-red-500"
+    if (currentStreak >= 30) return "from-pink via-pink to-destructive"
+    if (currentStreak >= 14) return "from-coral via-destructive to-pink"
+    if (currentStreak >= 7) return "from-gold via-coral to-destructive"
+    return "from-coral via-coral to-destructive"
   })()
 
   const sizeConfig = {
@@ -56,7 +56,7 @@ export function StreakFlame({
             sizeConfig[size].flame,
             isActive
               ? `bg-gradient-to-br ${flameColor}`
-              : "bg-zinc-800"
+              : "bg-card"
           )}
           animate={isActive ? {
             scale: [1, 1.05, 1],
@@ -71,7 +71,7 @@ export function StreakFlame({
           <Flame
             className={cn(
               sizeConfig[size].icon,
-              isActive ? "text-white" : "text-zinc-600"
+              isActive ? "text-ink" : "text-mute"
             )}
           />
 
@@ -101,12 +101,12 @@ export function StreakFlame({
         {/* Badge streak count */}
         {currentStreak > 0 && (
           <motion.div
-            className="absolute -top-1 -right-1 bg-gradient-to-br from-orange-500 to-red-500 rounded-full min-w-5 h-5 flex items-center justify-center px-1"
+            className="absolute -top-1 -right-1 bg-gradient-to-br from-coral to-destructive rounded-full min-w-5 h-5 flex items-center justify-center px-1"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 20 }}
           >
-            <span className="text-white font-bold text-xs">{currentStreak}</span>
+            <span className="text-ink font-bold text-xs">{currentStreak}</span>
           </motion.div>
         )}
       </div>
@@ -122,13 +122,13 @@ export function StreakFlame({
             <span className={cn(
               "font-black",
               sizeConfig[size].text,
-              isActive ? "text-orange-500" : "text-zinc-600"
+              isActive ? "text-coral" : "text-mute"
             )}>
               {currentStreak}
             </span>
             <span className={cn(
               "font-medium",
-              isActive ? "text-zinc-300" : "text-zinc-500"
+              isActive ? "text-ink-2" : "text-mute"
             )}>
               {currentStreak === 1 ? "jour" : "jours"}
             </span>
@@ -136,7 +136,7 @@ export function StreakFlame({
 
           {/* Streak record */}
           {longestStreak > 0 && (
-            <div className="flex items-center gap-1 text-xs text-zinc-500">
+            <div className="flex items-center gap-1 text-xs text-mute">
               <TrendingUp className="w-3 h-3" />
               <span>Record: {longestStreak} jours</span>
             </div>
@@ -145,13 +145,13 @@ export function StreakFlame({
           {/* Status */}
           <div className="flex items-center gap-1 mt-1">
             {isActive ? (
-              <span className="text-xs text-green-500 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-xs text-lime flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse" />
                 Streak actif
               </span>
             ) : (
-              <span className="text-xs text-zinc-500 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+              <span className="text-xs text-mute flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-muted" />
                 Streak perdu
               </span>
             )}
@@ -176,7 +176,7 @@ function FireParticle({ delay, size }: { delay: number; size: "sm" | "md" | "lg"
   return (
     <motion.div
       className={cn(
-        "absolute rounded-full bg-yellow-400",
+        "absolute rounded-full bg-gold",
         particleSize[size]
       )}
       initial={{ opacity: 0, y: 0, x: 0 }}
@@ -210,15 +210,15 @@ export function StreakMini({ currentStreak, isActive = true, className }: Streak
     <motion.div
       className={cn(
         "flex items-center gap-1.5 px-2 py-1 rounded-full",
-        isActive ? "bg-orange-500/20" : "bg-zinc-800",
+        isActive ? "bg-coral/20" : "bg-card",
         className
       )}
       whileHover={{ scale: 1.05 }}
     >
-      <Flame className={cn("w-4 h-4", isActive ? "text-orange-500" : "text-zinc-600")} />
+      <Flame className={cn("w-4 h-4", isActive ? "text-coral" : "text-mute")} />
       <span className={cn(
         "font-bold text-sm",
-        isActive ? "text-orange-500" : "text-zinc-600"
+        isActive ? "text-coral" : "text-mute"
       )}>
         {currentStreak}
       </span>
@@ -259,20 +259,20 @@ export function StreakCalendar({ streakDays, className }: StreakCalendarProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
           >
-            <span className="text-xs text-zinc-500">{dayName}</span>
+            <span className="text-xs text-mute">{dayName}</span>
             <motion.div
               className={cn(
                 "w-8 h-8 rounded-lg flex items-center justify-center",
                 isActive
-                  ? "bg-gradient-to-br from-orange-500 to-red-500"
-                  : "bg-zinc-800"
+                  ? "bg-gradient-to-br from-coral to-destructive"
+                  : "bg-card"
               )}
               whileHover={{ scale: 1.1 }}
             >
               {isActive ? (
-                <Flame className="w-4 h-4 text-white" />
+                <Flame className="w-4 h-4 text-ink" />
               ) : (
-                <span className="text-zinc-600 text-xs">
+                <span className="text-mute text-xs">
                   {new Date(date).getDate()}
                 </span>
               )}
@@ -296,36 +296,36 @@ interface StreakBrokenModalProps {
 export function StreakBrokenModal({ previousStreak, onClose }: StreakBrokenModalProps) {
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 "
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-sm mx-4 text-center"
+        className="bg-card border border-ink rounded-2xl p-8 max-w-sm mx-4 text-center"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
       >
         <motion.div
-          className="w-20 h-20 mx-auto mb-4 rounded-full bg-zinc-800 flex items-center justify-center"
+          className="w-20 h-20 mx-auto mb-4 rounded-full bg-card flex items-center justify-center"
           animate={{ rotate: [0, 10, -10, 0] }}
           transition={{ duration: 0.5 }}
         >
-          <Flame className="w-10 h-10 text-zinc-600" />
+          <Flame className="w-10 h-10 text-mute" />
         </motion.div>
 
-        <h3 className="text-2xl font-bold text-white mb-2">Streak perdu !</h3>
-        <p className="text-zinc-400 mb-4">
-          Tu avais un streak de <span className="text-orange-500 font-bold">{previousStreak} jours</span>.
+        <h3 className="text-2xl font-bold text-ink mb-2">Streak perdu !</h3>
+        <p className="text-mute mb-4">
+          Tu avais un streak de <span className="text-coral font-bold">{previousStreak} jours</span>.
           <br />
           Recommence dès aujourd'hui !
         </p>
 
         <motion.button
-          className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl font-bold text-white"
+          className="w-full py-3 bg-gradient-to-r from-coral to-destructive rounded-xl font-bold text-ink"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onClose}

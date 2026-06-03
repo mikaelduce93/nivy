@@ -1,43 +1,40 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Cake, Users, Calendar, DollarSign, Send, Check, Sparkles, Zap, Star, ShieldCheck } from 'lucide-react'
+import { Users, Send, Star, Sparkles, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { MeshGradient, GrainOverlay, GlowBlob } from '@/components/ui/gen-z-effects'
+import { StickerCard } from '@/components/ui/sticker-card'
+import { FieldInput } from '@/components/ui/field-input'
+import { Niv, NivCelebration } from '@/components/brand'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { submitBirthdayRequest } from './actions'
 import { cn } from '@/lib/utils'
 
 const PACKS = [
-  { 
-    id: 'starter', 
-    label: "Intimate Crew", 
-    guests: 10, 
-    price: 3500, 
-    color: "var(--brand-soft)",
+  {
+    id: 'starter',
+    label: "Petit comité",
+    guests: 10,
+    price: 3500,
     icon: Users,
-    tag: "MOST POPULAR"
+    tag: "Le plus choisi"
   },
-  { 
-    id: 'plus', 
-    label: "The Big Bash", 
-    guests: 20, 
-    price: 5500, 
-    color: "var(--accent-soft)",
+  {
+    id: 'plus',
+    label: "La grosse teuf",
+    guests: 20,
+    price: 5500,
     icon: Star,
-    tag: "HYPE"
+    tag: "Hype"
   },
-  { 
-    id: 'vip-premium', 
-    label: "Legendary Night", 
-    guests: 50, 
-    price: 12000, 
-    color: "var(--gen-z-yellow)",
+  {
+    id: 'vip-premium',
+    label: "Soirée légendaire",
+    guests: 50,
+    price: 12000,
     icon: Sparkles,
-    tag: "EXTREME"
+    tag: "De ouf"
   }
 ]
 
@@ -50,7 +47,7 @@ export default function OrganizeBirthdayPage() {
 
   const handleSendToParent = async () => {
     if (!date) {
-      toast.error("Choisis une date pour la Hype !")
+      toast.error("Choisis une date pour la fête !")
       return
     }
     setLoading(true)
@@ -62,7 +59,7 @@ export default function OrganizeBirthdayPage() {
         totalPrice: selectedPack.price
       })
       setStep(2)
-      toast.success("Demande de budget envoyée à ton sponsor !")
+      toast.success("Demande de budget envoyée à ton parent !")
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de l'envoi")
     } finally {
@@ -71,128 +68,122 @@ export default function OrganizeBirthdayPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#020203] text-white overflow-hidden selection:bg-brand-soft/30">
-      <MeshGradient className="opacity-30" />
-      <GrainOverlay opacity={0.05} />
-      <GlowBlob color="var(--brand-soft)" className="-top-20 -right-20 opacity-20" size={600} />
+    <div className="min-h-screen bg-paper text-ink">
+      <div className="mx-auto max-w-4xl px-6 py-20">
+        {step === 1 ? (
+          <div className="space-y-14">
+            {/* Hero éditorial */}
+            <div className="text-center">
+              <Niv mood="hype" size={96} className="mx-auto" />
+              <p className="eyebrow mt-6 tracking-[0.16em] text-pink">Organiser un anniv</p>
+              <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+                Organise ta soirée <em className="font-semibold italic text-pink">légendaire</em>
+              </h1>
+              <p className="mx-auto mt-4 max-w-xl text-lg text-mute">
+                Choisis ta formule, ta date, et envoie la demande à ton parent. Il valide, on s'occupe du reste.
+              </p>
+            </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-20">
-        <AnimatePresence mode="wait">
-          {step === 1 ? (
-            <motion.div 
-              key="step1"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="space-y-16"
-            >
-              <div className="text-center space-y-6">
-                <div className="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto border border-white/10 shadow-2xl">
-                  <Cake className="w-12 h-12 text-brand-soft animate-pulse" />
-                </div>
-                <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">
-                  Plan thy <span className="text-gen-z-gradient">Legendary Night.</span>
-                </h1>
-                <p className="text-zinc-500 text-xl font-medium max-w-xl mx-auto">AI has pre-calculated the best vibes for you.</p>
-              </div>
-
-              {/* Pack Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {PACKS.map((pack) => (
-                  <motion.div
+            {/* Pack Selection */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {PACKS.map((pack) => {
+                const isActive = selectedPack.id === pack.id
+                const Icon = pack.icon
+                return (
+                  <StickerCard
                     key={pack.id}
-                    whileHover={{ y: -10 }}
-                    whileTap={{ scale: 0.95 }}
+                    variant="hover"
                     onClick={() => setSelectedPack(pack)}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isActive}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setSelectedPack(pack)
+                      }
+                    }}
                     className={cn(
-                      "relative p-1 rounded-[3rem] cursor-pointer transition-all duration-500",
-                      selectedPack.id === pack.id ? "bg-gradient-to-br from-white/40 to-transparent" : "bg-white/5 border border-white/10"
+                      "justify-between gap-6 p-6",
+                      isActive &&
+                        "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink",
                     )}
                   >
-                    <div className={cn(
-                      "h-full w-full rounded-[2.9rem] p-8 flex flex-col justify-between space-y-8 transition-all duration-500",
-                      selectedPack.id === pack.id ? "bg-zinc-900" : "bg-transparent"
-                    )}>
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-start">
-                          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
-                            <pack.icon className="w-6 h-6" style={{ color: pack.color }} />
-                          </div>
-                          {pack.tag && (
-                            <span className="text-[8px] font-black tracking-widest px-2 py-1 rounded-full bg-white/10 text-white border border-white/5">
-                              {pack.tag}
-                            </span>
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between">
+                        <span
+                          className={cn(
+                            "grid size-11 place-items-center rounded-xl border-2",
+                            isActive ? "border-paper/40 text-paper" : "border-ink text-pink",
                           )}
-                        </div>
-                        <h3 className="text-2xl font-black tracking-tight leading-none uppercase italic">{pack.label}</h3>
-                        <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">{pack.guests} GUESTS MAX</p>
+                        >
+                          <Icon className="size-6" aria-hidden="true" />
+                        </span>
+                        {pack.tag && (
+                          <span
+                            className={cn(
+                              "rounded-full border-2 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em]",
+                              isActive ? "border-paper/40 text-paper" : "border-ink text-ink",
+                            )}
+                          >
+                            {pack.tag}
+                          </span>
+                        )}
                       </div>
-                      
-                      <div className="space-y-1">
-                        <p className="text-3xl font-black tracking-tighter">{pack.price} DH</p>
-                        <p className="text-[10px] text-zinc-600 font-bold uppercase">All Inclusive</p>
-                      </div>
+                      <h3 className="font-display text-xl font-extrabold leading-tight">{pack.label}</h3>
+                      <p className={cn("font-mono text-xs font-bold uppercase tracking-[0.14em]", isActive ? "text-paper/60" : "text-mute")}>
+                        {pack.guests} invités max
+                      </p>
                     </div>
-                    {selectedPack.id === pack.id && (
-                      <motion.div 
-                        layoutId="active-ring"
-                        className="absolute inset-0 rounded-[3rem] border-2 border-white/50 pointer-events-none"
-                      />
-                    )}
-                  </motion.div>
-                ))}
-              </div>
 
-              {/* Date & Trigger */}
-              <div className="max-w-md mx-auto space-y-8">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] px-2">Set the Date</label>
-                  <input 
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full h-20 rounded-[2rem] bg-white/5 border border-white/10 px-8 text-xl font-black uppercase tracking-tighter focus:border-white/40 transition-all outline-none"
-                  />
-                </div>
+                    <div>
+                      <p className="font-display text-3xl font-extrabold tabular-nums">{pack.price} DH</p>
+                      <p className={cn("mt-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em]", isActive ? "text-paper/60" : "text-mute")}>
+                        Tout compris
+                      </p>
+                    </div>
+                  </StickerCard>
+                )
+              })}
+            </div>
 
-                <Button 
-                  onClick={handleSendToParent}
-                  disabled={loading || !date}
-                  className="w-full h-24 rounded-[2.5rem] bg-white text-black font-black text-2xl uppercase italic hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_20px_80px_rgba(255,255,255,0.2)]"
-                >
-                  {loading ? "Transmitting..." : "Send to Sponsor"}
-                  <Send className="ml-4 w-8 h-8" />
-                </Button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="step2"
-              initial={{ scale: 0.8, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }} 
-              className="text-center space-y-12 py-10"
-            >
-              <div className="w-40 h-40 bg-success-soft/20 rounded-full flex items-center justify-center mx-auto shadow-[0_0_100px_rgba(45,212,191,0.3)] border border-success-soft/30">
-                <ShieldCheck className="w-20 h-20 text-success-soft" />
-              </div>
-              <div className="space-y-6">
-                <h2 className="text-6xl font-black uppercase italic tracking-tighter">REQUEST ACTIVE.</h2>
-                <p className="text-zinc-500 text-xl font-medium max-w-md mx-auto leading-relaxed">
-                  Thy sponsor (Parent) has received the invite. Stand by for validation.
-                </p>
-              </div>
-              <div className="pt-8">
-                <Button 
-                  onClick={() => router.push('/teen')}
-                  variant="outline" 
-                  className="rounded-3xl h-16 px-12 border-white/10 text-white font-black text-lg hover:bg-white/5"
-                >
-                  RETURN TO HUB
-                </Button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {/* Date & Trigger */}
+            <div className="mx-auto max-w-md space-y-6">
+              <FieldInput
+                label="Choisis la date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+
+              <Button
+                variant="pink"
+                size="xl"
+                onClick={handleSendToParent}
+                disabled={loading || !date}
+                className="w-full"
+              >
+                {loading ? "Envoi en cours…" : "Envoyer à ton parent"}
+                <Send className="ml-2 size-5" aria-hidden="true" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8 py-6">
+            <NivCelebration
+              tone="lime"
+              title="Demande envoyée"
+              caption="Ton parent a reçu l'invit', il valide bientôt. Tu seras prévenu·e dès que c'est bon."
+              palette="levelup"
+            />
+            <div className="flex justify-center">
+              <Button variant="pink" size="lg" onClick={() => router.push('/teen')}>
+                Retour au hub
+                <ArrowRight className="ml-2 size-5" aria-hidden="true" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

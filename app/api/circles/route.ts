@@ -115,10 +115,12 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50")
     const before = searchParams.get("before") // For pagination
 
-    // Get user profile for role/permissions
+    // Get user profile for role/permissions.
+    // NOTE: profiles has no `pseudo` column (it lives on teens). Only `role`
+    // is consumed downstream, so we select role alone.
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role, pseudo")
+      .select("role")
       .eq("id", user.id)
       .single()
 
@@ -156,15 +158,12 @@ export async function GET(request: NextRequest) {
           is_edited,
           edited_at,
           reply_to_id,
-          author:user_id (
+          author:sender_id (
             id,
             pseudo,
-            avatar_url,
-            role
-          ),
-          reactions:circle_message_reactions (
-            emoji,
-            user_id
+            first_name,
+            last_name,
+            avatar_url
           ),
           reply_count:circle_messages!reply_to_id (count)
         `)
@@ -183,7 +182,24 @@ export async function GET(request: NextRequest) {
       if (messagesError) {
         console.error("[Circles API] Error fetching messages:", messagesError)
       } else {
-        messages = messagesData || []
+        // Author embed resolves through circle_messages.sender_id -> teens.id.
+        // teens.pseudo is often NULL in seed, so fall back to the teen's name
+        // (canonical COALESCE(pseudo, name) pattern used by get_user_crew).
+        messages = (messagesData || []).map((m: any) => ({
+          ...m,
+          author: m.author
+            ? {
+                id: m.author.id,
+                pseudo:
+                  m.author.pseudo ||
+                  [m.author.first_name, m.author.last_name]
+                    .filter(Boolean)
+                    .join(" ") ||
+                  "Membre",
+                avatar_url: m.author.avatar_url,
+              }
+            : null,
+        }))
       }
     }
 
@@ -235,22 +251,21 @@ export const POST = withSecurity(
         return errorResponse("Non authentifié", 401)
       }
 
-      // Get user profile
+      // Get user profile (only `role` is consumed; `pseudo` lives on teens,
+      // not profiles).
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role, pseudo, is_muted, muted_until")
+        .select("role")
         .eq("id", user.id)
         .single()
 
-      // Check if user is muted
-      if (profile?.is_muted) {
-        if (profile.muted_until && new Date(profile.muted_until) > new Date()) {
-          return errorResponse(
-            `Vous êtes temporairement muet jusqu'au ${new Date(profile.muted_until).toLocaleDateString("fr-FR")}`,
-            403
-          )
-        }
-      }
+      // TODO(moderation): no per-circle mute store exists. The previous guard
+      // read profiles.is_muted / profiles.muted_until — columns that exist in
+      // NO table, so the guard silently always passed (moderation bypass).
+      // feed_muted_users is a per-user block list (user_id blocks
+      // muted_user_id) with a different scope and cannot gate posting here.
+      // Wire a real circle-scoped mute store (e.g. circle_muted_members)
+      // before reinstating this guard.
 
       // Parse and validate request body
       const body = await request.json()
@@ -309,27 +324,29 @@ export const POST = withSecurity(
       // Moderate content
       const { moderatedContent, flagged, warnings } = moderateContent(content)
 
-      // Create message
+      // Create message.
+      // The author FK is circle_messages.sender_id -> teens.id (auth uid).
+      // original_content / is_flagged / moderation_warnings have no columns in
+      // the live schema, so they are not persisted here (see residual TODO on
+      // wiring a real moderation pipeline below).
       const { data: message, error: createError } = await supabase
         .from("circle_messages")
         .insert({
           circle_id: circleId,
-          user_id: user.id,
+          sender_id: user.id,
           content: moderatedContent,
-          original_content: content !== moderatedContent ? content : null,
           reply_to_id: replyToId || null,
-          is_flagged: flagged,
-          moderation_warnings: warnings.length > 0 ? warnings : null,
           created_at: new Date().toISOString(),
         })
         .select(`
           id,
           content,
           created_at,
-          is_flagged,
-          author:user_id (
+          author:sender_id (
             id,
             pseudo,
+            first_name,
+            last_name,
             avatar_url
           )
         `)
@@ -340,39 +357,24 @@ export const POST = withSecurity(
         return errorResponse("Erreur lors de la création du message", 500)
       }
 
-      // If flagged, create moderation alert
-      if (flagged) {
-        await supabase.from("moderation_alerts").insert({
-          message_id: message.id,
-          user_id: user.id,
-          circle_id: circleId,
-          alert_type: "auto_moderated",
-          original_content: content,
-          moderated_content: moderatedContent,
-          created_at: new Date().toISOString(),
-        })
-
-        // Notify moderators
-        const { data: moderators } = await supabase
-          .from("profiles")
-          .select("id")
-          .in("role", ["admin", "moderator"])
-
-        if (moderators && moderators.length > 0) {
-          const notifications = moderators.map((mod) => ({
-            user_id: mod.id,
-            type: "moderation_alert",
-            title: "Message auto-modéré",
-            message: `Un message dans ${circle.name} a été automatiquement modéré.`,
-            read: false,
-            resource_type: "circle_message",
-            resource_id: message.id,
-            created_at: new Date().toISOString(),
-          }))
-
-          await supabase.from("notifications").insert(notifications)
+      // Resolve author pseudo via teens (NULL pseudo falls back to name),
+      // matching the canonical COALESCE(pseudo, name) pattern.
+      const author = (message as any).author
+      if (author) {
+        ;(message as any).author = {
+          id: author.id,
+          pseudo:
+            author.pseudo ||
+            [author.first_name, author.last_name].filter(Boolean).join(" ") ||
+            "Membre",
+          avatar_url: author.avatar_url,
         }
       }
+
+      // V9 #271 — modération circles : tables moderation_alerts / notifications absentes
+      // en base ; écritures fantômes (échec silencieux) retirées. Le contenu est déjà
+      // auto-modéré (moderatedContent) à l'insertion et signalé via wasModerated (réponse).
+      // TODO(moderation): persister l'alerte + notifier les modérateurs une fois la pipeline câblée.
 
       // Update circle member count and last activity
       await supabase
@@ -481,10 +483,10 @@ export async function DELETE(request: NextRequest) {
     const { error: deleteError } = await supabase
       .from("circle_messages")
       .update({
+        // V9 #271 — deleted_by / deletion_reason n'existent pas sur circle_messages
+        // (seules is_deleted / deleted_at existent). Soft-delete sur les colonnes réelles.
         is_deleted: true,
         deleted_at: new Date().toISOString(),
-        deleted_by: user.id,
-        deletion_reason: reason || (isModerator && !isOwner ? "moderation" : "user_request"),
       })
       .eq("id", messageId)
 
@@ -493,32 +495,10 @@ export async function DELETE(request: NextRequest) {
       return errorResponse("Erreur lors de la suppression", 500)
     }
 
-    // Log moderation action
-    if (isModerator && !isOwner) {
-      await supabase.from("moderation_logs").insert({
-        moderator_id: user.id,
-        action: "delete_message",
-        target_user_id: message.user_id,
-        resource_type: "circle_message",
-        resource_id: messageId,
-        reason,
-        metadata: {
-          circle_id: message.circle_id,
-          original_content: message.content,
-        },
-        created_at: new Date().toISOString(),
-      })
-
-      // Notify message author
-      await supabase.from("notifications").insert({
-        user_id: message.user_id,
-        type: "message_deleted",
-        title: "Message supprimé",
-        message: `Votre message a été supprimé par un modérateur.${reason ? ` Raison: ${reason}` : ""}`,
-        read: false,
-        created_at: new Date().toISOString(),
-      })
-    }
+    // V9 #271 — moderation_logs / notifications n'existent pas en base : écritures
+    // fantômes retirées (échec silencieux). À recâbler avec une vraie pipeline de
+    // modération (table moderation_logs + table notifications) si priorisé.
+    // TODO(moderation): journaliser la suppression + notifier l'auteur (message.sender_id).
 
     return jsonResponse({
       success: true,

@@ -4,6 +4,7 @@ import * as React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import canvasConfetti from 'canvas-confetti'
 import { cn } from '@/lib/utils'
+import { usePrefersReducedMotion } from '@/lib/hooks/use-reduced-motion'
 
 /* ==========================================================================
    CONFETTI SYSTEM - Silicon Valley Grade Celebration Effects
@@ -17,14 +18,18 @@ import { cn } from '@/lib/utils'
    - XP celebration
    ========================================================================== */
 
-// Color palettes for different celebration types
+// Color palettes — 100% tokens charte (HEX littéraux, canvas-confetti ne lit
+// pas les variables CSS) : pink #ff3d80 · gold #e0a82e (XP) · lime #7dac3e
+// (succès) · teal #0f8a8a (niveau) · coral #ff7a4d (coins) · pink-soft #ffb8d1.
 const CONFETTI_PALETTES = {
-  default: ['#8b5cf6', '#f43f5e', '#10b981', '#fbbf24', '#0ea5e9', '#ec4899'],
-  gold: ['#fbbf24', '#f59e0b', '#d97706', '#fcd34d', '#fef3c7', '#fffbeb'],
-  rainbow: ['#ef4444', '#f97316', '#fbbf24', '#22c55e', '#0ea5e9', '#8b5cf6', '#ec4899'],
-  lavender: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff'],
-  success: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5', '#ecfdf5'],
-  xp: ['#8b5cf6', '#fbbf24', '#ffffff', '#a78bfa', '#f59e0b'],
+  default: ['#ff3d80', '#e0a82e', '#7dac3e', '#0f8a8a', '#ff7a4d'],
+  gold: ['#e0a82e', '#ff7a4d', '#ffb8d1', '#ff3d80'],
+  rainbow: ['#ff3d80', '#ff7a4d', '#e0a82e', '#7dac3e', '#0f8a8a', '#ffb8d1'],
+  lavender: ['#ff3d80', '#ffb8d1', '#0f8a8a', '#ff7a4d'],
+  success: ['#7dac3e', '#0f8a8a', '#ff3d80'],
+  xp: ['#e0a82e', '#ff3d80', '#ff7a4d'],
+  reward: ['#ff3d80', '#ffb8d1', '#e0a82e', '#7dac3e'],
+  levelup: ['#ff3d80', '#e0a82e', '#7dac3e', '#0f8a8a', '#ff7a4d'],
 }
 
 /* ==========================================================================
@@ -52,9 +57,19 @@ export function Confetti({
   wind = 0,
 }: ConfettiProps) {
   const colors = Array.isArray(palette) ? palette : CONFETTI_PALETTES[palette]
+  // Fallback no-motion : rond lime ✓ (cohérent « check succès » charte).
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const [ack, setAck] = React.useState(false)
 
   React.useEffect(() => {
     if (!trigger || typeof window === 'undefined') return
+
+    // Court-circuit reduced-motion : aucun canvas-confetti, juste l'accusé ✓.
+    if (prefersReducedMotion) {
+      setAck(true)
+      const hide = window.setTimeout(() => setAck(false), 700)
+      return () => window.clearTimeout(hide)
+    }
 
     let cancelled = false
 
@@ -69,6 +84,8 @@ export function Confetti({
         origin: { x: 0.5, y: 0 },
         colors,
         zIndex: 100,
+        // Charte / a11y : aucune particule sous prefers-reduced-motion.
+        disableForReducedMotion: true,
       })
     }
 
@@ -95,9 +112,16 @@ export function Confetti({
       cancelled = true
       window.clearTimeout(cleanup)
     }
-  }, [trigger, duration, numberOfPieces, recycle, gravity, wind, colors])
+  }, [trigger, duration, numberOfPieces, recycle, gravity, wind, colors, prefersReducedMotion])
 
-  return null
+  if (!ack) return null
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[100] grid place-items-center">
+      <span className="grid size-16 place-items-center rounded-full bg-lime text-2xl font-black text-white shadow-stkr-md">
+        ✓
+      </span>
+    </div>
+  )
 }
 
 /* ==========================================================================
@@ -556,7 +580,7 @@ export function XPCelebration({
 
         {/* Badge */}
         <motion.div
-          className="relative bg-gradient-to-br from-brand-soft to-gen-z-grape rounded-2xl p-6 shadow-2xl"
+          className="relative bg-gradient-to-br from-brand-soft to-pink rounded-2xl p-6 shadow-2xl"
           style={{
             boxShadow: `0 0 60px ${colors[0]}60`,
           }}

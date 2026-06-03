@@ -23,16 +23,16 @@ export function EvolutionTracker({ teenName, stats }: EvolutionTrackerProps) {
   ]
 
   return (
-    <div className="rounded-[2.5rem] bg-white/5 backdrop-blur-2xl border border-white/10 p-8 shadow-2xl">
+    <div className="rounded-[2.5rem] bg-paper-2  border border-ink p-8 shadow-2xl">
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gen-z-lime/10 flex items-center justify-center border border-gen-z-lime/20">
-              <TrendingUp className="h-5 w-5 text-gen-z-lime" />
+            <div className="w-10 h-10 rounded-xl bg-lime/10 flex items-center justify-center border border-lime/20">
+              <TrendingUp className="h-5 w-5 text-lime" />
             </div>
-            <h3 className="text-xl font-black text-white tracking-tight">Evolution de {teenName}</h3>
+            <h3 className="text-xl font-black text-ink tracking-tight">Evolution de {teenName}</h3>
           </div>
-          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Weekly Analysis</span>
+          <span className="text-[10px] font-black text-mute uppercase tracking-[0.2em]">Weekly Analysis</span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -44,16 +44,16 @@ export function EvolutionTracker({ teenName, stats }: EvolutionTrackerProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <metric.icon className="h-3 w-3" style={{ color: metric.color }} />
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{metric.label}</span>
+                    <span className="text-[10px] font-bold text-mute uppercase tracking-widest">{metric.label}</span>
                   </div>
-                  <span className="text-xs font-black text-white">{hasValue ? `${displayValue}%` : "—"}</span>
+                  <span className="text-xs font-black text-ink">{hasValue ? `${displayValue}%` : "—"}</span>
                 </div>
-                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-[1px]">
+                <div className="h-1.5 w-full bg-paper-2 rounded-full overflow-hidden p-[1px]">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${displayValue}%` }}
                     transition={{ duration: 1.5, ease: "circOut", delay: idx * 0.1 }}
-                    className="h-full rounded-full opacity-80 shadow-[0_0_10px_-2px_currentColor]"
+                    className="h-full rounded-full opacity-80 "
                     style={{ backgroundColor: metric.color, color: metric.color }}
                   />
                 </div>

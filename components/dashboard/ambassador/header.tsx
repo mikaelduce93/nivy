@@ -11,13 +11,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Bell, Menu, LogOut, User, Settings, Copy } from "lucide-react"
+import { Menu, LogOut, User, Settings, Copy } from "lucide-react"
+import { NotificationBell } from "@/components/notifications/notification-bell"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { toast } from "sonner"
 import { getSocialBaseUrl } from "@/lib/config/app-config"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
+import { ambassadorNavigation } from "@/components/dashboard/ambassador/sidebar"
 
 interface AmbassadorHeaderProps {
   userInfo: UserRoleInfo
@@ -25,6 +29,8 @@ interface AmbassadorHeaderProps {
 
 export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const [menuOpen, setMenuOpen] = useState(false)
   const initials = userInfo.fullName
     .split(" ")
     .map((n) => n[0])
@@ -45,10 +51,11 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-amber-100">
+    <header className="sticky top-0 z-50 bg-paper border-b-2 border-ink">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Mobile menu */}
-        <Sheet>
+        {/* Mobile menu — #221: drawer now carries the full ambassador nav
+            (was an empty title-only Sheet). Controlled so it closes on navigate. */}
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild className="md:hidden">
             <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
               <Menu className="h-5 w-5" aria-hidden="true" />
@@ -57,9 +64,36 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
           <SheetContent side="left" className="w-64 p-0">
             <div className="py-4">
               <div className="px-4 mb-4">
-                <h2 className="text-lg font-bold text-amber-600">Teen Club</h2>
-                <p className="text-sm text-gray-500">Espace Ambassadeur</p>
+                <span className="eyebrow tracking-[0.16em] text-pink">Espace ambassadeur</span>
+                <h2 className="font-display text-lg font-extrabold text-ink mt-1">Nivy</h2>
               </div>
+              <nav className="px-3 space-y-1">
+                {ambassadorNavigation.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl border-2 transition-all duration-200",
+                        isActive
+                          ? "border-ink bg-ink text-paper"
+                          : "border-transparent text-ink-2 hover:border-ink hover:bg-white"
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          "mr-3 h-5 w-5 flex-shrink-0",
+                          isActive ? "text-paper" : "text-mute group-hover:text-ink"
+                        )}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  )
+                })}
+              </nav>
             </div>
           </SheetContent>
         </Sheet>
@@ -68,8 +102,8 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
         <Link href="/ambassador" className="flex items-center gap-2">
           <span className="text-2xl">🌟</span>
           <div className="hidden sm:block">
-            <span className="font-bold text-xl text-amber-600">Teen Club</span>
-            <span className="text-sm text-gray-500 ml-2">Ambassador</span>
+            <span className="font-display font-extrabold text-xl text-ink">Nivy</span>
+            <span className="eyebrow tracking-[0.16em] text-mute ml-2">Ambassadeur</span>
           </div>
         </Link>
 
@@ -79,13 +113,12 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
             variant="outline"
             size="sm"
             onClick={copyReferralLink}
-            className="border-amber-200 hover:bg-amber-50"
           >
             <Copy className="h-4 w-4 mr-2" />
             Copier mon lien
           </Button>
-          <div className="flex items-center gap-2 bg-green-50 rounded-full px-3 py-1.5">
-            <span className="text-sm font-medium text-green-700">
+          <div className="flex items-center gap-2 rounded-full border-2 border-ink bg-white px-3 py-1.5 shadow-stkr-sm">
+            <span className="font-mono text-xs font-semibold text-ink">
               {commissionRate}% commission
             </span>
           </div>
@@ -93,15 +126,14 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
-            <Bell className="h-5 w-5" aria-hidden="true" />
-          </Button>
+          {/* #70 — real user_notifications-backed bell (was an inert bell, no badge). */}
+          <NotificationBell userId={userInfo.profileId} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="Menu utilisateur">
-                <Avatar className="h-10 w-10 border-2 border-amber-200">
-                  <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-500 text-white font-bold">
+                <Avatar className="h-10 w-10 border-2 border-ink">
+                  <AvatarFallback className="bg-pink text-ink font-bold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -112,7 +144,7 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">{userInfo.fullName}</p>
                   <p className="text-xs text-muted-foreground">{userInfo.email}</p>
-                  <p className="text-xs text-amber-600 font-medium mt-1">
+                  <p className="text-xs text-gold font-medium mt-1">
                     🌟 Ambassadeur • {commissionRate}%
                   </p>
                 </div>
@@ -131,7 +163,7 @@ export function AmbassadorHeader({ userInfo }: AmbassadorHeaderProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 Déconnexion
               </DropdownMenuItem>

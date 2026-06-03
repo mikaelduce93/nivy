@@ -36,8 +36,8 @@ export function FriendMap({
     : null
 
   return (
-    <Card className="w-full overflow-hidden border-2 border-cyan-200">
-      <div className="h-40 bg-slate-100 relative">
+    <Card className="w-full overflow-hidden border-2 border-teal">
+      <div className="h-40 bg-paper-2 relative">
         {mapboxUrl ? (
           <div
             className="absolute inset-0 bg-cover bg-center opacity-50"
@@ -47,7 +47,7 @@ export function FriendMap({
           />
         ) : (
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 text-slate-500 gap-1"
+            className="absolute inset-0 flex flex-col items-center justify-center bg-paper-2 text-mute gap-1"
             role="status"
           >
             <MapPinOff className="w-6 h-6" aria-hidden="true" />
@@ -58,8 +58,8 @@ export function FriendMap({
         {/* Venue Marker (only when map is available) */}
         {mapboxUrl && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-            <MapPin className="w-8 h-8 text-red-500 drop-shadow-md animate-bounce" />
-            <Badge className="bg-white text-black shadow-sm">{venueName || "Lieu"}</Badge>
+            <MapPin className="w-8 h-8 text-destructive drop-shadow-md animate-bounce" />
+            <Badge className="bg-white text-ink shadow-sm">{venueName || "Lieu"}</Badge>
           </div>
         )}
 
@@ -73,7 +73,7 @@ export function FriendMap({
               left: `${30 + (i * 20)}%`,
             }}
           >
-            <div className="w-8 h-8 rounded-full bg-cyan-500 border-2 border-white flex items-center justify-center text-white font-bold text-xs shadow-md">
+            <div className="w-8 h-8 rounded-full bg-teal border-2 border-ink flex items-center justify-center text-ink font-bold text-xs shadow-md">
               {friend.name.charAt(0)}
             </div>
           </div>
@@ -86,7 +86,7 @@ export function FriendMap({
             {friends.length} amis sur place
           </div>
           {mapboxUrl ? (
-            <Badge variant="outline" className="flex items-center gap-1 cursor-pointer hover:bg-slate-100">
+            <Badge variant="outline" className="flex items-center gap-1 cursor-pointer hover:bg-paper-2">
               <Navigation className="w-3 h-3" />
               Y aller
             </Badge>

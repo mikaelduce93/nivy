@@ -1,6 +1,8 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
+import { resolveTeenIdentities } from "@/lib/server/teen-identities"
 import {
   type Crew,
   type CrewMember,
@@ -29,13 +31,13 @@ export async function getCrewLeaderboard(
     })
 
     if (error) {
-      console.error("Error fetching crew leaderboard:", error)
+      logDbError("crews.getCrewLeaderboard", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as CrewLeaderboardEntry[], error: null }
   } catch (error) {
-    console.error("Error in getCrewLeaderboard:", error)
+    logDbError("crews.getCrewLeaderboard", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -55,25 +57,23 @@ export async function getCrewActivity(
 
     const { data, error } = await supabase
       .from("crew_activity_log")
-      .select(`
-        *,
-        profiles:user_id (pseudo, avatar_url)
-      `)
+      .select("*")
       .eq("crew_id", crewId)
       .order("created_at", { ascending: false })
       .limit(limit)
 
     if (error) {
-      console.error("Error fetching crew activity:", error)
+      logDbError("crews.getCrewActivity", error)
       return { data: [], error: error.message }
     }
 
+    const idents = await resolveTeenIdentities(supabase, (data || []).map((a: any) => a.user_id))
     const activities = (data || []).map((a: any) => ({
       id: a.id,
       crew_id: a.crew_id,
       user_id: a.user_id,
-      user_pseudo: a.profiles?.pseudo || null,
-      user_avatar_url: a.profiles?.avatar_url || null,
+      user_pseudo: idents.get(a.user_id)?.pseudo || null,
+      user_avatar_url: idents.get(a.user_id)?.avatar_url || null,
       activity_type: a.activity_type,
       description: a.description,
       xp_amount: a.xp_amount,
@@ -82,7 +82,7 @@ export async function getCrewActivity(
 
     return { data: activities, error: null }
   } catch (error) {
-    console.error("Error in getCrewActivity:", error)
+    logDbError("crews.getCrewActivity", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -109,8 +109,7 @@ export async function getPendingCrewInvitations(): Promise<{
       .from("crew_invitations")
       .select(`
         *,
-        crews:crew_id (name, avatar_url, color),
-        inviter:inviter_id (pseudo, avatar_url)
+        crews:crew_id (name, avatar_url, color)
       `)
       .eq("invitee_id", user.id)
       .eq("status", "pending")
@@ -118,10 +117,11 @@ export async function getPendingCrewInvitations(): Promise<{
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("Error fetching invitations:", error)
+      logDbError("crews.getPendingCrewInvitations", error)
       return { data: [], error: error.message }
     }
 
+    const idents = await resolveTeenIdentities(supabase, (data || []).map((i: any) => i.inviter_id))
     const invitations = (data || []).map((i: any) => ({
       id: i.id,
       crew_id: i.crew_id,
@@ -129,8 +129,8 @@ export async function getPendingCrewInvitations(): Promise<{
       crew_avatar_url: i.crews?.avatar_url,
       crew_color: i.crews?.color,
       inviter_id: i.inviter_id,
-      inviter_pseudo: i.inviter?.pseudo,
-      inviter_avatar_url: i.inviter?.avatar_url,
+      inviter_pseudo: idents.get(i.inviter_id)?.pseudo || "Membre",
+      inviter_avatar_url: idents.get(i.inviter_id)?.avatar_url ?? null,
       message: i.message,
       status: i.status,
       created_at: i.created_at,
@@ -139,7 +139,7 @@ export async function getPendingCrewInvitations(): Promise<{
 
     return { data: invitations, error: null }
   } catch (error) {
-    console.error("Error in getPendingCrewInvitations:", error)
+    logDbError("crews.getPendingCrewInvitations", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -156,25 +156,23 @@ export async function getPendingJoinRequests(crewId: string): Promise<{
 
     const { data, error } = await supabase
       .from("crew_join_requests")
-      .select(`
-        *,
-        profiles:user_id (pseudo, avatar_url, level)
-      `)
+      .select("*")
       .eq("crew_id", crewId)
       .eq("status", "pending")
       .order("created_at", { ascending: true })
 
     if (error) {
-      console.error("Error fetching join requests:", error)
+      logDbError("crews.getPendingJoinRequests", error)
       return { data: [], error: error.message }
     }
 
+    const idents = await resolveTeenIdentities(supabase, (data || []).map((r: any) => r.user_id))
     const requests = (data || []).map((r: any) => ({
       id: r.id,
       user_id: r.user_id,
-      pseudo: r.profiles?.pseudo,
-      avatar_url: r.profiles?.avatar_url,
-      level: r.profiles?.level,
+      pseudo: idents.get(r.user_id)?.pseudo || "Membre",
+      avatar_url: idents.get(r.user_id)?.avatar_url ?? null,
+      level: idents.get(r.user_id)?.level ?? 1,
       message: r.message,
       status: r.status,
       created_at: r.created_at,
@@ -182,7 +180,7 @@ export async function getPendingJoinRequests(crewId: string): Promise<{
 
     return { data: requests, error: null }
   } catch (error) {
-    console.error("Error in getPendingJoinRequests:", error)
+    logDbError("crews.getPendingJoinRequests", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -209,13 +207,13 @@ export async function searchCrews(
       .limit(limit)
 
     if (error) {
-      console.error("Error searching crews:", error)
+      logDbError("crews.searchCrews", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as Crew[], error: null }
   } catch (error) {
-    console.error("Error in searchCrews:", error)
+    logDbError("crews.searchCrews", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -232,24 +230,22 @@ export async function getCrewMembers(crewId: string): Promise<{
 
     const { data, error } = await supabase
       .from("crew_members")
-      .select(`
-        *,
-        profiles:user_id (pseudo, avatar_url, level)
-      `)
+      .select("*")
       .eq("crew_id", crewId)
       .eq("status", "active")
       .order("xp_contributed", { ascending: false })
 
     if (error) {
-      console.error("Error fetching crew members:", error)
+      logDbError("crews.getCrewMembers", error)
       return { data: [], error: error.message }
     }
 
+    const idents = await resolveTeenIdentities(supabase, (data || []).map((m: any) => m.user_id))
     const members = (data || []).map((m: any) => ({
       user_id: m.user_id,
-      pseudo: m.profiles?.pseudo,
-      avatar_url: m.profiles?.avatar_url,
-      level: m.profiles?.level,
+      pseudo: idents.get(m.user_id)?.pseudo || "Membre",
+      avatar_url: idents.get(m.user_id)?.avatar_url ?? null,
+      level: idents.get(m.user_id)?.level ?? 1,
       role: m.role,
       xp_contributed: m.xp_contributed,
       joined_at: m.joined_at,
@@ -257,7 +253,7 @@ export async function getCrewMembers(crewId: string): Promise<{
 
     return { data: members, error: null }
   } catch (error) {
-    console.error("Error in getCrewMembers:", error)
+    logDbError("crews.getCrewMembers", error)
     return { data: [], error: "Erreur serveur" }
   }
 }

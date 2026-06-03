@@ -24,7 +24,6 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Shield,
   QrCode,
   Award,
   Database,
@@ -33,10 +32,11 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Niv } from '@/components/brand'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import type { AdminSubRole, AdminPermission } from '@/lib/auth/admin-permissions'
-import { ADMIN_PERMISSIONS } from '@/lib/auth/admin-permissions'
+import type { AdminSubRole, AdminPermission } from '@/lib/auth/admin-permissions.matrix'
+import { ADMIN_PERMISSIONS } from '@/lib/auth/admin-permissions.matrix'
 
 interface NavItem {
   title: string
@@ -100,26 +100,26 @@ export function AdminSidebar({ subRole, sqlConsoleEnabled = false }: AdminSideba
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-40 h-screen bg-card border-r border-border transition-all duration-300',
+        // Masquée sous md : en `w-64` fixe non gardée, elle recouvrait ~70% de
+        // l'écran mobile sans aucun moyen de la fermer (aucun drawer admin).
+        'hidden md:block fixed left-0 top-0 z-40 h-screen bg-paper border-r-2 border-ink transition-all duration-300',
         collapsed ? 'w-16' : 'w-64'
       )}
     >
       <div className="flex h-full flex-col">
         {/* Header */}
-        <div className="flex h-16 items-center justify-between border-b border-border px-4">
+        <div className="flex h-16 items-center justify-between border-b-2 border-ink px-4">
           {!collapsed && (
             <Link href="/admin" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <Shield className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <span className="font-semibold text-foreground">Admin</span>
+              <Niv mood="proud" size={32} />
+              <span className="font-display font-extrabold tracking-tight text-ink">Nivy Admin</span>
             </Link>
           )}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-mute hover:text-ink"
             aria-label={collapsed ? "Déplier la barre latérale admin" : "Replier la barre latérale admin"}
             aria-expanded={!collapsed}
           >
@@ -141,10 +141,10 @@ export function AdminSidebar({ subRole, sqlConsoleEnabled = false }: AdminSideba
                   <Link
                     href={item.href}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                      'flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-all duration-200 ease-out',
                       isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        ? 'border-2 border-ink bg-ink font-semibold text-paper shadow-stkr-pink -translate-x-0.5 -translate-y-0.5'
+                        : 'text-mute hover:text-ink'
                     )}
                     title={collapsed ? item.title : undefined}
                   >
@@ -158,11 +158,11 @@ export function AdminSidebar({ subRole, sqlConsoleEnabled = false }: AdminSideba
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border p-4">
+        <div className="border-t-2 border-ink p-4">
           <Link
             href="/"
             className={cn(
-              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors mb-2'
+              'flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-mute hover:text-ink transition-colors mb-2'
             )}
             title={collapsed ? 'Retour au site' : undefined}
           >
@@ -172,7 +172,7 @@ export function AdminSidebar({ subRole, sqlConsoleEnabled = false }: AdminSideba
           <button
             onClick={handleLogout}
             className={cn(
-              'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors'
+              'flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-coral hover:text-ink transition-colors'
             )}
             title={collapsed ? 'Déconnexion' : undefined}
           >

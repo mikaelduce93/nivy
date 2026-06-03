@@ -3,16 +3,22 @@
 /**
  * Partner restaurant menu manager (client).
  *
- * Wave 2 / TICKET-002 — design-system token sweep:
- *  - Buttons routed through <Button> primitive.
- *  - Raw bg-blue-600 / bg-red-* / text-gray-* / text-blue-700 removed in
- *    favour of semantic tokens (primary, destructive, muted-foreground,
- *    info-soft).
- *  - Native inputs get min-h-11 (44px touch target) + token borders.
+ * Refonte V2 (#171) — reskin charte paper néo-brutaliste :
+ *  - Surfaces translucides `bg-card/30` `bg-card/40` supprimées → sticker cards
+ *    (#fff + bordure 2px ink + ombre décalée).
+ *  - Champs au kit (`<FieldInput>`) : label mono UPPERCASE, focus encre.
+ *  - Halal en pill sélectionnable (fond ink actif).
+ *  - Prix DH / ⊙ coins en mono prominent ; tags nutrition en pills lime.
+ *  - Liste vide → `<NivEmpty>`.
+ * Iso-fonctionnel : `create` / `remove` / endpoints `/api/partner/restaurant/...`
+ * et tout l'état inchangés.
  */
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { FieldInput } from "@/components/ui/field-input"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 import { confirmToast } from "@/lib/ui/confirm-toast"
 
 interface Item {
@@ -26,9 +32,6 @@ interface Item {
   category?: string | null
   nutrition_tags?: string[] | null
 }
-
-const inputClass =
-  "min-h-11 rounded-xl border border-border bg-card/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
 
 export default function MenuManagerClient({ initialItems }: { initialItems: Item[] }) {
   const [items, setItems] = useState<Item[]>(initialItems)
@@ -75,90 +78,126 @@ export default function MenuManagerClient({ initialItems }: { initialItems: Item
   }
 
   return (
-    <div>
-      <div className="rounded-2xl border border-border bg-card/30 p-4 mb-6 grid grid-cols-2 gap-2 text-sm backdrop-blur-md">
-        <input
-          className={`${inputClass} col-span-2`}
-          placeholder="Nom du plat"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          className={inputClass}
-          placeholder="Prix DH"
-          type="number"
-          value={priceDh}
-          onChange={(e) => setPriceDh(e.target.value)}
-        />
-        <input
-          className={inputClass}
-          placeholder="Calories"
-          type="number"
-          value={calories}
-          onChange={(e) => setCalories(e.target.value)}
-        />
-        <input
-          className={`${inputClass} col-span-2`}
-          placeholder="Tags (csv: healthy,vegetarian,halal)"
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-        />
-        <label className="flex items-center gap-2 col-span-1 text-foreground">
-          <input
-            type="checkbox"
-            checked={isHalal}
-            onChange={(e) => setIsHalal(e.target.checked)}
-            className="h-5 w-5 rounded accent-primary"
+    <div className="space-y-6">
+      {/* Formulaire d'ajout */}
+      <StickerCard className="gap-4 p-5">
+        <h2 className="font-display text-lg font-extrabold tracking-tight text-ink">
+          Ajouter un plat
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FieldInput
+            label="Nom du plat"
+            placeholder="Tajine poulet citron"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            containerClassName="sm:col-span-2"
           />
-          Halal
-        </label>
-        <Button
-          type="button"
-          onClick={create}
-          disabled={busy}
-          className="col-span-1"
-        >
-          {busy ? "..." : "Ajouter"}
-        </Button>
-      </div>
-
-      <ul className="space-y-2">
-        {items.map((it) => (
-          <li
-            key={it.id}
-            className="rounded-2xl border border-border bg-card/30 p-3 flex justify-between text-sm backdrop-blur-md"
+          <FieldInput
+            label="Prix DH"
+            type="number"
+            inputMode="numeric"
+            placeholder="45"
+            value={priceDh}
+            onChange={(e) => setPriceDh(e.target.value)}
+          />
+          <FieldInput
+            label="Calories"
+            type="number"
+            inputMode="numeric"
+            placeholder="620"
+            value={calories}
+            onChange={(e) => setCalories(e.target.value)}
+          />
+          <FieldInput
+            label="Tags nutrition (séparés par des virgules)"
+            placeholder="healthy, vegetarian, halal"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            containerClassName="sm:col-span-2"
+          />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => setIsHalal((v) => !v)}
+            aria-pressed={isHalal}
+            className={
+              "rounded-full border-2 border-ink px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wide transition-colors " +
+              (isHalal ? "bg-ink text-paper" : "bg-white text-ink")
+            }
           >
-            <div>
-              <div className="font-medium text-foreground">
-                {it.name}{" "}
-                {!it.is_halal && (
-                  <span className="text-destructive text-xs">(non-halal)</span>
-                )}{" "}
-                {!it.is_active && (
-                  <span className="text-muted-foreground text-xs">(inactif)</span>
-                )}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {it.price_dh} DH · {it.price_coins ?? Math.round(it.price_dh * 100)} coins
-                {it.calories ? ` · ${it.calories} kcal` : ""}
-              </div>
-              {(it.nutrition_tags ?? []).length > 0 && (
-                <div className="text-xs text-info">
-                  {(it.nutrition_tags ?? []).join(" · ")}
+            {isHalal ? "Halal ✓" : "Non-halal"}
+          </button>
+          <Button type="button" variant="pink" onClick={create} disabled={busy}>
+            {busy ? "..." : "Ajouter"}
+          </Button>
+        </div>
+      </StickerCard>
+
+      {/* Liste des plats */}
+      {items.length === 0 ? (
+        <NivEmpty
+          mood="calm"
+          title="Ton menu est vide"
+          description="Ajoute ton premier plat ci-dessus pour qu'il apparaisse côté ados."
+        />
+      ) : (
+        <ul className="space-y-3">
+          {items.map((it) => (
+            <li key={it.id}>
+              <StickerCard variant="default" className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-display font-bold text-ink">{it.name}</span>
+                      {!it.is_halal && (
+                        <span className="rounded-full border-2 border-ink bg-coral/15 px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-ink">
+                          Non-halal
+                        </span>
+                      )}
+                      {!it.is_active && (
+                        <span className="rounded-full border-2 border-ink bg-paper-2 px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-mute">
+                          Inactif
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 font-mono text-sm font-semibold tabular-nums text-ink">
+                      {it.price_dh} DH
+                      <span className="text-mute"> · </span>
+                      <span className="text-coral">
+                        {it.price_coins ?? Math.round(it.price_dh * 100)} ⊙
+                      </span>
+                      {it.calories ? (
+                        <span className="text-mute"> · {it.calories} kcal</span>
+                      ) : null}
+                    </div>
+                    {(it.nutrition_tags ?? []).length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {(it.nutrition_tags ?? []).map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-full border-2 border-ink bg-lime/15 px-2 py-0.5 font-mono text-[11px] font-medium text-ink"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => remove(it.id)}
+                  >
+                    Supprimer
+                  </Button>
                 </div>
-              )}
-            </div>
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={() => remove(it.id)}
-            >
-              Supprimer
-            </Button>
-          </li>
-        ))}
-      </ul>
+              </StickerCard>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

@@ -24,13 +24,16 @@ export const POST = withSecurity(async (request: NextRequest) => {
 
     const ambassadorId = formData.get("ambassadorId") as string
 
-    // Wave 6B — capture profile_id before flipping status so we can also
+    // Wave 6B — capture user_id before flipping status so we can also
     // mark profiles.is_onboarded=true. Without that the approved
     // ambassador stays gated by middleware on /ambassador/onboarding/
     // awaiting-approval forever.
+    // #34 — `ambassadors` keys on `user_id` (FK auth.users); there is no
+    // `profile_id` column. Per Wave 1A invariant profiles.id == auth.users.id,
+    // so user_id is also the correct profiles.id to flip.
     const { data: ambassador, error: lookupErr } = await supabase
       .from("ambassadors")
-      .select("profile_id")
+      .select("user_id")
       .eq("id", ambassadorId)
       .maybeSingle()
     if (lookupErr) throw lookupErr
@@ -50,11 +53,11 @@ export const POST = withSecurity(async (request: NextRequest) => {
     if (error) throw error
 
     // Wave 6B — flip is_onboarded so the role-router lets them in.
-    if (ambassador.profile_id) {
+    if (ambassador.user_id) {
       await supabase
         .from("profiles")
         .update({ is_onboarded: true })
-        .eq("id", ambassador.profile_id)
+        .eq("id", ambassador.user_id)
     }
 
     return NextResponse.redirect(new URL("/admin/ambassadeurs?approved=true", request.url))

@@ -6,11 +6,10 @@
  * pending" state — never fake data.
  */
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar } from "lucide-react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
@@ -28,34 +27,25 @@ export default async function PartnerTalentBookingsPage() {
 
   if (!partner || partner.partner_type !== "event_talent") {
     return (
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardContent className="p-10 text-center text-zinc-400">
-          Cet espace est réservé aux partenaires de type DJ / performer.
-        </CardContent>
-      </Card>
+      <StickerCard className="p-10 text-center text-mute">
+        Cet espace est réservé aux partenaires de type DJ / performer.
+      </StickerCard>
     )
   }
 
   return (
-    <main className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Calendar className="w-7 h-7 text-purple-400" />
-          Mes bookings
+    <main className="space-y-6 pt-6">
+      <header className="space-y-2">
+        <p className="eyebrow">Bookings</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          Mes <em className="font-semibold italic text-pink">bookings</em>
         </h1>
       </header>
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white">Demandes & confirmations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EmptyState
-            icon={Calendar}
-            title="Aucun booking pour l'instant"
-            description="La gestion des bookings sera disponible une fois l'activation admin terminée et l'organisateur partenaire en ligne. Aucun paiement n'est facturé tant que tu n'as pas accepté un gig."
-          />
-        </CardContent>
-      </Card>
+      <NivEmpty
+        mood="calm"
+        title="Pas encore de booking"
+        description="La gestion des bookings s'ouvre dès que l'activation admin est terminée et qu'un organisateur partenaire est en ligne. Zéro frais tant que tu n'as pas accepté un gig."
+      />
     </main>
   )
 }

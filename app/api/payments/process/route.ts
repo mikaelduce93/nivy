@@ -113,7 +113,7 @@ export const POST = withSecurity(async (request: NextRequest) => {
       console.error("[payments/process] update booking failed:", updateError)
       return NextResponse.redirect(
         new URL(
-          `/mes-reservations?error=payment_failed&message=${encodeURIComponent(
+          `/reservation/paiement${bookingId ? `?booking=${bookingId}&` : "?"}error=payment_failed&message=${encodeURIComponent(
             "Votre paiement n'a pas pu etre enregistre. Reessayez ou contactez le support."
           )}`,
           request.url
@@ -121,16 +121,17 @@ export const POST = withSecurity(async (request: NextRequest) => {
       )
     }
 
+    // #44 — canonical confirmation route (query param), not the dead /mes-reservations/{id}.
     return NextResponse.redirect(
-      new URL(`/mes-reservations/${bookingId}?payment=pending`, request.url)
+      new URL(`/reservation/confirmation?booking=${bookingId}&payment=pending`, request.url)
     )
   } catch (error) {
     console.error("[payments/process] error:", error)
     return NextResponse.redirect(
       new URL(
-        `/mes-reservations${
-          bookingId ? `/${bookingId}` : ""
-        }?error=payment_failed&message=${encodeURIComponent(
+        `/reservation/paiement${
+          bookingId ? `?booking=${bookingId}&` : "?"
+        }error=payment_failed&message=${encodeURIComponent(
           "Votre paiement n'a pas pu etre traite. Verifiez vos informations ou essayez une autre methode."
         )}`,
         request.url

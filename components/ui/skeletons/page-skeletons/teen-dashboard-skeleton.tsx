@@ -167,7 +167,7 @@ export function TeenDashboardSkeleton() {
       role="status"
       aria-label="Chargement du tableau de bord"
       aria-busy="true"
-      className="relative min-h-screen bg-[#020203] text-white overflow-x-hidden"
+      className="relative min-h-screen bg-background text-white overflow-x-hidden"
     >
       {/* 1. AvatarCoach + TwinCurrencyGauge sliver — matches the wrapper in
             app/teen/page.tsx (px-3 sm:px-4 md:px-8, max-w-[1600px], pt-4..8). */}

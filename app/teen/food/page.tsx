@@ -2,25 +2,45 @@
  * /teen/food — discovery (Wave 3.2 food delivery).
  * Shows partner restaurants (sub_category in restaurant/cafe/bakery/...).
  *
- * V1.3-B mobile polish:
- * - Dock clearance hoisted to TeenLayout (no local pb-32 needed).
- * - h1 bumped to 4xl + font-black + italic to match teen surfaces.
- * - Native form controls min-h-11 (44px touch target, WCAG AAA).
- * - Design-system tokens (text-foreground / muted-foreground / primary)
- *   instead of raw text-gray-* / bg-blue-*.
- * - Filter strip uses flex-wrap so chips stack instead of overflowing.
+ * Refonte V2 (#158) — charte paper néo-brutaliste :
+ * - Hero éditorial (eyebrow mono + <em> rose) à la place de l'ancien titre gen-z.
+ * - Restaurants en <StickerCard variant="hover"> (bordure 2px ink + ombre dure).
+ * - Catégories franchies en FR mono ; filtres en pills <StickerTab>.
+ * - États vides via <NivEmpty>.
+ * - Préserve getRestaurants/searchParams + le morph vt-restaurant côté détail.
  */
 
 import Link from "next/link"
-import { Utensils } from "lucide-react"
+import { Utensils, Coffee, Croissant, Sandwich, ShoppingBasket, ChefHat } from "lucide-react"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
-import { H1, H2 } from "@/components/ui/headings"
+import { H2 } from "@/components/ui/headings"
 import { PullToRefresh } from "@/components/teen/pull-to-refresh"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
 const SUB_CATEGORIES = ["restaurant", "cafe", "bakery", "fast_food", "catering", "grocery"] as const
+
+// Libellés FR + icône par catégorie (présentation seulement, pas de source BDD).
+const SUB_CATEGORY_META: Record<
+  string,
+  { label: string; icon: typeof Utensils }
+> = {
+  restaurant: { label: "Restaurant", icon: Utensils },
+  cafe: { label: "Café", icon: Coffee },
+  bakery: { label: "Boulangerie", icon: Croissant },
+  fast_food: { label: "Fast-food", icon: Sandwich },
+  catering: { label: "Traiteur", icon: ChefHat },
+  grocery: { label: "Épicerie", icon: ShoppingBasket },
+}
+
+const TAG_LABELS: Record<string, string> = {
+  healthy: "Sain",
+  vegetarian: "Végétarien",
+  vegan: "Végan",
+  gluten_free: "Sans gluten",
+}
 
 interface Partner {
   id: string
@@ -77,22 +97,26 @@ export default async function TeenFoodDiscoveryPage({
     tag: sp.tag,
   })
 
-  // Shared control class — 44px min-height for touch compliance, design-system tokens.
-  const controlClass =
-    "min-h-11 rounded-xl border border-border bg-card/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+  // Pill filtre charte : actif = fond ink + texte paper + ombre rose + lift.
+  const pillBase =
+    "inline-flex min-h-11 items-center gap-1.5 rounded-xl border-2 border-ink px-3 py-2 font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-all"
+  const pillIdle = "bg-white text-mute hover:text-ink"
+  const pillActive =
+    "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
 
   return (
     <PullToRefresh>
-    <div className="mx-auto max-w-5xl">
-      <header className="mb-6 flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-soft to-brand-soft">
-          <Utensils className="h-6 w-6 text-black" aria-hidden />
+    <div className="mx-auto max-w-5xl space-y-8 pt-6">
+      <header className="flex items-center gap-4">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-coral/20">
+          <Utensils className="h-7 w-7 text-ink" aria-hidden />
         </div>
         <div>
-          <H1 className="text-4xl font-black tracking-tighter uppercase leading-none">
-            Food
-          </H1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="eyebrow tracking-[0.16em]">Food halal · payable en coins</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight">
+            Ta <em className="font-semibold italic text-pink">food</em>
+          </h1>
+          <p className="mt-1 text-sm text-mute">
             Restaurants partenaires Nivy. Halal par défaut, payable en coins.
           </p>
         </div>
@@ -102,7 +126,7 @@ export default async function TeenFoodDiscoveryPage({
       <form
         method="GET"
         aria-label="Filtres restaurants"
-        className="mb-6 flex flex-wrap items-end gap-2 rounded-3xl border border-border bg-card/30 p-3 backdrop-blur-md"
+        className="flex flex-wrap items-end gap-2 rounded-2xl border-2 border-ink bg-white p-3 shadow-stkr-sm"
       >
         <label htmlFor="food-sub-category" className="sr-only">
           Catégorie
@@ -112,12 +136,12 @@ export default async function TeenFoodDiscoveryPage({
           name="sub_category"
           defaultValue={sp.sub_category ?? ""}
           aria-label="Catégorie"
-          className={controlClass}
+          className="min-h-11 rounded-xl border-2 border-ink bg-white px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
         >
           <option value="">Toutes catégories</option>
           {SUB_CATEGORIES.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {SUB_CATEGORY_META[s]?.label ?? s}
             </option>
           ))}
         </select>
@@ -129,27 +153,28 @@ export default async function TeenFoodDiscoveryPage({
           name="tag"
           defaultValue={sp.tag ?? ""}
           aria-label="Tag nutrition"
-          className={controlClass}
+          className="min-h-11 rounded-xl border-2 border-ink bg-white px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
         >
-          <option value="">Tous tags</option>
-          <option value="healthy">Healthy</option>
-          <option value="vegetarian">Vegetarian</option>
-          <option value="vegan">Vegan</option>
-          <option value="gluten_free">Gluten-free</option>
+          <option value="">Tous les tags</option>
+          {Object.entries(TAG_LABELS).map(([slug, label]) => (
+            <option key={slug} value={slug}>
+              {label}
+            </option>
+          ))}
         </select>
-        <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card/40 px-3 py-2 text-sm text-foreground">
+        <label className={`${pillBase} ${sp.halal === "true" ? pillActive : pillIdle} cursor-pointer`}>
           <input
             type="checkbox"
             name="halal"
             value="true"
             defaultChecked={sp.halal === "true"}
-            className="h-5 w-5 rounded accent-primary"
+            className="sr-only"
           />
-          Halal only
+          Halal
         </label>
         <button
           type="submit"
-          className="ml-auto inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-black text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+          className="ml-auto inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-ink bg-pink px-4 py-2 text-sm font-bold text-ink transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
         >
           Filtrer
         </button>
@@ -157,25 +182,45 @@ export default async function TeenFoodDiscoveryPage({
 
       <H2 className="sr-only">Restaurants partenaires</H2>
       {restaurants.length === 0 ? (
-        <EmptyState
-          icon={Utensils}
-          title="Aucun restaurant partenaire"
-          description="Aucun restaurant ne correspond à tes filtres. Essaie d'élargir ta recherche ou reviens plus tard."
+        <NivEmpty
+          mood="proud"
+          title="Aucun resto sur ces filtres"
+          description="Élargis ta recherche w sahbi, ou reviens un peu plus tard — on signe de nouveaux restos chaque semaine."
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {restaurants.map((p) => (
-            <Link
-              key={p.id}
-              href={`/teen/food/${p.id}`}
-              className="rounded-2xl border border-border bg-card/30 p-4 backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-2xl hover:shadow-background/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
-              <div className="font-bold text-foreground">{p.company_name}</div>
-              <div className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
-                {p.sub_category ?? "restaurant"}
-              </div>
-            </Link>
-          ))}
+          {restaurants.map((p) => {
+            const meta = p.sub_category
+              ? SUB_CATEGORY_META[p.sub_category]
+              : undefined
+            const Icon = meta?.icon ?? Utensils
+            return (
+              <Link
+                key={p.id}
+                href={`/teen/food/${p.id}`}
+                className="rounded-2xl focus-visible:outline-none"
+              >
+                <StickerCard variant="hover" className="h-full gap-3 p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-coral/15">
+                      <Icon className="h-5 w-5 text-ink" aria-hidden />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="truncate font-display font-bold leading-tight text-ink">
+                        {p.company_name}
+                      </h3>
+                      <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">
+                        {meta?.label ?? "Restaurant"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex w-fit items-center gap-1 rounded-full border-2 border-ink bg-coral/15 px-2.5 py-0.5 font-mono text-[11px] font-bold text-ink">
+                    ⊙ accepte tes coins
+                  </span>
+                </StickerCard>
+              </Link>
+            )
+          })}
         </div>
       )}
     </div>

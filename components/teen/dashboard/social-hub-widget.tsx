@@ -28,16 +28,16 @@ interface TabConfig {
 const tabs: TabConfig[] = [
   { id: 'friends', label: 'Amis', icon: Users, color: 'text-brand-soft', bgColor: 'bg-brand-soft/10' },
   { id: 'crew', label: 'Crew', icon: Swords, color: 'text-accent-soft', bgColor: 'bg-accent-soft/10' },
-  { id: 'clubs', label: 'Clubs', icon: Crown, color: 'text-gen-z-yellow', bgColor: 'bg-gen-z-yellow/10' },
+  { id: 'clubs', label: 'Clubs', icon: Crown, color: 'text-gold', bgColor: 'bg-gold/10' },
 ]
 
 // Status styling
 const statusColors: Record<PresenceStatus, string> = {
-  online: 'bg-emerald-500',
-  away: 'bg-yellow-500',
-  playing: 'bg-purple-500',
-  busy: 'bg-red-500',
-  offline: 'bg-zinc-500',
+  online: 'bg-lime',
+  away: 'bg-gold',
+  playing: 'bg-pink',
+  busy: 'bg-destructive',
+  offline: 'bg-muted',
 }
 
 export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
@@ -135,7 +135,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
   return (
     <div className={cn("h-full flex flex-col p-4 sm:p-5", className)}>
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-white/5 rounded-xl mb-4">
+      <div className="flex gap-1 p-1 bg-paper-2 rounded-xl mb-4">
         {tabs.map((tab) => {
           const Icon = tab.icon
           const isActive = activeTab === tab.id
@@ -146,14 +146,14 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
               className={cn(
                 "flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs sm:text-sm font-semibold transition-all",
                 isActive 
-                  ? "bg-white/10 text-white shadow-inner" 
-                  : "text-zinc-500 hover:text-white hover:bg-white/5"
+                  ? "bg-paper-2 text-ink shadow-inner" 
+                  : "text-mute hover:text-ink hover:bg-paper-2"
               )}
             >
               <Icon className="w-4 h-4" />
               <span className="hidden sm:inline">{tab.label}</span>
               {tab.id === 'friends' && onlineCount > 0 && (
-                <span className="ml-1 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold bg-emerald-500 text-white rounded-full">
+                <span className="ml-1 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold bg-lime text-ink rounded-full">
                   {onlineCount}
                 </span>
               )}
@@ -177,12 +177,12 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
             >
               {loadingFriends ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+                  <Loader2 className="w-6 h-6 animate-spin text-mute" />
                 </div>
               ) : sortedFriends.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-                  <Users className="w-10 h-10 text-zinc-600 mb-3" />
-                  <p className="text-sm text-zinc-500 font-medium">Aucun ami connecté</p>
+                  <Users className="w-10 h-10 text-mute mb-3" />
+                  <p className="text-sm text-mute font-medium">Aucun ami connecté</p>
                   <Button size="sm" variant="ghost" className="mt-2 text-brand-soft">
                     <Plus className="w-4 h-4 mr-1" />
                     Inviter des amis
@@ -195,7 +195,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                       key={friend.user_id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group"
+                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-paper-2 transition-colors cursor-pointer group"
                     >
                       <div className="relative">
                         <Avatar size="sm" className="w-9 h-9">
@@ -205,19 +205,19 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                           </AvatarFallback>
                         </Avatar>
                         <div className={cn(
-                          "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-zinc-900",
+                          "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-ink",
                           statusColors[friend.status]
                         )} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">
+                        <p className="text-sm font-semibold text-ink truncate">
                           {friend.full_name || 'Anonyme'}
                         </p>
-                        <p className="text-xs text-zinc-500 truncate">
+                        <p className="text-xs text-mute truncate">
                           {friend.current_activity || (friend.status === 'online' ? 'En ligne' : 'Hors ligne')}
                         </p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ChevronRight className="w-4 h-4 text-mute opacity-0 group-hover:opacity-100 transition-opacity" />
                     </motion.div>
                   ))}
                 </div>
@@ -225,7 +225,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
               
               {sortedFriends.length > 0 && (
                 <Link href="/teen/social" className="block mt-3">
-                  <Button variant="ghost" size="sm" className="w-full text-zinc-400 hover:text-white">
+                  <Button variant="ghost" size="sm" className="w-full text-mute hover:text-ink">
                     Voir tous les amis
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
@@ -246,12 +246,12 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
             >
               {loadingCrew ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+                  <Loader2 className="w-6 h-6 animate-spin text-mute" />
                 </div>
               ) : crewData.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-                  <Swords className="w-10 h-10 text-zinc-600 mb-3" />
-                  <p className="text-sm text-zinc-500 font-medium">Rejoins un Crew</p>
+                  <Swords className="w-10 h-10 text-mute mb-3" />
+                  <p className="text-sm text-mute font-medium">Rejoins un Crew</p>
                   <Button size="sm" className="mt-2 bg-accent-soft hover:bg-accent-soft/80">
                     Explorer les Crews
                   </Button>
@@ -263,17 +263,17 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                       key={crew.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-accent-soft/30 transition-colors cursor-pointer group"
+                      className="p-3 rounded-xl bg-paper-2 border border-ink hover:border-accent-soft/30 transition-colors cursor-pointer group"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-bold text-white">{crew.name}</h4>
+                        <h4 className="font-bold text-ink">{crew.name}</h4>
                         {crew.isActive && (
-                          <Badge variant="glass" size="sm" className="bg-emerald-500/20 text-emerald-400">
+                          <Badge variant="glass" size="sm" className="bg-lime/20 text-lime">
                             Active
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-zinc-500">
+                      <div className="flex items-center gap-4 text-xs text-mute">
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
                           {crew.members}
@@ -287,7 +287,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
               )}
               
               <Link href="/teen/circles" className="block mt-3">
-                <Button variant="ghost" size="sm" className="w-full text-zinc-400 hover:text-white">
+                <Button variant="ghost" size="sm" className="w-full text-mute hover:text-ink">
                   Gérer mes Crews
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -307,7 +307,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
             >
               {loadingClubs ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+                  <Loader2 className="w-6 h-6 animate-spin text-mute" />
                 </div>
               ) : (
                 <div className="space-y-2 flex-1 overflow-y-auto">
@@ -316,27 +316,27 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
                       key={club.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group"
+                      className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-paper-2 transition-colors cursor-pointer group"
                     >
                       <div className={cn(
                         "w-10 h-10 rounded-xl flex items-center justify-center",
-                        club.joined ? "bg-gen-z-yellow/20" : "bg-white/5"
+                        club.joined ? "bg-gold/20" : "bg-paper-2"
                       )}>
                         <Crown className={cn(
                           "w-5 h-5",
-                          club.joined ? "text-gen-z-yellow" : "text-zinc-500"
+                          club.joined ? "text-gold" : "text-mute"
                         )} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{club.name}</p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-sm font-semibold text-ink truncate">{club.name}</p>
+                        <p className="text-xs text-mute">
                           {club.members} membres • {club.category}
                         </p>
                       </div>
                       {club.joined ? (
                         <Badge variant="glass" size="sm" className="text-[10px]">Membre</Badge>
                       ) : (
-                        <Button size="sm" variant="ghost" className="h-7 text-xs text-gen-z-yellow">
+                        <Button size="sm" variant="ghost" className="h-7 text-xs text-gold">
                           Rejoindre
                         </Button>
                       )}
@@ -346,7 +346,7 @@ export function SocialHubWidget({ userId, className }: SocialHubWidgetProps) {
               )}
               
               <Link href="/teen/circles" className="block mt-3">
-                <Button variant="ghost" size="sm" className="w-full text-zinc-400 hover:text-white">
+                <Button variant="ghost" size="sm" className="w-full text-mute hover:text-ink">
                   Explorer les Clubs
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>

@@ -10,9 +10,9 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { H1 } from "@/components/ui/headings"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { Niv } from "@/components/brand"
 import { PullToRefresh } from "@/components/teen/pull-to-refresh"
 import { FeedList, type FeedRow } from "./feed-list"
 
@@ -54,24 +54,29 @@ export default async function TeenFeedPage() {
   return (
     <PullToRefresh>
       <div className="container mx-auto max-w-2xl px-4 py-6">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <H1 className="text-4xl font-black tracking-tighter uppercase italic leading-none">
-            Feed Créateurs
-          </H1>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/teen/leaderboard">Classement</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/teen/create">+ Créer</Link>
-            </Button>
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <p className="eyebrow text-pink">Ton crew poste</p>
+            <h1 className="font-display text-4xl font-extrabold leading-none tracking-tight text-ink">
+              Le <em className="font-semibold italic text-pink">feed</em> créateurs
+            </h1>
           </div>
+          <Niv mood="happy" size={64} className="shrink-0" />
+        </div>
+
+        <div className="mb-6 flex items-center gap-2">
+          <Button asChild variant="pink" size="sm">
+            <Link href="/teen/create">+ Créer</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/teen/leaderboard">Classement</Link>
+          </Button>
         </div>
 
         {error && (
           <div
             role="alert"
-            className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+            className="mb-4 rounded-2xl border-2 border-ink bg-destructive/10 p-3 text-sm text-destructive"
           >
             Erreur de chargement: {error.message}
           </div>
@@ -81,6 +86,7 @@ export default async function TeenFeedPage() {
           <EmptyState
             preset="feed"
             size="default"
+            nivMood="proud"
             title="Aucun post pour l'instant"
             description="Sois le premier à publier !"
             action={{ label: "Créer un post", href: "/teen/create" }}

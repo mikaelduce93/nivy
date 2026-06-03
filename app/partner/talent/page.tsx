@@ -8,11 +8,14 @@
  */
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Music, Calendar, Wallet, ShieldCheck } from "lucide-react"
+import { Music, Wallet, ShieldCheck } from "lucide-react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
+import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { Calendar } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -30,83 +33,102 @@ export default async function PartnerTalentDashboardPage() {
 
   if (!partner || partner.partner_type !== "event_talent") {
     return (
-      <main className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Espace talent</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-zinc-400">
-            Cet espace est réservé aux partenaires de type DJ / performer.
-          </CardContent>
-        </Card>
+      <main className="space-y-6 pt-6">
+        <header className="space-y-2">
+          <p className="eyebrow">Espace talent</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+            Espace <em className="font-semibold italic text-pink">talent</em>
+          </h1>
+        </header>
+        <StickerCard className="p-10 text-center text-mute">
+          Cet espace est réservé aux partenaires de type DJ / performer.
+        </StickerCard>
       </main>
     )
   }
 
+  const isActive = partner.status === "active"
+
   return (
-    <main className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Music className="w-7 h-7 text-purple-400" />
-          {partner.company_name}
+    <main className="space-y-6 pt-6">
+      <header className="space-y-2">
+        <p className="eyebrow">Espace talent</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          Tes <em className="font-semibold italic text-pink">gigs</em> sur Nivy
         </h1>
-        <p className="text-zinc-400 mt-1">Espace talent · Statut : {partner.status}</p>
+        <div className="flex items-center gap-2">
+          <span className="font-display font-bold text-ink">{partner.company_name}</span>
+          <span
+            className={
+              "rounded-full border-2 border-ink px-3 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide " +
+              (isActive ? "bg-lime/15 text-ink" : "bg-gold/15 text-ink")
+            }
+          >
+            {isActive ? "Actif" : "En attente"}
+          </span>
+        </div>
       </header>
 
-      <div className="grid sm:grid-cols-3 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Gigs à venir</p>
-            <p className="text-2xl font-black text-white mt-1">—</p>
-            <p className="text-xs text-zinc-600 mt-2">Module non encore disponible.</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Demandes</p>
-            <p className="text-2xl font-black text-white mt-1">—</p>
-            <p className="text-xs text-zinc-600 mt-2">Module non encore disponible.</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-5">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider">Notation</p>
-            <p className="text-2xl font-black text-white mt-1">—</p>
-            <p className="text-xs text-zinc-600 mt-2">Pas encore de notations.</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Setup en cours — bloc unique honnête (dj_bookings absent) */}
+      <NivEmpty
+        mood="proud"
+        title="Ton setup est presque prêt"
+        description="Le module de bookings (dj_bookings) s'ouvre après l'activation admin. En attendant, complète ton dossier pour démarrer en un clin d'œil."
+        action={
+          <Button asChild variant="pink">
+            <Link href="/partner/kyc">Compléter mon KYC</Link>
+          </Button>
+        }
+      />
 
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-zinc-400" />
-            Demandes de booking
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EmptyState
-            icon={Calendar}
-            title="Module booking en cours de mise en place"
-            description="La gestion des bookings (dj_bookings) sera ouverte après l'activation côté admin. Pour l'instant, complète ton dossier KYC pour être prêt."
-            action={{ label: "Compléter mon KYC", href: "/partner/kyc" }}
-          />
-        </CardContent>
-      </Card>
+      <StickerCard className="gap-2 p-5">
+        <ul className="space-y-2 text-sm">
+          <li className="flex items-center gap-2 text-ink">
+            <ShieldCheck className="size-4 text-teal" /> Vérifier ton identité (KYC)
+          </li>
+          <li className="flex items-center gap-2 text-ink">
+            <Music className="size-4 text-pink" /> Compléter ton profil (démos, dispo, contrats)
+          </li>
+          <li className="flex items-center gap-2 text-ink">
+            <Wallet className="size-4 text-lime" /> Configurer tes paiements
+          </li>
+        </ul>
+      </StickerCard>
 
-      <div className="grid sm:grid-cols-3 gap-4 text-xs">
-        <Link href="/partner/kyc" className="block p-4 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700">
-          <ShieldCheck className="w-5 h-5 text-blue-400 mb-2" />
-          <p className="font-bold text-white">KYC</p>
-          <p className="text-zinc-500">Pièces du dossier</p>
+      <StickerCard className="gap-4 p-6">
+        <h2 className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink">
+          <Calendar className="size-5 text-mute" />
+          Demandes de booking
+        </h2>
+        <EmptyState
+          icon={Calendar}
+          title="Module booking en cours de mise en place"
+          description="La gestion des bookings (dj_bookings) sera ouverte après l'activation côté admin. Pour l'instant, complète ton dossier KYC pour être prêt."
+          action={{ label: "Compléter mon KYC", href: "/partner/kyc" }}
+        />
+      </StickerCard>
+
+      <div className="grid gap-4 text-xs sm:grid-cols-3">
+        <Link href="/partner/kyc" className="block">
+          <StickerCard variant="hover" className="gap-1 p-4">
+            <ShieldCheck className="mb-1 size-5 text-teal" />
+            <p className="font-display font-bold text-ink">KYC</p>
+            <p className="text-mute">Pièces du dossier</p>
+          </StickerCard>
         </Link>
-        <Link href="/partner/payouts" className="block p-4 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700">
-          <Wallet className="w-5 h-5 text-emerald-400 mb-2" />
-          <p className="font-bold text-white">Paiements</p>
-          <p className="text-zinc-500">Historique virements</p>
+        <Link href="/partner/payouts" className="block">
+          <StickerCard variant="hover" className="gap-1 p-4">
+            <Wallet className="mb-1 size-5 text-lime" />
+            <p className="font-display font-bold text-ink">Paiements</p>
+            <p className="text-mute">Historique virements</p>
+          </StickerCard>
         </Link>
-        <Link href="/partner/settings" className="block p-4 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700">
-          <Music className="w-5 h-5 text-purple-400 mb-2" />
-          <p className="font-bold text-white">Profil</p>
-          <p className="text-zinc-500">Démos, dispo, contrats</p>
+        <Link href="/partner/settings" className="block">
+          <StickerCard variant="hover" className="gap-1 p-4">
+            <Music className="mb-1 size-5 text-pink" />
+            <p className="font-display font-bold text-ink">Profil</p>
+            <p className="text-mute">Démos, dispo, contrats</p>
+          </StickerCard>
         </Link>
       </div>
     </main>

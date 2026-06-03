@@ -65,7 +65,7 @@ export default function TicketSelector({ eventId, ticketTypes, isLoggedIn }: Tic
 
   return (
     <div>
-      <h3 className="text-xl font-bold text-white mb-6">Sélectionne tes billets</h3>
+      <h3 className="text-xl font-bold text-ink mb-6">Sélectionne tes billets</h3>
 
       <div className="space-y-4 mb-8">
         {activeTickets.map((ticket) => {
@@ -73,16 +73,16 @@ export default function TicketSelector({ eventId, ticketTypes, isLoggedIn }: Tic
           const selected = selectedTickets[ticket.id] || 0
 
           return (
-            <div key={ticket.id} className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+            <div key={ticket.id} className="bg-card rounded-2xl p-6 border border-ink">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h4 className="text-lg font-bold text-white mb-1">{ticket.name}</h4>
-                  <p className="text-sm text-zinc-400 mb-2">{ticket.description}</p>
+                  <h4 className="text-lg font-bold text-ink mb-1">{ticket.name}</h4>
+                  <p className="text-sm text-mute mb-2">{ticket.description}</p>
                   {ticket.includes && (
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(ticket.includes).map(([key, value]) =>
                         value ? (
-                          <div key={key} className="flex items-center gap-1 text-xs text-cyan-400">
+                          <div key={key} className="flex items-center gap-1 text-xs text-teal">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>{key}</span>
                           </div>
@@ -92,8 +92,8 @@ export default function TicketSelector({ eventId, ticketTypes, isLoggedIn }: Tic
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-black text-cyan-400">{ticket.price} DH</p>
-                  <p className="text-xs text-zinc-500">{remaining} restants</p>
+                  <p className="text-2xl font-black text-teal">{ticket.price} DH</p>
+                  <p className="text-xs text-mute">{remaining} restants</p>
                 </div>
               </div>
 
@@ -104,17 +104,17 @@ export default function TicketSelector({ eventId, ticketTypes, isLoggedIn }: Tic
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-8 w-8 p-0 border-zinc-700 bg-transparent"
+                        className="h-8 w-8 p-0 border-ink bg-transparent"
                         onClick={() => updateQuantity(ticket.id, -1)}
                         disabled={selected === 0}
                       >
                         <Minus className="w-4 h-4" />
                       </Button>
-                      <span className="text-white font-bold w-8 text-center">{selected}</span>
+                      <span className="text-ink font-bold w-8 text-center">{selected}</span>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-8 w-8 p-0 border-zinc-700 bg-transparent"
+                        className="h-8 w-8 p-0 border-ink bg-transparent"
                         onClick={() => updateQuantity(ticket.id, 1)}
                         disabled={selected >= remaining}
                       >
@@ -122,11 +122,11 @@ export default function TicketSelector({ eventId, ticketTypes, isLoggedIn }: Tic
                       </Button>
                     </div>
                     {selected > 0 && (
-                      <p className="text-sm text-zinc-400">Sous-total: {(ticket.price * selected).toFixed(2)} DH</p>
+                      <p className="text-sm text-mute">Sous-total: {(ticket.price * selected).toFixed(2)} DH</p>
                     )}
                   </>
                 ) : (
-                  <p className="text-sm text-red-500 font-semibold">Épuisé</p>
+                  <p className="text-sm text-destructive font-semibold">Épuisé</p>
                 )}
               </div>
             </div>
@@ -135,22 +135,22 @@ export default function TicketSelector({ eventId, ticketTypes, isLoggedIn }: Tic
       </div>
 
       {totalTickets > 0 && (
-        <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl p-6 border border-cyan-500/30 mb-6">
+        <div className="bg-gradient-to-r from-teal/20 to-teal/20 rounded-2xl p-6 border border-teal/30 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm text-zinc-400">Total</p>
-              <p className="text-3xl font-black text-white">{totalPrice.toFixed(2)} DH</p>
+              <p className="text-sm text-mute">Total</p>
+              <p className="text-3xl font-black text-ink">{totalPrice.toFixed(2)} DH</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-zinc-400">Billets</p>
-              <p className="text-2xl font-bold text-cyan-400">{totalTickets}</p>
+              <p className="text-sm text-mute">Billets</p>
+              <p className="text-2xl font-bold text-teal">{totalTickets}</p>
             </div>
           </div>
         </div>
       )}
 
       <Button
-        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 text-lg py-6"
+        className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0 text-lg py-6"
         disabled={totalTickets === 0}
         onClick={handleCheckout}
       >
@@ -158,7 +158,7 @@ export default function TicketSelector({ eventId, ticketTypes, isLoggedIn }: Tic
         {isLoggedIn ? "Procéder au paiement" : "Connexion requise"}
       </Button>
 
-      {!isLoggedIn && <p className="text-center text-sm text-zinc-500 mt-4">Vous devez être connecté pour réserver</p>}
+      {!isLoggedIn && <p className="text-center text-sm text-mute mt-4">Vous devez être connecté pour réserver</p>}
     </div>
   )
 }

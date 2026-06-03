@@ -557,6 +557,10 @@ ALTER TABLE public.onboarding_progress ENABLE ROW LEVEL SECURITY;
 
 -- Policy pour permettre l'accès anonyme basé sur temp_user_id
 -- (l'utilisateur doit connaître son temp_user_id pour accéder)
+-- @deprecated #55 — cette policy always-true (IDOR cross-tenant) est remplacée
+-- par 111_realityfix_onboarding_progress_rls.sql (DROP + scoped SELECT
+-- authenticated, REVOKE direct anon/authenticated). Conservée ici pour
+-- l'historique uniquement ; ne plus s'y fier.
 CREATE POLICY "Allow anonymous onboarding access"
   ON public.onboarding_progress
   FOR ALL

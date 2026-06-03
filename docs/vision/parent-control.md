@@ -1,5 +1,11 @@
 # Parent Control — Vision vs. Reality Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+> Canon de référence pour ce domaine : `docs/canon/parent-control.locked.md`.
+
+
 Read-only audit of Nivy's parent control surface. Source-of-truth = code under `app/parent/`, `app/api/parent/`, `components/parent/` plus the live Supabase project `imchornjvmgmaovhypco` (nivy, eu-central-1, Postgres 17).
 
 ---

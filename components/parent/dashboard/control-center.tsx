@@ -17,12 +17,12 @@ export function ControlCenter({ pendingCount, activePermissionsCount, teensCount
     <div className="flex items-center gap-2">
       <div className={cn(
         "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
-        pendingCount > 0 ? "bg-red-500/10 border-red-500/30 text-red-500" : "bg-white/5 border-white/10 text-zinc-500"
+        pendingCount > 0 ? "bg-destructive/10 border-destructive/30 text-destructive" : "bg-paper-2 border-ink text-mute"
       )}>
         <ShieldCheck className="h-5 w-5" />
       </div>
       {pendingCount > 0 && (
-        <span className="text-xs font-black text-red-500 animate-pulse">{pendingCount} ALERTS</span>
+        <span className="text-xs font-black text-destructive animate-pulse">{pendingCount} ALERTS</span>
       )}
     </div>
   )

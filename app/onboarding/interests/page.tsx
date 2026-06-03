@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { InterestPicker, type InterestTaxonomyRow } from "@/components/onboarding/interest-picker"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
 export const dynamic = "force-dynamic"
 
@@ -54,12 +55,15 @@ export default async function OnboardingInterestsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 p-4 sm:p-6 lg:p-10">
-      <InterestPicker
-        taxonomy={rows}
-        initialSelected={initialSelected}
-        nextHref="/onboarding/goals"
-      />
+    <main className="relative min-h-screen overflow-hidden bg-paper p-4 sm:p-6 lg:p-10">
+      <MeshBackground />
+      <div className="relative z-10">
+        <InterestPicker
+          taxonomy={rows}
+          initialSelected={initialSelected}
+          nextHref="/onboarding/goals"
+        />
+      </div>
     </main>
   )
 }

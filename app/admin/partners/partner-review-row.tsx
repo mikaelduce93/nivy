@@ -2,6 +2,20 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+
+const DOC_STATUS_VARIANT: Record<string, StatusVariant> = {
+  approved: "success",
+  rejected: "danger",
+  pending: "pending",
+}
+
+const DOC_STATUS_LABEL: Record<string, string> = {
+  approved: "Approuvé",
+  rejected: "Rejeté",
+  pending: "En attente",
+}
 
 interface PartnerLite {
   id: string
@@ -118,38 +132,35 @@ export function PartnerReviewRow({
   const verifiedCount = documents.filter((d) => d.status === "approved").length
 
   return (
-    <li className="rounded border border-zinc-800 bg-zinc-900 p-4">
+    <li className="flex flex-col rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <div className="font-semibold text-white">{partner.company_name}</div>
-          <div className="text-xs text-zinc-500">
+          <div className="font-semibold text-ink">{partner.company_name}</div>
+          <div className="text-xs text-mute">
             {partner.partner_type}
             {partner.sub_category ? ` · ${partner.sub_category}` : ""} · {partner.email}
           </div>
-          <div className="text-xs text-zinc-600">
+          <div className="text-xs text-mute">
             Inscrit le {new Date(partner.created_at).toLocaleString("fr-FR")}
           </div>
         </div>
-        <span
-          className={`rounded px-2 py-0.5 text-xs ${
-            partner.status === "in_review"
-              ? "bg-blue-500/20 text-blue-300"
-              : "bg-yellow-500/20 text-yellow-300"
-          }`}
-        >
-          {partner.status === "in_review" ? "En révision" : "En attente"}
-        </span>
+        <StatusBadge
+          variant={partner.status === "in_review" ? "info" : "pending"}
+          label={partner.status === "in_review" ? "En révision" : "En attente"}
+          size="sm"
+          className="font-mono uppercase tracking-[0.16em]"
+        />
       </header>
 
       <div className="mb-3">
-        <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+        <div className="mb-1 flex items-center justify-between text-xs text-mute">
           <span>Documents KYC</span>
           <span>
             {verifiedCount}/{documents.length} approuvés
           </span>
         </div>
         {documents.length === 0 ? (
-          <div className="rounded bg-zinc-950 px-3 py-2 text-xs text-zinc-500">
+          <div className="rounded-lg border-2 border-ink bg-paper px-3 py-2 text-xs text-mute">
             Aucun document soumis.
           </div>
         ) : (
@@ -157,37 +168,32 @@ export function PartnerReviewRow({
             {documents.map((d) => (
               <li
                 key={d.id}
-                className="flex items-center justify-between rounded bg-zinc-950 px-3 py-2 text-xs"
+                className="flex items-center justify-between rounded-lg border-2 border-ink bg-paper px-3 py-2 text-xs"
               >
-                <span className="text-zinc-300">
+                <span className="text-ink-2">
                   {d.doc_type}
                   {d.subject_kind ? (
-                    <span className="ml-2 text-zinc-500">({d.subject_kind})</span>
+                    <span className="ml-2 text-mute">({d.subject_kind})</span>
                   ) : null}
                 </span>
                 <span className="flex items-center gap-3">
-                  <span
-                    className={
-                      d.status === "approved"
-                        ? "text-green-400"
-                        : d.status === "rejected"
-                          ? "text-red-400"
-                          : "text-yellow-400"
-                    }
-                  >
-                    {d.status}
-                  </span>
+                  <StatusBadge
+                    variant={DOC_STATUS_VARIANT[d.status] ?? "neutral"}
+                    label={DOC_STATUS_LABEL[d.status] ?? d.status}
+                    size="sm"
+                    className="font-mono uppercase tracking-[0.16em]"
+                  />
                   {d.signedUrl ? (
                     <a
                       href={d.signedUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-blue-400 underline-offset-4 hover:underline"
+                      className="text-teal underline-offset-4 hover:underline"
                     >
                       Ouvrir
                     </a>
                   ) : (
-                    <span className="text-zinc-600">URL indisponible</span>
+                    <span className="text-mute">URL indisponible</span>
                   )}
                 </span>
               </li>
@@ -204,66 +210,72 @@ export function PartnerReviewRow({
             placeholder="Motif de rejet (obligatoire)"
             rows={2}
             maxLength={1000}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className="w-full rounded-lg border-2 border-ink bg-paper p-2 text-sm text-ink"
           />
         </div>
       )}
 
-      {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
       {activateOutcome && (
-        <p className="mb-2 text-xs text-emerald-300">{activateOutcome}</p>
+        <p className="mb-2 text-xs text-lime">{activateOutcome}</p>
       )}
 
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           type="button"
+          size="sm"
+          variant="lime"
           disabled={busy}
           onClick={activate}
-          className="rounded bg-emerald-600 px-3 py-1 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
           title="Provisionne l'auth.user, partner_staff owner, status=active. Idempotent."
         >
           Activer
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          size="sm"
+          variant="outline"
           disabled={busy}
           onClick={approve}
-          className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
           title="Marque KYC approuvé (legacy). Préférer Activer."
         >
           Approuver
-        </button>
+        </Button>
         {!showReject ? (
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="outline"
+            className="text-destructive"
             disabled={busy}
             onClick={() => setShowReject(true)}
-            className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
           >
             Rejeter
-          </button>
+          </Button>
         ) : (
           <>
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="destructive"
               disabled={busy}
               onClick={reject}
-              className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
             >
               Confirmer le rejet
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              size="sm"
+              variant="outline"
               disabled={busy}
               onClick={() => {
                 setShowReject(false)
                 setReason("")
                 setError(null)
               }}
-              className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
             >
               Annuler
-            </button>
+            </Button>
           </>
         )}
       </div>

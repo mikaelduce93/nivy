@@ -3,19 +3,14 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Checkbox } from "@/components/ui/checkbox"
+import { FieldInput } from "@/components/ui/field-input"
+import { CheckRound } from "@/components/ui/check-round"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { CheckCircle2, Loader2 } from "lucide-react"
+  SelectSticker,
+  SelectStickerItem,
+} from "@/components/ui/select-sticker"
+import { CheckCircle2, Loader2, Coins, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import {
   FormField,
@@ -79,7 +74,6 @@ function validateChore(values: {
 export function ChoreForm({ teens }: { teens: Teen[] }) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
-  const titleRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
@@ -100,7 +94,9 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
 
   // Auto-focus first field on mount
   useEffect(() => {
-    titleRef.current?.focus()
+    formRef.current
+      ?.querySelector<HTMLInputElement>('input[name="title"]')
+      ?.focus()
   }, [])
 
   // Re-validate touched fields when they change
@@ -218,41 +214,40 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       <FormField name="teenIds" error={touched.teenIds ? errors.teenIds : undefined}>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-zinc-300">
+            <span className="eyebrow tracking-[0.16em]">
               Teens concernés
-              <span className="text-zinc-500 font-normal ml-1">
+              <span className="text-mute font-normal ml-1 normal-case tracking-normal">
                 ({teenIds.length}/{teens.length})
               </span>
-            </Label>
+            </span>
             {teens.length > 1 && (
               <button
                 type="button"
                 onClick={() => toggleAll(!allSelected)}
-                className="text-xs text-emerald-400 hover:text-emerald-300"
+                className="text-xs text-pink hover:underline"
               >
                 {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
               </button>
             )}
           </div>
-          <div className="space-y-2 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3">
+          <div className="space-y-2 rounded-xl border-2 border-ink bg-white p-3">
             {teens.map((t) => {
               const checked = teenIds.includes(t.teen_id)
               return (
                 <label
                   key={t.teen_id}
-                  className="flex items-center gap-3 cursor-pointer rounded px-2 py-1.5 hover:bg-zinc-800"
+                  className="flex items-center gap-3 cursor-pointer rounded px-2 py-1.5"
                 >
-                  <Checkbox
+                  <CheckRound
                     checked={checked}
                     onCheckedChange={(v) => toggleTeen(t.teen_id, v === true)}
-                    className="border-zinc-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
                   />
-                  <span className="text-sm text-white">{t.teen_name}</span>
+                  <span className="text-sm text-ink">{t.teen_name}</span>
                 </label>
               )
             })}
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-mute">
             La corvée sera assignée indépendamment à chaque teen sélectionné
             (chacun la complète et est récompensé séparément).
           </p>
@@ -261,15 +256,13 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       </FormField>
 
       <FormField name="title" required error={touched.title ? errors.title : undefined}>
-        <FormLabel className="text-zinc-300">Titre</FormLabel>
-        <Input
-          ref={titleRef}
+        <FieldInput
           name="title"
+          label="Titre"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={() => markTouched("title")}
           placeholder="Ex. Faire la vaisselle 5 fois"
-          className="bg-zinc-800 border-zinc-700 text-white"
           maxLength={120}
           aria-invalid={!!(touched.title && errors.title)}
           required
@@ -278,13 +271,13 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
       </FormField>
 
       <FormField name="description">
-        <FormLabel className="text-zinc-300">Description (optionnelle)</FormLabel>
+        <FormLabel className="eyebrow tracking-[0.16em]">Description (optionnelle)</FormLabel>
         <Textarea
           name="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Détails / consignes..."
-          className="bg-zinc-800 border-zinc-700 text-white"
+          className="bg-card border-ink text-ink"
           rows={3}
         />
       </FormField>
@@ -294,105 +287,103 @@ export function ChoreForm({ teens }: { teens: Teen[] }) {
           name="rewardDh"
           error={touched.rewardDh ? errors.rewardDh : undefined}
         >
-          <FormLabel className="text-zinc-300">Récompense DH</FormLabel>
-          <Input
+          <FieldInput
             type="number"
             name="rewardDh"
+            label="Récompense DH"
             min="0"
             step="0.5"
             value={rewardDh}
             onChange={(e) => setRewardDh(e.target.value)}
             onBlur={() => markTouched("rewardDh")}
-            className="bg-zinc-800 border-zinc-700 text-white"
+            hint="1 DH = 100 coins. Versé après vérification."
             aria-invalid={!!(touched.rewardDh && errors.rewardDh)}
           />
-          <p className="text-xs text-zinc-500">
-            1 DH = 100 coins. Versé après vérification.
-          </p>
           <FormError />
         </FormField>
         <FormField
           name="rewardXp"
           error={touched.rewardXp ? errors.rewardXp : undefined}
         >
-          <FormLabel className="text-zinc-300">Récompense XP</FormLabel>
-          <Input
+          <FieldInput
             type="number"
             name="rewardXp"
+            label="Récompense XP"
             min="0"
             step="10"
             value={rewardXp}
             onChange={(e) => setRewardXp(e.target.value)}
             onBlur={() => markTouched("rewardXp")}
-            className="bg-zinc-800 border-zinc-700 text-white"
             aria-invalid={!!(touched.rewardXp && errors.rewardXp)}
           />
           <FormError />
         </FormField>
       </div>
 
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="eyebrow tracking-[0.16em] text-mute">Aperçu récompense</span>
+        <span className="px-2 py-1 rounded-md border-2 border-ink text-coral font-mono text-xs flex items-center gap-1">
+          <Coins className="h-3 w-3" /> ⊙ {Number(rewardDh) || 0} DH
+        </span>
+        <span className="px-2 py-1 rounded-md border-2 border-ink text-gold font-mono text-xs flex items-center gap-1">
+          <Sparkles className="h-3 w-3" /> {Number(rewardXp) || 0} XP
+        </span>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-zinc-300">Récurrence</Label>
-          <Select value={recurrence} onValueChange={setRecurrence}>
-            <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-zinc-800 border-zinc-700">
-              {RECURRENCE_OPTIONS.map((o) => (
-                <SelectItem
-                  key={o.value}
-                  value={o.value}
-                  className="text-white hover:bg-zinc-700 focus:bg-zinc-700"
-                >
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectSticker
+          label="Récurrence"
+          value={recurrence}
+          onValueChange={setRecurrence}
+        >
+          {RECURRENCE_OPTIONS.map((o) => (
+            <SelectStickerItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectStickerItem>
+          ))}
+        </SelectSticker>
         <FormField
           name="requiredCompletions"
           error={
             touched.requiredCompletions ? errors.requiredCompletions : undefined
           }
         >
-          <FormLabel className="text-zinc-300">Nombre requis</FormLabel>
-          <Input
+          <FieldInput
             type="number"
             name="requiredCompletions"
+            label="Nombre requis"
             min="1"
             max="365"
             value={requiredCompletions}
             onChange={(e) => setRequiredCompletions(e.target.value)}
             onBlur={() => markTouched("requiredCompletions")}
-            className="bg-zinc-800 border-zinc-700 text-white"
+            hint="Combien de fois pour déclencher la récompense."
             aria-invalid={
               !!(touched.requiredCompletions && errors.requiredCompletions)
             }
           />
-          <p className="text-xs text-zinc-500">
-            Combien de fois pour déclencher la récompense.
-          </p>
           <FormError />
         </FormField>
       </div>
 
-      <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-800 border border-zinc-700">
-        <div>
-          <Label className="text-zinc-200">Preuve photo requise</Label>
-          <p className="text-xs text-zinc-500 mt-1">
+      <label className="flex items-start gap-3 p-3 rounded-xl border-2 border-ink bg-white cursor-pointer">
+        <CheckRound
+          checked={evidenceRequired}
+          onCheckedChange={(v) => setEvidenceRequired(v === true)}
+        />
+        <span>
+          <span className="block text-sm font-medium text-ink">Preuve photo requise</span>
+          <span className="block text-xs text-mute mt-1">
             Le teen devra uploader une photo à chaque complétion.
-          </p>
-        </div>
-        <Switch checked={evidenceRequired} onCheckedChange={setEvidenceRequired} />
-      </div>
+          </span>
+        </span>
+      </label>
 
       <Button
         type="submit"
         disabled={loading || success || teenIds.length === 0}
         aria-busy={loading}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-12"
+        className="w-full h-12"
       >
         {success ? (
           <>

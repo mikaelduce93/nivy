@@ -1,17 +1,21 @@
 import { createClient } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Calendar, User, ArrowRight, BookOpen } from 'lucide-react'
-import { OptimizedImage } from "@/components/optimized-image"
+import { Calendar, User, ArrowRight } from "lucide-react"
 import Link from "next/link"
+
+import { OptimizedImage } from "@/components/optimized-image"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty, Niv } from "@/components/brand"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
 export default async function BlogPage() {
   const supabase = await createClient()
 
   let posts = null
   let categories = null
-  
+
   try {
     const { data: postsData } = await supabase
       .from("blog_posts")
@@ -28,9 +32,8 @@ export default async function BlogPage() {
       .eq("published", true)
       .order("published_at", { ascending: false })
       .limit(12)
-    posts = postsData
-  } catch (error) {
-    console.log("[v0] Blog posts table not found, showing empty state")
+    posts = postsData ?? []
+  } catch {
     posts = []
   }
 
@@ -38,44 +41,37 @@ export default async function BlogPage() {
     const { data: categoriesData } = await supabase
       .from("post_categories")
       .select("*")
-    categories = categoriesData
-  } catch (error) {
-    console.log("[v0] Post categories table not found")
+    categories = categoriesData ?? []
+  } catch {
     categories = []
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-paper">
       <Navbar />
 
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-background to-blue-500/20" />
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl animate-pulse" />
-        </div>
-
-        <div className="relative container mx-auto px-6 py-32">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 text-sm font-semibold mb-6">
-              <BookOpen className="w-4 h-4" />
-              Blog Nivy
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6 text-balance">
-              Actualités & <span className="text-gradient">Conseils</span>
+        <MeshBackground />
+        <div className="relative container mx-auto px-6 py-28">
+          <div className="flex flex-col items-center gap-5 text-center">
+            <Niv mood="calm" size={110} float />
+            <p className="eyebrow tracking-[0.16em]">Blog Nivy</p>
+            <h1 className="font-display text-5xl font-extrabold leading-[1.02] tracking-tight text-balance md:text-6xl">
+              Actualités &amp; <em className="font-semibold italic text-pink">conseils</em>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-              Découvre nos derniers articles, conseils et actualités de la communauté
+            <p className="max-w-2xl text-xl text-ink-2 text-balance">
+              Nos derniers articles, conseils et actus de la communauté.
             </p>
           </div>
 
           {categories && categories.length > 0 && (
-            <div className="flex flex-wrap gap-3 justify-center">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button variant="outline" asChild>
                 <Link href="/blog">Tous</Link>
               </Button>
               {categories.map((cat) => (
                 <Button key={cat.id} variant="outline" asChild>
-                  <Link href={`/blog/categorie/${cat.slug}`}>{cat.name}</Link>
+                  <Link href={`/blog?categorie=${cat.slug}`}>{cat.name}</Link>
                 </Button>
               ))}
             </div>
@@ -83,64 +79,63 @@ export default async function BlogPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-20">
+      <div className="container mx-auto px-6 py-16">
         {posts && posts.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
-                <div className="relative">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition duration-500" />
-                  <div className="relative bg-card rounded-3xl overflow-hidden border border-border">
-                    {post.cover_image && (
-                      <div className="relative aspect-video">
-                        <OptimizedImage
-                          src={post.cover_image}
-                          alt={post.title}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                      </div>
+              <div key={post.id} className="group block">
+                <StickerCard variant="hover" className="h-full gap-0 overflow-hidden p-0">
+                  {post.cover_image && (
+                    <div className="relative aspect-video border-b-2 border-ink">
+                      <OptimizedImage
+                        src={post.cover_image}
+                        alt={post.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-6">
+                    {post.post_categories && (
+                      <span className="mb-3 inline-block rounded-full border-2 border-ink bg-paper-2 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+                        {post.post_categories.name}
+                      </span>
                     )}
 
-                    <div className="p-6">
-                      {post.post_categories && (
-                        <span className="inline-block px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold mb-3">
-                          {post.post_categories.name}
+                    <h3 className="mb-3 line-clamp-2 font-display text-xl font-bold transition-colors group-hover:text-pink">
+                      {post.title}
+                    </h3>
+
+                    <p className="mb-4 line-clamp-3 text-sm text-mute">{post.excerpt}</p>
+
+                    <div className="flex items-center justify-between font-mono text-xs text-mute">
+                      <div className="flex items-center gap-4">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="size-3" aria-hidden="true" />
+                          {new Date(post.published_at).toLocaleDateString("fr-FR")}
                         </span>
-                      )}
-
-                      <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-cyan-400 transition-colors">
-                        {post.title}
-                      </h3>
-
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
-
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            <span>{new Date(post.published_at).toLocaleDateString("fr-FR")}</span>
-                          </div>
-                          {post.profiles && (
-                            <div className="flex items-center gap-1">
-                              <User className="w-3 h-3" />
-                              <span>{post.profiles.full_name}</span>
-                            </div>
-                          )}
-                        </div>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        {post.profiles && (
+                          <span className="flex items-center gap-1">
+                            <User className="size-3" aria-hidden="true" />
+                            {post.profiles.full_name}
+                          </span>
+                        )}
                       </div>
+                      <ArrowRight className="size-4 text-ink transition-transform group-hover:translate-x-1" aria-hidden="true" />
                     </div>
                   </div>
-                </div>
-              </Link>
+                </StickerCard>
+              </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground mb-2">Aucun article pour le moment</p>
-            <p className="text-sm text-muted-foreground">Nos premiers articles arrivent bientôt!</p>
+          <div className="mx-auto max-w-md">
+            <NivEmpty
+              mood="calm"
+              title="Aucun article pour le moment"
+              description="Nos premiers articles arrivent bientôt — reviens vite !"
+            />
           </div>
         )}
       </div>

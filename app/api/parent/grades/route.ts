@@ -56,7 +56,26 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50")
     const offset = parseInt(searchParams.get("offset") || "0")
 
-    // Build query
+    // #31 — teen_grades has no parent_id; ownership flows through
+    // parent_teen_links. Resolve the parent's active teens first, then
+    // scope every grade query to those teen_ids.
+    const { data: links } = await supabase
+      .from("parent_teen_links")
+      .select("teen_id")
+      .eq("parent_id", user.id)
+      .eq("status", "active")
+    const teenIds = (links || []).map((l) => l.teen_id)
+
+    if (teenIds.length === 0) {
+      return jsonResponse({
+        grades: [],
+        pagination: { total: 0, limit, offset, hasMore: false },
+        summary: { pending: 0, approved: 0, rejected: 0, total: 0 },
+      })
+    }
+
+    // Build query. subject/subject_label are text columns on teen_grades
+    // (no subjects table to embed); teens carries first/last name.
     let query = supabase
       .from("teen_grades")
       .select(`
@@ -64,16 +83,12 @@ export async function GET(request: NextRequest) {
         teen:teen_id (
           id,
           pseudo,
-          full_name,
+          first_name,
+          last_name,
           avatar_url
-        ),
-        subject:subject_id (
-          id,
-          name,
-          category
         )
       `, { count: "exact" })
-      .eq("parent_id", user.id)
+      .in("teen_id", teenIds)
 
     // Filter by teen if specified
     if (teenId) {
@@ -82,7 +97,7 @@ export async function GET(request: NextRequest) {
 
     // Filter by status
     if (status !== "all") {
-      query = query.eq("validation_status", status)
+      query = query.eq("status", status)
     }
 
     // Order by date and apply pagination
@@ -100,13 +115,13 @@ export async function GET(request: NextRequest) {
     // Get summary stats
     const { data: stats } = await supabase
       .from("teen_grades")
-      .select("validation_status")
-      .eq("parent_id", user.id)
+      .select("status")
+      .in("teen_id", teenIds)
 
     const summary = {
-      pending: stats?.filter((g) => g.validation_status === "pending").length || 0,
-      approved: stats?.filter((g) => g.validation_status === "approved").length || 0,
-      rejected: stats?.filter((g) => g.validation_status === "rejected").length || 0,
+      pending: stats?.filter((g) => g.status === "pending").length || 0,
+      approved: stats?.filter((g) => g.status === "approved").length || 0,
+      rejected: stats?.filter((g) => g.status === "rejected").length || 0,
       total: stats?.length || 0,
     }
 
@@ -168,7 +183,20 @@ export const POST = withSecurity(
 
       const { gradeId, action, rejectionReason } = validation.data
 
-      // Get the grade and verify ownership
+      // #31 — ownership via parent_teen_links (no parent_id on teen_grades).
+      const { data: links } = await supabase
+        .from("parent_teen_links")
+        .select("teen_id")
+        .eq("parent_id", user.id)
+        .eq("status", "active")
+      const teenIds = (links || []).map((l) => l.teen_id)
+
+      if (teenIds.length === 0) {
+        return errorResponse("Note introuvable ou accès non autorisé", 404)
+      }
+
+      // Get the grade and verify it belongs to one of the parent's teens.
+      // subject/subject_label are text columns on teen_grades (no embed).
       const { data: grade, error: gradeError } = await supabase
         .from("teen_grades")
         .select(`
@@ -176,14 +204,12 @@ export const POST = withSecurity(
           teen:teen_id (
             id,
             pseudo,
-            full_name
-          ),
-          subject:subject_id (
-            name
+            first_name,
+            last_name
           )
         `)
         .eq("id", gradeId)
-        .eq("parent_id", user.id)
+        .in("teen_id", teenIds)
         .single()
 
       if (gradeError || !grade) {
@@ -191,16 +217,16 @@ export const POST = withSecurity(
       }
 
       // Check if already validated
-      if (grade.validation_status !== "pending") {
+      if (grade.status !== "pending") {
         return errorResponse(
-          `Cette note a déjà été ${grade.validation_status === "approved" ? "validée" : "rejetée"}`,
+          `Cette note a déjà été ${grade.status === "approved" ? "validée" : "rejetée"}`,
           400
         )
       }
 
       // Update the grade
       const updateData: Record<string, unknown> = {
-        validation_status: action === "approve" ? "approved" : "rejected",
+        status: action === "approve" ? "approved" : "rejected",
         validated_at: new Date().toISOString(),
         validated_by: user.id,
         updated_at: new Date().toISOString(),
@@ -227,30 +253,30 @@ export const POST = withSecurity(
         xpAwarded = 50
 
         // Bonus XP based on grade value (assuming 0-20 scale)
-        if (grade.value >= 18) {
+        if (grade.grade >= 18) {
           xpAwarded += 100 // Excellent
-        } else if (grade.value >= 16) {
+        } else if (grade.grade >= 16) {
           xpAwarded += 75 // Très bien
-        } else if (grade.value >= 14) {
+        } else if (grade.grade >= 14) {
           xpAwarded += 50 // Bien
-        } else if (grade.value >= 12) {
+        } else if (grade.grade >= 12) {
           xpAwarded += 25 // Assez bien
         }
 
-        // Check for improvement compared to previous grade
+        // Check for improvement compared to previous grade in the same subject
         const { data: previousGrade } = await supabase
           .from("teen_grades")
-          .select("value")
+          .select("grade")
           .eq("teen_id", grade.teen_id)
-          .eq("subject_id", grade.subject_id)
-          .eq("validation_status", "approved")
+          .eq("subject", grade.subject)
+          .eq("status", "approved")
           .neq("id", gradeId)
           .order("created_at", { ascending: false })
           .limit(1)
-          .single()
+          .maybeSingle()
 
-        if (previousGrade && grade.value > previousGrade.value) {
-          const improvement = grade.value - previousGrade.value
+        if (previousGrade && grade.grade > previousGrade.grade) {
+          const improvement = grade.grade - previousGrade.grade
           xpAwarded += Math.floor(improvement * 10) // 10 XP per point improved
         }
 
@@ -274,7 +300,7 @@ export const POST = withSecurity(
             p_source_type: "grade",
             p_source_category: "grade_bonus",
             p_source_id: gradeId,
-            p_description: `Note validée en ${grade.subject?.name}: ${grade.value}/20`,
+            p_description: `Note validée en ${grade.subject}: ${grade.grade}/20`,
           })
           if (xpErr) {
             console.error("[parent/grades] add_xp_to_user failed:", xpErr.message)
@@ -287,18 +313,20 @@ export const POST = withSecurity(
       // Send notification to teen
       const notificationMessage =
         action === "approve"
-          ? `Ta note en ${grade.subject?.name} (${grade.value}/20) a été validée par ton parent. ${xpAwarded > 0 ? `+${xpAwarded} XP!` : ""}`
-          : `Ta note en ${grade.subject?.name} a été rejetée par ton parent.${rejectionReason ? ` Raison: ${rejectionReason}` : ""}`
+          ? `Ta note en ${grade.subject} (${grade.grade}/20) a été validée par ton parent. ${xpAwarded > 0 ? `+${xpAwarded} XP!` : ""}`
+          : `Ta note en ${grade.subject} a été rejetée par ton parent.${rejectionReason ? ` Raison: ${rejectionReason}` : ""}`
 
-      await supabase.from("notifications").insert({
+      // #31 — canonical table is user_notifications (no `notifications`
+      // table). Columns: user_id/title/body/is_read + a data jsonb payload.
+      await supabase.from("user_notifications").insert({
         user_id: grade.teen_id,
-        type: action === "approve" ? "grade_approved" : "grade_rejected",
         title: action === "approve" ? "Note validée!" : "Note rejetée",
-        message: notificationMessage,
-        read: false,
-        resource_type: "grade",
-        resource_id: gradeId,
-        created_at: new Date().toISOString(),
+        body: notificationMessage,
+        is_read: false,
+        data: {
+          kind: action === "approve" ? "grade_approved" : "grade_rejected",
+          grade_id: gradeId,
+        },
       })
 
       // Update school score calculation (async)
@@ -336,34 +364,37 @@ async function calculateSchoolScore(teenId: string): Promise<void> {
     // Get validated grades
     const { data: grades } = await supabase
       .from("teen_grades")
-      .select("value")
+      .select("grade")
       .eq("teen_id", teenId)
-      .eq("validation_status", "approved")
+      .eq("status", "approved")
 
     // Calculate average grade
     const totalGrades = grades?.length || 0
     const averageGrade =
       totalGrades > 0
-        ? grades!.reduce((sum, g) => sum + g.value, 0) / totalGrades
+        ? grades!.reduce((sum, g) => sum + Number(g.grade), 0) / totalGrades
         : 0
 
-    // Get completed quizzes
+    // Get completed quizzes (#31 — real table is quiz_attempts; the success
+    // ratio comes from correct_count/total_questions, there is no max_score).
     const { data: quizzes } = await supabase
-      .from("quiz_completions")
-      .select("score, max_score")
+      .from("quiz_attempts")
+      .select("correct_count, total_questions")
       .eq("teen_id", teenId)
+      .not("completed_at", "is", null)
 
     const quizScore =
-      quizzes?.reduce((sum, q) => sum + (q.score / q.max_score) * 100, 0) || 0
+      quizzes?.reduce(
+        (sum, q) =>
+          sum +
+          (q.total_questions > 0 ? (q.correct_count / q.total_questions) * 100 : 0),
+        0,
+      ) || 0
     const quizCount = quizzes?.length || 0
 
-    // Get completed tutorials
-    const { data: tutorials } = await supabase
-      .from("tutorial_completions")
-      .select("id")
-      .eq("teen_id", teenId)
-
-    const tutorialCount = tutorials?.length || 0
+    // #31 — no tutorial_completions table exists in the live schema; the
+    // tutorial component of the school score is neutralised until one does.
+    const tutorialCount = 0
 
     // Calculate school score
     // Formula: (average grade * 50) + (quiz avg * 30) + (tutorials * 20)

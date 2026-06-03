@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { HolographicBorder } from '@/components/ui/effects/animated-border'
-import { FloatingParticles, RisingSparks, GlowPulse, PALETTES, SparkleTrail } from '@/components/ui/effects/particle-system'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 import { useReducedMotion } from '@/components/ui/micro-interactions'
 
@@ -34,47 +33,42 @@ function getMissionStyle(type?: string) {
   switch (type) {
     case 'daily':
       return { 
-        gradient: 'from-brand-soft via-gen-z-grape to-brand-soft', 
+        gradient: 'from-brand-soft via-pink to-brand-soft', 
         icon: '🌟', 
         color: 'lavender',
         borderGradient: 'lavender' as const,
-        particleColors: PALETTES.lavender,
         glowColor: '#8b5cf6'
       }
     case 'weekly':
       return { 
-        gradient: 'from-accent-soft via-gen-z-peach to-accent-soft', 
+        gradient: 'from-accent-soft via-gold to-accent-soft', 
         icon: '🔥', 
         color: 'coral',
         borderGradient: 'coral' as const,
-        particleColors: PALETTES.coral,
         glowColor: '#f43f5e'
       }
     case 'challenge':
       return { 
-        gradient: 'from-gen-z-lime via-success-soft to-gen-z-lime', 
+        gradient: 'from-lime via-success-soft to-lime', 
         icon: '⚡', 
         color: 'lime',
         borderGradient: 'mint' as const,
-        particleColors: PALETTES.mint,
         glowColor: '#10b981'
       }
     case 'special':
       return { 
-        gradient: 'from-neon-prestige via-gen-z-yellow to-neon-prestige', 
+        gradient: 'from-neon-prestige via-gold to-neon-prestige', 
         icon: '👑', 
         color: 'prestige',
         borderGradient: 'gold' as const,
-        particleColors: PALETTES.gold,
         glowColor: '#f59e0b'
       }
     default:
       return { 
-        gradient: 'from-accent-soft via-gen-z-peach to-accent-soft', 
+        gradient: 'from-accent-soft via-gold to-accent-soft', 
         icon: '🎯', 
         color: 'default',
         borderGradient: 'holographic' as const,
-        particleColors: PALETTES.rainbow,
         glowColor: '#f43f5e'
       }
   }
@@ -172,47 +166,16 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
           whileHover={prefersReducedMotion ? {} : { scale: 1.01 }}
           whileTap={prefersReducedMotion ? {} : { scale: 0.99 }}
           className={cn(
-            "relative h-full overflow-hidden rounded-3xl p-4 sm:p-5 cursor-pointer",
+            "relative h-full overflow-hidden rounded-2xl p-4 sm:p-5 cursor-pointer",
             "bg-gradient-to-br", style.gradient,
             "shadow-lg hover:shadow-xl transition-shadow duration-300"
           )}
           style={prefersReducedMotion ? {} : { transformStyle: 'preserve-3d' }}
         >
-          {/* Floating particles - only on full motion */}
-          {!prefersReducedMotion && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-              <FloatingParticles
-                count={isHovered ? 12 : 6}
-                colors={style.particleColors}
-                direction="up"
-                speed={isHovered ? 'medium' : 'slow'}
-                glow={true}
-              />
-            </div>
-          )}
-          
-          {/* Rising sparks for special missions - only on full motion */}
-          {!prefersReducedMotion && (mission.type === 'special' || mission.type === 'challenge') && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-              <RisingSparks
-                count={isHovered ? 8 : 4}
-                colors={style.particleColors}
-                intensity={isHovered ? 'medium' : 'low'}
-              />
-            </div>
-          )}
-          
-          {/* Decorative elements - static for reduced motion */}
-          <div 
-            className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl -mr-20 -mt-20"
-            style={{ background: `${style.glowColor}20`, opacity: 0.4 }}
-          />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full blur-2xl -ml-16 -mb-16" />
-          
           {/* Cursor-following glow effect - only on full motion */}
           {!prefersReducedMotion && (
             <motion.div
-              className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"
+              className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
               style={{
                 opacity: isHovered ? 1 : 0,
                 background: glowBackground,
@@ -223,7 +186,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
           {/* Shimmer effect - only on full motion + hover */}
           {!prefersReducedMotion && isHovered && (
             <motion.div 
-              className="absolute inset-0 pointer-events-none rounded-3xl"
+              className="absolute inset-0 pointer-events-none rounded-2xl"
               style={{
                 background: 'linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.12) 50%, transparent 75%)',
               }}
@@ -246,13 +209,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
             }}
             transition={prefersReducedMotion ? {} : { duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            {prefersReducedMotion ? (
-              <span className="drop-shadow-lg">{style.icon}</span>
-            ) : (
-              <GlowPulse color={style.glowColor} intensity="medium" speed="medium">
-                <span className="drop-shadow-lg">{style.icon}</span>
-              </GlowPulse>
-            )}
+            <span className="drop-shadow-lg">{style.icon}</span>
           </motion.div>
           
           <div 
@@ -265,7 +222,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
                 whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
                 transition={{ type: 'spring', stiffness: 400 }}
               >
-                <Badge variant="glass" size="sm" className="font-bold bg-white/20 backdrop-blur-sm border border-white/20">
+                <Badge variant="glass" size="sm" className="font-bold bg-paper-2  border border-ink">
                   {prefersReducedMotion ? (
                     <Zap className="w-3 h-3 mr-0.5" />
                   ) : (
@@ -280,7 +237,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
                 </Badge>
               </motion.div>
               {mission.type && (
-                <Badge variant="glass" size="sm" className="bg-white/10 backdrop-blur-sm border border-white/10">
+                <Badge variant="glass" size="sm" className="bg-paper-2  border border-ink">
                   {mission.type === 'daily' && '📅 Quotidien'}
                   {mission.type === 'weekly' && '📆 Hebdo'}
                   {mission.type === 'challenge' && '🏆 Défi'}
@@ -290,10 +247,10 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
             </div>
 
             {/* Mission title and description */}
-            <h3 className="text-lg sm:text-xl font-black text-white mb-1 tracking-tight line-clamp-1">
+            <h3 className="text-lg sm:text-xl font-black text-ink mb-1 tracking-tight line-clamp-1">
               {mission.name}
             </h3>
-            <p className="text-white/80 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 flex-grow">
+            <p className="text-ink/80 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 flex-grow">
               {mission.description || "Complète cette mission pour progresser !"}
             </p>
 
@@ -301,8 +258,8 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="flex-1">
                 <div className="flex justify-between text-xs mb-1.5">
-                  <span className="text-white/70 font-medium">Progression</span>
-                  <span className="text-white font-bold">{mission.progress || 0}%</span>
+                  <span className="text-ink/70 font-medium">Progression</span>
+                  <span className="text-ink font-bold">{mission.progress || 0}%</span>
                 </div>
                 <div className="relative">
                   <Progress 
@@ -310,7 +267,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
                     size="default"
                     variant="glass"
                     color="default"
-                    className="bg-white/20 h-2 [&>div]:bg-white"
+                    className="bg-paper-2 h-2 [&>div]:bg-white"
                   />
                   {/* Glowing particle at progress tip - simplified for reduced motion */}
                   {mission.progress && mission.progress > 0 && (
@@ -350,18 +307,9 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
               >
                 <Button 
                   size="lg" 
-                  className="bg-white text-gray-900 hover:bg-white/90 rounded-xl sm:rounded-2xl font-bold shadow-lg px-4 sm:px-6 h-10 sm:h-12 relative overflow-hidden group"
+                  className="bg-white text-ink hover:bg-paper-2 rounded-xl sm:rounded-2xl font-bold shadow-lg px-4 sm:px-6 h-10 sm:h-12 relative overflow-hidden group"
                   onClick={handleGoClick}
                 >
-                  {/* Button glow effect - only on full motion */}
-                  {!prefersReducedMotion && (
-                    <motion.div
-                      className="absolute inset-0 -z-10 rounded-[inherit]"
-                      style={{ background: style.glowColor, filter: 'blur(15px)' }}
-                      animate={{ opacity: [0, 0.3, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                  )}
                   <Sparkles className="w-4 h-4 mr-1 hidden sm:inline" aria-hidden="true" />
                   {mission.progress && mission.progress > 0 ? 'CONTINUER' : 'GO'}
                   {prefersReducedMotion ? (
@@ -388,7 +336,7 @@ export function PriorityMission({ action, onStart }: PriorityMissionProps) {
     <CursorHoverArea variant="pointer" magnetic={0.3} magneticDistance={150}>
       <Link 
         href={mission.href || questHref} 
-        className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded-3xl"
+        className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded-2xl"
         aria-label={`${mission.name}: ${mission.description || 'Mission prioritaire'}. Récompense: ${mission.xp} XP${mission.progress ? `, Progression: ${mission.progress}%` : ''}`}
       >
         {content}

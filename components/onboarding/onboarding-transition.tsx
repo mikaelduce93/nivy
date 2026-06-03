@@ -1,8 +1,8 @@
 'use client'
 
 /**
- * TEENS PARTY MOROCCO - Onboarding Transitions
- * ============================================
+ * Nivy - Onboarding Transitions
+ * =============================
  *
  * Composants de transition fluides pour l'onboarding:
  * - StepTransition: Wrapper animé pour les étapes
@@ -13,8 +13,9 @@
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Check, RefreshCw, Clock, ChevronRight } from 'lucide-react'
+import { StickerCard } from '@/components/ui/sticker-card'
+import { SegmentedProgress } from '@/components/ui/progress'
+import { RefreshCw, Clock, ChevronRight } from 'lucide-react'
 import type { OnboardingStep, UserType } from '@/lib/hooks/use-onboarding'
 
 /* ==========================================================================
@@ -119,7 +120,7 @@ const STEP_CONFIG: Record<
   welcome: {
     label: 'Bienvenue',
     icon: '👋',
-    description: 'Découvre Teen Club',
+    description: 'Bienvenue sur Nivy',
   },
   showcase: {
     label: 'Fonctionnalités',
@@ -155,9 +156,7 @@ const STEP_CONFIG: Record<
 
 export function ProgressIndicator({
   currentStep,
-  completedSteps,
   userType,
-  progress,
 }: ProgressIndicatorProps) {
   // Build step list based on user type
   const steps: OnboardingStep[] = [
@@ -169,106 +168,26 @@ export function ProgressIndicator({
     'completion',
   ]
 
+  const currentIndex = steps.indexOf(currentStep)
+  const activeIndex = currentIndex >= 0 ? currentIndex : 0
+  const config = STEP_CONFIG[currentStep]
+
   return (
     <div className="w-full">
-      {/* Progress Bar */}
-      <div className="relative h-2 bg-secondary/30 rounded-full overflow-hidden mb-6">
-        <motion.div
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-purple-500 to-pink-500"
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-        />
+      {/* Segmented progress charte */}
+      <SegmentedProgress steps={steps.length} current={activeIndex} size="md" />
 
-        {/* Shimmer effect */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-          animate={{ x: ['-100%', '200%'] }}
-          transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-        />
+      {/* Current step label + description */}
+      <div className="mt-3 text-center">
+        {config?.label ? (
+          <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-ink">
+            {config.label}
+          </p>
+        ) : null}
+        {config?.description ? (
+          <p className="mt-1 text-sm text-mute">{config.description}</p>
+        ) : null}
       </div>
-
-      {/* Step Dots */}
-      <div className="flex items-center justify-between">
-        {steps.map((step, index) => {
-          const isCompleted = completedSteps.includes(step)
-          const isCurrent = currentStep === step
-          const config = STEP_CONFIG[step]
-
-          return (
-            <div
-              key={`${step}-${index}`}
-              className="flex flex-col items-center gap-2"
-            >
-              {/* Dot */}
-              <motion.div
-                className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
-                  isCompleted
-                    ? 'bg-primary border-primary text-white'
-                    : isCurrent
-                    ? 'bg-background border-primary text-primary'
-                    : 'bg-background border-muted text-muted-foreground'
-                }`}
-                initial={false}
-                animate={{
-                  scale: isCurrent ? 1.1 : 1,
-                }}
-                transition={{ type: 'spring', stiffness: 300 }}
-              >
-                {isCompleted ? (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', delay: 0.1 }}
-                  >
-                    <Check className="w-5 h-5" />
-                  </motion.div>
-                ) : (
-                  <span className="text-lg">{config.icon}</span>
-                )}
-
-                {/* Pulse effect for current step */}
-                {isCurrent && (
-                  <motion.div
-                    className="absolute inset-0 rounded-full border-2 border-primary"
-                    animate={{
-                      scale: [1, 1.3, 1],
-                      opacity: [1, 0, 1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                    }}
-                  />
-                )}
-              </motion.div>
-
-              {/* Label (hidden on mobile) */}
-              <div className="hidden sm:block text-center">
-                <p
-                  className={`text-xs font-medium ${
-                    isCurrent ? 'text-primary' : 'text-muted-foreground'
-                  }`}
-                >
-                  {config.label}
-                </p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Current step description */}
-      <motion.div
-        key={currentStep}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mt-4"
-      >
-        <p className="text-sm text-muted-foreground">
-          {STEP_CONFIG[currentStep]?.description}
-        </p>
-      </motion.div>
     </div>
   )
 }
@@ -291,33 +210,30 @@ export function ResumePrompt({ currentStep, onContinue, onStartOver }: ResumePro
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40"
     >
-      <Card className="w-full max-w-md p-6 shadow-2xl border-2">
+      <StickerCard className="w-full max-w-md p-6">
         <div className="text-center space-y-4">
           {/* Icon */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', delay: 0.1 }}
-            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10"
-          >
-            <Clock className="w-8 h-8 text-primary" />
-          </motion.div>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-2 border-ink bg-pink/15">
+            <Clock className="w-8 h-8 text-pink" />
+          </div>
 
           {/* Title */}
           <div>
-            <h3 className="text-xl font-bold mb-2">Reprendre l'inscription ?</h3>
-            <p className="text-muted-foreground text-sm">
-              Vous avez commencé votre inscription. Voulez-vous continuer où vous
-              en étiez ?
+            <h3 className="font-display text-xl font-extrabold tracking-tight text-ink mb-2">
+              Reprendre ton inscription ?
+            </h3>
+            <p className="text-mute text-sm">
+              Tu as déjà commencé ton inscription sur Nivy. On reprend là où tu
+              t&apos;es arrêté ?
             </p>
           </div>
 
           {/* Current step info */}
-          <div className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-secondary/50">
+          <div className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-ink bg-paper">
             <span className="text-xl">{config?.icon}</span>
-            <span className="font-medium">{config?.label}</span>
+            <span className="font-semibold text-ink">{config?.label}</span>
           </div>
 
           {/* Actions */}
@@ -331,15 +247,16 @@ export function ResumePrompt({ currentStep, onContinue, onStartOver }: ResumePro
               Recommencer
             </Button>
             <Button
+              variant="pink"
               onClick={onContinue}
-              className="flex-1 gap-2 bg-gradient-to-r from-primary to-purple-500 text-white"
+              className="flex-1 gap-2"
             >
               Continuer
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
-      </Card>
+      </StickerCard>
     </motion.div>
   )
 }
@@ -355,7 +272,7 @@ interface StepHeaderProps {
   subtitle?: string
 }
 
-export function StepHeader({ icon, iconGradient, title, subtitle }: StepHeaderProps) {
+export function StepHeader({ icon, title, subtitle }: StepHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -366,15 +283,15 @@ export function StepHeader({ icon, iconGradient, title, subtitle }: StepHeaderPr
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-        className={`inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br ${iconGradient} mb-4`}
+        className="inline-flex items-center justify-center w-20 h-20 rounded-full border-2 border-ink bg-pink mb-4"
       >
         {icon}
       </motion.div>
 
-      <h2 className="text-3xl sm:text-4xl font-black mb-3">{title}</h2>
+      <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink mb-3">{title}</h2>
 
       {subtitle && (
-        <p className="text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>
+        <p className="text-mute max-w-2xl mx-auto">{subtitle}</p>
       )}
     </motion.div>
   )
@@ -420,9 +337,10 @@ export function StepNavigation({
       )}
 
       <Button
+        variant="pink"
         onClick={onNext}
         disabled={!canGoNext || isLoading}
-        className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white disabled:opacity-50"
+        className="gap-2"
       >
         {isLoading ? (
           <>

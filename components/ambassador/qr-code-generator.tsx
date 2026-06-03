@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
+import { toDataURL } from "qrcode"
 import { Button } from "@/components/ui/button"
-import { Download, QrCode } from "lucide-react"
+import { Download } from "lucide-react"
 import { toast } from "sonner"
+import { StickerCard } from "@/components/ui/sticker-card"
 
 interface QRCodeGeneratorProps {
   referralLink: string
@@ -12,101 +14,35 @@ interface QRCodeGeneratorProps {
 
 export function QRCodeGenerator({ referralLink, referralCode }: QRCodeGeneratorProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    generateQRCode()
-  }, [referralLink])
-
-  const generateQRCode = async () => {
-    // Simple QR code generation using canvas
-    // In production, you would use a library like qrcode.js
-    try {
-      // Create a simple placeholder for the QR code
-      // In production, use a proper QR code library
-      const canvas = canvasRef.current
-      if (!canvas) return
-
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-
-      const size = 200
-      canvas.width = size
-      canvas.height = size
-
-      // Background
-      ctx.fillStyle = '#ffffff'
-      ctx.fillRect(0, 0, size, size)
-
-      // Create a simple visual pattern (placeholder)
-      ctx.fillStyle = '#10b981'
-
-      // Border
-      ctx.strokeStyle = '#10b981'
-      ctx.lineWidth = 8
-      ctx.strokeRect(4, 4, size - 8, size - 8)
-
-      // Center logo area
-      ctx.fillStyle = '#10b981'
-      ctx.beginPath()
-      ctx.arc(size / 2, size / 2, 30, 0, 2 * Math.PI)
-      ctx.fill()
-
-      // TC text
-      ctx.fillStyle = '#ffffff'
-      ctx.font = 'bold 20px Arial'
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText('TC', size / 2, size / 2)
-
-      // Add corner markers (QR code style)
-      const cornerSize = 30
-      ctx.fillStyle = '#10b981'
-
-      // Top-left
-      ctx.fillRect(15, 15, cornerSize, cornerSize)
-      ctx.fillStyle = '#ffffff'
-      ctx.fillRect(20, 20, cornerSize - 10, cornerSize - 10)
-      ctx.fillStyle = '#10b981'
-      ctx.fillRect(25, 25, cornerSize - 20, cornerSize - 20)
-
-      // Top-right
-      ctx.fillStyle = '#10b981'
-      ctx.fillRect(size - 15 - cornerSize, 15, cornerSize, cornerSize)
-      ctx.fillStyle = '#ffffff'
-      ctx.fillRect(size - 10 - cornerSize, 20, cornerSize - 10, cornerSize - 10)
-      ctx.fillStyle = '#10b981'
-      ctx.fillRect(size - 5 - cornerSize, 25, cornerSize - 20, cornerSize - 20)
-
-      // Bottom-left
-      ctx.fillStyle = '#10b981'
-      ctx.fillRect(15, size - 15 - cornerSize, cornerSize, cornerSize)
-      ctx.fillStyle = '#ffffff'
-      ctx.fillRect(20, size - 10 - cornerSize, cornerSize - 10, cornerSize - 10)
-      ctx.fillStyle = '#10b981'
-      ctx.fillRect(25, size - 5 - cornerSize, cornerSize - 20, cornerSize - 20)
-
-      // Add code text at bottom
-      ctx.fillStyle = '#18181b'
-      ctx.font = 'bold 14px Arial'
-      ctx.fillText(referralCode, size / 2, size - 60)
-
-      // Generate data URL
-      const dataUrl = canvas.toDataURL('image/png')
-      setQrDataUrl(dataUrl)
-    } catch (error) {
-      console.error('QR generation error:', error)
+    let active = true
+    // Real, scannable QR encoding the referral link (qrcode dep, also used in
+    // features/anniversaires + api/bookings). Replaces the old decorative
+    // canvas pattern that was not a valid QR.
+    toDataURL(referralLink, {
+      width: 200,
+      margin: 1,
+      color: { dark: "#0e0c1a", light: "#ffffff" },
+    })
+      .then((url) => {
+        if (active) setQrDataUrl(url)
+      })
+      .catch(() => {
+        if (active) setQrDataUrl(null)
+      })
+    return () => {
+      active = false
     }
-  }
+  }, [referralLink])
 
   const handleDownload = () => {
     if (!qrDataUrl) {
       toast.error("QR Code non généré")
       return
     }
-
-    const link = document.createElement('a')
-    link.download = `teenclub-qr-${referralCode}.png`
+    const link = document.createElement("a")
+    link.download = `nivy-qr-${referralCode}.png`
     link.href = qrDataUrl
     link.click()
     toast.success("QR Code téléchargé !")
@@ -114,21 +50,24 @@ export function QRCodeGenerator({ referralLink, referralCode }: QRCodeGeneratorP
 
   return (
     <div className="flex flex-col items-center space-y-4">
-      <div className="bg-white rounded-xl p-4">
-        <canvas
-          ref={canvasRef}
-          width={200}
-          height={200}
-          className="w-[200px] h-[200px]"
-        />
-      </div>
-      <p className="text-xs text-zinc-400 text-center">
-        Scannez ce QR code pour accéder à votre lien de parrainage
-      </p>
-      <Button
-        onClick={handleDownload}
-        className="bg-emerald-500 hover:bg-emerald-600 text-white"
-      >
+      <StickerCard className="items-center p-4">
+        {qrDataUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- data URL, no Next optimization
+          <img
+            src={qrDataUrl}
+            alt={`QR code de parrainage ${referralCode}`}
+            width={200}
+            height={200}
+            className="h-[200px] w-[200px] rounded-lg"
+          />
+        ) : (
+          <div className="grid h-[200px] w-[200px] place-items-center rounded-lg text-sm text-mute">
+            Génération…
+          </div>
+        )}
+      </StickerCard>
+      <p className="text-xs text-mute text-center">Scanne pour rejoindre Nivy avec ton code parrain</p>
+      <Button variant="lime" onClick={handleDownload} disabled={!qrDataUrl}>
         <Download className="h-4 w-4 mr-2" />
         Télécharger le QR Code
       </Button>

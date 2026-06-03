@@ -96,13 +96,13 @@ export default function CookiesPage() {
           <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-1">
-                <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-5 h-5 text-green-500" />
+                <div className="w-10 h-10 rounded-full bg-lime/10 flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-5 h-5 text-lime" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="text-lg font-bold">Cookies essentiels</h3>
-                    <span className="text-xs bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-lime/20 text-lime px-2 py-0.5 rounded-full">
                       Toujours actifs
                     </span>
                   </div>
@@ -124,8 +124,8 @@ export default function CookiesPage() {
           <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-1">
-                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                  <Settings className="w-5 h-5 text-blue-500" />
+                <div className="w-10 h-10 rounded-full bg-teal/10 flex items-center justify-center flex-shrink-0">
+                  <Settings className="w-5 h-5 text-teal" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold mb-2">Cookies fonctionnels</h3>
@@ -150,8 +150,8 @@ export default function CookiesPage() {
           <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-1">
-                <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                  <BarChart3 className="w-5 h-5 text-purple-500" />
+                <div className="w-10 h-10 rounded-full bg-pink/10 flex items-center justify-center flex-shrink-0">
+                  <BarChart3 className="w-5 h-5 text-pink" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold mb-2">Cookies analytiques</h3>
@@ -176,8 +176,8 @@ export default function CookiesPage() {
           <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-1">
-                <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                  <Target className="w-5 h-5 text-orange-500" />
+                <div className="w-10 h-10 rounded-full bg-coral/10 flex items-center justify-center flex-shrink-0">
+                  <Target className="w-5 h-5 text-coral" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold mb-2">Cookies marketing</h3>

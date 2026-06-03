@@ -81,9 +81,11 @@ export class ContextEngine {
       eventsResult,
       presenceResult
     ] = await Promise.all([
-      // 1. Basic profile (no PII).
+      // 1. Basic profile (no PII). Drift schéma corrigé : pseudo/city/
+      // date_of_birth/archetype vivent sur `teens` (profiles n'expose que
+      // avatar_url). canon-allow: doc.
       supabase
-        .from('profiles')
+        .from('teens')
         .select('pseudo, city, avatar_url, date_of_birth, archetype')
         .eq('id', userId)
         .limit(1)
@@ -141,6 +143,12 @@ export class ContextEngine {
         .catch(() => ({ data: [] }))
     ])
 
+    // Le query builder ne *rejette* pas sur erreur SQL (42703…) — il résout
+    // { data, error }. Le `.catch` ne couvre que le réseau ; on inspecte donc
+    // result.error pour rendre tout drift résiduel visible en logs.
+    if (profileResult?.error) {
+      console.error('[ContextEngine] teen profile fetch error:', profileResult.error)
+    }
     const profile = profileResult?.data
     const teenProfile = teenProfileResult?.data
     const xpData = xpResult?.data
@@ -210,9 +218,10 @@ export class ContextEngine {
       budgetsResult,
       profilesResult
     ] = await Promise.all([
-      // 1. Pending approvals
+      // 1. Pending approvals — #25: booking_approval_requests never existed;
+      // canonical table is parental_approvals.
       supabase
-        .from('booking_approval_requests')
+        .from('parental_approvals')
         .select('id')
         .eq('parent_id', userId)
         .eq('status', 'pending')
@@ -239,9 +248,10 @@ export class ContextEngine {
 
       // 4. Teen pseudos + DOB only — children full names are FORBIDDEN
       // in any AI prompt. See docs/canon/personalization-ai.locked.md.
+      // Drift schéma corrigé : pseudo/date_of_birth vivent sur `teens`.
       teenIds.length
         ? supabase
-            .from('profiles')
+            .from('teens')
             .select('id, pseudo, date_of_birth')
             .in('id', teenIds)
             .catch(() => ({ data: [] }))
@@ -346,48 +356,41 @@ export class ContextEngine {
   }
 
   private static async gatherAmbassadorContext(supabase: any, userId: string) {
-    // Parallel fetch
-    const [
-      ambassadorResult,
-      referralsResult,
-      commissionsResult
-    ] = await Promise.all([
-      // Ambassador profile
-      supabase
-        .from('ambassadors')
-        .select('id, referral_code, total_earnings, current_rank')
-        .eq('user_id', userId)
-        .limit(1)
-        .maybeSingle()
-        .catch(() => ({ data: null })),
-      
-      // Referral count
-      supabase
-        .from('referrals')
-        .select('id')
-        .eq('referred_by', userId)
-        .catch(() => ({ data: [] })),
-      
-      // This month's commissions
-      supabase
-        .from('ambassador_commissions')
-        .select('amount')
-        .eq('ambassador_id', userId)
-        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
-        .catch(() => ({ data: [] }))
+    // #33 — resolve the ambassador row first; both ambassador_commissions and
+    // referral_attribution key on ambassadors.id, not the user id. Use the
+    // real columns (code/tier; the old referral_code/total_earnings/
+    // current_rank/`referrals` table don't exist).
+    const { data: ambassador } = await supabase
+      .from('ambassadors')
+      .select('id, code, tier')
+      .eq('user_id', userId)
+      .limit(1)
+      .maybeSingle()
+      .catch(() => ({ data: null }))
+
+    const ambassadorId = ambassador?.id ?? null
+    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+
+    const [referralsResult, monthCommissionsResult, allCommissionsResult] = await Promise.all([
+      ambassadorId
+        ? supabase.from('referral_attribution').select('id').eq('ambassador_id', ambassadorId).catch(() => ({ data: [] }))
+        : Promise.resolve({ data: [] }),
+      ambassadorId
+        ? supabase.from('ambassador_commissions').select('amount_dh').eq('ambassador_id', ambassadorId).gte('created_at', monthStart).catch(() => ({ data: [] }))
+        : Promise.resolve({ data: [] }),
+      ambassadorId
+        ? supabase.from('ambassador_commissions').select('amount_dh').eq('ambassador_id', ambassadorId).catch(() => ({ data: [] }))
+        : Promise.resolve({ data: [] }),
     ])
 
-    const ambassador = ambassadorResult?.data
     const referrals = referralsResult?.data || []
-    const commissions = commissionsResult?.data || []
-
-    const currentMonthCommission = commissions.reduce((sum: number, c: any) => sum + (c.amount || 0), 0)
+    const sumDh = (rows: any[]) => rows.reduce((s: number, c: any) => s + (Number(c.amount_dh) || 0), 0)
 
     return {
-      referralCode: ambassador?.referral_code,
-      currentRank: ambassador?.current_rank || 'Bronze',
-      totalEarnings: ambassador?.total_earnings || 0,
-      currentMonthCommission,
+      referralCode: ambassador?.code,
+      currentRank: ambassador?.tier || 'Bronze',
+      totalEarnings: sumDh(allCommissionsResult?.data || []),
+      currentMonthCommission: sumDh(monthCommissionsResult?.data || []),
       referralCount: referrals.length,
       activeCampaigns: [] // Could fetch from campaigns table
     }

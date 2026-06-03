@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { headers } from "next/headers"
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Bricolage_Grotesque, Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/components/navbar"
@@ -30,21 +29,26 @@ import "leaflet/dist/leaflet.css"
 
 const APP_CONFIG = getPublicAppConfig()
 
-// Premium Typography - Silicon Valley Grade
-// Geist: Modern, Clean, Highly Legible (by Vercel)
-const geistSans = Geist({
+// Typographie — charte refonte V1.5 (polices variables, cf. docs/refonte/00-CHARTE-GRAPHIQUE-NIVY.md §2)
+// Bricolage Grotesque — display/titres (éditorial, emphase italique)
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-geist",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-bricolage",
 })
 
-// Geist Mono: Perfect for numbers, code, technical content
-const geistMono = Geist_Mono({
+// Inter — corps de texte / UI
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-geist-mono",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
+})
+
+// JetBrains Mono — eyebrows, labels uppercase, montants/stats
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jetbrains",
 })
 
 export const metadata: Metadata = {
@@ -144,8 +148,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#06b6d4" },
+    { media: "(prefers-color-scheme: light)", color: "#f4ede0" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e0c1a" },
   ],
 }
 
@@ -154,9 +158,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Get nonce from headers (set by middleware)
-  const headersList = await headers()
-  const nonce = headersList.get('x-nonce') || ''
   const locale = await getLocale()
 
   // i18n: derive `lang` and `dir` from the active locale so AR (MSA) renders
@@ -167,7 +168,7 @@ export default async function RootLayout({
   const htmlDir = isRtlLocale(locale) ? 'rtl' : 'ltr'
 
   return (
-    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* Preconnect to external resources for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -175,12 +176,13 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
         <link rel="dns-prefetch" href="https://teensparty.supabase.co" />
 
-        {/* Preload critical resources */}
-        <link rel="preload" href="/teens-party-event.jpg" as="image" type="image/jpeg" />
 
+        {/* JSON-LD est un bloc de données (non exécuté) : non soumis au CSP
+            script-src, donc aucun nonce requis. Passer un nonce par requête ici
+            provoquait un mismatch d'hydratation (le nonce est retiré du payload
+            RSC), d'où l'« Application error » côté client. */}
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -229,7 +231,7 @@ export default async function RootLayout({
         <AppProviders>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
@@ -281,8 +283,8 @@ export default async function RootLayout({
             <SentryUserContext />
             <SentryWebVitals />
 
-            <Analytics />
-            
+            {process.env.NODE_ENV === "production" && <Analytics />}
+
             {/* Sonner Toaster for toast notifications */}
             <Toaster />
           </AnnounceRegion>

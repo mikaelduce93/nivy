@@ -27,6 +27,7 @@ export function ChoreVerifyButtons({
   const [loading, setLoading] = useState<"approve" | "reject" | null>(null)
   const [rejectOpen, setRejectOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState("")
+  const [confirmed, setConfirmed] = useState<"approve" | "reject" | null>(null)
 
   // Wave 4B — replace native window.prompt with a Dialog (canon §0 alert/
   // confirm/prompt forbidden, accessibility + reduced friction on mobile).
@@ -56,6 +57,7 @@ export function ChoreVerifyButtons({
         } else {
           toast.success("Refusé")
         }
+        setConfirmed(approved ? "approve" : "reject")
         router.refresh()
       } else {
         toast.error(data.error || "Erreur")
@@ -69,14 +71,27 @@ export function ChoreVerifyButtons({
     }
   }
 
+  if (confirmed) {
+    return (
+      <div className="flex items-center gap-2 font-mono text-xs">
+        <span className="grid size-6 place-items-center rounded-full border-2 border-ink bg-lime">
+          <Check className="size-3.5 text-ink" strokeWidth={4} aria-hidden />
+        </span>
+        <span className="text-ink-2">
+          {confirmed === "approve" ? "Validé" : "Refusé"}
+        </span>
+      </div>
+    )
+  }
+
   return (
     <>
       <div className="flex items-center gap-2">
         <Button
           size="sm"
+          variant="lime"
           onClick={() => send(true)}
           disabled={loading !== null}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
         >
           {loading === "approve" ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -92,7 +107,6 @@ export function ChoreVerifyButtons({
           variant="outline"
           onClick={() => setRejectOpen(true)}
           disabled={loading !== null}
-          className="border-red-500/40 text-red-400 hover:bg-red-500/10"
         >
           {loading === "reject" ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -133,9 +147,9 @@ export function ChoreVerifyButtons({
               Annuler
             </Button>
             <Button
+              variant="destructive"
               onClick={() => send(false)}
               disabled={loading !== null}
-              className="bg-red-600 hover:bg-red-700 text-white"
             >
               {loading === "reject" ? (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden />

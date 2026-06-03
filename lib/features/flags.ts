@@ -29,6 +29,7 @@ const CACHE_TTL = 60 * 1000 // 60 secondes
  */
 export type FeatureFlag =
   | 'new_payment_method' // Nouveau système de paiement
+  | 'stripe_payment' // Paiement par carte Stripe (#46)
   | 'cmi_payment' // Paiement CMI
   | 'mobile_money_payment' // Paiement Mobile Money
   | 'xp_payment' // Paiement avec XP
@@ -40,12 +41,14 @@ export type FeatureFlag =
   | 'staging_validation' // Validation staging automatique
   | 'enhanced_monitoring' // Monitoring avancé
   | 'pwa_offline_mode' // Mode offline PWA
+  | 'legacy_agent_sheet' // Legacy AgentSheet/FriendMap IA panel — off by default (#63)
 
 /**
  * Configuration par défaut des flags (fallback si Edge Config indisponible)
  */
 const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
   new_payment_method: false,
+  stripe_payment: false, // off at launch — enable when the Stripe gateway is configured (#46)
   cmi_payment: false,
   mobile_money_payment: false,
   xp_payment: true, // Activé par défaut
@@ -57,6 +60,7 @@ const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
   staging_validation: false,
   enhanced_monitoring: true, // Activé par défaut
   pwa_offline_mode: false,
+  legacy_agent_sheet: false, // #63 — legacy IA panel off by default (DELETE in V1.5)
 }
 
 /**

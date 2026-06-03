@@ -101,7 +101,7 @@ export function PhysicalChallengeActions({
 
   if (isCompleted) {
     return (
-      <p className="text-xs font-bold uppercase tracking-wider text-emerald-300 px-1 py-2">
+      <p className="text-xs font-bold uppercase tracking-wider text-lime px-1 py-2">
         <Check className="inline h-3 w-3 mr-1" />
         Validé
       </p>
@@ -110,7 +110,7 @@ export function PhysicalChallengeActions({
 
   if (pendingValidation) {
     return (
-      <p className="text-xs italic text-amber-300 px-1 py-2">
+      <p className="text-xs italic text-gold px-1 py-2">
         En attente de validation modérateur…
       </p>
     )
@@ -122,7 +122,7 @@ export function PhysicalChallengeActions({
         size="sm"
         onClick={handleStart}
         disabled={pending}
-        className="w-full bg-orange-500 hover:bg-orange-600 text-black font-black uppercase tracking-wider"
+        className="w-full bg-coral hover:bg-coral text-ink font-black uppercase tracking-wider"
       >
         {pending ? (
           <Loader2 className="h-4 w-4 mr-1 animate-spin" />

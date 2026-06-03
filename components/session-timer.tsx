@@ -73,15 +73,15 @@ export function SessionTimer({
   const isUrgent = timeLeft < 120 // Less than 2 minutes
 
   return (
-    <Card className={`p-4 ${isUrgent ? 'bg-red-500/10 border-red-500/30 animate-pulse' : 'bg-orange-500/10 border-orange-500/30'}`}>
+    <Card className={`p-4 ${isUrgent ? 'bg-destructive/10 border-destructive/30 animate-pulse' : 'bg-coral/10 border-coral/30'}`}>
       <div className="flex items-center gap-3">
-        <Clock className={`w-5 h-5 ${isUrgent ? 'text-red-500' : 'text-orange-500'}`} />
+        <Clock className={`w-5 h-5 ${isUrgent ? 'text-destructive' : 'text-coral'}`} />
         <div className="flex-1">
           <p className="font-semibold text-sm">
             {timeLeft > 0 ? 'Places réservées pour' : 'Réservation expirée'}
           </p>
           <div className="flex items-center gap-2">
-            <p className={`text-2xl font-black font-mono ${isUrgent ? 'text-red-500' : 'text-orange-500'}`}>
+            <p className={`text-2xl font-black font-mono ${isUrgent ? 'text-destructive' : 'text-coral'}`}>
               {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
             </p>
             {timeLeft > 0 && (

@@ -96,17 +96,15 @@ export default async function AuthRedirectPage() {
     }
 
     case "ambassador": {
-      // Wave 6B — ambassador.profile_id (not user_id). The column is
-      // canonical `profile_id` everywhere else in the codebase
-      // (app/ambassador/**, /api/ambassador/**, lib/auth/get-user-role.ts).
-      // Per Wave 1A invariant profile_id == auth.users.id, so the lookup
-      // value is unchanged — only the column name was wrong, which made
-      // the row always come back null and routed every approved
-      // ambassador to /ambassador/onboarding/awaiting-approval forever.
+      // #34 — `ambassadors` keys on `user_id` (FK auth.users). There is no
+      // `profile_id` column; reading it threw/returned null and routed every
+      // approved ambassador to awaiting-approval forever. Per Wave 1A
+      // invariant profiles.id == auth.users.id, so the lookup value is
+      // user.id either way — only the column name was wrong.
       const { data: ambassadorRow } = await supabase
         .from("ambassadors")
         .select("status")
-        .eq("profile_id", user.id)
+        .eq("user_id", user.id)
         .maybeSingle()
       const status = ambassadorRow?.status as string | undefined
       redirect(

@@ -1,14 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, useReducedMotion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { FieldInput } from "@/components/ui/field-input"
+import { Niv, NivCoach } from "@/components/brand"
 import {
-  ArrowRight, ArrowLeft, User, Mail, Phone, Calendar,
-  ChevronLeft, ChevronRight, Loader2, CheckCircle2, Heart, Info,
+  ChevronLeft, Loader2, CheckCircle2,
   Sparkles, Brain, Compass
 } from 'lucide-react'
 import { toast } from "sonner"
@@ -82,7 +80,6 @@ interface TeenSetupStepProps {
 
 export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
   const [loading, setLoading] = useState(false)
-  const prefersReducedMotion = useReducedMotion()
   const [formData, setFormData] = useState({
     teenFirstName: '',
     teenLastName: '',
@@ -128,10 +125,6 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
       element?.focus()
     }
   }, [errors])
-
-  const fadeUp = (delay: number) => prefersReducedMotion
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { delay } }
-    : { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { delay } }
 
   const calculateAge = (birthDate: string) => {
     const today = new Date()
@@ -273,331 +266,274 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <motion.div
-        {...(prefersReducedMotion
-          ? { initial: { opacity: 0 }, animate: { opacity: 1 } }
-          : { initial: { opacity: 0, y: -20 }, animate: { opacity: 1, y: 0 } }
-        )}
-        className="text-center"
-      >
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mb-4" aria-hidden="true">
-          <Heart className="w-8 h-8 text-white" />
+      <div className="text-center">
+        <div className="flex justify-center mb-4">
+          <Niv mood="happy" size={80} float />
         </div>
-        <h2 className="text-3xl sm:text-4xl font-black mb-3 text-balance">Crée ton compte Ado</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
+        <p className="eyebrow tracking-[0.18em] text-mute mb-3">Compte ado</p>
+        <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-balance text-ink">Crée ton compte <em className="font-semibold italic text-pink">ado</em></h2>
+        <p className="text-mute max-w-2xl mx-auto text-balance">
           Tes parents vont recevoir un email pour valider ton inscription
         </p>
-      </motion.div>
+      </div>
 
       {/* Form */}
-      <motion.div {...fadeUp(0.2)}>
-        <Card className="p-6 sm:p-8 max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-            {/* Teen Info */}
-            <div className="space-y-4">
-              <h3 className="font-bold text-lg">Tes informations</h3>
+      <StickerCard className="p-6 sm:p-8 max-w-2xl mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          {/* Teen Info */}
+          <div className="space-y-4">
+            <h3 className="font-display font-bold text-lg text-ink">Tes informations</h3>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="teenFirstName">Ton prénom *</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                    <Input
-                      id="teenFirstName"
-                      name="teenFirstName"
-                      autoComplete="given-name"
-                      placeholder="Ton prénom…"
-                      aria-invalid={!!errors.teenFirstName}
-                      aria-describedby={errors.teenFirstName ? "teenFirstName-error" : undefined}
-                      className={`pl-10 ${errors.teenFirstName ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                      value={formData.teenFirstName}
-                      onChange={(e) => handleInputChange('teenFirstName', e.target.value)}
-                    />
-                  </div>
-                  {errors.teenFirstName && (
-                    <p id="teenFirstName-error" className="text-xs text-red-500" role="alert">{errors.teenFirstName}</p>
-                  )}
-                </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <FieldInput
+                id="teenFirstName"
+                name="teenFirstName"
+                label="Ton prénom *"
+                autoComplete="given-name"
+                placeholder="Ton prénom…"
+                error={errors.teenFirstName}
+                value={formData.teenFirstName}
+                onChange={(e) => handleInputChange('teenFirstName', e.target.value)}
+              />
 
-                <div className="space-y-2">
-                  <Label htmlFor="teenLastName">Ton nom *</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                    <Input
-                      id="teenLastName"
-                      name="teenLastName"
-                      autoComplete="family-name"
-                      placeholder="Ton nom…"
-                      aria-invalid={!!errors.teenLastName}
-                      aria-describedby={errors.teenLastName ? "teenLastName-error" : undefined}
-                      className={`pl-10 ${errors.teenLastName ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                      value={formData.teenLastName}
-                      onChange={(e) => handleInputChange('teenLastName', e.target.value)}
-                    />
-                  </div>
-                  {errors.teenLastName && (
-                    <p id="teenLastName-error" className="text-xs text-red-500" role="alert">{errors.teenLastName}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Ta date de naissance *</Label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                  <Input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    type="date"
-                    autoComplete="bday"
-                    aria-invalid={!!errors.dateOfBirth}
-                    aria-describedby={errors.dateOfBirth ? "dateOfBirth-error" : "dateOfBirth-hint"}
-                    className={`pl-10 ${errors.dateOfBirth ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                    value={formData.dateOfBirth}
-                    onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-                {errors.dateOfBirth && (
-                  <p id="dateOfBirth-error" className="text-xs text-red-500" role="alert">{errors.dateOfBirth}</p>
-                )}
-                {formData.dateOfBirth && !errors.dateOfBirth && (
-                  <p id="dateOfBirth-hint" className="text-xs text-green-600" aria-live="polite">
-                    Tu as {calculateAge(formData.dateOfBirth)}&nbsp;ans
-                  </p>
-                )}
-              </div>
+              <FieldInput
+                id="teenLastName"
+                name="teenLastName"
+                label="Ton nom *"
+                autoComplete="family-name"
+                placeholder="Ton nom…"
+                error={errors.teenLastName}
+                value={formData.teenLastName}
+                onChange={(e) => handleInputChange('teenLastName', e.target.value)}
+              />
             </div>
 
-            {/* Parent Info */}
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-bold text-lg">Coordonnées de tes parents</h3>
+            <FieldInput
+              id="dateOfBirth"
+              name="dateOfBirth"
+              type="date"
+              label="Ta date de naissance *"
+              autoComplete="bday"
+              error={errors.dateOfBirth}
+              hint={
+                formData.dateOfBirth && !errors.dateOfBirth
+                  ? `Tu as ${calculateAge(formData.dateOfBirth)} ans`
+                  : undefined
+              }
+              value={formData.dateOfBirth}
+              onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="parentEmail">Email d'un parent *</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                  <Input
-                    id="parentEmail"
-                    name="parentEmail"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="off"
-                    spellCheck={false}
-                    placeholder="parent@email.com"
-                    aria-invalid={!!errors.parentEmail}
-                    aria-describedby={errors.parentEmail ? "parentEmail-error" : undefined}
-                    className={`pl-10 ${errors.parentEmail ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                    value={formData.parentEmail}
-                    onChange={(e) => handleInputChange('parentEmail', e.target.value)}
-                  />
-                </div>
-                {errors.parentEmail && (
-                  <p id="parentEmail-error" className="text-xs text-red-500" role="alert">{errors.parentEmail}</p>
-                )}
-              </div>
+          {/* Parent Info */}
+          <div className="space-y-4 pt-4 border-t-2 border-ink/10">
+            <h3 className="font-display font-bold text-lg text-ink">Coordonnées de tes parents</h3>
 
-              <div className="space-y-2">
-                <Label htmlFor="parentPhone">Téléphone d'un parent *</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                  <Input
-                    id="parentPhone"
-                    name="parentPhone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="off"
-                    placeholder="0612345678"
-                    aria-invalid={!!errors.parentPhone}
-                    aria-describedby={errors.parentPhone ? "parentPhone-error" : undefined}
-                    className={`pl-10 ${errors.parentPhone ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                    value={formData.parentPhone}
-                    onChange={(e) => handleInputChange('parentPhone', e.target.value)}
-                  />
-                </div>
-                {errors.parentPhone && (
-                  <p id="parentPhone-error" className="text-xs text-red-500" role="alert">{errors.parentPhone}</p>
-                )}
-              </div>
-            </div>
+            <FieldInput
+              id="parentEmail"
+              name="parentEmail"
+              type="email"
+              label="Email d'un parent *"
+              inputMode="email"
+              autoComplete="off"
+              spellCheck={false}
+              placeholder="parent@email.com"
+              error={errors.parentEmail}
+              value={formData.parentEmail}
+              onChange={(e) => handleInputChange('parentEmail', e.target.value)}
+            />
 
-            {/* TICKET-031 — Interest chip teaser (Step A from
-                personalization-engine.md §10). Pre-auth, non-persisting:
-                writes to localStorage so /onboarding/interests can hydrate
-                the full 50-tag selector after parent approval + sign-in. */}
-            <div className="space-y-3 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 ring-1 ring-cyan-500/30">
-                  <Sparkles className="w-4 h-4 text-cyan-500" aria-hidden="true" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base leading-tight">Qu'est-ce qui te fait vibrer&nbsp;?</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Pré-sélectionne quelques centres d'intérêt — tu pourras affiner après.
-                  </p>
-                </div>
-              </div>
+            <FieldInput
+              id="parentPhone"
+              name="parentPhone"
+              type="tel"
+              label="Téléphone d'un parent *"
+              inputMode="tel"
+              autoComplete="off"
+              prefix="🇲🇦 +212"
+              placeholder="0612345678 ou +212612345678"
+              error={errors.parentPhone}
+              value={formData.parentPhone}
+              onChange={(e) => handleInputChange('parentPhone', e.target.value)}
+            />
+          </div>
 
-              <div
-                role="group"
-                aria-label="Aperçu des centres d'intérêt"
-                className="flex flex-wrap gap-2"
-              >
-                {INTEREST_PREVIEW_CHIPS.map((chip) => {
-                  const isOn = previewSelected.has(chip.tag)
-                  return (
-                    <button
-                      key={chip.tag}
-                      type="button"
-                      onClick={() => togglePreview(chip.tag)}
-                      aria-pressed={isOn}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-medium",
-                        "border transition-all duration-150 active:scale-95 select-none",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                        isOn
-                          ? "bg-gradient-to-r from-cyan-500 to-emerald-500 text-white border-transparent shadow-sm shadow-cyan-500/30"
-                          : "bg-background hover:bg-muted/60 border-border/80 text-foreground"
-                      )}
-                    >
-                      <span aria-hidden="true">{chip.icon}</span>
-                      <span>{chip.label}</span>
-                    </button>
-                  )
-                })}
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span
-                  className={cn(
-                    "tabular-nums font-semibold",
-                    previewSelected.size > 0 ? "text-cyan-600 dark:text-cyan-400" : "text-muted-foreground"
-                  )}
-                  aria-live="polite"
-                >
-                  {previewSelected.size} sélectionné{previewSelected.size > 1 ? "s" : ""} / 10 max
-                </span>
-                <span className="text-muted-foreground">
-                  Plus de 50 catégories à découvrir ensuite
-                </span>
-              </div>
-            </div>
-
-            {/* TICKET-032 — Learning style chips (Step C from
-                personalization-engine.md §10). Single-pick, optional.
-                Persisted to localStorage; post-auth flow calls
-                /api/onboarding/profile to write to teens.learning_style. */}
-            <div className="space-y-3 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 ring-1 ring-violet-500/30">
-                  <Brain className="w-4 h-4 text-violet-500" aria-hidden="true" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base leading-tight">Comment tu apprends le mieux&nbsp;?</h3>
-                  <p className="text-xs text-muted-foreground">
-                    On adapte le contenu à ta façon de capter (optionnel).
-                  </p>
-                </div>
-              </div>
-
-              <div
-                role="radiogroup"
-                aria-label="Style d'apprentissage préféré"
-                className="grid grid-cols-2 gap-2"
-              >
-                {LEARNING_STYLE_CHIPS.map((opt) => {
-                  const isOn = learningStyle === opt.value
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      role="radio"
-                      aria-checked={isOn}
-                      onClick={() => setLearningStyle(isOn ? null : opt.value)}
-                      className={cn(
-                        "flex items-start gap-2.5 p-3 rounded-2xl text-left",
-                        "border transition-all duration-150 active:scale-[0.98] select-none",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                        isOn
-                          ? "bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 border-violet-500/60 shadow-sm"
-                          : "bg-background hover:bg-muted/60 border-border/80"
-                      )}
-                    >
-                      <span className="text-2xl shrink-0" aria-hidden="true">{opt.icon}</span>
-                      <span className="flex flex-col min-w-0">
-                        <span className="text-sm font-semibold">{opt.label}</span>
-                        <span className="text-xs text-muted-foreground leading-tight">{opt.hint}</span>
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* TICKET-032 — Archetype quick-pick. 4 archetypes
-                (creator/explorer/competitor/social) drive avatar tone +
-                content-type bias in the recommender. Single-pick, optional. */}
-            <div className="space-y-3 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 ring-1 ring-amber-500/30">
-                  <Compass className="w-4 h-4 text-amber-500" aria-hidden="true" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base leading-tight">Tu te reconnais dans quel profil&nbsp;?</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Choisis celui qui te ressemble le plus (optionnel).
-                  </p>
-                </div>
-              </div>
-
-              <div
-                role="radiogroup"
-                aria-label="Profil d'archetype"
-                className="grid grid-cols-2 gap-2"
-              >
-                {ARCHETYPE_CHIPS.map((opt) => {
-                  const isOn = archetype === opt.value
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      role="radio"
-                      aria-checked={isOn}
-                      onClick={() => setArchetype(isOn ? null : opt.value)}
-                      className={cn(
-                        "flex items-start gap-2.5 p-3 rounded-2xl text-left",
-                        "border transition-all duration-150 active:scale-[0.98] select-none",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                        isOn
-                          ? "bg-gradient-to-br from-amber-500/15 to-orange-500/15 border-amber-500/60 shadow-sm"
-                          : "bg-background hover:bg-muted/60 border-border/80"
-                      )}
-                    >
-                      <span className="text-2xl shrink-0" aria-hidden="true">{opt.icon}</span>
-                      <span className="flex flex-col min-w-0">
-                        <span className="text-sm font-semibold">{opt.label}</span>
-                        <span className="text-xs text-muted-foreground leading-tight">{opt.hint}</span>
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Info Note */}
-            <div className="flex items-start gap-3 p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl">
-              <Info className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-purple-600 dark:text-purple-400">
-                <p className="font-medium mb-1">Pourquoi ces informations&nbsp;?</p>
-                <p className="text-xs opacity-90">
-                  Pour ta sécurité, tes parents doivent valider ton inscription. Ils recevront un email
-                  avec un lien pour créer leur compte parent et approuver ton profil.
+          {/* TICKET-031 — Interest chip teaser (Step A from
+              personalization-engine.md §10). Pre-auth, non-persisting:
+              writes to localStorage so /onboarding/interests can hydrate
+              the full 50-tag selector after parent approval + sign-in. */}
+          <div className="space-y-3 pt-4 border-t-2 border-ink/10">
+            <div className="flex items-center gap-2">
+              <span className="grid size-8 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper">
+                <Sparkles className="w-4 h-4 text-teal" aria-hidden="true" />
+              </span>
+              <div>
+                <h3 className="font-display font-bold text-base leading-tight text-ink">Qu'est-ce qui te fait vibrer&nbsp;?</h3>
+                <p className="text-xs text-mute">
+                  Pré-sélectionne quelques centres d'intérêt — tu pourras affiner après.
                 </p>
               </div>
             </div>
-          </form>
-        </Card>
-      </motion.div>
+
+            <div
+              role="group"
+              aria-label="Aperçu des centres d'intérêt"
+              className="flex flex-wrap gap-2"
+            >
+              {INTEREST_PREVIEW_CHIPS.map((chip) => {
+                const isOn = previewSelected.has(chip.tag)
+                return (
+                  <button
+                    key={chip.tag}
+                    type="button"
+                    onClick={() => togglePreview(chip.tag)}
+                    aria-pressed={isOn}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-medium",
+                      "border-2 border-ink transition-all duration-150 active:scale-95 select-none",
+                      "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
+                      isOn
+                        ? "bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink"
+                        : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm"
+                    )}
+                  >
+                    <span aria-hidden="true">{chip.icon}</span>
+                    <span>{chip.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="flex items-center justify-between text-xs">
+              <span
+                className={cn(
+                  "tabular-nums font-semibold",
+                  previewSelected.size > 0 ? "text-teal" : "text-mute"
+                )}
+                aria-live="polite"
+              >
+                {previewSelected.size} sélectionné{previewSelected.size > 1 ? "s" : ""} / 10 max
+              </span>
+              <span className="text-mute">
+                Plus de 50 catégories à découvrir ensuite
+              </span>
+            </div>
+          </div>
+
+          {/* TICKET-032 — Learning style chips (Step C from
+              personalization-engine.md §10). Single-pick, optional.
+              Persisted to localStorage; post-auth flow calls
+              /api/onboarding/profile to write to teens.learning_style. */}
+          <div className="space-y-3 pt-4 border-t-2 border-ink/10">
+            <div className="flex items-center gap-2">
+              <span className="grid size-8 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper">
+                <Brain className="w-4 h-4 text-pink" aria-hidden="true" />
+              </span>
+              <div>
+                <h3 className="font-display font-bold text-base leading-tight text-ink">Comment tu apprends le mieux&nbsp;?</h3>
+                <p className="text-xs text-mute">
+                  On adapte le contenu à ta façon de capter (optionnel).
+                </p>
+              </div>
+            </div>
+
+            <div
+              role="radiogroup"
+              aria-label="Style d'apprentissage préféré"
+              className="grid grid-cols-2 gap-2"
+            >
+              {LEARNING_STYLE_CHIPS.map((opt) => {
+                const isOn = learningStyle === opt.value
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={isOn}
+                    onClick={() => setLearningStyle(isOn ? null : opt.value)}
+                    className={cn(
+                      "flex items-start gap-2.5 p-3 rounded-2xl text-left",
+                      "border-2 border-ink transition-all duration-150 active:scale-[0.98] select-none",
+                      "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
+                      isOn
+                        ? "bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink"
+                        : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm"
+                    )}
+                  >
+                    <span className="text-2xl shrink-0" aria-hidden="true">{opt.icon}</span>
+                    <span className="flex flex-col min-w-0">
+                      <span className="text-sm font-semibold">{opt.label}</span>
+                      <span className={cn("text-xs leading-tight", isOn ? "text-paper/70" : "text-mute")}>{opt.hint}</span>
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* TICKET-032 — Archetype quick-pick. 4 archetypes
+              (creator/explorer/competitor/social) drive avatar tone +
+              content-type bias in the recommender. Single-pick, optional. */}
+          <div className="space-y-3 pt-4 border-t-2 border-ink/10">
+            <div className="flex items-center gap-2">
+              <span className="grid size-8 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper">
+                <Compass className="w-4 h-4 text-gold" aria-hidden="true" />
+              </span>
+              <div>
+                <h3 className="font-display font-bold text-base leading-tight text-ink">Tu te reconnais dans quel profil&nbsp;?</h3>
+                <p className="text-xs text-mute">
+                  Choisis celui qui te ressemble le plus (optionnel).
+                </p>
+              </div>
+            </div>
+
+            <div
+              role="radiogroup"
+              aria-label="Profil d'archetype"
+              className="grid grid-cols-2 gap-2"
+            >
+              {ARCHETYPE_CHIPS.map((opt) => {
+                const isOn = archetype === opt.value
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={isOn}
+                    onClick={() => setArchetype(isOn ? null : opt.value)}
+                    className={cn(
+                      "flex items-start gap-2.5 p-3 rounded-2xl text-left",
+                      "border-2 border-ink transition-all duration-150 active:scale-[0.98] select-none",
+                      "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
+                      isOn
+                        ? "bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink"
+                        : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm"
+                    )}
+                  >
+                    <span className="text-2xl shrink-0" aria-hidden="true">{opt.icon}</span>
+                    <span className="flex flex-col min-w-0">
+                      <span className="text-sm font-semibold">{opt.label}</span>
+                      <span className={cn("text-xs leading-tight", isOn ? "text-paper/70" : "text-mute")}>{opt.hint}</span>
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Coach Niv — rassure sur la validation parentale */}
+          <NivCoach
+            mood="calm"
+            message={
+              <>
+                Pour ta sécurité, tes parents doivent valider ton inscription. Ils recevront un
+                email avec un lien pour créer leur compte parent et approuver ton profil.
+              </>
+            }
+          />
+        </form>
+      </StickerCard>
 
       {/* Navigation */}
       <div className="flex items-center justify-between gap-4">
@@ -612,10 +548,11 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
         </Button>
 
         <Button
+          variant="pink"
           onClick={handleSubmit}
           disabled={loading}
           aria-busy={loading}
-          className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="gap-2"
         >
           {loading ? (
             <>

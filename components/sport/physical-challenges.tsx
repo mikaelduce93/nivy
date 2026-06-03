@@ -91,17 +91,17 @@ function ChallengeCard({
   const [showProofModal, setShowProofModal] = useState(false)
 
   const difficultyConfig = {
-    easy: { color: "text-green-400", bg: "bg-green-500/10", label: "Facile" },
-    medium: { color: "text-yellow-400", bg: "bg-yellow-500/10", label: "Moyen" },
-    hard: { color: "text-orange-400", bg: "bg-orange-500/10", label: "Difficile" },
-    extreme: { color: "text-red-400", bg: "bg-red-500/10", label: "Extreme" },
+    easy: { color: "text-lime", bg: "bg-lime/10", label: "Facile" },
+    medium: { color: "text-gold", bg: "bg-gold/10", label: "Moyen" },
+    hard: { color: "text-coral", bg: "bg-coral/10", label: "Difficile" },
+    extreme: { color: "text-destructive", bg: "bg-destructive/10", label: "Extreme" },
   }
 
   const typeConfig = {
-    daily: { color: "text-blue-400", bg: "bg-blue-500/10", label: "Quotidien", icon: Calendar },
-    weekly: { color: "text-purple-400", bg: "bg-purple-500/10", label: "Hebdo", icon: Calendar },
-    monthly: { color: "text-cyan-400", bg: "bg-cyan-500/10", label: "Mensuel", icon: Calendar },
-    special: { color: "text-yellow-400", bg: "bg-yellow-500/10", label: "Special", icon: Trophy },
+    daily: { color: "text-teal", bg: "bg-teal/10", label: "Quotidien", icon: Calendar },
+    weekly: { color: "text-pink", bg: "bg-pink/10", label: "Hebdo", icon: Calendar },
+    monthly: { color: "text-teal", bg: "bg-teal/10", label: "Mensuel", icon: Calendar },
+    special: { color: "text-gold", bg: "bg-gold/10", label: "Special", icon: Trophy },
   }
 
   const difficulty = difficultyConfig[challenge.difficulty]
@@ -116,8 +116,8 @@ function ChallengeCard({
         className={cn(
           "overflow-hidden transition-all",
           challenge.is_completed
-            ? "bg-green-500/10 border-green-500/30"
-            : "bg-zinc-900 border-zinc-800"
+            ? "bg-lime/10 border-lime/30"
+            : "bg-card border-ink"
         )}
       >
         {/* Header */}
@@ -128,12 +128,12 @@ function ChallengeCard({
           <div className="flex items-start gap-4">
             <div className={cn(
               "w-14 h-14 rounded-2xl flex items-center justify-center",
-              challenge.is_completed ? "bg-green-500/20" : "bg-gradient-to-br from-cyan-500/20 to-blue-500/20"
+              challenge.is_completed ? "bg-lime/20" : "bg-gradient-to-br from-teal/20 to-teal/20"
             )}>
               {challenge.is_completed ? (
-                <CheckCircle2 className="w-7 h-7 text-green-400" />
+                <CheckCircle2 className="w-7 h-7 text-lime" />
               ) : (
-                <Target className="w-7 h-7 text-cyan-400" />
+                <Target className="w-7 h-7 text-teal" />
               )}
             </div>
 
@@ -147,17 +147,17 @@ function ChallengeCard({
                 </span>
               </div>
 
-              <h3 className="font-bold text-white line-clamp-1">{challenge.name}</h3>
-              <p className="text-sm text-zinc-500 line-clamp-1">{challenge.description}</p>
+              <h3 className="font-bold text-ink line-clamp-1">{challenge.name}</h3>
+              <p className="text-sm text-mute line-clamp-1">{challenge.description}</p>
 
               {/* Progress bar */}
               {challenge.is_started && !challenge.is_completed && (
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-zinc-400">
+                    <span className="text-mute">
                       {challenge.progress?.current_value || 0} / {challenge.objective_value} {challenge.objective_unit}
                     </span>
-                    <span className="text-cyan-400">{progressPercent}%</span>
+                    <span className="text-teal">{progressPercent}%</span>
                   </div>
                   <Progress value={progressPercent} className="h-2" />
                 </div>
@@ -165,12 +165,12 @@ function ChallengeCard({
             </div>
 
             <div className="flex flex-col items-end gap-2">
-              <span className="flex items-center gap-1 text-cyan-400 text-sm font-medium">
+              <span className="flex items-center gap-1 text-teal text-sm font-medium">
                 <Zap className="w-4 h-4" />
                 +{challenge.xp_reward} XP
               </span>
               <ChevronRight className={cn(
-                "w-5 h-5 text-zinc-600 transition-transform",
+                "w-5 h-5 text-mute transition-transform",
                 isExpanded && "rotate-90"
               )} />
             </div>
@@ -186,24 +186,24 @@ function ChallengeCard({
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-4 border-t border-zinc-800 pt-4">
+              <div className="px-4 pb-4 border-t border-ink pt-4">
                 {!challenge.is_started ? (
                   <Button
                     onClick={(e) => {
                       e.stopPropagation()
                       onStart()
                     }}
-                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                    className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal"
                   >
                     <Play className="w-4 h-4 mr-2" />
                     Commencer le defi
                   </Button>
                 ) : challenge.is_completed ? (
                   <div className="text-center">
-                    <CheckCircle2 className="w-12 h-12 text-green-400 mx-auto mb-2" />
-                    <p className="text-green-400 font-medium">Defi complete !</p>
+                    <CheckCircle2 className="w-12 h-12 text-lime mx-auto mb-2" />
+                    <p className="text-lime font-medium">Defi complete !</p>
                     {challenge.progress?.xp_earned && (
-                      <p className="text-sm text-zinc-400">
+                      <p className="text-sm text-mute">
                         +{challenge.progress.xp_earned} XP gagnes
                       </p>
                     )}
@@ -212,7 +212,7 @@ function ChallengeCard({
                   <div className="space-y-4">
                     {/* Update progress */}
                     <div>
-                      <label className="text-sm text-zinc-400 mb-2 block">
+                      <label className="text-sm text-mute mb-2 block">
                         Mettre a jour ta progression
                       </label>
                       <div className="flex gap-2">
@@ -223,7 +223,7 @@ function ChallengeCard({
                           onClick={(e) => e.stopPropagation()}
                           min={0}
                           max={challenge.objective_value}
-                          className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-white"
+                          className="flex-1 bg-card border border-ink rounded-xl px-4 py-2 text-ink"
                         />
                         <Button
                           onClick={(e) => {
@@ -231,7 +231,7 @@ function ChallengeCard({
                             onUpdate(inputValue)
                           }}
                           variant="outline"
-                          className="border-zinc-700"
+                          className="border-ink"
                         >
                           Sauver
                         </Button>
@@ -244,7 +244,7 @@ function ChallengeCard({
                         e.stopPropagation()
                         setShowProofModal(true)
                       }}
-                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                      className="w-full bg-gradient-to-r from-lime to-lime hover:from-lime hover:to-lime"
                     >
                       <CheckCircle2 className="w-4 h-4 mr-2" />
                       Valider le defi
@@ -315,24 +315,24 @@ function ProofUploadModal({ isOpen, onClose, onSubmit, challengeName }: ProofUpl
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/80"
+        className="absolute inset-0 bg-ink/80"
         onClick={onClose}
       />
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="relative bg-zinc-900 rounded-2xl p-6 max-w-md w-full border border-zinc-800"
+        className="relative bg-card rounded-2xl p-6 max-w-md w-full border border-ink"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white"
+          className="absolute top-4 right-4 text-mute hover:text-ink"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-xl font-bold text-white mb-2">Valider le defi</h3>
-        <p className="text-sm text-zinc-500 mb-6">{challengeName}</p>
+        <h3 className="text-xl font-bold text-ink mb-2">Valider le defi</h3>
+        <p className="text-sm text-mute mb-6">{challengeName}</p>
 
         {/* Proof type selection */}
         <div className="grid grid-cols-3 gap-3 mb-6">
@@ -347,17 +347,17 @@ function ProofUploadModal({ isOpen, onClose, onSubmit, challengeName }: ProofUpl
               className={cn(
                 "p-4 rounded-xl flex flex-col items-center gap-2 transition-all",
                 proofType === option.type
-                  ? "bg-cyan-500/20 border-2 border-cyan-500"
-                  : "bg-zinc-800 border-2 border-transparent hover:border-zinc-700"
+                  ? "bg-teal/20 border-2 border-teal"
+                  : "bg-card border-2 border-transparent hover:border-ink"
               )}
             >
               <option.icon className={cn(
                 "w-6 h-6",
-                proofType === option.type ? "text-cyan-400" : "text-zinc-400"
+                proofType === option.type ? "text-teal" : "text-mute"
               )} />
               <span className={cn(
                 "text-sm",
-                proofType === option.type ? "text-cyan-400" : "text-zinc-400"
+                proofType === option.type ? "text-teal" : "text-mute"
               )}>
                 {option.label}
               </span>
@@ -396,24 +396,24 @@ function ProofUploadModal({ isOpen, onClose, onSubmit, challengeName }: ProofUpl
                 )}
                 <button
                   onClick={() => setPreviewUrl(null)}
-                  className="absolute top-2 right-2 p-2 bg-black/50 rounded-full"
+                  className="absolute top-2 right-2 p-2 bg-ink/50 rounded-full"
                 >
-                  <X className="w-4 h-4 text-white" />
+                  <X className="w-4 h-4 text-ink" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-48 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center gap-3 hover:border-cyan-500/50 transition-colors"
+                className="w-full h-48 border-2 border-dashed border-ink rounded-xl flex flex-col items-center justify-center gap-3 hover:border-teal/50 transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-card flex items-center justify-center">
                   {proofType === "photo" ? (
-                    <ImageIcon className="w-6 h-6 text-zinc-400" />
+                    <ImageIcon className="w-6 h-6 text-mute" />
                   ) : (
-                    <Video className="w-6 h-6 text-zinc-400" />
+                    <Video className="w-6 h-6 text-mute" />
                   )}
                 </div>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-mute">
                   Clique pour ajouter {proofType === "photo" ? "une photo" : "une video"}
                 </p>
               </button>
@@ -423,8 +423,8 @@ function ProofUploadModal({ isOpen, onClose, onSubmit, challengeName }: ProofUpl
 
         {/* Manual confirmation message */}
         {proofType === "manual" && (
-          <div className="mb-6 p-4 bg-yellow-500/10 rounded-xl">
-            <p className="text-sm text-yellow-400">
+          <div className="mb-6 p-4 bg-gold/10 rounded-xl">
+            <p className="text-sm text-gold">
               En validant manuellement, tu confirmes sur l'honneur avoir complete ce defi.
             </p>
           </div>
@@ -434,7 +434,7 @@ function ProofUploadModal({ isOpen, onClose, onSubmit, challengeName }: ProofUpl
         <Button
           onClick={handleSubmit}
           disabled={uploading || (proofType !== "manual" && !previewUrl)}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+          className="w-full bg-gradient-to-r from-lime to-lime hover:from-lime hover:to-lime"
         >
           {uploading ? (
             <>
@@ -502,7 +502,7 @@ export function ChallengeTimer({ duration, onComplete }: ChallengeTimerProps) {
   }
 
   return (
-    <Card className="p-6 bg-zinc-900 border-zinc-800">
+    <Card className="p-6 bg-card border-ink">
       <div className="text-center">
         {/* Timer display */}
         <div className="relative w-48 h-48 mx-auto mb-6">
@@ -514,7 +514,7 @@ export function ChallengeTimer({ duration, onComplete }: ChallengeTimerProps) {
               stroke="currentColor"
               strokeWidth="8"
               fill="none"
-              className="text-zinc-800"
+              className="text-ink"
             />
             <circle
               cx="96"
@@ -527,7 +527,7 @@ export function ChallengeTimer({ duration, onComplete }: ChallengeTimerProps) {
               strokeDashoffset={552 - (552 * progress) / 100}
               className={cn(
                 "transition-all duration-1000",
-                isComplete ? "text-green-500" : "text-cyan-500"
+                isComplete ? "text-lime" : "text-teal"
               )}
               strokeLinecap="round"
             />
@@ -535,7 +535,7 @@ export function ChallengeTimer({ duration, onComplete }: ChallengeTimerProps) {
           <div className="absolute inset-0 flex items-center justify-center">
             <span className={cn(
               "text-4xl font-bold font-mono",
-              isComplete ? "text-green-400" : "text-white"
+              isComplete ? "text-lime" : "text-ink"
             )}>
               {isComplete ? (
                 <CheckCircle2 className="w-16 h-16" />
@@ -555,8 +555,8 @@ export function ChallengeTimer({ duration, onComplete }: ChallengeTimerProps) {
               className={cn(
                 "w-16 h-16 rounded-full",
                 isRunning
-                  ? "bg-yellow-500 hover:bg-yellow-600"
-                  : "bg-cyan-500 hover:bg-cyan-600"
+                  ? "bg-gold hover:bg-gold"
+                  : "bg-teal hover:bg-teal"
               )}
             >
               {isRunning ? (
@@ -570,7 +570,7 @@ export function ChallengeTimer({ duration, onComplete }: ChallengeTimerProps) {
             onClick={reset}
             size="lg"
             variant="outline"
-            className="w-16 h-16 rounded-full border-zinc-700"
+            className="w-16 h-16 rounded-full border-ink"
           >
             <RotateCcw className="w-6 h-6" />
           </Button>
@@ -688,7 +688,7 @@ export function PhysicalChallengesDashboard({ teenId }: PhysicalChallengesDashbo
     return (
       <div className="space-y-4 animate-pulse">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-32 bg-zinc-800 rounded-2xl" />
+          <div key={i} className="h-32 bg-card rounded-2xl" />
         ))}
       </div>
     )
@@ -699,25 +699,25 @@ export function PhysicalChallengesDashboard({ teenId }: PhysicalChallengesDashbo
       {/* Stats header */}
       {stats && (
         <div className="grid grid-cols-4 gap-4">
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Target className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.total}</p>
-            <p className="text-xs text-zinc-500">Total</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Target className="w-6 h-6 text-teal mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.total}</p>
+            <p className="text-xs text-mute">Total</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Flame className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.started}</p>
-            <p className="text-xs text-zinc-500">En cours</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Flame className="w-6 h-6 text-coral mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.started}</p>
+            <p className="text-xs text-mute">En cours</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Trophy className="w-6 h-6 text-green-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.completed}</p>
-            <p className="text-xs text-zinc-500">Completes</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Trophy className="w-6 h-6 text-lime mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.completed}</p>
+            <p className="text-xs text-mute">Completes</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Zap className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.totalXpEarned}</p>
-            <p className="text-xs text-zinc-500">XP gagnes</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Zap className="w-6 h-6 text-gold mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.totalXpEarned}</p>
+            <p className="text-xs text-mute">XP gagnes</p>
           </Card>
         </div>
       )}
@@ -738,8 +738,8 @@ export function PhysicalChallengesDashboard({ teenId }: PhysicalChallengesDashbo
               className={cn(
                 "px-4 py-2 rounded-xl text-sm font-medium transition-all",
                 filterType === filter.id
-                  ? "bg-cyan-500 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                  ? "bg-teal text-ink"
+                  : "bg-card text-mute hover:bg-muted"
               )}
             >
               {filter.label}
@@ -759,8 +759,8 @@ export function PhysicalChallengesDashboard({ teenId }: PhysicalChallengesDashbo
               className={cn(
                 "px-4 py-2 rounded-xl text-sm font-medium transition-all",
                 filterStatus === filter.id
-                  ? "bg-purple-500 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                  ? "bg-pink text-ink"
+                  : "bg-card text-mute hover:bg-muted"
               )}
             >
               {filter.label}
@@ -786,10 +786,10 @@ export function PhysicalChallengesDashboard({ teenId }: PhysicalChallengesDashbo
 
       {/* Empty state */}
       {challenges.length === 0 && (
-        <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-          <Target className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">Aucun defi trouve</h3>
-          <p className="text-zinc-400">
+        <Card className="p-8 bg-card border-ink text-center">
+          <Target className="w-12 h-12 text-mute mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-ink mb-2">Aucun defi trouve</h3>
+          <p className="text-mute">
             {filterStatus === "active"
               ? "Tu n'as pas de defi en cours. Lance-toi !"
               : filterStatus === "completed"
@@ -840,7 +840,7 @@ export function ChallengesWidget({ teenId, limit = 3, onSeeAll }: ChallengesWidg
     return (
       <div className="space-y-3 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 bg-zinc-800 rounded-xl" />
+          <div key={i} className="h-16 bg-card rounded-xl" />
         ))}
       </div>
     )
@@ -851,16 +851,16 @@ export function ChallengesWidget({ teenId, limit = 3, onSeeAll }: ChallengesWidg
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-white flex items-center gap-2">
-          <Target className="w-4 h-4 text-cyan-400" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Target className="w-4 h-4 text-teal" />
           Defis en cours
         </h3>
         {onSeeAll && (
           <button
             onClick={onSeeAll}
-            className="text-sm text-cyan-400 hover:underline"
+            className="text-sm text-teal hover:underline"
           >
             Voir tout
           </button>
@@ -871,19 +871,19 @@ export function ChallengesWidget({ teenId, limit = 3, onSeeAll }: ChallengesWidg
         {challenges.map((challenge) => (
           <div
             key={challenge.id}
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
+            className="flex items-center gap-3 p-2 rounded-lg hover:bg-card transition-colors"
           >
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
-              <Target className="w-5 h-5 text-cyan-400" />
+            <div className="w-10 h-10 rounded-xl bg-teal/10 flex items-center justify-center">
+              <Target className="w-5 h-5 text-teal" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-white font-medium truncate">{challenge.name}</p>
+              <p className="text-sm text-ink font-medium truncate">{challenge.name}</p>
               <div className="flex items-center gap-2">
                 <Progress
                   value={challenge.progress?.progress_percent || 0}
                   className="h-1.5 flex-1"
                 />
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-mute">
                   {challenge.progress?.progress_percent || 0}%
                 </span>
               </div>

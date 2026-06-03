@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getUserRole } from '@/lib/auth/get-user-role'
 
 /**
  * Server Actions exécutables par les Agents AI
@@ -12,23 +13,22 @@ import { revalidatePath } from 'next/cache'
 
 export async function performCheckIn(venueName: string, xpReward: number = 50) {
   try {
+    // #212 — drift corrigé : teen_id canonique = teenData.id (pas auth.uid brut),
+    // et signature RPC complète (p_source_category / p_source_id) comme la voie
+    // de référence app/api/teen/quests/complete.
+    const userInfo = await getUserRole()
+    if (!userInfo || userInfo.role !== 'teen' || !userInfo.teenData?.id) {
+      return { success: false, message: "Non authentifié" }
+    }
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) return { success: false, message: "Non authentifié" }
 
-    // 1. Appeler la RPC 'add_xp_to_user' définie dans 000_base_tables.sql
-    // Note: On utilise le user.id comme teen_id pour simplifier, 
-    // mais idéalement il faudrait mapper auth.uid -> teen.id
-    
-    // Récupérer le vrai teen_id si nécessaire (dépend de votre auth)
-    // Ici on assume que user.id EST le teen_id dans la table user_xp pour les teens
-    
     const { data, error } = await supabase.rpc('add_xp_to_user', {
-      p_teen_id: user.id,
+      p_teen_id: userInfo.teenData.id,
       p_xp_amount: xpReward,
       p_source_type: 'check_in',
-      p_description: `Check-in à ${venueName}`
+      p_source_category: 'check_in',
+      p_source_id: null,
+      p_description: `Check-in à ${venueName}`,
     })
 
     if (error) {
@@ -74,9 +74,10 @@ export async function updateBudgetLimit(category: string, amount: number) {
       }, { onConflict: 'parent_id, category' })
 
     if (error) {
-      // Fallback si la table n'existe pas encore (pour ne pas casser la démo totalement)
-      console.warn("Table budget_limits missing, using settings fallback")
-      return { success: true, message: `Plafond '${category}' mis à jour à ${amount} MAD (Simulé - Table manquante).` }
+      // #202 — échec honnête : on ne renvoie plus un faux succès « Simulé » qui
+      // ment au parent. Si l'écriture échoue, on le dit.
+      console.error("[agent-actions] updateBudgetLimit failed:", error)
+      return { success: false, message: `Impossible de mettre à jour le plafond '${category}' pour le moment.` }
     }
 
     revalidatePath('/parent')
@@ -90,21 +91,31 @@ export async function updateBudgetLimit(category: string, amount: number) {
 
 export async function createFlashOffer(title: string, discount: number) {
   try {
+    // #212 — drift corrigé : la table canonique est `partner_offers` (pas `offers`),
+    // partner_id résolu via le profil partenaire, et une offre n'est JAMAIS live à
+    // la création (status='pending_approval', is_active=false → modération admin).
+    const userInfo = await getUserRole()
+    if (!userInfo || userInfo.role !== 'partner' || !userInfo.partnerData?.id) {
+      return { success: false, message: "Non authentifié" }
+    }
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const now = new Date()
 
-    if (!user) return { success: false, message: "Non authentifié" }
-
-    // Insertion réelle dans la table 'offers' standard
-    const { error } = await supabase.from('offers').insert({
-      partner_id: user.id,
-      title: title,
+    const { error } = await supabase.from('partner_offers').insert({
+      partner_id: userInfo.partnerData.id,
+      title,
       description: `Offre Flash générée par IA : -${discount}%`,
-      discount_percent: discount,
-      status: 'active',
-      type: 'flash',
-      valid_from: new Date().toISOString(),
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24h
+      offer_type: 'discount',
+      discount_type: 'percentage',
+      discount_value: discount,
+      discount_pct: discount,
+      valid_from: now.toISOString(),
+      valid_until: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(), // 24h
+      status: 'pending_approval',
+      is_active: false,
+      requires_vip: false,
+      current_total_uses: 0,
+      tags: [],
     })
 
     if (error) {
@@ -113,8 +124,9 @@ export async function createFlashOffer(title: string, discount: number) {
     }
 
     revalidatePath('/partner')
-    return { success: true, message: `Offre Flash "${title}" (-${discount}%) publiée avec succès !` }
+    return { success: true, message: `Offre Flash "${title}" (-${discount}%) soumise pour modération.` }
   } catch (e) {
+    console.error("createFlashOffer error:", e)
     return { success: false, message: "Erreur technique création offre" }
   }
 }
@@ -128,15 +140,19 @@ export async function shareReferralCode() {
     
     if (!user) return { success: false, message: "Non authentifié" }
 
-    // Récupérer le code réel
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('referral_code')
-      .eq('id', user.id)
-      .single()
+    // Drift schéma corrigé : `referral_code` n'est PAS une colonne (de profiles
+    // ou ailleurs). Le code canonique vient de la RPC get_or_create_referral_code
+    // (renvoie un jsonb { success, code, ... }).
+    const { data: referral, error: referralErr } = await supabase
+      .rpc('get_or_create_referral_code', { p_user_id: user.id })
 
-    const code = profile?.referral_code || "CODE-NON-DEFINI"
-    
+    if (referralErr) {
+      console.error("[agent-actions] shareReferralCode RPC error:", referralErr)
+      return { success: false, message: "Impossible de récupérer votre code pour le moment." }
+    }
+
+    const code = (referral as { code?: string } | null)?.code || "CODE-NON-DEFINI"
+
     // Dans un contexte serveur, on ne peut pas écrire dans le presse-papier client
     // On retourne le code pour que le client l'affiche/copie
     return { 

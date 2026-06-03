@@ -143,10 +143,10 @@ function CreationCard({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
     >
-      <Card className="overflow-hidden bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+      <Card className="overflow-hidden bg-card border-ink hover:border-ink transition-colors">
         {/* Media preview */}
         <div
-          className="relative aspect-square bg-zinc-800 cursor-pointer group"
+          className="relative aspect-square bg-card cursor-pointer group"
           onClick={onView}
         >
           {creation.media_type === "image" && (
@@ -172,43 +172,43 @@ function CreationCard({
               >
                 <track kind="captions" srcLang="fr" label="Francais" />
               </video>
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
-                  <Play className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 flex items-center justify-center bg-ink/30 group-hover:bg-ink/50 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-paper-2  flex items-center justify-center">
+                  <Play className="w-6 h-6 text-ink" />
                 </div>
               </div>
             </>
           )}
 
           {creation.media_type === "audio" && (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink/20 to-pink/20">
               <div className="text-center">
-                <Music className="w-16 h-16 text-purple-400 mx-auto mb-2" />
-                <p className="text-sm text-zinc-400">Audio</p>
+                <Music className="w-16 h-16 text-pink mx-auto mb-2" />
+                <p className="text-sm text-mute">Audio</p>
               </div>
             </div>
           )}
 
           {creation.media_type === "document" && (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-teal/20 to-teal/20">
               <div className="text-center">
-                <FileText className="w-16 h-16 text-blue-400 mx-auto mb-2" />
-                <p className="text-sm text-zinc-400">Document</p>
+                <FileText className="w-16 h-16 text-teal mx-auto mb-2" />
+                <p className="text-sm text-mute">Document</p>
               </div>
             </div>
           )}
 
           {/* Featured badge */}
           {creation.is_featured && (
-            <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-yellow-500 text-black text-xs font-bold flex items-center gap-1">
+            <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-gold text-ink text-xs font-bold flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
               Featured
             </div>
           )}
 
           {/* Media type badge */}
-          <div className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-black/50 backdrop-blur">
-            <MediaIcon className="w-4 h-4 text-white" />
+          <div className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-ink/50 ">
+            <MediaIcon className="w-4 h-4 text-ink" />
           </div>
         </div>
 
@@ -217,7 +217,7 @@ function CreationCard({
           {/* Author info */}
           {creation.teens && (
             <div className="flex items-center gap-2 mb-2">
-              <div className="relative w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center overflow-hidden">
+              <div className="relative w-6 h-6 rounded-full bg-gradient-to-br from-teal to-teal flex items-center justify-center overflow-hidden">
                 {creation.teens.avatar_url ? (
                   <NextImage
                     src={creation.teens.avatar_url}
@@ -228,29 +228,29 @@ function CreationCard({
                     unoptimized
                   />
                 ) : (
-                  <span className="text-xs text-white font-bold">
+                  <span className="text-xs text-ink font-bold">
                     {creation.teens.first_name[0]}
                   </span>
                 )}
               </div>
-              <span className="text-xs text-zinc-400">{creation.teens.first_name}</span>
-              <span className="text-xs text-zinc-600">•</span>
-              <span className="text-xs text-zinc-600">{formatDate(creation.created_at)}</span>
+              <span className="text-xs text-mute">{creation.teens.first_name}</span>
+              <span className="text-xs text-mute">•</span>
+              <span className="text-xs text-mute">{formatDate(creation.created_at)}</span>
             </div>
           )}
 
           {/* Title */}
-          <h4 className="font-bold text-white line-clamp-1 mb-1">{creation.title}</h4>
+          <h4 className="font-bold text-ink line-clamp-1 mb-1">{creation.title}</h4>
 
           {/* Description */}
           {creation.description && (
-            <p className="text-sm text-zinc-500 line-clamp-2 mb-3">{creation.description}</p>
+            <p className="text-sm text-mute line-clamp-2 mb-3">{creation.description}</p>
           )}
 
           {/* Path badge */}
           {creation.passion_paths && (
             <div className="mb-3">
-              <span className="text-xs px-2 py-1 rounded-full bg-purple-500/10 text-purple-400">
+              <span className="text-xs px-2 py-1 rounded-full bg-pink/10 text-pink">
                 {creation.passion_paths.name}
               </span>
             </div>
@@ -266,14 +266,14 @@ function CreationCard({
                 }}
                 className={cn(
                   "flex items-center gap-1 transition-colors",
-                  isLiked ? "text-pink-500" : "text-zinc-400 hover:text-pink-500"
+                  isLiked ? "text-pink" : "text-mute hover:text-pink"
                 )}
               >
                 <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
                 <span className="text-sm">{likesCount}</span>
               </button>
 
-              <button className="flex items-center gap-1 text-zinc-400 hover:text-cyan-400 transition-colors">
+              <button className="flex items-center gap-1 text-mute hover:text-teal transition-colors">
                 <Share2 className="w-5 h-5" />
               </button>
             </div>
@@ -285,7 +285,7 @@ function CreationCard({
                   e.stopPropagation()
                   setShowMenu(!showMenu)
                 }}
-                className="text-zinc-400 hover:text-white transition-colors"
+                className="text-mute hover:text-ink transition-colors"
               >
                 <MoreHorizontal className="w-5 h-5" />
               </button>
@@ -296,9 +296,9 @@ function CreationCard({
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="absolute right-0 bottom-8 w-40 bg-zinc-800 rounded-xl border border-zinc-700 overflow-hidden z-10"
+                    className="absolute right-0 bottom-8 w-40 bg-card rounded-xl border border-ink overflow-hidden z-10"
                   >
-                    <button className="w-full px-4 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700 flex items-center gap-2">
+                    <button className="w-full px-4 py-2 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2">
                       <Download className="w-4 h-4" />
                       Telecharger
                     </button>
@@ -309,14 +309,14 @@ function CreationCard({
                           onDelete()
                           setShowMenu(false)
                         }}
-                        className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-zinc-700 flex items-center gap-2"
+                        className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-muted flex items-center gap-2"
                       >
                         <Trash2 className="w-4 h-4" />
                         Supprimer
                       </button>
                     )}
                     {!isOwner && (
-                      <button className="w-full px-4 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-700 flex items-center gap-2">
+                      <button className="w-full px-4 py-2 text-left text-sm text-ink-2 hover:bg-muted flex items-center gap-2">
                         <Flag className="w-4 h-4" />
                         Signaler
                       </button>
@@ -441,23 +441,23 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/80"
+        className="absolute inset-0 bg-ink/80"
         onClick={reset}
       />
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="relative bg-zinc-900 rounded-2xl p-6 max-w-lg w-full border border-zinc-800"
+        className="relative bg-card rounded-2xl p-6 max-w-lg w-full border border-ink"
       >
         <button
           onClick={reset}
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white"
+          className="absolute top-4 right-4 text-mute hover:text-ink"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-xl font-bold text-white mb-6">
+        <h3 className="text-xl font-bold text-ink mb-6">
           {step === 1 ? "Choisir un parcours" : step === 2 ? "Ajouter le media" : "Details"}
         </h3>
 
@@ -474,24 +474,24 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
                 className={cn(
                   "w-full p-4 rounded-xl text-left transition-all flex items-center gap-3",
                   pathId === path.id
-                    ? "bg-purple-500/20 border-2 border-purple-500"
-                    : "bg-zinc-800 border-2 border-transparent hover:border-zinc-700"
+                    ? "bg-pink/20 border-2 border-pink"
+                    : "bg-card border-2 border-transparent hover:border-ink"
                 )}
               >
-                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Camera className="w-5 h-5 text-purple-400" />
+                <div className="w-10 h-10 rounded-lg bg-pink/20 flex items-center justify-center">
+                  <Camera className="w-5 h-5 text-pink" />
                 </div>
                 <div>
-                  <p className="font-medium text-white">{path.name}</p>
-                  <p className="text-sm text-zinc-500 capitalize">{path.category}</p>
+                  <p className="font-medium text-ink">{path.name}</p>
+                  <p className="text-sm text-mute capitalize">{path.category}</p>
                 </div>
               </button>
             ))}
 
             {paths.length === 0 && (
               <div className="text-center py-8">
-                <Sparkles className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                <p className="text-zinc-400">Tu dois d'abord rejoindre un parcours</p>
+                <Sparkles className="w-12 h-12 text-mute mx-auto mb-4" />
+                <p className="text-mute">Tu dois d'abord rejoindre un parcours</p>
               </div>
             )}
           </div>
@@ -528,15 +528,15 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
                   </video>
                 )}
                 {mediaType === "audio" && (
-                  <div className="w-full h-48 bg-purple-500/10 flex items-center justify-center">
+                  <div className="w-full h-48 bg-pink/10 flex items-center justify-center">
                     <audio src={previewUrl} controls>
                       <track kind="captions" srcLang="fr" label="Francais" />
                     </audio>
                   </div>
                 )}
                 {mediaType === "document" && (
-                  <div className="w-full h-48 bg-blue-500/10 flex items-center justify-center">
-                    <FileText className="w-16 h-16 text-blue-400" />
+                  <div className="w-full h-48 bg-teal/10 flex items-center justify-center">
+                    <FileText className="w-16 h-16 text-teal" />
                   </div>
                 )}
                 <button
@@ -544,24 +544,24 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
                     setPreviewUrl(null)
                     setMediaUrl("")
                   }}
-                  className="absolute top-2 right-2 p-2 bg-black/50 rounded-full"
+                  className="absolute top-2 right-2 p-2 bg-ink/50 rounded-full"
                 >
-                  <X className="w-4 h-4 text-white" />
+                  <X className="w-4 h-4 text-ink" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="w-full h-48 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center gap-3 hover:border-purple-500/50 transition-colors"
+                className="w-full h-48 border-2 border-dashed border-ink rounded-xl flex flex-col items-center justify-center gap-3 hover:border-pink/50 transition-colors"
               >
                 {uploading ? (
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-500 border-t-transparent" />
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink border-t-transparent" />
                 ) : (
                   <>
-                    <Upload className="w-12 h-12 text-zinc-400" />
-                    <p className="text-sm text-zinc-500">Clique pour uploader</p>
-                    <p className="text-xs text-zinc-600">Image, video, audio ou document</p>
+                    <Upload className="w-12 h-12 text-mute" />
+                    <p className="text-sm text-mute">Clique pour uploader</p>
+                    <p className="text-xs text-mute">Image, video, audio ou document</p>
                   </>
                 )}
               </button>
@@ -571,7 +571,7 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
               <Button
                 onClick={() => setStep(1)}
                 variant="outline"
-                className="flex-1 border-zinc-700"
+                className="flex-1 border-ink"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
                 Retour
@@ -579,7 +579,7 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
               <Button
                 onClick={() => setStep(3)}
                 disabled={!mediaUrl}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
+                className="flex-1 bg-gradient-to-r from-pink to-pink"
               >
                 Continuer
                 <ChevronRight className="w-4 h-4 ml-2" />
@@ -592,34 +592,34 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
         {step === 3 && (
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-zinc-400 mb-2 block">Titre *</label>
+              <label className="text-sm text-mute mb-2 block">Titre *</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Donne un titre a ta creation"
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white"
+                className="w-full bg-card border border-ink rounded-xl px-4 py-3 text-ink"
               />
             </div>
 
             <div>
-              <label className="text-sm text-zinc-400 mb-2 block">Description</label>
+              <label className="text-sm text-mute mb-2 block">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Decris ta creation..."
                 rows={3}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white resize-none"
+                className="w-full bg-card border border-ink rounded-xl px-4 py-3 text-ink resize-none"
               />
             </div>
 
             <div>
-              <label className="text-sm text-zinc-400 mb-2 block">Tags</label>
+              <label className="text-sm text-mute mb-2 block">Tags</label>
               <div className="flex gap-2 mb-2 flex-wrap">
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-sm flex items-center gap-1"
+                    className="px-3 py-1 rounded-full bg-pink/10 text-pink text-sm flex items-center gap-1"
                   >
                     #{tag}
                     <button onClick={() => handleRemoveTag(tag)}>
@@ -635,9 +635,9 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
                   placeholder="Ajouter un tag"
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-white text-sm"
+                  className="flex-1 bg-card border border-ink rounded-xl px-4 py-2 text-ink text-sm"
                 />
-                <Button onClick={handleAddTag} variant="outline" className="border-zinc-700">
+                <Button onClick={handleAddTag} variant="outline" className="border-ink">
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
@@ -647,7 +647,7 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
               <Button
                 onClick={() => setStep(2)}
                 variant="outline"
-                className="flex-1 border-zinc-700"
+                className="flex-1 border-ink"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
                 Retour
@@ -655,7 +655,7 @@ function UploadModal({ isOpen, onClose, onSubmit, paths }: UploadModalProps) {
               <Button
                 onClick={handleSubmit}
                 disabled={!title}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
+                className="flex-1 bg-gradient-to-r from-pink to-pink"
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Publier
@@ -690,7 +690,7 @@ function CreationViewer({ creation, onClose, onLike, onUnlike }: CreationViewerP
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/90"
+        className="absolute inset-0 bg-ink/90"
         onClick={onClose}
       />
       <motion.div
@@ -701,13 +701,13 @@ function CreationViewer({ creation, onClose, onLike, onUnlike }: CreationViewerP
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+          className="absolute top-4 right-4 z-10 p-2 bg-ink/50 rounded-full text-paper hover:bg-ink/70"
         >
           <X className="w-6 h-6" />
         </button>
 
         {/* Media */}
-        <div className="bg-black flex items-center justify-center min-h-[50vh]">
+        <div className="bg-ink flex items-center justify-center min-h-[50vh]">
           {creation.media_type === "image" && (
             <NextImage
               src={creation.media_url}
@@ -730,7 +730,7 @@ function CreationViewer({ creation, onClose, onLike, onUnlike }: CreationViewerP
           )}
           {creation.media_type === "audio" && (
             <div className="p-8">
-              <Music className="w-24 h-24 text-purple-400 mx-auto mb-4" />
+              <Music className="w-24 h-24 text-pink mx-auto mb-4" />
               <audio src={creation.media_url} controls className="w-full">
                 <track kind="captions" srcLang="fr" label="Francais" />
               </audio>
@@ -739,12 +739,12 @@ function CreationViewer({ creation, onClose, onLike, onUnlike }: CreationViewerP
         </div>
 
         {/* Info */}
-        <div className="bg-zinc-900 p-6">
+        <div className="bg-card p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-xl font-bold text-white">{creation.title}</h3>
+              <h3 className="text-xl font-bold text-ink">{creation.title}</h3>
               {creation.passion_paths && (
-                <span className="text-sm text-purple-400">{creation.passion_paths.name}</span>
+                <span className="text-sm text-pink">{creation.passion_paths.name}</span>
               )}
             </div>
             <button
@@ -759,7 +759,7 @@ function CreationViewer({ creation, onClose, onLike, onUnlike }: CreationViewerP
               }}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-full transition-colors",
-                isLiked ? "bg-pink-500 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-pink-500/20"
+                isLiked ? "bg-pink text-ink" : "bg-card text-mute hover:bg-pink/20"
               )}
             >
               <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
@@ -767,7 +767,7 @@ function CreationViewer({ creation, onClose, onLike, onUnlike }: CreationViewerP
             </button>
           </div>
           {creation.description && (
-            <p className="text-zinc-400">{creation.description}</p>
+            <p className="text-mute">{creation.description}</p>
           )}
         </div>
       </motion.div>
@@ -925,8 +925,8 @@ export function CreationsGallery({ teenId, pathId, showFeed = false }: Creations
             className={cn(
               "px-4 py-2 rounded-xl text-sm font-medium transition-all",
               !filterPath
-                ? "bg-purple-500 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                ? "bg-pink text-ink"
+                : "bg-card text-mute hover:bg-muted"
             )}
           >
             Toutes
@@ -938,8 +938,8 @@ export function CreationsGallery({ teenId, pathId, showFeed = false }: Creations
               className={cn(
                 "px-4 py-2 rounded-xl text-sm font-medium transition-all",
                 filterPath === path.id
-                  ? "bg-purple-500 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                  ? "bg-pink text-ink"
+                  : "bg-card text-mute hover:bg-muted"
               )}
             >
               {path.name}
@@ -952,13 +952,13 @@ export function CreationsGallery({ teenId, pathId, showFeed = false }: Creations
             onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
             variant="outline"
             size="sm"
-            className="border-zinc-700"
+            className="border-ink"
           >
             {viewMode === "grid" ? <List className="w-4 h-4" /> : <Grid className="w-4 h-4" />}
           </Button>
           <Button
             onClick={() => setShowUploadModal(true)}
-            className="bg-gradient-to-r from-purple-500 to-pink-500"
+            className="bg-gradient-to-r from-pink to-pink"
           >
             <Plus className="w-4 h-4 mr-2" />
             Creer
@@ -973,7 +973,7 @@ export function CreationsGallery({ teenId, pathId, showFeed = false }: Creations
           viewMode === "grid" ? "grid grid-cols-2 md:grid-cols-3" : "space-y-4"
         )}>
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="aspect-square bg-zinc-800 rounded-2xl animate-pulse" />
+            <div key={i} className="aspect-square bg-card rounded-2xl animate-pulse" />
           ))}
         </div>
       ) : (
@@ -1001,7 +1001,7 @@ export function CreationsGallery({ teenId, pathId, showFeed = false }: Creations
               <Button
                 onClick={() => fetchCreations()}
                 variant="outline"
-                className="border-zinc-700"
+                className="border-ink"
                 disabled={loading}
               >
                 {loading ? "Chargement..." : "Charger plus"}
@@ -1013,15 +1013,15 @@ export function CreationsGallery({ teenId, pathId, showFeed = false }: Creations
 
       {/* Empty state */}
       {!loading && creations.length === 0 && (
-        <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-          <Camera className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">Aucune creation</h3>
-          <p className="text-zinc-400 mb-4">
+        <Card className="p-8 bg-card border-ink text-center">
+          <Camera className="w-12 h-12 text-mute mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-ink mb-2">Aucune creation</h3>
+          <p className="text-mute mb-4">
             Partage tes creations avec la communaute !
           </p>
           <Button
             onClick={() => setShowUploadModal(true)}
-            className="bg-gradient-to-r from-purple-500 to-pink-500"
+            className="bg-gradient-to-r from-pink to-pink"
           >
             <Plus className="w-4 h-4 mr-2" />
             Ma premiere creation
@@ -1090,7 +1090,7 @@ export function CreationsWidget({ teenId, limit = 4, onSeeAll }: CreationsWidget
     return (
       <div className="grid grid-cols-2 gap-2 animate-pulse">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="aspect-square bg-zinc-800 rounded-xl" />
+          <div key={i} className="aspect-square bg-card rounded-xl" />
         ))}
       </div>
     )
@@ -1101,16 +1101,16 @@ export function CreationsWidget({ teenId, limit = 4, onSeeAll }: CreationsWidget
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-white flex items-center gap-2">
-          <Camera className="w-4 h-4 text-purple-400" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Camera className="w-4 h-4 text-pink" />
           Mes creations
         </h3>
         {onSeeAll && (
           <button
             onClick={onSeeAll}
-            className="text-sm text-purple-400 hover:underline"
+            className="text-sm text-pink hover:underline"
           >
             Voir tout
           </button>
@@ -1121,7 +1121,7 @@ export function CreationsWidget({ teenId, limit = 4, onSeeAll }: CreationsWidget
         {creations.map((creation) => (
           <div
             key={creation.id}
-            className="relative aspect-square rounded-xl overflow-hidden bg-zinc-800"
+            className="relative aspect-square rounded-xl overflow-hidden bg-card"
           >
             {creation.media_type === "image" && (
               <NextImage
@@ -1134,13 +1134,13 @@ export function CreationsWidget({ teenId, limit = 4, onSeeAll }: CreationsWidget
               />
             )}
             {creation.media_type === "video" && (
-              <div className="w-full h-full flex items-center justify-center bg-purple-500/10">
-                <Video className="w-8 h-8 text-purple-400" />
+              <div className="w-full h-full flex items-center justify-center bg-pink/10">
+                <Video className="w-8 h-8 text-pink" />
               </div>
             )}
             {creation.media_type === "audio" && (
-              <div className="w-full h-full flex items-center justify-center bg-pink-500/10">
-                <Music className="w-8 h-8 text-pink-400" />
+              <div className="w-full h-full flex items-center justify-center bg-pink/10">
+                <Music className="w-8 h-8 text-pink" />
               </div>
             )}
           </div>

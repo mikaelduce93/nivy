@@ -2,10 +2,11 @@
 // Replace hardcoded mock with live Supabase reads against `partner_offers`
 // (canonical table reconciled by migration 074). Filtered by the
 // authenticated partner's id, server-rendered.
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Tag, Edit } from "lucide-react"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, NivEmpty } from "@/components/brand"
+import { OfferRowActions } from "@/components/partner/offer-row-actions"
+import { Plus, Tag } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
@@ -79,20 +80,21 @@ export default async function PartnerOffersPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-black text-white">Mes Offres</h1>
-          <p className="text-zinc-400">Gérez vos offres exclusives Nivy</p>
+          <p className="eyebrow tracking-[0.16em] text-mute">Tes offres</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Tes <em className="font-semibold italic text-pink">deals</em>
+          </h1>
+          <p className="text-mute">Gère tes offres exclusives Nivy</p>
         </div>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center">
-            <p className="text-zinc-300 font-semibold">
-              Profil partenaire introuvable
-            </p>
-            <p className="text-sm text-zinc-500 mt-2">
-              Votre compte n'est pas encore lié à une fiche partenaire active.
-              Contactez le support pour finaliser votre onboarding.
-            </p>
-          </CardContent>
-        </Card>
+        <StickerCard className="p-10 text-center">
+          <p className="font-display text-lg font-bold text-ink">
+            Profil partenaire introuvable
+          </p>
+          <p className="mt-2 text-sm text-mute">
+            Ton compte n'est pas encore lié à une fiche partenaire active.
+            Contacte le support pour finaliser ton onboarding.
+          </p>
+        </StickerCard>
       </div>
     )
   }
@@ -131,17 +133,17 @@ export default async function PartnerOffersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-white">Mes Offres</h1>
-          <p className="text-zinc-400">Gérez vos offres exclusives Nivy</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="eyebrow tracking-[0.16em] text-mute">Tes offres</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Tes <em className="font-semibold italic text-pink">deals</em>
+          </h1>
+          <p className="text-mute">Gère tes offres exclusives Nivy</p>
         </div>
-        <Button
-          asChild
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
-        >
+        <Button asChild variant="pink">
           <Link href="/partner/offers/new">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="size-4" aria-hidden="true" />
             Nouvelle offre
           </Link>
         </Button>
@@ -150,137 +152,102 @@ export default async function PartnerOffersPage() {
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-xl border-2 border-coral bg-coral/10 px-4 py-3 text-sm font-medium text-ink"
         >
           {loadError}
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-black text-white">
-              {activeOffers.length}
-            </p>
-            <p className="text-sm text-zinc-400">Offres actives</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-black text-emerald-400">{totalUses}</p>
-            <p className="text-sm text-zinc-400">Utilisations totales</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-black text-white">{offers.length}</p>
-            <p className="text-sm text-zinc-400">Total offres</p>
-          </CardContent>
-        </Card>
+      {/* Stats — hiérarchie 1-2-3 : un chiffre dominant + deux secondaires */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatHero
+          eyebrow="Offres actives"
+          value={activeOffers.length}
+          tone="lime"
+          icon={<Tag className="size-5" aria-hidden="true" />}
+          meta={`${offers.length} au total`}
+        />
+        <StickerCard className="justify-center gap-1 p-5">
+          <p className="eyebrow tracking-[0.16em] text-mute">
+            Utilisations totales
+          </p>
+          <p className="font-display text-4xl font-extrabold tabular-nums text-coral">
+            {totalUses}
+          </p>
+        </StickerCard>
+        <StickerCard className="justify-center gap-1 p-5">
+          <p className="eyebrow tracking-[0.16em] text-mute">Total offres</p>
+          <p className="font-display text-4xl font-extrabold tabular-nums text-ink">
+            {offers.length}
+          </p>
+        </StickerCard>
       </div>
 
       {/* Offers List */}
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white">Toutes les offres</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {offers.length === 0 ? (
-            <EmptyState
-              icon={Tag}
-              title="Aucune offre publiée"
-              description="Créez votre première offre pour attirer les membres Nivy."
-              action={{ label: "Nouvelle offre", href: "/partner/offers/new" }}
-            />
-          ) : (
-            offers.map((offer) => {
-              const active = offer.is_active === true
-              return (
-                <div
-                  key={offer.id}
-                  className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
-                    active
-                      ? "bg-zinc-900 border-zinc-800 hover:border-emerald-500/30"
-                      : "bg-zinc-950 border-zinc-900 opacity-60"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`h-12 w-12 rounded-xl flex items-center justify-center ${
-                        active ? "bg-emerald-500/20" : "bg-zinc-800"
-                      }`}
-                    >
-                      <Tag
-                        className={`h-6 w-6 ${
-                          active ? "text-emerald-400" : "text-zinc-500"
+      {offers.length === 0 ? (
+        <NivEmpty
+          mood="calm"
+          title="T'as pas encore de deal"
+          description="Lance-toi et crée ta première offre pour attirer le crew Nivy."
+          action={
+            <Button asChild variant="pink">
+              <Link href="/partner/offers/new">
+                <Plus className="size-4" aria-hidden="true" />
+                Nouvelle offre
+              </Link>
+            </Button>
+          }
+        />
+      ) : (
+        <div className="space-y-3">
+          {offers.map((offer) => {
+            const active = offer.is_active === true
+            return (
+              <StickerCard
+                key={offer.id}
+                className="gap-4 p-5"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0 space-y-2">
+                    <h2 className="font-display text-lg font-bold text-ink">
+                      {offer.title || "Offre sans titre"}
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border-2 border-ink bg-gold/20 px-2.5 py-0.5 font-mono text-xs font-bold text-ink">
+                        {formatDiscount(
+                          offer.discount_value,
+                          offer.discount_type,
+                        )}
+                      </span>
+                      <span className="font-mono text-xs uppercase tracking-[0.12em] text-mute">
+                        {discountTypeLabel(offer.discount_type)}
+                      </span>
+                      <span
+                        className={`rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-xs font-bold ${
+                          active ? "bg-lime/30 text-ink" : "bg-paper-2 text-mute"
                         }`}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white">
-                        {offer.title || "Offre sans titre"}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400">
-                        <span className="px-2 py-0.5 rounded bg-zinc-800">
-                          {discountTypeLabel(offer.discount_type)}
-                        </span>
-                        <span className="font-bold text-emerald-400">
-                          {formatDiscount(
-                            offer.discount_value,
-                            offer.discount_type,
-                          )}
-                        </span>
-                        <span>
-                          {offer.current_total_uses ?? 0} utilisations
-                        </span>
-                        <span>
-                          {formatDate(offer.valid_from)} →{" "}
-                          {formatDate(offer.valid_until)}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 rounded ${
-                            active
-                              ? "bg-emerald-500/10 text-emerald-400"
-                              : "bg-zinc-800 text-zinc-500"
-                          }`}
-                        >
-                          {active ? "Active" : "Désactivée"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {/*
-                      TODO (Wave 2 PT2+): wire inline toggle (PATCH is_active)
-                      and delete confirmation. The PATCH/DELETE endpoints at
-                      /api/partner/offers/[id] expect a different payload
-                      shape (`name`, `offerType`, etc.) than partner_offers'
-                      canonical column names; converting them is out of
-                      this ticket's write-scope. For now the row links to
-                      the existing edit page.
-                    */}
-                    <Button
-                      asChild
-                      variant="ghost"
-                      size="icon"
-                      className="text-zinc-400 hover:text-white"
-                      title="Modifier"
-                    >
-                      <Link
-                        href={`/partner/offers/${offer.id}/edit`}
-                        aria-label={`Modifier l'offre ${offer.title || "sans titre"}`}
                       >
-                        <Edit className="h-4 w-4" aria-hidden="true" />
-                      </Link>
-                    </Button>
+                        {active ? "✓ Actif" : "En pause"}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-mute">
+                      <span>{offer.current_total_uses ?? 0} util.</span>
+                      <span>
+                        {formatDate(offer.valid_from)} →{" "}
+                        {formatDate(offer.valid_until)}
+                      </span>
+                    </div>
                   </div>
+                  <OfferRowActions
+                    offerId={offer.id}
+                    offerTitle={offer.title || "sans titre"}
+                  />
                 </div>
-              )
-            })
-          )}
-        </CardContent>
-      </Card>
+              </StickerCard>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

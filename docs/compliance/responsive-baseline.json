@@ -1,0 +1,307 @@
+{
+  "generated_at": "2026-06-02",
+  "audit_source": "docs/audits/audit-2026-06-01/ (V5 #222 responsivité)",
+  "total_violations": 130,
+  "files_in_scope": 795,
+  "violations_by_rule": {
+    "RESP-002": 123,
+    "RESP-001": 6,
+    "RESP-003": 1
+  },
+  "violations_by_file_rule": {
+    "app/a-propos/page.tsx": {
+      "RESP-002": 2
+    },
+    "app/admin/ambassadeurs/[id]/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/admin/ambassadeurs/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/admin/anniversaires/[id]/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/admin/partners/offers/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/admin/proofs/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/admin/reservations/[id]/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/admin/reservations/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/admin/utilisateurs/[id]/page.tsx": {
+      "RESP-002": 3
+    },
+    "app/admin/utilisateurs/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/agenda/[id]/page.tsx": {
+      "RESP-002": 2
+    },
+    "app/aide/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/ambassador/boutique/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/ambassador/comment-gagner/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/ambassador/marketing/page.tsx": {
+      "RESP-002": 2
+    },
+    "app/ambassador/referrals/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/anniversaires/loading.tsx": {
+      "RESP-001": 1
+    },
+    "app/anniversaires/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/carte-vip/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/carte-vip/souscrire/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/dev/kit/kit-client.tsx": {
+      "RESP-002": 3
+    },
+    "app/devenir-ambassadeur/page.tsx": {
+      "RESP-002": 3
+    },
+    "app/devenir-ambassadeur/programme/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/devenir-createur/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/devenir-dj/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/devenir-driver/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/devenir-mentor/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/devenir-organisateur/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/devenir-restaurant/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/djs/[id]/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/guide-parents/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/marketplace/sell/sell-form.tsx": {
+      "RESP-002": 1
+    },
+    "app/mentor/onboarding/kyc/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/page.tsx": {
+      "RESP-002": 4
+    },
+    "app/parent/ambassador/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/parent/approvals/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/parent/budget/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/parent/live/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/parent/topup/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/parent/topup/recurring/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/partner/creator/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/partner/food/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/partner/offers/new/page.tsx": {
+      "RESP-002": 2
+    },
+    "app/partner/offers/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/partner/scanner/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/partner/talent/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/calendar/calendar-client.tsx": {
+      "RESP-002": 2
+    },
+    "app/teen/calendar/loading.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/circles/circles-client.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/defis-physiques/defis-physiques-client.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/error.tsx": {
+      "RESP-001": 3
+    },
+    "app/teen/games/games-client.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/leaderboard/loading.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/mentors/[id]/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/quests/loading.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/quiz/history/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/quiz/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/share/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/streak/streak-client.tsx": {
+      "RESP-002": 2
+    },
+    "app/teen/wellbeing/page.tsx": {
+      "RESP-002": 1
+    },
+    "app/teen/xp-value/page.tsx": {
+      "RESP-002": 1
+    },
+    "components/admin-analytics-filters.tsx": {
+      "RESP-002": 1
+    },
+    "components/admin/realtime-kpis.tsx": {
+      "RESP-002": 1
+    },
+    "components/ambassador-application-form.tsx": {
+      "RESP-002": 1
+    },
+    "components/ambassador-dashboard-client.tsx": {
+      "RESP-002": 1
+    },
+    "components/check-in-interface.tsx": {
+      "RESP-002": 1
+    },
+    "components/circles/circles-list.tsx": {
+      "RESP-002": 1
+    },
+    "components/club-calendar.tsx": {
+      "RESP-002": 2
+    },
+    "components/creativity/passion-paths.tsx": {
+      "RESP-002": 1
+    },
+    "components/education/quiz-player.tsx": {
+      "RESP-002": 1
+    },
+    "components/education/recommendations.tsx": {
+      "RESP-002": 1
+    },
+    "components/features/events/vip-pricing-badge.tsx": {
+      "RESP-002": 1
+    },
+    "components/feed/post-composer.tsx": {
+      "RESP-002": 1
+    },
+    "components/gamification/gamification-dashboard.tsx": {
+      "RESP-002": 1
+    },
+    "components/gamification/pillars.tsx": {
+      "RESP-002": 2
+    },
+    "components/mobile-money-payment.tsx": {
+      "RESP-002": 1
+    },
+    "components/navbar.tsx": {
+      "RESP-001": 1
+    },
+    "components/notifications/notification-center.tsx": {
+      "RESP-001": 1
+    },
+    "components/onboarding/completion-step.tsx": {
+      "RESP-002": 2
+    },
+    "components/onboarding/gamification/gamification-intro.tsx": {
+      "RESP-002": 1
+    },
+    "components/onboarding/gamification/onboarding-reward-popup.tsx": {
+      "RESP-002": 1
+    },
+    "components/onboarding/interest-picker.tsx": {
+      "RESP-003": 1
+    },
+    "components/parent/add-teen-form.tsx": {
+      "RESP-002": 2
+    },
+    "components/partner/offer-edit-form.tsx": {
+      "RESP-002": 2
+    },
+    "components/partners/ClubPartnerForm.tsx": {
+      "RESP-002": 2
+    },
+    "components/partners/EducationPartnerForm.tsx": {
+      "RESP-002": 3
+    },
+    "components/partners/RetailPartnerForm.tsx": {
+      "RESP-002": 1
+    },
+    "components/partners/VenuePartnerForm.tsx": {
+      "RESP-002": 3
+    },
+    "components/pwa/pwa-install-prompt.tsx": {
+      "RESP-002": 1
+    },
+    "components/share/share-card.tsx": {
+      "RESP-002": 2
+    },
+    "components/share/share-modal.tsx": {
+      "RESP-002": 1
+    },
+    "components/sport/physical-challenges.tsx": {
+      "RESP-002": 2
+    },
+    "components/sport/sport-clubs.tsx": {
+      "RESP-002": 2
+    },
+    "components/sticker/pricing-sticker.tsx": {
+      "RESP-002": 2
+    },
+    "components/teen/dashboard/crew-hub.tsx": {
+      "RESP-002": 2
+    },
+    "components/teen/goal-form.tsx": {
+      "RESP-002": 1
+    },
+    "components/tokens/token-rewards.tsx": {
+      "RESP-002": 1
+    },
+    "components/tokens/token-wallet.tsx": {
+      "RESP-002": 1
+    }
+  }
+}

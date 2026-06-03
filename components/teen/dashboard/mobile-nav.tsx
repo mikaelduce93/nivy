@@ -11,7 +11,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Map, Users, User, Compass, Zap, Calendar, Trophy } from 'lucide-react'
+import { Home, Target, Users, Compass, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTapFeedback } from '@/lib/hooks/use-touch-optimized'
 
@@ -40,18 +40,19 @@ interface MobileBottomNavProps {
    NAV ITEMS
    ========================================================================== */
 
+// #203 — 5 piliers, miroir exact de la sidebar desktop, libellés FR.
 const DEFAULT_NAV_ITEMS: NavItem[] = [
   {
-    label: 'Home',
+    label: 'Accueil',
     href: '/teen',
     icon: Home,
     activeColor: 'text-brand-soft',
   },
   {
-    label: 'Explore',
-    href: '/teen/map',
-    icon: Map,
-    activeColor: 'text-success-soft',
+    label: 'Jouer',
+    href: '/teen/quests',
+    icon: Target,
+    activeColor: 'text-accent-soft',
   },
   {
     label: 'Crew',
@@ -60,10 +61,16 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
     activeColor: 'text-accent-soft',
   },
   {
-    label: 'Profile',
-    href: '/teen/profile',
-    icon: User,
-    activeColor: 'text-gen-z-yellow',
+    label: 'Services',
+    href: '/teen/services',
+    icon: Compass,
+    activeColor: 'text-success-soft',
+  },
+  {
+    label: 'Wallet',
+    href: '/teen/wallet',
+    icon: Wallet,
+    activeColor: 'text-gold',
   },
 ]
 
@@ -114,7 +121,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
         <Icon
           className={cn(
             'w-6 h-6 transition-colors relative z-10',
-            isActive ? item.activeColor || 'text-brand-soft' : 'text-zinc-400'
+            isActive ? item.activeColor || 'text-brand-soft' : 'text-mute'
           )}
           strokeWidth={isActive ? 2.5 : 2}
         />
@@ -124,7 +131,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center"
+            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-ink text-[10px] font-bold flex items-center justify-center"
           >
             {item.badge > 9 ? '9+' : item.badge}
           </motion.span>
@@ -134,7 +141,7 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
       <span
         className={cn(
           'text-[10px] font-semibold mt-1 transition-colors',
-          isActive ? 'text-white' : 'text-zinc-500'
+          isActive ? 'text-ink' : 'text-mute'
         )}
       >
         {item.label}
@@ -159,9 +166,11 @@ function NavItemButton({ item, isActive }: NavItemButtonProps) {
    MAIN COMPONENT
    ========================================================================== */
 
-export function MobileBottomNav({ 
-  extraItems = [], 
-  hiddenPaths = ['/teen/chat', '/teen/quests'],
+export function MobileBottomNav({
+  extraItems = [],
+  // #203 — la nav doit rester visible partout (y compris /teen/quests, le
+  // pilier « Jouer »). Plus aucun chemin masqué par défaut.
+  hiddenPaths = [],
   className,
 }: MobileBottomNavProps) {
   const pathname = usePathname()
@@ -210,7 +219,7 @@ export function MobileBottomNav({
           aria-label="Navigation principale mobile"
         >
           {/* Glass background */}
-          <div className="absolute inset-0 bg-zinc-900/95 backdrop-blur-xl border-t border-white/10" />
+          <div className="absolute inset-0 bg-card  border-t border-ink" />
           
           {/* Nav items */}
           <div className="relative flex items-center justify-around py-1 px-2">

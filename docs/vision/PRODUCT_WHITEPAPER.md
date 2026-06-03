@@ -1,5 +1,10 @@
 # NIVY — Product Whitepaper v3 (Agent Handbook)
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > **Date**: 2026-05-07
 > **Audience**: implementation agents, frontend redesigners, backend builders, QA, founder.
 > **Sources**: 22 specialist audits in `docs/vision/`, live Supabase project `imchornjvmgmaovhypco`, full code review.

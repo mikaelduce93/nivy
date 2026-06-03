@@ -94,36 +94,22 @@ export async function GET(request: NextRequest) {
     let totalXp = 0
     
     if (memberIds.length > 0) {
-      const { data: xpData } = await supabase
+      // #32 — user_xp keys on teen_id (memberIds are teens.id), not user_id.
+      // RLS is self/parent-read only, so summing members' XP needs service-role.
+      const { createServiceRoleClient } = await import('@/lib/supabase/service-role')
+      const sr = createServiceRoleClient()
+      const { data: xpData } = await sr
         .from('user_xp')
         .select('total_xp')
-        .in('user_id', memberIds)
+        .in('teen_id', memberIds)
 
       totalXp = xpData?.reduce((sum, x) => sum + (x.total_xp || 0), 0) || 0
     }
 
-    // Get crew rank (placeholder - would need a proper ranking system)
-    const crewRank = 3 // Placeholder
-
-    // Get active battles (placeholder)
-    const activeBattles = [
-      {
-        id: '1',
-        opponent: 'NIGHT OWLS',
-        status: 'in_progress',
-        ourScore: 2450,
-        theirScore: 2120,
-        endsIn: '2h 30m',
-      },
-      {
-        id: '2',
-        opponent: 'PHOENIX SQUAD',
-        status: 'pending',
-        ourScore: 0,
-        theirScore: 0,
-        endsIn: 'Starts tomorrow',
-      },
-    ]
+    // #61 — there is no crew_battles backend and no ranking system wired on
+    // circles, so we return honest empty/null values rather than fabricated
+    // opponents, scores and ranks. The battles feature is a separate ticket.
+    const activeBattles: never[] = []
 
     return NextResponse.json({
       crew: {
@@ -138,8 +124,8 @@ export async function GET(request: NextRequest) {
         stats: {
           totalXp,
           memberCount: memberCount || 0,
-          battlesWon: 8, // Placeholder
-          cityRank: crewRank,
+          battlesWon: 0, // #61 — no battles backend; honest zero, not a fake 8.
+          cityRank: null as number | null, // #61 — no ranking wired on circles.
         },
         members: members?.map(m => {
           const teen = m.teen as unknown as TeenJoin | null
@@ -200,6 +186,24 @@ export async function POST(request: NextRequest) {
       if (error) {
         console.error('Error creating crew:', error)
         return NextResponse.json({ error: 'Failed to create crew' }, { status: 500 })
+      }
+
+      // #207 — FIX BOUCLE : ajouter le créateur comme membre owner. Sans ça, la
+      // page détail /teen/circles/[id] (qui vérifie circle_members) renvoyait le
+      // créateur vers /teen/circles → cul-de-sac. teens.id = profiles.id = auth.uid()
+      // (identité unifiée, migration 040), donc teen_id correspond bien au check.
+      const { error: memberErr } = await supabase
+        .from('circle_members')
+        .insert({
+          circle_id: circle.id,
+          teen_id: teenId,
+          role: 'owner',
+          status: 'active',
+        })
+
+      if (memberErr) {
+        console.error('Error adding owner membership:', memberErr)
+        return NextResponse.json({ error: 'Failed to finalize crew' }, { status: 500 })
       }
 
       return NextResponse.json({

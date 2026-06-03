@@ -3,6 +3,12 @@
  * ==================================================
  *
  * Composants pour le système de parrainage.
+ *
+ * @deprecated #67 — System A (gamification referral_codes/referral_uses). These
+ * components are not mounted by any app/ route. The canonical referral /
+ * attribution system is the ambassador track (ambassadors.code → /join →
+ * referral_attribution → ambassador_commissions). Kept for git history; do not
+ * wire into new routes.
  */
 
 "use client"

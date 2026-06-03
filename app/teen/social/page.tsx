@@ -18,7 +18,7 @@ export default async function SocialHubPage() {
   return (
     <div className="min-h-screen pb-32">
       <Suspense fallback={<SocialHubSkeleton />}>
-        <SocialHubClient teenId={teenId} teenName={(userInfo.teenData as { full_name?: string } | null)?.full_name || "Friend"} />
+        <SocialHubClient teenId={teenId} teenName={(userInfo.teenData as { full_name?: string } | null)?.full_name || "Ami"} />
       </Suspense>
     </div>
   )
@@ -27,11 +27,11 @@ export default async function SocialHubPage() {
 function SocialHubSkeleton() {
   return (
     <div className="space-y-8 pt-8 animate-pulse">
-      <div className="h-12 bg-zinc-800/50 rounded-2xl w-full max-w-md" />
-      <div className="h-64 bg-zinc-800/30 rounded-3xl" />
+      <div className="h-12 bg-card rounded-2xl w-full max-w-md" />
+      <div className="h-64 bg-card rounded-2xl" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-32 bg-zinc-800/30 rounded-3xl" />
+          <div key={i} className="h-32 bg-card rounded-2xl" />
         ))}
       </div>
     </div>

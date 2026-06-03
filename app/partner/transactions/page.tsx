@@ -1,8 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, Download, Filter, ArrowUpRight, ArrowDownRight, Receipt } from "lucide-react"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero, NivEmpty } from "@/components/brand"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
@@ -42,19 +39,24 @@ function maskTeenId(teenId: string | null): string {
   return `Teen #${teenId.replace(/-/g, "").slice(0, 4).toUpperCase()}`
 }
 
-function statusLabel(status: string | null): string {
-  switch (status) {
-    case "succeeded":
-      return "Validée"
-    case "pending":
-      return "En attente"
-    case "refunded":
-      return "Remboursée"
-    case "failed":
-      return "Échec"
-    default:
-      return status || "—"
+/** Pill mono UPPERCASE bordure ink — palette charte par statut. */
+function StatusPill({ status }: { status: string | null }) {
+  const map: Record<string, { label: string; tint: string }> = {
+    succeeded: { label: "Validée", tint: "bg-lime/20" },
+    pending: { label: "En attente", tint: "bg-gold/20" },
+    refunded: { label: "Remboursée", tint: "bg-teal/20" },
+    failed: { label: "Échec", tint: "bg-coral/20" },
   }
+  const cfg = status ? map[status] : undefined
+  return (
+    <span
+      className={`inline-block rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-ink ${
+        cfg?.tint ?? "bg-white"
+      }`}
+    >
+      {cfg?.label ?? status ?? "—"}
+    </span>
+  )
 }
 
 export default async function PartnerTransactionsPage() {
@@ -70,17 +72,20 @@ export default async function PartnerTransactionsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-black text-white">Transactions</h1>
-          <p className="text-zinc-400">Historique des transactions Teen Club</p>
+          <p className="eyebrow tracking-[0.16em] text-mute">Tes ventes</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Tes <em className="font-semibold italic text-pink">transactions</em>
+          </h1>
+          <p className="text-mute">L'historique de tes encaissements Teen Club</p>
         </div>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center">
-            <p className="text-zinc-300 font-semibold">Profil partenaire introuvable</p>
-            <p className="text-sm text-zinc-500 mt-2">
-              Votre compte n'est pas encore lié à une fiche partenaire active.
-            </p>
-          </CardContent>
-        </Card>
+        <StickerCard className="p-10 text-center">
+          <p className="font-display text-lg font-bold text-ink">
+            Profil partenaire introuvable
+          </p>
+          <p className="mt-2 text-sm text-mute">
+            Ton compte n'est pas encore lié à une fiche partenaire active.
+          </p>
+        </StickerCard>
       </div>
     )
   }
@@ -146,142 +151,107 @@ export default async function PartnerTransactionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-white">Transactions</h1>
-          <p className="text-zinc-400">Historique des transactions Teen Club</p>
-        </div>
-        <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:text-white">
-          <Download className="h-4 w-4 mr-2" />
-          Exporter CSV
-        </Button>
+      <div>
+        <p className="eyebrow tracking-[0.16em] text-mute">Tes ventes</p>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Tes <em className="font-semibold italic text-pink">transactions</em>
+        </h1>
+        <p className="text-mute">L'historique de tes encaissements Teen Club</p>
       </div>
 
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-xl border-2 border-coral bg-coral/10 px-4 py-3 text-sm font-medium text-ink"
         >
           {loadError}
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-zinc-400">Ce mois</p>
-                <p className="text-2xl font-black text-white">{monthCount}</p>
-              </div>
-              <ArrowUpRight className="h-5 w-5 text-emerald-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-zinc-400">CA Total</p>
-                <p className="text-2xl font-black text-white">
-                  {Math.round(monthRevenue).toLocaleString()} DH
-                </p>
-              </div>
-              <ArrowUpRight className="h-5 w-5 text-emerald-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-zinc-400">Commission Nivy</p>
-                <p className="text-2xl font-black text-amber-400">
-                  {Math.round(monthCommission).toLocaleString()} DH
-                </p>
-              </div>
-              <ArrowDownRight className="h-5 w-5 text-amber-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-zinc-400">Panier moyen</p>
-                <p className="text-2xl font-black text-white">{monthAverage} DH</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats — hiérarchie 1-2-3 : le CA domine en surface sombre */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatHero
+          eyebrow="CA total (ce mois)"
+          value={Math.round(monthRevenue).toLocaleString()}
+          unit="DH"
+          tone="lime"
+          className="sm:col-span-2"
+          meta={`${monthCount} transaction${monthCount > 1 ? "s" : ""} ce mois`}
+        />
+        <StickerCard className="justify-center gap-1 p-5">
+          <p className="eyebrow tracking-[0.16em] text-mute">Ce mois</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-ink">
+            {monthCount}
+          </p>
+          <p className="font-mono text-xs text-mute">transactions</p>
+        </StickerCard>
+        <StickerCard className="justify-center gap-1 p-5">
+          <p className="eyebrow tracking-[0.16em] text-mute">Commission Nivy</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-gold">
+            {Math.round(monthCommission).toLocaleString()}
+            <span className="ml-1 font-mono text-sm text-mute">DH</span>
+          </p>
+          <p className="font-mono text-xs text-mute">prélevée ce mois</p>
+        </StickerCard>
       </div>
 
-      {/* Search & Filters */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-          <Input
-            placeholder="Rechercher par membre, statut..."
-            className="pl-10 bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500"
-          />
-        </div>
-        <Button variant="outline" className="border-zinc-700 text-zinc-300">
-          <Filter className="h-4 w-4 mr-2" />
-          Filtrer
-        </Button>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StickerCard className="justify-center gap-1 p-5 sm:col-span-2 lg:col-span-1">
+          <p className="eyebrow tracking-[0.16em] text-mute">Panier moyen</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-ink">
+            {monthAverage.toLocaleString()}
+            <span className="ml-1 font-mono text-sm text-mute">DH</span>
+          </p>
+        </StickerCard>
       </div>
 
       {/* Transactions List */}
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white">Historique</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {transactions.length === 0 ? (
-            <EmptyState
-              icon={Receipt}
-              title="Aucune transaction pour le moment"
-              description="Dès qu'un membre scannera votre QR code, l'opération apparaîtra ici en temps réel."
-            />
-          ) : (
-            <div className="space-y-2">
-              {transactions.map((tx) => {
-                const display = maskTeenId(tx.teen_id)
-                const initial = display.replace(/[^A-Z0-9]/gi, "").charAt(0) || "T"
-                return (
-                  <div
-                    key={tx.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-all"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+      <div className="space-y-2">
+        <p className="eyebrow tracking-[0.16em] text-mute">Historique</p>
+        {transactions.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Rien pour le moment"
+            description="Dès qu'un crew scanne ton QR code, l'opération pop ici en direct."
+          />
+        ) : (
+          <div className="space-y-2">
+            {transactions.map((tx) => {
+              const display = maskTeenId(tx.teen_id)
+              const initial = display.replace(/[^A-Z0-9]/gi, "").charAt(0) || "T"
+              return (
+                <StickerCard key={tx.id} variant="hover" className="p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="grid size-11 place-items-center rounded-xl border-2 border-ink bg-paper font-mono text-base font-bold text-ink">
                         {initial}
                       </div>
-                      <div>
-                        <p className="font-semibold text-white">{display}</p>
-                        <p className="text-xs text-zinc-400">{formatDate(tx.created_at)}</p>
+                      <div className="min-w-0">
+                        <p className="font-display font-bold text-ink">{display}</p>
+                        <p className="font-mono text-xs text-mute">
+                          {formatDate(tx.created_at)}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-center">
-                      <p className="text-xs text-zinc-500">Statut</p>
-                      <p className="text-sm text-zinc-300">{statusLabel(tx.status)}</p>
-                    </div>
+                    <StatusPill status={tx.status} />
                     <div className="text-right">
-                      <p className="font-black text-white">
-                        {Math.round(Number(tx.amount_dh || 0))} DH
+                      <p className="font-display text-lg font-extrabold tabular-nums text-ink">
+                        {Math.round(Number(tx.amount_dh || 0)).toLocaleString()}
+                        <span className="ml-1 font-mono text-sm text-mute">DH</span>
                       </p>
                       {Number(tx.cashback_xp || 0) > 0 && (
-                        <p className="text-xs text-emerald-400">+{tx.cashback_xp} XP cashback</p>
+                        <p className="font-mono text-xs text-gold">
+                          +{tx.cashback_xp} XP cashback
+                        </p>
                       )}
                     </div>
                   </div>
-                )
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </StickerCard>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -29,6 +29,8 @@ interface OrderBody {
   deliveryType?: string
   items?: OrderItemInput[]
   address?: string
+  /** Tolérance : d'anciens clients envoyaient `deliveryAddress` (#201). */
+  deliveryAddress?: string
   scheduledFor?: string
   paymentMethod?: string
 }
@@ -70,7 +72,7 @@ export async function POST(request: Request) {
       p_partner_id: body.partnerId,
       p_delivery_type: body.deliveryType,
       p_items: items,
-      p_address: body.address ?? null,
+      p_address: body.address ?? body.deliveryAddress ?? null,
       p_scheduled_for: body.scheduledFor ?? null,
       p_payment_method: body.paymentMethod ?? "coins",
     })

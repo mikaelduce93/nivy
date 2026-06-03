@@ -2,20 +2,27 @@
 
 Architecture finalisée Phase 0 (Agent A1). Single primitive, multiple composers.
 
+> **#72 — single import entry point:** import every skeleton from
+> **`@/components/ui/skeletons`** (the barrel re-exports all 5 sources below,
+> with aliases to avoid name collisions: `SkeletonPrimitive`, `SkeletonPremium`,
+> `MorphingSkeleton`, `SkeletonSetText`, …). The `@/components/ui/states` barrel
+> and direct deep imports are `@deprecated` for skeletons.
+
 ---
 
-## 1. Architecture
+## 1. Architecture (the 5 sources)
 
 ```
 components/ui/
-├── skeleton.tsx                       # PRIMITIVE (single source of truth)
-├── skeleton-variants.tsx              # PREMIUM variants (framer-motion)
+├── skeleton.tsx                       # PRIMITIVE (Skeleton → SkeletonPrimitive in the barrel)
+├── skeleton-variants.tsx              # PREMIUM framer-motion variants (Skeleton → SkeletonPremium)
+├── morphing-skeleton.tsx              # transition cross-fade (MorphingSkeleton / MorphingSkeletonCompat)
 ├── skeletons/
-│   ├── index.ts                       # barrel
+│   ├── index.ts                       # ⭐ UNIFIED BARREL — import skeletons from here
 │   ├── page-skeleton.tsx              # generic page-level layouts
 │   └── dashboard-skeletons.tsx        # teen dashboard-specific layouts
 └── states/
-    └── skeleton-set.tsx               # composable library (event card, ticket, profile, ...)
+    └── skeleton-set.tsx               # composable library (event card, ticket, profile, …) — @deprecated
 ```
 
 ### One primitive, one animation

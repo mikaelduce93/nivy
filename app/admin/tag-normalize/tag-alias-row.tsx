@@ -14,6 +14,20 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+
+const ALIAS_STATUS_VARIANT: Record<string, StatusVariant> = {
+  approved: "success",
+  rejected: "danger",
+  pending: "pending",
+}
+
+const ALIAS_STATUS_LABEL: Record<string, string> = {
+  approved: "Approuvé",
+  rejected: "Rejeté",
+  pending: "En attente",
+}
 
 interface Props {
   alias: string
@@ -76,48 +90,42 @@ export function TagAliasRow({
   }
 
   const statusBadge = existingStatus ? (
-    <span
-      className={`rounded px-2 py-0.5 text-xs ${
-        existingStatus === "approved"
-          ? "bg-green-500/20 text-green-300"
-          : existingStatus === "rejected"
-            ? "bg-red-500/20 text-red-300"
-            : "bg-yellow-500/20 text-yellow-300"
-      }`}
-    >
-      {existingStatus}
-      {existingCanonical ? ` → ${existingCanonical}` : ""}
-    </span>
+    <StatusBadge
+      variant={ALIAS_STATUS_VARIANT[existingStatus] ?? "neutral"}
+      label={`${ALIAS_STATUS_LABEL[existingStatus] ?? existingStatus}${existingCanonical ? ` → ${existingCanonical}` : ""}`}
+      size="sm"
+      className="font-mono uppercase tracking-[0.16em]"
+    />
   ) : null
 
   return (
-    <li className="rounded border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-200">
+    <li className="flex flex-col rounded-2xl border-2 border-ink bg-white p-3 text-sm text-ink-2 shadow-stkr-md">
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <code className="rounded bg-zinc-950 px-2 py-0.5 font-mono text-xs text-zinc-100">
+          <code className="rounded-md border-2 border-ink bg-paper px-2 py-0.5 font-mono text-xs text-ink-2">
             {alias}
           </code>
-          <span className="text-xs text-zinc-400">×{count}</span>
-          <span className="text-xs text-zinc-500">
+          <span className="font-mono text-xs text-mute">×{count}</span>
+          <span className="text-xs text-mute">
             ({tables.join(", ") || "—"})
           </span>
           {statusBadge}
         </div>
         {suggestedCanonical && !existingStatus && (
-          <span className="text-xs text-zinc-500">
-            suggéré: <code className="text-zinc-300">{suggestedCanonical}</code>
+          <span className="text-xs text-mute">
+            suggéré: <code className="text-ink-2">{suggestedCanonical}</code>
           </span>
         )}
       </header>
 
       {mode === "alias_existing" && (
         <div className="mt-3 flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1 text-xs text-zinc-400">
+          <label className="flex flex-col gap-1 text-xs text-mute">
             Canonique existant
             <select
               value={canonical}
               onChange={(e) => setCanonical(e.target.value)}
-              className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-white"
+              className="rounded-lg border-2 border-ink bg-paper px-2 py-1 text-sm text-ink"
             >
               {taxonomy.map((t) => (
                 <option key={t} value={t}>
@@ -126,8 +134,10 @@ export function TagAliasRow({
               ))}
             </select>
           </label>
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="lime"
             disabled={busy || !canonical}
             onClick={() =>
               submit({
@@ -136,24 +146,24 @@ export function TagAliasRow({
                 canonical_tag: canonical,
               })
             }
-            className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
           >
             Confirmer
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            size="sm"
+            variant="outline"
             disabled={busy}
             onClick={() => setMode(null)}
-            className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
           >
             Annuler
-          </button>
+          </Button>
         </div>
       )}
 
       {mode === "add_new" && (
         <div className="mt-3 flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1 text-xs text-zinc-400">
+          <label className="flex flex-col gap-1 text-xs text-mute">
             Nouveau tag canonique (snake_case)
             <input
               type="text"
@@ -167,11 +177,13 @@ export function TagAliasRow({
                 )
               }
               placeholder="ex: lifestyle_skating"
-              className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1 font-mono text-sm text-white"
+              className="rounded-lg border-2 border-ink bg-paper px-2 py-1 font-mono text-sm text-ink"
             />
           </label>
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="mint"
             disabled={busy || !/^[a-z][a-z0-9]*(_[a-z0-9]+)+$/.test(newTag)}
             onClick={() =>
               submit({
@@ -180,53 +192,57 @@ export function TagAliasRow({
                 canonical_tag: newTag,
               })
             }
-            className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
           >
             Ajouter et mapper
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            size="sm"
+            variant="outline"
             disabled={busy}
             onClick={() => setMode(null)}
-            className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
           >
             Annuler
-          </button>
+          </Button>
         </div>
       )}
 
       {!mode && (
         <div className="mt-3 flex flex-wrap gap-2">
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="lime"
             disabled={busy}
             onClick={() => setMode("alias_existing")}
-            className="rounded bg-green-600 px-3 py-1 text-xs text-white hover:bg-green-700 disabled:opacity-50"
           >
             Aliaser à existant
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            size="sm"
+            variant="mint"
             disabled={busy}
             onClick={() => setMode("add_new")}
-            className="rounded bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
           >
             Ajouter à la taxonomie
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            size="sm"
+            variant="outline"
+            className="text-destructive"
             disabled={busy}
             onClick={() => submit({ alias, action: "reject" })}
-            className="rounded bg-red-600 px-3 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-50"
           >
             Rejeter
-          </button>
+          </Button>
         </div>
       )}
 
-      {error && <p className="mt-2 text-xs text-red-400">Erreur: {error}</p>}
+      {error && <p className="mt-2 text-xs text-destructive">Erreur: {error}</p>}
       {done && !error && (
-        <p className="mt-2 text-xs text-green-400">{done}</p>
+        <p className="mt-2 text-xs text-lime">{done}</p>
       )}
     </li>
   )

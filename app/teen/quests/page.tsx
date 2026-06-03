@@ -35,8 +35,15 @@ export default async function QuestsHubPage() {
     }
   })()
   const [quests, dailyChallenges, xpData, coinsRow] = await Promise.all([
-    getUnifiedQuests(),
-    getDailyChallenges(teenId).catch(() => []),
+    // B4 — robustesse : getUnifiedQuests ne doit jamais vider tout le hub sur
+    // une exception (c'était le seul appel sans .catch du Promise.all).
+    getUnifiedQuests().catch(() => []),
+    // B5 — getDailyChallenges renvoie un ActionResult {success,data}, pas un
+    // tableau. On déballe vers data : sinon côté client `dailyChallenges.length`
+    // valait `undefined` et les vrais défis du jour ne s'affichaient jamais.
+    getDailyChallenges(teenId)
+      .then((r) => (r.success ? r.data : []))
+      .catch(() => []),
     getTeenXP(teenId).catch(() => null),
     coinsPromise,
   ])
@@ -67,10 +74,10 @@ export default async function QuestsHubPage() {
 function QuestsHubSkeleton() {
   return (
     <div className="space-y-8 pt-8 animate-pulse">
-      <div className="h-12 bg-zinc-800/50 rounded-2xl w-full max-w-md" />
+      <div className="h-12 bg-card rounded-2xl w-full max-w-md" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-64 bg-zinc-800/30 rounded-3xl" />
+          <div key={i} className="h-64 bg-card rounded-2xl" />
         ))}
       </div>
     </div>

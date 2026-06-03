@@ -236,7 +236,7 @@ export function PageTransitionProvider({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="h-full bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500"
+            className="h-full bg-gradient-to-r from-teal via-pink to-pink"
             style={{ width: progressWidth }}
           />
           {/* Glow effect */}
@@ -281,14 +281,14 @@ export function PageTransitionProvider({
           >
             {/* Cinematic bars */}
             <motion.div
-              className="absolute inset-x-0 top-0 bg-black"
+              className="absolute inset-x-0 top-0 bg-ink"
               initial={{ height: '0%' }}
               animate={{ height: '8%' }}
               exit={{ height: '0%' }}
               transition={{ duration: duration, ease: EASINGS.dramatic }}
             />
             <motion.div
-              className="absolute inset-x-0 bottom-0 bg-black"
+              className="absolute inset-x-0 bottom-0 bg-ink"
               initial={{ height: '0%' }}
               animate={{ height: '8%' }}
               exit={{ height: '0%' }}

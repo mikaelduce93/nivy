@@ -3,17 +3,18 @@ import { NextRequest, NextResponse } from "next/server"
 import { toDataURL } from "qrcode"
 import { randomBytes } from "node:crypto"
 import { validateCSRFToken } from "@/lib/security/csrf"
-import { rateLimit, RATE_LIMITS } from "@/lib/security/rate-limiter"
+import { rateLimitDistributed, RATE_LIMITS } from "@/lib/security/rate-limiter-redis"
 import { checkTeenBudget } from "@/lib/budget/check-budget"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
 import { recordSignalAsync } from "@/lib/analytics/signals"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
 export const runtime = "nodejs"
 
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting
-    const rateLimitResult = await rateLimit(request, RATE_LIMITS.booking)
+    const rateLimitResult = await rateLimitDistributed(request, RATE_LIMITS.booking)
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         { 
@@ -58,18 +59,28 @@ export async function POST(request: NextRequest) {
 
     if (!budgetCheck.allowed) {
       if (budgetCheck.requiresApproval) {
-        // Create pending approval request instead of booking
+        // #25 — booking_approval_requests never existed; the canonical table is
+        // parental_approvals (action_type='booking'). Notifications wiring is
+        // #70 (the `notifications` table doesn't exist; canon uses
+        // user_notifications) — the approval row is the source of truth.
+        const nowIso = new Date().toISOString()
+        const expiresIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
         const { data: approvalRequest, error: approvalError } = await supabase
-          .from("booking_approval_requests")
+          .from("parental_approvals")
           .insert({
             parent_id: user.id,
             teen_id: childId,
-            event_id: eventId,
-            ticket_type: ticketType,
-            price: price,
+            // Over-budget = cas « validation préalable » (≠ opposition) : type
+            // canonique dispatchable via parent_approve_purchase / parent_deny_purchase.
+            // L'ancien 'booking' n'était dans aucun map de dispatch → ingérable.
+            action_type: "purchase_above_ceiling",
+            resource_type: "booking",
+            resource_id: eventId,
+            amount: price,
+            details: { ticket_type: ticketType, reason: budgetCheck.reason },
             status: "pending",
-            reason: budgetCheck.reason,
-            created_at: new Date().toISOString(),
+            requested_at: nowIso,
+            expires_at: expiresIso,
           })
           .select()
           .single()
@@ -80,17 +91,6 @@ export async function POST(request: NextRequest) {
             new URL("/agenda?error=approval_failed", request.url)
           )
         }
-
-        // Notify parent (send notification)
-        await supabase.from("notifications").insert({
-          user_id: user.id,
-          type: "approval_required",
-          title: "Approbation requise",
-          message: `Une réservation de ${price} DH nécessite votre approbation.`,
-          read: false,
-          metadata: { approval_request_id: approvalRequest.id },
-          created_at: new Date().toISOString(),
-        })
 
         return NextResponse.redirect(
           new URL(`/reservation/approbation?request=${approvalRequest.id}`, request.url)
@@ -111,25 +111,17 @@ export async function POST(request: NextRequest) {
     const bookingSuffix = randomBytes(4).toString("hex").toUpperCase()
     const bookingReference = `TP${Date.now().toString(36).toUpperCase()}${bookingSuffix}`
 
-    // Generate QR code for booking
-    const bookingQrData = JSON.stringify({
-      booking_ref: bookingReference,
-      event_id: eventId,
-      parent_id: user.id,
-      timestamp: new Date().toISOString(),
-    })
-    const bookingQrCode = await toDataURL(bookingQrData)
-
+    // #25 — bookings owner column is user_id (no parent_id), and there is no
+    // qr_code column on bookings (the per-ticket QR lives on booking_tickets).
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
       .insert({
         event_id: eventId,
-        parent_id: user.id,
+        user_id: user.id,
         booking_reference: bookingReference,
-        qr_code: bookingQrCode,
         total_amount: price,
-        payment_status: "pending", // Changed from "paid" to "pending"
-        status: "pending_payment", // Changed from "confirmed"
+        payment_status: "pending",
+        status: "pending_payment",
       })
       .select()
       .single()
@@ -157,6 +149,36 @@ export async function POST(request: NextRequest) {
     })
 
     if (ticketError) throw ticketError
+
+    // OPPOSITION parentale (modèle opt-out) : le booking est confirmé ; chaque
+    // tuteur ACTIF de l'ado — sauf celui qui a réservé — peut s'y opposer via
+    // /api/parent/approvals (action_type 'event_booking' → parent_deny_booking
+    // annule le booking, migration 129). Best-effort, non bloquant. Service-role
+    // car on insère des lignes pour d'AUTRES parents (hors auth.uid()).
+    try {
+      const sr = createServiceRoleClient()
+      const { data: guardians } = await sr
+        .from("parent_teen_links")
+        .select("parent_id")
+        .eq("teen_id", childId)
+        .eq("status", "active")
+      for (const g of (guardians ?? []) as { parent_id: string }[]) {
+        if (g.parent_id === user.id) continue
+        await sr.from("parental_approvals").insert({
+          parent_id: g.parent_id,
+          teen_id: childId,
+          action_type: "event_booking",
+          resource_type: "booking",
+          resource_id: booking.id,
+          amount: price,
+          status: "pending",
+          details: { mode: "objection", auto_confirmed: true, event_id: eventId, booked_by: user.id },
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        })
+      }
+    } catch (oppErr) {
+      console.warn("[bookings/create] opposition record failed:", oppErr)
+    }
 
     // TICKET-033 — best-effort personalization signal for event_booked.
     // The DB-level record_signal RPC enforces a fixed signal_type enum; we

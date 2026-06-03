@@ -3,6 +3,8 @@
 import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 interface FeedPostLite {
   id: string
@@ -95,36 +97,39 @@ export function ModerationReviewRow({ row }: { row: ReviewRow }) {
   if (row.listing?.images) for (const m of row.listing.images) mediaUrls.push(m)
 
   return (
-    <li className="rounded border border-zinc-800 bg-zinc-900 p-4">
+    <li className="flex flex-col rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <div className="text-xs uppercase tracking-wide text-zinc-500">{row.content_type}</div>
-          <div className="font-semibold text-white">
+          <div className="font-mono text-xs uppercase tracking-[0.16em] text-mute">{row.content_type}</div>
+          <div className="font-semibold text-ink">
             {row.feedPost
               ? ((row.feedPost.metadata as { title?: string } | null)?.title ?? "Publication")
               : row.listing
                 ? row.listing.title
                 : (row.payload.title as string | undefined) ?? "(sans titre)"}
           </div>
-          <div className="text-xs text-zinc-600">
+          <div className="text-xs text-mute">
             Soumis le {new Date(row.created_at).toLocaleString("fr-FR")}
           </div>
         </div>
-        <span className="rounded bg-yellow-500/20 px-2 py-0.5 text-xs text-yellow-300">
-          En attente
-        </span>
+        <StatusBadge
+          variant="pending"
+          label="En attente"
+          size="sm"
+          className="font-mono uppercase tracking-[0.16em]"
+        />
       </header>
 
       {row.feedPost?.content && (
-        <p className="mb-3 whitespace-pre-wrap rounded bg-zinc-950 p-3 text-sm text-zinc-200">
+        <p className="mb-3 whitespace-pre-wrap rounded-lg border-2 border-ink bg-paper p-3 text-sm text-ink-2">
           {row.feedPost.content}
         </p>
       )}
 
       {row.listing && (
-        <div className="mb-3 rounded bg-zinc-950 p-3 text-sm text-zinc-300">
+        <div className="mb-3 rounded-lg border-2 border-ink bg-paper p-3 text-sm text-ink-2">
           <div>{row.listing.category}</div>
-          <div className="text-xs text-zinc-500">
+          <div className="font-mono text-xs text-mute">
             {row.listing.price_coins ? `${row.listing.price_coins} coins` : null}
             {row.listing.price_dh ? ` · ${row.listing.price_dh} DH` : null}
           </div>
@@ -140,12 +145,14 @@ export function ModerationReviewRow({ row }: { row: ReviewRow }) {
                 key={i}
                 src={url}
                 controls
-                className="aspect-video w-full rounded bg-black object-contain"
-              />
+                className="aspect-video w-full rounded bg-ink object-contain"
+              >
+                <track kind="captions" />
+              </video>
             ) : (
               <div
                 key={i}
-                className="relative aspect-video w-full overflow-hidden rounded bg-zinc-950"
+                className="relative aspect-video w-full overflow-hidden rounded bg-background"
               >
                 <Image
                   src={url}
@@ -162,9 +169,14 @@ export function ModerationReviewRow({ row }: { row: ReviewRow }) {
       )}
 
       {!row.feedPost && !row.listing && Object.keys(row.payload).length > 0 && (
-        <pre className="mb-3 max-h-40 overflow-auto rounded bg-zinc-950 p-3 text-xs text-zinc-400">
-          {JSON.stringify(row.payload, null, 2)}
-        </pre>
+        <details className="mb-3">
+          <summary className="cursor-pointer font-mono text-xs uppercase tracking-[0.16em] text-mute">
+            Payload
+          </summary>
+          <pre className="mt-2 max-h-40 overflow-auto rounded-lg border-2 border-ink bg-paper p-3 text-xs text-mute font-mono">
+            {JSON.stringify(row.payload, null, 2)}
+          </pre>
+        </details>
       )}
 
       {showReject && (
@@ -175,53 +187,58 @@ export function ModerationReviewRow({ row }: { row: ReviewRow }) {
             placeholder="Motif de rejet (obligatoire)"
             rows={2}
             maxLength={1000}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+            className="w-full rounded-lg border-2 border-ink bg-paper p-2 text-sm text-ink"
           />
         </div>
       )}
 
-      {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
 
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           type="button"
+          size="sm"
+          variant="lime"
           disabled={busy}
           onClick={approve}
-          className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
         >
           Approuver
-        </button>
+        </Button>
         {!showReject ? (
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="outline"
+            className="text-destructive"
             disabled={busy}
             onClick={() => setShowReject(true)}
-            className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
           >
             Rejeter
-          </button>
+          </Button>
         ) : (
           <>
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="destructive"
               disabled={busy}
               onClick={reject}
-              className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
             >
               Confirmer le rejet
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              size="sm"
+              variant="outline"
               disabled={busy}
               onClick={() => {
                 setShowReject(false)
                 setReason("")
                 setError(null)
               }}
-              className="rounded bg-zinc-700 px-3 py-1 text-sm text-white hover:bg-zinc-600 disabled:opacity-50"
             >
               Annuler
-            </button>
+            </Button>
           </>
         )}
       </div>

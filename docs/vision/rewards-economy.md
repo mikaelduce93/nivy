@@ -1,5 +1,10 @@
 # Rewards Economy — Vision Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 Read-only audit. Date 2026-05-07. Scope: shop catalog, redemption flow,
 stock/promo/partner mechanics, mystery-box compliance, token (migration 028)
 status, and the gap between schema ambition and shipped UI.

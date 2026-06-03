@@ -75,6 +75,20 @@ export function Navbar() {
     }
 
     checkUser()
+
+    // S'abonner aux SIGNED_IN / SIGNED_OUT : la navbar vit dans le root layout
+    // persistant (app/layout.tsx) et ne se re-monte pas pendant les navigations
+    // soft du login → sans abonnement, `user` reste figé sur l'état déconnecté
+    // jusqu'à un refresh manuel. Garde le mock client (lib/supabase/client.ts)
+    // qui n'expose pas onAuthStateChange.
+    if (typeof supabase.auth.onAuthStateChange === "function") {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(
+        (_event: string, session: { user?: { id: string } } | null) => setUser(session?.user ?? null),
+      )
+      return () => subscription?.unsubscribe()
+    }
   }, [])
 
   // Keyboard shortcut for search (Ctrl+K or Cmd+K)
@@ -213,9 +227,9 @@ export function Navbar() {
           title: "Level Up",
           items: [
             { label: "Mon niveau", href: "/gamification", icon: Zap },
-            { label: "Missions du jour", href: "/gamification/missions", icon: Target },
-            { label: "Mes badges", href: "/gamification/badges", icon: Award },
-            { label: "Ma collection", href: "/gamification/collections", icon: Gift },
+            { label: "Missions du jour", href: "/teen/quests", icon: Target },
+            { label: "Mes badges", href: "/teen/wallet?tab=badges", icon: Award },
+            { label: "Ma collection", href: "/teen/wallet?tab=badges", icon: Gift },
           ],
         },
         {
@@ -312,7 +326,7 @@ export function Navbar() {
   const menuItems = isHome ? homeMenuItems : fullMenuItems
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-paper/90 backdrop-blur-md border-b-2 border-ink">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -369,7 +383,7 @@ export function Navbar() {
                 {/* Mega Menu */}
                 {item.megaMenu && activeMenu === item.id && (
                   <div 
-                    className="absolute top-full left-0 mt-2 w-[600px] bg-popover/95 backdrop-blur-xl border border-border rounded-xl shadow-2xl p-6 grid grid-cols-2 gap-6 animate-in fade-in-0 zoom-in-95 duration-200"
+                    className="absolute top-full left-0 mt-2 w-[600px] bg-popover/95  border border-border rounded-xl shadow-2xl p-6 grid grid-cols-2 gap-6 animate-in fade-in-0 zoom-in-95 duration-200"
                     role="menu"
                     aria-label={`${item.label} sous-menu`}
                     onBlur={(e) => {
@@ -387,7 +401,7 @@ export function Navbar() {
                         <div className="space-y-1">
                           {section.items.map((subItem) => (
                             <Link
-                              key={subItem.href}
+                              key={subItem.label}
                               href={subItem.href}
                               prefetch={subItem.href === "/auth/login" || subItem.href === "/auth/sign-up" || subItem.href === "/onboarding" || subItem.href.startsWith("/espace")}
                               className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:bg-muted"
@@ -483,7 +497,7 @@ export function Navbar() {
           id="mobile-menu"
           role="navigation"
           aria-label="Menu mobile"
-          className="lg:hidden border-t border-border bg-background/95 backdrop-blur-xl max-h-[80vh] overflow-y-auto"
+          className="lg:hidden border-t-2 border-ink bg-paper/95 backdrop-blur-md max-h-[80vh] overflow-y-auto"
         >
           <div className="px-4 py-6 space-y-4">
             {menuItems.map((item) => (
@@ -506,7 +520,7 @@ export function Navbar() {
                         </p>
                         {section.items.map((subItem) => (
                           <Link
-                            key={subItem.href}
+                            key={subItem.label}
                             href={subItem.href}
                             className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground text-sm"
                             onClick={() => setMobileMenuOpen(false)}

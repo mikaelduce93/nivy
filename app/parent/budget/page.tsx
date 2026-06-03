@@ -1,21 +1,23 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   Wallet,
   TrendingUp,
   AlertTriangle,
   ArrowLeft,
-  Settings,
   Users,
   Calendar,
   ShieldCheck
 } from "lucide-react"
 import Link from "next/link"
 import { BudgetLimitForm } from "@/components/parent/budget-limit-form"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatHero } from "@/components/brand"
+import { NivCoach, NivEmpty } from "@/components/brand"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 async function getParentBudgetData(profileId: string) {
   const supabase = await createClient()
@@ -43,20 +45,21 @@ async function getParentBudgetData(profileId: string) {
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
+  // bookings owner column is user_id (no teen_id); amount is total_amount.
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("teen_id, total_price, created_at")
-    .in("teen_id", teenIds)
+    .select("user_id, total_amount, created_at")
+    .in("user_id", teenIds)
     .gte("created_at", startOfMonth.toISOString())
 
   // Calculate spending per teen
   const spendingByTeen = new Map<string, number>()
   bookings?.forEach((b: any) => {
-    const current = spendingByTeen.get(b.teen_id) || 0
-    spendingByTeen.set(b.teen_id, current + (b.total_price || 0))
+    const current = spendingByTeen.get(b.user_id) || 0
+    spendingByTeen.set(b.user_id, current + (b.total_amount || 0))
   })
 
-  const totalSpentThisMonth = bookings?.reduce((sum: number, b: any) => sum + (b.total_price || 0), 0) || 0
+  const totalSpentThisMonth = bookings?.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0) || 0
 
   // Merge data
   const teensWithBudget = teens.map((teen: any) => {
@@ -95,148 +98,114 @@ export default async function ParentBudgetPage() {
   const teensNearLimit = teens.filter((t: any) => t.budgetUsagePercent >= 80).length
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-white">Gestion du Budget</h1>
-            <p className="text-zinc-400">Définissez des limites de dépenses pour vos teens</p>
-          </div>
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <p className="eyebrow text-pink">Contrôle dépenses</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">
+            Fixe les <em className="font-semibold italic text-pink">limites</em>
+          </h1>
+          <p className="mt-2 text-mute">Définis des budgets de dépenses pour tes teens.</p>
         </div>
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-zinc-900">
-            <CardContent className="p-5">
+        {/* Hiérarchie 1-2-3 : budget total dominant + KPI secondaires */}
+        <div className="mb-8 grid gap-4 md:grid-cols-3">
+          <StatHero
+            eyebrow="Budget total"
+            value={totalMonthlyLimits.toLocaleString()}
+            unit="DH"
+            tone="lime"
+            icon={<Wallet className="h-5 w-5" />}
+            meta="ce mois"
+          />
+          <StickerCard className="justify-between p-5">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow text-teal">Dépensé</p>
+              <TrendingUp className="h-5 w-5 text-teal" />
+            </div>
+            <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-ink">
+              <span className="font-mono">{totalSpentThisMonth.toLocaleString()}</span>
+              <span className="ml-1 font-mono text-base text-mute">DH</span>
+            </p>
+            <p className="mt-1 font-mono text-xs text-mute">ce mois</p>
+          </StickerCard>
+          <div className="grid grid-cols-2 gap-4">
+            <StickerCard className="justify-between p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-emerald-400 font-medium">Budget Total</p>
-                  <p className="text-3xl font-black text-white">{totalMonthlyLimits.toLocaleString()} DH</p>
-                  <p className="text-xs text-zinc-500">ce mois</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-emerald-400" />
-                </div>
+                <p className="eyebrow text-pink">Teens</p>
+                <Users className="h-5 w-5 text-pink" />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
-            <CardContent className="p-5">
+              <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-ink">
+                {teenCount}
+              </p>
+            </StickerCard>
+            <StickerCard className="justify-between p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-blue-400 font-medium">Dépensé</p>
-                  <p className="text-3xl font-black text-white">{totalSpentThisMonth.toLocaleString()} DH</p>
-                  <p className="text-xs text-zinc-500">ce mois</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-blue-400" />
-                </div>
+                <p className={`eyebrow ${teensNearLimit > 0 ? "text-coral" : "text-mute"}`}>Alertes</p>
+                <AlertTriangle className={`h-5 w-5 ${teensNearLimit > 0 ? "text-coral" : "text-mute"}`} />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-purple-400 font-medium">Teens</p>
-                  <p className="text-3xl font-black text-white">{teenCount}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-purple-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className={`bg-zinc-900 ${teensNearLimit > 0 ? "bg-gradient-to-br from-orange-500/20 to-red-500/20 border-orange-500/30" : "border-zinc-800"}`}>
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-xs font-medium ${teensNearLimit > 0 ? "text-orange-400" : "text-zinc-400"}`}>
-                    Alertes
-                  </p>
-                  <p className="text-3xl font-black text-white">{teensNearLimit}</p>
-                  <p className="text-xs text-zinc-500">près du plafond</p>
-                </div>
-                <div className={`h-12 w-12 rounded-full flex items-center justify-center ${teensNearLimit > 0 ? "bg-orange-500/20" : "bg-zinc-800"}`}>
-                  <AlertTriangle className={`h-6 w-6 ${teensNearLimit > 0 ? "text-orange-400" : "text-zinc-500"}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              <p className="mt-2 font-display text-3xl font-extrabold tabular-nums text-ink">
+                {teensNearLimit}
+              </p>
+              <p className="mt-1 font-mono text-xs text-mute">près du plafond</p>
+            </StickerCard>
+          </div>
         </div>
 
         {/* Teen Budget Cards */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-white">Budgets par Teen</h2>
+          <h2 className="font-display text-xl font-extrabold text-ink">Budgets par teen</h2>
 
           {teens.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid gap-6 md:grid-cols-2">
               {teens.map((teen: any) => {
                 const usagePercent = teen.budgetUsagePercent
                 const isNearLimit = usagePercent >= 80
                 const isOverLimit = usagePercent >= 100
+                // Segments charte : 10 paliers de 10 %, remplis selon usagePercent.
+                const filledSegments = Math.min(Math.round(usagePercent / 10), 10)
 
                 return (
-                  <Card
-                    key={teen.teen_id}
-                    className={`bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 ${
-                      isOverLimit ? "border-red-500/50" : isNearLimit ? "border-orange-500/50" : ""
-                    }`}
-                  >
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <StickerCard key={teen.teen_id} variant="hover" className="p-5">
+                    <div className="flex items-center justify-between pb-2">
                       <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold text-lg">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-ink bg-paper font-display text-lg font-extrabold text-ink">
                           {teen.teen_name?.charAt(0) || "?"}
                         </div>
                         <div>
-                          <CardTitle className="text-lg text-white">{teen.teen_name}</CardTitle>
-                          <p className="text-xs text-zinc-400">
+                          <p className="font-display text-lg font-extrabold text-ink">{teen.teen_name}</p>
+                          <p className="font-mono text-xs text-mute">
                             {teen.title_icon} {teen.title} • Niv. {teen.level}
                           </p>
                         </div>
                       </div>
-                      {isOverLimit && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-400">
-                          Dépassé
-                        </span>
-                      )}
+                      {isOverLimit && <StatusBadge variant="danger" label="Dépassé" />}
                       {isNearLimit && !isOverLimit && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-400">
-                          Presque atteint
-                        </span>
+                        <StatusBadge variant="warning" label="Presque atteint" />
                       )}
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                    </div>
+
+                    <div className="space-y-4">
                       {/* Budget Progress */}
                       {teen.monthlyLimit > 0 && (
                         <div>
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="text-zinc-400">Budget mensuel</span>
-                            <span className="text-white font-bold">
+                          <div className="mb-2 flex justify-between text-sm">
+                            <span className="text-mute">Budget mensuel</span>
+                            <span className="font-mono font-bold text-ink">
                               {teen.spentThisMonth.toLocaleString()} / {teen.monthlyLimit.toLocaleString()} DH
                             </span>
                           </div>
-                          <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all ${
-                                isOverLimit ? "bg-red-500" : isNearLimit ? "bg-orange-500" : "bg-emerald-500"
-                              }`}
-                              style={{ width: `${Math.min(usagePercent, 100)}%` }}
-                            />
-                          </div>
-                          <p className="text-xs text-zinc-500 mt-1">
+                          <SegmentedProgress steps={10} current={filledSegments} size="md" />
+                          <p className="mt-1 font-mono text-xs text-mute">
                             {teen.remainingBudget > 0
                               ? `${teen.remainingBudget.toLocaleString()} DH restants`
                               : "Budget épuisé"}
@@ -245,22 +214,22 @@ export default async function ParentBudgetPage() {
                       )}
 
                       {/* Settings */}
-                      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-800">
-                        <div className="bg-zinc-800 rounded-xl p-4">
-                          <div className="flex items-center gap-2 text-zinc-400 mb-1">
+                      <div className="grid grid-cols-2 gap-4 border-t-2 border-ink pt-4">
+                        <div className="rounded-xl border-2 border-ink bg-paper p-4">
+                          <div className="mb-1 flex items-center gap-2 text-mute">
                             <Calendar className="h-4 w-4" />
-                            <span className="text-xs">Limite mensuelle</span>
+                            <span className="eyebrow">Limite mensuelle</span>
                           </div>
-                          <p className="text-lg font-bold text-white">
+                          <p className="font-mono text-lg font-bold text-ink">
                             {teen.monthlyLimit > 0 ? `${teen.monthlyLimit.toLocaleString()} DH` : "Non définie"}
                           </p>
                         </div>
-                        <div className="bg-zinc-800 rounded-xl p-4">
-                          <div className="flex items-center gap-2 text-zinc-400 mb-1">
+                        <div className="rounded-xl border-2 border-ink bg-paper p-4">
+                          <div className="mb-1 flex items-center gap-2 text-mute">
                             <ShieldCheck className="h-4 w-4" />
-                            <span className="text-xs">Approbation</span>
+                            <span className="eyebrow">Approbation</span>
                           </div>
-                          <p className="text-lg font-bold text-white">
+                          <p className="font-display text-lg font-bold text-ink">
                             {teen.requiresApproval ? "Requise" : "Auto"}
                           </p>
                         </div>
@@ -274,43 +243,39 @@ export default async function ParentBudgetPage() {
                         currentPerEventLimit={teen.perEventLimit}
                         currentRequiresApproval={teen.requiresApproval}
                       />
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </StickerCard>
                 )
               })}
             </div>
           ) : (
-            <EmptyState
-              icon={Users}
+            <NivEmpty
               title="Aucun teen lié"
-              description="Liez d'abord des comptes teen pour gérer leur budget."
-              action={{ label: "Ajouter un teen", href: "/parent/teens/add" }}
+              description="Lie d'abord des comptes teen pour gérer leur budget."
+              action={
+                <Button asChild variant="pink">
+                  <Link href="/parent/teens/add">Ajouter un teen</Link>
+                </Button>
+              }
             />
           )}
         </div>
 
-        {/* Tips */}
-        <Card className="mt-8 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border-emerald-500/20">
-          <CardContent className="p-6">
-            <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-              <span className="text-xl">💡</span> Conseils de gestion
-            </h3>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Commencez petit</p>
-                <p className="text-xs text-zinc-400">Définissez un petit budget au début et ajustez selon l'utilisation</p>
-              </div>
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Approbation pour les gros achats</p>
-                <p className="text-xs text-zinc-400">Gardez l'approbation manuelle pour les events coûteux</p>
-              </div>
-              <div className="p-4 bg-zinc-900/80 rounded-xl border border-zinc-800">
-                <p className="font-bold text-white mb-1">Vérifiez régulièrement</p>
-                <p className="text-xs text-zinc-400">Consultez les dépenses chaque semaine</p>
-              </div>
+        {/* Tips — coach Niv */}
+        <NivCoach
+          mood="calm"
+          className="mt-8"
+          message={
+            <div className="space-y-1">
+              <p className="font-bold text-paper">Commence petit, ajuste après, wili.</p>
+              <p>
+                Mets un petit budget au début et augmente selon l&apos;usage. Garde
+                l&apos;approbation manuelle pour les events coûteux, et jette un œil aux dépenses
+                chaque semaine.
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          }
+        />
       </div>
     </div>
   )

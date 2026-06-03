@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { submitPartnerWizard } from '@/lib/partners/wizard-submit'
 import { PartnerPasswordPanel, isPasswordValid } from '@/components/partners/PartnerPasswordPanel'
+import { WizardSteps } from '@/components/partners/WizardSteps'
 
 interface RetailPartnerFormProps {
   onBack: () => void
@@ -58,6 +59,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [accepted, setAccepted] = useState(false)
 
   // Step 1: Company Information
   const [companyName, setCompanyName] = useState('')
@@ -256,33 +258,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
     <div className="max-w-4xl mx-auto">
 
       {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
-                  currentStep >= step.id
-                    ? 'bg-blue-600 border-blue-600 text-white'
-                    : 'bg-zinc-800 border-zinc-700 text-zinc-400'
-                }`}>
-                  <step.icon className="w-6 h-6" />
-                </div>
-                <span className={`text-xs mt-2 text-center ${
-                  currentStep >= step.id ? 'text-blue-400' : 'text-zinc-500'
-                }`}>
-                  {step.title}
-                </span>
-              </div>
-              {index < STEPS.length - 1 && (
-                <div className={`h-0.5 flex-1 mx-2 transition-all ${
-                  currentStep > step.id ? 'bg-blue-600' : 'bg-zinc-800'
-                }`} />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      <WizardSteps steps={STEPS} currentStep={currentStep} accent="teal" />
 
       {/* Step Content */}
       <motion.div
@@ -295,13 +271,13 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
         {/* Step 1: Company Information */}
         {currentStep === 1 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-blue-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-teal" />
                 Informations sur votre entreprise
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Veuillez fournir les informations de base sur votre commerce
               </CardDescription>
             </CardHeader>
@@ -310,26 +286,26 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
               {/* Company Details */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="companyName" className="text-zinc-300">
+                  <Label htmlFor="companyName" className="text-ink-2">
                     Nom de l'entreprise *
                   </Label>
                   <Input
                     id="companyName"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="Ma Boutique SARL"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="registrationNumber" className="text-zinc-300">
+                  <Label htmlFor="registrationNumber" className="text-ink-2">
                     Numéro d'enregistrement
                   </Label>
                   <Input
                     id="registrationNumber"
                     value={registrationNumber}
                     onChange={(e) => setRegistrationNumber(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="RC-123456"
                   />
                 </div>
@@ -337,19 +313,19 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="taxId" className="text-zinc-300">
+                  <Label htmlFor="taxId" className="text-ink-2">
                     Identifiant fiscal (IF)
                   </Label>
                   <Input
                     id="taxId"
                     value={taxId}
                     onChange={(e) => setTaxId(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="12345678"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="website" className="text-zinc-300">
+                  <Label htmlFor="website" className="text-ink-2">
                     Site web
                   </Label>
                   <Input
@@ -357,7 +333,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                     type="url"
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="https://www.example.com"
                   />
                 </div>
@@ -366,33 +342,33 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
               {/* Contact Information */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email" className="text-zinc-300">
+                  <Label htmlFor="email" className="text-ink-2">
                     Email professionnel *
                   </Label>
                   <div className="relative mt-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute" />
                     <Input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white pl-10"
+                      className="bg-background border-ink text-ink pl-10"
                       placeholder="contact@example.com"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-zinc-300">
+                  <Label htmlFor="phone" className="text-ink-2">
                     Téléphone *
                   </Label>
                   <div className="relative mt-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute" />
                     <Input
                       id="phone"
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white pl-10"
+                      className="bg-background border-ink text-ink pl-10"
                       placeholder="+212 6XX-XXXXXX"
                     />
                   </div>
@@ -401,14 +377,14 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
               {/* Description */}
               <div>
-                <Label htmlFor="description" className="text-zinc-300">
+                <Label htmlFor="description" className="text-ink-2">
                   Description de votre commerce
                 </Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1 min-h-24"
+                  className="bg-background border-ink text-ink mt-1 min-h-24"
                   placeholder="Décrivez votre commerce, vos produits, votre spécialité..."
                 />
               </div>
@@ -421,35 +397,35 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
               />
 
               {/* Contact Person */}
-              <div className="border-t border-zinc-800 pt-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Personne de contact</h3>
+              <div className="border-t border-ink pt-6">
+                <h3 className="text-lg font-semibold text-ink mb-4">Personne de contact</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="contactPersonName" className="text-zinc-300">
+                    <Label htmlFor="contactPersonName" className="text-ink-2">
                       Nom complet *
                     </Label>
                     <Input
                       id="contactPersonName"
                       value={contactPersonName}
                       onChange={(e) => setContactPersonName(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="Ahmed Benali"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonRole" className="text-zinc-300">
+                    <Label htmlFor="contactPersonRole" className="text-ink-2">
                       Poste / Fonction
                     </Label>
                     <Input
                       id="contactPersonRole"
                       value={contactPersonRole}
                       onChange={(e) => setContactPersonRole(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="Gérant"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonPhone" className="text-zinc-300">
+                    <Label htmlFor="contactPersonPhone" className="text-ink-2">
                       Téléphone
                     </Label>
                     <Input
@@ -457,12 +433,12 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                       type="tel"
                       value={contactPersonPhone}
                       onChange={(e) => setContactPersonPhone(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="+212 6XX-XXXXXX"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonEmail" className="text-zinc-300">
+                    <Label htmlFor="contactPersonEmail" className="text-ink-2">
                       Email
                     </Label>
                     <Input
@@ -470,7 +446,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                       type="email"
                       value={contactPersonEmail}
                       onChange={(e) => setContactPersonEmail(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="ahmed@example.com"
                     />
                   </div>
@@ -483,22 +459,22 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
         {/* Step 2: Locations */}
         {currentStep === 2 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-teal" />
                 Points de vente
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Ajoutez tous vos magasins et points de vente
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
               {locations.map((location, index) => (
-                <div key={location.id} className="p-4 bg-zinc-950 rounded-lg border border-zinc-800">
+                <div key={location.id} className="p-4 bg-background rounded-lg border border-ink">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-white font-medium">
+                    <h4 className="text-ink font-medium">
                       Point de vente {index + 1}
                     </h4>
                     {locations.length > 1 && (
@@ -507,7 +483,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeLocation(location.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -516,48 +492,48 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <Label className="text-zinc-300">Nom du point de vente *</Label>
+                      <Label className="text-ink-2">Nom du point de vente *</Label>
                       <Input
                         value={location.locationName}
                         onChange={(e) => updateLocation(location.id, 'locationName', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="Boutique Centre-Ville"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <Label className="text-zinc-300">Adresse *</Label>
+                      <Label className="text-ink-2">Adresse *</Label>
                       <Input
                         value={location.address}
                         onChange={(e) => updateLocation(location.id, 'address', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="123 Avenue Mohammed V"
                       />
                     </div>
                     <div>
-                      <Label className="text-zinc-300">Ville *</Label>
+                      <Label className="text-ink-2">Ville *</Label>
                       <Input
                         value={location.city}
                         onChange={(e) => updateLocation(location.id, 'city', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="Casablanca"
                       />
                     </div>
                     <div>
-                      <Label className="text-zinc-300">Code postal</Label>
+                      <Label className="text-ink-2">Code postal</Label>
                       <Input
                         value={location.postalCode}
                         onChange={(e) => updateLocation(location.id, 'postalCode', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="20000"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <Label className="text-zinc-300">Téléphone</Label>
+                      <Label className="text-ink-2">Téléphone</Label>
                       <Input
                         type="tel"
                         value={location.phone}
                         onChange={(e) => updateLocation(location.id, 'phone', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="+212 5XX-XXXXXX"
                       />
                     </div>
@@ -569,7 +545,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                 type="button"
                 variant="outline"
                 onClick={addLocation}
-                className="w-full border-blue-500/50 text-blue-400 hover:bg-blue-500/10"
+                className="w-full border-teal/50 text-teal hover:bg-teal/10"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Ajouter un point de vente
@@ -581,22 +557,22 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
         {/* Step 3: Discounts */}
         {currentStep === 3 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Percent className="w-5 h-5 text-blue-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <Percent className="w-5 h-5 text-teal" />
                 Configuration des réductions
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Définissez les réductions pour les détenteurs de cartes VIP
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
               {discounts.map((discount, index) => (
-                <div key={discount.id} className="p-4 bg-zinc-950 rounded-lg border border-zinc-800">
+                <div key={discount.id} className="p-4 bg-background rounded-lg border border-ink">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-white font-medium">
+                    <h4 className="text-ink font-medium">
                       Réduction {index + 1}
                     </h4>
                     {discounts.length > 1 && (
@@ -605,7 +581,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeDiscount(discount.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -615,21 +591,21 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-zinc-300">Nom de la réduction *</Label>
+                        <Label className="text-ink-2">Nom de la réduction *</Label>
                         <Input
                           value={discount.discountName}
                           onChange={(e) => updateDiscount(discount.id, 'discountName', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder="Réduction VIP"
                         />
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Niveau VIP minimum</Label>
+                        <Label className="text-ink-2">Niveau VIP minimum</Label>
                         <Select
                           value={discount.minVipLevel}
                           onValueChange={(value) => updateDiscount(discount.id, 'minVipLevel', value)}
                         >
-                          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white mt-1">
+                          <SelectTrigger className="bg-card border-ink text-ink mt-1">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -642,11 +618,11 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                     </div>
 
                     <div>
-                      <Label className="text-zinc-300">Description</Label>
+                      <Label className="text-ink-2">Description</Label>
                       <Textarea
                         value={discount.description}
                         onChange={(e) => updateDiscount(discount.id, 'description', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="Détails de l'offre..."
                         rows={2}
                       />
@@ -654,14 +630,14 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
                     <div className="grid md:grid-cols-3 gap-4">
                       <div>
-                        <Label className="text-zinc-300">Type de réduction</Label>
+                        <Label className="text-ink-2">Type de réduction</Label>
                         <Select
                           value={discount.discountType}
                           onValueChange={(value: 'percentage' | 'fixed_amount') =>
                             updateDiscount(discount.id, 'discountType', value)
                           }
                         >
-                          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white mt-1">
+                          <SelectTrigger className="bg-card border-ink text-ink mt-1">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -671,24 +647,24 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                         </Select>
                       </div>
                       <div>
-                        <Label className="text-zinc-300">
+                        <Label className="text-ink-2">
                           Valeur * {discount.discountType === 'percentage' ? '(%)' : '(DH)'}
                         </Label>
                         <Input
                           type="number"
                           value={discount.discountValue}
                           onChange={(e) => updateDiscount(discount.id, 'discountValue', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder={discount.discountType === 'percentage' ? '15' : '50'}
                         />
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Achat minimum (DH)</Label>
+                        <Label className="text-ink-2">Achat minimum (DH)</Label>
                         <Input
                           type="number"
                           value={discount.minPurchaseAmount}
                           onChange={(e) => updateDiscount(discount.id, 'minPurchaseAmount', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder="200"
                         />
                       </div>
@@ -696,27 +672,27 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-zinc-300">Valide du *</Label>
+                        <Label className="text-ink-2">Valide du *</Label>
                         <Input
                           type="date"
                           value={discount.validFrom}
                           onChange={(e) => updateDiscount(discount.id, 'validFrom', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                         />
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Valide jusqu'au *</Label>
+                        <Label className="text-ink-2">Valide jusqu'au *</Label>
                         <Input
                           type="date"
                           value={discount.validUntil}
                           onChange={(e) => updateDiscount(discount.id, 'validUntil', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label className="text-zinc-300 mb-2 block">Catégories applicables</Label>
+                      <Label className="text-ink-2 mb-2 block">Catégories applicables</Label>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {PRODUCT_CATEGORIES.map(category => (
                           <div key={category} className="flex items-center space-x-2">
@@ -727,7 +703,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                             />
                             <label
                               htmlFor={`${discount.id}-${category}`}
-                              className="text-sm text-zinc-300 cursor-pointer"
+                              className="text-sm text-ink-2 cursor-pointer"
                             >
                               {category}
                             </label>
@@ -743,7 +719,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
                 type="button"
                 variant="outline"
                 onClick={addDiscount}
-                className="w-full border-blue-500/50 text-blue-400 hover:bg-blue-500/10"
+                className="w-full border-teal/50 text-teal hover:bg-teal/10"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Ajouter une réduction
@@ -755,35 +731,35 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
 
         {/* Step 4: Confirmation */}
         {currentStep === 4 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-lime" />
                 Confirmation
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Vérifiez les informations avant de soumettre votre demande
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
               {/* Company Summary */}
-              <div className="p-4 bg-zinc-950 rounded-lg">
-                <h4 className="text-white font-semibold mb-3">Entreprise</h4>
+              <div className="p-4 bg-background rounded-lg">
+                <h4 className="text-ink font-semibold mb-3">Entreprise</h4>
                 <div className="space-y-2 text-sm">
-                  <p className="text-zinc-300"><span className="text-zinc-500">Nom:</span> {companyName}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Email:</span> {email}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Téléphone:</span> {phone}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Contact:</span> {contactPersonName}</p>
+                  <p className="text-ink-2"><span className="text-mute">Nom:</span> {companyName}</p>
+                  <p className="text-ink-2"><span className="text-mute">Email:</span> {email}</p>
+                  <p className="text-ink-2"><span className="text-mute">Téléphone:</span> {phone}</p>
+                  <p className="text-ink-2"><span className="text-mute">Contact:</span> {contactPersonName}</p>
                 </div>
               </div>
 
               {/* Locations Summary */}
-              <div className="p-4 bg-zinc-950 rounded-lg">
-                <h4 className="text-white font-semibold mb-3">Points de vente ({locations.length})</h4>
+              <div className="p-4 bg-background rounded-lg">
+                <h4 className="text-ink font-semibold mb-3">Points de vente ({locations.length})</h4>
                 <div className="space-y-2">
                   {locations.map((loc, idx) => (
-                    <p key={loc.id} className="text-sm text-zinc-300">
+                    <p key={loc.id} className="text-sm text-ink-2">
                       {idx + 1}. {loc.locationName} - {loc.city}
                     </p>
                   ))}
@@ -791,11 +767,11 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
               </div>
 
               {/* Discounts Summary */}
-              <div className="p-4 bg-zinc-950 rounded-lg">
-                <h4 className="text-white font-semibold mb-3">Réductions ({discounts.length})</h4>
+              <div className="p-4 bg-background rounded-lg">
+                <h4 className="text-ink font-semibold mb-3">Réductions ({discounts.length})</h4>
                 <div className="space-y-2">
                   {discounts.map((disc, idx) => (
-                    <p key={disc.id} className="text-sm text-zinc-300">
+                    <p key={disc.id} className="text-sm text-ink-2">
                       {idx + 1}. {disc.discountName} - {disc.discountValue}{disc.discountType === 'percentage' ? '%' : ' DH'}
                       {' '}(VIP {disc.minVipLevel}+)
                     </p>
@@ -804,10 +780,10 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
               </div>
 
               {/* Terms */}
-              <div className="p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
+              <div className="p-4 bg-teal/10 border border-teal/30 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <Checkbox id="terms" />
-                  <label htmlFor="terms" className="text-sm text-zinc-300 cursor-pointer">
+                  <Checkbox id="terms" checked={accepted} onCheckedChange={(v) => setAccepted(v === true)} />
+                  <label htmlFor="terms" className="text-sm text-ink-2 cursor-pointer">
                     J'accepte les conditions générales du programme partenaire et je confirme que toutes les informations fournies sont exactes.
                   </label>
                 </div>
@@ -825,7 +801,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
           type="button"
           variant="outline"
           onClick={handleBack}
-          className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+          className="border-ink text-ink-2 hover:bg-card"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           {currentStep === 1 ? 'Retour' : 'Précédent'}
@@ -836,7 +812,7 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
             type="button"
             onClick={handleNext}
             disabled={!validateStep(currentStep)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-teal hover:bg-teal text-ink"
           >
             Suivant
             <ArrowRight className="w-4 h-4 ml-2" />
@@ -845,8 +821,8 @@ export default function RetailPartnerForm({ onBack }: RetailPartnerFormProps) {
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="bg-green-600 hover:bg-green-700 text-white"
+            disabled={isSubmitting || !accepted}
+            className="bg-lime hover:bg-lime text-ink"
           >
             {isSubmitting ? 'Envoi en cours...' : 'Soumettre la demande'}
             <CheckCircle className="w-4 h-4 ml-2" />

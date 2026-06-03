@@ -434,7 +434,7 @@ export function ExportButton({ transactions }: ExportButtonProps) {
 
   if (transactions.length === 0) {
     return (
-      <Button variant="outline" disabled className="border-zinc-700 text-zinc-500">
+      <Button variant="outline" disabled className="border-ink text-mute">
         <Download className="h-4 w-4 mr-2" />
         Exporter
       </Button>
@@ -444,7 +444,7 @@ export function ExportButton({ transactions }: ExportButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="border-zinc-700 text-zinc-300" disabled={loading}>
+        <Button variant="outline" className="border-ink text-ink-2" disabled={loading}>
           {loading ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
@@ -453,26 +453,26 @@ export function ExportButton({ transactions }: ExportButtonProps) {
           Exporter
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-zinc-900 border-zinc-800">
+      <DropdownMenuContent className="bg-card border-ink">
         <DropdownMenuItem
           onClick={exportToCSV}
-          className="text-zinc-300 hover:text-white hover:bg-zinc-800 cursor-pointer"
+          className="text-ink-2 hover:text-ink hover:bg-card cursor-pointer"
         >
-          <FileSpreadsheet className="h-4 w-4 mr-2 text-emerald-400" />
+          <FileSpreadsheet className="h-4 w-4 mr-2 text-lime" />
           Exporter en CSV
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={exportToJSON}
-          className="text-zinc-300 hover:text-white hover:bg-zinc-800 cursor-pointer"
+          className="text-ink-2 hover:text-ink hover:bg-card cursor-pointer"
         >
-          <FileText className="h-4 w-4 mr-2 text-blue-400" />
+          <FileText className="h-4 w-4 mr-2 text-teal" />
           Exporter en JSON
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={exportToPDF}
-          className="text-zinc-300 hover:text-white hover:bg-zinc-800 cursor-pointer"
+          className="text-ink-2 hover:text-ink hover:bg-card cursor-pointer"
         >
-          <FileIcon className="h-4 w-4 mr-2 text-red-400" />
+          <FileIcon className="h-4 w-4 mr-2 text-destructive" />
           Exporter en PDF
         </DropdownMenuItem>
       </DropdownMenuContent>

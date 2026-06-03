@@ -51,8 +51,8 @@ const ROUTES = [
   { path: "/notifications",         kind: "redirect", expectLocationPrefix: "/auth/redirect" },
   { path: "/notifications/preferences", kind: "redirect", expectLocationPrefix: "/auth/redirect" },
   { path: "/gamification",          kind: "redirect", expectLocationPrefix: "/teen" },
-  { path: "/gamification/missions", kind: "redirect" },
-  { path: "/gamification/defis",    kind: "redirect" },
+  { path: "/gamification/missions", kind: "redirect", expectLocationPrefix: "/teen/quests" },
+  { path: "/gamification/defis",    kind: "redirect", expectLocationPrefix: "/teen/quests/friend-defis" },
   { path: "/teen/shop",             kind: "redirect" },
 
   // Auth-gated role homes — should 30x to /auth/login or render their

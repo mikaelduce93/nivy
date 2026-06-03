@@ -1,5 +1,6 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { getAchievementStats } from "@/gamification-system/features/achievements/actions"
 import { getUserRank } from "@/gamification-system/features/leaderboard/actions"
@@ -92,5 +93,13 @@ export default async function TeenProfilePage() {
     titleIcon: teenData?.titleIcon || "🌱",
   }
 
-  return <ProfileHubClient data={profileData} />
+  // #216 — ProfileHubClient reads useSearchParams() (?tab=...). Next App Router
+  // requires a <Suspense> ancestor or it bails the whole route to CSR at build
+  // (missing-suspense-with-csr-bailout). Neither this page nor any teen layout
+  // wraps it, so add the boundary here (cf. app/teen/wallet/page.tsx).
+  return (
+    <Suspense fallback={null}>
+      <ProfileHubClient data={profileData} />
+    </Suspense>
+  )
 }

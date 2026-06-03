@@ -3,7 +3,7 @@ import "server-only"
 import { createClient } from "@/lib/supabase/server"
 import { getActivityFeed } from "@/gamification-system/features/activity-feed/actions"
 import { getDailyMissions } from "@/gamification-system/features/missions/actions"
-import { getActivityHistory, getLifetimeStats, updateLoginStreak } from "@/gamification-system/features/stats-dashboard/actions"
+import { getActivityHistory, getLifetimeStats } from "@/gamification-system/features/stats-dashboard/actions"
 import { getRewards, getUsablePurchases } from "@/gamification-system/features/shop/actions"
 
 type PermissionsSummaryItem = {
@@ -176,10 +176,15 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
 
   if (!user) return null
 
+  // Colonnes RÉELLES de la vue teen_full_profile uniquement. L'ancien select
+  // demandait full_name/interests/coins_earned/coins_topup/streak/city —
+  // inexistantes sur la vue → PostgREST 400 → teenProfile=null → pilier Social
+  // + données profil cassés. interests reste [] (vraie source = teen_interests,
+  // hors scope ici) ; streak retombe sur user_lifetime_stats (cf. plus bas).
   const { data: teenProfile } = await supabase
     .from("teen_full_profile")
     .select(
-      "id, full_name, interests, level, total_xp, coins_balance, coins_earned, coins_topup, streak, primary_parent_id, city"
+      "id, first_name, last_name, pseudo, avatar_url, level, title, title_icon, coins_balance, total_xp, primary_parent_id"
     )
     .eq("id", user.id)
     .limit(1)
@@ -187,13 +192,17 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
 
   const teenId = teenProfile?.id || null
   const parentId = teenProfile?.primary_parent_id || null
-  const interests = Array.isArray(teenProfile?.interests) ? teenProfile.interests : []
+  // La vue teen_full_profile ne porte pas les centres d'intérêt ; la vraie
+  // source est la table teen_interests (câblage du ranking = hors scope B1).
+  const interests: string[] = []
 
-  const [missionsResult, lifetimeStats, streakResult, weeklyHistory, monthlyHistory, feedResult, rewardsResult, usablePurchases] =
+  // #40 — render is read-only. The login-streak WRITE (updateLoginStreak) moved
+  // out of this Promise.all to the StreakPinger client trigger; currentStreak
+  // is READ below from teen_full_profile.streak / user_lifetime_stats.
+  const [missionsResult, lifetimeStats, weeklyHistory, monthlyHistory, feedResult, rewardsResult, usablePurchases] =
     await Promise.all([
       getDailyMissions().catch(() => ({ success: false, data: [] })),
       getLifetimeStats().catch(() => null),
-      updateLoginStreak().catch(() => ({ success: false, currentStreak: 0 })),
       getActivityHistory(7).catch(() => []),
       getActivityHistory(30).catch(() => []),
       getActivityFeed({ feedType: "friends", limit: 6 }).catch(() => ({ success: false, activities: [] })),
@@ -233,9 +242,8 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
   } catch {
     cashbackThisWeek = 0
   }
-  const currentStreak = streakResult.success
-    ? streakResult.currentStreak
-    : teenProfile?.streak ?? lifetimeStats?.current_login_streak ?? 0
+  // teen_full_profile n'expose pas de colonne streak — source = user_lifetime_stats.
+  const currentStreak = lifetimeStats?.current_login_streak ?? 0
 
   const rewards = rewardsResult.data || []
   const nextRewardCandidate = rewards
@@ -263,19 +271,19 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
 
   let bookingsData: any[] = []
   if (eventIds.length > 0) {
-    let query = supabase
-      .from("bookings")
-      .select("id, status, event_id, teen_id, parent_id")
-      .in("event_id", eventIds)
-
-    if (teenId) {
-      query = query.eq("teen_id", teenId)
-    } else if (parentId) {
-      query = query.eq("parent_id", parentId)
+    // La table bookings n'a PAS de teen_id/parent_id : la colonne propriétaire
+    // est user_id (= auth.uid()). L'ancien filtre .eq("teen_id"/"parent_id")
+    // référençait des colonnes inexistantes → la requête échouait → statut RSVP
+    // toujours 'none' même après réservation (l'ado revoyait « Réserver »).
+    const ownerId = teenId || parentId
+    if (ownerId) {
+      const { data } = await supabase
+        .from("bookings")
+        .select("id, status, event_id, user_id")
+        .in("event_id", eventIds)
+        .eq("user_id", ownerId)
+      bookingsData = data || []
     }
-
-    const { data } = await query
-    bookingsData = data || []
   }
 
   const bookingsByEvent = new Map<string, any>()

@@ -1,0 +1,416 @@
+{
+  "generated_at": "2026-05-30",
+  "audit_source": "docs/refonte/03-AUDIT-UI-UX-PAR-ECRAN.md §3.7 (hiérarchie plate)",
+  "total_violations": 529,
+  "files_in_scope": 299,
+  "violations_by_rule": {
+    "HIER-002": 34,
+    "HIER-001": 430,
+    "HIER-003": 65
+  },
+  "violations_by_file_rule": {
+    "app/gamification/collections/collections-client.tsx": {
+      "HIER-002": 1
+    },
+    "app/gamification/crews/crews-client.tsx": {
+      "HIER-001": 1
+    },
+    "app/gamification/missions/missions-client.tsx": {
+      "HIER-001": 2
+    },
+    "app/gamification/roue/fortune-wheel-client.tsx": {
+      "HIER-001": 4
+    },
+    "app/mentor/sessions/sessions-client.tsx": {
+      "HIER-001": 5
+    },
+    "app/teen/academic/academic-client.tsx": {
+      "HIER-001": 7,
+      "HIER-002": 2
+    },
+    "app/teen/aide-scolaire/aide-scolaire-client.tsx": {
+      "HIER-001": 8
+    },
+    "app/teen/avatar/avatar-client.tsx": {
+      "HIER-001": 1
+    },
+    "app/teen/calendar/calendar-client.tsx": {
+      "HIER-001": 4
+    },
+    "app/teen/circles/circles-client.tsx": {
+      "HIER-001": 10,
+      "HIER-002": 1
+    },
+    "app/teen/coins/coins-client.tsx": {
+      "HIER-001": 5,
+      "HIER-002": 1
+    },
+    "app/teen/crews/crews-client.tsx": {
+      "HIER-001": 3
+    },
+    "app/teen/defis-physiques/defis-physiques-client.tsx": {
+      "HIER-001": 10,
+      "HIER-002": 1
+    },
+    "app/teen/events/events-client.tsx": {
+      "HIER-001": 6,
+      "HIER-002": 1
+    },
+    "app/teen/friends/friends-client.tsx": {
+      "HIER-001": 5
+    },
+    "app/teen/games/games-client.tsx": {
+      "HIER-001": 12
+    },
+    "app/teen/home-dashboard-client.tsx": {
+      "HIER-001": 2
+    },
+    "app/teen/messages/messages-client.tsx": {
+      "HIER-001": 2
+    },
+    "app/teen/passions/passions-client.tsx": {
+      "HIER-001": 6,
+      "HIER-002": 2
+    },
+    "app/teen/profile/profile-hub-client.tsx": {
+      "HIER-001": 6,
+      "HIER-002": 2
+    },
+    "app/teen/quests/[id]/quest-detail-client.tsx": {
+      "HIER-001": 7
+    },
+    "app/teen/quests/friend-defis/friend-defis-client.tsx": {
+      "HIER-001": 8
+    },
+    "app/teen/quests/quests-hub-client.tsx": {
+      "HIER-001": 3
+    },
+    "app/teen/quiz/[id]/quiz-runner-client.tsx": {
+      "HIER-001": 5
+    },
+    "app/teen/quiz/quiz-hub-client.tsx": {
+      "HIER-001": 8,
+      "HIER-002": 1
+    },
+    "app/teen/settings/settings-client.tsx": {
+      "HIER-001": 1
+    },
+    "app/teen/shop/checkout/checkout-client.tsx": {
+      "HIER-001": 3
+    },
+    "app/teen/social/social-hub-client.tsx": {
+      "HIER-001": 12
+    },
+    "app/teen/streak/streak-client.tsx": {
+      "HIER-001": 11
+    },
+    "app/teen/vip-card/vip-card-client.tsx": {
+      "HIER-001": 8
+    },
+    "app/teen/wallet/wallet-hub-client.tsx": {
+      "HIER-001": 13,
+      "HIER-002": 1
+    },
+    "components/admin-analytics-filters.tsx": {
+      "HIER-002": 1
+    },
+    "components/admin/realtime-kpis.tsx": {
+      "HIER-002": 1,
+      "HIER-001": 7
+    },
+    "components/agenda/events-client.tsx": {
+      "HIER-002": 1
+    },
+    "components/ai/elite-ai-companion.tsx": {
+      "HIER-001": 4
+    },
+    "components/ambassador-dashboard-client.tsx": {
+      "HIER-001": 7,
+      "HIER-002": 1
+    },
+    "components/brand/mascot-states.tsx": {
+      "HIER-001": 1
+    },
+    "components/brand/niv-usage.tsx": {
+      "HIER-001": 1
+    },
+    "components/brand/niv.tsx": {
+      "HIER-001": 1
+    },
+    "components/brand/panda-logo.tsx": {
+      "HIER-001": 1
+    },
+    "components/check-in-interface.tsx": {
+      "HIER-002": 1,
+      "HIER-001": 4
+    },
+    "components/dashboard/partner/awaiting-approval.tsx": {
+      "HIER-001": 2
+    },
+    "components/education/grades.tsx": {
+      "HIER-001": 5,
+      "HIER-002": 1
+    },
+    "components/education/quiz-player.tsx": {
+      "HIER-001": 4
+    },
+    "components/education/tutorial-player.tsx": {
+      "HIER-001": 1
+    },
+    "components/events-carousel.tsx": {
+      "HIER-001": 1
+    },
+    "components/features/events/events-list-client.tsx": {
+      "HIER-003": 5,
+      "HIER-001": 3
+    },
+    "components/features/events/vip-pricing-badge.tsx": {
+      "HIER-001": 3
+    },
+    "components/features/home/home-events-section.tsx": {
+      "HIER-001": 2
+    },
+    "components/feed/social-feed.tsx": {
+      "HIER-001": 1
+    },
+    "components/forms/candidature-form.tsx": {
+      "HIER-001": 1
+    },
+    "components/gamification/achievement-unlock.tsx": {
+      "HIER-001": 1
+    },
+    "components/gamification/achievements.tsx": {
+      "HIER-001": 1
+    },
+    "components/gamification/avatar-dashboard.tsx": {
+      "HIER-003": 3,
+      "HIER-001": 3
+    },
+    "components/gamification/celebration-overlay.tsx": {
+      "HIER-001": 2
+    },
+    "components/gamification/gamification-dashboard.tsx": {
+      "HIER-001": 1
+    },
+    "components/gamification/level-badge.tsx": {
+      "HIER-001": 2
+    },
+    "components/gamification/level-up-modal.tsx": {
+      "HIER-001": 2
+    },
+    "components/gamification/pillars.tsx": {
+      "HIER-003": 3,
+      "HIER-001": 8
+    },
+    "components/gamification/quest-card.tsx": {
+      "HIER-003": 3
+    },
+    "components/gamification/streak-counter.tsx": {
+      "HIER-001": 3
+    },
+    "components/gamification/streak-flame.tsx": {
+      "HIER-001": 1
+    },
+    "components/gamification/tools/focus-timer.tsx": {
+      "HIER-003": 3,
+      "HIER-001": 1
+    },
+    "components/gamification/xp-bar.tsx": {
+      "HIER-001": 4
+    },
+    "components/gamification/xp-display.tsx": {
+      "HIER-001": 1
+    },
+    "components/gamification/xp-float.tsx": {
+      "HIER-001": 1
+    },
+    "components/gamification/xp-purchase-power.tsx": {
+      "HIER-001": 2
+    },
+    "components/layouts/page-wrapper.tsx": {
+      "HIER-002": 1
+    },
+    "components/maps/teen-map.tsx": {
+      "HIER-001": 4
+    },
+    "components/onboarding/completion-step.tsx": {
+      "HIER-001": 2
+    },
+    "components/onboarding/features-step.tsx": {
+      "HIER-001": 3
+    },
+    "components/onboarding/onboarding-transition.tsx": {
+      "HIER-001": 1
+    },
+    "components/onboarding/parent-setup-step.tsx": {
+      "HIER-001": 1
+    },
+    "components/onboarding/profile-type-step.tsx": {
+      "HIER-001": 2
+    },
+    "components/onboarding/showcase-step.tsx": {
+      "HIER-001": 2
+    },
+    "components/onboarding/teen-setup-step.tsx": {
+      "HIER-001": 1
+    },
+    "components/onboarding/welcome-step.tsx": {
+      "HIER-001": 4
+    },
+    "components/parent/add-teen-form.tsx": {
+      "HIER-001": 1
+    },
+    "components/parent/dashboard/control-center.tsx": {
+      "HIER-001": 1
+    },
+    "components/parent/dashboard/evolution-tracker.tsx": {
+      "HIER-001": 3,
+      "HIER-002": 1
+    },
+    "components/parent/dashboard/evolution-tree.tsx": {
+      "HIER-003": 3,
+      "HIER-001": 5,
+      "HIER-002": 1
+    },
+    "components/parent/dashboard/financial-overview.tsx": {
+      "HIER-003": 3,
+      "HIER-001": 15
+    },
+    "components/parent/dashboard/teen-sponsor-header.tsx": {
+      "HIER-001": 2
+    },
+    "components/parent/dashboard/upcoming-events.tsx": {
+      "HIER-001": 1
+    },
+    "components/parent/parental-approval-list.tsx": {
+      "HIER-001": 5
+    },
+    "components/parent/sponsor-challenge-form.tsx": {
+      "HIER-001": 5
+    },
+    "components/partner/dashboard/feeds.tsx": {
+      "HIER-001": 14
+    },
+    "components/partners/EducationPartnerForm.tsx": {
+      "HIER-002": 1
+    },
+    "components/partners/VenuePartnerForm.tsx": {
+      "HIER-002": 1
+    },
+    "components/payment/hybrid-checkout.tsx": {
+      "HIER-001": 2
+    },
+    "components/reservation-form.tsx": {
+      "HIER-001": 1
+    },
+    "components/reviews-list.tsx": {
+      "HIER-001": 1
+    },
+    "components/rewards/unified-rewards-display.tsx": {
+      "HIER-001": 3
+    },
+    "components/server/event-card.tsx": {
+      "HIER-001": 1
+    },
+    "components/server/events-grid.tsx": {
+      "HIER-002": 2
+    },
+    "components/session-timer.tsx": {
+      "HIER-001": 1
+    },
+    "components/share/share-modal.tsx": {
+      "HIER-002": 1
+    },
+    "components/sport/personal-records.tsx": {
+      "HIER-002": 2
+    },
+    "components/sport/physical-challenges.tsx": {
+      "HIER-002": 1
+    },
+    "components/sport/sport-clubs.tsx": {
+      "HIER-002": 1
+    },
+    "components/subscription/pricing-plans.tsx": {
+      "HIER-002": 1
+    },
+    "components/teen/avatar-coach-client.tsx": {
+      "HIER-001": 1
+    },
+    "components/teen/avatar-coach.tsx": {
+      "HIER-001": 1
+    },
+    "components/teen/dashboard/ai-companion.tsx": {
+      "HIER-001": 4
+    },
+    "components/teen/dashboard/ai-oracle-card.tsx": {
+      "HIER-001": 4
+    },
+    "components/teen/dashboard/crew-hub.tsx": {
+      "HIER-001": 12
+    },
+    "components/teen/dashboard/hero.tsx": {
+      "HIER-001": 4
+    },
+    "components/teen/dashboard/map-preview.tsx": {
+      "HIER-001": 1
+    },
+    "components/teen/dashboard/marketplace-drops.tsx": {
+      "HIER-001": 5
+    },
+    "components/teen/dashboard/priority-mission.tsx": {
+      "HIER-001": 1
+    },
+    "components/teen/dashboard/profile-quest.tsx": {
+      "HIER-001": 4
+    },
+    "components/teen/dashboard/quest-card.tsx": {
+      "HIER-001": 4
+    },
+    "components/teen/dashboard/quick-access-grid.tsx": {
+      "HIER-001": 3,
+      "HIER-002": 1
+    },
+    "components/teen/dashboard/teen-dashboard-content.tsx": {
+      "HIER-003": 26,
+      "HIER-001": 4
+    },
+    "components/teen/dashboard/unified-quest-feed.tsx": {
+      "HIER-001": 3
+    },
+    "components/teen/defi-card.tsx": {
+      "HIER-001": 10
+    },
+    "components/teen/friends-social-hub.tsx": {
+      "HIER-003": 13,
+      "HIER-001": 1
+    },
+    "components/teen/marketplace-overlay.tsx": {
+      "HIER-003": 3,
+      "HIER-001": 5
+    },
+    "components/teen/physical-challenge-actions.tsx": {
+      "HIER-001": 2
+    },
+    "components/teen/profile-edit-form.tsx": {
+      "HIER-001": 1
+    },
+    "components/teen/shop-product-card.tsx": {
+      "HIER-001": 3
+    },
+    "components/teen/status-bar.tsx": {
+      "HIER-001": 4
+    },
+    "components/teen/teen-id-card.tsx": {
+      "HIER-001": 4
+    },
+    "components/teen/twin-currency-gauge.tsx": {
+      "HIER-001": 6
+    },
+    "components/ticket-selector.tsx": {
+      "HIER-001": 2
+    },
+    "components/trust-banner.tsx": {
+      "HIER-002": 1
+    }
+  }
+}

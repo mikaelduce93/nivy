@@ -128,7 +128,7 @@ export async function POST(request: Request) {
   // Resolve the VIP card to confirm `card_number` matches `user_id`.
   const { data: vipCard } = await sr
     .from("vip_cards")
-    .select("card_number, profile_id, status, end_date")
+    .select("card_number, profile_id, status, expiry_date")
     .eq("card_number", parsed.card_number)
     .maybeSingle()
   if (!vipCard) {
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
       { status: 400 },
     )
   }
-  if (vipCard.end_date && new Date(vipCard.end_date).getTime() < Date.now()) {
+  if (vipCard.expiry_date && new Date(vipCard.expiry_date).getTime() < Date.now()) {
     return NextResponse.json(
       { success: false, error: "card_expired" },
       { status: 400 },

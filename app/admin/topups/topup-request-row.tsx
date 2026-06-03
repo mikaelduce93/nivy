@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { fetchWithCSRF } from "@/lib/security/fetch-with-csrf"
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
 
 interface ProfileLite {
   full_name: string | null
@@ -62,53 +64,53 @@ export function TopupRequestRow({ request }: { request: TopupRequest }) {
   const isPending = request.status === "pending"
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
+    <StickerCard className="p-5">
       <div className="grid gap-4 md:grid-cols-[2fr_1fr_auto]">
         <div>
-          <p className="text-sm text-zinc-500">{created}</p>
-          <p className="mt-1 text-lg font-semibold text-white">
-            {Number(request.amount_dh).toFixed(2)} DH
-            <span className="ml-2 text-xs uppercase tracking-wider text-zinc-400">
+          <p className="text-sm text-mute">{created}</p>
+          <p className="mt-1 text-lg font-semibold text-ink">
+            <span className="font-mono tabular-nums">{Number(request.amount_dh).toFixed(2)} DH</span>
+            <span className="ml-2 font-mono text-xs uppercase tracking-[0.16em] text-mute">
               {request.provider}
             </span>
           </p>
-          <p className="mt-1 text-sm text-zinc-300">
+          <p className="mt-1 text-sm text-ink-2">
             Parent : {request.parent?.full_name ?? request.parent_id}
             {request.parent?.phone ? ` (${request.parent.phone})` : ""}
           </p>
-          <p className="text-sm text-zinc-300">
+          <p className="text-sm text-ink-2">
             Teen : {request.teen?.full_name ?? request.teen_id}
           </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Réf. PSP : <code className="rounded bg-zinc-800 px-1">{request.provider_ref}</code>
+          <p className="mt-1 text-xs text-mute">
+            Réf. PSP : <code className="rounded-md border-2 border-ink bg-paper px-1 font-mono">{request.provider_ref}</code>
           </p>
           {request.screenshot_path && (
-            <p className="mt-1 text-xs text-zinc-500">
-              Justificatif : <code>{request.screenshot_path}</code>
+            <p className="mt-1 text-xs text-mute">
+              Justificatif : <code className="font-mono">{request.screenshot_path}</code>
             </p>
           )}
           {request.rejection_reason && (
-            <p className="mt-2 text-sm text-rose-400">
+            <p className="mt-2 text-sm text-pink">
               Motif rejet : {request.rejection_reason}
             </p>
           )}
           {request.payment_transaction_id && (
-            <p className="mt-2 text-xs text-emerald-400">
-              Payment id : <code>{request.payment_transaction_id}</code>
+            <p className="mt-2 text-xs text-lime">
+              Payment id : <code className="font-mono">{request.payment_transaction_id}</code>
             </p>
           )}
         </div>
 
         {isPending && (
           <div>
-            <label className="block text-xs uppercase text-zinc-500">
+            <label className="block font-mono text-xs uppercase tracking-[0.16em] text-mute">
               Motif (si rejet)
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-sm text-white"
+              className="mt-1 w-full rounded-lg border-2 border-ink bg-paper p-2 text-sm text-ink"
               placeholder="ex. justificatif illisible"
             />
           </div>
@@ -116,26 +118,29 @@ export function TopupRequestRow({ request }: { request: TopupRequest }) {
 
         {isPending && (
           <div className="flex flex-col gap-2">
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="lime"
               disabled={busy !== null}
               onClick={() => decide("confirm")}
-              className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50"
             >
               {busy === "confirm" ? "..." : "Confirmer & créditer"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              size="sm"
+              variant="outline"
+              className="text-destructive"
               disabled={busy !== null}
               onClick={() => decide("reject")}
-              className="rounded-md border border-rose-500/40 px-4 py-2 text-sm font-semibold text-rose-400 hover:bg-rose-500/10 disabled:opacity-50"
             >
               {busy === "reject" ? "..." : "Rejeter"}
-            </button>
-            {error && <p className="text-xs text-rose-400">{error}</p>}
+            </Button>
+            {error && <p className="text-xs text-pink">{error}</p>}
           </div>
         )}
       </div>
-    </div>
+    </StickerCard>
   )
 }

@@ -14,10 +14,13 @@ const QUEST_ID = "22222222-2222-2222-2222-222222222222"
 interface State {
   rpcResult: { data: unknown; error: unknown }
   rpcCalls: Array<{ name: string; args: unknown }>
+  // #41 — rows returned for the daily xp_transactions sum (anti-abuse cap).
+  dailyTx: Array<{ amount: number }>
 }
 const state: State = {
   rpcResult: { data: { success: true }, error: null },
   rpcCalls: [],
+  dailyTx: [],
 }
 
 vi.mock("@/lib/auth/get-user-role", () => ({
@@ -33,6 +36,9 @@ function makeServerClient() {
     from(table: string) {
       const builder: any = {
         eq: vi.fn(() => builder),
+        // #41 — terminal of the daily-XP sum query
+        // (.from('xp_transactions').select('amount').eq(...).gte(...)).
+        gte: vi.fn(async () => ({ data: state.dailyTx, error: null })),
         select: vi.fn(() => builder),
         insert: vi.fn(async () => ({ error: null })),
         upsert: vi.fn(async () => ({ error: null })),
@@ -77,6 +83,7 @@ function makeRequest(body: unknown) {
 beforeEach(() => {
   state.rpcResult = { data: { success: true }, error: null }
   state.rpcCalls = []
+  state.dailyTx = []
 })
 afterEach(() => vi.clearAllMocks())
 
@@ -107,5 +114,43 @@ describe("POST /api/teen/quests/complete", () => {
     expect(res.status).toBe(500)
     const json = await res.json()
     expect(json.ok).toBe(false)
+  })
+
+  // #41 — anti-abuse daily XP caps wired into the grant path.
+  it("hard cap: ≥5000 XP earned today → grants 0 and reports cap_applied:hard", async () => {
+    state.dailyTx = [{ amount: 5000 }]
+    const res = await POST(
+      makeRequest({ questId: QUEST_ID, teenId: TEEN_ID }) as any
+    )
+    expect(res.status).toBe(200)
+    expect(state.rpcCalls).toHaveLength(1)
+    expect((state.rpcCalls[0].args as Record<string, unknown>).p_xp_amount).toBe(0)
+    const json = await res.json()
+    expect(json.cap_applied).toBe("hard")
+    expect(json.xpEarned).toBe(0)
+  })
+
+  it("soft cap: 2000–5000 XP earned today → halves the grant (floor)", async () => {
+    state.dailyTx = [{ amount: 2000 }]
+    const res = await POST(
+      makeRequest({ questId: QUEST_ID, teenId: TEEN_ID }) as any
+    )
+    expect(res.status).toBe(200)
+    // quest xp_reward is 100 → floor(100 * 0.5) = 50
+    expect((state.rpcCalls[0].args as Record<string, unknown>).p_xp_amount).toBe(50)
+    const json = await res.json()
+    expect(json.cap_applied).toBe("soft")
+    expect(json.xpEarned).toBe(50)
+  })
+
+  it("no cap: <2000 XP earned today → grants the full reward", async () => {
+    state.dailyTx = [{ amount: 1000 }]
+    const res = await POST(
+      makeRequest({ questId: QUEST_ID, teenId: TEEN_ID }) as any
+    )
+    expect(res.status).toBe(200)
+    expect((state.rpcCalls[0].args as Record<string, unknown>).p_xp_amount).toBe(100)
+    const json = await res.json()
+    expect(json.cap_applied).toBeNull()
   })
 })

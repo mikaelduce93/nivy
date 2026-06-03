@@ -3,57 +3,39 @@
 import { useState, useEffect } from "react"
 import { useParams } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Clock, Users, Shirt, CheckCircle2, Shield, Music, Camera, Gift, ArrowRight, MapPinned, Share2, Heart, Star, Play, ChevronLeft, ChevronRight, Bus, Car, X, MessageSquare, TrendingUp, Sparkles } from 'lucide-react'
+import { Calendar, MapPin, Clock, Users, Shirt, Check, Shield, Music, Gift, ArrowRight, MapPinned, Share2, Bus, Car, TrendingUp, Sparkles } from 'lucide-react'
 import Link from "next/link"
+import Image from 'next/image'
+import { toast } from "sonner"
+
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Image from 'next/image'
+import { Label } from "@/components/ui/label"
+import { NivCoach, DarkSurface } from "@/components/brand"
 import { VIPPricingBadge } from "@/components/features/events/vip-pricing-badge"
+
+const INCLUDED = [
+  { icon: Gift, text: "Boissons à volonté" },
+  { icon: Gift, text: "Bonbons à volonté" },
+  { icon: Music, text: "DJs professionnels" },
+  { icon: Sparkles, text: "Animations & surprises" },
+  { icon: Shield, text: "Vestiaire gratuit" },
+  { icon: Check, text: "Encadrement sécurisé" },
+]
 
 export default function EventDetailPage() {
   const params = useParams()
   const [event, setEvent] = useState<any>(null)
   const [similarEvents, setSimilarEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [selectedGalleryIndex, setSelectedGalleryIndex] = useState(0)
   const [transportOption, setTransportOption] = useState<string>("")
-  const [avisAverage, setAvisAverage] = useState(4.8)
-
-  const galleryImages = [
-    { type: 'image', url: event?.image_url || "/teens-party-event-1.jpg" },
-    { type: 'image', url: "/teens-party-dance-floor.jpg" },
-    { type: 'video', url: "https://www.youtube.com/embed/dQw4w9WgXcQ", thumbnail: "/teens-party-video.jpg" },
-    { type: 'image', url: "/teens-party-dj.jpg" },
-    { type: 'image', url: "/teens-party-crowd.jpg" },
-    { type: 'image', url: "/teens-party-lights.jpg" },
-  ]
-
-  const artists = [
-    { name: "DJ Shadow", role: "Main DJ", image: "/dj-avatar-1.jpg", bio: "DJ international avec 10 ans d'expérience" },
-    { name: "MC Flow", role: "MC/Animateur", image: "/mc-avatar.jpg", bio: "Animateur énergique adoré des ados" },
-    { name: "DJ Luna", role: "Support DJ", image: "/dj-avatar-2.jpg", bio: "Spécialiste hip-hop et électro" },
-  ]
-
-  const reviews = [
-    { id: 1, author: "Sarah M.", rating: 5, date: "Il y a 2 jours", comment: "Incroyable soirée ! Mes ados ont adoré, ambiance de fou et sécurité au top. Je recommande à 100%", avatar: "/avatar-girl-1.jpg" },
-    { id: 2, author: "Karim B.", rating: 5, date: "Il y a 1 semaine", comment: "Organisation parfaite, les DJs étaient exceptionnels. Mon fils n'arrête pas d'en parler !", avatar: "/avatar-boy-1.jpg" },
-    { id: 3, author: "Leila A.", rating: 4, date: "Il y a 2 semaines", comment: "Très bonne expérience. Seul petit bémol : un peu d'attente au vestiaire à la fin.", avatar: "/avatar-girl-2.jpg" },
-  ]
 
   useEffect(() => {
     loadEvent()
@@ -61,7 +43,7 @@ export default function EventDetailPage() {
 
   async function loadEvent() {
     const supabase = createClient()
-    
+
     const { data } = await supabase
       .from("events")
       .select("*, city:cities(name), venue:venues(name, address)")
@@ -70,7 +52,7 @@ export default function EventDetailPage() {
 
     if (data) {
       setEvent(data)
-      
+
       const { data: similar } = await supabase
         .from("events")
         .select("*, city:cities(name)")
@@ -79,36 +61,28 @@ export default function EventDetailPage() {
         .gte("event_date", new Date().toISOString())
         .order("event_date", { ascending: true })
         .limit(3)
-      
+
       if (similar) setSimilarEvents(similar)
     }
     setLoading(false)
   }
 
-  const nextGalleryImage = () => {
-    setSelectedGalleryIndex((prev) => (prev + 1) % galleryImages.length)
-  }
-
-  const prevGalleryImage = () => {
-    setSelectedGalleryIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)
-  }
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center pt-24">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-paper pt-24">
+        <div className="size-12 animate-spin rounded-full border-b-2 border-ink" />
       </div>
     )
   }
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center pt-24">
+      <div className="flex min-h-screen items-center justify-center bg-paper pt-24">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Événement introuvable</h2>
-          <Link href="/agenda">
-            <Button>Retour à l'agenda</Button>
-          </Link>
+          <h2 className="mb-4 font-display text-2xl font-bold">Événement introuvable</h2>
+          <Button asChild variant="pink">
+            <Link href="/agenda">Retour à l'agenda</Link>
+          </Button>
         </div>
       </div>
     )
@@ -126,468 +100,323 @@ export default function EventDetailPage() {
 
   const shareEvent = async () => {
     if (navigator.share) {
-      await navigator.share({
-        title: event.title,
-        text: event.description,
-        url: window.location.href,
-      })
+      try {
+        await navigator.share({
+          title: event.title,
+          text: event.description,
+          url: window.location.href,
+        })
+      } catch {
+        /* user cancelled the native share sheet — expected, no-op */
+      }
+      return
+    }
+    // Desktop fallback (no Web Share API): copy the link + honest toast.
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      toast.success("Lien copié dans le presse-papier")
+    } catch {
+      toast.error("Impossible de copier le lien")
     }
   }
 
+  const badge = (cls: string, children: React.ReactNode) => (
+    <span className={`flex w-fit items-center gap-1 rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink ${cls}`}>
+      {children}
+    </span>
+  )
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="relative h-[60vh] min-h-[400px] pt-16">
-          <Image
-            src={event.image_url || "/placeholder.svg?height=600&width=1200&query=teens party event"}
-            alt={event.title}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-          
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="secondary" className="absolute top-4 right-4 z-10">
-                <Camera className="w-4 h-4 mr-2" />
-                Voir la galerie ({galleryImages.length})
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-5xl h-[80vh] p-0">
-              <div className="relative h-full">
-                {galleryImages[selectedGalleryIndex].type === 'video' ? (
-                  <iframe
-                    title={`Vidéo de la galerie ${selectedGalleryIndex + 1}`}
-                    src={galleryImages[selectedGalleryIndex].url}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <Image
-                    src={galleryImages[selectedGalleryIndex].url || "/placeholder.svg"}
-                    alt={`Gallery ${selectedGalleryIndex + 1}`}
-                    fill
-                    className="object-contain"
-                  />
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
-                  onClick={prevGalleryImage}
-                  aria-label="Image précédente"
-                >
-                  <ChevronLeft className="w-6 h-6" aria-hidden="true" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
-                  onClick={nextGalleryImage}
-                  aria-label="Image suivante"
-                >
-                  <ChevronRight className="w-6 h-6" aria-hidden="true" />
-                </Button>
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                  {galleryImages.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedGalleryIndex(idx)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        idx === selectedGalleryIndex ? 'bg-white w-8' : 'bg-white/50'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-          
-          <div className="absolute bottom-0 left-0 right-0 pb-8">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-wrap gap-2 mb-4">
-                {event.has_aefe_discount && (
-                  <Badge className="bg-blue-500 text-white">AEFE -20%</Badge>
-                )}
-                {isAlmostFull && (
-                  <Badge className="bg-orange-500 text-white">Presque complet</Badge>
-                )}
-                {isFull && (
-                  <Badge className="bg-red-500 text-white">COMPLET</Badge>
-                )}
-                <Badge variant="outline">{event.type}</Badge>
-                {event.current_attendees > 50 && (
-                  <Badge className="bg-purple-500 text-white">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    Populaire
-                  </Badge>
-                )}
-              </div>
-              
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 text-white">{event.title}</h1>
-              
-              <div className="flex flex-wrap gap-6 text-white/90">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  <span className="font-medium">
-                    {eventDate.toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  <span className="font-medium">{eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
-                  <span className="font-medium">{event.city?.name || event.city}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  <span className="font-medium">{event.age_min}-{event.age_max} ans</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{avisAverage}/5 ({reviews.length} avis)</span>
-                </div>
-              </div>
+    <div className="min-h-screen bg-paper">
+      {/* Hero image */}
+      <div className="relative h-[56vh] min-h-[380px] pt-16">
+        <Image
+          src={event.image_url || "/placeholder.svg?height=600&width=1200&query=soiree nivy"}
+          alt={event.title}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/40 to-transparent" />
+
+        <div className="absolute inset-x-0 bottom-0 pb-8">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mb-4 flex flex-wrap gap-2">
+              {event.has_aefe_discount && badge("bg-teal", "AEFE -20%")}
+              {isAlmostFull && badge("bg-coral", "Presque complet")}
+              {isFull && badge("bg-destructive text-paper", "Complet")}
+              {badge("bg-white", event.type)}
+              {event.current_attendees > 50 && badge("bg-pink", <><TrendingUp className="size-3" aria-hidden="true" />Populaire</>)}
+            </div>
+
+            <h1 className="mb-4 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl lg:text-6xl">
+              {event.title}
+            </h1>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-2 font-mono text-sm text-ink-2">
+              <span className="flex items-center gap-2">
+                <Calendar className="size-5 text-pink" aria-hidden="true" />
+                {eventDate.toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+              </span>
+              <span className="flex items-center gap-2">
+                <Clock className="size-5 text-pink" aria-hidden="true" />
+                {eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+              </span>
+              <span className="flex items-center gap-2">
+                <MapPin className="size-5 text-pink" aria-hidden="true" />
+                {event.city?.name || event.city}
+              </span>
+              <span className="flex items-center gap-2">
+                <Users className="size-5 text-pink" aria-hidden="true" />
+                {event.age_min}-{event.age_max} ans
+              </span>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-4">Description</h2>
-                <p className="text-muted-foreground leading-relaxed">{event.description}</p>
-              </Card>
+      <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            {/* Description */}
+            <StickerCard className="gap-3 p-8">
+              <p className="eyebrow tracking-[0.16em]">L'événement</p>
+              <h2 className="font-display text-2xl font-extrabold">Description</h2>
+              <p className="leading-relaxed text-ink-2">{event.description}</p>
+            </StickerCard>
 
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <Music className="w-6 h-6 text-primary" />
-                  Artistes & DJs
+            {/* Ce qui est inclus */}
+            <StickerCard className="gap-4 p-8">
+              <p className="eyebrow tracking-[0.16em]">Inclus</p>
+              <h2 className="font-display text-2xl font-extrabold">Ce qui est inclus</h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {INCLUDED.map((item) => (
+                  <div key={item.text} className="flex items-center gap-3">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink bg-lime">
+                      <item.icon className="size-5 text-ink" aria-hidden="true" />
+                    </span>
+                    <span className="font-medium text-ink">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </StickerCard>
+
+            {/* Règles & sécurité — avec Niv coach */}
+            <StickerCard className="gap-5 p-8">
+              <p className="eyebrow tracking-[0.16em]">À savoir</p>
+              <h2 className="font-display text-2xl font-extrabold">Règles & informations</h2>
+              <NivCoach
+                mood="calm"
+                message="Soirée 100% sans alcool, équipe de sécurité pro sur place, contrôle d'identité à l'entrée. T'es entre de bonnes mains."
+              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <RuleRow icon={Users} title="Âge requis">
+                  Réservé aux {event.age_min}-{event.age_max} ans. Contrôle d'identité à l'entrée.
+                </RuleRow>
+                <RuleRow icon={Shirt} title="Dress code">
+                  {event.dress_code || "Tenue décontractée, sois toi-même !"}
+                </RuleRow>
+                <RuleRow icon={Shield} title="Sécurité">
+                  100% sans alcool. Équipe de sécurité professionnelle sur place.
+                </RuleRow>
+                <RuleRow icon={Sparkles} title="Photos">
+                  Badge NO-PHOTO disponible sur demande si tu ne veux pas être pris en photo.
+                </RuleRow>
+              </div>
+            </StickerCard>
+
+            {/* FAQ */}
+            <StickerCard className="gap-4 p-8">
+              <p className="eyebrow tracking-[0.16em]">FAQ</p>
+              <h2 className="font-display text-2xl font-extrabold">Questions fréquentes</h2>
+              <Accordion type="single" collapsible className="space-y-3">
+                <FaqItem value="item-1" q="Faut-il une autorisation parentale ?">
+                  Oui, une autorisation parentale est obligatoire pour tous les mineurs. Tu pourras la remplir lors de la réservation.
+                </FaqItem>
+                <FaqItem value="item-2" q="Puis-je annuler ma réservation ?">
+                  Les annulations sont acceptées jusqu'à 48h avant l'événement pour un remboursement complet.
+                </FaqItem>
+                <FaqItem value="item-3" q="Comment accéder à l'événement ?">
+                  Après ta réservation, tu reçois un billet électronique avec un QR code à présenter à l'entrée.
+                </FaqItem>
+                <FaqItem value="item-4" q="Y a-t-il un parking ?">
+                  Oui, un parking gratuit est disponible pour déposer et récupérer les participants.
+                </FaqItem>
+              </Accordion>
+            </StickerCard>
+
+            {/* Lieu */}
+            <StickerCard className="p-8">
+              <div className="flex items-start gap-4">
+                <MapPinned className="size-8 shrink-0 text-pink" aria-hidden="true" />
+                <div className="flex-1">
+                  <p className="eyebrow tracking-[0.16em]">Lieu</p>
+                  <p className="mt-1 font-display text-lg font-bold">{event.venue?.name || event.venue}</p>
+                  <p className="mb-4 text-mute">{event.venue?.address || ''} {event.city?.name || event.city}</p>
+                  <Button variant="outline" onClick={openGoogleMaps}>
+                    <MapPin className="mr-2 size-4" aria-hidden="true" />
+                    Obtenir l'itinéraire
+                  </Button>
+                </div>
+              </div>
+            </StickerCard>
+
+            {/* Similaires */}
+            {similarEvents.length > 0 && (
+              <StickerCard className="gap-5 p-8">
+                <h2 className="flex items-center gap-2 font-display text-2xl font-extrabold">
+                  <Sparkles className="size-6 text-pink" aria-hidden="true" />
+                  Événements similaires
                 </h2>
-                <div className="grid sm:grid-cols-3 gap-6">
-                  {artists.map((artist, idx) => (
-                    <div key={idx} className="text-center">
-                      <Avatar className="w-24 h-24 mx-auto mb-3">
-                        <AvatarImage src={artist.image || "/placeholder.svg"} alt={artist.name} />
-                        <AvatarFallback>{artist.name.slice(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <h3 className="font-bold">{artist.name}</h3>
-                      <p className="text-sm text-primary mb-2">{artist.role}</p>
-                      <p className="text-xs text-muted-foreground">{artist.bio}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Ce qui est inclus</h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {[
-                    { icon: Gift, text: "Boissons à volonté" },
-                    { icon: Gift, text: "Bonbons à volonté" },
-                    { icon: Music, text: "DJs professionnels" },
-                    { icon: Camera, text: "Animations & surprises" },
-                    { icon: Shield, text: "Vestiaire gratuit" },
-                    { icon: CheckCircle2, text: "Encadrement sécurisé" },
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <item.icon className="w-5 h-5 text-primary" />
-                      </div>
-                      <span className="font-medium">{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              <Card className="p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold flex items-center gap-2">
-                    <MessageSquare className="w-6 h-6 text-primary" />
-                    Avis ({reviews.length})
-                  </h2>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    <span className="text-2xl font-bold">{avisAverage}</span>
-                    <span className="text-muted-foreground">/5</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-6">
-                  {reviews.map((review) => (
-                    <div key={review.id} className="border-b border-border last:border-0 pb-6 last:pb-0">
-                      <div className="flex items-start gap-4">
-                        <Avatar>
-                          <AvatarImage src={review.avatar || "/placeholder.svg"} alt={review.author} />
-                          <AvatarFallback>{review.author.slice(0, 2)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <p className="font-semibold">{review.author}</p>
-                              <p className="text-sm text-muted-foreground">{review.date}</p>
-                            </div>
-                            <div className="flex gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < review.rating
-                                      ? 'fill-yellow-400 text-yellow-400'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                          <p className="text-muted-foreground">{review.comment}</p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {similarEvents.map((similar) => (
+                    <Link key={similar.id} href={`/agenda/${similar.id}`}>
+                      <StickerCard variant="hover" className="overflow-hidden p-0">
+                        <div className="relative h-40 border-b-2 border-ink">
+                          <Image
+                            src={similar.image_url || "/placeholder.svg?height=160&width=320&query=soiree nivy"}
+                            alt={similar.title}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
-                      </div>
-                    </div>
+                        <div className="p-4">
+                          <h3 className="mb-2 line-clamp-2 font-display font-bold">{similar.title}</h3>
+                          <div className="space-y-1 font-mono text-xs text-mute">
+                            <span className="flex items-center gap-2">
+                              <Calendar className="size-4" aria-hidden="true" />
+                              {new Date(similar.event_date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                            </span>
+                            <span className="flex items-center gap-2">
+                              <MapPin className="size-4" aria-hidden="true" />
+                              {similar.city?.name || similar.city}
+                            </span>
+                          </div>
+                        </div>
+                      </StickerCard>
+                    </Link>
                   ))}
                 </div>
-                
-                <Button variant="outline" className="w-full mt-6">
-                  Voir tous les avis
-                </Button>
-              </Card>
+              </StickerCard>
+            )}
+          </div>
 
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Règles & Informations</h2>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <Users className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold mb-1">Âge requis</p>
-                      <p className="text-sm text-muted-foreground">Réservé aux {event.age_min}-{event.age_max} ans. Contrôle d'identité à l'entrée.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Shirt className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold mb-1">Dress code</p>
-                      <p className="text-sm text-muted-foreground">{event.dress_code || "Tenue décontractée, soyez vous-même!"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Shield className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold mb-1">Sécurité</p>
-                      <p className="text-sm text-muted-foreground">100% sans alcool. Équipe de sécurité professionnelle sur place.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Camera className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold mb-1">Photos</p>
-                      <p className="text-sm text-muted-foreground">Badge NO-PHOTO disponible sur demande pour ceux qui ne souhaitent pas être photographiés.</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Questions fréquentes</h2>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger>Faut-il une autorisation parentale?</AccordionTrigger>
-                    <AccordionContent>
-                      Oui, une autorisation parentale est obligatoire pour tous les mineurs. Vous pourrez la remplir lors de la réservation.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger>Puis-je annuler ma réservation?</AccordionTrigger>
-                    <AccordionContent>
-                      Les annulations sont acceptées jusqu'à 48h avant l'événement pour un remboursement complet.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-3">
-                    <AccordionTrigger>Comment accéder à l'événement?</AccordionTrigger>
-                    <AccordionContent>
-                      Après votre réservation, vous recevrez un billet électronique avec un QR code à présenter à l'entrée.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-4">
-                    <AccordionTrigger>Y a-t-il un parking?</AccordionTrigger>
-                    <AccordionContent>
-                      Oui, un parking gratuit est disponible pour déposer et récupérer les participants.
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </Card>
-
-              <Card className="p-8">
-                <div className="flex items-start gap-4">
-                  <MapPinned className="w-8 h-8 text-primary flex-shrink-0" />
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold mb-2">Lieu</h2>
-                    <p className="text-lg font-medium mb-1">{event.venue?.name || event.venue}</p>
-                    <p className="text-muted-foreground mb-4">{event.venue?.address || ''} {event.city?.name || event.city}</p>
-                    <Button variant="outline" onClick={openGoogleMaps}>
-                      <MapPin className="w-4 h-4 mr-2" />
-                      Obtenir l'itinéraire
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              {similarEvents.length > 0 && (
-                <Card className="p-8">
-                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-primary" />
-                    Événements similaires
-                  </h2>
-                  <div className="grid sm:grid-cols-3 gap-4">
-                    {similarEvents.map((similar) => (
-                      <Link key={similar.id} href={`/agenda/${similar.id}`}>
-                        <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                          <div className="relative h-40">
-                            <Image
-                              src={similar.image_url || "/placeholder.svg?height=160&width=320&query=event"}
-                              alt={similar.title}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="p-4">
-                            <h3 className="font-bold mb-2 line-clamp-2">{similar.title}</h3>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                              <Calendar className="w-4 h-4" />
-                              <span>{new Date(similar.event_date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <MapPin className="w-4 h-4" />
-                              <span>{similar.city?.name || similar.city}</span>
-                            </div>
-                          </div>
-                        </Card>
-                      </Link>
-                    ))}
-                  </div>
-                </Card>
-              )}
-            </div>
-
-            <div className="lg:col-span-1">
-              <Card className="p-6 sticky top-24">
-                <div className="mb-6">
-                  <p className="text-sm text-muted-foreground mb-1">À partir de</p>
-                  <div className="flex items-baseline gap-2 mb-3">
-                    <p className="text-4xl font-black text-primary">{event.price} DH</p>
-                    {event.has_aefe_discount && (
-                      <Badge className="bg-blue-500 text-white">-20% AEFE</Badge>
-                    )}
-                  </div>
-                  {/* VIP Pricing Display */}
-                  {event.price && event.price > 0 && (
-                    <VIPPricingBadge
-                      standardPrice={event.price}
-                      vipPrice={event.price_vip}
-                      premiumPrice={event.price_premium}
-                      variant="card"
-                      showVIPLink={true}
-                    />
+          {/* Pricing column */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-4">
+              <DarkSurface tone="pink" shadow className="p-6">
+                <p className="eyebrow tracking-[0.16em] text-paper/60">À partir de</p>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <p className="font-display text-4xl font-extrabold tabular-nums text-paper">{event.price} DH</p>
+                  {event.has_aefe_discount && (
+                    <span className="rounded-full border-2 border-paper/40 px-2 py-0.5 font-mono text-[10px] font-bold text-paper">-20% AEFE</span>
                   )}
                 </div>
+              </DarkSurface>
 
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center justify-between py-2 border-b border-border">
-                    <span className="text-sm text-muted-foreground">Places restantes</span>
-                    <span className="font-bold">{String(spotsLeft)}</span>
+              <StickerCard className="gap-5 p-6">
+                {event.price && event.price > 0 && (
+                  <VIPPricingBadge
+                    standardPrice={event.price}
+                    vipPrice={event.price_vip}
+                    premiumPrice={event.price_premium}
+                    variant="card"
+                    showVIPLink={true}
+                  />
+                )}
+
+                <div className="space-y-1 font-mono text-sm">
+                  <div className="flex items-center justify-between border-b-2 border-dashed border-line py-2">
+                    <span className="text-mute">Places restantes</span>
+                    <span className="font-bold text-ink">{String(spotsLeft)}</span>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b border-border">
-                    <span className="text-sm text-muted-foreground">Capacité totale</span>
-                    <span className="font-bold">{String(event.capacity || 0)}</span>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-mute">Capacité totale</span>
+                    <span className="font-bold text-ink">{String(event.capacity || 0)}</span>
                   </div>
                 </div>
 
-                <Separator className="my-6" />
-
-                <div className="mb-6">
-                  <Label className="text-base font-semibold mb-3 block">Options transport</Label>
-                  <RadioGroup value={transportOption} onValueChange={setTransportOption}>
-                    <div className="flex items-center space-x-2 mb-3 p-3 border rounded-lg hover:bg-secondary cursor-pointer">
-                      <RadioGroupItem value="none" id="none" />
-                      <Label htmlFor="none" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>Je me déplace seul(e)</span>
-                        </div>
-                      </Label>
-                      <span className="text-sm font-medium">Gratuit</span>
-                    </div>
-                    <div className="flex items-center space-x-2 mb-3 p-3 border rounded-lg hover:bg-secondary cursor-pointer">
-                      <RadioGroupItem value="shuttle" id="shuttle" />
-                      <Label htmlFor="shuttle" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <Bus className="w-4 h-4" />
-                          <span>Navette aller-retour</span>
-                        </div>
-                      </Label>
-                      <span className="text-sm font-medium">+50 DH</span>
-                    </div>
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-secondary cursor-pointer">
-                      <RadioGroupItem value="private" id="private" />
-                      <Label htmlFor="private" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <Car className="w-4 h-4" />
-                          <span>Transport privé</span>
-                        </div>
-                      </Label>
-                      <span className="text-sm font-medium">+150 DH</span>
-                    </div>
+                <div>
+                  <Label className="mb-3 block font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-mute">
+                    Options transport
+                  </Label>
+                  <RadioGroup value={transportOption} onValueChange={setTransportOption} className="space-y-2">
+                    <TransportOption value="none" id="none" icon={Users} label="Je me déplace seul(e)" price="Gratuit" />
+                    <TransportOption value="shuttle" id="shuttle" icon={Bus} label="Navette aller-retour" price="+50 DH" />
+                    <TransportOption value="private" id="private" icon={Car} label="Transport privé" price="+150 DH" />
                   </RadioGroup>
                 </div>
 
-                <Separator className="my-6" />
-
                 <div className="space-y-3">
-                  <Button asChild className="w-full" size="lg" disabled={isFull}>
+                  <Button asChild variant="pink" className="w-full" size="lg" disabled={isFull}>
                     <Link href={`/reservation?event=${event.id}${transportOption ? `&transport=${transportOption}` : ''}`}>
                       {isFull ? "Complet" : "Réserver maintenant"}
-                      {!isFull && <ArrowRight className="w-5 h-5 ml-2" />}
+                      {!isFull && <ArrowRight className="ml-2 size-5" aria-hidden="true" />}
                     </Link>
                   </Button>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsFavorite(!isFavorite)}
-                      className="w-full"
-                    >
-                      <Heart className={`w-4 h-4 mr-2 ${isFavorite ? "fill-current text-red-500" : ""}`} />
-                      Favoris
-                    </Button>
-                    <Button variant="outline" onClick={shareEvent} className="w-full">
-                      <Share2 className="w-4 h-4 mr-2" />
-                      Partager
-                    </Button>
-                  </div>
+                  <Button variant="outline" onClick={shareEvent} className="w-full">
+                    <Share2 className="mr-2 size-4" aria-hidden="true" />
+                    Partager
+                  </Button>
                 </div>
 
-                <div className="mt-6 p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground text-center">
-                    Paiement sécurisé • Annulation gratuite 48h avant
-                  </p>
-                </div>
-              </Card>
+                <p className="rounded-xl border-2 border-line bg-paper-2 p-3 text-center font-mono text-xs text-mute">
+                  Paiement sécurisé • Annulation gratuite 48h avant
+                </p>
+              </StickerCard>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="fixed bottom-24 md:bottom-6 right-6 lg:hidden z-50">
-          <Button asChild size="lg" className="rounded-full shadow-lg" disabled={isFull}>
-            <Link href={`/reservation?event=${event.id}${transportOption ? `&transport=${transportOption}` : ''}`}>
-              {isFull ? "Complet" : "Réserver"}
-              {!isFull && <ArrowRight className="w-5 h-5 ml-2" />}
-            </Link>
-          </Button>
-        </div>
+      {/* Mobile sticky booking */}
+      <div className="fixed bottom-24 right-6 z-50 md:bottom-6 lg:hidden">
+        <Button asChild size="lg" variant="pink" className="rounded-full shadow-stkr-md" disabled={isFull}>
+          <Link href={`/reservation?event=${event.id}${transportOption ? `&transport=${transportOption}` : ''}`}>
+            {isFull ? "Complet" : "Réserver"}
+            {!isFull && <ArrowRight className="ml-2 size-5" aria-hidden="true" />}
+          </Link>
+        </Button>
+      </div>
     </div>
+  )
+}
+
+function RuleRow({ icon: Icon, title, children }: { icon: typeof Users; title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3">
+      <Icon className="mt-1 size-5 shrink-0 text-teal" aria-hidden="true" />
+      <div>
+        <p className="font-display font-bold">{title}</p>
+        <p className="text-sm text-mute">{children}</p>
+      </div>
+    </div>
+  )
+}
+
+function FaqItem({ value, q, children }: { value: string; q: string; children: React.ReactNode }) {
+  return (
+    <AccordionItem value={value} className="rounded-xl border-2 border-ink bg-white px-5 shadow-stkr-sm">
+      <AccordionTrigger className="font-display font-bold hover:no-underline">{q}</AccordionTrigger>
+      <AccordionContent className="text-mute">{children}</AccordionContent>
+    </AccordionItem>
+  )
+}
+
+function TransportOption({ value, id, icon: Icon, label, price }: { value: string; id: string; icon: typeof Bus; label: string; price: string }) {
+  return (
+    <label
+      htmlFor={id}
+      className="flex cursor-pointer items-center gap-2 rounded-xl border-2 border-line p-3 transition-colors has-[[data-state=checked]]:border-ink"
+    >
+      <RadioGroupItem value={value} id={id} />
+      <span className="flex flex-1 items-center gap-2 text-sm font-medium text-ink">
+        <Icon className="size-4" aria-hidden="true" />
+        {label}
+      </span>
+      <span className="font-mono text-sm font-bold text-ink">{price}</span>
+    </label>
   )
 }

@@ -1,18 +1,30 @@
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Coins, ShoppingBag, Award, Crown, Zap, Flame, TrendingUp, Gift, Star, Lock, Check, ArrowRight, Sparkles, Loader2 } from "lucide-react"
+import Link from "next/link"
+import { Coins, ShoppingBag, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2, PiggyBank, Receipt, QrCode, Award, Lock } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
-import { Progress } from "@/components/ui/progress"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { SegmentedProgress } from "@/components/ui/progress"
 import { toast } from "sonner"
 import { purchaseReward } from "@/gamification-system/features/shop/actions"
-import { convertXPToDH, formatDH } from "@/lib/payments/xp-converter"
+import type { UserPurchase } from "@/gamification-system/features/shop/schema"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StickerTabs } from "@/components/brand/sticker-tab"
+import { NivCoach, NivEmpty, DarkSurface, StatHero } from "@/components/brand"
+
+interface SavingsGoal {
+  id: string
+  title: string
+  description: string | null
+  current_saved_coins: number
+  target_coins: number
+  status: string
+  parent_match_pct: number
+}
 
 interface ShopReward {
   reward_id: string
@@ -47,15 +59,35 @@ interface WalletHubClientProps {
     shopHighlights: any
     rewards?: ShopReward[]
     categories?: Array<{ id: string; slug: string; name: string }>
-    currency?: { xpToDhRate: number; xpValueDH: number }
+    /** Onglet Épargne — vue user_coins_spendable (source unique) + objectifs. */
+    savings?: {
+      spendable: number
+      total: number
+      locked: number
+      goals: SavingsGoal[]
+    }
+    /** Onglet Historique — achats canoniques (user_purchases via RPC). */
+    purchases?: UserPurchase[]
+    /** Onglet Badges — achievements + progression (get_user_achievements). */
+    achievements?: Array<{
+      id?: string
+      code?: string
+      name: string
+      description?: string
+      icon?: string | null
+      rarity?: string
+      xp_reward?: number
+      is_unlocked?: boolean
+    }>
   }
 }
 
 const WALLET_TABS: HubTab[] = [
-  { id: "coins", label: "Coins", icon: Coins },
-  { id: "shop", label: "Shop", icon: ShoppingBag },
+  { id: "coins", label: "Solde", icon: Coins },
+  { id: "shop", label: "Boutique", icon: ShoppingBag },
   { id: "badges", label: "Badges", icon: Award },
-  { id: "vip", label: "VIP", icon: Crown },
+  { id: "savings", label: "Épargne", icon: PiggyBank },
+  { id: "history", label: "Historique", icon: Receipt },
 ]
 
 export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
@@ -66,18 +98,12 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
     <div className="space-y-8 pt-6">
       {/* Header */}
       <header className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center">
-                <Coins className="w-6 h-6 text-black" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Wallet</h1>
-                <p className="text-zinc-500 text-sm font-medium">Your rewards & achievements</p>
-              </div>
-            </div>
-          </div>
+        <div className="space-y-1">
+          <span className="eyebrow tracking-[0.16em] text-mute">Ton argent</span>
+          <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">
+            Ton <em className="font-semibold italic text-pink">wallet</em>
+          </h1>
+          <p className="text-sm text-mute">Tes coins, tes badges et ta boutique au même endroit.</p>
         </div>
 
         {/*
@@ -95,39 +121,38 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
           variant="full"
         />
 
-        {/* XP → DH shop redeem rate (NOT a coin conversion — informational). */}
-        {walletData.currency && (
-          <p className="text-xs text-zinc-500">
-            Au shop : 1 XP ={" "}
-            <span className="text-emerald-400 font-bold">
-              {walletData.currency.xpToDhRate.toFixed(2)} DH
-            </span>{" "}
-            de remise (10 XP = 1 DH).{" "}
-            <a href="/docs/economy" className="underline hover:text-zinc-300">
-              Voir le modèle d&apos;économie
-            </a>
-          </p>
-        )}
+        {/* #206 — règle devise tranchée : on NE présente plus l'XP avec une
+            « valeur en DH » (la bannière « 10 XP = 1 DH de remise » laissait
+            croire que l'XP est de l'argent). Les XP achètent des récompenses,
+            affichées en XP nus. Modèle expliqué sur la page Mes XP. */}
+        <p className="text-xs text-mute">
+          Tes XP débloquent des récompenses exclusives.{" "}
+          <a href="/teen/xp-value" className="underline hover:text-ink-2">
+            Comment ça marche
+          </a>
+        </p>
 
-        {/* Tabs */}
-        <HubTabs tabs={WALLET_TABS} defaultTab="coins" />
+        {/* Tabs (VIP routé vers /teen/vip-card, canon VIP) */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* #206 — Épargne et Historique sont désormais des onglets in-page. */}
+          <HubTabs tabs={WALLET_TABS} defaultTab="coins" />
+          <Link href="/teen/vip-card">
+            <Button variant="outline" size="sm">
+              <Crown className="w-4 h-4" />
+              Carte VIP
+            </Button>
+          </Link>
+        </div>
       </header>
 
       {/* Tab Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentTab}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
-          {currentTab === "shop" && <ShopTab walletData={walletData} teenId={teenId} />}
-          {currentTab === "badges" && <BadgesTab teenId={teenId} />}
-          {currentTab === "vip" && <VIPTab />}
-        </motion.div>
-      </AnimatePresence>
+      <div>
+        {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
+        {currentTab === "shop" && <ShopTab walletData={walletData} teenId={teenId} />}
+        {currentTab === "badges" && <BadgesTab walletData={walletData} />}
+        {currentTab === "savings" && <SavingsTab walletData={walletData} />}
+        {currentTab === "history" && <HistoryTab walletData={walletData} />}
+      </div>
     </div>
   )
 }
@@ -153,126 +178,135 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
     fetchTransactions()
   }, [teenId])
 
+  // Level progress en jauge segmentée (10 segments = 0→100 %).
+  const levelSegments = 10
+  const levelCurrent = Math.min(
+    levelSegments,
+    Math.round((walletData.xp.progressPercent / 100) * levelSegments),
+  )
+
   return (
     <div className="space-y-8">
-      {/* Balance Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-3xl p-8 border border-yellow-500/20 bg-gradient-to-br from-yellow-500/10 to-amber-500/5"
-      >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-[100px]" />
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <p className="text-sm text-zinc-400 uppercase tracking-wider font-bold">Total Balance</p>
-              <div className="flex items-baseline gap-3 mt-2">
-                <span className="text-6xl font-black text-yellow-500">{walletData.coins.toLocaleString()}</span>
-                <span className="text-xl text-zinc-500">coins</span>
-              </div>
-            </div>
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center">
-              <Coins className="w-10 h-10 text-black" />
-            </div>
-          </div>
-
-          {/* Quick Stats — twin-currency gauge: XP + Coins balance + this-week cashback (§5). */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-4 rounded-2xl bg-black/20 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Zap className="w-4 h-4 text-brand-soft" />
-                <span className="font-black text-xl">{walletData.xp.total.toLocaleString()}</span>
-              </div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Total XP</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-black/20 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span className="font-black text-xl">+{(walletData.cashbackThisWeek ?? 0).toLocaleString()}</span>
-              </div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Cashback 7j</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-black/20 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Flame className="w-4 h-4 text-orange-500" />
-                <span className="font-black text-xl">{walletData.streak}</span>
-              </div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Day Streak</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-black/20 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <TrendingUp className="w-4 h-4 text-success-soft" />
-                <span className="font-black text-xl">Lvl {walletData.xp.level}</span>
-              </div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Level</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Level Progress */}
-      <div className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold">Level Progress</h3>
-          <span className="text-sm text-brand-soft font-bold">Level {walletData.xp.level + 1}</span>
-        </div>
-        <Progress value={walletData.xp.progressPercent} className="h-3" />
-        <p className="text-sm text-zinc-500 mt-2">{walletData.xp.progressPercent}% to next level</p>
+      {/* Solde — surface sombre ponctuelle (F2) + Niv pose proud */}
+      <div className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
+        <StatHero
+          eyebrow="Solde total"
+          tone="coral"
+          size="lg"
+          value={walletData.coins.toLocaleString()}
+          unit="⊙ coins"
+          icon={<Coins className="w-5 h-5" />}
+        />
+        <NivCoach
+          mood="proud"
+          message="Ton solde grossit à chaque quête. Garde le cap, je suis fier de toi !"
+        />
       </div>
 
-      {/* Recent Activity */}
+      {/* Quick-stats — mini-cartes sticker, chaque chiffre son token charte. */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StickerCard variant="panel" className="p-4">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-gold" />
+            <span className="font-display text-xl font-extrabold tabular-nums text-ink">
+              {walletData.xp.total.toLocaleString()}
+            </span>
+          </div>
+          <p className="eyebrow mt-1 tracking-[0.14em] text-mute">XP total</p>
+        </StickerCard>
+        <StickerCard variant="panel" className="p-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-lime" />
+            <span className="font-display text-xl font-extrabold tabular-nums text-ink">
+              +{(walletData.cashbackThisWeek ?? 0).toLocaleString()}
+            </span>
+          </div>
+          <p className="eyebrow mt-1 tracking-[0.14em] text-mute">Cashback 7j</p>
+        </StickerCard>
+        <StickerCard variant="panel" className="p-4">
+          <div className="flex items-center gap-2">
+            <Flame className="w-4 h-4 text-pink" />
+            <span className="font-display text-xl font-extrabold tabular-nums text-ink">
+              {walletData.streak}
+            </span>
+          </div>
+          <p className="eyebrow mt-1 tracking-[0.14em] text-mute">Streak</p>
+        </StickerCard>
+        <StickerCard variant="panel" className="p-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-teal" />
+            <span className="font-display text-xl font-extrabold tabular-nums text-ink">
+              Niv. {walletData.xp.level}
+            </span>
+          </div>
+          <p className="eyebrow mt-1 tracking-[0.14em] text-mute">Niveau</p>
+        </StickerCard>
+      </div>
+
+      {/* Progression niveau — jauge segmentée (F5) */}
+      <StickerCard variant="default" className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display font-bold text-ink">Progression niveau</h3>
+          <span className="font-mono text-sm font-bold tabular-nums text-teal">
+            Niveau {walletData.xp.level + 1}
+          </span>
+        </div>
+        <SegmentedProgress steps={levelSegments} current={levelCurrent} size="md" />
+        <p className="font-mono text-xs tabular-nums text-mute mt-2">
+          {walletData.xp.progressPercent}% vers le prochain niveau
+        </p>
+      </StickerCard>
+
+      {/* Activité récente */}
       <div className="space-y-4">
-        <h3 className="text-lg font-bold">Recent Activity</h3>
+        <h3 className="font-display text-lg font-bold text-ink">Activité récente</h3>
         {loadingTx ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-yellow-500" />
+            <Loader2 className="w-6 h-6 animate-spin text-coral" />
           </div>
         ) : transactions.length === 0 ? (
-          walletData.coins === 0 ? (
-            <EmptyState
-              preset="coins"
-              size="default"
-              action={{ label: "Voir les quêtes", href: "/teen/quests" }}
-            />
-          ) : (
-            <EmptyState
-              preset="coins"
-              size="small"
-              title="Pas encore de transactions"
-              description="Tes prochaines récompenses apparaîtront ici."
-            />
-          )
+          <NivEmpty
+            mood="calm"
+            title={walletData.coins === 0 ? "Pas encore de coins" : "Pas encore de transactions"}
+            description={
+              walletData.coins === 0
+                ? "Lance une quête pour gagner tes premiers coins."
+                : "Tes prochaines récompenses apparaîtront ici."
+            }
+            action={
+              walletData.coins === 0 ? (
+                <Link href="/teen/quests">
+                  <Button variant="pink" size="sm">Voir les quêtes</Button>
+                </Link>
+              ) : undefined
+            }
+          />
         ) : (
           transactions.map((tx, idx) => (
-            <motion.div
-              key={tx.id || idx}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
-            >
-              <div className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center",
-                tx.type === "earned" ? "bg-green-500/20" : "bg-red-500/20"
-              )}>
-                {tx.type === "earned" ? (
-                  <TrendingUp className="w-5 h-5 text-green-500" />
-                ) : (
-                  <ShoppingBag className="w-5 h-5 text-red-500" />
-                )}
+            <StickerCard key={tx.id || idx} variant="panel" className="p-4">
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  "w-10 h-10 rounded-xl border-2 border-ink flex items-center justify-center",
+                  tx.type === "earned" ? "bg-lime/20" : "bg-coral/20"
+                )}>
+                  {tx.type === "earned" ? (
+                    <TrendingUp className="w-5 h-5 text-lime" />
+                  ) : (
+                    <ShoppingBag className="w-5 h-5 text-coral" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-ink truncate">{tx.reason}</p>
+                  <p className="font-mono text-xs text-mute">{tx.time}</p>
+                </div>
+                <span className={cn(
+                  "font-display font-extrabold tabular-nums",
+                  tx.type === "earned" ? "text-lime" : "text-coral"
+                )}>
+                  {tx.type === "earned" ? "+" : ""}{tx.amount}
+                </span>
               </div>
-              <div className="flex-1">
-                <p className="font-medium">{tx.reason}</p>
-                <p className="text-sm text-zinc-500">{tx.time}</p>
-              </div>
-              <span className={cn(
-                "font-black",
-                tx.type === "earned" ? "text-green-500" : "text-red-500"
-              )}>
-                {tx.type === "earned" ? "+" : ""}{tx.amount}
-              </span>
-            </motion.div>
+            </StickerCard>
           ))
         )}
       </div>
@@ -336,108 +370,77 @@ function ShopTab({
     })
   }
 
+  // #206 — prix en XP nus (plus de « ≈ DH » : l'XP n'a pas de valeur en argent).
   const renderPriceTag = (xpCost: number) => {
-    const dhValue = convertXPToDH(xpCost)
     return (
-      <div className="flex flex-col items-end">
-        <div className="flex items-center gap-1">
-          <Zap className="w-4 h-4 text-brand-soft" />
-          <span className="font-black text-brand-soft">
-            {xpCost.toLocaleString()}
-          </span>
-        </div>
-        <span className="text-[10px] text-zinc-500">≈ {formatDH(dhValue)}</span>
+      <div className="flex items-center gap-1">
+        <Zap className="w-4 h-4 text-gold" />
+        <span className="font-display font-extrabold tabular-nums text-gold">
+          {xpCost.toLocaleString()} XP
+        </span>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
+      {/* Coach Niv — entrée d'onglet */}
+      <NivCoach
+        mood="happy"
+        message="Tes XP, tu les dépenses ici. Vise un item, je te dis s'il est à ta portée !"
+      />
+
       {/* Affordability banner */}
-      <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 flex items-center justify-between flex-wrap gap-3">
-        <div className="text-sm text-zinc-300">
-          Tu as{" "}
-          <span className="text-brand-soft font-bold">
-            {userXP.toLocaleString()} XP
-          </span>{" "}
-          (≈{" "}
-          <span className="text-emerald-400 font-bold">
-            {formatDH(walletData.currency?.xpValueDH || convertXPToDH(userXP))}
-          </span>
-          ) à dépenser.
+      <StickerCard variant="panel" className="p-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="text-sm text-ink-2">
+            Tu as{" "}
+            <span className="font-mono font-bold tabular-nums text-gold">
+              {userXP.toLocaleString()} XP
+            </span>{" "}
+            à dépenser.
+          </div>
+          <div className="font-mono text-xs uppercase tracking-wider text-mute">
+            {rewards.filter((r) => r.xp_cost <= userXP).length} item(s) accessible(s)
+          </div>
         </div>
-        <div className="text-xs text-zinc-500">
-          {rewards.filter((r) => r.xp_cost <= userXP).length} item(s) accessible(s)
-        </div>
-      </div>
+      </StickerCard>
 
       {/* Category filters */}
       {categories.length > 0 && (
-        <div role="group" aria-label="Filtres catégories" className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveCategory(null)}
-            aria-pressed={!activeCategory}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-soft",
-              !activeCategory
-                ? "bg-brand-soft text-black"
-                : "bg-zinc-800 text-zinc-300 hover:text-white"
-            )}
-          >
-            Tous
-          </button>
-          {categories.map((cat) => {
-            const active = activeCategory === cat.slug
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setActiveCategory(cat.slug)}
-                aria-pressed={active}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-soft",
-                  active
-                    ? "bg-brand-soft text-black"
-                    : "bg-zinc-800 text-zinc-300 hover:text-white"
-                )}
-              >
-                {cat.name}
-              </button>
-            )
-          })}
-        </div>
+        <StickerTabs
+          ariaLabel="Filtres catégories"
+          value={activeCategory ?? "__all__"}
+          onValueChange={(v) => setActiveCategory(v === "__all__" ? null : v)}
+          tabs={[
+            { value: "__all__", label: "Tous" },
+            ...categories.map((cat) => ({ value: cat.slug, label: cat.name })),
+          ]}
+        />
       )}
 
-      {/* Featured */}
+      {/* En vedette — surface sombre ponctuelle */}
       {featured && !activeCategory && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative overflow-hidden rounded-3xl p-8 border border-brand-soft/20 bg-gradient-to-br from-brand-soft/10 to-info-soft/5"
-        >
-          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-brand-soft/20 text-brand-soft text-xs font-black uppercase">
-            Featured
-          </div>
-          <div className="flex items-center gap-6 flex-wrap">
-            <div className="w-24 h-24 rounded-3xl bg-white/10 flex items-center justify-center text-5xl">
-              <Gift className="w-10 h-10 text-brand-soft" />
+        <DarkSurface tone="pink" shadow className="p-6 sm:p-8">
+          <span className="eyebrow tracking-[0.16em] text-paper/60">En vedette</span>
+          <div className="mt-3 flex items-center gap-6 flex-wrap">
+            <div className="w-24 h-24 rounded-2xl border-2 border-paper/30 flex items-center justify-center">
+              <Gift className="w-10 h-10 text-pink" />
             </div>
             <div className="flex-1 min-w-[200px]">
-              <h3 className="text-2xl font-black">{featured.name}</h3>
-              <p className="text-zinc-400 mt-1">{featured.description || "Limited edition reward"}</p>
-              <div className="flex items-center gap-2 mt-4">
-                <Zap className="w-5 h-5 text-brand-soft" />
-                <span className="font-black text-xl text-brand-soft">
+              <h3 className="font-display text-2xl font-extrabold text-paper">
+                {featured.name}
+              </h3>
+              <p className="text-paper/70 mt-1">{featured.description}</p>
+              <div className="flex items-baseline gap-2 mt-4">
+                <Zap className="w-5 h-5 self-center text-gold" />
+                <span className="font-display text-xl font-extrabold tabular-nums text-gold">
                   {featured.xp_cost.toLocaleString()} XP
-                </span>
-                <span className="text-sm text-zinc-500">
-                  ≈ {formatDH(convertXPToDH(featured.xp_cost))}
                 </span>
               </div>
             </div>
             <Button
-              className="bg-brand-soft text-black font-bold"
+              variant="pink"
               disabled={
                 !featured.can_purchase ||
                 userXP < featured.xp_cost ||
@@ -454,53 +457,47 @@ function ShopTab({
               )}
             </Button>
           </div>
-        </motion.div>
+        </DarkSurface>
       )}
 
       {/* Items Grid */}
       {filteredRewards.length === 0 ? (
-        <div className="text-center py-12">
-          <ShoppingBag className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Aucun item disponible</h3>
-          <p className="text-zinc-500">De nouveaux items arriveront bientôt !</p>
-        </div>
+        <NivEmpty
+          mood="calm"
+          title="Aucun item disponible"
+          description="De nouveaux items arriveront bientôt !"
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {filteredRewards.map((item, idx) => {
+          {filteredRewards.map((item) => {
             const canAfford = userXP >= item.xp_cost
             const isPending = pendingId === item.reward_id
             return (
-              <motion.div
+              <StickerCard
                 key={item.reward_id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={cn(
-                  "p-5 rounded-3xl bg-zinc-900/50 border transition-all flex flex-col",
-                  canAfford
-                    ? "border-white/5 hover:border-brand-soft/40"
-                    : "border-white/5 opacity-70"
-                )}
+                variant={canAfford ? "hover" : "default"}
+                className={cn("p-5", !canAfford && "opacity-70")}
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-soft/10 flex items-center justify-center">
-                    <Gift className="w-7 h-7 text-brand-soft" />
+                  <div className="w-14 h-14 rounded-2xl border-2 border-ink bg-paper-2 flex items-center justify-center">
+                    <Gift className="w-7 h-7 text-pink" />
                   </div>
                   {renderPriceTag(item.xp_cost)}
                 </div>
-                <h4 className="font-bold text-white">{item.name}</h4>
+                <h4 className="font-display font-bold text-ink">{item.name}</h4>
                 {item.category_name && (
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 mt-0.5">
+                  <p className="font-mono text-[10px] uppercase tracking-wider text-mute mt-0.5">
                     {item.category_name}
                   </p>
                 )}
                 {item.description && (
-                  <p className="text-xs text-zinc-400 mt-2 line-clamp-2 flex-1">
+                  <p className="text-xs text-mute mt-2 line-clamp-2 flex-1">
                     {item.description}
                   </p>
                 )}
                 <Button
                   size="sm"
+                  variant="pink"
                   className="mt-4 w-full"
                   disabled={!item.can_purchase || !canAfford || isPending}
                   onClick={() => handlePurchase(item)}
@@ -515,7 +512,7 @@ function ShopTab({
                     `Manque ${(item.xp_cost - userXP).toLocaleString()} XP`
                   )}
                 </Button>
-              </motion.div>
+              </StickerCard>
             )
           })}
         </div>
@@ -524,176 +521,272 @@ function ShopTab({
   )
 }
 
-function BadgesTab({ teenId }: { teenId?: string }) {
-  const [badges, setBadges] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+// Onglet Badges — cible canonique des « achievements » (les redirects
+// /teen/achievements et /gamification/collections pointent ici). Affiche les
+// achievements du teen, débloqués en couleur, verrouillés en grisé.
+function BadgesTab({ walletData }: { walletData: WalletHubClientProps["walletData"] }) {
+  const achievements = walletData.achievements ?? []
+  const unlocked = achievements.filter((a) => a.is_unlocked)
 
-  useEffect(() => {
-    const fetchBadges = async () => {
-      try {
-        const response = await fetch('/api/teen/wallet')
-        if (response.ok) {
-          const data = await response.json()
-          setBadges(data.badges || [])
-        }
-      } catch (error) {
-        console.error('Failed to fetch badges:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchBadges()
-  }, [teenId])
-
-  // Combine unlocked badges with locked placeholder badges
-  const allBadges = [
-    ...badges.map(b => ({ ...b, unlocked: true })),
-    // Placeholder locked badges
-    { id: "locked-1", name: "Social Butterfly", icon: "🦋", unlocked: false, rarity: "epic" },
-    { id: "locked-2", name: "Legend", icon: "👑", unlocked: false, rarity: "legendary" },
-    { id: "locked-3", name: "Event King", icon: "🎉", unlocked: false, rarity: "epic" },
-  ]
-
-  const unlockedCount = badges.length
-  const lockedCount = allBadges.filter(b => !b.unlocked).length
-
-  const rarityColors = {
-    common: "from-zinc-500 to-zinc-600 border-zinc-500/30",
-    rare: "from-blue-500 to-cyan-500 border-blue-500/30",
-    epic: "from-purple-500 to-pink-500 border-purple-500/30",
-    legendary: "from-yellow-500 to-amber-500 border-yellow-500/30",
-  }
-
-  if (loading) {
+  if (achievements.length === 0) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-soft" />
-      </div>
+      <NivEmpty
+        mood="calm"
+        title="Pas encore de badges"
+        description="Complète des quêtes et des défis pour débloquer tes premiers badges."
+        action={
+          <Link href="/teen/quests">
+            <Button variant="pink" size="sm">Voir les quêtes</Button>
+          </Link>
+        }
+      />
     )
   }
 
   return (
-    <div className="space-y-8">
-      {/* Stats */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-success-soft/10 border border-success-soft/20">
-          <Check className="w-5 h-5 text-success-soft" />
-          <span className="font-bold">{unlockedCount} Unlocked</span>
+    <div className="space-y-6">
+      <StickerCard variant="panel" className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Award className="h-5 w-5 text-gold" />
+            <span className="font-display font-extrabold text-ink">Tes badges</span>
+          </div>
+          <span className="font-mono text-sm font-bold tabular-nums text-mute">
+            {unlocked.length}/{achievements.length} débloqués
+          </span>
         </div>
-        <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-zinc-800/50 border border-white/5">
-          <Lock className="w-5 h-5 text-zinc-500" />
-          <span className="font-bold text-zinc-500">{lockedCount} Locked</span>
-        </div>
-      </div>
+      </StickerCard>
 
-      {/* Badges Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-        {allBadges.map((badge, idx) => (
-          <motion.div
-            key={badge.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: idx * 0.05 }}
-            className={cn(
-              "relative p-6 rounded-3xl border text-center transition-all",
-              badge.unlocked 
-                ? `bg-gradient-to-br ${rarityColors[badge.rarity as keyof typeof rarityColors] || rarityColors.common}` 
-                : "bg-zinc-900/50 border-white/5 opacity-50"
-            )}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {achievements.map((a, idx) => (
+          <StickerCard
+            key={a.id || a.code || idx}
+            variant={a.is_unlocked ? "default" : "panel"}
+            className={cn("p-4 text-center", !a.is_unlocked && "opacity-50 saturate-50")}
           >
-            {!badge.unlocked && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl">
-                <Lock className="w-8 h-8 text-zinc-500" />
-              </div>
-            )}
-            <div className="text-5xl mb-4">{badge.icon || "🏆"}</div>
-            <h4 className="font-bold text-white">{badge.name}</h4>
-            <p className="text-xs text-zinc-400 uppercase tracking-wider mt-1">{badge.rarity || "common"}</p>
-          </motion.div>
+            {/* `icon` en base = nom lucide minuscule ("zap"/"flame"…), pas un
+                emoji — on n'affiche donc pas sa valeur brute. Trophée pour les
+                badges débloqués, cadenas pour les verrouillés. */}
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-ink bg-paper-2 text-2xl">
+              {a.is_unlocked ? "🏆" : <Lock className="h-5 w-5 text-mute" />}
+            </div>
+            <h4 className="mt-2 line-clamp-2 font-display text-sm font-bold leading-snug text-ink">
+              {a.name}
+            </h4>
+            {a.xp_reward ? (
+              <p className="mt-1 font-mono text-[11px] font-bold tabular-nums text-gold">
+                +{a.xp_reward.toLocaleString()} XP
+              </p>
+            ) : null}
+          </StickerCard>
         ))}
       </div>
     </div>
   )
 }
 
-function VIPTab() {
-  const tiers = [
-    { name: "Bronze", xpRequired: 0, current: true, color: "from-amber-700 to-amber-800", benefits: ["5% bonus XP", "Basic rewards access"] },
-    { name: "Silver", xpRequired: 5000, current: false, color: "from-zinc-400 to-zinc-500", benefits: ["10% bonus XP", "Priority events", "Exclusive badges"] },
-    { name: "Gold", xpRequired: 15000, current: false, color: "from-yellow-500 to-amber-500", benefits: ["20% bonus XP", "VIP events", "Special rewards", "Extra spins"] },
-    { name: "Platinum", xpRequired: 50000, current: false, color: "from-purple-500 to-pink-500", benefits: ["30% bonus XP", "All benefits", "Real prizes", "Personal coach"] },
-  ]
+// #206 — Onglet Épargne : panneau compact en lecture seule. Lock/withdraw
+// restent sur /teen/savings (source des actions). Source coins = vue
+// user_coins_spendable passée par la page (single source of truth).
+function SavingsTab({ walletData }: { walletData: WalletHubClientProps["walletData"] }) {
+  const savings = walletData.savings
+  const spendable = savings?.spendable ?? 0
+  const total = savings?.total ?? 0
+  const locked = savings?.locked ?? 0
+  const goals = (savings?.goals ?? []).filter(
+    (g) => g.status === "active" || g.status === "achieved"
+  )
 
   return (
     <div className="space-y-6">
-      {/* Current Status */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-3xl p-8 border border-amber-700/30 bg-gradient-to-br from-amber-700/20 to-amber-800/10"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-zinc-400 uppercase tracking-wider font-bold">Current Tier</p>
-            <h2 className="text-4xl font-black text-amber-500 mt-2">BRONZE</h2>
-            <p className="text-zinc-500 mt-2">5,000 XP to Silver</p>
+      <StatHero
+        eyebrow="Disponible"
+        tone="coral"
+        size="lg"
+        value={spendable.toLocaleString()}
+        unit="⊙ coins"
+        meta={
+          <div className="flex flex-wrap gap-x-6 gap-y-1 font-mono tabular-nums">
+            <span>Total : {total.toLocaleString()} ⊙</span>
+            <span>Bloqué (épargne) : {locked.toLocaleString()} ⊙</span>
           </div>
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-700 to-amber-800 flex items-center justify-center">
-            <Crown className="w-12 h-12 text-white" />
+        }
+      />
+
+      {goals.length === 0 ? (
+        <NivEmpty
+          mood="calm"
+          title="Aucun objectif d'épargne"
+          description="Crée ton premier objectif et commence à mettre tes coins de côté pour ce qui compte."
+          action={
+            <Link href="/teen/savings/new">
+              <Button variant="pink" size="sm">Créer un objectif</Button>
+            </Link>
+          }
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {goals.map((g) => {
+            const pct = Math.min(100, Math.round((g.current_saved_coins / g.target_coins) * 100))
+            const segments = 10
+            const current = Math.min(segments, Math.round((pct / 100) * segments))
+            return (
+              <StickerCard key={g.id} variant="default" className="p-5 space-y-3">
+                <h3 className="font-display text-base font-bold text-ink">{g.title}</h3>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between font-mono text-sm tabular-nums text-ink-2">
+                    <span>{g.current_saved_coins.toLocaleString()} / {g.target_coins.toLocaleString()} ⊙</span>
+                    <span>{pct}%</span>
+                  </div>
+                  <SegmentedProgress steps={segments} current={current} size="md" />
+                </div>
+              </StickerCard>
+            )
+          })}
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href="/teen/savings">
+          <Button variant="outline" size="sm">
+            <PiggyBank className="w-4 h-4" />
+            Gérer l&apos;épargne
+          </Button>
+        </Link>
+        <Link href="/teen/savings/new">
+          <Button variant="pink" size="sm">Nouvel objectif</Button>
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+// #206 — Onglet Historique : achats canoniques (user_purchases via RPC).
+// Code de retrait dérivé des 8 premiers caractères du purchase_id (uppercase)
+// — pas de colonne dédiée dans le système canonique.
+function HistoryTab({ walletData }: { walletData: WalletHubClientProps["walletData"] }) {
+  const purchases = walletData.purchases ?? []
+  const usable = purchases.filter((p) => p.is_usable)
+
+  const formatDate = (s: string) =>
+    new Date(s).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })
+
+  const statusClass = (status: UserPurchase["status"]) => {
+    switch (status) {
+      case "completed":
+      case "used":
+        return "border-lime bg-lime/15 text-ink"
+      case "pending":
+        return "border-gold bg-gold/15 text-ink"
+      case "expired":
+      case "refunded":
+        return "border-coral bg-coral/15 text-ink"
+      default:
+        return "border-line bg-paper-2 text-mute"
+    }
+  }
+  const statusText: Record<UserPurchase["status"], string> = {
+    pending: "En cours",
+    completed: "Disponible",
+    used: "Utilisé",
+    expired: "Expiré",
+    refunded: "Remboursé",
+  }
+
+  if (purchases.length === 0) {
+    return (
+      <NivEmpty
+        mood="calm"
+        title="Aucun achat"
+        description="Tu n'as pas encore effectué d'achats dans la boutique. Découvre les rewards disponibles !"
+        action={
+          <Link href="/teen/wallet?tab=shop">
+            <Button variant="pink" size="sm">Découvrir la boutique</Button>
+          </Link>
+        }
+      />
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Récompenses à utiliser — codes de retrait en avant */}
+      {usable.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <Gift className="h-5 w-5 text-pink" />
+            Récompenses à utiliser
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            {usable.map((p) => (
+              <DarkSurface key={p.purchase_id} tone="pink" shadow className="p-5">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 border-paper/30 bg-white/10 text-3xl">
+                    {p.reward_icon || "🎁"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-display font-bold text-paper">{p.reward_name || "Récompense"}</h4>
+                    <p className="font-mono text-xs text-paper/60 mt-1">
+                      Acheté le {formatDate(p.purchased_at)}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border-2 border-paper/30 bg-white/5 p-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <QrCode className="h-5 w-5 shrink-0 text-pink" />
+                    <span className="font-mono text-sm font-bold tracking-wider text-paper truncate">
+                      {p.purchase_id.slice(0, 8).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-paper/60">
+                    Code à présenter
+                  </span>
+                </div>
+              </DarkSurface>
+            ))}
           </div>
         </div>
-        <Progress value={30} className="h-3 mt-6" />
-      </motion.div>
+      )}
 
-      {/* All Tiers */}
-      <div className="space-y-4">
-        {tiers.map((tier, idx) => (
-          <motion.div
-            key={tier.name}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={cn(
-              "p-6 rounded-3xl border transition-all",
-              tier.current 
-                ? "bg-gradient-to-r from-amber-700/20 to-transparent border-amber-700/30" 
-                : "bg-zinc-900/50 border-white/5"
-            )}
-          >
-            <div className="flex items-center gap-4">
-              <div className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br",
-                tier.color
-              )}>
-                <Crown className="w-7 h-7 text-white" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
-                  <h4 className="font-black text-lg">{tier.name}</h4>
-                  {tier.current && (
-                    <span className="px-2 py-0.5 rounded-full bg-success-soft/20 text-success-soft text-[10px] font-bold uppercase">
-                      Current
-                    </span>
-                  )}
+      {/* Liste compacte — tous les achats */}
+      <div className="space-y-3">
+        {purchases.map((p) => (
+          <StickerCard key={p.purchase_id} variant="panel" className="p-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-paper-2 text-xl">
+                  {p.reward_icon || "🎁"}
                 </div>
-                <p className="text-sm text-zinc-500">{tier.xpRequired.toLocaleString()} XP required</p>
+                <div className="min-w-0">
+                  <p className="font-display font-medium text-ink truncate">{p.reward_name || "Récompense"}</p>
+                  <p className="font-mono text-xs text-mute">{formatDate(p.purchased_at)}</p>
+                </div>
               </div>
-              <Button variant={tier.current ? "default" : "outline"} size="sm">
-                {tier.current ? "Active" : "View"}
-              </Button>
-            </div>
-            
-            {/* Benefits */}
-            <div className="flex flex-wrap gap-2 mt-4">
-              {tier.benefits.map((benefit, i) => (
-                <span key={i} className="px-3 py-1 rounded-full bg-white/5 text-xs text-zinc-400">
-                  {benefit}
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 font-mono text-sm font-bold tabular-nums text-gold">
+                  <Zap className="h-4 w-4" />
+                  −{(p.xp_spent || 0).toLocaleString("fr-FR")} XP
                 </span>
-              ))}
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full border-2 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider",
+                    statusClass(p.status)
+                  )}
+                >
+                  {statusText[p.status]}
+                </span>
+              </div>
             </div>
-          </motion.div>
+          </StickerCard>
         ))}
       </div>
+
+      <Link href="/teen/shop/history">
+        <Button variant="outline" size="sm">
+          <Receipt className="w-4 h-4" />
+          Voir tout l&apos;historique
+        </Button>
+      </Link>
     </div>
   )
 }

@@ -29,8 +29,8 @@ export function CookieBanner() {
   if (!showBanner) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-6 md:pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom">
-      <Card className="max-w-4xl mx-auto p-6 bg-background/95 backdrop-blur-lg border-2">
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-dock md:p-6 md:pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom">
+      <Card className="max-w-4xl mx-auto p-6 bg-background/95  border-2">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex-1">
             <h3 className="font-bold text-lg mb-2">🍪 Nous utilisons des cookies</h3>
@@ -48,7 +48,7 @@ export function CookieBanner() {
             </Button>
             <Button
               onClick={acceptCookies}
-              className="flex-1 md:flex-none bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+              className="flex-1 md:flex-none bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal"
             >
               Accepter
             </Button>

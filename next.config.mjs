@@ -154,6 +154,14 @@ const nextConfig = {
       // USER SPACE - Redirections temporaires
       // (seront mises à jour en Phase 3)
       // ----------------------------------------
+      // #44 — the dead /mes-reservations/{id} (no route on disk) was the Stripe/
+      // XP success target → 404 after payment. Map the sub-path to the canonical
+      // confirmation route. MUST precede the bare /mes-reservations rule below.
+      {
+        source: '/mes-reservations/:bookingId',
+        destination: '/reservation/confirmation?booking=:bookingId',
+        permanent: false,
+      },
       {
         source: '/mes-reservations',
         destination: '/teen', // TODO: créer /teen/reservations en Phase 3
@@ -179,8 +187,10 @@ const nextConfig = {
       // GAMIFICATION - Daily redirect
       // ----------------------------------------
       {
+        // #68 — point straight at the canonical route (was → /gamification/missions,
+        // which itself 308'd to /teen/quests — two hops).
         source: '/daily',
-        destination: '/gamification/missions',
+        destination: '/teen/quests',
         permanent: false,
       },
 
@@ -219,6 +229,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'i.pravatar.cc',
+      },
+      // Unsplash — utilisé comme source d'images de démo dans plusieurs
+      // catalogues (events, boutique…). Sans cet hôte, next/image lève
+      // « hostname not configured » → crash capté par l'ErrorBoundary teen.
+      // Hostname exact (pas de wildcard) pour rester narrow.
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
     ],
     // dicebear emits SVG; allow it but keep CSP via Next's dangerouslyAllowSVG.

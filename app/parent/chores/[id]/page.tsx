@@ -1,8 +1,10 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect, notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { Niv } from "@/components/brand"
 import { ArrowLeft, Coins, Sparkles, Clock, CheckCircle, XCircle, ImageOff } from "lucide-react"
 import Link from "next/link"
 import { ChoreVerifyButtons } from "@/components/parent/chore-verify-buttons"
@@ -20,6 +22,16 @@ interface Completion {
   payout_payment_id: string | null
   payout_xp: number | null
 }
+
+const RECURRENCE_LABELS: Record<string, string> = {
+  one_shot: "Une fois",
+  daily: "Quotidienne",
+  weekly: "Hebdomadaire",
+  monthly: "Mensuelle",
+  custom_days: "Jours perso",
+}
+
+const recurrenceLabel = (r: string) => RECURRENCE_LABELS[r] ?? r
 
 /** TTL for signed-read URLs surfaced in the parent UI (TICKET-014). */
 const EVIDENCE_SIGNED_URL_TTL_SECONDS = 15 * 60 // 15 min
@@ -95,53 +107,61 @@ export default async function ChoreDetailPage({
       : "—"
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-paper">
       <div className="container mx-auto px-6 py-32 max-w-4xl">
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent/chores">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
           </Link>
         </Button>
 
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
-          <CardHeader>
-            <CardTitle className="text-white text-2xl">{chore.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="mb-8">
+          <p className="eyebrow text-pink">Corvée</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">
+            {chore.title}
+          </h1>
+        </div>
+
+        <StickerCard className="mb-8 p-6">
+          <div className="space-y-4">
             {chore.description && (
-              <p className="text-zinc-300">{chore.description}</p>
+              <p className="text-ink-2">{chore.description}</p>
             )}
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 flex items-center gap-1">
-                <Coins className="h-3 w-3" /> {chore.reward_dh} DH
+              <span className="px-2 py-1 rounded-md border-2 border-ink text-coral font-mono flex items-center gap-1">
+                <Coins className="h-3 w-3" /> ⊙ {chore.reward_dh} DH
               </span>
-              <span className="px-2 py-1 rounded bg-purple-500/10 text-purple-400 flex items-center gap-1">
+              <span className="px-2 py-1 rounded-md border-2 border-ink text-gold font-mono flex items-center gap-1">
                 <Sparkles className="h-3 w-3" /> {chore.reward_xp} XP
               </span>
-              <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-300">
-                {chore.recurrence}
-              </span>
-              <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-300">
-                {verifiedCount}/{chore.required_completions} validées
+              <span className="px-2 py-1 rounded-md border-2 border-ink text-ink font-mono uppercase tracking-wide">
+                {recurrenceLabel(chore.recurrence)}
               </span>
               {!chore.is_active && (
-                <span className="px-2 py-1 rounded bg-zinc-800 text-zinc-400">
+                <span className="px-2 py-1 rounded-md border-2 border-ink text-mute font-mono uppercase tracking-wide">
                   Archivée
                 </span>
               )}
               {chore.evidence_required && (
-                <span className="px-2 py-1 rounded bg-amber-500/10 text-amber-400">
+                <span className="px-2 py-1 rounded-md border-2 border-ink text-gold font-mono uppercase tracking-wide">
                   Preuve photo requise
                 </span>
               )}
             </div>
-          </CardContent>
-        </Card>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-mute uppercase tracking-wide">Validations</span>
+                <span className="text-ink">{verifiedCount}/{chore.required_completions}</span>
+              </div>
+              <SegmentedProgress steps={chore.required_completions} current={verifiedCount} />
+            </div>
+          </div>
+        </StickerCard>
 
         <CompletionSection
           title="En attente de vérification"
-          icon={<Clock className="h-5 w-5 text-amber-400" />}
+          icon={<Clock className="h-5 w-5 text-gold" />}
           items={pending}
           emptyText="Aucune complétion en attente."
           formatDate={formatDate}
@@ -152,16 +172,26 @@ export default async function ChoreDetailPage({
 
         <CompletionSection
           title="Validées"
-          icon={<CheckCircle className="h-5 w-5 text-emerald-400" />}
+          icon={<CheckCircle className="h-5 w-5 text-lime" />}
           items={verified}
           emptyText="Aucune complétion validée."
           formatDate={formatDate}
           evidenceSignedUrls={evidenceSignedUrls}
+          niv={
+            verified.length > 0 ? (
+              <div className="flex items-center gap-3 rounded-xl border-2 border-ink bg-lime/10 p-3">
+                <Niv mood="proud" size={48} className="shrink-0" />
+                <p className="text-sm text-ink-2">
+                  Bien joué — chaque validation motive ton ado à continuer.
+                </p>
+              </div>
+            ) : undefined
+          }
         />
 
         <CompletionSection
           title="Refusées"
-          icon={<XCircle className="h-5 w-5 text-red-400" />}
+          icon={<XCircle className="h-5 w-5 text-destructive" />}
           items={rejected}
           emptyText="Aucun refus."
           formatDate={formatDate}
@@ -181,6 +211,7 @@ function CompletionSection({
   evidenceSignedUrls,
   showActions,
   choreId,
+  niv,
 }: {
   title: string
   icon: React.ReactNode
@@ -191,21 +222,21 @@ function CompletionSection({
   evidenceSignedUrls: Map<string, string>
   showActions?: boolean
   choreId?: string
+  niv?: React.ReactNode
 }) {
   return (
-    <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-6">
-      <CardHeader>
-        <CardTitle className="text-white text-lg flex items-center gap-2">
-          {icon}
-          {title}
-          <span className="text-sm font-normal text-zinc-500">({items.length})</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <StickerCard className="mb-6 p-6">
+      <h2 className="font-display text-lg font-extrabold text-ink flex items-center gap-2">
+        {icon}
+        {title}
+        <span className="text-sm font-normal text-mute">({items.length})</span>
+      </h2>
+      <div className="mt-4">
+        {niv}
         {items.length === 0 ? (
-          <p className="text-sm text-zinc-500">{emptyText}</p>
+          <p className="text-sm text-mute">{emptyText}</p>
         ) : (
-          <div className="space-y-3">
+          <div className={`space-y-3 ${niv ? "mt-3" : ""}`}>
             {items.map((c) => {
               const signedUrl = c.evidence_url
                 ? evidenceSignedUrls.get(c.evidence_url) ?? null
@@ -216,11 +247,11 @@ function CompletionSection({
               return (
                 <div
                   key={c.id}
-                  className="p-3 rounded-lg bg-zinc-800 border border-zinc-700"
+                  className="p-3 rounded-xl border-2 border-ink bg-white"
                 >
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-zinc-200">
+                      <p className="text-sm text-ink-2">
                         Complétion · {formatDate(c.completed_at)}
                       </p>
                       {c.evidence_url && (
@@ -231,8 +262,10 @@ function CompletionSection({
                                 src={signedUrl}
                                 controls
                                 preload="metadata"
-                                className="max-w-xs max-h-64 rounded-lg border border-zinc-700"
-                              />
+                                className="max-w-xs max-h-64 rounded-xl border-2 border-ink"
+                              >
+                                <track kind="captions" />
+                              </video>
                             ) : (
                               // eslint-disable-next-line @next/next/no-img-element
                               <a
@@ -243,29 +276,29 @@ function CompletionSection({
                               >
                                 <img
                                   src={signedUrl}
-                                  alt="Preuve photo de la corvée"
-                                  className="max-w-xs max-h-64 rounded-lg border border-zinc-700 object-cover"
+                                  alt="Preuve de la corvée"
+                                  className="max-w-xs max-h-64 rounded-xl border-2 border-ink object-cover"
                                 />
                               </a>
                             )
                           ) : (
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-zinc-500">
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-ink text-xs text-mute">
                               <ImageOff className="h-4 w-4" />
                               <span>Preuve indisponible (lien expiré ou supprimé).</span>
                             </div>
                           )}
-                          <p className="mt-1 text-[10px] text-zinc-600">
+                          <p className="mt-1 text-[10px] text-mute">
                             Lien privé — expire dans 15 min.
                           </p>
                         </div>
                       )}
                       {c.rejection_reason && (
-                        <p className="text-xs text-red-400 mt-2">
+                        <p className="text-xs text-destructive mt-2">
                           Motif refus: {c.rejection_reason}
                         </p>
                       )}
                       {c.paid_at && (
-                        <p className="text-xs text-emerald-400 mt-2">
+                        <p className="text-xs text-lime mt-2 font-mono">
                           Récompense versée le {formatDate(c.paid_at)}
                         </p>
                       )}
@@ -279,7 +312,7 @@ function CompletionSection({
             })}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </StickerCard>
   )
 }

@@ -28,7 +28,8 @@ interface AnalyticsChartProps {
   colors?: string[]
 }
 
-const COLORS = ["#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981"]
+// Palette charte paper néo-brutaliste (teal / pink / gold / lime / coral).
+const COLORS = ["#0f8a8a", "#ff3d80", "#e0a82e", "#7dac3e", "#ff7a4d"]
 
 export function AnalyticsChart({
   data,
@@ -37,7 +38,7 @@ export function AnalyticsChart({
   xAxisKey = "name",
   title,
   description,
-  color = "#06b6d4",
+  color = "#0f8a8a",
   colors = COLORS,
 }: AnalyticsChartProps) {
   const chartConfig = {
@@ -50,16 +51,16 @@ export function AnalyticsChart({
   return (
     <Card className="p-6">
       <div className="mb-6">
-        <h3 className="text-lg font-bold text-white mb-1">{title}</h3>
-        {description && <p className="text-sm text-zinc-400">{description}</p>}
+        <h3 className="text-lg font-bold text-ink mb-1">{title}</h3>
+        {description && <p className="text-sm text-mute">{description}</p>}
       </div>
 
       <ChartContainer config={chartConfig} className="h-[300px] w-full">
         {type === "line" && (
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-            <XAxis dataKey={xAxisKey} stroke="#71717a" />
-            <YAxis stroke="#71717a" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
+            <XAxis dataKey={xAxisKey} stroke="var(--ink)" />
+            <YAxis stroke="var(--ink)" />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Line type="monotone" dataKey={dataKey} stroke={color} strokeWidth={3} dot={{ fill: color, r: 4 }} />
           </LineChart>
@@ -67,9 +68,9 @@ export function AnalyticsChart({
 
         {type === "area" && (
           <AreaChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-            <XAxis dataKey={xAxisKey} stroke="#71717a" />
-            <YAxis stroke="#71717a" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
+            <XAxis dataKey={xAxisKey} stroke="var(--ink)" />
+            <YAxis stroke="var(--ink)" />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Area type="monotone" dataKey={dataKey} stroke={color} fill={color} fillOpacity={0.3} />
           </AreaChart>
@@ -77,9 +78,9 @@ export function AnalyticsChart({
 
         {type === "bar" && (
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-            <XAxis dataKey={xAxisKey} stroke="#71717a" />
-            <YAxis stroke="#71717a" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
+            <XAxis dataKey={xAxisKey} stroke="var(--ink)" />
+            <YAxis stroke="var(--ink)" />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Bar dataKey={dataKey} fill={color} radius={[8, 8, 0, 0]} />
           </BarChart>
@@ -94,7 +95,7 @@ export function AnalyticsChart({
               labelLine={false}
               label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
               outerRadius={100}
-              fill="#8884d8"
+              fill="var(--teal)"
               dataKey={dataKey}
             >
               {data.map((entry, index) => (

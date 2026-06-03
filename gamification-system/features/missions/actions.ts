@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type MissionWithProgress,
   type MissionStats,
@@ -50,7 +51,7 @@ export async function getMissions(
     })
 
     if (error) {
-      console.error("Error fetching missions:", error)
+      logDbError("missions.getMissions", error)
       return { data: [], error: error.message }
     }
 
@@ -84,7 +85,7 @@ export async function getMissions(
 
     return { data: filtered, error: null }
   } catch (error) {
-    console.error("Error in getMissions:", error)
+    logDbError("missions.getMissions", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -146,7 +147,7 @@ export async function getMissionStats(): Promise<{
     })
 
     if (error) {
-      console.error("Error fetching mission stats:", error)
+      logDbError("missions.getMissionStats", error)
       return { data: null, error: error.message }
     }
 
@@ -171,7 +172,7 @@ export async function getMissionStats(): Promise<{
 
     return { data: data[0] as MissionStats, error: null }
   } catch (error) {
-    console.error("Error in getMissionStats:", error)
+    logDbError("missions.getMissionStats", error)
     return { data: null, error: "Erreur serveur" }
   }
 }
@@ -209,7 +210,7 @@ export async function updateMissionProgress(
     })
 
     if (error) {
-      console.error("Error updating mission progress:", error)
+      logDbError("missions.updateMissionProgress", error)
       return { updated: 0, completed: [], error: error.message }
     }
 
@@ -223,7 +224,7 @@ export async function updateMissionProgress(
       error: null,
     }
   } catch (error) {
-    console.error("Error in updateMissionProgress:", error)
+    logDbError("missions.updateMissionProgress", error)
     return { updated: 0, completed: [], error: "Erreur serveur" }
   }
 }
@@ -263,7 +264,7 @@ export async function claimMissionReward(userMissionId: string): Promise<{
     })
 
     if (error) {
-      console.error("Error claiming mission reward:", error)
+      logDbError("missions.claimMissionReward", error)
       return {
         success: false,
         xp_earned: 0,
@@ -284,7 +285,7 @@ export async function claimMissionReward(userMissionId: string): Promise<{
       error: data?.success ? null : "Impossible de réclamer la récompense",
     }
   } catch (error) {
-    console.error("Error in claimMissionReward:", error)
+    logDbError("missions.claimMissionReward", error)
     return {
       success: false,
       xp_earned: 0,
@@ -314,11 +315,13 @@ export async function claimAllMissionRewards(): Promise<{
       return { claimed: 0, total_xp: 0, bonuses: [], error: "Non authentifié" }
     }
 
-    // Récupérer toutes les missions complétées
+    // Récupérer toutes les missions complétées. La colonne d'appartenance de
+    // user_missions est `teen_id` (= auth.uid()), pas `user_id` — l'ancien
+    // filtre `.eq("user_id", …)` levait « column does not exist » → requête morte.
     const { data: completedMissions, error: fetchError } = await supabase
       .from("user_missions")
       .select("id")
-      .eq("user_id", user.id)
+      .eq("teen_id", user.id)
       .eq("status", "completed")
 
     if (fetchError) {
@@ -353,7 +356,7 @@ export async function claimAllMissionRewards(): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in claimAllMissionRewards:", error)
+    logDbError("missions.claimAllMissionRewards", error)
     return { claimed: 0, total_xp: 0, bonuses: [], error: "Erreur serveur" }
   }
 }
@@ -423,7 +426,7 @@ export async function assignCurrentMissions(): Promise<{
 
     return { assigned: totalAssigned, error: null }
   } catch (error) {
-    console.error("Error in assignCurrentMissions:", error)
+    logDbError("missions.assignCurrentMissions", error)
     return { assigned: 0, error: "Erreur serveur" }
   }
 }
@@ -471,7 +474,7 @@ export async function trackMissionEvent(
       await updateMissionProgress(triggerType, metadata)
     }
   } catch (error) {
-    console.error("Error tracking mission event:", error)
+    logDbError("missions.trackMissionEvent", error)
   }
 }
 
@@ -524,7 +527,7 @@ export async function getMissionSummary(): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in getMissionSummary:", error)
+    logDbError("missions.getMissionSummary", error)
     return { data: null, error: "Erreur serveur" }
   }
 }

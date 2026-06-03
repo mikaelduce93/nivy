@@ -33,20 +33,20 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
           onClick={() => setIsExpanded(true)}
           whileHover={{ scale: 1.02, y: -4 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full h-24 rounded-[2.5rem] bg-gradient-to-r from-gen-z-teal via-teal-500 to-indigo-600 p-[2px] shadow-2xl group overflow-hidden"
+          className="w-full h-24 rounded-[2.5rem] bg-gradient-to-r from-teal via-teal to-pink p-[2px] shadow-2xl group overflow-hidden"
         >
-          <div className="w-full h-full rounded-[calc(2.5rem-2px)] bg-zinc-950 flex items-center justify-between px-10 group-hover:bg-transparent transition-colors duration-500">
+          <div className="w-full h-full rounded-[calc(2.5rem-2px)] bg-background flex items-center justify-between px-10 group-hover:bg-transparent transition-colors duration-500">
             <div className="flex items-center gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-gen-z-teal/10 flex items-center justify-center border border-gen-z-teal/20 shadow-inner group-hover:bg-white/20 transition-colors">
-                <Target className="h-7 w-7 text-gen-z-teal group-hover:text-white" />
+              <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center border border-teal/20 shadow-inner group-hover:bg-paper-2 transition-colors">
+                <Target className="h-7 w-7 text-teal group-hover:text-ink" />
               </div>
               <div className="text-left">
-                <h3 className="text-xl font-black text-white tracking-tight uppercase italic group-hover:text-white">Sponsor Quest</h3>
-                <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest group-hover:text-white/80 transition-colors">Challenge {teenName} now</p>
+                <h3 className="text-xl font-black text-ink tracking-tight uppercase italic group-hover:text-ink">Sponsor Quest</h3>
+                <p className="text-mute text-xs font-bold uppercase tracking-widest group-hover:text-ink/80 transition-colors">Challenge {teenName} now</p>
               </div>
             </div>
-            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-              <Plus className="w-6 h-6 text-white group-hover:rotate-90 transition-transform" />
+            <div className="w-12 h-12 rounded-full bg-paper-2 flex items-center justify-center group-hover:bg-paper-2 transition-colors">
+              <Plus className="w-6 h-6 text-ink group-hover:rotate-90 transition-transform" />
             </div>
           </div>
         </motion.button>
@@ -54,70 +54,70 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
         <motion.div 
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="rounded-[3rem] bg-zinc-900 border border-white/10 p-10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden"
+          className="rounded-[3rem] bg-card border border-ink p-10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden"
         >
           {/* Background Glow */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gen-z-teal/10 rounded-full blur-[100px] -mr-32 -mt-32" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-teal/10 rounded-full blur-[100px] -mr-32 -mt-32" />
           
           <button 
             onClick={() => setIsExpanded(false)}
-            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
+            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-paper-2 flex items-center justify-center text-mute hover:text-ink transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
 
           <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
             <div className="space-y-2">
-              <h3 className="text-3xl font-black text-white tracking-tighter uppercase italic">Create a Mission</h3>
-              <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest">Define the objective and the prize</p>
+              <h3 className="text-3xl font-black text-ink tracking-tighter uppercase italic">Create a Mission</h3>
+              <p className="text-mute text-sm font-bold uppercase tracking-widest">Define the objective and the prize</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] px-2">The Goal</label>
+                <label className="text-[10px] font-black text-mute uppercase tracking-[0.3em] px-2">The Goal</label>
                 <div className="relative">
                   <Input 
                     required
-                    className="h-16 rounded-2xl bg-black/40 border-white/10 text-white font-bold px-6 focus:border-gen-z-teal transition-all" 
+                    className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-6 focus:border-teal transition-all" 
                     placeholder="Ex: Nettoyer la chambre..." 
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
-                    <Target className="w-4 h-4 text-zinc-500" />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-paper-2 flex items-center justify-center">
+                    <Target className="w-4 h-4 text-mute" />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] px-2">The Reward (Credits/XP)</label>
+                <label className="text-[10px] font-black text-mute uppercase tracking-[0.3em] px-2">The Reward (Credits/XP)</label>
                 <div className="flex gap-4">
                   <div className="relative flex-1">
                     <Input 
                       type="number"
                       defaultValue={100}
-                      className="h-16 rounded-2xl bg-black/40 border-white/10 text-white font-bold px-12 focus:border-gen-z-teal transition-all" 
+                      className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-12 focus:border-teal transition-all" 
                     />
-                    <Coins className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400" />
+                    <Coins className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gold" />
                   </div>
                   <div className="relative flex-1">
                     <Input 
                       type="number"
                       defaultValue={50}
-                      className="h-16 rounded-2xl bg-black/40 border-white/10 text-white font-bold px-12 focus:border-gen-z-teal transition-all" 
+                      className="h-16 rounded-2xl bg-ink/40 border-ink text-paper font-bold px-12 focus:border-teal transition-all" 
                     />
-                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400" />
+                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-pink" />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 flex items-center justify-between">
+            <div className="p-6 rounded-[2rem] bg-white/[0.03] border border-ink flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gen-z-teal/10 flex items-center justify-center border border-gen-z-teal/20">
-                  <Camera className="w-5 h-5 text-gen-z-teal" />
+                <div className="w-10 h-10 rounded-xl bg-teal/10 flex items-center justify-center border border-teal/20">
+                  <Camera className="w-5 h-5 text-teal" />
                 </div>
-                <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Require photo proof?</span>
+                <span className="text-xs font-bold text-mute uppercase tracking-widest">Require photo proof?</span>
               </div>
-              <div className="w-12 h-6 rounded-full bg-gen-z-teal p-1 flex justify-end cursor-pointer">
+              <div className="w-12 h-6 rounded-full bg-teal p-1 flex justify-end cursor-pointer">
                 <div className="w-4 h-4 rounded-full bg-white" />
               </div>
             </div>
@@ -125,7 +125,7 @@ export function SponsorChallengeForm({ teenName }: SponsorChallengeFormProps) {
             <Button 
               type="submit"
               disabled={loading}
-              className="w-full h-20 rounded-[2rem] bg-white text-black font-black text-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl"
+              className="w-full h-20 rounded-[2rem] bg-white text-ink font-black text-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl"
             >
               {loading ? "Transmitting..." : "ACTIVATE MISSION"}
               <ArrowRight className="ml-3 w-6 h-6" />

@@ -112,14 +112,15 @@ shed layers, not grow them).
    `gamification-system/features/<feature>`.
 3. **No React in `lib/gamification` or `features/gamification`** (server-only
    modules; `'use server'` actions are fine, JSX is not).
-4. **Notification UI duplication is intentional.** The app-wide notification
-   bell lives under `components/notifications/notification-bell.tsx` and has
-   contract `<NotificationBell userId={…} />`. The
-   `gamification-system/components/notifications/notification-center.tsx`
-   exposes its own `NotificationBell` with contract
-   `({ unreadCount, onClick })` — it is a distinct domain widget, not a
-   replacement. See the docstring at the top of
-   `components/notifications/notification-bell.tsx`.
+4. **Notifications: single canonical table + bell (#70).** The one canonical
+   table is `user_notifications` (`is_read`/`body`/`data`) — the `notifications`
+   table does not exist. The canonical app-wide bell is
+   `components/notifications/notification-bell.tsx` (`<NotificationBell userId={…} />`),
+   mounted in the four role headers and reading `user_notifications` via
+   `/api/notifications`. The `gamification-system/components/notifications/
+   notification-center.tsx` cluster is **@deprecated** (orphan, not mounted) —
+   the previous "duplication is intentional" rationale no longer holds because
+   it targeted a phantom table and is mounted nowhere.
 
 ---
 

@@ -2,10 +2,8 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Niv } from "@/components/brand"
 import {
-  Bell,
-  BellOff,
   ArrowLeft,
   Settings as SettingsIcon,
 } from "lucide-react"
@@ -52,33 +50,36 @@ export default async function ParentNotificationsPage() {
   const unreadCount = notifications.filter((n: any) => !n.is_read).length
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      <div className="container mx-auto px-6 py-32 max-w-5xl">
-        <Button asChild variant="ghost" className="mb-6 text-zinc-400 hover:text-white">
+    <div className="min-h-screen bg-background text-ink">
+      <div className="container mx-auto px-6 pt-10 pb-20 sm:pt-16 max-w-5xl">
+        <Button asChild variant="ghost" className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <Bell className="w-8 h-8 text-emerald-400" />
-              Notifications
-              {unreadCount > 0 && (
-                <Badge className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                  {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
-                </Badge>
-              )}
-            </h1>
-            <p className="text-zinc-400 mt-1">
-              Activité de vos teens, approbations et alertes Nivy
-            </p>
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Niv size={72} mood="wink" />
+            <div>
+              <p className="eyebrow">Compte · Alertes</p>
+              <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">
+                Quoi de neuf, <em className="font-semibold italic text-pink">akhouya</em> ?
+              </h1>
+              <p className="text-mute mt-1 flex items-center gap-2">
+                Activité de tes teens, approbations et alertes Nivy
+                {unreadCount > 0 && (
+                  <span className="rounded-md border-2 border-ink bg-pink px-2 py-0.5 font-mono text-[11px] font-extrabold uppercase tracking-[0.1em] text-ink">
+                    {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
+                  </span>
+                )}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <MarkAllReadButton unreadCount={unreadCount} />
-            <Button asChild variant="outline" className="border-zinc-700 text-zinc-200">
+            <Button asChild variant="outline">
               <Link href="/parent/settings">
                 <SettingsIcon className="w-4 h-4 mr-2" />
                 Préférences
@@ -89,9 +90,9 @@ export default async function ParentNotificationsPage() {
 
         {notifications.length === 0 ? (
           <EmptyState
-            icon={BellOff}
+            nivMood="calm"
             title="Aucune notification"
-            description="Quand votre teen demandera une approbation, fera un check-in ou quand un paiement sera confirmé, le message apparaîtra ici."
+            description="Quand ton teen demandera une approbation, fera un check-in ou quand un paiement sera confirmé, le message apparaîtra ici."
             action={{ label: "Voir les approbations", href: "/parent/approvals", variant: "outline" }}
             secondaryAction={{ label: "Régler les préférences", href: "/parent/settings" }}
           />

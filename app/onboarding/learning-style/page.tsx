@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { LearningStyleQuiz } from "@/components/onboarding/learning-style-quiz"
+import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
 export const dynamic = "force-dynamic"
 
@@ -22,8 +23,11 @@ export default async function OnboardingLearningStylePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 p-4 sm:p-6 lg:p-10">
-      <LearningStyleQuiz nextHref="/onboarding/complete" />
+    <main className="relative min-h-screen overflow-hidden bg-paper p-4 sm:p-6 lg:p-10">
+      <MeshBackground />
+      <div className="relative z-10">
+        <LearningStyleQuiz nextHref="/onboarding/complete" />
+      </div>
     </main>
   )
 }

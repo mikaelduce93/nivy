@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer"
 import { getPublicAppConfig } from "@/lib/config/app-config"
 
 export default function MentionsLegalesPage() {
-  const { contactEmail, privacyEmail } = getPublicAppConfig()
+  const { contactEmail, privacyEmail, supportPhone } = getPublicAppConfig()
   return (
     <>
       <Navbar />
@@ -22,25 +22,25 @@ export default function MentionsLegalesPage() {
                   <strong>Forme juridique :</strong> Société à Responsabilité Limitée
                 </p>
                 <p>
-                  <strong>Capital social :</strong> [Montant] MAD
+                  <strong>Capital social :</strong> À compléter
                 </p>
                 <p>
-                  <strong>RC :</strong> [Numéro RC]
+                  <strong>RC :</strong> À compléter
                 </p>
                 <p>
-                  <strong>ICE :</strong> [Numéro ICE]
+                  <strong>ICE :</strong> À compléter
                 </p>
                 <p>
-                  <strong>Siège social :</strong> [Adresse complète]
+                  <strong>Siège social :</strong> À compléter
                 </p>
                 <p>
-                  <strong>Téléphone :</strong> +212 5XX-XXXXXX
+                  <strong>Téléphone :</strong> {supportPhone}
                 </p>
                 <p>
                   <strong>Email :</strong> {contactEmail}
                 </p>
                 <p>
-                  <strong>Directeur de publication :</strong> [Nom du responsable légal]
+                  <strong>Directeur de publication :</strong> À compléter
                 </p>
               </div>
             </section>
@@ -111,7 +111,7 @@ export default function MentionsLegalesPage() {
                 <strong>Responsable du traitement :</strong> Nivy SARL
               </p>
               <p className="leading-relaxed mb-3">
-                <strong>Délégué à la Protection des Données (DPO) :</strong> [Nom et contact du DPO si applicable]
+                <strong>Délégué à la Protection des Données (DPO) :</strong> À compléter
               </p>
               <p className="leading-relaxed">
                 Pour exercer ces droits :{" "}
@@ -166,13 +166,13 @@ export default function MentionsLegalesPage() {
               <h2 className="text-2xl font-semibold mb-4">9. Crédits</h2>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Conception et développement :</strong> [Nom de l'agence ou développeur]
+                  <strong>Conception et développement :</strong> À compléter
                 </li>
                 <li>
-                  <strong>Design graphique :</strong> [Nom du designer]
+                  <strong>Design graphique :</strong> À compléter
                 </li>
                 <li>
-                  <strong>Photographies :</strong> [Crédits photos si applicable]
+                  <strong>Photographies :</strong> À compléter
                 </li>
                 <li>
                   <strong>Icônes :</strong> Lucide Icons
@@ -192,9 +192,9 @@ export default function MentionsLegalesPage() {
                     {contactEmail}
                   </a>
                 </p>
-                <p>Téléphone : +212 5XX-XXXXXX</p>
+                <p>Téléphone : {supportPhone}</p>
                 <p>Horaires : Lundi - Vendredi, 9h - 18h</p>
-                <p>Adresse : [Adresse complète du siège social]</p>
+                <p>Adresse : À compléter</p>
               </div>
             </section>
           </div>

@@ -8,6 +8,8 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
+import { resolveTeenIdentities } from "@/lib/server/teen-identities"
 import { revalidatePath } from "next/cache"
 import {
   type ChallengeType,
@@ -37,13 +39,13 @@ export async function getChallengeTypes(): Promise<{
       .order("mode")
 
     if (error) {
-      console.error("Error fetching challenge types:", error)
+      logDbError("challenges.getChallengeTypes", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as ChallengeType[], error: null }
   } catch (error) {
-    console.error("Error in getChallengeTypes:", error)
+    logDbError("challenges.getChallengeTypes", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -78,13 +80,13 @@ export async function getUserChallenges(
     })
 
     if (error) {
-      console.error("Error fetching challenges:", error)
+      logDbError("challenges.getUserChallenges", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as FriendChallenge[], error: null }
   } catch (error) {
-    console.error("Error in getUserChallenges:", error)
+    logDbError("challenges.getUserChallenges", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -145,7 +147,7 @@ export async function createChallenge(
     })
 
     if (error) {
-      console.error("Error creating challenge:", error)
+      logDbError("challenges.createChallenge", error)
       return { success: false, error: error.message }
     }
 
@@ -161,7 +163,7 @@ export async function createChallenge(
       error: null,
     }
   } catch (error) {
-    console.error("Error in createChallenge:", error)
+    logDbError("challenges.createChallenge", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -198,7 +200,7 @@ export async function respondToChallenge(
     })
 
     if (error) {
-      console.error("Error responding to challenge:", error)
+      logDbError("challenges.respondToChallenge", error)
       return { success: false, error: error.message }
     }
 
@@ -210,7 +212,7 @@ export async function respondToChallenge(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in respondToChallenge:", error)
+    logDbError("challenges.respondToChallenge", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -263,7 +265,7 @@ export async function updateChallengeProgress(
     })
 
     if (error) {
-      console.error("Error updating progress:", error)
+      logDbError("challenges.updateChallengeProgress", error)
       return { updatedCount: 0, error: error.message }
     }
 
@@ -271,7 +273,7 @@ export async function updateChallengeProgress(
 
     return { updatedCount: data || 0, error: null }
   } catch (error) {
-    console.error("Error in updateChallengeProgress:", error)
+    logDbError("challenges.updateChallengeProgress", error)
     return { updatedCount: 0, error: "Erreur serveur" }
   }
 }
@@ -310,13 +312,13 @@ export async function sendChallengeMessage(
     })
 
     if (error) {
-      console.error("Error sending message:", error)
+      logDbError("challenges.sendChallengeMessage", error)
       return { success: false, error: error.message }
     }
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in sendChallengeMessage:", error)
+    logDbError("challenges.sendChallengeMessage", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -344,7 +346,7 @@ export async function getChallengeDetails(
     const challenge = challenges.find((c) => c.challenge_id === challengeId)
     return { data: challenge || null, error: null }
   } catch (error) {
-    console.error("Error in getChallengeDetails:", error)
+    logDbError("challenges.getChallengeDetails", error)
     return { data: null, error: "Erreur serveur" }
   }
 }
@@ -381,23 +383,23 @@ export async function getChallengeMessages(
         user_id,
         message,
         message_type,
-        created_at,
-        profiles!inner(pseudo, avatar_url)
+        created_at
       `)
       .eq("challenge_id", challengeId)
       .order("created_at", { ascending: false })
       .limit(limit)
 
     if (error) {
-      console.error("Error fetching messages:", error)
+      logDbError("challenges.getChallengeMessages", error)
       return { data: [], error: error.message }
     }
 
+    const idents = await resolveTeenIdentities(supabase, (data || []).map((m: any) => m.user_id))
     const messages = (data || []).map((m: any) => ({
       id: m.id,
       user_id: m.user_id,
-      pseudo: m.profiles.pseudo,
-      avatar_url: m.profiles.avatar_url,
+      pseudo: idents.get(m.user_id)?.pseudo || "Membre",
+      avatar_url: idents.get(m.user_id)?.avatar_url ?? null,
       message: m.message,
       message_type: m.message_type,
       created_at: m.created_at,
@@ -405,7 +407,7 @@ export async function getChallengeMessages(
 
     return { data: messages.reverse(), error: null }
   } catch (error) {
-    console.error("Error in getChallengeMessages:", error)
+    logDbError("challenges.getChallengeMessages", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -456,7 +458,7 @@ export async function getChallengeSummary(): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in getChallengeSummary:", error)
+    logDbError("challenges.getChallengeSummary", error)
     return { data: null, error: "Erreur serveur" }
   }
 }

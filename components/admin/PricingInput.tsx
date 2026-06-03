@@ -44,22 +44,22 @@ export default function PricingInput({
   }
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800">
+    <Card className="bg-card border-ink">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
+        <CardTitle className="text-ink flex items-center gap-2">
           <DollarSign className="w-5 h-5" />
           {label}
         </CardTitle>
-        <CardDescription className="text-zinc-400">
+        <CardDescription className="text-mute">
           Définissez les prix pour chaque type de compte utilisateur
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Prix Standard */}
         <div className="space-y-2">
-          <Label htmlFor="price-standard" className="text-zinc-300 flex items-center gap-2">
-            <Users className="w-4 h-4 text-blue-400" />
-            Prix Standard ({currency}) <span className="text-red-400">*</span>
+          <Label htmlFor="price-standard" className="text-ink-2 flex items-center gap-2">
+            <Users className="w-4 h-4 text-teal" />
+            Prix Standard ({currency}) <span className="text-destructive">*</span>
           </Label>
           <Input
             id="price-standard"
@@ -69,23 +69,23 @@ export default function PricingInput({
             value={priceStandard}
             onChange={(e) => onStandardChange(e.target.value)}
             placeholder="150.00"
-            className="bg-zinc-950 border-zinc-700 text-white"
+            className="bg-background border-ink text-ink"
             required
           />
-          <p className="text-xs text-zinc-500">Prix pour les utilisateurs sans abonnement</p>
+          <p className="text-xs text-mute">Prix pour les utilisateurs sans abonnement</p>
         </div>
 
         {/* Prix VIP */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="price-vip" className="text-zinc-300 flex items-center gap-2">
-              <Star className="w-4 h-4 text-yellow-400" />
-              Prix VIP ({currency}) <span className="text-red-400">*</span>
+            <Label htmlFor="price-vip" className="text-ink-2 flex items-center gap-2">
+              <Star className="w-4 h-4 text-gold" />
+              Prix VIP ({currency}) <span className="text-destructive">*</span>
             </Label>
             <button
               type="button"
               onClick={suggestVipPrice}
-              className="text-xs text-cyan-400 hover:text-cyan-300"
+              className="text-xs text-teal hover:text-teal"
             >
               -20% suggéré
             </button>
@@ -98,10 +98,10 @@ export default function PricingInput({
             value={priceVip}
             onChange={(e) => onVipChange(e.target.value)}
             placeholder="120.00"
-            className="bg-zinc-950 border-zinc-700 text-white border-yellow-500/30"
+            className="bg-background border-ink text-ink border-gold/30"
             required
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-mute">
             Prix pour les membres avec carte VIP (réduction recommandée : 20%)
           </p>
         </div>
@@ -109,14 +109,14 @@ export default function PricingInput({
         {/* Prix Platinum */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="price-premium" className="text-zinc-300 flex items-center gap-2">
-              <Crown className="w-4 h-4 text-purple-400" />
-              Prix Platinum ({currency}) <span className="text-red-400">*</span>
+            <Label htmlFor="price-premium" className="text-ink-2 flex items-center gap-2">
+              <Crown className="w-4 h-4 text-pink" />
+              Prix Platinum ({currency}) <span className="text-destructive">*</span>
             </Label>
             <button
               type="button"
               onClick={suggestPremiumPrice}
-              className="text-xs text-cyan-400 hover:text-cyan-300"
+              className="text-xs text-teal hover:text-teal"
             >
               -30% suggéré
             </button>
@@ -129,46 +129,46 @@ export default function PricingInput({
             value={pricePremium}
             onChange={(e) => onPremiumChange(e.target.value)}
             placeholder="105.00"
-            className="bg-zinc-950 border-zinc-700 text-white border-purple-500/30"
+            className="bg-background border-ink text-ink border-pink/30"
             required
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-mute">
             Prix pour les membres Platinum (réduction recommandée : 30%)
           </p>
         </div>
 
         {/* Aperçu des prix */}
         {priceStandard && priceVip && pricePremium && (
-          <div className="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
-            <p className="text-sm font-semibold text-cyan-400 mb-2">Aperçu de la tarification :</p>
+          <div className="mt-4 p-4 bg-teal/10 border border-teal/30 rounded-lg">
+            <p className="text-sm font-semibold text-teal mb-2">Aperçu de la tarification :</p>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-zinc-300">
+              <div className="flex justify-between text-ink-2">
                 <span className="flex items-center gap-2">
-                  <Users className="w-3 h-3 text-blue-400" />
+                  <Users className="w-3 h-3 text-teal" />
                   Standard
                 </span>
                 <span className="font-semibold">{parseFloat(priceStandard).toFixed(2)} {currency}</span>
               </div>
-              <div className="flex justify-between text-yellow-300">
+              <div className="flex justify-between text-gold">
                 <span className="flex items-center gap-2">
-                  <Star className="w-3 h-3 text-yellow-400" />
+                  <Star className="w-3 h-3 text-gold" />
                   VIP
                 </span>
                 <span className="font-semibold">
                   {parseFloat(priceVip).toFixed(2)} {currency}
-                  <span className="text-xs ml-2 text-yellow-400">
+                  <span className="text-xs ml-2 text-gold">
                     (-{Math.round((1 - parseFloat(priceVip) / parseFloat(priceStandard)) * 100)}%)
                   </span>
                 </span>
               </div>
-              <div className="flex justify-between text-purple-300">
+              <div className="flex justify-between text-pink">
                 <span className="flex items-center gap-2">
-                  <Crown className="w-3 h-3 text-purple-400" />
+                  <Crown className="w-3 h-3 text-pink" />
                   Platinum
                 </span>
                 <span className="font-semibold">
                   {parseFloat(pricePremium).toFixed(2)} {currency}
-                  <span className="text-xs ml-2 text-purple-400">
+                  <span className="text-xs ml-2 text-pink">
                     (-{Math.round((1 - parseFloat(pricePremium) / parseFloat(priceStandard)) * 100)}%)
                   </span>
                 </span>

@@ -4,7 +4,7 @@ export default function TemoignagesLoading() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 py-16">
+      <div className="bg-gradient-to-b from-paper-2 to-card py-16">
         <div className="container text-center space-y-4">
           <Skeleton className="h-10 w-64 mx-auto" />
           <Skeleton className="h-5 w-96 mx-auto" />

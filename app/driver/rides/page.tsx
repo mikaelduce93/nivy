@@ -5,13 +5,12 @@
  * We only show rides assigned to the calling driver. No fake completion.
  */
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Car, MapPin, Clock } from "lucide-react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
@@ -19,18 +18,32 @@ const FMT = new Intl.DateTimeFormat("fr-FR", {
   day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
 })
 
+/** Statut course → tag mono FR (zéro code anglais visible). */
+const STATUS_FR: Record<string, { label: string; cls: string }> = {
+  completed: { label: "Terminée", cls: "bg-lime text-on-bright" },
+  dispatched: { label: "Dispatchée", cls: "bg-teal text-paper" },
+  accepted: { label: "Acceptée", cls: "bg-teal text-paper" },
+  in_progress: { label: "En cours", cls: "bg-gold text-ink" },
+  pending: { label: "En attente", cls: "bg-gold text-ink" },
+  cancelled: { label: "Annulée", cls: "bg-ink text-paper" },
+  canceled: { label: "Annulée", cls: "bg-ink text-paper" },
+  no_show: { label: "Absence", cls: "bg-ink text-paper" },
+}
+
+function statusFr(status: string) {
+  return STATUS_FR[status] ?? { label: "À traiter", cls: "bg-ink/10 text-ink" }
+}
+
 export default async function DriverRidesPage() {
   const userInfo = await getUserRole()
   if (!userInfo) redirect("/auth/login")
   if (userInfo.role !== "driver") {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes courses</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10 text-center text-red-400">
-            Accès réservé aux chauffeurs.
-          </CardContent>
-        </Card>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">Mes courses</h1>
+        <StickerCard className="p-10 text-center text-destructive">
+          Accès réservé aux chauffeurs.
+        </StickerCard>
       </main>
     )
   }
@@ -45,17 +58,20 @@ export default async function DriverRidesPage() {
   if (!driver) {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-black text-white">Mes courses</h1>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10">
-            <EmptyState
-              icon={Car}
-              title="Profil chauffeur introuvable"
-              description="Termine ton onboarding pour voir tes courses ici."
-              action={{ label: "Onboarding KYC", href: "/driver/onboarding/kyc" }}
-            />
-          </CardContent>
-        </Card>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">Mes courses</h1>
+        <NivEmpty
+          mood="calm"
+          title="Profil chauffeur introuvable"
+          description="Termine ton onboarding pour voir tes courses ici."
+          action={
+            <a
+              href="/driver/onboarding/kyc"
+              className="inline-flex h-11 items-center rounded-xl border-2 border-ink bg-pink px-5 text-sm font-semibold text-ink transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
+            >
+              Onboarding KYC
+            </a>
+          }
+        />
       </main>
     )
   }
@@ -82,66 +98,73 @@ export default async function DriverRidesPage() {
     created_at: string
   }>
 
+  const driverActive = driver.is_active && driver.kyc_status === "approved"
+
   return (
     <main className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Car className="w-7 h-7 text-emerald-400" />
-          Mes courses
-        </h1>
-        <Badge className={driver.is_active && driver.kyc_status === "approved"
-          ? "bg-emerald-500/20 text-emerald-300"
-          : "bg-amber-500/20 text-amber-300"}>
-          {driver.is_active && driver.kyc_status === "approved" ? "Actif" : `KYC ${driver.kyc_status}`}
-        </Badge>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="eyebrow">Courses</p>
+          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Mes <em className="font-semibold italic text-pink">courses</em>
+          </h1>
+        </div>
+        <span
+          className={
+            driverActive
+              ? "rounded-full border-2 border-ink bg-lime px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-on-bright"
+              : "rounded-full border-2 border-ink bg-gold px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-ink"
+          }
+        >
+          {driverActive ? "Actif" : `KYC ${driver.kyc_status}`}
+        </span>
       </header>
 
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white">Historique</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {rides.length === 0 ? (
-            <EmptyState
-              icon={Car}
-              title="Aucune course"
-              description="Aucune course ne t'a été dispatchée pour l'instant. Quand une course t'est assignée, elle apparaît ici."
-            />
-          ) : (
-            <ul className="space-y-3">
-              {rides.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-lg bg-zinc-800/40 border border-zinc-800"
-                >
+      {rides.length === 0 ? (
+        <NivEmpty
+          mood="calm"
+          title="Aucune course"
+          description="Aucune course ne t'a été dispatchée pour l'instant. Dès qu'une course t'est assignée, elle s'affiche ici."
+        />
+      ) : (
+        <ul className="space-y-3">
+          {rides.map((r) => {
+            const s = statusFr(r.status)
+            return (
+              <li key={r.id}>
+                <StickerCard variant="hover" className="p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="font-bold text-white text-sm truncate">
-                      <MapPin className="inline w-3 h-3 mr-1 text-zinc-400" />
+                    <p className="flex items-center gap-1.5 truncate text-sm font-bold text-ink">
+                      <MapPin className="size-3.5 shrink-0 text-pink" aria-hidden="true" />
                       {r.pickup_address ?? "—"} → {r.dropoff_address ?? "—"}
                     </p>
-                    <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
-                      <Clock className="w-3 h-3" />
+                    <p className="mt-1 flex items-center gap-2 font-mono text-xs text-mute">
+                      <Clock className="size-3" aria-hidden="true" />
                       {r.scheduled_for ? FMT.format(new Date(r.scheduled_for)) : "—"}
                     </p>
                   </div>
                   <div className="text-right">
-                    <Badge variant="outline" className="capitalize">
-                      {r.status}
-                    </Badge>
-                    <p className="text-xs text-zinc-400 mt-1 tabular-nums">
+                    <span
+                      className={`inline-block rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em] ${s.cls}`}
+                    >
+                      {s.label}
+                    </span>
+                    <p className="mt-1 font-mono text-sm font-bold tabular-nums text-ink">
                       {r.actual_dh != null
                         ? `${Number(r.actual_dh).toFixed(0)} DH`
                         : r.estimated_dh != null
                         ? `≈ ${Number(r.estimated_dh).toFixed(0)} DH`
                         : ""}
                     </p>
+                    </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+                </StickerCard>
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </main>
   )
 }

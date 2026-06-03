@@ -5,6 +5,9 @@
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
+import { OrdersClient } from "./orders-client"
 
 export const dynamic = "force-dynamic"
 
@@ -20,32 +23,19 @@ export default async function OrdersPage() {
   ])
 
   return (
-    <main className="min-h-screen mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">Mes commandes</h1>
-      <section className="mb-8">
-        <h2 className="font-semibold mb-2">Achats</h2>
-        {(!bought || bought.length === 0) && <p className="text-sm text-gray-500">Aucun achat.</p>}
-        <ul className="space-y-2">
-          {(bought ?? []).map((t) => (
-            <li key={t.id} className="border rounded p-3 flex justify-between">
-              <span>{t.amount_coins} coins · {t.meet_method}</span>
-              <span className="text-xs text-gray-600">{t.status}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section>
-        <h2 className="font-semibold mb-2">Ventes</h2>
-        {(!sold || sold.length === 0) && <p className="text-sm text-gray-500">Aucune vente.</p>}
-        <ul className="space-y-2">
-          {(sold ?? []).map((t) => (
-            <li key={t.id} className="border rounded p-3 flex justify-between">
-              <span>{t.amount_coins} coins · {t.meet_method}</span>
-              <span className="text-xs text-gray-600">{t.status}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </main>
+    <div className="min-h-screen bg-paper">
+      <Navbar />
+      <main className="mx-auto max-w-3xl px-4 pb-20 pt-24">
+        <header className="mb-6">
+          <p className="eyebrow tracking-[0.18em] text-mute">Marketplace Nivy</p>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Mes <em className="font-semibold italic text-pink">commandes</em>
+          </h1>
+        </header>
+
+        <OrdersClient bought={bought ?? []} sold={sold ?? []} />
+      </main>
+      <Footer />
+    </div>
   )
 }

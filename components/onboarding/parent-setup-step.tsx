@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion, useReducedMotion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Niv, DarkSurface } from "@/components/brand"
 import {
   ArrowRight,
   Shield,
@@ -63,7 +63,6 @@ export function ParentSetupStep({ onNext: _onNext, onBack }: ParentSetupStepProp
   void _onNext
 
   const router = useRouter()
-  const prefersReducedMotion = useReducedMotion()
   const [tempUserId, setTempUserId] = useState<string | null>(null)
   const [navigating, setNavigating] = useState(false)
 
@@ -80,65 +79,61 @@ export function ParentSetupStep({ onNext: _onNext, onBack }: ParentSetupStepProp
   return (
     <div className="space-y-8">
       {/* Header */}
-      <motion.div
-        {...(prefersReducedMotion
-          ? { initial: { opacity: 0 }, animate: { opacity: 1 } }
-          : { initial: { opacity: 0, y: -20 }, animate: { opacity: 1, y: 0 } })}
-        className="text-center"
-      >
-        <div
-          className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-purple-500 mb-4"
-          aria-hidden="true"
-        >
-          <Shield className="w-8 h-8 text-white" />
+      <div className="text-center">
+        <div className="flex justify-center mb-4">
+          <Niv mood="proud" size={96} float />
         </div>
-        <h2 className="text-3xl sm:text-4xl font-black mb-3 text-balance">
-          Prêt à créer votre compte parent ?
+        <p className="eyebrow tracking-[0.18em] text-mute mb-3">Compte parent</p>
+        <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-balance text-ink">
+          Prêt à créer votre compte <em className="font-semibold italic text-pink">parent</em> ?
         </h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
+        <p className="text-mute max-w-2xl mx-auto text-balance">
           Vous allez maintenant rejoindre la page d&apos;inscription officielle.
           Tout ce que vous avez débloqué pendant ce parcours sera conservé sur
           votre compte.
         </p>
-      </motion.div>
+      </div>
 
       {/* Hand-off card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card className="p-6 sm:p-8 max-w-2xl mx-auto space-y-6">
-          <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-            <Sparkles
-              className="w-5 h-5 text-primary flex-shrink-0 mt-0.5"
+      <div className="max-w-2xl mx-auto space-y-4">
+        <StickerCard className="p-5">
+          <div className="flex items-start gap-3">
+            <span
+              className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper"
               aria-hidden="true"
-            />
+            >
+              <Sparkles className="w-5 h-5 text-gold" />
+            </span>
             <div className="text-sm">
-              <p className="font-medium mb-1">XP &amp; badges sécurisés</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="font-display font-bold mb-1 text-ink">XP &amp; badges sécurisés</p>
+              <p className="text-xs text-mute">
                 Votre progression est mémorisée localement. À l&apos;inscription,
                 elle sera fusionnée automatiquement avec votre compte.
               </p>
             </div>
           </div>
+        </StickerCard>
 
-          <div className="flex items-start gap-3 p-4 bg-muted/40 border border-border rounded-lg">
-            <Shield
-              className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5"
+        {/* Poids « sécurité / confidentialité » → surface sombre ponctuelle */}
+        <DarkSurface tone="teal" shadow className="p-5">
+          <div className="flex items-start gap-3">
+            <span
+              className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-paper/30"
               aria-hidden="true"
-            />
+            >
+              <Shield className="w-5 h-5 text-teal" />
+            </span>
             <div className="text-sm">
-              <p className="font-medium mb-1">Sécurité et confidentialité</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="font-display font-bold mb-1 text-paper">Sécurité et confidentialité</p>
+              <p className="text-xs text-paper/70">
                 Vos données sont protégées. Vous saisirez votre email, votre
                 téléphone et votre mot de passe sur la page d&apos;inscription
                 officielle, puis vous recevrez un email de vérification.
               </p>
             </div>
           </div>
-        </Card>
-      </motion.div>
+        </DarkSurface>
+      </div>
 
       {/* Navigation */}
       <div className="flex items-center justify-between gap-4">
@@ -153,12 +148,13 @@ export function ParentSetupStep({ onNext: _onNext, onBack }: ParentSetupStepProp
         </Button>
 
         <Button
+          variant="pink"
           onClick={handleContinue}
           disabled={navigating}
           aria-busy={navigating}
           data-testid="parent-setup-continue"
           data-href={buildSignUpHref(tempUserId)}
-          className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="gap-2"
         >
           {navigating ? (
             <>

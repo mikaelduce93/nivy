@@ -1,7 +1,8 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach } from "@/components/brand"
 import { ArrowLeft, UserPlus, Info, QrCode, Mail, Link2 } from "lucide-react"
 import Link from "next/link"
 import { AddTeenForm } from "@/components/parent/add-teen-form"
@@ -14,10 +15,10 @@ export default async function AddTeenPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="container mx-auto px-6 py-32">
+    <div className="min-h-screen bg-paper">
+      <div className="container mx-auto px-6 py-32 max-w-5xl">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent/teens">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour à mes teens
@@ -26,114 +27,108 @@ export default async function AddTeenPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-white">Ajouter un Teen</h1>
-          <p className="text-zinc-400">Liez le compte de votre adolescent à votre espace parent</p>
+          <p className="eyebrow tracking-[0.16em] text-mute">Lier un compte</p>
+          <h1 className="mt-1 font-display text-4xl font-extrabold text-ink">
+            Ajoute ton <em className="font-semibold italic text-pink">ado</em>
+          </h1>
+          <p className="mt-1 text-mute">Lie le compte de ton ado à ton espace parent</p>
         </div>
+
+        {/* Niv coach */}
+        <NivCoach
+          mood="happy"
+          className="mb-8"
+          message="Donne-lui le code, je m'occupe du reste. Une fois la liaison acceptée, tu gères tout depuis ton dashboard."
+        />
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Main Form */}
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-emerald-400" />
-                Lier un compte Teen
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AddTeenForm parentId={userInfo.profileId} />
-            </CardContent>
-          </Card>
+          <StickerCard className="p-6">
+            <div className="mb-4 flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-lime" aria-hidden="true" />
+              <h2 className="font-display text-lg font-extrabold text-ink">
+                Lier un compte teen
+              </h2>
+            </div>
+            <AddTeenForm parentId={userInfo.profileId} />
+          </StickerCard>
 
           {/* Help Section */}
           <div className="space-y-6">
             {/* How it works */}
-            <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Info className="h-5 w-5 text-blue-400" />
+            <StickerCard className="p-6">
+              <div className="mb-4 flex items-center gap-2">
+                <Info className="h-5 w-5 text-teal" aria-hidden="true" />
+                <h2 className="font-display text-lg font-extrabold text-ink">
                   Comment ça marche ?
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-4">
-                  <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold shrink-0">
+                </h2>
+              </div>
+              <ol className="space-y-4">
+                <li className="flex gap-4">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full border-2 border-ink bg-pink font-mono text-sm font-bold text-ink">
                     1
-                  </div>
+                  </span>
                   <div>
-                    <p className="font-semibold text-white">Entrez l'email ou le code</p>
-                    <p className="text-sm text-zinc-400">
-                      Utilisez l'email du compte Teen ou son code unique de liaison
+                    <p className="font-semibold text-ink">Entre l'email ou le code</p>
+                    <p className="text-sm text-mute">
+                      Utilise l'email du compte teen ou son code unique de liaison.
                     </p>
                   </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold shrink-0">
+                </li>
+                <li className="flex gap-4">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full border-2 border-ink bg-white font-mono text-sm font-bold text-ink">
                     2
-                  </div>
+                  </span>
                   <div>
-                    <p className="font-semibold text-white">Demande envoyée</p>
-                    <p className="text-sm text-zinc-400">
-                      Le teen reçoit une notification pour accepter la liaison
+                    <p className="font-semibold text-ink">Demande envoyée</p>
+                    <p className="text-sm text-mute">
+                      Le teen reçoit une notification pour accepter la liaison.
                     </p>
                   </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold shrink-0">
+                </li>
+                <li className="flex gap-4">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full border-2 border-ink bg-white font-mono text-sm font-bold text-ink">
                     3
-                  </div>
+                  </span>
                   <div>
-                    <p className="font-semibold text-white">Compte lié</p>
-                    <p className="text-sm text-zinc-400">
-                      Une fois accepté, gérez ses paramètres depuis votre dashboard
+                    <p className="font-semibold text-ink">Compte lié</p>
+                    <p className="text-sm text-mute">
+                      Une fois accepté, gère ses paramètres depuis ton dashboard.
                     </p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </li>
+              </ol>
+            </StickerCard>
 
-            {/* Alternative Methods */}
-            <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-              <CardHeader>
-                <CardTitle className="text-white text-base">Autres méthodes</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start border-zinc-700 text-zinc-300 hover:border-emerald-500/50"
-                  disabled
-                >
-                  <QrCode className="h-4 w-4 mr-3 text-emerald-400" />
-                  Scanner un QR Code
-                  <span className="ml-auto text-xs text-zinc-500">Bientôt</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start border-zinc-700 text-zinc-300 hover:border-emerald-500/50"
-                  disabled
-                >
-                  <Mail className="h-4 w-4 mr-3 text-blue-400" />
-                  Envoyer une invitation
-                  <span className="ml-auto text-xs text-zinc-500">Bientôt</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start border-zinc-700 text-zinc-300 hover:border-emerald-500/50"
-                  disabled
-                >
-                  <Link2 className="h-4 w-4 mr-3 text-purple-400" />
-                  Lien de partage
-                  <span className="ml-auto text-xs text-zinc-500">Bientôt</span>
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Alternative Methods — liste discrète */}
+            <StickerCard variant="panel" className="p-5">
+              <p className="eyebrow tracking-[0.14em] text-mute">Autres méthodes</p>
+              <ul className="mt-3 space-y-2 text-sm text-mute">
+                <li className="flex items-center gap-3">
+                  <QrCode className="h-4 w-4 text-lime" aria-hidden="true" />
+                  <span>Scanner un QR Code</span>
+                  <span className="ml-auto font-mono text-[11px] uppercase tracking-wide">Bientôt</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-teal" aria-hidden="true" />
+                  <span>Envoyer une invitation</span>
+                  <span className="ml-auto font-mono text-[11px] uppercase tracking-wide">Bientôt</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Link2 className="h-4 w-4 text-pink" aria-hidden="true" />
+                  <span>Lien de partage</span>
+                  <span className="ml-auto font-mono text-[11px] uppercase tracking-wide">Bientôt</span>
+                </li>
+              </ul>
+            </StickerCard>
 
             {/* Info Box */}
-            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-              <p className="text-sm text-blue-400">
-                <strong>Note :</strong> Le teen doit avoir un compte actif sur Nivy.
-                S'il n'en a pas encore, invitez-le à créer son compte depuis l'application.
+            <StickerCard variant="panel" className="p-4">
+              <p className="text-sm text-ink-2">
+                <strong className="text-teal">Note :</strong> ton ado doit avoir un compte actif
+                sur Nivy. S'il n'en a pas encore, invite-le à créer son compte depuis l'application.
               </p>
-            </div>
+            </StickerCard>
           </div>
         </div>
       </div>

@@ -80,10 +80,10 @@ function StreakBadge({ streak }: StreakBadgeProps) {
   if (streak === 0) return null
 
   const streakConfig = streak >= 10
-    ? { bg: "bg-gradient-to-r from-yellow-500 to-orange-500", text: "text-white" }
+    ? { bg: "bg-gradient-to-r from-gold to-coral", text: "text-ink" }
     : streak >= 5
-    ? { bg: "bg-orange-500/20", text: "text-orange-400" }
-    : { bg: "bg-cyan-500/20", text: "text-cyan-400" }
+    ? { bg: "bg-coral/20", text: "text-coral" }
+    : { bg: "bg-teal/20", text: "text-teal" }
 
   return (
     <span className={cn(
@@ -131,12 +131,12 @@ function AttendanceCalendar({ attendance }: AttendanceCalendarProps) {
         className={cn(
           "w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all",
           isAttended
-            ? "bg-green-500 text-white"
+            ? "bg-lime text-ink"
             : isToday
-            ? "bg-cyan-500/20 text-cyan-400 ring-2 ring-cyan-500"
+            ? "bg-teal/20 text-teal ring-2 ring-teal"
             : isPast
-            ? "bg-zinc-800 text-zinc-600"
-            : "bg-zinc-800/50 text-zinc-500"
+            ? "bg-card text-mute"
+            : "bg-card text-mute"
         )}
       >
         {isAttended ? <CheckCircle2 className="w-3 h-3" /> : day}
@@ -147,7 +147,7 @@ function AttendanceCalendar({ attendance }: AttendanceCalendarProps) {
   return (
     <div className="grid grid-cols-7 gap-1">
       {["D", "L", "M", "M", "J", "V", "S"].map((d, i) => (
-        <div key={i} className="w-6 h-6 text-center text-xs text-zinc-600 font-medium">
+        <div key={i} className="w-6 h-6 text-center text-xs text-mute font-medium">
           {d}
         </div>
       ))}
@@ -196,7 +196,7 @@ function ClubCard({
 
   return (
     <motion.div layout>
-      <Card className="overflow-hidden bg-zinc-900 border-zinc-800">
+      <Card className="overflow-hidden bg-card border-ink">
         {/* Header */}
         <div
           className="p-4 cursor-pointer"
@@ -204,7 +204,7 @@ function ClubCard({
         >
           <div className="flex items-center gap-4">
             {/* Club logo/icon */}
-            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center overflow-hidden">
+            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-teal/20 to-teal/20 flex items-center justify-center overflow-hidden">
               {club.logo_url ? (
                 <Image
                   src={club.logo_url}
@@ -214,23 +214,23 @@ function ClubCard({
                   className="object-cover"
                 />
               ) : (
-                <Activity className="w-8 h-8 text-cyan-400" />
+                <Activity className="w-8 h-8 text-teal" />
               )}
             </div>
 
             {/* Club info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 capitalize">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-teal/10 text-teal capitalize">
                   {club.sport_type}
                 </span>
                 <StreakBadge streak={stats.current_streak} />
               </div>
 
-              <h3 className="font-bold text-white line-clamp-1">{club.name}</h3>
+              <h3 className="font-bold text-ink line-clamp-1">{club.name}</h3>
 
               {club.location && (
-                <p className="text-sm text-zinc-500 flex items-center gap-1">
+                <p className="text-sm text-mute flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   {club.location}
                 </p>
@@ -239,12 +239,12 @@ function ClubCard({
 
             {/* Stats summary */}
             <div className="text-right hidden sm:block">
-              <p className="text-2xl font-bold text-white">{stats.attendance_this_month}</p>
-              <p className="text-xs text-zinc-500">ce mois</p>
+              <p className="text-2xl font-bold text-ink">{stats.attendance_this_month}</p>
+              <p className="text-xs text-mute">ce mois</p>
             </div>
 
             <ChevronRight className={cn(
-              "w-5 h-5 text-zinc-600 transition-transform",
+              "w-5 h-5 text-mute transition-transform",
               isExpanded && "rotate-90"
             )} />
           </div>
@@ -259,24 +259,24 @@ function ClubCard({
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-4 border-t border-zinc-800 pt-4">
+              <div className="px-4 pb-4 border-t border-ink pt-4">
                 {/* Stats grid */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="text-center p-3 bg-zinc-800/50 rounded-xl">
-                    <p className="text-xs text-zinc-500 mb-1">Ce mois</p>
-                    <p className="text-xl font-bold text-white">
+                  <div className="text-center p-3 bg-card rounded-xl">
+                    <p className="text-xs text-mute mb-1">Ce mois</p>
+                    <p className="text-xl font-bold text-ink">
                       {stats.attendance_this_month}
                     </p>
                   </div>
-                  <div className="text-center p-3 bg-zinc-800/50 rounded-xl">
-                    <p className="text-xs text-zinc-500 mb-1">Total</p>
-                    <p className="text-xl font-bold text-white">
+                  <div className="text-center p-3 bg-card rounded-xl">
+                    <p className="text-xs text-mute mb-1">Total</p>
+                    <p className="text-xl font-bold text-ink">
                       {stats.total_attendance}
                     </p>
                   </div>
-                  <div className="text-center p-3 bg-zinc-800/50 rounded-xl">
-                    <p className="text-xs text-zinc-500 mb-1">Streak</p>
-                    <p className="text-xl font-bold text-orange-400 flex items-center justify-center gap-1">
+                  <div className="text-center p-3 bg-card rounded-xl">
+                    <p className="text-xs text-mute mb-1">Streak</p>
+                    <p className="text-xl font-bold text-coral flex items-center justify-center gap-1">
                       <Flame className="w-4 h-4" />
                       {stats.current_streak}
                     </p>
@@ -285,16 +285,16 @@ function ClubCard({
 
                 {/* Calendar */}
                 <div className="mb-6">
-                  <p className="text-sm text-zinc-400 mb-3">Presence ce mois</p>
+                  <p className="text-sm text-mute mb-3">Presence ce mois</p>
                   <AttendanceCalendar attendance={stats.recent_attendance} />
                 </div>
 
                 {/* Schedule */}
                 {club.schedule && (
-                  <div className="mb-6 p-3 bg-zinc-800/50 rounded-xl">
-                    <p className="text-xs text-zinc-500 mb-1">Horaires</p>
-                    <p className="text-sm text-white flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-cyan-400" />
+                  <div className="mb-6 p-3 bg-card rounded-xl">
+                    <p className="text-xs text-mute mb-1">Horaires</p>
+                    <p className="text-sm text-ink flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-teal" />
                       {club.schedule}
                     </p>
                   </div>
@@ -311,8 +311,8 @@ function ClubCard({
                     className={cn(
                       "flex-1",
                       isCheckinToday
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                        ? "bg-lime/20 text-lime"
+                        : "bg-gradient-to-r from-lime to-lime hover:from-lime hover:to-lime"
                     )}
                   >
                     {isCheckinToday ? (
@@ -333,7 +333,7 @@ function ClubCard({
                       onLeave()
                     }}
                     variant="outline"
-                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                    className="border-destructive/30 text-destructive hover:bg-destructive/10"
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
@@ -358,9 +358,9 @@ interface AvailableClubCardProps {
 
 function AvailableClubCard({ club, onJoin }: AvailableClubCardProps) {
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center gap-4">
-        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center overflow-hidden">
+        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-teal/20 to-teal/20 flex items-center justify-center overflow-hidden">
           {club.logo_url ? (
             <Image
               src={club.logo_url}
@@ -370,24 +370,24 @@ function AvailableClubCard({ club, onJoin }: AvailableClubCardProps) {
               className="object-cover rounded-xl"
             />
           ) : (
-            <Activity className="w-6 h-6 text-cyan-400" />
+            <Activity className="w-6 h-6 text-teal" />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-white line-clamp-1">{club.name}</h4>
-          <p className="text-sm text-zinc-500 capitalize">{club.sport_type}</p>
+          <h4 className="font-bold text-ink line-clamp-1">{club.name}</h4>
+          <p className="text-sm text-mute capitalize">{club.sport_type}</p>
         </div>
 
         {club.is_member ? (
-          <span className="text-xs text-green-400 bg-green-500/10 px-3 py-1.5 rounded-full">
+          <span className="text-xs text-lime bg-lime/10 px-3 py-1.5 rounded-full">
             Membre
           </span>
         ) : (
           <Button
             onClick={onJoin}
             size="sm"
-            className="bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="bg-gradient-to-r from-teal to-teal"
           >
             <Plus className="w-4 h-4 mr-1" />
             Rejoindre
@@ -425,20 +425,20 @@ function JoinClubModal({ isOpen, onClose, clubs, onJoin }: JoinClubModalProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/80"
+        className="absolute inset-0 bg-ink/80"
         onClick={onClose}
       />
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="relative bg-zinc-900 rounded-2xl p-6 max-w-lg w-full border border-zinc-800 max-h-[80vh] overflow-hidden flex flex-col"
+        className="relative bg-card rounded-2xl p-6 max-w-lg w-full border border-ink max-h-[80vh] overflow-hidden flex flex-col"
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-white">Rejoindre un club</h3>
+          <h3 className="text-xl font-bold text-ink">Rejoindre un club</h3>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-white"
+            className="text-mute hover:text-ink"
           >
             <X className="w-5 h-5" />
           </button>
@@ -451,8 +451,8 @@ function JoinClubModal({ isOpen, onClose, clubs, onJoin }: JoinClubModalProps) {
             className={cn(
               "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
               !filterSport
-                ? "bg-cyan-500 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                ? "bg-teal text-ink"
+                : "bg-card text-mute hover:bg-muted"
             )}
           >
             Tous
@@ -464,8 +464,8 @@ function JoinClubModal({ isOpen, onClose, clubs, onJoin }: JoinClubModalProps) {
               className={cn(
                 "px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-all",
                 filterSport === sport
-                  ? "bg-cyan-500 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                  ? "bg-teal text-ink"
+                  : "bg-card text-mute hover:bg-muted"
               )}
             >
               {sport}
@@ -488,8 +488,8 @@ function JoinClubModal({ isOpen, onClose, clubs, onJoin }: JoinClubModalProps) {
 
           {filteredClubs.length === 0 && (
             <div className="text-center py-8">
-              <Users className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-              <p className="text-zinc-400">Aucun club disponible</p>
+              <Users className="w-12 h-12 text-mute mx-auto mb-4" />
+              <p className="text-mute">Aucun club disponible</p>
             </div>
           )}
         </div>
@@ -602,7 +602,7 @@ export function SportClubsDashboard({ teenId }: SportClubsDashboardProps) {
     return (
       <div className="space-y-4 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-32 bg-zinc-800 rounded-2xl" />
+          <div key={i} className="h-32 bg-card rounded-2xl" />
         ))}
       </div>
     )
@@ -613,35 +613,35 @@ export function SportClubsDashboard({ teenId }: SportClubsDashboardProps) {
       {/* Stats header */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Users className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.total_clubs}</p>
-            <p className="text-xs text-zinc-500">Clubs</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Users className="w-6 h-6 text-teal mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.total_clubs}</p>
+            <p className="text-xs text-mute">Clubs</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Calendar className="w-6 h-6 text-green-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.total_attendance_this_month}</p>
-            <p className="text-xs text-zinc-500">Ce mois</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Calendar className="w-6 h-6 text-lime mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.total_attendance_this_month}</p>
+            <p className="text-xs text-mute">Ce mois</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <CheckCircle2 className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.total_attendance_all_time}</p>
-            <p className="text-xs text-zinc-500">Total</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <CheckCircle2 className="w-6 h-6 text-teal mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.total_attendance_all_time}</p>
+            <p className="text-xs text-mute">Total</p>
           </Card>
-          <Card className="p-4 bg-zinc-900 border-zinc-800 text-center">
-            <Flame className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{stats.best_streak}</p>
-            <p className="text-xs text-zinc-500">Meilleur streak</p>
+          <Card className="p-4 bg-card border-ink text-center">
+            <Flame className="w-6 h-6 text-coral mx-auto mb-2" />
+            <p className="text-2xl font-bold text-ink">{stats.best_streak}</p>
+            <p className="text-xs text-mute">Meilleur streak</p>
           </Card>
         </div>
       )}
 
       {/* Actions */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white">Mes clubs</h2>
+        <h2 className="text-lg font-bold text-ink">Mes clubs</h2>
         <Button
           onClick={() => setShowJoinModal(true)}
-          className="bg-gradient-to-r from-cyan-500 to-blue-500"
+          className="bg-gradient-to-r from-teal to-teal"
         >
           <Plus className="w-4 h-4 mr-2" />
           Rejoindre un club
@@ -666,15 +666,15 @@ export function SportClubsDashboard({ teenId }: SportClubsDashboardProps) {
 
       {/* Empty state */}
       {clubs.length === 0 && (
-        <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-          <Users className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">Aucun club</h3>
-          <p className="text-zinc-400 mb-4">
+        <Card className="p-8 bg-card border-ink text-center">
+          <Users className="w-12 h-12 text-mute mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-ink mb-2">Aucun club</h3>
+          <p className="text-mute mb-4">
             Rejoins un club de sport pour commencer a tracker ton assiduite !
           </p>
           <Button
             onClick={() => setShowJoinModal(true)}
-            className="bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="bg-gradient-to-r from-teal to-teal"
           >
             <Plus className="w-4 h-4 mr-2" />
             Trouver un club
@@ -728,7 +728,7 @@ export function ClubsWidget({ teenId, onSeeAll }: ClubsWidgetProps) {
     return (
       <div className="space-y-3 animate-pulse">
         {[1, 2].map((i) => (
-          <div key={i} className="h-16 bg-zinc-800 rounded-xl" />
+          <div key={i} className="h-16 bg-card rounded-xl" />
         ))}
       </div>
     )
@@ -739,16 +739,16 @@ export function ClubsWidget({ teenId, onSeeAll }: ClubsWidgetProps) {
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-white flex items-center gap-2">
-          <Users className="w-4 h-4 text-cyan-400" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Users className="w-4 h-4 text-teal" />
           Mes clubs
         </h3>
         {onSeeAll && (
           <button
             onClick={onSeeAll}
-            className="text-sm text-cyan-400 hover:underline"
+            className="text-sm text-teal hover:underline"
           >
             Voir tout
           </button>
@@ -763,21 +763,21 @@ export function ClubsWidget({ teenId, onSeeAll }: ClubsWidgetProps) {
           return (
             <div
               key={clubData.club.id}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-card transition-colors"
             >
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
-                <Activity className="w-5 h-5 text-cyan-400" />
+              <div className="w-10 h-10 rounded-xl bg-teal/10 flex items-center justify-center">
+                <Activity className="w-5 h-5 text-teal" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white font-medium truncate">
+                <p className="text-sm text-ink font-medium truncate">
                   {clubData.club.name}
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-xs text-mute">
                     {clubData.stats.attendance_this_month} presences
                   </span>
                   {clubData.stats.current_streak > 0 && (
-                    <span className="flex items-center gap-1 text-xs text-orange-400">
+                    <span className="flex items-center gap-1 text-xs text-coral">
                       <Flame className="w-3 h-3" />
                       {clubData.stats.current_streak}
                     </span>
@@ -785,9 +785,9 @@ export function ClubsWidget({ teenId, onSeeAll }: ClubsWidgetProps) {
                 </div>
               </div>
               {checkedInToday ? (
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <CheckCircle2 className="w-5 h-5 text-lime" />
               ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-zinc-700" />
+                <div className="w-5 h-5 rounded-full border-2 border-ink" />
               )}
             </div>
           )

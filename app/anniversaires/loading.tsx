@@ -4,7 +4,7 @@ export default function AnniversairesLoading() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <div className="bg-gradient-to-b from-purple-950/50 to-zinc-950 py-20">
+      <div className="bg-gradient-to-b from-pink/50 to-card py-20">
         <div className="container text-center space-y-6">
           <Skeleton className="h-12 w-80 mx-auto" />
           <Skeleton className="h-6 w-[450px] mx-auto" />

@@ -2,13 +2,15 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, SkipForward, Target } from "lucide-react"
+import { Loader2, SkipForward } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
 import { Textarea } from "@/components/ui/textarea"
+import { NivCoach } from "@/components/brand"
+import { cn } from "@/lib/utils"
 
 interface GoalsFormProps {
   initial?: string[]
@@ -25,6 +27,13 @@ const HELP = [
   "Un objectif scolaire, sportif ou créatif.",
   "Quelque chose de fun que tu veux apprendre.",
   "Un défi perso pour cette saison.",
+]
+
+// Token gamifié visible par carte (charte §6 — couleurs économie).
+const TOKENS = [
+  { emoji: "📚", bg: "bg-teal" },
+  { emoji: "🎸", bg: "bg-pink" },
+  { emoji: "🔥", bg: "bg-gold" },
 ]
 
 export function GoalsForm({
@@ -66,9 +75,7 @@ export function GoalsForm({
   }
 
   function handleConfirm() {
-    const cleaned = goals
-      .map((g) => g.trim())
-      .filter((g) => g.length > 0)
+    const cleaned = goals.map((g) => g.trim()).filter((g) => g.length > 0)
 
     if (cleaned.length === 0) {
       toast.warning("Écris au moins un objectif (ou passe l'étape)")
@@ -82,27 +89,45 @@ export function GoalsForm({
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-          <Target className="w-3.5 h-3.5" />
-          Étape Objectifs
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Mes 3 objectifs cette saison
+    <div className="mx-auto w-full max-w-2xl space-y-6">
+      <div className="space-y-3 text-center">
+        <p className="eyebrow tracking-[0.16em]">Étape 2 / 4 · Objectifs</p>
+        <SegmentedProgress steps={4} current={1} className="mx-auto max-w-xs" />
+        <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+          Mes 3 <em className="font-semibold italic text-pink">objectifs</em> cette saison
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        <p className="text-sm text-mute sm:text-base">
           On t'aidera à les atteindre avec des missions et des recommandations sur-mesure.
         </p>
       </div>
 
-      <Card className="p-4 sm:p-6">
-        <div className="space-y-5">
-          {goals.map((g, idx) => (
-            <div key={idx} className="space-y-1.5">
-              <Label htmlFor={`goal-${idx}`} className="font-semibold">
-                Objectif {idx + 1}
-              </Label>
+      <NivCoach
+        mood="proud"
+        message="Écris ce que tu veux accomplir — je transforme ça en missions et en XP."
+      />
+
+      <div className="space-y-4">
+        {goals.map((g, idx) => {
+          const token = TOKENS[idx]
+          return (
+            <StickerCard key={idx} className="gap-3 p-4 sm:p-5">
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    "grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink text-lg",
+                    token.bg,
+                  )}
+                  aria-hidden="true"
+                >
+                  {token.emoji}
+                </span>
+                <label
+                  htmlFor={`goal-${idx}`}
+                  className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-mute"
+                >
+                  Objectif {idx + 1}
+                </label>
+              </div>
               <Textarea
                 id={`goal-${idx}`}
                 value={g}
@@ -110,33 +135,34 @@ export function GoalsForm({
                 placeholder={PLACEHOLDERS[idx]}
                 maxLength={280}
                 rows={2}
-                className="resize-none"
+                className="resize-none rounded-xl border-2 border-line bg-white focus-visible:border-ink focus-visible:ring-0"
               />
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-xs text-mute">
                 <span>{HELP[idx]}</span>
-                <span className="tabular-nums">{g.length} / 280</span>
+                <span className="font-mono tabular-nums">{g.length} / 280</span>
               </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+            </StickerCard>
+          )
+        })}
+      </div>
 
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Button
           variant="ghost"
           size="lg"
           onClick={handleSkip}
           disabled={submitting !== null}
-          className="text-muted-foreground"
+          className="text-mute"
         >
           {submitting === "skip" ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
-            <SkipForward className="w-4 h-4" />
+            <SkipForward className="size-4" aria-hidden="true" />
           )}
           Passer cette étape
         </Button>
         <Button
+          variant="pink"
           size="lg"
           onClick={handleConfirm}
           disabled={submitting !== null}
@@ -144,11 +170,11 @@ export function GoalsForm({
         >
           {submitting === "confirm" ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
               Sauvegarde…
             </>
           ) : (
-            <>Continuer</>
+            "Continuer"
           )}
         </Button>
       </div>

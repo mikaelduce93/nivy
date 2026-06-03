@@ -26,9 +26,15 @@
 
 import { NextResponse } from "next/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { pickCoachProvider, compactCoachMemory } from "@/lib/ai/coach-memory"
+import { generateCoachGreeting } from "@/lib/ai/coach-greeting"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
+// #211 — plafond d'exécution explicite. Les budgets LLM (greeting 20s +
+// compaction 15s) + le timeout dur par appel (8s) restent confortablement en
+// dessous. (Ignoré sur Hobby qui plafonne plus bas — best-effort par design.)
+export const maxDuration = 60
 
 // Min affinity_scores rows before we compute neighbours for a teen. Mirrors
 // the in-RPC guard inside recompute_neighbours so the cron can short-circuit
@@ -37,6 +43,33 @@ const MIN_AFFINITY_ROWS_FOR_NEIGHBOURS = 3
 
 // Top-K neighbours to keep per teen (matches teen_neighbours expected size).
 const NEIGHBOUR_TOP_K = 50
+
+// #211 — greeting proactif : 1 message/jour/teen actif, contextualisé par des
+// signaux réels (streak, quiz du jour). Mood inféré côté serveur (sans LLM).
+const GREETING_ACTIVE_WINDOW_DAYS = 21
+const MAX_GREETINGS_PER_RUN = 5000
+
+// #211 — budgets LLM (Haiku) bornés pour rester sous la limite d'exécution du
+// cron quelle que soit la formule Vercel. Au-delà du budget temps OU du cap, on
+// retombe sur les templates (greeting) / on arrête la compaction. Best-effort.
+const GREETING_GEN_BUDGET_MS = 20_000
+const COMPACTION_BUDGET_MS = 15_000
+const COMPACTION_CAP = 200
+
+type InferredMood = "happy" | "tired" | "focused" | "neutral"
+
+function buildProactiveMessage(mood: InferredMood, currentStreak: number): string {
+  switch (mood) {
+    case "happy":
+      return "Bien joué pour ton quiz du jour ! On enchaîne sur une nouvelle quête ? 🔥"
+    case "tired":
+      return "Ta série s'est mise en pause — pas grave ! Un petit défi aujourd'hui et c'est reparti 💪"
+    case "focused":
+      return `Série de ${currentStreak} jours, tu assures ! On continue aujourd'hui ?`
+    default:
+      return "Salut ! Prêt pour ton défi du jour ? 🎯"
+  }
+}
 
 export async function GET(request: Request) {
   // ---- Authorization ------------------------------------------------------
@@ -150,6 +183,170 @@ export async function GET(request: Request) {
     neighbourRowsUpserted += Number(nData ?? 0)
   }
 
+  // ---- Phase 3: greeting proactif + mood inféré (#211) -------------------
+  // 1 message/jour/teen actif, contextualisé (streak/quiz). Écrit un
+  // avatar_messages non-dismissed que AvatarCoach affiche en priorité — le
+  // defaultGreeting codé en dur ne sert plus que de filet. Service-role =
+  // bypass RLS (on écrit pour d'autres teens), comme les autres crons.
+  let greetingsWritten = 0
+  let greetingsSkipped = 0
+  let greetingCandidates = 0
+  let greetingsGenerated = 0
+  // #211 — greeting génératif : Haiku quand un provider est configuré (prod),
+  // sinon template codé en dur (filet). Provider résolu une seule fois.
+  const coachProvider = pickCoachProvider()
+  const greetingPhaseStart = Date.now()
+  try {
+    const now = new Date()
+    const todayStart = new Date(now)
+    todayStart.setUTCHours(0, 0, 0, 0)
+    const todayStartIso = todayStart.toISOString()
+    const yesterday = new Date(todayStart)
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1)
+    const activeFloor = new Date(todayStart)
+    activeFloor.setUTCDate(activeFloor.getUTCDate() - GREETING_ACTIVE_WINDOW_DAYS)
+    const yesterdayStr = yesterday.toISOString().slice(0, 10)
+    const activeFloorStr = activeFloor.toISOString().slice(0, 10)
+
+    const [{ data: streaks }, { data: passedRows }, { data: greetedRows }] =
+      await Promise.all([
+        supabase
+          .from("user_streaks")
+          .select("teen_id, current_streak, last_activity_date")
+          .gte("last_activity_date", activeFloorStr)
+          .limit(MAX_GREETINGS_PER_RUN + 1),
+        supabase
+          .from("quiz_attempts")
+          .select("teen_id")
+          .gte("completed_at", todayStartIso)
+          .eq("passed", true),
+        supabase
+          .from("avatar_messages")
+          .select("teen_id")
+          .gte("displayed_at", todayStartIso)
+          .is("dismissed_at", null),
+      ])
+
+    const passedToday = new Set(
+      (passedRows ?? []).map((r) => (r as { teen_id: string }).teen_id),
+    )
+    const alreadyGreeted = new Set(
+      (greetedRows ?? []).map((r) => (r as { teen_id: string }).teen_id),
+    )
+    const rows = (streaks ?? []) as Array<{
+      teen_id: string
+      current_streak: number | null
+      last_activity_date: string | null
+    }>
+    greetingCandidates = rows.length
+    if (greetingCandidates > MAX_GREETINGS_PER_RUN) {
+      console.warn(
+        `[cron/evolve-teen-profiles] greeting candidates ${greetingCandidates} > cap ${MAX_GREETINGS_PER_RUN}; tail skipped this run`,
+      )
+    }
+
+    // Batch-fetch active coach goals for the candidate teens (one query) to
+    // contextualise the generative greeting. PII-free (scrubbed on write).
+    const candidateIds = rows
+      .slice(0, MAX_GREETINGS_PER_RUN)
+      .map((r) => r.teen_id)
+      .filter((id) => !alreadyGreeted.has(id))
+    const goalsByTeen = new Map<string, string[]>()
+    if (coachProvider && candidateIds.length) {
+      const { data: goalRows } = await supabase
+        .from("coach_goals")
+        .select("teen_id, goal")
+        .in("teen_id", candidateIds.slice(0, MAX_GREETINGS_PER_RUN))
+        .eq("status", "active")
+      for (const g of (goalRows ?? []) as Array<{ teen_id: string; goal: string }>) {
+        const list = goalsByTeen.get(g.teen_id) ?? []
+        if (list.length < 3 && g.goal) list.push(g.goal)
+        goalsByTeen.set(g.teen_id, list)
+      }
+    }
+
+    for (const row of rows.slice(0, MAX_GREETINGS_PER_RUN)) {
+      if (alreadyGreeted.has(row.teen_id)) {
+        greetingsSkipped++
+        continue
+      }
+      const streak = row.current_streak ?? 0
+      const broken = !row.last_activity_date || row.last_activity_date < yesterdayStr || streak === 0
+      const mood: InferredMood = passedToday.has(row.teen_id)
+        ? "happy"
+        : broken
+          ? "tired"
+          : streak >= 3
+            ? "focused"
+            : "neutral"
+
+      // #211 — greeting génératif (Haiku) tant qu'un provider est dispo et que
+      // le budget temps n'est pas épuisé ; sinon template codé en dur (filet).
+      let messageText = buildProactiveMessage(mood, streak)
+      if (coachProvider && Date.now() - greetingPhaseStart < GREETING_GEN_BUDGET_MS) {
+        const generated = await generateCoachGreeting(coachProvider, {
+          mood,
+          streak,
+          passedQuizToday: passedToday.has(row.teen_id),
+          goals: goalsByTeen.get(row.teen_id) ?? [],
+        })
+        if (generated) {
+          messageText = generated
+          greetingsGenerated++
+        }
+      }
+
+      const { error: insErr } = await supabase.from("avatar_messages").insert({
+        teen_id: row.teen_id,
+        message_text: messageText,
+        mood,
+        displayed_at: now.toISOString(),
+        dismissed_at: null,
+      })
+      if (insErr) continue
+      greetingsWritten++
+      // Mood inféré → persiste aussi sur l'avatar (remplace la saisie manuelle).
+      await supabase
+        .from("avatars")
+        .update({ mood, updated_at: now.toISOString() })
+        .eq("teen_id", row.teen_id)
+    }
+  } catch (greetErr) {
+    console.error("[cron/evolve-teen-profiles] phase 3 greetings failed:", greetErr)
+  }
+
+  // ---- Phase 4: compaction mémoire coach (#211) --------------------------
+  // Résume objectifs + faits durables d'un teen en un long_summary borné et
+  // journalise un coach_conversation_summaries (la purge mig 121 supprime
+  // l'ancien). Best-effort, budget + cap bornés. Sans provider LLM → on saute.
+  let compactionsWritten = 0
+  let compactionCandidates = 0
+  if (coachProvider) {
+    try {
+      const { data: factTeens } = await supabase
+        .from("coach_facts")
+        .select("teen_id")
+        .limit(50000)
+      const seen = new Set<string>()
+      const uniqueTeens: string[] = []
+      for (const r of (factTeens ?? []) as Array<{ teen_id: string }>) {
+        if (!seen.has(r.teen_id)) {
+          seen.add(r.teen_id)
+          uniqueTeens.push(r.teen_id)
+        }
+      }
+      compactionCandidates = uniqueTeens.length
+      const compactionStart = Date.now()
+      for (const teenId of uniqueTeens.slice(0, COMPACTION_CAP)) {
+        if (Date.now() - compactionStart > COMPACTION_BUDGET_MS) break
+        const ok = await compactCoachMemory(supabase, teenId, coachProvider)
+        if (ok) compactionsWritten++
+      }
+    } catch (compactErr) {
+      console.error("[cron/evolve-teen-profiles] phase 4 compaction failed:", compactErr)
+    }
+  }
+
   const durationMs = Date.now() - startedAt
 
   // ---- Audit log (best effort) -------------------------------------------
@@ -167,6 +364,12 @@ export async function GET(request: Request) {
         neighbour_teens_skipped: neighbourTeensSkipped,
         neighbour_rows_upserted: neighbourRowsUpserted,
         neighbour_errors: neighbourErrors.length,
+        greetings_written: greetingsWritten,
+        greetings_generated: greetingsGenerated,
+        greetings_skipped: greetingsSkipped,
+        greeting_candidates: greetingCandidates,
+        compactions_written: compactionsWritten,
+        compaction_candidates: compactionCandidates,
         duration_ms: durationMs,
         triggered_by: isVercelCron ? "vercel-cron" : "bearer",
       },
@@ -185,6 +388,12 @@ export async function GET(request: Request) {
     neighbour_teens_skipped: neighbourTeensSkipped,
     neighbour_rows_upserted: neighbourRowsUpserted,
     neighbour_errors: neighbourErrors,
+    greetings_written: greetingsWritten,
+    greetings_generated: greetingsGenerated,
+    greetings_skipped: greetingsSkipped,
+    greeting_candidates: greetingCandidates,
+    compactions_written: compactionsWritten,
+    compaction_candidates: compactionCandidates,
     duration_ms: durationMs,
   })
 }

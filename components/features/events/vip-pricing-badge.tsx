@@ -44,7 +44,7 @@ export function VIPPricingBadge({
   // Free event - no VIP pricing needed
   if (standardPrice === 0) {
     return (
-      <span className={cn("text-emerald-400 font-bold", className)}>
+      <span className={cn("text-lime font-bold", className)}>
         Gratuit
       </span>
     )
@@ -58,25 +58,25 @@ export function VIPPricingBadge({
           <TooltipTrigger asChild>
             <div className={cn("inline-flex items-center gap-2", className)}>
               <span className="font-bold text-primary">{standardPrice} DH</span>
-              <span className="px-1.5 py-0.5 rounded bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 text-yellow-500 text-[10px] font-bold flex items-center gap-1">
+              <span className="px-1.5 py-0.5 rounded bg-gradient-to-r from-gold/20 to-coral/20 border border-gold/30 text-gold text-[10px] font-bold flex items-center gap-1">
                 <Star className="w-2.5 h-2.5" />
                 VIP -20%
               </span>
             </div>
           </TooltipTrigger>
-          <TooltipContent side="top" className="bg-zinc-900 border-zinc-800 p-3">
+          <TooltipContent side="top" className="bg-card border-ink p-3">
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between gap-4">
-                <span className="text-zinc-400">Standard</span>
+                <span className="text-mute">Standard</span>
                 <span className="font-bold">{standardPrice} DH</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-yellow-400">
+              <div className="flex items-center justify-between gap-4 text-gold">
                 <span className="flex items-center gap-1">
                   <Star className="w-3 h-3" /> Gold
                 </span>
                 <span className="font-bold">{calculatedVipPrice} DH</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-purple-400">
+              <div className="flex items-center justify-between gap-4 text-pink">
                 <span className="flex items-center gap-1">
                   <Crown className="w-3 h-3" /> Platinum
                 </span>
@@ -85,7 +85,7 @@ export function VIPPricingBadge({
               {showVIPLink && (
                 <Link
                   href="/carte-vip"
-                  className="text-xs text-cyan-400 hover:underline block pt-2 border-t border-zinc-700"
+                  className="text-xs text-teal hover:underline block pt-2 border-t border-ink"
                 >
                   Découvrir les Pass VIP →
                 </Link>
@@ -102,15 +102,15 @@ export function VIPPricingBadge({
     return (
       <div className={cn("flex items-center gap-3 flex-wrap", className)}>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-zinc-500">Standard:</span>
+          <span className="text-xs text-mute">Standard:</span>
           <span className="font-bold">{standardPrice} DH</span>
         </div>
-        <div className="flex items-center gap-1.5 text-yellow-500">
+        <div className="flex items-center gap-1.5 text-gold">
           <Star className="w-3 h-3" />
           <span className="text-xs">Gold:</span>
           <span className="font-bold">{calculatedVipPrice} DH</span>
         </div>
-        <div className="flex items-center gap-1.5 text-purple-500">
+        <div className="flex items-center gap-1.5 text-pink">
           <Crown className="w-3 h-3" />
           <span className="text-xs">Platinum:</span>
           <span className="font-bold">{calculatedPremiumPrice} DH</span>
@@ -127,53 +127,53 @@ export function VIPPricingBadge({
 
     return (
       <div className={cn("space-y-3", className)}>
-        <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-card border border-ink">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-zinc-400" />
+            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-mute" />
             </div>
             <div>
-              <p className="font-medium text-white">Standard</p>
-              <p className="text-xs text-zinc-500">Sans abonnement</p>
+              <p className="font-medium text-ink">Standard</p>
+              <p className="text-xs text-mute">Sans abonnement</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xl font-black text-white">{standardPrice} DH</p>
+            <p className="text-xl font-black text-ink">{standardPrice} DH</p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-gold/10 border border-gold/30">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-              <Star className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-coral flex items-center justify-center">
+              <Star className="w-4 h-4 text-ink" />
             </div>
             <div>
-              <p className="font-medium text-yellow-400">Pass Gold</p>
-              <p className="text-xs text-yellow-500/70">-20% sur tous les events</p>
+              <p className="font-medium text-gold">Pass Gold</p>
+              <p className="text-xs text-gold/70">-20% sur tous les events</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xl font-black text-yellow-400">{calculatedVipPrice} DH</p>
+            <p className="text-xl font-black text-gold">{calculatedVipPrice} DH</p>
             {vipSavings > 0 && (
-              <p className="text-xs text-emerald-400">-{vipSavings} DH</p>
+              <p className="text-xs text-lime">-{vipSavings} DH</p>
             )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-3 rounded-lg bg-purple-500/10 border border-purple-500/30">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-pink/10 border border-pink/30">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Crown className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink to-pink flex items-center justify-center">
+              <Crown className="w-4 h-4 text-ink" />
             </div>
             <div>
-              <p className="font-medium text-purple-400">Pass Platinum</p>
-              <p className="text-xs text-purple-500/70">-30% sur tous les events</p>
+              <p className="font-medium text-pink">Pass Platinum</p>
+              <p className="text-xs text-pink/70">-30% sur tous les events</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xl font-black text-purple-400">{calculatedPremiumPrice} DH</p>
+            <p className="text-xl font-black text-pink">{calculatedPremiumPrice} DH</p>
             {premiumSavings > 0 && (
-              <p className="text-xs text-emerald-400">-{premiumSavings} DH</p>
+              <p className="text-xs text-lime">-{premiumSavings} DH</p>
             )}
           </div>
         </div>
@@ -181,7 +181,7 @@ export function VIPPricingBadge({
         {showVIPLink && (
           <Link
             href="/carte-vip"
-            className="flex items-center justify-center gap-2 p-2 rounded-lg bg-gradient-to-r from-yellow-500/10 to-purple-500/10 border border-yellow-500/20 text-sm text-yellow-400 hover:bg-yellow-500/20 transition-colors"
+            className="flex items-center justify-center gap-2 p-2 rounded-lg bg-gradient-to-r from-gold/10 to-pink/10 border border-gold/20 text-sm text-gold hover:bg-gold/20 transition-colors"
           >
             <Info className="w-4 h-4" />
             Souscrire à un Pass VIP
@@ -196,36 +196,36 @@ export function VIPPricingBadge({
     const maxSavings = standardPrice - calculatedPremiumPrice
 
     return (
-      <div className={cn("p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20", className)}>
+      <div className={cn("p-4 rounded-xl bg-gradient-to-br from-pink/10 to-pink/10 border border-pink/20", className)}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-purple-400" />
-            <span className="font-bold text-white">Tarifs VIP</span>
+            <Crown className="w-5 h-5 text-pink" />
+            <span className="font-bold text-ink">Tarifs VIP</span>
           </div>
-          <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full">
+          <span className="text-xs bg-lime/20 text-lime px-2 py-1 rounded-full">
             Jusqu'à -{maxSavings} DH
           </span>
         </div>
 
         <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="p-2 rounded-lg bg-zinc-800/50">
-            <p className="text-[10px] text-zinc-500 uppercase">Standard</p>
-            <p className="font-bold text-white">{standardPrice}</p>
+          <div className="p-2 rounded-lg bg-card">
+            <p className="text-[10px] text-mute uppercase">Standard</p>
+            <p className="font-bold text-ink">{standardPrice}</p>
           </div>
-          <div className="p-2 rounded-lg bg-yellow-500/10">
-            <p className="text-[10px] text-yellow-500 uppercase">Gold</p>
-            <p className="font-bold text-yellow-400">{calculatedVipPrice}</p>
+          <div className="p-2 rounded-lg bg-gold/10">
+            <p className="text-[10px] text-gold uppercase">Gold</p>
+            <p className="font-bold text-gold">{calculatedVipPrice}</p>
           </div>
-          <div className="p-2 rounded-lg bg-purple-500/10">
-            <p className="text-[10px] text-purple-500 uppercase">Platinum</p>
-            <p className="font-bold text-purple-400">{calculatedPremiumPrice}</p>
+          <div className="p-2 rounded-lg bg-pink/10">
+            <p className="text-[10px] text-pink uppercase">Platinum</p>
+            <p className="font-bold text-pink">{calculatedPremiumPrice}</p>
           </div>
         </div>
 
         {showVIPLink && (
           <Link
             href="/carte-vip"
-            className="block text-center text-xs text-purple-400 hover:text-purple-300 mt-3"
+            className="block text-center text-xs text-pink hover:text-pink mt-3"
           >
             Voir les Pass VIP →
           </Link>
@@ -247,8 +247,8 @@ export function VIPDiscountBadge({ className }: { className?: string }) {
         <TooltipTrigger asChild>
           <span className={cn(
             "inline-flex items-center gap-1 px-2 py-0.5 rounded-full",
-            "bg-gradient-to-r from-yellow-500/20 to-purple-500/20",
-            "border border-yellow-500/30 text-yellow-500 text-[10px] font-bold",
+            "bg-gradient-to-r from-gold/20 to-pink/20",
+            "border border-gold/30 text-gold text-[10px] font-bold",
             "cursor-help",
             className
           )}>
@@ -256,7 +256,7 @@ export function VIPDiscountBadge({ className }: { className?: string }) {
             VIP
           </span>
         </TooltipTrigger>
-        <TooltipContent side="top" className="bg-zinc-900 border-zinc-800">
+        <TooltipContent side="top" className="bg-card border-ink">
           <p className="text-xs">Jusqu'à 30% de réduction avec le Pass VIP</p>
         </TooltipContent>
       </Tooltip>

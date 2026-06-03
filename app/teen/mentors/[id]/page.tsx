@@ -24,6 +24,8 @@ import {
 import { BookMentorSessionButton } from "./book-mentor-session-button"
 import { H1, H2 } from "@/components/ui/headings"
 import { StatusBadge } from "@/components/ui/status-badge"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
@@ -44,8 +46,8 @@ interface MentorDetail {
 }
 
 const EXPERTISE_LABELS: Record<string, string> = {
-  medicine: "Medecine",
-  engineering: "Ingenierie",
+  medicine: "Médecine",
+  engineering: "Ingénierie",
   coding: "Code / Tech",
   arts: "Arts",
   business: "Business",
@@ -92,11 +94,11 @@ export default async function TeenMentorDetailPage({
   const ageMax = mentor.age_max_mentee ?? 17
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32 max-w-3xl">
+    <div className="min-h-screen bg-paper">
+      <div className="container mx-auto px-6 py-10 md:py-12 max-w-3xl">
         <Link
           href="/teen/mentors"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
+          className="inline-flex items-center gap-2 text-sm text-mute hover:text-ink mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour aux mentors
@@ -105,125 +107,120 @@ export default async function TeenMentorDetailPage({
         {/* Hero card */}
         {/* TICKET-024 — destination half of the View Transitions morph.
             Pairs with the MentorCard on /teen/mentors. */}
-        <div
-          className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-info-soft/10 via-info-soft/[0.03] to-transparent backdrop-blur-md p-6 sm:p-8 mb-6"
+        <StickerCard
+          className="gap-0 p-6 sm:p-8 mb-6"
           style={{ viewTransitionName: `vt-mentor-${mentor.id}` }}
         >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full blur-3xl bg-info-soft/40 opacity-50"
-          />
-          <div className="relative">
-            <div className="flex items-start gap-4 flex-wrap">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-info-soft to-success-soft flex items-center justify-center shrink-0">
-                <GraduationCap className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-info">
-                    Mentor Nivy
-                  </span>
+          <div className="flex items-start gap-4 flex-wrap">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-teal/20">
+              <GraduationCap className="h-8 w-8 text-ink" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-teal">
+                  Mentor Nivy
+                </span>
+                <StatusBadge
+                  variant="success"
+                  size="sm"
+                  icon={CheckCircle2}
+                  label="KYC approuvé"
+                />
+                {freeIntro ? (
                   <StatusBadge
-                    variant="success"
+                    variant="warning"
                     size="sm"
-                    icon={CheckCircle2}
-                    label={`KYC ${mentor.kyc_status}`}
+                    icon={Sparkles}
+                    label="Première session offerte"
                   />
-                  {freeIntro ? (
-                    <StatusBadge
-                      variant="warning"
-                      size="sm"
-                      icon={Sparkles}
-                      label="Premiere session offerte"
-                    />
-                  ) : null}
-                </div>
-                <H1 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-foreground leading-tight">
-                  {tags.length > 0 ? tags.join(" / ") : "Mentor Nivy"}
-                </H1>
-                <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                  {rating !== null ? (
-                    <span className="inline-flex items-center gap-1 text-warning font-black">
-                      <Star className="h-4 w-4" aria-hidden />
-                      {rating.toFixed(1)}
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground font-semibold">Nouveau mentor</span>
-                  )}
-                  <span className="inline-flex items-center gap-1">
-                    <Users className="h-4 w-4" aria-hidden />
-                    {sessions} session{sessions > 1 ? "s" : ""}
-                  </span>
-                  {mentor.years_experience ? (
-                    <span>{mentor.years_experience} ans d'experience</span>
-                  ) : null}
-                </div>
+                ) : null}
               </div>
-              <div className="text-right shrink-0">
-                <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                  Tarif horaire
-                </div>
-                <div className="text-2xl font-black tabular-nums text-foreground mt-0.5">
-                  {hourly > 0 ? `${hourly.toFixed(0)} DH` : "Volontaire"}
-                </div>
+              <H1 className="mt-2 font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-ink leading-tight">
+                {tags.length > 0 ? tags.join(" / ") : "Mentor Nivy"}
+              </H1>
+              <div className="mt-3 flex items-center gap-4 text-sm text-mute flex-wrap">
+                {rating !== null ? (
+                  <span className="inline-flex items-center gap-1 font-mono font-bold text-gold">
+                    <Star className="h-4 w-4" aria-hidden />
+                    {rating.toFixed(1)}
+                  </span>
+                ) : (
+                  <span className="font-semibold text-mute">Nouveau mentor</span>
+                )}
+                <span className="inline-flex items-center gap-1">
+                  <Users className="h-4 w-4" aria-hidden />
+                  {sessions} session{sessions > 1 ? "s" : ""}
+                </span>
+                {mentor.years_experience ? (
+                  <span>{mentor.years_experience} ans d'expérience</span>
+                ) : null}
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+                Tarif horaire
+              </div>
+              <div className="mt-0.5 font-mono text-2xl font-bold tabular-nums text-ink">
+                {hourly > 0 ? `${hourly.toFixed(0)} DH` : "Volontaire"}
               </div>
             </div>
           </div>
-        </div>
+        </StickerCard>
 
         {/* Bio */}
-        <section className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-6 mb-6">
-          <H2 className="text-sm font-black uppercase tracking-wider text-foreground mb-3">
+        <StickerCard className="gap-0 p-6 mb-6">
+          <H2 className="font-mono text-sm font-bold uppercase tracking-[0.12em] text-ink mb-3">
             Bio
           </H2>
-          <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
-            {mentor.bio ?? "Ce mentor n'a pas encore renseigne de bio."}
+          <p className="text-ink/90 leading-relaxed whitespace-pre-line">
+            {mentor.bio ?? "Ce mentor n'a pas encore renseigné de bio."}
           </p>
           {mentor.intro_video_url ? (
             <a
               href={mentor.intro_video_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-info hover:text-info/80 text-sm font-black"
+              className="mt-4 inline-flex items-center gap-2 text-pink hover:text-pink/80 text-sm font-bold"
             >
               <Sparkles className="h-4 w-4" />
-              Voir la video d'introduction
+              Voir la vidéo d'introduction
             </a>
           ) : null}
-        </section>
+        </StickerCard>
 
         {/* Stats / details */}
         <section className="grid gap-3 sm:grid-cols-3 mb-6">
           <StatTile
-            label="Tranche d'age"
+            label="Tranche d'âge"
             value={`${ageMin} - ${ageMax} ans`}
             icon={<Users className="h-4 w-4" />}
           />
           <StatTile
-            label="Sessions realisees"
+            label="Sessions réalisées"
             value={`${sessions}`}
             icon={<GraduationCap className="h-4 w-4" />}
           />
           <StatTile
-            label="Premiere session"
+            label="Première session"
             value={freeIntro ? "Gratuite" : `${hourly.toFixed(0)} DH`}
             icon={<Coins className="h-4 w-4" />}
           />
         </section>
 
-        {/* Trust & safety */}
-        <section className="rounded-3xl border border-success/20 bg-success-soft/5 p-5 mb-6 flex gap-3 items-start">
-          <ShieldCheck className="h-5 w-5 text-success shrink-0 mt-0.5" />
-          <div className="text-sm text-foreground/90 leading-relaxed">
-            <strong className="font-black text-success">
-              Securite Nivy.
-            </strong>{" "}
-            Toute reservation passe par l'accord de ton parent. La premiere
-            session est gratuite, accompagnee et enregistree pour ta
-            protection. Tu peux signaler n'importe quel comportement
-            inapproprie en un tap.
-          </div>
-        </section>
+        {/* Trust & safety — coach Niv incarne la réassurance parentale */}
+        <NivCoach
+          mood="calm"
+          className="mb-6"
+          message={
+            <>
+              <strong className="font-bold text-paper">Sécurité Nivy.</strong>{" "}
+              Toute réservation passe par l'accord de ton parent. La première
+              session est gratuite, accompagnée et enregistrée pour ta
+              protection. Tu peux signaler n'importe quel comportement
+              inapproprié en un tap.
+            </>
+          }
+        />
 
         {/* Booking CTA */}
         {isBookable ? (
@@ -233,8 +230,8 @@ export default async function TeenMentorDetailPage({
             hourlyDh={hourly}
           />
         ) : (
-          <div className="rounded-3xl border border-warning/20 bg-warning/5 p-5 text-sm text-warning-foreground">
-            Ce mentor n'est pas disponible pour des reservations actuellement.
+          <div className="rounded-2xl border-2 border-ink bg-warning/10 p-5 text-sm text-ink">
+            Ce mentor n'est pas disponible pour des réservations actuellement.
           </div>
         )}
       </div>
@@ -252,14 +249,14 @@ function StatTile({
   icon: React.ReactNode
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card/40 backdrop-blur-md p-4">
-      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-        <span className="text-info">{icon}</span>
+    <StickerCard className="gap-0 p-4">
+      <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+        <span className="text-teal">{icon}</span>
         {label}
       </div>
-      <div className="mt-1 text-lg font-black text-foreground tabular-nums">
+      <div className="mt-1 font-mono text-lg font-bold text-ink tabular-nums">
         {value}
       </div>
-    </div>
+    </StickerCard>
   )
 }

@@ -22,6 +22,20 @@
  *   any *_url / *_path field that could leak a private storage location.
  */
 
+/**
+ * #211 — Scrub des PII dans un texte libre de mémoire coach avant persistance
+ * (coach_facts / coach_goals / coach_conversation_summaries). Complément de
+ * `scrubPii` (objets) : retire email + téléphone et borne la longueur. Vit ici,
+ * dans le module PII canonique ; ré-exporté par lib/ai/coach-memory.ts.
+ */
+export function scrubMemoryText(text: string): string {
+  return (text || "")
+    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[email]")
+    .replace(/(\+?\d[\d\s().-]{7,}\d)/g, "[tel]")
+    .slice(0, 500)
+    .trim()
+}
+
 export type AgeBucket = "13-14" | "15-16" | "17" | "unknown"
 
 export interface SafeAiContext {

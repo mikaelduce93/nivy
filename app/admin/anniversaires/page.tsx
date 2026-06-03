@@ -2,9 +2,10 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { StatCard } from "@/components/admin/stat-card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
+import { AnnivStatusTabs } from "./status-tabs"
 import {
   Table,
   TableBody,
@@ -13,22 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Cake,
-  Calendar,
-  Users,
-  Eye,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  CreditCard,
-  Search,
-  Filter,
-  MoreVertical,
-  Download,
-  RefreshCw
-} from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Cake, Calendar, Users, Eye } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -101,34 +87,34 @@ async function getAnnivOrders(supabase: any, status?: string) {
   return data || []
 }
 
-function getStatusBadge(status: string) {
-  switch (status) {
-    case "confirmed":
-      return <Badge className="bg-green-500 text-white">Confirmé</Badge>
-    case "pending":
-      return <Badge className="bg-yellow-500 text-black">En attente</Badge>
-    case "cancelled":
-      return <Badge className="bg-red-500 text-white">Annulé</Badge>
-    case "completed":
-      return <Badge className="bg-blue-500 text-white">Terminé</Badge>
-    default:
-      return <Badge variant="secondary">{status}</Badge>
+function StatusPill({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    confirmed: { label: "Confirmé", cls: "bg-lime/15 text-lime" },
+    pending: { label: "En attente", cls: "bg-gold/15 text-gold" },
+    cancelled: { label: "Annulé", cls: "bg-coral/15 text-coral" },
+    completed: { label: "Terminé", cls: "bg-teal/15 text-teal" },
   }
+  const it = map[status] ?? { label: status.toUpperCase(), cls: "bg-white text-mute" }
+  return (
+    <span className={`inline-flex items-center rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] ${it.cls}`}>
+      {it.label}
+    </span>
+  )
 }
 
-function getPaymentBadge(status: string) {
-  switch (status) {
-    case "paid":
-      return <Badge variant="outline" className="border-green-500 text-green-500">Payé</Badge>
-    case "deposit":
-      return <Badge variant="outline" className="border-yellow-500 text-yellow-500">Acompte</Badge>
-    case "pending":
-      return <Badge variant="outline" className="border-zinc-500 text-zinc-500">Non payé</Badge>
-    case "refunded":
-      return <Badge variant="outline" className="border-red-500 text-red-500">Remboursé</Badge>
-    default:
-      return <Badge variant="outline">{status}</Badge>
+function PaymentPill({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    paid: { label: "Payé", cls: "bg-lime/15 text-lime" },
+    deposit: { label: "Acompte", cls: "bg-gold/15 text-gold" },
+    pending: { label: "Non payé", cls: "bg-white text-mute" },
+    refunded: { label: "Remboursé", cls: "bg-coral/15 text-coral" },
   }
+  const it = map[status] ?? { label: status.toUpperCase(), cls: "bg-white text-mute" }
+  return (
+    <span className={`inline-flex items-center rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] ${it.cls}`}>
+      {it.label}
+    </span>
+  )
 }
 
 export default async function AdminAnniversairesPage({
@@ -150,205 +136,149 @@ export default async function AdminAnniversairesPage({
   const orders = await getAnnivOrders(supabase, status)
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-white flex items-center gap-3">
-            <Cake className="w-8 h-8 text-pink-500" />
-            Gestion Anniversaires
-          </h1>
-          <p className="text-zinc-400 mt-1">
-            Gérez les commandes et réservations d'anniversaires
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Exporter
-          </Button>
-          <Button variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Actualiser
-          </Button>
-        </div>
-      </div>
+    <div className="container mx-auto space-y-8 px-4 sm:px-6 py-8 sm:py-10">
+      <header className="space-y-2">
+        <p className="eyebrow text-mute">Anniversaires</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          Gérer les <em className="font-semibold italic text-pink">anniversaires</em>
+        </h1>
+        <p className="text-mute">Commandes et réservations d'anniversaires.</p>
+      </header>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">
-              Total Commandes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-black text-white">{stats.totalOrders}</p>
-          </CardContent>
-        </Card>
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <StatCard label="Total" value={stats.totalOrders} tone="paper" />
+        <StatCard label="En attente" value={stats.pendingOrders} tone="gold" />
+        <StatCard label="Confirmées" value={stats.confirmedOrders} tone="lime" />
+        <StatCard label="À venir" value={stats.upcomingOrders} tone="teal" />
+        <StatCard label="Chiffre d'affaires" value={`${stats.totalRevenue.toLocaleString()} DH`} tone="coral" mono />
+      </section>
 
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">
-              En Attente
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-black text-yellow-500">{stats.pendingOrders}</p>
-          </CardContent>
-        </Card>
+      <AnnivStatusTabs value={status || "all"} />
 
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">
-              Confirmées
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-black text-green-500">{stats.confirmedOrders}</p>
-          </CardContent>
-        </Card>
+      {orders.length === 0 ? (
+        <NivEmpty
+          title="Aucune commande trouvée"
+          description="Les commandes d'anniversaire apparaîtront ici dès la première réservation."
+        />
+      ) : (
+        <>
+          {/* Mobile-first : liste de cartes sticker sous lg */}
+          <div className="space-y-4 lg:hidden">
+            {orders.map((order: any) => (
+              <Link key={order.id} href={`/admin/anniversaires/${order.id}`} className="block">
+                <StickerCard variant="hover" className="gap-3 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-mono font-bold text-pink">{order.booking_reference}</span>
+                    <StatusPill status={order.status} />
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-ink">
+                    <Cake className="h-4 w-4 text-pink" />
+                    {order.teen?.pseudo || order.teen?.first_name || "—"}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-mute">
+                    <Calendar className="h-4 w-4 text-pink" />
+                    {new Date(order.celebration_date).toLocaleDateString("fr-FR", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                    })}
+                    <Users className="ml-2 h-4 w-4" />
+                    {order.guest_count}
+                  </div>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="font-mono text-lg font-bold text-ink tabular-nums">
+                      {order.total_price?.toLocaleString()} DH
+                    </span>
+                    <PaymentPill status={order.payment_status} />
+                  </div>
+                </StickerCard>
+              </Link>
+            ))}
+          </div>
 
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">
-              À Venir
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-black text-cyan-500">{stats.upcomingOrders}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">
-              Chiffre d'Affaires
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-black text-pink-500">{stats.totalRevenue.toLocaleString()} DH</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs & Orders Table */}
-      <Tabs defaultValue={status || "all"} className="w-full">
-        <TabsList className="grid w-full max-w-xl grid-cols-5 bg-zinc-900">
-          <TabsTrigger value="all" asChild>
-            <Link href="/admin/anniversaires">Tous</Link>
-          </TabsTrigger>
-          <TabsTrigger value="pending" asChild>
-            <Link href="/admin/anniversaires?status=pending">En attente</Link>
-          </TabsTrigger>
-          <TabsTrigger value="confirmed" asChild>
-            <Link href="/admin/anniversaires?status=confirmed">Confirmées</Link>
-          </TabsTrigger>
-          <TabsTrigger value="completed" asChild>
-            <Link href="/admin/anniversaires?status=completed">Terminées</Link>
-          </TabsTrigger>
-          <TabsTrigger value="cancelled" asChild>
-            <Link href="/admin/anniversaires?status=cancelled">Annulées</Link>
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6">
-          <Card className="bg-zinc-900 border-zinc-800">
-            <CardContent className="p-0">
+          {/* Table dense au-dessus de lg */}
+          <div className="hidden lg:block">
+            <StickerCard className="overflow-hidden p-0">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-zinc-800">
-                    <TableHead className="text-zinc-400">Référence</TableHead>
-                    <TableHead className="text-zinc-400">Enfant</TableHead>
-                    <TableHead className="text-zinc-400">Parent</TableHead>
-                    <TableHead className="text-zinc-400">Date</TableHead>
-                    <TableHead className="text-zinc-400">Formule</TableHead>
-                    <TableHead className="text-zinc-400">Invités</TableHead>
-                    <TableHead className="text-zinc-400">Total</TableHead>
-                    <TableHead className="text-zinc-400">Statut</TableHead>
-                    <TableHead className="text-zinc-400">Paiement</TableHead>
-                    <TableHead className="text-zinc-400 text-right">Actions</TableHead>
+                  <TableRow className="border-ink">
+                    <TableHead className="eyebrow text-mute">Référence</TableHead>
+                    <TableHead className="eyebrow text-mute">Enfant</TableHead>
+                    <TableHead className="eyebrow text-mute">Parent</TableHead>
+                    <TableHead className="eyebrow text-mute">Date</TableHead>
+                    <TableHead className="eyebrow text-mute">Formule</TableHead>
+                    <TableHead className="eyebrow text-mute">Invités</TableHead>
+                    <TableHead className="eyebrow text-mute">Total</TableHead>
+                    <TableHead className="eyebrow text-mute">Statut</TableHead>
+                    <TableHead className="eyebrow text-mute">Paiement</TableHead>
+                    <TableHead className="eyebrow text-right text-mute">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={10} className="text-center py-12">
-                        <Cake className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-                        <p className="text-zinc-500">Aucune commande trouvée</p>
+                  {orders.map((order: any) => (
+                    <TableRow key={order.id} className="border-ink">
+                      <TableCell className="font-mono font-bold text-pink">
+                        {order.booking_reference}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium text-ink">
+                          {order.teen?.pseudo || order.teen?.first_name || "-"}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm text-ink">
+                          {order.parent?.full_name || "-"}
+                        </div>
+                        <div className="text-xs text-mute">
+                          {order.parent?.email}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 text-ink">
+                          <Calendar className="h-4 w-4 text-pink" />
+                          {new Date(order.celebration_date).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short"
+                          })}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-ink">
+                          {order.pack?.name || "-"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-ink">
+                          <Users className="h-4 w-4 text-mute" />
+                          {order.guest_count}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-mono font-bold text-ink tabular-nums">
+                        {order.total_price?.toLocaleString()} DH
+                      </TableCell>
+                      <TableCell>
+                        <StatusPill status={order.status} />
+                      </TableCell>
+                      <TableCell>
+                        <PaymentPill status={order.payment_status} />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Link
+                          href={`/admin/anniversaires/${order.id}`}
+                          aria-label="Voir la commande"
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border-2 border-ink bg-white text-ink transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Link>
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    orders.map((order: any) => (
-                      <TableRow key={order.id} className="border-zinc-800 hover:bg-zinc-800/50">
-                        <TableCell className="font-mono text-pink-400 font-bold">
-                          {order.booking_reference}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-white font-medium">
-                            {order.teen?.pseudo || order.teen?.first_name || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-white text-sm">
-                            {order.parent?.full_name || "-"}
-                          </div>
-                          <div className="text-zinc-500 text-xs">
-                            {order.parent?.email}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2 text-white">
-                            <Calendar className="w-4 h-4 text-pink-400" />
-                            {new Date(order.celebration_date).toLocaleDateString("fr-FR", {
-                              day: "numeric",
-                              month: "short"
-                            })}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-white text-sm">
-                            {order.pack?.name || "-"}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-white">
-                            <Users className="w-4 h-4 text-zinc-500" />
-                            {order.guest_count}
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-bold text-white">
-                          {order.total_price?.toLocaleString()} DH
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(order.status)}
-                        </TableCell>
-                        <TableCell>
-                          {getPaymentBadge(order.payment_status)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              asChild
-                              className="h-8 w-8"
-                            >
-                              <Link href={`/admin/anniversaires/${order.id}`}>
-                                <Eye className="w-4 h-4" />
-                              </Link>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                  ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
-        </div>
-      </Tabs>
+            </StickerCard>
+          </div>
+        </>
+      )}
     </div>
   )
 }

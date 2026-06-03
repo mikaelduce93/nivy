@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextRequest, NextResponse } from "next/server"
 import { cmiGateway } from "@/lib/payments/cmi"
 import { logger } from "@/lib/monitoring/logger"
@@ -18,7 +18,10 @@ import { logger } from "@/lib/monitoring/logger"
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    // #25 — server-to-server webhook (no user session): authenticated by the
+    // CMI HASH below, DB writes go through the service-role client (bookings
+    // RLS + webhook_events service-role-only would block the anon client).
+    const supabase = createServiceRoleClient()
 
     // Parse form data from CMI
     const formData = await request.formData()
@@ -74,6 +77,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 })
     }
 
+    // #25 — idempotency: a success replay for an already-paid booking returns
+    // 200 without journaling a duplicate webhook_events row.
+    if (result.success && booking.payment_status === "paid") {
+      return NextResponse.json({ status: "OK", idempotent: true })
+    }
+
     // Log the webhook event
     await supabase.from("webhook_events").insert({
       provider: "cmi",
@@ -89,6 +98,11 @@ export async function POST(request: NextRequest) {
       if (booking.payment_status !== "paid") {
         logger.info("CMI webhook processing success", { orderId: result.orderId })
 
+        // #25 — bookings has no cmi_transaction_id/cmi_auth_code columns; the
+        // CMI transaction details live in the webhook_events.payload journal.
+        // payment_transactions is a coin-top-up ledger (CHECK amount_coins>0,
+        // psp_provider set) and can't represent a booking PSP payment, so the
+        // booking row (payment_status='paid') is the source of truth.
         await supabase
           .from("bookings")
           .update({
@@ -96,34 +110,8 @@ export async function POST(request: NextRequest) {
             status: "confirmed",
             paid_at: new Date().toISOString(),
             payment_method: "cmi",
-            cmi_transaction_id: result.transactionId,
-            cmi_auth_code: result.authCode,
           })
           .eq("id", booking.id)
-
-        // Record payment transaction if not exists
-        const { data: existingTransaction } = await supabase
-          .from("payment_transactions")
-          .select("id")
-          .eq("booking_id", booking.id)
-          .eq("provider_transaction_id", result.transactionId)
-          .single()
-
-        if (!existingTransaction) {
-          await supabase.from("payment_transactions").insert({
-            booking_id: booking.id,
-            amount: result.amount || booking.total_amount,
-            currency: "MAD",
-            status: "completed",
-            provider: "cmi",
-            provider_transaction_id: result.transactionId,
-            metadata: {
-              authCode: result.authCode,
-              responseCode: result.responseCode,
-              source: "webhook",
-            },
-          })
-        }
       }
 
       // Mark webhook as processed
@@ -140,12 +128,11 @@ export async function POST(request: NextRequest) {
       logger.warn("CMI webhook payment failed", { orderId: result.orderId, responseCode: result.responseCode })
 
       if (booking.payment_status !== "paid") {
+        // #25 — bookings has no payment_error column; the failure detail is in
+        // the webhook_events.payload journal.
         await supabase
           .from("bookings")
-          .update({
-            payment_status: "failed",
-            payment_error: result.message,
-          })
+          .update({ payment_status: "failed" })
           .eq("id", booking.id)
       }
 

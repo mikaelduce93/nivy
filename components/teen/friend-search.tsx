@@ -80,19 +80,19 @@ export function FriendSearch({ teenId }: FriendSearchProps) {
     <div className="space-y-4">
       <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-mute" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Rechercher un membre par pseudo..."
-            className="pl-10 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-emerald-500"
+            className="pl-10 bg-card border-ink text-ink placeholder:text-mute focus:border-lime"
           />
         </div>
         <Button
           onClick={handleSearch}
           disabled={isPending || query.length < 2}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-6"
+          className="bg-lime hover:bg-lime text-ink px-6"
         >
           {isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -109,15 +109,15 @@ export function FriendSearch({ teenId }: FriendSearchProps) {
             results.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700 hover:border-emerald-500/30 transition-all"
+                className="flex items-center justify-between p-4 rounded-xl bg-card border border-ink hover:border-lime/30 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-lime to-teal flex items-center justify-center text-ink font-bold">
                     {user.pseudo?.charAt(0) || "?"}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">{user.pseudo}</p>
-                    <div className="flex items-center gap-2 text-xs text-zinc-400">
+                    <p className="font-semibold text-ink">{user.pseudo}</p>
+                    <div className="flex items-center gap-2 text-xs text-mute">
                       <Trophy className="h-3 w-3" />
                       <span>Niv. {user.level}</span>
                       <span>•</span>
@@ -127,12 +127,12 @@ export function FriendSearch({ teenId }: FriendSearchProps) {
                 </div>
                 <div>
                   {user.is_friend ? (
-                    <span className="flex items-center gap-2 text-emerald-400 text-sm font-medium px-3 py-2 bg-emerald-500/10 rounded-lg">
+                    <span className="flex items-center gap-2 text-lime text-sm font-medium px-3 py-2 bg-lime/10 rounded-lg">
                       <UserCheck className="h-4 w-4" />
                       Ami
                     </span>
                   ) : user.has_pending_request ? (
-                    <span className="flex items-center gap-2 text-orange-400 text-sm font-medium px-3 py-2 bg-orange-500/10 rounded-lg">
+                    <span className="flex items-center gap-2 text-coral text-sm font-medium px-3 py-2 bg-coral/10 rounded-lg">
                       <Clock className="h-4 w-4" />
                       En attente
                     </span>
@@ -141,7 +141,7 @@ export function FriendSearch({ teenId }: FriendSearchProps) {
                       size="sm"
                       onClick={() => handleSendRequest(user.id)}
                       disabled={sendingTo === user.id}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                      className="bg-lime hover:bg-lime text-ink"
                     >
                       {sendingTo === user.id ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -156,9 +156,9 @@ export function FriendSearch({ teenId }: FriendSearchProps) {
             ))
           ) : (
             <div className="text-center py-8">
-              <Search className="h-12 w-12 mx-auto mb-3 text-zinc-700" />
-              <p className="text-zinc-500">Aucun membre trouvé pour "{query}"</p>
-              <p className="text-xs text-zinc-600 mt-1">Essaie avec un autre pseudo</p>
+              <Search className="h-12 w-12 mx-auto mb-3 text-ink" />
+              <p className="text-mute">Aucun membre trouvé pour "{query}"</p>
+              <p className="text-xs text-mute mt-1">Essaie avec un autre pseudo</p>
             </div>
           )}
         </div>

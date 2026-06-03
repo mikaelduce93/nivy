@@ -9,6 +9,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { logDbError } from '@/lib/observability/log-db-error'
 import {
   initOnboardingSchema,
   recordStepSchema,
@@ -76,7 +77,7 @@ export async function initOnboardingProgress(
       },
     }
   } catch (error: any) {
-    console.error('[onboarding/initProgress] Error:', error)
+    logDbError('onboarding.initOnboardingProgress', error)
     return { success: false, error: error.message }
   }
 }
@@ -141,7 +142,7 @@ export async function recordStepCompletion(
       },
     }
   } catch (error: any) {
-    console.error('[onboarding/recordStep] Error:', error)
+    logDbError('onboarding.recordStepCompletion', error)
     return { success: false, error: error.message }
   }
 }
@@ -182,7 +183,7 @@ export async function getOnboardingProgress(
       data: mapProgressData(result.progress),
     }
   } catch (error: any) {
-    console.error('[onboarding/getProgress] Error:', error)
+    logDbError('onboarding.getOnboardingProgress', error)
     return { success: false, error: error.message }
   }
 }
@@ -236,7 +237,7 @@ export async function syncOnboardingToUser(
       },
     }
   } catch (error: any) {
-    console.error('[onboarding/syncToUser] Error:', error)
+    logDbError('onboarding.syncOnboardingToUser', error)
     return { success: false, error: error.message }
   }
 }

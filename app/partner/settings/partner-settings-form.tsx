@@ -10,10 +10,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { FieldInput } from "@/components/ui/field-input"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Save } from "lucide-react"
 import { toast } from "sonner"
@@ -78,107 +77,78 @@ export function PartnerSettingsForm({ partner }: { partner: PartnerSettings }) {
   }
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800">
-      <CardHeader>
-        <CardTitle className="text-white">Informations entreprise</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={onSubmit} className="space-y-5">
-          <div>
-            <Label htmlFor="settings-company-name" className="text-zinc-300">
-              Nom de l&apos;entreprise *
-            </Label>
-            <Input
-              id="settings-company-name"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              maxLength={120}
-              minLength={2}
-              required
-              className="bg-zinc-950 border-zinc-800 text-white mt-1"
-            />
-          </div>
-          <div>
-            <Label htmlFor="settings-sub-category" className="text-zinc-300">
-              Sous-catégorie (optionnel)
-            </Label>
-            <Input
-              id="settings-sub-category"
-              value={subCategory}
-              onChange={(e) => setSubCategory(e.target.value)}
-              maxLength={60}
-              className="bg-zinc-950 border-zinc-800 text-white mt-1"
-              placeholder="ex: clothing, cafe, gym, language…"
-            />
-          </div>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="settings-phone" className="text-zinc-300">
-                Téléphone
-              </Label>
-              <Input
-                id="settings-phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                maxLength={40}
-                autoComplete="tel"
-                className="bg-zinc-950 border-zinc-800 text-white mt-1"
-                placeholder="+212 6XX-XXXXXX"
-              />
-            </div>
-            <div>
-              <Label htmlFor="settings-website" className="text-zinc-300">
-                Site web
-              </Label>
-              <Input
-                id="settings-website"
-                type="url"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                maxLength={200}
-                autoComplete="url"
-                className="bg-zinc-950 border-zinc-800 text-white mt-1"
-                placeholder="https://www.example.com"
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="settings-description" className="text-zinc-300">
-              Description publique
-            </Label>
-            <Textarea
-              id="settings-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              maxLength={2000}
-              rows={4}
-              className="bg-zinc-950 border-zinc-800 text-white mt-1"
-              placeholder="Présente brièvement ton activité…"
-            />
-            <p className="text-xs text-zinc-500 mt-1">
-              {description.length} / 2000 caractères
-            </p>
-          </div>
-          <Button
-            type="submit"
-            disabled={busy}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
-          >
-            {busy ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Enregistrement…
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Enregistrer
-              </>
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <StickerCard className="gap-4 p-6">
+      <h2 className="font-display text-lg font-extrabold">Informations entreprise</h2>
+      <form onSubmit={onSubmit} className="space-y-5">
+        <FieldInput
+          id="settings-company-name"
+          label="Nom de l'entreprise *"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+          maxLength={120}
+          minLength={2}
+          required
+        />
+        <FieldInput
+          id="settings-sub-category"
+          label="Sous-catégorie (optionnel)"
+          value={subCategory}
+          onChange={(e) => setSubCategory(e.target.value)}
+          maxLength={60}
+          placeholder="ex : fringues, café, gym, langues…"
+        />
+        <div className="grid gap-4 md:grid-cols-2">
+          <FieldInput
+            id="settings-phone"
+            label="Téléphone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            maxLength={40}
+            autoComplete="tel"
+            prefix="🇲🇦 +212"
+            placeholder="6XX-XXXXXX"
+          />
+          <FieldInput
+            id="settings-website"
+            label="Site web"
+            type="url"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            maxLength={200}
+            autoComplete="url"
+            placeholder="https://www.example.com"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="settings-description" className="eyebrow tracking-[0.16em]">
+            Description publique
+          </label>
+          <Textarea
+            id="settings-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={2000}
+            rows={4}
+            className="border-2 border-input text-ink focus-visible:border-ink focus-visible:ring-0"
+            placeholder="Présente brièvement ton activité…"
+          />
+          <p className="text-xs text-mute">{description.length} / 2000 caractères</p>
+        </div>
+        <Button type="submit" variant="pink" disabled={busy} className="shadow-stkr-md">
+          {busy ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Enregistrement…
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Enregistrer
+            </>
+          )}
+        </Button>
+      </form>
+    </StickerCard>
   )
 }

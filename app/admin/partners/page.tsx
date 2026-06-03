@@ -11,12 +11,12 @@
  *   - POST /api/admin/partners/:id/reject
  */
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { PartnerReviewRow } from "./partner-review-row"
-import { EmptyState } from "@/components/ui/states/empty-state"
-import { Store } from "lucide-react"
+import { NivEmpty } from "@/components/brand"
+import { StatCard } from "@/components/admin/stat-card"
+import BackButton from "@/components/admin/BackButton"
 
 export const dynamic = "force-dynamic"
 
@@ -41,8 +41,8 @@ export default async function AdminPartnersPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Partenaires · KYC</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <h1 className="mb-2 text-2xl font-bold text-ink">Partenaires · KYC</h1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -108,86 +108,57 @@ export default async function AdminPartnersPage() {
 
   return (
     <main className="container mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-6 flex items-center gap-3">
-        <Link
-          href="/admin"
-          className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline"
-        >
-          ← Retour
-        </Link>
-      </div>
+      <BackButton href="/admin" />
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Partenaires · KYC</h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Validez les dossiers KYC. Les pièces justificatives sont signées 15 min.
+        <span className="eyebrow tracking-[0.16em] text-mute">Partenaires · KYC</span>
+        <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink">
+          Dossiers <em className="font-semibold italic text-pink">KYC</em> partenaires
+        </h1>
+        <p className="mt-1 text-sm text-mute">
+          Valide les dossiers KYC. Les pièces justificatives sont signées 15 min.
         </p>
       </header>
 
       <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <StatCard label="Total" value={stats.total} tone="zinc" />
-        <StatCard label="En attente" value={stats.pending} tone="yellow" />
-        <StatCard label="En révision" value={stats.in_review} tone="blue" />
-        <StatCard label="Approuvés" value={stats.active} tone="green" />
-        <StatCard label="Rejetés" value={stats.rejected} tone="red" />
+        <StatCard label="En attente" value={stats.pending} tone="gold" />
+        <StatCard label="En révision" value={stats.in_review} tone="teal" />
+        <StatCard label="Approuvés" value={stats.active} tone="lime" />
+        <StatCard label="Rejetés" value={stats.rejected} tone="coral" />
+        <StatCard label="Total" value={stats.total} tone="paper" />
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold text-white">
+        <h2 className="mb-3 font-display text-lg font-extrabold tracking-tight text-ink">
           File en attente ({pending?.length ?? 0})
         </h2>
 
-        {(!pending || pending.length === 0) && (
-          <EmptyState
-            size="small"
-            icon={Store}
-            title="Aucun partenaire en attente"
-            description="Aucun partenaire en attente d'approbation."
+        {!pending || pending.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Aucun dossier en attente"
+            description="Aucun partenaire en attente d'approbation pour le moment."
           />
+        ) : (
+          <ul className="space-y-3">
+            {(pending ?? []).map((p) => (
+              <PartnerReviewRow
+                key={p.id}
+                partner={{
+                  id: p.id,
+                  company_name: p.company_name,
+                  partner_type: p.partner_type,
+                  sub_category: p.sub_category,
+                  email: p.email,
+                  status: p.status,
+                  created_at: p.created_at,
+                }}
+                documents={docsByPartner.get(p.id) ?? []}
+              />
+            ))}
+          </ul>
         )}
-
-        <ul className="space-y-3">
-          {(pending ?? []).map((p) => (
-            <PartnerReviewRow
-              key={p.id}
-              partner={{
-                id: p.id,
-                company_name: p.company_name,
-                partner_type: p.partner_type,
-                sub_category: p.sub_category,
-                email: p.email,
-                status: p.status,
-                created_at: p.created_at,
-              }}
-              documents={docsByPartner.get(p.id) ?? []}
-            />
-          ))}
-        </ul>
       </section>
     </main>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: number
-  tone: "zinc" | "yellow" | "blue" | "green" | "red"
-}) {
-  const palette: Record<typeof tone, string> = {
-    zinc: "border-zinc-800 bg-zinc-900 text-zinc-300",
-    yellow: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
-    blue: "border-blue-500/30 bg-blue-500/10 text-blue-300",
-    green: "border-green-500/30 bg-green-500/10 text-green-300",
-    red: "border-red-500/30 bg-red-500/10 text-red-300",
-  }
-  return (
-    <div className={`rounded border p-3 ${palette[tone]}`}>
-      <div className="text-xs uppercase tracking-wide opacity-80">{label}</div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
-    </div>
   )
 }

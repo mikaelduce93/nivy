@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { submitPartnerWizard } from '@/lib/partners/wizard-submit'
 import { PartnerPasswordPanel, isPasswordValid } from '@/components/partners/PartnerPasswordPanel'
+import { WizardSteps } from '@/components/partners/WizardSteps'
 
 interface EducationPartnerFormProps {
   onBack: () => void
@@ -61,6 +62,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [accepted, setAccepted] = useState(false)
 
   // Step 1: Center Information
   const [companyName, setCompanyName] = useState('')
@@ -235,33 +237,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
     <div className="max-w-4xl mx-auto">
 
       {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
-                  currentStep >= step.id
-                    ? 'bg-yellow-600 border-yellow-600 text-white'
-                    : 'bg-zinc-800 border-zinc-700 text-zinc-400'
-                }`}>
-                  <step.icon className="w-6 h-6" />
-                </div>
-                <span className={`text-xs mt-2 text-center ${
-                  currentStep >= step.id ? 'text-yellow-400' : 'text-zinc-500'
-                }`}>
-                  {step.title}
-                </span>
-              </div>
-              {index < STEPS.length - 1 && (
-                <div className={`h-0.5 flex-1 mx-2 transition-all ${
-                  currentStep > step.id ? 'bg-yellow-600' : 'bg-zinc-800'
-                }`} />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      <WizardSteps steps={STEPS} currentStep={currentStep} accent="lime" />
 
       {/* Step Content */}
       <motion.div
@@ -274,13 +250,13 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
 
         {/* Step 1: Center Information */}
         {currentStep === 1 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-yellow-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-gold" />
                 Informations sur votre centre
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Informations générales sur votre établissement d'enseignement
               </CardDescription>
             </CardHeader>
@@ -289,38 +265,38 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
               {/* Company Details */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <Label htmlFor="companyName" className="text-zinc-300">
+                  <Label htmlFor="companyName" className="text-ink-2">
                     Nom du centre *
                   </Label>
                   <Input
                     id="companyName"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="Centre de Formation Excellence"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="registrationNumber" className="text-zinc-300">
+                  <Label htmlFor="registrationNumber" className="text-ink-2">
                     N° d'enregistrement
                   </Label>
                   <Input
                     id="registrationNumber"
                     value={registrationNumber}
                     onChange={(e) => setRegistrationNumber(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="RC-123456"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="taxId" className="text-zinc-300">
+                  <Label htmlFor="taxId" className="text-ink-2">
                     Identifiant fiscal
                   </Label>
                   <Input
                     id="taxId"
                     value={taxId}
                     onChange={(e) => setTaxId(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="12345678"
                   />
                 </div>
@@ -329,38 +305,38 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
               {/* Address */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <Label htmlFor="address" className="text-zinc-300">
+                  <Label htmlFor="address" className="text-ink-2">
                     Adresse *
                   </Label>
                   <Input
                     id="address"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="123 Rue de l'Éducation"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="city" className="text-zinc-300">
+                  <Label htmlFor="city" className="text-ink-2">
                     Ville *
                   </Label>
                   <Input
                     id="city"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="Marrakech"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="postalCode" className="text-zinc-300">
+                  <Label htmlFor="postalCode" className="text-ink-2">
                     Code postal
                   </Label>
                   <Input
                     id="postalCode"
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="40000"
                   />
                 </div>
@@ -369,39 +345,39 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
               {/* Contact */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email" className="text-zinc-300">
+                  <Label htmlFor="email" className="text-ink-2">
                     Email professionnel *
                   </Label>
                   <div className="relative mt-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute" />
                     <Input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white pl-10"
+                      className="bg-background border-ink text-ink pl-10"
                       placeholder="contact@centre.ma"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-zinc-300">
+                  <Label htmlFor="phone" className="text-ink-2">
                     Téléphone *
                   </Label>
                   <div className="relative mt-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute" />
                     <Input
                       id="phone"
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white pl-10"
+                      className="bg-background border-ink text-ink pl-10"
                       placeholder="+212 5XX-XXXXXX"
                     />
                   </div>
                 </div>
                 <div className="md:col-span-2">
-                  <Label htmlFor="website" className="text-zinc-300">
+                  <Label htmlFor="website" className="text-ink-2">
                     Site web
                   </Label>
                   <Input
@@ -409,7 +385,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                     type="url"
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="https://www.centre.ma"
                   />
                 </div>
@@ -417,48 +393,48 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
 
               {/* Description */}
               <div>
-                <Label htmlFor="description" className="text-zinc-300">
+                <Label htmlFor="description" className="text-ink-2">
                   Description
                 </Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1 min-h-24"
+                  className="bg-background border-ink text-ink mt-1 min-h-24"
                   placeholder="Décrivez votre centre, votre approche pédagogique, vos points forts..."
                 />
               </div>
 
               {/* Contact Person */}
-              <div className="border-t border-zinc-800 pt-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Personne de contact</h3>
+              <div className="border-t border-ink pt-6">
+                <h3 className="text-lg font-semibold text-ink mb-4">Personne de contact</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="contactPersonName" className="text-zinc-300">
+                    <Label htmlFor="contactPersonName" className="text-ink-2">
                       Nom complet *
                     </Label>
                     <Input
                       id="contactPersonName"
                       value={contactPersonName}
                       onChange={(e) => setContactPersonName(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="Mohamed Alami"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonRole" className="text-zinc-300">
+                    <Label htmlFor="contactPersonRole" className="text-ink-2">
                       Poste / Fonction
                     </Label>
                     <Input
                       id="contactPersonRole"
                       value={contactPersonRole}
                       onChange={(e) => setContactPersonRole(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="Directeur pédagogique"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonPhone" className="text-zinc-300">
+                    <Label htmlFor="contactPersonPhone" className="text-ink-2">
                       Téléphone
                     </Label>
                     <Input
@@ -466,12 +442,12 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                       type="tel"
                       value={contactPersonPhone}
                       onChange={(e) => setContactPersonPhone(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="+212 6XX-XXXXXX"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactPersonEmail" className="text-zinc-300">
+                    <Label htmlFor="contactPersonEmail" className="text-ink-2">
                       Email
                     </Label>
                     <Input
@@ -479,7 +455,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                       type="email"
                       value={contactPersonEmail}
                       onChange={(e) => setContactPersonEmail(e.target.value)}
-                      className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                      className="bg-background border-ink text-ink mt-1"
                       placeholder="mohamed@centre.ma"
                     />
                   </div>
@@ -499,20 +475,20 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
 
         {/* Step 2: Expertise Areas */}
         {currentStep === 2 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-yellow-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-gold" />
                 Domaines d'expertise
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Sélectionnez les domaines dans lesquels vous proposez des formations
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
               <div>
-                <Label className="text-zinc-300 mb-3 block">Types de formation proposés *</Label>
+                <Label className="text-ink-2 mb-3 block">Types de formation proposés *</Label>
                 <div className="grid md:grid-cols-3 gap-3">
                   {EDUCATION_TYPES.map(type => (
                     <div key={type} className="flex items-center space-x-2">
@@ -521,7 +497,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                         checked={selectedTypes.includes(type)}
                         onCheckedChange={() => toggleEducationType(type)}
                       />
-                      <label htmlFor={`type-${type}`} className="text-sm text-zinc-300 cursor-pointer">
+                      <label htmlFor={`type-${type}`} className="text-sm text-ink-2 cursor-pointer">
                         {type}
                       </label>
                     </div>
@@ -531,7 +507,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="minAge" className="text-zinc-300">
+                  <Label htmlFor="minAge" className="text-ink-2">
                     Âge minimum
                   </Label>
                   <Input
@@ -539,12 +515,12 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                     type="number"
                     value={minAge}
                     onChange={(e) => setMinAge(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="10"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="maxAge" className="text-zinc-300">
+                  <Label htmlFor="maxAge" className="text-ink-2">
                     Âge maximum (optionnel)
                   </Label>
                   <Input
@@ -552,58 +528,58 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                     type="number"
                     value={maxAge}
                     onChange={(e) => setMaxAge(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                    className="bg-background border-ink text-ink mt-1"
                     placeholder="18"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="certifications" className="text-zinc-300">
+                <Label htmlFor="certifications" className="text-ink-2">
                   Certifications et accréditations
                 </Label>
                 <Textarea
                   id="certifications"
                   value={certifications}
                   onChange={(e) => setCertifications(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                  className="bg-background border-ink text-ink mt-1"
                   placeholder="Liste des certifications officielles, accréditations..."
                   rows={3}
                 />
               </div>
 
               <div>
-                <Label htmlFor="teacherQualifications" className="text-zinc-300">
+                <Label htmlFor="teacherQualifications" className="text-ink-2">
                   Qualifications des enseignants
                 </Label>
                 <Textarea
                   id="teacherQualifications"
                   value={teacherQualifications}
                   onChange={(e) => setTeacherQualifications(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                  className="bg-background border-ink text-ink mt-1"
                   placeholder="Décrivez les qualifications et l'expérience de vos enseignants..."
                   rows={3}
                 />
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-3 bg-zinc-950 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-background rounded-lg">
                   <Checkbox
                     id="offersOnlineLearning"
                     checked={offersOnlineLearning}
                     onCheckedChange={(checked) => setOffersOnlineLearning(checked as boolean)}
                   />
-                  <label htmlFor="offersOnlineLearning" className="text-zinc-300 cursor-pointer">
+                  <label htmlFor="offersOnlineLearning" className="text-ink-2 cursor-pointer">
                     Proposer des cours en ligne
                   </label>
                 </div>
-                <div className="flex items-center space-x-3 p-3 bg-zinc-950 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-background rounded-lg">
                   <Checkbox
                     id="offersCertificates"
                     checked={offersCertificates}
                     onCheckedChange={(checked) => setOffersCertificates(checked as boolean)}
                   />
-                  <label htmlFor="offersCertificates" className="text-zinc-300 cursor-pointer">
+                  <label htmlFor="offersCertificates" className="text-ink-2 cursor-pointer">
                     Délivrer des certificats de fin de formation
                   </label>
                 </div>
@@ -615,22 +591,22 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
 
         {/* Step 3: Courses */}
         {currentStep === 3 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-yellow-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-gold" />
                 Cours & Formations
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Définissez vos cours et programmes de formation
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
               {courses.map((course, index) => (
-                <div key={course.id} className="p-4 bg-zinc-950 rounded-lg border border-zinc-800">
+                <div key={course.id} className="p-4 bg-background rounded-lg border border-ink">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-white font-medium">
+                    <h4 className="text-ink font-medium">
                       Cours {index + 1}
                     </h4>
                     {courses.length > 1 && (
@@ -639,7 +615,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                         variant="ghost"
                         size="sm"
                         onClick={() => removeCourse(course.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -649,21 +625,21 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-zinc-300">Nom du cours *</Label>
+                        <Label className="text-ink-2">Nom du cours *</Label>
                         <Input
                           value={course.courseName}
                           onChange={(e) => updateCourse(course.id, 'courseName', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder="Anglais niveau débutant"
                         />
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Type de cours</Label>
+                        <Label className="text-ink-2">Type de cours</Label>
                         <Select
                           value={course.courseType}
                           onValueChange={(value) => updateCourse(course.id, 'courseType', value)}
                         >
-                          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white mt-1">
+                          <SelectTrigger className="bg-card border-ink text-ink mt-1">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -676,11 +652,11 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                     </div>
 
                     <div>
-                      <Label className="text-zinc-300">Description</Label>
+                      <Label className="text-ink-2">Description</Label>
                       <Textarea
                         value={course.description}
                         onChange={(e) => updateCourse(course.id, 'description', e.target.value)}
-                        className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                        className="bg-card border-ink text-ink mt-1"
                         placeholder="Description du cours, objectifs d'apprentissage..."
                         rows={2}
                       />
@@ -688,24 +664,24 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
 
                     <div className="grid md:grid-cols-4 gap-4">
                       <div className="col-span-2">
-                        <Label className="text-zinc-300">Durée *</Label>
+                        <Label className="text-ink-2">Durée *</Label>
                         <Input
                           type="number"
                           value={course.duration}
                           onChange={(e) => updateCourse(course.id, 'duration', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder="20"
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label className="text-zinc-300">Unité</Label>
+                        <Label className="text-ink-2">Unité</Label>
                         <Select
                           value={course.durationUnit}
                           onValueChange={(value: 'hours' | 'weeks' | 'months') =>
                             updateCourse(course.id, 'durationUnit', value)
                           }
                         >
-                          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white mt-1">
+                          <SelectTrigger className="bg-card border-ink text-ink mt-1">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -719,22 +695,22 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
 
                     <div className="grid md:grid-cols-3 gap-4">
                       <div>
-                        <Label className="text-zinc-300">Prix (DH) *</Label>
+                        <Label className="text-ink-2">Prix (DH) *</Label>
                         <Input
                           type="number"
                           value={course.basePrice}
                           onChange={(e) => updateCourse(course.id, 'basePrice', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder="1200.00"
                         />
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Niveau</Label>
+                        <Label className="text-ink-2">Niveau</Label>
                         <Select
                           value={course.skillLevel}
                           onValueChange={(value) => updateCourse(course.id, 'skillLevel', value)}
                         >
-                          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white mt-1">
+                          <SelectTrigger className="bg-card border-ink text-ink mt-1">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -745,18 +721,18 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                         </Select>
                       </div>
                       <div>
-                        <Label className="text-zinc-300">Max. étudiants</Label>
+                        <Label className="text-ink-2">Max. étudiants</Label>
                         <Input
                           type="number"
                           value={course.maxStudents}
                           onChange={(e) => updateCourse(course.id, 'maxStudents', e.target.value)}
-                          className="bg-zinc-900 border-zinc-700 text-white mt-1"
+                          className="bg-card border-ink text-ink mt-1"
                           placeholder="15"
                         />
                       </div>
                     </div>
 
-                    <div className="p-3 bg-zinc-900 rounded-lg">
+                    <div className="p-3 bg-card rounded-lg">
                       <div className="flex items-center space-x-3 mb-3">
                         <Checkbox
                           id={`prereq-${course.id}`}
@@ -765,7 +741,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                             updateCourse(course.id, 'requiresPrerequisites', checked)
                           }
                         />
-                        <label htmlFor={`prereq-${course.id}`} className="text-zinc-300 cursor-pointer">
+                        <label htmlFor={`prereq-${course.id}`} className="text-ink-2 cursor-pointer">
                           Ce cours nécessite des prérequis
                         </label>
                       </div>
@@ -773,7 +749,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                         <Textarea
                           value={course.prerequisites}
                           onChange={(e) => updateCourse(course.id, 'prerequisites', e.target.value)}
-                          className="bg-zinc-950 border-zinc-700 text-white"
+                          className="bg-background border-ink text-ink"
                           placeholder="Liste des prérequis nécessaires..."
                           rows={2}
                         />
@@ -787,7 +763,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
                 type="button"
                 variant="outline"
                 onClick={addCourse}
-                className="w-full border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10"
+                className="w-full border-gold/50 text-gold hover:bg-gold/10"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Ajouter un cours
@@ -799,44 +775,44 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
 
         {/* Step 4: Confirmation */}
         {currentStep === 4 && (
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-card border-ink">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-400" />
+              <CardTitle className="text-ink flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-lime" />
                 Confirmation
               </CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-mute">
                 Vérifiez les informations avant de soumettre
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
-              <div className="p-4 bg-zinc-950 rounded-lg">
-                <h4 className="text-white font-semibold mb-3">Centre de formation</h4>
+              <div className="p-4 bg-background rounded-lg">
+                <h4 className="text-ink font-semibold mb-3">Centre de formation</h4>
                 <div className="space-y-2 text-sm">
-                  <p className="text-zinc-300"><span className="text-zinc-500">Nom:</span> {companyName}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Adresse:</span> {address}, {city}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Email:</span> {email}</p>
-                  <p className="text-zinc-300"><span className="text-zinc-500">Téléphone:</span> {phone}</p>
+                  <p className="text-ink-2"><span className="text-mute">Nom:</span> {companyName}</p>
+                  <p className="text-ink-2"><span className="text-mute">Adresse:</span> {address}, {city}</p>
+                  <p className="text-ink-2"><span className="text-mute">Email:</span> {email}</p>
+                  <p className="text-ink-2"><span className="text-mute">Téléphone:</span> {phone}</p>
                 </div>
               </div>
 
-              <div className="p-4 bg-zinc-950 rounded-lg">
-                <h4 className="text-white font-semibold mb-3">Domaines d'expertise</h4>
+              <div className="p-4 bg-background rounded-lg">
+                <h4 className="text-ink font-semibold mb-3">Domaines d'expertise</h4>
                 <div className="flex flex-wrap gap-2">
                   {selectedTypes.map(type => (
-                    <span key={type} className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 rounded text-sm">
+                    <span key={type} className="px-3 py-1 bg-gold/20 border border-gold/30 text-gold rounded text-sm">
                       {type}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="p-4 bg-zinc-950 rounded-lg">
-                <h4 className="text-white font-semibold mb-3">Cours proposés ({courses.length})</h4>
+              <div className="p-4 bg-background rounded-lg">
+                <h4 className="text-ink font-semibold mb-3">Cours proposés ({courses.length})</h4>
                 <div className="space-y-1">
                   {courses.map((course, idx) => (
-                    <p key={course.id} className="text-sm text-zinc-300">
+                    <p key={course.id} className="text-sm text-ink-2">
                       {idx + 1}. {course.courseName || 'Sans nom'} - {course.duration} {
                         course.durationUnit === 'hours' ? 'heures' :
                         course.durationUnit === 'weeks' ? 'semaines' : 'mois'
@@ -847,22 +823,22 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
               </div>
 
               {(offersOnlineLearning || offersCertificates) && (
-                <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <div className="p-4 bg-gold/10 border border-gold/30 rounded-lg">
                   <div className="space-y-1 text-sm">
                     {offersOnlineLearning && (
-                      <p className="text-yellow-400">✓ Cours en ligne disponibles</p>
+                      <p className="text-gold">✓ Cours en ligne disponibles</p>
                     )}
                     {offersCertificates && (
-                      <p className="text-yellow-400">✓ Délivrance de certificats</p>
+                      <p className="text-gold">✓ Délivrance de certificats</p>
                     )}
                   </div>
                 </div>
               )}
 
-              <div className="p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
+              <div className="p-4 bg-teal/10 border border-teal/30 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <Checkbox id="terms" />
-                  <label htmlFor="terms" className="text-sm text-zinc-300 cursor-pointer">
+                  <Checkbox id="terms" checked={accepted} onCheckedChange={(v) => setAccepted(v === true)} />
+                  <label htmlFor="terms" className="text-sm text-ink-2 cursor-pointer">
                     J'accepte les conditions générales du programme partenaire et je confirme que toutes les informations sont exactes.
                   </label>
                 </div>
@@ -880,7 +856,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
           type="button"
           variant="outline"
           onClick={handleBack}
-          className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+          className="border-ink text-ink-2 hover:bg-card"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           {currentStep === 1 ? 'Retour' : 'Précédent'}
@@ -891,7 +867,7 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
             type="button"
             onClick={handleNext}
             disabled={!validateStep(currentStep)}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+            className="bg-gold hover:bg-gold text-ink"
           >
             Suivant
             <ArrowRight className="w-4 h-4 ml-2" />
@@ -900,8 +876,8 @@ export default function EducationPartnerForm({ onBack }: EducationPartnerFormPro
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="bg-green-600 hover:bg-green-700 text-white"
+            disabled={isSubmitting || !accepted}
+            className="bg-lime hover:bg-lime text-ink"
           >
             {isSubmitting ? 'Envoi en cours...' : 'Soumettre la demande'}
             <CheckCircle className="w-4 h-4 ml-2" />

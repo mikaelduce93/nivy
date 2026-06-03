@@ -37,10 +37,10 @@ export function ParentSidebar({ userInfo }: ParentSidebarProps) {
   const tier = userInfo.parentData?.subscriptionTier || "free"
 
   const tierColors: Record<string, string> = {
-    free: "bg-gray-100 text-gray-700",
-    silver: "bg-gray-200 text-gray-800",
-    gold: "bg-yellow-100 text-yellow-800",
-    platinum: "bg-purple-100 text-purple-800",
+    free: "bg-paper-2 text-ink",
+    silver: "bg-paper-2 text-ink",
+    gold: "bg-gold text-gold",
+    platinum: "bg-pink text-pink",
   }
 
   return (
@@ -72,19 +72,19 @@ export function ParentSidebar({ userInfo }: ParentSidebarProps) {
                 className={cn(
                   "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
                   isActive
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-teal text-teal"
+                    : "text-mute hover:bg-paper-2 hover:text-ink"
                 )}
               >
                 <item.icon
                   className={cn(
                     "mr-3 h-5 w-5 flex-shrink-0",
-                    isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-500"
+                    isActive ? "text-teal" : "text-mute group-hover:text-mute"
                   )}
                 />
                 {item.name}
                 {item.name === "Approbations" && (
-                  <span className="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">
+                  <span className="ml-auto bg-destructive text-destructive text-xs px-2 py-0.5 rounded-full">
                     2
                   </span>
                 )}

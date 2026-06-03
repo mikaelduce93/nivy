@@ -54,67 +54,67 @@ export function AmbassadorDashboardClient({ ambassador, referrals }: AmbassadorD
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32">
         <div className="mb-12">
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-4">Dashboard Ambassadeur</h1>
-          <p className="text-zinc-400">Bienvenue {ambassador.stage_name || "ambassadeur"}</p>
+          <h1 className="text-4xl md:text-6xl font-black text-ink mb-4">Dashboard Ambassadeur</h1>
+          <p className="text-mute">Bienvenue {ambassador.stage_name || "ambassadeur"}</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-6 mb-12">
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl p-6 border border-zinc-800">
+          <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-6 border border-ink">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                <Users className="w-5 h-5 text-cyan-400" />
+              <div className="w-10 h-10 rounded-lg bg-teal/20 flex items-center justify-center">
+                <Users className="w-5 h-5 text-teal" />
               </div>
-              <p className="text-zinc-400 text-sm">Total Référés</p>
+              <p className="text-mute text-sm">Total Référés</p>
             </div>
-            <p className="text-4xl font-black text-white">{ambassador.total_referrals}</p>
+            <p className="text-4xl font-black text-ink">{ambassador.total_referrals}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl p-6 border border-zinc-800">
+          <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-6 border border-ink">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-green-400" />
+              <div className="w-10 h-10 rounded-lg bg-lime/20 flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-lime" />
               </div>
-              <p className="text-zinc-400 text-sm">Gains Totaux</p>
+              <p className="text-mute text-sm">Gains Totaux</p>
             </div>
-            <p className="text-4xl font-black text-white">{totalEarnings.toFixed(2)} DH</p>
+            <p className="text-4xl font-black text-ink">{totalEarnings.toFixed(2)} DH</p>
           </div>
 
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl p-6 border border-zinc-800">
+          <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-6 border border-ink">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-yellow-400" />
+              <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-gold" />
               </div>
-              <p className="text-zinc-400 text-sm">En Attente</p>
+              <p className="text-mute text-sm">En Attente</p>
             </div>
-            <p className="text-4xl font-black text-white">{pendingEarnings.toFixed(2)} DH</p>
+            <p className="text-4xl font-black text-ink">{pendingEarnings.toFixed(2)} DH</p>
           </div>
 
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl p-6 border border-zinc-800">
+          <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-6 border border-ink">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-purple-400" />
+              <div className="w-10 h-10 rounded-lg bg-pink/20 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-pink" />
               </div>
-              <p className="text-zinc-400 text-sm">Commission</p>
+              <p className="text-mute text-sm">Commission</p>
             </div>
-            <p className="text-4xl font-black text-white">{ambassador.commission_rate}%</p>
+            <p className="text-4xl font-black text-ink">{ambassador.commission_rate}%</p>
           </div>
         </div>
 
         {/* Promo Code */}
-        <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-3xl p-8 border border-cyan-500/30 mb-12">
+        <div className="bg-gradient-to-br from-teal/10 to-teal/10 rounded-2xl p-8 border border-teal/30 mb-12">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-zinc-400 text-sm mb-2">Ton code promo personnel</p>
-              <p className="text-4xl font-black text-cyan-400">{ambassador.promo_code}</p>
-              <p className="text-zinc-400 text-sm mt-2">
+              <p className="text-mute text-sm mb-2">Ton code promo personnel</p>
+              <p className="text-4xl font-black text-teal">{ambassador.promo_code}</p>
+              <p className="text-mute text-sm mt-2">
                 Partage ce code pour gagner {ambassador.commission_rate}% sur chaque réservation
               </p>
             </div>
-            <Button className="bg-cyan-500 hover:bg-cyan-600 text-white border-0" onClick={handleCopyPromoCode}>
+            <Button className="bg-teal hover:bg-teal text-ink border-0" onClick={handleCopyPromoCode}>
               <Copy className="w-5 h-5" />
             </Button>
           </div>
@@ -146,26 +146,26 @@ export function AmbassadorDashboardClient({ ambassador, referrals }: AmbassadorD
         )}
 
         {/* Recent Referrals */}
-        <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-3xl p-8 border border-zinc-800">
-          <h2 className="text-2xl font-bold text-white mb-6">Tes Référencements Récents</h2>
+        <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-8 border border-ink">
+          <h2 className="text-2xl font-bold text-ink mb-6">Tes Référencements Récents</h2>
 
           {referrals && referrals.length > 0 ? (
             <div className="space-y-4">
               {referrals.map((referral) => (
                 <div
                   key={referral.id}
-                  className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 flex items-center justify-between"
+                  className="bg-card rounded-2xl p-6 border border-ink flex items-center justify-between"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <p className="text-white font-bold">{referral.bookings?.booking_reference}</p>
+                      <p className="text-ink font-bold">{referral.bookings?.booking_reference}</p>
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           referral.bookings?.payment_status === "paid"
-                            ? "bg-green-500/20 text-green-400"
+                            ? "bg-lime/20 text-lime"
                             : referral.bookings?.payment_status === "pending"
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-red-500/20 text-red-400"
+                              ? "bg-gold/20 text-gold"
+                              : "bg-destructive/20 text-destructive"
                         }`}
                       >
                         {referral.bookings?.payment_status === "paid"
@@ -175,25 +175,25 @@ export function AmbassadorDashboardClient({ ambassador, referrals }: AmbassadorD
                             : "Annulée"}
                       </span>
                     </div>
-                    <p className="text-zinc-400 text-sm">
+                    <p className="text-mute text-sm">
                       {referral.bookings?.events?.title} - {referral.bookings?.events?.city}
                     </p>
-                    <p className="text-xs text-zinc-500 mt-1">
+                    <p className="text-xs text-mute mt-1">
                       {new Date(referral.created_at).toLocaleDateString("fr-FR")}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-black text-cyan-400">{referral.commission_amount?.toFixed(2)} DH</p>
-                    <p className="text-xs text-zinc-500">Commission</p>
+                    <p className="text-2xl font-black text-teal">{referral.commission_amount?.toFixed(2)} DH</p>
+                    <p className="text-xs text-mute">Commission</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-12">
-              <Users className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-              <p className="text-zinc-400">Aucun référencement pour le moment</p>
-              <p className="text-sm text-zinc-500 mt-2">Partage ton code promo pour commencer à gagner</p>
+              <Users className="w-16 h-16 text-ink mx-auto mb-4" />
+              <p className="text-mute">Aucun référencement pour le moment</p>
+              <p className="text-sm text-mute mt-2">Partage ton code promo pour commencer à gagner</p>
             </div>
           )}
         </div>

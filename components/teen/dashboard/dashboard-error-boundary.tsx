@@ -69,25 +69,25 @@ const ERROR_CONFIG: Record<ErrorType, { icon: React.ElementType; title: string; 
     icon: Wifi,
     title: 'Problème de connexion',
     description: 'Impossible de charger ce contenu. Vérifiez votre connexion internet.',
-    color: 'text-amber-400',
+    color: 'text-gold',
   },
   server: {
     icon: Server,
     title: 'Erreur serveur',
     description: 'Nos serveurs ont rencontré un problème. Réessayez dans quelques instants.',
-    color: 'text-orange-400',
+    color: 'text-coral',
   },
   client: {
     icon: Bug,
     title: 'Erreur technique',
     description: 'Une erreur inattendue s\'est produite. Notre équipe en a été informée.',
-    color: 'text-red-400',
+    color: 'text-destructive',
   },
   unknown: {
     icon: AlertTriangle,
     title: 'Quelque chose s\'est mal passé',
     description: 'Une erreur est survenue. Essayez de recharger la page.',
-    color: 'text-zinc-400',
+    color: 'text-mute',
   },
 }
 
@@ -116,12 +116,12 @@ function ErrorFallback({ error, errorInfo, resetError, compact, componentName }:
         animate={{ opacity: 1, scale: 1 }}
         className="flex items-center justify-center h-full min-h-[100px] p-4"
       >
-        <div className="flex items-center gap-3 text-zinc-400">
+        <div className="flex items-center gap-3 text-mute">
           <Icon className={cn('w-5 h-5', config.color)} />
           <span className="text-sm font-medium">Erreur de chargement</span>
           <button
             onClick={resetError}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-paper-2 transition-colors"
             aria-label="Réessayer"
           >
             <RefreshCw className="w-4 h-4" />
@@ -142,7 +142,7 @@ function ErrorFallback({ error, errorInfo, resetError, compact, componentName }:
       {/* Animated icon */}
       <motion.div
         className={cn(
-          'w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6',
+          'w-16 h-16 rounded-2xl bg-paper-2 border border-ink flex items-center justify-center mb-6',
           'relative overflow-hidden'
         )}
         animate={{
@@ -170,10 +170,10 @@ function ErrorFallback({ error, errorInfo, resetError, compact, componentName }:
       </motion.div>
       
       {/* Title */}
-      <h3 className="text-lg font-bold text-white mb-2">{config.title}</h3>
+      <h3 className="text-lg font-bold text-ink mb-2">{config.title}</h3>
       
       {/* Description */}
-      <p className="text-sm text-zinc-400 max-w-xs mb-6">{config.description}</p>
+      <p className="text-sm text-mute max-w-xs mb-6">{config.description}</p>
       
       {/* Actions */}
       <div className="flex items-center gap-3">
@@ -202,7 +202,7 @@ function ErrorFallback({ error, errorInfo, resetError, compact, componentName }:
         <div className="mt-8 w-full max-w-md">
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-400 transition-colors mx-auto"
+            className="flex items-center gap-2 text-xs text-mute hover:text-mute transition-colors mx-auto"
           >
             <span>Détails techniques</span>
             <motion.div
@@ -221,17 +221,17 @@ function ErrorFallback({ error, errorInfo, resetError, compact, componentName }:
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="mt-4 p-4 rounded-lg bg-zinc-900/80 border border-zinc-800 text-left">
+                <div className="mt-4 p-4 rounded-lg bg-card border border-ink text-left">
                   {componentName && (
-                    <p className="text-xs text-zinc-500 mb-2">
-                      Component: <code className="text-zinc-400">{componentName}</code>
+                    <p className="text-xs text-mute mb-2">
+                      Component: <code className="text-mute">{componentName}</code>
                     </p>
                   )}
-                  <p className="text-xs text-red-400 font-mono break-all">
+                  <p className="text-xs text-destructive font-mono break-all">
                     {error.message}
                   </p>
                   {errorInfo?.componentStack && (
-                    <pre className="mt-2 text-[10px] text-zinc-500 overflow-auto max-h-32">
+                    <pre className="mt-2 text-[10px] text-mute overflow-auto max-h-32">
                       {errorInfo.componentStack.slice(0, 500)}...
                     </pre>
                   )}

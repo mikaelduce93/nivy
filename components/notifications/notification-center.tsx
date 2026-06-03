@@ -75,14 +75,14 @@ const NOTIFICATION_ICONS: Record<NotificationType, typeof Bell> = {
 }
 
 const NOTIFICATION_COLORS: Record<NotificationType, string> = {
-  event: 'from-pink-500 to-rose-500',
-  booking: 'from-green-500 to-emerald-500',
-  club: 'from-blue-500 to-cyan-500',
-  pass: 'from-yellow-500 to-orange-500',
-  gamification: 'from-purple-500 to-pink-500',
-  system: 'from-gray-500 to-slate-500',
-  promo: 'from-red-500 to-orange-500',
-  reminder: 'from-indigo-500 to-violet-500',
+  event: 'from-pink to-pink',
+  booking: 'from-lime to-lime',
+  club: 'from-teal to-teal',
+  pass: 'from-gold to-coral',
+  gamification: 'from-pink to-pink',
+  system: 'from-paper-2 to-card',
+  promo: 'from-destructive to-coral',
+  reminder: 'from-pink to-pink',
 }
 
 /* ==========================================================================
@@ -190,7 +190,7 @@ export function NotificationCenter({ userId, className }: NotificationCenterProp
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-xs font-bold text-white bg-red-500 rounded-full"
+                  className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-xs font-bold text-ink bg-destructive rounded-full"
                 >
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </motion.span>
@@ -260,12 +260,12 @@ export function NotificationCenter({ userId, className }: NotificationCenterProp
                     key={notification.id}
                     onSwipeDelete={() => deleteNotification(notification.id)}
                     leftAction={
-                      <span className="px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                      <span className="px-3 py-1 rounded-full bg-destructive text-ink text-xs font-bold">
                         Supprimer
                       </span>
                     }
                     rightAction={
-                      <span className="px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                      <span className="px-3 py-1 rounded-full bg-destructive text-ink text-xs font-bold">
                         Supprimer
                       </span>
                     }
@@ -325,7 +325,7 @@ function NotificationItem({
   onDelete,
 }: NotificationItemProps) {
   const Icon = NOTIFICATION_ICONS[notification.type] || Bell
-  const colorClass = NOTIFICATION_COLORS[notification.type] || 'from-gray-500 to-slate-500'
+  const colorClass = NOTIFICATION_COLORS[notification.type] || 'from-paper-2 to-card'
 
   const timeAgo = getTimeAgo(notification.created_at)
 
@@ -348,7 +348,7 @@ function NotificationItem({
             colorClass
           )}
         >
-          <Icon className="h-5 w-5 text-white" />
+          <Icon className="h-5 w-5 text-ink" />
         </div>
 
         {/* Content */}
@@ -388,7 +388,7 @@ function NotificationItem({
               }}
               aria-label="Marquer comme lu"
             >
-              <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
+              <Check className="h-4 w-4 text-lime" aria-hidden="true" />
             </Button>
           )}
           <Button
@@ -401,7 +401,7 @@ function NotificationItem({
             }}
             aria-label="Supprimer la notification"
           >
-            <Trash2 className="h-4 w-4 text-red-500" aria-hidden="true" />
+            <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
           </Button>
         </div>
       </div>
@@ -434,8 +434,8 @@ function PushPermissionPrompt({ onEnable, onDismiss }: PushPermissionPromptProps
       <Card className="p-4 shadow-lg border-primary/20">
         <div className="flex gap-3">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
-              <BellRing className="h-6 w-6 text-white" />
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center">
+              <BellRing className="h-6 w-6 text-ink" />
             </div>
           </div>
 
@@ -484,7 +484,7 @@ function UpdateBanner({ onUpdate }: UpdateBannerProps) {
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
-      className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary to-purple-500 text-white py-2 px-4"
+      className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary to-pink text-ink py-2 px-4"
     >
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -497,7 +497,7 @@ function UpdateBanner({ onUpdate }: UpdateBannerProps) {
           size="sm"
           variant="secondary"
           onClick={onUpdate}
-          className="bg-white/20 hover:bg-white/30 text-white border-0"
+          className="bg-paper-2 hover:bg-paper-2 text-ink border-0"
         >
           Mettre à jour
         </Button>

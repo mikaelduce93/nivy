@@ -17,7 +17,7 @@ export function StatCard({ label, value, icon, trend, trendUp, className }: Stat
       <div className="flex items-start justify-between mb-4">
         <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20">{icon}</div>
         {trend && (
-          <span className={cn("text-sm font-medium", trendUp ? "text-green-500" : "text-red-500")}>{trend}</span>
+          <span className={cn("text-sm font-medium", trendUp ? "text-lime" : "text-destructive")}>{trend}</span>
         )}
       </div>
       <p className="text-3xl font-bold mb-1">{value}</p>

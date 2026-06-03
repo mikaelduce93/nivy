@@ -3,11 +3,10 @@ import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 
 // ----------------------------------------------------------------------
-// Wave-1 TICKET-025: this route now reads/writes `partner_offers` (the
-// canonical table). All `discount_*` field references are mapped onto
-// partner_offers columns. The `discount_usage` table is treated as
-// optional (best-effort logging) so that environments that haven't
-// provisioned it yet don't break the apply flow.
+// Reads the offer from `partner_offers` (canonical). #59 — the scan now
+// records the sale in `partner_transactions` (the single source of partner
+// revenue, read by /partner, /partner/stats, /partner/transactions and the
+// monthly payout cron). discount_usage is no longer written by this path.
 // ----------------------------------------------------------------------
 
 // POST: Apply a discount and record the transaction
@@ -101,14 +100,16 @@ export async function POST(request: Request) {
       )
     }
 
-    // Wave 3A / canon §6 F6 — no silent catch on discount_usage. The table
-    // exists in every environment as of mig 074; if the read fails we hard-error.
+    // #59 — per-user usage is counted from partner_transactions (the canonical
+    // CA table), keyed on offer_id + teen_id. The scan path no longer touches
+    // discount_usage.
     if (offer.max_uses_per_user) {
       const { count, error: usageCountErr } = await supabase
-        .from("discount_usage")
+        .from("partner_transactions")
         .select("*", { count: "exact", head: true })
-        .eq("discount_id", discountId)
-        .eq("profile_id", memberId)
+        .eq("offer_id", discountId)
+        .eq("teen_id", memberId)
+        .eq("status", "succeeded")
       if (usageCountErr) {
         return NextResponse.json(
           { success: false, error: "usage_count_failed", details: usageCountErr.message },
@@ -141,32 +142,48 @@ export async function POST(request: Request) {
 
     const finalAmount = Math.max(0, purchaseAmount - discountAmount)
 
-    // Wave 3A / canon §6 F6 — usage write is canonical, no silent catch.
-    let usageId: string | null = null
-    let usageTimestamp = now.toISOString()
-    const { data: usage, error: usageError } = await supabase
-      .from("discount_usage")
-      .insert({
-        discount_id: discountId,
-        profile_id: memberId,
-        partner_id: partner.id,
-        purchase_amount: purchaseAmount,
-        discount_amount: discountAmount,
-        final_amount: finalAmount,
-        notes: notes || null,
-        used_at: usageTimestamp,
-      })
-      .select()
+    // #59 — resolve the member (partner_transactions.teen_id FKs teens) and
+    // compute the teen XP cashback before writing the canonical transaction.
+    const { data: memberProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", memberId)
       .single()
-    if (usageError) {
-      return NextResponse.json(
-        { success: false, error: "usage_write_failed", details: usageError.message },
-        { status: 500 }
-      )
-    }
-    if (usage) {
-      usageId = usage.id
-      usageTimestamp = usage.used_at
+    const isTeen = memberProfile?.role === "teen"
+    const xpEarned = isTeen ? Math.floor(finalAmount / 10) : 0
+
+    // #59 — canonical CA write into partner_transactions (the table read by
+    // /partner, /partner/stats, /partner/transactions and the monthly payout
+    // cron). amount_dh = gross purchase; commission_dh = platform cut. Only
+    // teens get a row (teen_id is NOT NULL and FKs teens); a non-teen member
+    // still gets the discount applied but produces no CA row.
+    const PARTNER_COMMISSION_RATE = 0.1 // aligns with partner_accept_food_order (mig 058)
+    const usageTimestamp = now.toISOString()
+    let transactionId: string | null = null
+    if (isTeen) {
+      const commissionDh = Math.round(purchaseAmount * PARTNER_COMMISSION_RATE * 100) / 100
+      const { data: txn, error: txnError } = await supabase
+        .from("partner_transactions")
+        .insert({
+          partner_id: partner.id,
+          teen_id: memberId,
+          offer_id: discountId,
+          amount_dh: purchaseAmount,
+          cashback_xp: xpEarned,
+          commission_dh: commissionDh,
+          scanner_user_id: userInfo.profileId,
+          scanned_at: usageTimestamp,
+          status: "succeeded",
+        })
+        .select("id")
+        .single()
+      if (txnError) {
+        return NextResponse.json(
+          { success: false, error: "transaction_write_failed", details: txnError.message },
+          { status: 500 }
+        )
+      }
+      transactionId = txn.id
     }
 
     // Bump the cumulative usage counter on the canonical table.
@@ -177,35 +194,25 @@ export async function POST(request: Request) {
       })
       .eq("id", discountId)
 
-    // Award XP to teen members (best-effort).
-    const { data: memberProfile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", memberId)
-      .single()
-
-    if (memberProfile?.role === "teen") {
-      const xpEarned = Math.floor(finalAmount / 10)
-      if (xpEarned > 0) {
-        // Canonical RPC per docs/canon/economy-payments.locked.md §7.
-        // XP cashback on partner purchases is auxiliary to the discount,
-        // but we no longer silently swallow RPC errors — surface them as a
-        // 500 so the partner UI sees the failure (no fake success).
-        const { error: xpError } = await supabase.rpc("add_xp_to_user", {
-          p_teen_id: memberId,
-          p_xp_amount: xpEarned,
-          p_source_type: "partner_purchase",
-          p_source_category: "partner",
-          p_source_id: usageId,
-          p_description: `Cashback achat chez ${partner.company_name}`,
-        })
-        if (xpError) {
-          console.error("add_xp_to_user RPC failed (partner-discount):", xpError)
-          return NextResponse.json(
-            { success: false, error: "XP attribution échouée", details: xpError.message },
-            { status: 500 }
-          )
-        }
+    // Award XP to teen members via the canonical RPC (xpEarned computed above).
+    if (isTeen && xpEarned > 0) {
+      // XP cashback on partner purchases is auxiliary to the discount, but we
+      // no longer silently swallow RPC errors — surface them as a 500 so the
+      // partner UI sees the failure (no fake success).
+      const { error: xpError } = await supabase.rpc("add_xp_to_user", {
+        p_teen_id: memberId,
+        p_xp_amount: xpEarned,
+        p_source_type: "partner_purchase",
+        p_source_category: "partner",
+        p_source_id: transactionId,
+        p_description: `Cashback achat chez ${partner.company_name}`,
+      })
+      if (xpError) {
+        console.error("add_xp_to_user RPC failed (partner-discount):", xpError)
+        return NextResponse.json(
+          { success: false, error: "XP attribution échouée", details: xpError.message },
+          { status: 500 }
+        )
       }
     }
 
@@ -234,7 +241,7 @@ export async function POST(request: Request) {
           points_amount: pointsEarned,
           type: "earn",
           source: "partner_purchase",
-          source_id: usageId,
+          source_id: transactionId,
           description: `Achat chez ${partner.company_name}`,
         })
         if (ptxErr) {
@@ -250,7 +257,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Réduction appliquée avec succès",
       data: {
-        transactionId: usageId,
+        transactionId,
         purchaseAmount,
         discountAmount: Math.round(discountAmount * 100) / 100,
         finalAmount: Math.round(finalAmount * 100) / 100,

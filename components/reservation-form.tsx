@@ -81,7 +81,7 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
 
       if (bookingError) throw bookingError
 
-      router.push(`/mes-reservations?success=true`)
+      router.push(`/agenda?success=true`)
     } catch (err: any) {
       setError(err.message || "Une erreur est survenue")
     } finally {
@@ -94,14 +94,14 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
   return (
     <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-12">
       <div className="space-y-8">
-        <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-3xl p-8 border border-zinc-800">
-          <h2 className="text-2xl font-bold text-white mb-6">Détails de l'événement</h2>
+        <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-8 border border-ink">
+          <h2 className="text-2xl font-bold text-ink mb-6">Détails de l'événement</h2>
 
           <div className="space-y-4">
             <div>
-              <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
-              <div className="flex items-center gap-2 text-zinc-400 text-sm">
-                <Calendar className="w-4 h-4 text-cyan-400" />
+              <h3 className="text-xl font-bold text-ink mb-2">{event.title}</h3>
+              <div className="flex items-center gap-2 text-mute text-sm">
+                <Calendar className="w-4 h-4 text-teal" />
                 <span>
                   {new Date(event.event_date).toLocaleDateString("fr-FR", {
                     weekday: "long",
@@ -111,8 +111,8 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
                   })}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-zinc-400 text-sm mt-2">
-                <MapPin className="w-4 h-4 text-cyan-400" />
+              <div className="flex items-center gap-2 text-mute text-sm mt-2">
+                <MapPin className="w-4 h-4 text-teal" />
                 <span>
                   {event.venues?.name}, {event.cities?.name}
                 </span>
@@ -121,19 +121,19 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-3xl p-8 border border-zinc-800">
-          <h2 className="text-2xl font-bold text-white mb-6">Attribution des billets</h2>
+        <div className="bg-gradient-to-br from-paper-2 to-card rounded-2xl p-8 border border-ink">
+          <h2 className="text-2xl font-bold text-ink mb-6">Attribution des billets</h2>
 
           {needsMoreTeens && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
-              <p className="text-yellow-400 text-sm">
+            <div className="bg-gold/10 border border-gold/30 rounded-lg p-4 mb-6">
+              <p className="text-gold text-sm">
                 Vous devez ajouter {totalTickets - teens.length} adolescent(s) supplémentaire(s) dans votre profil pour
                 compléter cette réservation.
               </p>
               <Button
                 type="button"
                 size="sm"
-                className="mt-3 bg-yellow-500 hover:bg-yellow-600 text-black border-0"
+                className="mt-3 bg-gold hover:bg-gold text-ink border-0"
                 onClick={() => router.push("/profile/teens/add")}
               >
                 Ajouter un adolescent
@@ -150,16 +150,16 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
                 const assignmentKey = `${ticketTypeId}-${index}`
 
                 return (
-                  <div key={assignmentKey} className="border border-zinc-800 rounded-lg p-4">
+                  <div key={assignmentKey} className="border border-ink rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <p className="text-white font-semibold">
+                      <p className="text-ink font-semibold">
                         {ticket.name} #{index + 1}
                       </p>
-                      <p className="text-cyan-400 font-bold">{ticket.price} DH</p>
+                      <p className="text-teal font-bold">{ticket.price} DH</p>
                     </div>
 
                     <div>
-                      <Label htmlFor={assignmentKey} className="text-zinc-400 text-sm mb-2 block">
+                      <Label htmlFor={assignmentKey} className="text-mute text-sm mb-2 block">
                         Assigner à:
                       </Label>
                       <Select
@@ -167,7 +167,7 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
                         onValueChange={(value) => setTeenAssignments((prev) => ({ ...prev, [assignmentKey]: value }))}
                         disabled={teens.length === 0}
                       >
-                        <SelectTrigger id={assignmentKey} className="bg-zinc-900 border-zinc-800 text-white">
+                        <SelectTrigger id={assignmentKey} className="bg-card border-ink text-ink">
                           <SelectValue placeholder="Sélectionner un ado" />
                         </SelectTrigger>
                         <SelectContent>
@@ -189,11 +189,11 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
 
       <div className="lg:sticky lg:top-32 lg:self-start">
         <div className="relative">
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-3xl blur-xl opacity-75" />
-          <div className="relative bg-zinc-950 rounded-3xl p-8 border border-zinc-800">
-            <h2 className="text-2xl font-bold text-white mb-6">Récapitulatif</h2>
+          <div className="absolute -inset-1 bg-gradient-to-r from-teal via-teal to-pink rounded-2xl blur-xl opacity-75" />
+          <div className="relative bg-background rounded-2xl p-8 border border-ink">
+            <h2 className="text-2xl font-bold text-ink mb-6">Récapitulatif</h2>
 
-            <div className="space-y-4 mb-6 pb-6 border-b border-zinc-800">
+            <div className="space-y-4 mb-6 pb-6 border-b border-ink">
               {Object.entries(selectedTickets).map(([ticketTypeId, quantity]) => {
                 const ticket = ticketTypes.find((t) => t.id === ticketTypeId)
                 if (!ticket) return null
@@ -201,36 +201,36 @@ export default function ReservationForm({ event, ticketTypes, selectedTickets, t
                 return (
                   <div key={ticketTypeId} className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-semibold">{ticket.name}</p>
-                      <p className="text-sm text-zinc-400">x{quantity}</p>
+                      <p className="text-ink font-semibold">{ticket.name}</p>
+                      <p className="text-sm text-mute">x{quantity}</p>
                     </div>
-                    <p className="text-white font-bold">{(ticket.price * quantity).toFixed(2)} DH</p>
+                    <p className="text-ink font-bold">{(ticket.price * quantity).toFixed(2)} DH</p>
                   </div>
                 )
               })}
             </div>
 
             <div className="flex items-center justify-between mb-8">
-              <p className="text-xl font-bold text-white">Total</p>
-              <p className="text-3xl font-black text-cyan-400">{totalPrice.toFixed(2)} DH</p>
+              <p className="text-xl font-bold text-ink">Total</p>
+              <p className="text-3xl font-black text-teal">{totalPrice.toFixed(2)} DH</p>
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
-                <p className="text-red-400 text-sm">{error}</p>
+              <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 mb-6">
+                <p className="text-destructive text-sm">{error}</p>
               </div>
             )}
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 text-lg py-6"
+              className="w-full bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink border-0 text-lg py-6"
               disabled={isProcessing || needsMoreTeens || totalTickets === 0}
             >
               <CreditCard className="w-5 h-5 mr-2" />
               {isProcessing ? "Traitement..." : "Confirmer le paiement"}
             </Button>
 
-            <p className="text-center text-xs text-zinc-500 mt-4">
+            <p className="text-center text-xs text-mute mt-4">
               Paiement sécurisé • Vos billets seront envoyés par email
             </p>
           </div>

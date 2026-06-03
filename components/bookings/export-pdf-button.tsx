@@ -235,7 +235,7 @@ export function ExportPDFButton({ bookingId, bookingDetails }: ExportPDFButtonPr
       onClick={generatePDF}
       disabled={loading}
       variant="outline"
-      className="border-zinc-700 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400"
+      className="border-ink text-ink-2 hover:border-lime/50 hover:text-lime"
     >
       {loading ? (
         <Loader2 className="h-4 w-4 animate-spin mr-2" />

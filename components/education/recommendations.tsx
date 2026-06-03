@@ -62,34 +62,34 @@ function RecommendationCard({ recommendation, onClick }: RecommendationCardProps
   const typeConfig = {
     quiz: {
       icon: BookOpen,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10",
+      color: "text-teal",
+      bg: "bg-teal/10",
       label: "Quiz",
     },
     tutorial: {
       icon: PlayCircle,
-      color: "text-purple-400",
-      bg: "bg-purple-500/10",
+      color: "text-pink",
+      bg: "bg-pink/10",
       label: "Tutoriel",
     },
     challenge: {
       icon: Target,
-      color: "text-green-400",
-      bg: "bg-green-500/10",
+      color: "text-lime",
+      bg: "bg-lime/10",
       label: "Defi",
     },
     resource: {
       icon: Sparkles,
-      color: "text-yellow-400",
-      bg: "bg-yellow-500/10",
+      color: "text-gold",
+      bg: "bg-gold/10",
       label: "Ressource",
     },
   }
 
   const priorityConfig = {
-    high: { color: "text-red-400", bg: "bg-red-500/10", label: "Prioritaire" },
-    medium: { color: "text-yellow-400", bg: "bg-yellow-500/10", label: "Recommande" },
-    low: { color: "text-zinc-400", bg: "bg-zinc-500/10", label: "Suggere" },
+    high: { color: "text-destructive", bg: "bg-destructive/10", label: "Prioritaire" },
+    medium: { color: "text-gold", bg: "bg-gold/10", label: "Recommande" },
+    low: { color: "text-mute", bg: "bg-muted", label: "Suggere" },
   }
 
   const type = typeConfig[recommendation.type]
@@ -103,7 +103,7 @@ function RecommendationCard({ recommendation, onClick }: RecommendationCardProps
       onClick={onClick}
       className="cursor-pointer"
     >
-      <Card className="p-4 bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+      <Card className="p-4 bg-card border-ink hover:border-ink transition-colors">
         <div className="flex items-start gap-4">
           <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", type.bg)}>
             <Icon className={cn("w-6 h-6", type.color)} />
@@ -121,13 +121,13 @@ function RecommendationCard({ recommendation, onClick }: RecommendationCardProps
               )}
             </div>
 
-            <h4 className="font-bold text-white line-clamp-1">{recommendation.title}</h4>
-            <p className="text-sm text-zinc-500 line-clamp-2 mb-2">{recommendation.description}</p>
+            <h4 className="font-bold text-ink line-clamp-1">{recommendation.title}</h4>
+            <p className="text-sm text-mute line-clamp-2 mb-2">{recommendation.description}</p>
 
             <div className="flex items-center justify-between">
-              <p className="text-xs text-zinc-600 line-clamp-1">{recommendation.reason}</p>
+              <p className="text-xs text-mute line-clamp-1">{recommendation.reason}</p>
               {recommendation.xpReward && (
-                <span className="flex items-center gap-1 text-cyan-400 text-xs">
+                <span className="flex items-center gap-1 text-teal text-xs">
                   <Zap className="w-3 h-3" />
                   +{recommendation.xpReward} XP
                 </span>
@@ -135,7 +135,7 @@ function RecommendationCard({ recommendation, onClick }: RecommendationCardProps
             </div>
           </div>
 
-          <ChevronRight className="w-5 h-5 text-zinc-600 flex-shrink-0" />
+          <ChevronRight className="w-5 h-5 text-mute flex-shrink-0" />
         </div>
       </Card>
     </motion.div>
@@ -154,19 +154,19 @@ function WeakSubjectsAlert({ subjects }: WeakSubjectsAlertProps) {
   if (subjects.length === 0) return null
 
   return (
-    <Card className="p-4 bg-yellow-500/10 border-yellow-500/20">
+    <Card className="p-4 bg-gold/10 border-gold/20">
       <div className="flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+        <AlertTriangle className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
         <div>
-          <h4 className="font-medium text-yellow-400 mb-1">Matieres a ameliorer</h4>
-          <p className="text-sm text-yellow-400/70 mb-3">
+          <h4 className="font-medium text-gold mb-1">Matieres a ameliorer</h4>
+          <p className="text-sm text-gold/70 mb-3">
             Tes notes sont basses dans certaines matieres. Voici des ressources pour t'aider.
           </p>
           <div className="flex flex-wrap gap-2">
             {subjects.map((s) => (
               <span
                 key={s.subject}
-                className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-300"
+                className="px-3 py-1 rounded-full text-xs font-medium bg-gold/20 text-gold"
               >
                 {s.label}: {Math.round(s.average)}%
               </span>
@@ -243,7 +243,7 @@ export function RecommendationsDashboard({ teenId, onNavigate }: Recommendations
     return (
       <div className="space-y-4 animate-pulse">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-24 bg-zinc-800 rounded-2xl" />
+          <div key={i} className="h-24 bg-card rounded-2xl" />
         ))}
       </div>
     )
@@ -257,8 +257,8 @@ export function RecommendationsDashboard({ teenId, onNavigate }: Recommendations
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Recommandations</h2>
-          <p className="text-sm text-zinc-500">Personnalisees pour toi</p>
+          <h2 className="text-xl font-bold text-ink">Recommandations</h2>
+          <p className="text-sm text-mute">Personnalisees pour toi</p>
         </div>
         <Button
           variant="ghost"
@@ -278,44 +278,44 @@ export function RecommendationsDashboard({ teenId, onNavigate }: Recommendations
 
       {/* Pillar scores insight */}
       {insights?.pillarScores && (
-        <Card className="p-4 bg-zinc-900 border-zinc-800">
-          <h4 className="font-medium text-white mb-3 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-cyan-400" />
+        <Card className="p-4 bg-card border-ink">
+          <h4 className="font-medium text-ink mb-3 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-teal" />
             Tes scores piliers
           </h4>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <div className={cn(
                 "text-2xl font-bold",
-                insights.pillarScores.school_score >= 70 ? "text-green-400" :
-                insights.pillarScores.school_score >= 50 ? "text-yellow-400" :
-                "text-red-400"
+                insights.pillarScores.school_score >= 70 ? "text-lime" :
+                insights.pillarScores.school_score >= 50 ? "text-gold" :
+                "text-destructive"
               )}>
                 {insights.pillarScores.school_score}
               </div>
-              <div className="text-xs text-zinc-500">Ecole</div>
+              <div className="text-xs text-mute">Ecole</div>
             </div>
             <div className="text-center">
               <div className={cn(
                 "text-2xl font-bold",
-                insights.pillarScores.sport_score >= 70 ? "text-green-400" :
-                insights.pillarScores.sport_score >= 50 ? "text-yellow-400" :
-                "text-red-400"
+                insights.pillarScores.sport_score >= 70 ? "text-lime" :
+                insights.pillarScores.sport_score >= 50 ? "text-gold" :
+                "text-destructive"
               )}>
                 {insights.pillarScores.sport_score}
               </div>
-              <div className="text-xs text-zinc-500">Sport</div>
+              <div className="text-xs text-mute">Sport</div>
             </div>
             <div className="text-center">
               <div className={cn(
                 "text-2xl font-bold",
-                insights.pillarScores.crea_score >= 70 ? "text-green-400" :
-                insights.pillarScores.crea_score >= 50 ? "text-yellow-400" :
-                "text-red-400"
+                insights.pillarScores.crea_score >= 70 ? "text-lime" :
+                insights.pillarScores.crea_score >= 50 ? "text-gold" :
+                "text-destructive"
               )}>
                 {insights.pillarScores.crea_score}
               </div>
-              <div className="text-xs text-zinc-500">Creativite</div>
+              <div className="text-xs text-mute">Creativite</div>
             </div>
           </div>
         </Card>
@@ -335,8 +335,8 @@ export function RecommendationsDashboard({ teenId, onNavigate }: Recommendations
             className={cn(
               "px-4 py-2 rounded-xl text-sm font-medium transition-all",
               filterType === filter.id
-                ? "bg-cyan-500 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                ? "bg-teal text-ink"
+                : "bg-card text-mute hover:bg-muted"
             )}
           >
             {filter.label}
@@ -347,7 +347,7 @@ export function RecommendationsDashboard({ teenId, onNavigate }: Recommendations
       {/* High priority */}
       {highPriority.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-red-400 flex items-center gap-2">
+          <h3 className="text-sm font-medium text-destructive flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
             Prioritaires
           </h3>
@@ -370,7 +370,7 @@ export function RecommendationsDashboard({ teenId, onNavigate }: Recommendations
       {/* Other recommendations */}
       {otherRecommendations.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-zinc-400">Suggestions</h3>
+          <h3 className="text-sm font-medium text-mute">Suggestions</h3>
           {otherRecommendations.map((rec, index) => (
             <motion.div
               key={rec.id}
@@ -389,10 +389,10 @@ export function RecommendationsDashboard({ teenId, onNavigate }: Recommendations
 
       {/* Empty state */}
       {recommendations.length === 0 && (
-        <Card className="p-8 bg-zinc-900 border-zinc-800 text-center">
-          <Sparkles className="w-12 h-12 text-cyan-500 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">Bravo !</h3>
-          <p className="text-zinc-400">
+        <Card className="p-8 bg-card border-ink text-center">
+          <Sparkles className="w-12 h-12 text-teal mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-ink mb-2">Bravo !</h3>
+          <p className="text-mute">
             Tu es a jour sur toutes tes activites. Continue comme ca !
           </p>
         </Card>
@@ -439,7 +439,7 @@ export function RecommendationsWidget({ teenId, limit = 3, onSeeAll }: Recommend
     return (
       <div className="space-y-3 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 bg-zinc-800 rounded-xl" />
+          <div key={i} className="h-16 bg-card rounded-xl" />
         ))}
       </div>
     )
@@ -457,16 +457,16 @@ export function RecommendationsWidget({ teenId, limit = 3, onSeeAll }: Recommend
   }
 
   return (
-    <Card className="p-4 bg-zinc-900 border-zinc-800">
+    <Card className="p-4 bg-card border-ink">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-white flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-cyan-400" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-teal" />
           Pour toi
         </h3>
         {onSeeAll && (
           <button
             onClick={onSeeAll}
-            className="text-sm text-cyan-400 hover:underline"
+            className="text-sm text-teal hover:underline"
           >
             Voir tout
           </button>
@@ -479,17 +479,17 @@ export function RecommendationsWidget({ teenId, limit = 3, onSeeAll }: Recommend
           return (
             <div
               key={rec.id}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-800/50 cursor-pointer transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-card cursor-pointer transition-colors"
             >
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
-                <Icon className="w-4 h-4 text-cyan-400" />
+              <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center">
+                <Icon className="w-4 h-4 text-teal" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white font-medium truncate">{rec.title}</p>
-                <p className="text-xs text-zinc-500 truncate">{rec.reason}</p>
+                <p className="text-sm text-ink font-medium truncate">{rec.title}</p>
+                <p className="text-xs text-mute truncate">{rec.reason}</p>
               </div>
               {rec.xpReward && (
-                <span className="text-xs text-cyan-400">+{rec.xpReward} XP</span>
+                <span className="text-xs text-teal">+{rec.xpReward} XP</span>
               )}
             </div>
           )

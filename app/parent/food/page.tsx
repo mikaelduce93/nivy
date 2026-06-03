@@ -5,6 +5,10 @@
 import { redirect } from "next/navigation"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { NivCoach, NivEmpty } from "@/components/brand"
+import { Button } from "@/components/ui/button"
 
 export const dynamic = "force-dynamic"
 
@@ -19,32 +23,49 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
   refunded: "Remboursée",
 }
 
+// Charte : statut DB → variante <StatusBadge> humanisée.
+const ORDER_STATUS_VARIANT: Record<string, StatusVariant> = {
+  pending_payment: "pending",
+  paid: "success",
+  preparing: "info",
+  ready: "success",
+  delivered: "success",
+  cancelled: "danger",
+  refunded: "neutral",
+}
+
 function formatStatus(raw: string | null | undefined): string {
   if (!raw) return "Inconnu"
   return ORDER_STATUS_LABELS[raw] ?? raw.replace(/_/g, " ")
+}
+
+function statusVariant(raw: string | null | undefined): StatusVariant {
+  if (!raw) return "neutral"
+  return ORDER_STATUS_VARIANT[raw] ?? "neutral"
 }
 
 // V1.4 a11y: render nutrition_targets as a definition list instead of raw JSON.
 function NutritionTargets({ targets }: { targets: unknown }) {
   if (!targets || typeof targets !== "object") {
     return (
-      <p className="mt-1 text-xs text-zinc-400">Aucun objectif configuré.</p>
+      <p className="mt-1 text-xs text-mute">Aucun objectif configuré.</p>
     )
   }
   const entries = Object.entries(targets as Record<string, unknown>)
   if (entries.length === 0) {
     return (
-      <p className="mt-1 text-xs text-zinc-400">Aucun objectif configuré.</p>
+      <p className="mt-1 text-xs text-mute">Aucun objectif configuré.</p>
     )
   }
   return (
-    <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-zinc-300">
+    <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
       {entries.map(([k, v]) => (
-        <div key={k} className="contents">
-          <dt className="font-medium capitalize text-zinc-400">
-            {k.replace(/_/g, " ")}
-          </dt>
-          <dd className="text-right tabular-nums text-zinc-100">
+        <div
+          key={k}
+          className="flex items-center justify-between rounded-xl border-2 border-ink bg-paper px-3 py-2"
+        >
+          <dt className="eyebrow text-[10px] text-mute">{k.replace(/_/g, " ")}</dt>
+          <dd className="font-mono font-semibold tabular-nums text-ink">
             {typeof v === "number" || typeof v === "string"
               ? String(v)
               : JSON.stringify(v)}
@@ -58,7 +79,7 @@ function NutritionTargets({ targets }: { targets: unknown }) {
 export default async function ParentFoodPage() {
   const userInfo = await getUserRole()
   if (!userInfo || userInfo.role !== "parent") {
-    redirect("/auth/connexion")
+    redirect("/auth/login")
   }
   const parentId = userInfo!.profileId
   const sb = createServiceRoleClient()
@@ -122,49 +143,73 @@ export default async function ParentFoodPage() {
   }
 
   return (
-    <main className="min-h-screen mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Food (parent)</h1>
+    <main className="min-h-screen mx-auto max-w-3xl px-4 py-10">
+      {/* Header éditorial */}
+      <header className="mb-8">
+        <p className="eyebrow text-pink">FOOD · CANTINE</p>
+        <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+          Ce que <em className="font-semibold italic text-pink">ton ado</em> commande
+        </h1>
+      </header>
+
+      <NivCoach
+        mood="happy"
+        tone="paper"
+        className="mb-8"
+        message="Je garde un œil sur les commandes et les défis nutrition de ton crew."
+      />
 
       {loadError && (
         <div
           role="alert"
-          className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="mb-6 rounded-xl border-2 border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
       )}
 
-      <section className="mb-8" aria-labelledby="orders-heading">
-        <h2 id="orders-heading" className="text-lg font-semibold mb-2">
+      <section className="mb-10" aria-labelledby="orders-heading">
+        <h2 id="orders-heading" className="eyebrow mb-3 text-mute">
           Commandes récentes
         </h2>
         {orders.length === 0 ? (
-          <div role="status" className="space-y-2">
-            <p className="text-sm text-zinc-400">Aucune commande.</p>
-            <a
-              href="/parent/teens"
-              className="inline-block text-xs text-emerald-400 hover:underline"
-            >
-              Configurer les autorisations de mes teens →
-            </a>
-          </div>
+          <NivEmpty
+            title="Aucune commande pour l'instant"
+            description="Ton ado mange sainement 🥗 Les commandes passées chez les partenaires s'afficheront ici."
+            action={
+              <Button asChild variant="pink">
+                <a href="/parent/teens">Configurer les autorisations</a>
+              </Button>
+            }
+          />
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {orders.map((o) => (
-              <li key={o.id} className="rounded border p-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="font-medium">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(o.partners as any)?.company_name}
-                  </span>
-                  <span className="text-xs uppercase tracking-wide text-zinc-300">
-                    {formatStatus(o.status)}
-                  </span>
-                </div>
-                <div className="text-xs text-zinc-400">
-                  {o.total_coins} coins · {o.total_dh} DH
-                  {o.parent_approval_id ? " · approbation requise" : ""}
-                </div>
+              <li key={o.id}>
+                <StickerCard variant="hover" className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-display text-base font-bold text-ink">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {(o.partners as any)?.company_name}
+                      </p>
+                      <p className="mt-1 font-mono text-sm font-semibold tabular-nums text-ink">
+                        {o.total_dh} DH
+                        <span className="ml-2 text-coral">⊙ {o.total_coins}</span>
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <StatusBadge
+                        variant={statusVariant(o.status)}
+                        label={formatStatus(o.status)}
+                        size="sm"
+                      />
+                      {o.parent_approval_id ? (
+                        <StatusBadge variant="pending" label="Approbation requise" size="sm" />
+                      ) : null}
+                    </div>
+                  </div>
+                </StickerCard>
               </li>
             ))}
           </ul>
@@ -172,22 +217,32 @@ export default async function ParentFoodPage() {
       </section>
 
       <section aria-labelledby="challenges-heading">
-        <h2 id="challenges-heading" className="text-lg font-semibold mb-2">
+        <h2 id="challenges-heading" className="eyebrow mb-3 text-mute">
           Défis nutrition actifs
         </h2>
         {challenges.length === 0 ? (
-          <p role="status" className="text-sm text-zinc-400">
-            Aucun défi configuré.
-          </p>
+          <NivEmpty
+            title="Aucun défi configuré"
+            description="Lance un défi nutrition pour motiver ton crew à manger mieux 💪"
+          />
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {challenges.map((c) => (
-              <li key={c.id} className="rounded border p-3 text-sm">
-                <h3 className="font-medium text-base">{c.title}</h3>
-                <div className="text-xs text-zinc-400">
-                  {c.is_active ? "actif" : "inactif"} · {c.valid_from} → {c.valid_until ?? "∞"}
-                </div>
-                <NutritionTargets targets={c.nutrition_targets} />
+              <li key={c.id}>
+                <StickerCard className="p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-display text-base font-bold text-ink">{c.title}</h3>
+                    <StatusBadge
+                      variant={c.is_active ? "success" : "neutral"}
+                      label={c.is_active ? "Actif" : "Inactif"}
+                      size="sm"
+                    />
+                  </div>
+                  <p className="mt-1 font-mono text-xs text-mute">
+                    {c.valid_from} → {c.valid_until ?? "∞"}
+                  </p>
+                  <NutritionTargets targets={c.nutrition_targets} />
+                </StickerCard>
               </li>
             ))}
           </ul>

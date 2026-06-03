@@ -1,5 +1,10 @@
 # Transport & Mobility — Vision
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Audit date: 2026-05-07 — auditor: transport-mobility-auditor (read-only). Scope: pre-event ride booking, parent-trusted live geo-tracking, group rides, designated Nivy driver pool, post-event auto-dispatch return, multi-modal (taxi / Careem / Heetch / tramway / bus) integration, coin/DH payment rails. Active Supabase project: `imchornjvmgmaovhypco`. Codebase root: `C:\Users\Shadow\Desktop\NIVY`.
 
 ## 1. Vision intended

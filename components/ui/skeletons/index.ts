@@ -66,3 +66,52 @@ export {
   ProfileQuestSkeleton,
   DashboardSkeleton,
 } from './dashboard-skeletons'
+
+/* --- #72: unified entry point — re-export ALL skeleton layers here ---------
+ * Aliased named re-exports (never `export *`) to avoid name collisions with the
+ * layers above. New code should import skeletons only from this barrel. */
+
+// Primitive (components/ui/skeleton.tsx).
+export { Skeleton as SkeletonPrimitive } from '../skeleton'
+
+// Transition cross-fade (components/ui/morphing-skeleton.tsx) — the canonical
+// MorphingSkeleton (NOT the homonym in skeleton-variants).
+export { MorphingSkeleton, MorphingSkeletonCompat } from '../morphing-skeleton'
+
+// Premium framer-motion variants (components/ui/skeleton-variants.tsx).
+// Homonyms are suffixed `Premium`; non-colliding ones pass through.
+export {
+  Skeleton as SkeletonPremium,
+  HeroSkeleton as HeroSkeletonPremium,
+  CardSkeleton as CardSkeletonPremium,
+  QuickAccessSkeleton as QuickAccessSkeletonPremium,
+  DashboardSkeleton as DashboardSkeletonPremium,
+  MapSkeleton,
+  FeedSkeleton,
+  SocialHubSkeleton,
+  SkeletonContainer,
+  SkeletonItem,
+} from '../skeleton-variants'
+
+// Composite presets (components/ui/states/skeleton-set.tsx). SkeletonText/Image
+// collide with `atoms` above → suffixed `Set`.
+export {
+  SkeletonEventCard,
+  SkeletonEventGrid,
+  SkeletonTicketCard,
+  SkeletonTicketList,
+  SkeletonProfile,
+  SkeletonTable,
+  SkeletonStatCard,
+  SkeletonStatsGrid,
+  SkeletonForm,
+  SkeletonDashboard,
+  SkeletonArticle,
+  SkeletonListItem,
+  SkeletonList,
+  SkeletonAvatar,
+  SkeletonButton,
+  SkeletonTitle,
+  SkeletonText as SkeletonSetText,
+  SkeletonImage as SkeletonSetImage,
+} from '../states/skeleton-set'

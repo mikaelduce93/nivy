@@ -8,13 +8,13 @@ export function ParentalNudgeWidget({ teenUsage }: { teenUsage: any }) {
   if (!nudge) return null
   
   return (
-    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+    <div className="bg-teal border-l-4 border-teal p-4 mb-4">
       <div className="flex">
         <div className="flex-shrink-0">
           {/* Icon info */}
         </div>
         <div className="ml-3">
-          <p className="text-sm text-blue-700">
+          <p className="text-sm text-teal">
             Conseil Bien-être : {nudge}
           </p>
         </div>

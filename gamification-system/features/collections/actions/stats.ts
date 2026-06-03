@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type Rarity, type CollectibleItem } from "../schema"
 
 /**
@@ -178,7 +179,7 @@ export async function getRecentCollectibles(
     .limit(limit)
 
   if (error) {
-    console.error("Error fetching recent collectibles:", error)
+    logDbError("collections.getRecentCollectibles", error)
     return []
   }
 

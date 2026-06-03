@@ -1,11 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, Users, Clock, ExternalLink } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { DarkSurface, NivCoach, NivEmpty } from "@/components/brand"
+import { MapPin, Users, Clock, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { EmptyState } from "@/components/ui/states/empty-state"
 
 type EventRow = {
   id: string
@@ -117,11 +117,14 @@ export default async function PartnerEventsPage() {
 
   if (!partnerId) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-black text-white">Events Teen Club</h1>
-          <p className="text-zinc-400">Profil partenaire introuvable.</p>
-        </div>
+      <div className="space-y-6 pt-6">
+        <header className="space-y-2">
+          <p className="eyebrow">Events Teen Club</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+            Events <em className="font-semibold italic text-pink">Teen Club</em>
+          </h1>
+          <p className="text-mute">Profil partenaire introuvable.</p>
+        </header>
       </div>
     )
   }
@@ -164,53 +167,47 @@ export default async function PartnerEventsPage() {
   )
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-black text-white">Events Teen Club</h1>
-        <p className="text-zinc-400">Participez aux événements et rencontrez vos clients</p>
-      </div>
+    <div className="space-y-6 pt-6">
+      {/* Header éditorial */}
+      <header className="space-y-2">
+        <p className="eyebrow">Events Teen Club</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          Events <em className="font-semibold italic text-pink">Teen Club</em>
+        </h1>
+        <p className="text-mute max-w-md">
+          Tiens ton stand aux events, scanne les cartes des membres et fais grimper ta visibilité.
+        </p>
+      </header>
 
-      {/* Info Banner */}
-      <Card className="bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 border-emerald-500/30">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-              <Calendar className="h-6 w-6 text-emerald-400" />
-            </div>
-            <div>
-              <h3 className="font-bold text-white mb-1">Participez aux events Teen Club !</h3>
-              <p className="text-zinc-300 text-sm">
-                En tant que partenaire, vous pouvez avoir un stand lors de nos événements pour promouvoir vos offres
-                et scanner les cartes des membres présents. C'est l'occasion idéale pour augmenter votre visibilité !
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Stand partenaire — surface sombre + coach Niv */}
+      <NivCoach
+        mood="hype"
+        tone="dark"
+        message="Avec ton stand partenaire, tu fais découvrir tes offres en vrai et tu scannes les cartes des membres présents. C'est le boost de visibilité parfait."
+      />
 
       {columnMissing && (
-        <Card className="bg-zinc-900 border-amber-500/30">
-          <CardContent className="p-4">
-            <p className="text-sm text-amber-300">
-              Module Events partenaire en cours de déploiement — vos événements liés s'afficheront automatiquement dès la mise à jour.
-            </p>
-          </CardContent>
-        </Card>
+        <StickerCard variant="panel" className="border-gold p-4">
+          <p className="text-sm text-gold">
+            Module Events partenaire en cours de déploiement — tes événements liés s'afficheront automatiquement dès la mise à jour.
+          </p>
+        </StickerCard>
       )}
 
-      {/* Upcoming Events */}
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white">Événements à venir</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {upcomingWithStats.length === 0 ? (
-            <p className="text-sm text-zinc-500 py-6 text-center">
-              Pas encore d'événement à venir.
-            </p>
-          ) : (
-            upcomingWithStats.map(({ event, attendees }) => {
+      {/* Événements à venir */}
+      <section className="space-y-4">
+        <h2 className="font-display text-xl font-extrabold tracking-tight text-ink">
+          Événements à venir
+        </h2>
+        {upcomingWithStats.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Pas encore d'event à venir"
+            description="Dès qu'un event Teen Club est programmé avec ton stand, il s'affiche ici."
+          />
+        ) : (
+          <div className="space-y-4">
+            {upcomingWithStats.map(({ event, attendees }) => {
               const start = getEventStart(event)
               const dayLabel = start ? String(start.getDate()) : "—"
               const monthLabel = start ? MONTH_SHORT[start.getMonth()].toUpperCase() : ""
@@ -220,107 +217,103 @@ export default async function PartnerEventsPage() {
               const isFull = capacity !== null && attendees >= capacity
 
               return (
-                <div
-                  key={event.id}
-                  className="flex items-center justify-between p-5 rounded-xl bg-zinc-800 border border-zinc-700 hover:border-emerald-500/30 transition-all"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="text-center min-w-[60px] p-3 rounded-xl bg-zinc-900">
-                      <p className="text-xs text-zinc-500 uppercase">{monthLabel}</p>
-                      <p className="text-2xl font-black text-white">{dayLabel}</p>
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-lg">
-                        {event.title || "Événement sans titre"}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-zinc-400">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {timeRange(event) || fullDate}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
-                          {attendees}
-                          {capacity !== null ? `/${capacity}` : ""} inscrits
-                        </span>
+                <StickerCard key={event.id} variant="hover" className="p-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="min-w-[60px] rounded-xl border-2 border-ink bg-ink p-3 text-center text-paper">
+                        <p className="font-mono text-xs uppercase tracking-wider text-paper/70">{monthLabel}</p>
+                        <p className="font-display text-2xl font-extrabold tabular-nums">{dayLabel}</p>
+                      </div>
+                      <div>
+                        <h3 className="font-display text-lg font-bold text-ink">
+                          {event.title || "Événement sans titre"}
+                        </h3>
+                        <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-mute">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            {timeRange(event) || fullDate}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            {location}
+                          </span>
+                          <span className="flex items-center gap-1 font-mono tabular-nums">
+                            <Users className="h-4 w-4" />
+                            {attendees}
+                            {capacity !== null ? `/${capacity}` : ""} inscrits
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    {!isFull ? (
-                      <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                        Voir l'event
+                    <div className="flex flex-col items-end gap-2">
+                      {!isFull ? (
+                        <Button asChild variant="pink">
+                          <Link href={event.id ? `/agenda/${event.id}` : "#"}>
+                            Voir l'event
+                          </Link>
+                        </Button>
+                      ) : (
+                        <span className="rounded-full border-2 border-ink bg-lime px-3 py-1 font-mono text-xs font-semibold uppercase tracking-wide text-on-bright">
+                          Complet
+                        </span>
+                      )}
+                      <Button variant="ghost" size="sm" className="text-mute hover:text-ink" asChild>
+                        <Link href={event.id ? `/agenda/${event.id}` : "#"}>
+                          Détails <ExternalLink className="ml-1 h-3 w-3" />
+                        </Link>
                       </Button>
-                    ) : (
-                      <span className="px-3 py-1 rounded-full bg-zinc-700 text-zinc-400 text-sm">
-                        Complet
-                      </span>
-                    )}
-                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white" asChild>
-                      <Link href={event.slug ? `/events/${event.slug}` : "#"}>
-                        Détails <ExternalLink className="h-3 w-3 ml-1" />
-                      </Link>
-                    </Button>
+                    </div>
                   </div>
-                </div>
+                </StickerCard>
               )
-            })
-          )}
-        </CardContent>
-      </Card>
+            })}
+          </div>
+        )}
+      </section>
 
-      {/* Past Participations */}
-      <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white">Vos participations passées</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {pastWithStats.length === 0 ? (
-            <EmptyState
-              size="small"
-              icon={Calendar}
-              title="Aucune participation passée"
-              description="Vos événements passés apparaîtront ici."
-            />
-          ) : (
-            <div className="space-y-3">
-              {pastWithStats.map(({ event, scans, revenue }) => {
-                const start = getEventStart(event)
-                const fullDate = start ? DATE_FMT.format(start) : ""
-                return (
-                  <div
-                    key={event.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-800 border border-zinc-700"
-                  >
-                    <div>
-                      <p className="font-semibold text-white">
+      {/* Participations passées */}
+      <section className="space-y-4">
+        <h2 className="font-display text-xl font-extrabold tracking-tight text-ink">
+          Tes participations passées
+        </h2>
+        {pastWithStats.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Aucune participation passée"
+            description="Tes events passés et le CA généré sur ton stand s'afficheront ici."
+          />
+        ) : (
+          <div className="space-y-3">
+            {pastWithStats.map(({ event, scans, revenue }) => {
+              const start = getEventStart(event)
+              const fullDate = start ? DATE_FMT.format(start) : ""
+              return (
+                <StickerCard key={event.id} variant="default" className="p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="font-display font-bold text-ink truncate">
                         {event.title || "Événement sans titre"}
                       </p>
-                      <p className="text-sm text-zinc-400">{fullDate}</p>
+                      <p className="text-sm text-mute">{fullDate}</p>
                     </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-center">
-                        <p className="text-xl font-black text-emerald-400">{scans}</p>
-                        <p className="text-xs text-zinc-500">check-ins</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xl font-black text-white">
-                          {Math.round(revenue).toLocaleString()} DH
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1 rounded-full border-2 border-ink bg-lime/15 px-3 py-1 font-mono text-sm font-semibold tabular-nums text-ink">
+                        {scans} ✓
+                      </span>
+                      <div className="rounded-xl border-2 border-ink bg-ink px-4 py-2 text-right text-paper">
+                        <p className="font-display text-xl font-extrabold tabular-nums text-gold">
+                          {Math.round(revenue).toLocaleString()} <span className="font-mono text-sm">DH</span>
                         </p>
-                        <p className="text-xs text-zinc-500">CA généré</p>
+                        <p className="font-mono text-[11px] uppercase tracking-wide text-paper/60">CA généré</p>
                       </div>
                     </div>
                   </div>
-                )
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </StickerCard>
+              )
+            })}
+          </div>
+        )}
+      </section>
     </div>
   )
 }

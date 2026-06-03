@@ -1,84 +1,90 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { DarkSurface, StatHero, NivEmpty } from "@/components/brand"
 import {
   Wallet,
   ArrowLeft,
   TrendingUp,
   Calendar,
-  Filter,
-  Download,
-  DollarSign,
+  Clock,
   ArrowUpRight,
   ArrowDownRight,
-  Clock,
-  CheckCircle
 } from "lucide-react"
 import Link from "next/link"
 
 async function getCommissionHistory(profileId: string) {
   const supabase = await createClient()
 
-  // Get ambassador data
+  // #29 — ambassadors keyed on user_id; commission_pct lives on the row.
   const { data: ambassador } = await supabase
     .from("ambassadors")
-    .select("id, total_earnings, commission_rate")
-    .eq("profile_id", profileId)
-    .single()
+    .select("id, commission_pct")
+    .eq("user_id", profileId)
+    .maybeSingle()
 
   if (!ambassador) return { commissions: [], stats: null }
 
-  // Get commission history (from referral_usage)
-  const { data: referralCommissions, error: refError } = await supabase
-    .from("referral_usage")
-    .select(`
-      id,
-      commission_amount,
-      status,
-      created_at,
-      user:user_id (
-        full_name
-      )
-    `)
-    .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
+  // #29 — unified ledger: ambassador_commissions (credits) + ambassador_payouts
+  // (debits). The old referral_usage / ambassador_withdrawals tables and their
+  // commission_amount / amount / payment_method columns don't exist in the DB.
+  const [{ data: commissionRows }, { data: payoutRows }] = await Promise.all([
+    supabase
+      .from("ambassador_commissions")
+      .select("id, amount_dh, status, created_at, referred_user_id")
+      .eq("ambassador_id", ambassador.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("ambassador_payouts")
+      .select("id, amount_dh, status, method, created_at")
+      .eq("ambassador_id", ambassador.id)
+      .order("created_at", { ascending: false }),
+  ])
 
-  // Get withdrawal history
-  const { data: withdrawals, error: wdError } = await supabase
-    .from("ambassador_withdrawals")
-    .select("*")
-    .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
+  const commissions = commissionRows || []
+  const payouts = payoutRows || []
+
+  // Resolve filleul names for commission descriptions (no FK to embed).
+  const referredIds = [...new Set(commissions.map((c) => c.referred_user_id).filter(Boolean))]
+  const nameById = new Map<string, string>()
+  if (referredIds.length > 0) {
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", referredIds)
+    for (const p of profs || []) nameById.set(p.id, p.full_name || "Utilisateur")
+  }
 
   // Combine and sort all transactions
   const allTransactions: any[] = []
 
-  referralCommissions?.forEach(rc => {
-    const userName = (rc.user as unknown as { full_name?: string } | null)?.full_name || "Utilisateur"
+  for (const c of commissions) {
+    const userName = nameById.get(c.referred_user_id) || "Utilisateur"
     allTransactions.push({
-      id: rc.id,
+      id: c.id,
       type: "commission",
-      amount: rc.commission_amount || 0,
-      status: rc.status || "completed",
-      date: rc.created_at,
+      amount: Number(c.amount_dh) || 0,
+      status: c.status || "pending",
+      date: c.created_at,
       description: `Commission - ${userName}`,
-      source: userName
+      source: userName,
     })
-  })
+  }
 
-  withdrawals?.forEach(wd => {
+  for (const p of payouts) {
     allTransactions.push({
-      id: wd.id,
+      id: p.id,
       type: "withdrawal",
-      amount: -(wd.amount || 0),
-      status: wd.status,
-      date: wd.created_at,
-      description: `Retrait - ${wd.payment_method || "Virement"}`,
-      source: wd.payment_method || "Virement"
+      amount: -(Number(p.amount_dh) || 0),
+      status: p.status,
+      date: p.created_at,
+      description: `Retrait - ${p.method || "Virement"}`,
+      source: p.method || "Virement",
     })
-  })
+  }
 
   // Sort by date descending
   allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -89,36 +95,40 @@ async function getCommissionHistory(profileId: string) {
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
 
-  const monthlyEarnings = referralCommissions
-    ?.filter(r => new Date(r.created_at) >= startOfMonth)
-    .reduce((sum, r) => sum + (r.commission_amount || 0), 0) || 0
+  const totalEarnings = commissions.reduce((sum, c) => sum + (Number(c.amount_dh) || 0), 0)
 
-  const lastMonthEarnings = referralCommissions
-    ?.filter(r => {
-      const date = new Date(r.created_at)
+  const monthlyEarnings = commissions
+    .filter((c) => new Date(c.created_at) >= startOfMonth)
+    .reduce((sum, c) => sum + (Number(c.amount_dh) || 0), 0)
+
+  const lastMonthEarnings = commissions
+    .filter((c) => {
+      const date = new Date(c.created_at)
       return date >= startOfLastMonth && date <= endOfLastMonth
     })
-    .reduce((sum, r) => sum + (r.commission_amount || 0), 0) || 0
+    .reduce((sum, c) => sum + (Number(c.amount_dh) || 0), 0)
 
-  const pendingWithdrawals = withdrawals
-    ?.filter(w => w.status === "pending")
-    .reduce((sum, w) => sum + (w.amount || 0), 0) || 0
+  // ambassador_payouts.status ∈ {pending, paid, failed}.
+  const pendingWithdrawals = payouts
+    .filter((p) => p.status === "pending")
+    .reduce((sum, p) => sum + (Number(p.amount_dh) || 0), 0)
 
-  const totalWithdrawn = withdrawals
-    ?.filter(w => w.status === "completed")
-    .reduce((sum, w) => sum + (w.amount || 0), 0) || 0
+  const totalWithdrawn = payouts
+    .filter((p) => p.status === "paid")
+    .reduce((sum, p) => sum + (Number(p.amount_dh) || 0), 0)
 
   return {
     commissions: allTransactions,
     stats: {
-      totalEarnings: ambassador.total_earnings || 0,
+      totalEarnings,
       monthlyEarnings,
       lastMonthEarnings,
       pendingWithdrawals,
       totalWithdrawn,
-      commissionRate: ambassador.commission_rate || 15,
-      availableBalance: (ambassador.total_earnings || 0) - totalWithdrawn - pendingWithdrawals
-    }
+      commissionRate: Number(ambassador.commission_pct) || 15,
+      // Pending payouts are committed funds → excluded from available balance.
+      availableBalance: totalEarnings - totalWithdrawn - pendingWithdrawals,
+    },
   }
 }
 
@@ -150,37 +160,25 @@ export default async function AmbassadorCommissionsPage() {
 
   const getTransactionIcon = (type: string, amount: number) => {
     if (type === "withdrawal") {
-      return <ArrowUpRight className="h-5 w-5 text-red-400" />
+      return <ArrowUpRight className="h-5 w-5 text-destructive" />
     }
-    return <ArrowDownRight className="h-5 w-5 text-emerald-400" />
+    return <ArrowDownRight className="h-5 w-5 text-lime" />
   }
 
-  const getStatusBadge = (status: string) => {
+  // Statut → StatusBadge charte (plus jamais le code brut).
+  const getStatus = (status: string): { variant: StatusVariant; label: string } => {
     switch (status) {
       case "completed":
-        return {
-          icon: CheckCircle,
-          text: "Complété",
-          class: "bg-emerald-500/20 text-emerald-400"
-        }
-      case "pending":
-        return {
-          icon: Clock,
-          text: "En attente",
-          class: "bg-amber-500/20 text-amber-400"
-        }
+      case "paid":
+        return { variant: "success", label: "Complété" }
       case "active":
-        return {
-          icon: CheckCircle,
-          text: "Actif",
-          class: "bg-emerald-500/20 text-emerald-400"
-        }
+        return { variant: "success", label: "Actif" }
+      case "pending":
+        return { variant: "pending", label: "En attente" }
+      case "failed":
+        return { variant: "danger", label: "Refusé" }
       default:
-        return {
-          icon: CheckCircle,
-          text: status,
-          class: "bg-zinc-500/20 text-zinc-400"
-        }
+        return { variant: "neutral", label: "Inconnu" }
     }
   }
 
@@ -190,192 +188,134 @@ export default async function AmbassadorCommissionsPage() {
     : 0
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
+    <div className="bg-paper">
+      <div className="container mx-auto px-6 py-20 md:py-32">
         {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6">
           <Link href="/ambassador">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-white">Mes Commissions</h1>
-            <p className="text-zinc-400">Historique complet de vos gains</p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
-              <Filter className="h-4 w-4 mr-2" />
-              Filtrer
-            </Button>
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
-              <Download className="h-4 w-4 mr-2" />
-              Exporter
-            </Button>
-          </div>
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <span className="eyebrow tracking-[0.16em] text-pink">Mes commissions</span>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Ton <em className="font-semibold italic text-pink">cash</em>, suivi au dirham près.
+          </h1>
+          <p className="mt-2 text-mute">Historique complet de tes gains.</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-emerald-400 font-medium">Total gagné</p>
-                  <p className="text-3xl font-black text-white">{stats?.totalEarnings || 0} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-emerald-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Hiérarchie 1-2-3 : Disponible dominant + stats secondaires */}
+        <div className="mb-8 grid gap-4 lg:grid-cols-[1.2fr_2fr]">
+          {/* Disponible — surface sombre, montant retirable */}
+          <StatHero
+            eyebrow="Disponible"
+            value={(stats?.availableBalance || 0).toLocaleString()}
+            unit="DH"
+            tone="lime"
+            icon={<Wallet className="h-5 w-5" />}
+            meta={
+              <Button asChild variant="lime" size="sm" className="mt-1">
+                <Link href="/ambassador/withdrawals">Retirer</Link>
+              </Button>
+            }
+          />
 
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-blue-400 font-medium">Disponible</p>
-                  <p className="text-3xl font-black text-white">{stats?.availableBalance || 0} DH</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-blue-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Stats secondaires en cartes sticker */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <StickerCard className="p-5">
+              <span className="eyebrow tracking-[0.16em] text-mute">Total gagné</span>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{(stats?.totalEarnings || 0).toLocaleString()} DH</p>
+            </StickerCard>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-card">
-            <CardContent className="p-5">
+            <StickerCard className="p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-purple-400 font-medium">Ce mois</p>
-                  <p className="text-3xl font-black text-white">{stats?.monthlyEarnings || 0} DH</p>
-                  {growth !== 0 && (
-                    <p className={`text-xs mt-1 ${growth > 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {growth > 0 ? "+" : ""}{growth}% vs mois dernier
-                    </p>
-                  )}
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-purple-400" />
-                </div>
+                <span className="eyebrow tracking-[0.16em] text-mute">Ce mois</span>
+                <Calendar className="h-4 w-4 text-pink" />
               </div>
-            </CardContent>
-          </Card>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{(stats?.monthlyEarnings || 0).toLocaleString()} DH</p>
+              {growth !== 0 && (
+                <p className={`mt-1 font-mono text-xs ${growth > 0 ? "text-lime" : "text-destructive"}`}>
+                  {growth > 0 ? "+" : ""}{growth}% vs mois dernier
+                </p>
+              )}
+            </StickerCard>
 
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-card">
-            <CardContent className="p-5">
+            <StickerCard className="p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-amber-400 font-medium">Taux commission</p>
-                  <p className="text-3xl font-black text-white">{stats?.commissionRate || 15}%</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-amber-400" />
-                </div>
+                <span className="eyebrow tracking-[0.16em] text-mute">Taux</span>
+                <TrendingUp className="h-4 w-4 text-gold" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{stats?.commissionRate || 15}%</p>
+            </StickerCard>
 
-        {/* Summary Cards */}
-        <div className="grid md:grid-cols-2 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border-emerald-500/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-emerald-400 font-medium">Total retiré</p>
-                  <p className="text-2xl font-black text-white mt-1">{stats?.totalWithdrawn || 0} DH</p>
-                </div>
-                <Button asChild size="sm" className="bg-emerald-500 hover:bg-emerald-600">
-                  <Link href="/ambassador/withdrawals">
-                    Retirer
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            <StickerCard className="p-5">
+              <span className="eyebrow tracking-[0.16em] text-mute">Total retiré</span>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{(stats?.totalWithdrawn || 0).toLocaleString()} DH</p>
+            </StickerCard>
 
-          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
-            <CardContent className="p-6">
+            <StickerCard className="col-span-2 p-5 md:col-span-1">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-amber-400 font-medium">En attente de traitement</p>
-                  <p className="text-2xl font-black text-white mt-1">{stats?.pendingWithdrawals || 0} DH</p>
-                </div>
-                <Clock className="h-8 w-8 text-amber-400" />
+                <span className="eyebrow tracking-[0.16em] text-mute">En traitement</span>
+                <Clock className="h-4 w-4 text-gold" />
               </div>
-            </CardContent>
-          </Card>
+              <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-ink">{(stats?.pendingWithdrawals || 0).toLocaleString()} DH</p>
+            </StickerCard>
+          </div>
         </div>
 
         {/* Transaction History */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-emerald-400" />
-              Historique des transactions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {commissions.length > 0 ? (
-              <div className="space-y-3">
-                {commissions.map((transaction: any) => {
-                  const status = getStatusBadge(transaction.status)
-                  const StatusIcon = status.icon
-                  const isPositive = transaction.amount > 0
+        <StickerCard className="p-6">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <Wallet className="h-5 w-5 text-lime" />
+            Historique des transactions
+          </h2>
+          {commissions.length > 0 ? (
+            <div className="space-y-3">
+              {commissions.map((transaction: any) => {
+                const status = getStatus(transaction.status)
+                const isPositive = transaction.amount > 0
 
-                  return (
-                    <div
-                      key={transaction.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-card border border-zinc-800 hover:border-zinc-700 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${
-                          isPositive ? "bg-emerald-500/20" : "bg-red-500/20"
-                        }`}>
-                          {getTransactionIcon(transaction.type, transaction.amount)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-white">{transaction.description}</p>
-                          <p className="text-xs text-zinc-500">{formatDateTime(transaction.date)}</p>
-                        </div>
+                return (
+                  <div
+                    key={transaction.id}
+                    className="flex flex-col gap-3 rounded-xl border-2 border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex min-w-0 items-center gap-4">
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-ink ${
+                        isPositive ? "bg-lime/15" : "bg-destructive/12"
+                      }`}>
+                        {getTransactionIcon(transaction.type, transaction.amount)}
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className={`text-lg font-black ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
-                            {isPositive ? "+" : ""}{transaction.amount} DH
-                          </p>
-                        </div>
-                        <span className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${status.class}`}>
-                          <StatusIcon className="h-3 w-3" />
-                          {status.text}
-                        </span>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-ink">{transaction.description}</p>
+                        <p className="font-mono text-xs text-mute">{formatDateTime(transaction.date)}</p>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <Wallet className="h-20 w-20 mx-auto mb-6 text-zinc-700" />
-                <h3 className="text-2xl font-bold text-white mb-2">Pas encore de transactions</h3>
-                <p className="text-zinc-400 mb-6">
-                  Vos commissions apparaîtront ici lorsque vos filleuls s'inscriront
-                </p>
-                <Button asChild className="bg-amber-500 hover:bg-amber-600 text-white">
-                  <Link href="/ambassador">
-                    Partager mon code
-                  </Link>
+                    <div className="flex shrink-0 items-center gap-4">
+                      <p className={`font-mono text-lg font-bold tabular-nums ${isPositive ? "text-lime" : "text-destructive"}`}>
+                        {isPositive ? "+" : ""}{transaction.amount} DH
+                      </p>
+                      <StatusBadge variant={status.variant} label={status.label} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <NivEmpty
+              title="Pas encore de transactions"
+              description="Tes commissions apparaîtront ici dès que tes filleuls s'inscriront."
+              action={
+                <Button asChild variant="pink">
+                  <Link href="/ambassador">Partager mon code</Link>
                 </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              }
+            />
+          )}
+        </StickerCard>
       </div>
     </div>
   )

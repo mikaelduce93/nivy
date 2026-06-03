@@ -1,7 +1,9 @@
-// REDIRECT: /gamification/crews now redirects to /teen/circles (server-wired via gamification-system/features/crews;
-// both were wired but /teen/circles uses the canonical engine layer, not raw Supabase queries).
-import { redirect } from "next/navigation"
+// REDIRECT: /gamification/crews → /teen/circles (canonical engine layer).
+// #68 — aligned with the quest stubs: permanentRedirect (308) + robots:noindex.
+import { permanentRedirect } from "next/navigation"
+
+export const metadata = { robots: { index: false, follow: false } }
 
 export default function CrewsPage() {
-  redirect("/teen/circles")
+  permanentRedirect("/teen/circles")
 }

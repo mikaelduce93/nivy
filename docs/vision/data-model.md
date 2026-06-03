@@ -1,5 +1,11 @@
 # Data Model — Vision audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+> Canon de référence pour ce domaine : `docs/canon/INDEX.locked.md`.
+
+
 Read-only audit of Supabase project **imchornjvmgmaovhypco** vs the Nivy app code (`C:\Users\Shadow\Desktop\NIVY`) and the product vision.
 
 Audit timestamp: 2026-05-07. Method: 8 SQL queries via Supabase MCP `execute_sql` + repo grep of `.from("…")` patterns + cross-reference against the 38 migration files in `gamification-system/database/migrations/`.

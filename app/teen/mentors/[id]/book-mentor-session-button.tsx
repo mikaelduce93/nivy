@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils"
 import { useOptimisticRunner } from "@/lib/hooks/use-optimistic-mutation"
 import { toast } from "@/lib/utils/toast"
 import { H3 } from "@/components/ui/headings"
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
 import { Celebrate } from "@/components/ui/celebrate"
 import { useAnnounce } from "@/components/a11y/announce-region"
 
@@ -80,7 +82,7 @@ export function BookMentorSessionButton({
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok || json?.success === false) {
-        const message = translateError(json?.error) ?? "Reservation impossible. Reessaye."
+        const message = translateError(json?.error) ?? "Réservation impossible. Réessaie."
         throw new Error(message)
       }
       return { success: true as const }
@@ -94,12 +96,12 @@ export function BookMentorSessionButton({
       },
       onError: (err, _input, ctx) => {
         if (ctx) setSuccess(ctx.previousSuccess)
-        const message = err.message || "Erreur reseau. Reessaye."
+        const message = err.message || "Erreur réseau. Réessaie."
         setError(message)
         toast.error(message)
       },
       onSuccess: () => {
-        toast.success("Demande envoyee a ton parent !")
+        toast.success("Demande envoyée à ton parent !")
         setCelebrate(true)
         announce("Session mentor confirmée!")
         // Refresh server data + push to sessions hub after a beat.
@@ -123,11 +125,11 @@ export function BookMentorSessionButton({
       return
     }
     if (new Date(dt).getTime() < Date.now()) {
-      setError("La date doit etre dans le futur.")
+      setError("La date doit être dans le futur.")
       return
     }
     if (!consentRecorded) {
-      setError("Tu dois accepter l'enregistrement de la session pour reserver.")
+      setError("Tu dois accepter l'enregistrement de la session pour réserver.")
       return
     }
 
@@ -146,23 +148,21 @@ export function BookMentorSessionButton({
     return (
       <>
         {celebrateNode}
-        <button
+        <Button
           type="button"
           onClick={() => setOpen(true)}
-          className={cn(
-            "w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-info to-success px-6 py-4 text-base font-black text-primary-foreground",
-            "hover:brightness-110 transition-all duration-200 shadow-lg shadow-info/20",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info/60"
-          )}
+          variant="pink"
+          size="lg"
+          className="w-full"
         >
           <Calendar className="h-5 w-5" />
-          Reserver une session
+          Réserver une session
           {freeIntro ? (
-            <span className="ml-2 rounded-full bg-background/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-              Premiere offerte
+            <span className="ml-2 rounded-full border-2 border-ink bg-paper px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+              Première offerte
             </span>
           ) : null}
-        </button>
+        </Button>
       </>
     )
   }
@@ -171,16 +171,18 @@ export function BookMentorSessionButton({
     return (
       <>
         {celebrateNode}
-        <div className="rounded-3xl border border-success/30 bg-success-soft/10 p-6 flex gap-3 items-start">
-          <CheckCircle2 className="h-6 w-6 text-success shrink-0" />
-          <div>
-            <H3 className="font-black text-foreground">Demande envoyee !</H3>
-            <p className="text-sm text-foreground/80 mt-1">
-              Ton parent doit approuver la session avant qu'elle ne soit
-              confirmee. On t'emmene vers tes sessions...
-            </p>
+        <StickerCard variant="panel" className="gap-0 p-6 bg-lime/15">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="h-6 w-6 text-ink shrink-0" />
+            <div>
+              <H3 className="font-display text-lg font-bold text-ink">Demande envoyée !</H3>
+              <p className="text-sm text-ink/80 mt-1">
+                Ton parent doit approuver la session avant qu'elle ne soit
+                confirmée. On t'emmène vers tes sessions...
+              </p>
+            </div>
           </div>
-        </div>
+        </StickerCard>
       </>
     )
   }
@@ -188,124 +190,122 @@ export function BookMentorSessionButton({
   return (
     <>
       {celebrateNode}
-      <form
-        onSubmit={handleSubmit}
-        className="rounded-3xl border border-border bg-card/40 backdrop-blur-md p-6 space-y-4"
-      >
-      <div>
-        <H3 className="text-lg font-black text-foreground">Nouvelle session</H3>
-        <p className="text-sm text-muted-foreground mt-1">
-          La demande sera envoyee a ton parent pour approbation.
-        </p>
-      </div>
+      <StickerCard className="gap-0 p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <H3 className="font-display text-lg font-bold text-ink">Nouvelle session</H3>
+            <p className="text-sm text-mute mt-1">
+              La demande sera envoyée à ton parent pour approbation.
+            </p>
+          </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-            Date et heure
-          </label>
-          <input
-            type="datetime-local"
-            value={scheduledFor || defaultDate}
-            onChange={(e) => setScheduledFor(e.target.value)}
-            min={formatDatetimeLocal(new Date(Date.now() + 60_000))}
-            required
-            className="rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-info/40"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-            Duree
-          </label>
-          <select
-            value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
-            className="rounded-xl bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-info/40"
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1">
+              <label className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+                Date et heure
+              </label>
+              <input
+                type="datetime-local"
+                value={scheduledFor || defaultDate}
+                onChange={(e) => setScheduledFor(e.target.value)}
+                min={formatDatetimeLocal(new Date(Date.now() + 60_000))}
+                required
+                className="rounded-xl border-2 border-ink bg-paper px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+                Durée
+              </label>
+              <select
+                value={duration}
+                onChange={(e) => setDuration(Number(e.target.value))}
+                className="rounded-xl border-2 border-ink bg-paper px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+              >
+                {DURATIONS.map((d) => (
+                  <option key={d.value} value={d.value}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-sm text-ink rounded-xl border-2 border-ink bg-paper p-3">
+            <span className="inline-flex items-center gap-2">
+              <Clock className="h-4 w-4 text-teal" />
+              Estimation
+            </span>
+            <span className="font-mono font-bold tabular-nums text-ink">
+              {freeIntro
+                ? "Première session gratuite"
+                : `${Math.round((hourlyDh * duration) / 60)} DH`}
+            </span>
+          </div>
+
+          {/* V1.2-A: explicit recording-consent gate.
+              consent_recorded defaults to FALSE in mentor_session_recordings;
+              recording cannot start until both teen and mentor opt in. */}
+          <label
+            className={cn(
+              "flex items-start gap-3 rounded-xl border-2 p-3 cursor-pointer transition-colors",
+              consentRecorded
+                ? "border-ink bg-teal/15"
+                : "border-ink bg-paper hover:bg-ink/5"
+            )}
           >
-            {DURATIONS.map((d) => (
-              <option key={d.value} value={d.value}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+            <input
+              type="checkbox"
+              checked={consentRecorded}
+              onChange={(e) => setConsentRecorded(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-2 border-ink bg-paper accent-pink"
+            />
+            <span className="text-sm text-ink leading-snug">
+              <ShieldCheck className="h-4 w-4 text-teal inline-block mr-1 -mt-0.5" />
+              J&apos;accepte que la session soit enregistrée pour des raisons de
+              sécurité (90 jours de conservation). Mon parent et le mentor seront
+              informés ; l&apos;enregistrement sera supprimé automatiquement.
+            </span>
+          </label>
 
-      <div className="flex items-center justify-between text-sm text-foreground rounded-2xl border border-border bg-card/40 p-3">
-        <span className="inline-flex items-center gap-2">
-          <Clock className="h-4 w-4 text-info" />
-          Estimation
-        </span>
-        <span className="font-black tabular-nums text-foreground">
-          {freeIntro
-            ? "Premiere session gratuite"
-            : `${Math.round((hourlyDh * duration) / 60)} DH`}
-        </span>
-      </div>
+          {error ? (
+            <div className="rounded-xl border-2 border-ink bg-coral/15 p-3 flex gap-2 items-start text-sm text-ink">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-coral" />
+              <span>{error}</span>
+            </div>
+          ) : null}
 
-      {/* V1.2-A: explicit recording-consent gate.
-          consent_recorded defaults to FALSE in mentor_session_recordings;
-          recording cannot start until both teen and mentor opt in. */}
-      <label
-        className={cn(
-          "flex items-start gap-3 rounded-2xl border p-3 cursor-pointer transition-colors",
-          consentRecorded
-            ? "border-info/40 bg-info-soft/5"
-            : "border-border bg-card/40 hover:bg-card/60"
-        )}
-      >
-        <input
-          type="checkbox"
-          checked={consentRecorded}
-          onChange={(e) => setConsentRecorded(e.target.checked)}
-          className="mt-1 h-4 w-4 rounded border-border bg-card accent-info"
-        />
-        <span className="text-sm text-foreground leading-snug">
-          <ShieldCheck className="h-4 w-4 text-info inline-block mr-1 -mt-0.5" />
-          J&apos;accepte que la session soit enregistree pour des raisons de
-          securite (90 jours de conservation). Mon parent et le mentor seront
-          informes; l&apos;enregistrement sera supprime automatiquement.
-        </span>
-      </label>
-
-      {error ? (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-3 flex gap-2 items-start text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>{error}</span>
-        </div>
-      ) : null}
-
-      <div className="flex gap-2 pt-2">
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          disabled={isPending}
-          className="flex-1 rounded-2xl border border-border bg-card/40 px-4 py-3 text-sm font-black text-muted-foreground hover:bg-card/60 disabled:opacity-50"
-        >
-          Annuler
-        </button>
-        <button
-          type="submit"
-          disabled={isPending || !consentRecorded}
-          className={cn(
-            "flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-info to-success px-4 py-3 text-sm font-black text-primary-foreground",
-            "hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          )}
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Envoi...
-            </>
-          ) : (
-            <>
-              <Calendar className="h-4 w-4" />
-              Confirmer la demande
-            </>
-          )}
-        </button>
-      </div>
-      </form>
+          <div className="flex gap-2 pt-2">
+            <Button
+              type="button"
+              onClick={() => setOpen(false)}
+              disabled={isPending}
+              variant="outline"
+              className="flex-1"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              disabled={isPending || !consentRecorded}
+              variant="pink"
+              className="flex-1"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Envoi...
+                </>
+              ) : (
+                <>
+                  <Calendar className="h-4 w-4" />
+                  Confirmer la demande
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </StickerCard>
     </>
   )
 }
@@ -323,13 +323,13 @@ function translateError(code: unknown): string | null {
     case "mentor_not_active":
       return "Ce mentor n'est plus disponible."
     case "mentor_kyc_not_approved":
-      return "La verification de ce mentor est incomplete."
+      return "La vérification de ce mentor est incomplète."
     case "age_out_of_range":
-      return "Ce mentor accompagne une autre tranche d'age."
+      return "Ce mentor accompagne une autre tranche d'âge."
     case "no_parent_link":
-      return "Aucun parent n'est lie a ton compte. Contacte le support."
+      return "Aucun parent n'est lié à ton compte. Contacte le support."
     case "scheduled_in_past":
-      return "La date doit etre dans le futur."
+      return "La date doit être dans le futur."
     default:
       return null
   }

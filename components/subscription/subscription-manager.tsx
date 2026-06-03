@@ -165,25 +165,25 @@ export function SubscriptionManager() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-teal animate-spin" />
       </div>
     )
   }
 
   if (!subscription || subscription.plan_type === "free") {
     return (
-      <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-8 text-center">
-        <Crown className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">
+      <div className="bg-card rounded-2xl border border-ink p-8 text-center">
+        <Crown className="w-16 h-16 text-mute mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-ink mb-2">
           Aucun abonnement actif
         </h2>
-        <p className="text-zinc-400 mb-6">
+        <p className="text-mute mb-6">
           Passe à Premium pour débloquer toutes les fonctionnalités!
         </p>
         <a
           href="/premium"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500
-            rounded-xl text-white font-semibold hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal to-teal
+            rounded-xl text-ink font-semibold hover:opacity-90 transition-opacity"
         >
           <Crown className="w-5 h-5" />
           Voir les forfaits
@@ -202,15 +202,15 @@ export function SubscriptionManager() {
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { color: string; label: string }> = {
-      active: { color: "bg-green-500", label: "Actif" },
-      trial: { color: "bg-cyan-500", label: "Essai" },
-      paused: { color: "bg-yellow-500", label: "En pause" },
-      cancelled: { color: "bg-red-500", label: "Annulé" },
-      past_due: { color: "bg-orange-500", label: "Paiement dû" },
+      active: { color: "bg-lime", label: "Actif" },
+      trial: { color: "bg-teal", label: "Essai" },
+      paused: { color: "bg-gold", label: "En pause" },
+      cancelled: { color: "bg-destructive", label: "Annulé" },
+      past_due: { color: "bg-coral", label: "Paiement dû" },
     }
-    const badge = badges[status] || { color: "bg-zinc-500", label: status }
+    const badge = badges[status] || { color: "bg-muted", label: status }
     return (
-      <span className={`px-2 py-0.5 ${badge.color} text-white text-xs font-medium rounded-full`}>
+      <span className={`px-2 py-0.5 ${badge.color} text-ink text-xs font-medium rounded-full`}>
         {badge.label}
       </span>
     )
@@ -219,26 +219,26 @@ export function SubscriptionManager() {
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-500/20 p-6">
+      <div className="bg-gradient-to-r from-teal/10 to-teal/10 rounded-2xl border border-teal/20 p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl
+            <div className="w-16 h-16 bg-gradient-to-br from-teal to-teal rounded-2xl
               flex items-center justify-center">
-              <Crown className="w-8 h-8 text-white" />
+              <Crown className="w-8 h-8 text-ink" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-white">{subscription.plan_name}</h2>
+                <h2 className="text-2xl font-bold text-ink">{subscription.plan_name}</h2>
                 {getStatusBadge(subscription.status)}
               </div>
               {subscription.is_family_member && (
-                <p className="text-sm text-cyan-400 flex items-center gap-1 mt-1">
+                <p className="text-sm text-teal flex items-center gap-1 mt-1">
                   <Users className="w-4 h-4" />
                   Membre d'un abonnement famille
                 </p>
               )}
               {subscription.current_period_end && (
-                <p className="text-sm text-zinc-400 mt-1">
+                <p className="text-sm text-mute mt-1">
                   {subscription.status === "cancelled" ? "Se termine le " : "Renouvellement le "}
                   {formatDate(subscription.current_period_end)}
                 </p>
@@ -248,8 +248,8 @@ export function SubscriptionManager() {
 
           <a
             href="/premium"
-            className="px-4 py-2 bg-zinc-800 rounded-lg text-sm font-medium text-white
-              hover:bg-zinc-700 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-card rounded-lg text-sm font-medium text-ink
+              hover:bg-muted transition-colors flex items-center gap-2"
           >
             Changer de forfait
             <ChevronRight className="w-4 h-4" />
@@ -258,7 +258,7 @@ export function SubscriptionManager() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-zinc-800 pb-2">
+      <div className="flex gap-2 border-b border-ink pb-2">
         {[
           { key: "overview", label: "Aperçu", icon: Crown },
           { key: "payments", label: "Paiements", icon: CreditCard },
@@ -270,8 +270,8 @@ export function SubscriptionManager() {
             onClick={() => setActiveTab(tab.key as typeof activeTab)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
               ${activeTab === tab.key
-                ? "bg-cyan-500/10 text-cyan-400"
-                : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                ? "bg-teal/10 text-teal"
+                : "text-mute hover:text-ink hover:bg-card"
               }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -291,9 +291,9 @@ export function SubscriptionManager() {
             className="grid gap-6 md:grid-cols-2"
           >
             {/* Features */}
-            <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-cyan-400" />
+            <div className="bg-card rounded-xl border border-ink p-6">
+              <h3 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+                <Shield className="w-5 h-5 text-teal" />
                 Fonctionnalités incluses
               </h3>
               <ul className="space-y-3">
@@ -301,8 +301,8 @@ export function SubscriptionManager() {
                   .filter(([_, v]) => v !== false && v !== 0)
                   .map(([key, value]) => (
                     <li key={key} className="flex items-center justify-between text-sm">
-                      <span className="text-zinc-300">{key.replace(/_/g, " ")}</span>
-                      <span className="text-cyan-400 font-medium">
+                      <span className="text-ink-2">{key.replace(/_/g, " ")}</span>
+                      <span className="text-teal font-medium">
                         {value === true || value === -1
                           ? "✓"
                           : typeof value === "number" && key === "xp_multiplier"
@@ -315,9 +315,9 @@ export function SubscriptionManager() {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Settings className="w-5 h-5 text-cyan-400" />
+            <div className="bg-card rounded-xl border border-ink p-6">
+              <h3 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-teal" />
                 Actions rapides
               </h3>
               <div className="space-y-3">
@@ -325,8 +325,8 @@ export function SubscriptionManager() {
                   <button
                     onClick={handlePause}
                     disabled={processing}
-                    className="w-full py-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors
-                      flex items-center justify-center gap-2 text-white"
+                    className="w-full py-3 bg-card rounded-lg hover:bg-muted transition-colors
+                      flex items-center justify-center gap-2 text-ink"
                   >
                     <Pause className="w-4 h-4" />
                     Mettre en pause
@@ -337,8 +337,8 @@ export function SubscriptionManager() {
                   <button
                     onClick={handleResume}
                     disabled={processing}
-                    className="w-full py-3 bg-cyan-500 rounded-lg hover:bg-cyan-600 transition-colors
-                      flex items-center justify-center gap-2 text-white"
+                    className="w-full py-3 bg-teal rounded-lg hover:bg-teal transition-colors
+                      flex items-center justify-center gap-2 text-ink"
                   >
                     <Play className="w-4 h-4" />
                     Reprendre
@@ -347,8 +347,8 @@ export function SubscriptionManager() {
 
                 <a
                   href="/premium"
-                  className="w-full py-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors
-                    flex items-center justify-center gap-2 text-white"
+                  className="w-full py-3 bg-card rounded-lg hover:bg-muted transition-colors
+                    flex items-center justify-center gap-2 text-ink"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Changer de forfait
@@ -356,8 +356,8 @@ export function SubscriptionManager() {
 
                 <button
                   onClick={() => setShowCancelModal(true)}
-                  className="w-full py-3 border border-red-500/30 rounded-lg hover:bg-red-500/10
-                    transition-colors flex items-center justify-center gap-2 text-red-400"
+                  className="w-full py-3 border border-destructive/30 rounded-lg hover:bg-destructive/10
+                    transition-colors flex items-center justify-center gap-2 text-destructive"
                 >
                   <X className="w-4 h-4" />
                   Annuler l'abonnement
@@ -373,10 +373,10 @@ export function SubscriptionManager() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6"
+            className="bg-card rounded-xl border border-ink p-6"
           >
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <History className="w-5 h-5 text-cyan-400" />
+            <h3 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+              <History className="w-5 h-5 text-teal" />
               Historique des paiements
             </h3>
 
@@ -385,27 +385,27 @@ export function SubscriptionManager() {
                 {payments.map((payment) => (
                   <div
                     key={payment.id}
-                    className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-card rounded-lg"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-zinc-700 rounded-lg flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-zinc-400" />
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        <CreditCard className="w-5 h-5 text-mute" />
                       </div>
                       <div>
-                        <p className="text-white font-medium">{payment.plan?.name}</p>
-                        <p className="text-sm text-zinc-500">
+                        <p className="text-ink font-medium">{payment.plan?.name}</p>
+                        <p className="text-sm text-mute">
                           {formatDate(payment.created_at)}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-white font-medium">
+                      <p className="text-ink font-medium">
                         {payment.amount} {payment.currency}
                       </p>
                       <span className={`text-xs px-2 py-0.5 rounded-full
-                        ${payment.status === "completed" ? "bg-green-500/20 text-green-400" :
-                          payment.status === "pending" ? "bg-yellow-500/20 text-yellow-400" :
-                          "bg-red-500/20 text-red-400"}`}
+                        ${payment.status === "completed" ? "bg-lime/20 text-lime" :
+                          payment.status === "pending" ? "bg-gold/20 text-gold" :
+                          "bg-destructive/20 text-destructive"}`}
                       >
                         {payment.status === "completed" ? "Payé" :
                          payment.status === "pending" ? "En attente" : "Échoué"}
@@ -416,13 +416,13 @@ export function SubscriptionManager() {
 
                 <a
                   href="/subscription/payments"
-                  className="block text-center text-sm text-cyan-400 hover:underline py-2"
+                  className="block text-center text-sm text-teal hover:underline py-2"
                 >
                   Voir tout l'historique
                 </a>
               </div>
             ) : (
-              <p className="text-zinc-500 text-center py-8">Aucun paiement enregistré</p>
+              <p className="text-mute text-center py-8">Aucun paiement enregistré</p>
             )}
           </motion.div>
         )}
@@ -437,45 +437,45 @@ export function SubscriptionManager() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6"
+            className="bg-card rounded-xl border border-ink p-6"
           >
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Settings className="w-5 h-5 text-cyan-400" />
+            <h3 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-teal" />
               Paramètres d'abonnement
             </h3>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-card rounded-lg">
                 <div>
-                  <p className="text-white font-medium">Renouvellement automatique</p>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-ink font-medium">Renouvellement automatique</p>
+                  <p className="text-sm text-mute">
                     Renouveler automatiquement à la fin de la période
                   </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" defaultChecked className="sr-only peer" />
-                  <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer
-                    peer-checked:after:translate-x-full peer-checked:after:border-white
+                  <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer
+                    peer-checked:after:translate-x-full peer-checked:after:border-ink
                     after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                     after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all
-                    peer-checked:bg-cyan-500"></div>
+                    peer-checked:bg-teal"></div>
                 </label>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-card rounded-lg">
                 <div>
-                  <p className="text-white font-medium">Notifications de paiement</p>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-ink font-medium">Notifications de paiement</p>
+                  <p className="text-sm text-mute">
                     Recevoir un rappel avant le renouvellement
                   </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" defaultChecked className="sr-only peer" />
-                  <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer
-                    peer-checked:after:translate-x-full peer-checked:after:border-white
+                  <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer
+                    peer-checked:after:translate-x-full peer-checked:after:border-ink
                     after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                     after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all
-                    peer-checked:bg-cyan-500"></div>
+                    peer-checked:bg-teal"></div>
                 </label>
               </div>
             </div>
@@ -490,7 +490,7 @@ export function SubscriptionManager() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/70"
             onClick={() => setShowCancelModal(false)}
           >
             <motion.div
@@ -498,19 +498,19 @@ export function SubscriptionManager() {
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-zinc-900 rounded-2xl border border-zinc-800 p-6"
+              className="w-full max-w-md bg-card rounded-2xl border border-ink p-6"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-red-400" />
+                <div className="w-12 h-12 bg-destructive/20 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-destructive" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white">Annuler l'abonnement</h3>
-                  <p className="text-sm text-zinc-500">Cette action est irréversible</p>
+                  <h3 className="text-lg font-semibold text-ink">Annuler l'abonnement</h3>
+                  <p className="text-sm text-mute">Cette action est irréversible</p>
                 </div>
               </div>
 
-              <p className="text-zinc-400 mb-6">
+              <p className="text-mute mb-6">
                 Es-tu sûr de vouloir annuler ton abonnement {subscription.plan_name}?
                 Tu perdras l'accès à toutes les fonctionnalités premium.
               </p>
@@ -519,8 +519,8 @@ export function SubscriptionManager() {
                 <button
                   onClick={() => handleCancel(false)}
                   disabled={processing}
-                  className="w-full py-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors
-                    text-white font-medium"
+                  className="w-full py-3 bg-card rounded-lg hover:bg-muted transition-colors
+                    text-ink font-medium"
                 >
                   {processing ? (
                     <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -532,15 +532,15 @@ export function SubscriptionManager() {
                 <button
                   onClick={() => handleCancel(true)}
                   disabled={processing}
-                  className="w-full py-3 border border-red-500/30 rounded-lg hover:bg-red-500/10
-                    transition-colors text-red-400 font-medium"
+                  className="w-full py-3 border border-destructive/30 rounded-lg hover:bg-destructive/10
+                    transition-colors text-destructive font-medium"
                 >
                   Annuler immédiatement
                 </button>
 
                 <button
                   onClick={() => setShowCancelModal(false)}
-                  className="w-full py-3 text-zinc-500 hover:text-white transition-colors"
+                  className="w-full py-3 text-mute hover:text-ink transition-colors"
                 >
                   Garder mon abonnement
                 </button>
@@ -613,19 +613,19 @@ function FamilyTab({ subscription }: { subscription: Subscription }) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
-        className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-8 text-center"
+        className="bg-card rounded-xl border border-ink p-8 text-center"
       >
-        <Users className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-white mb-2">
+        <Users className="w-12 h-12 text-mute mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-ink mb-2">
           Forfait Famille non actif
         </h3>
-        <p className="text-zinc-400 mb-4">
+        <p className="text-mute mb-4">
           Passe au forfait Famille pour partager avec jusqu'à 5 membres
         </p>
         <a
           href="/premium"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-pink-500 rounded-lg
-            text-white font-medium hover:bg-pink-600 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-pink rounded-lg
+            text-ink font-medium hover:bg-pink transition-colors"
         >
           <Users className="w-4 h-4" />
           Voir le forfait Famille
@@ -637,7 +637,7 @@ function FamilyTab({ subscription }: { subscription: Subscription }) {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-teal animate-spin" />
       </div>
     )
   }
@@ -650,9 +650,9 @@ function FamilyTab({ subscription }: { subscription: Subscription }) {
       className="space-y-6"
     >
       {/* Invite */}
-      <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <UserPlus className="w-5 h-5 text-cyan-400" />
+      <div className="bg-card rounded-xl border border-ink p-6">
+        <h3 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+          <UserPlus className="w-5 h-5 text-teal" />
           Inviter un membre
         </h3>
 
@@ -662,15 +662,15 @@ function FamilyTab({ subscription }: { subscription: Subscription }) {
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
             placeholder="Email ou nom d'utilisateur"
-            className="flex-1 bg-zinc-800 rounded-lg px-4 py-2 text-white
-              placeholder:text-zinc-500 border border-zinc-700 focus:border-cyan-500
+            className="flex-1 bg-card rounded-lg px-4 py-2 text-ink
+              placeholder:text-mute border border-ink focus:border-teal
               focus:outline-none"
           />
           <button
             onClick={handleInvite}
             disabled={inviting || !inviteEmail.trim()}
-            className="px-4 py-2 bg-cyan-500 rounded-lg text-white font-medium
-              hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed
+            className="px-4 py-2 bg-teal rounded-lg text-ink font-medium
+              hover:bg-teal disabled:opacity-50 disabled:cursor-not-allowed
               transition-colors"
           >
             {inviting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Inviter"}
@@ -678,22 +678,22 @@ function FamilyTab({ subscription }: { subscription: Subscription }) {
         </div>
 
         {family && (
-          <p className="text-sm text-zinc-500 mt-2">
+          <p className="text-sm text-mute mt-2">
             {family.members?.length || 0}/{family.max_members} membres
           </p>
         )}
       </div>
 
       {/* Members */}
-      <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Membres de la famille</h3>
+      <div className="bg-card rounded-xl border border-ink p-6">
+        <h3 className="text-lg font-semibold text-ink mb-4">Membres de la famille</h3>
 
         {family?.members && family.members.length > 0 ? (
           <div className="space-y-3">
             {family.members.map((member) => (
               <div
                 key={member.id}
-                className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-card rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   {member.user.avatar_url ? (
@@ -705,26 +705,26 @@ function FamilyTab({ subscription }: { subscription: Subscription }) {
                       className="w-10 h-10 rounded-full"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600
-                      flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal to-teal
+                      flex items-center justify-center text-ink font-bold">
                       {member.user.display_name.charAt(0)}
                     </div>
                   )}
                   <div>
-                    <p className="text-white font-medium">{member.user.display_name}</p>
-                    <p className="text-sm text-zinc-500">@{member.user.username}</p>
+                    <p className="text-ink font-medium">{member.user.display_name}</p>
+                    <p className="text-sm text-mute">@{member.user.username}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`text-xs px-2 py-0.5 rounded-full
-                    ${member.status === "active" ? "bg-green-500/20 text-green-400" :
-                      "bg-yellow-500/20 text-yellow-400"}`}
+                    ${member.status === "active" ? "bg-lime/20 text-lime" :
+                      "bg-gold/20 text-gold"}`}
                   >
                     {member.status === "active" ? "Actif" : "En attente"}
                   </span>
                   {member.role !== "owner" && (
-                    <button className="p-1 hover:bg-zinc-700 rounded transition-colors">
-                      <Trash2 className="w-4 h-4 text-red-400" />
+                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                      <Trash2 className="w-4 h-4 text-destructive" />
                     </button>
                   )}
                 </div>
@@ -732,7 +732,7 @@ function FamilyTab({ subscription }: { subscription: Subscription }) {
             ))}
           </div>
         ) : (
-          <p className="text-zinc-500 text-center py-4">Aucun membre invité</p>
+          <p className="text-mute text-center py-4">Aucun membre invité</p>
         )}
       </div>
     </motion.div>

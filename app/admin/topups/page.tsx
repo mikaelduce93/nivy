@@ -14,8 +14,8 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { TopupRequestRow } from "./topup-request-row"
-import { EmptyState } from "@/components/ui/states/empty-state"
-import { CreditCard } from "lucide-react"
+import { NivEmpty, StatHero } from "@/components/brand"
+import BackButton from "@/components/admin/BackButton"
 
 export const dynamic = "force-dynamic"
 
@@ -97,85 +97,94 @@ export default async function AdminTopupsPage({
   const autoEnabled = process.env.PSP_AUTO_TOPUP_ENABLED === "true"
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="container mx-auto px-6 py-12">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-black">Recharges manuelles</h1>
-            <p className="text-zinc-400">
-              Validation des virements PSP (Cash Plus / Wafacash / M2T) hors-app.
-            </p>
-          </div>
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              autoEnabled
-                ? "bg-emerald-500/20 text-emerald-300"
-                : "bg-amber-500/20 text-amber-300"
-            }`}
-          >
-            Mode webhook auto: {autoEnabled ? "ACTIF" : "INACTIF"}
+    <main className="container mx-auto max-w-5xl px-6 py-8">
+      <BackButton href="/admin" />
+
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <span className="eyebrow tracking-[0.16em] text-mute">Recharges manuelles</span>
+          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Virements <em className="font-semibold italic text-pink">à valider</em>
+          </h1>
+          <p className="mt-1 text-sm text-mute">
+            Validation des virements PSP (Cash Plus / Wafacash / M2T) hors-app.
+          </p>
+        </div>
+        <span
+          className={`inline-flex items-center rounded-xl border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] ${
+            autoEnabled ? "bg-lime text-ink" : "bg-white text-mute"
+          }`}
+        >
+          Webhook auto : {autoEnabled ? "actif" : "inactif"}
+        </span>
+      </header>
+
+      {threshold?.should_activate_auto && !autoEnabled && (
+        <StatHero
+          tone="teal"
+          eyebrow="Seuil atteint"
+          value={threshold.families_topped_up}
+          unit="familles"
+          className="mb-6"
+          meta={
+            <div className="space-y-2">
+              <p className="text-paper/80">
+                Il est temps d&apos;activer le mode automatique —{" "}
+                <span className="font-mono tabular-nums">
+                  {Number(threshold.weeks_since_first ?? 0).toFixed(1)}
+                </span>{" "}
+                semaines depuis la première recharge.
+              </p>
+              <Link
+                href="/admin"
+                className="inline-flex items-center rounded-xl border-2 border-paper/40 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-paper transition-colors hover:bg-paper/10"
+              >
+                Voir la procédure d&apos;activation
+              </Link>
+            </div>
+          }
+        />
+      )}
+
+      {threshold && !threshold.should_activate_auto && (
+        <div className="mb-6 rounded-2xl border-2 border-ink bg-white p-4 shadow-stkr-sm">
+          <span className="font-mono text-sm tabular-nums text-mute">
+            {threshold.families_topped_up} / 100 familles ·{" "}
+            {Number(threshold.weeks_since_first ?? 0).toFixed(1)} / 4 semaines
           </span>
         </div>
+      )}
 
-        {threshold?.should_activate_auto && !autoEnabled && (
-          <div className="mb-6 rounded-xl border border-cyan-500/40 bg-cyan-500/10 p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="font-semibold text-cyan-300">
-                  Seuil atteint — il est temps d'activer le mode automatique.
-                </p>
-                <p className="mt-1 text-sm text-zinc-300">
-                  {threshold.families_topped_up} familles ont rechargé •
-                  {" "}
-                  {Number(threshold.weeks_since_first ?? 0).toFixed(1)} semaines depuis la première recharge.
-                </p>
-                <p className="mt-2 text-xs text-zinc-400">
-                  Voir le runbook docs/vision/ops-runbooks/05-psp-activation.md.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+      {/* Onglets statut — navigation par lien, look sticker-tab (actif = fond ink + texte paper + ombre rose). */}
+      <div className="mb-6 inline-flex gap-1 rounded-2xl border-2 border-ink bg-white p-1.5">
+        {(["pending", "confirmed", "rejected"] as const).map((s) => (
+          <Link
+            key={s}
+            href={`/admin/topups?status=${s}`}
+            className={`inline-flex items-center rounded-xl px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-all ${
+              status === s
+                ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                : "text-mute hover:text-ink"
+            }`}
+          >
+            {s === "pending" ? "En attente" : s === "confirmed" ? "Confirmées" : "Rejetées"}
+          </Link>
+        ))}
+      </div>
 
-        {threshold && !threshold.should_activate_auto && (
-          <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-sm">
-            <span className="text-zinc-400">
-              {threshold.families_topped_up} / 100 familles •{" "}
-              {Number(threshold.weeks_since_first ?? 0).toFixed(1)} / 4 semaines
-            </span>
-          </div>
-        )}
-
-        <div className="mb-6 flex gap-2">
-          {(["pending", "confirmed", "rejected"] as const).map((s) => (
-            <Link
-              key={s}
-              href={`/admin/topups?status=${s}`}
-              className={`rounded-md px-4 py-2 text-sm font-medium ${
-                status === s
-                  ? "bg-emerald-500 text-black"
-                  : "bg-zinc-900 text-zinc-400 hover:text-white"
-              }`}
-            >
-              {s === "pending" ? "En attente" : s === "confirmed" ? "Confirmées" : "Rejetées"}
-            </Link>
+      {requests.length === 0 ? (
+        <NivEmpty
+          mood="calm"
+          title="Aucune demande"
+          description={`Aucune demande ${status === "pending" ? "en attente" : status === "confirmed" ? "confirmée" : "rejetée"} pour le moment.`}
+        />
+      ) : (
+        <div className="space-y-3">
+          {requests.map((req) => (
+            <TopupRequestRow key={req.id} request={req} />
           ))}
         </div>
-
-        {requests.length === 0 ? (
-          <EmptyState
-            icon={CreditCard}
-            title="Aucune demande"
-            description={`Aucune demande ${status === "pending" ? "en attente" : status === "confirmed" ? "confirmée" : "rejetée"}.`}
-          />
-        ) : (
-          <div className="space-y-3">
-            {requests.map((req) => (
-              <TopupRequestRow key={req.id} request={req} />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </main>
   )
 }

@@ -3,13 +3,15 @@
  * Server component: loads the teen's friends and renders the client form.
  *
  * Submit hits POST /api/teen/friend-challenges → SECURITY DEFINER RPC
- * `create_friend_challenge_v2` (canon §2). XP escrow runs server-side.
+ * `create_friend_challenge_v2` (canon §2). #206 — défis entre amis pour
+ * l'honneur : aucune mise/escrow XP, aucun transfert d'XP entre ados.
  */
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
+import { NivCoach, NivEmpty } from "@/components/brand"
 import { ArrowLeft } from "lucide-react"
 import { NewFriendDefiForm, type FriendOption } from "./new-friend-defi-form"
 
@@ -40,14 +42,26 @@ export default async function NewFriendDefiPage() {
 
   let friends: FriendOption[] = []
   if (friendIds.length) {
-    const { data: profiles } = await supabase
-      .from("profiles")
+    // pseudo source = teens.pseudo (souvent NULL en seed) → fallback
+    // profiles.full_name (cf. get_user_crew / drift schéma profiles).
+    const { data: teens } = await supabase
+      .from("teens")
       .select("id, pseudo, avatar_url")
       .in("id", friendIds)
-    friends = (profiles ?? []).map((p: any) => ({
-      id: p.id as string,
-      pseudo: (p.pseudo as string | null) ?? "Anonyme",
-      avatar_url: (p.avatar_url as string | null) ?? null,
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", friendIds)
+    const nameById = new Map(
+      (profiles ?? []).map((p: any) => [p.id as string, p.full_name as string | null]),
+    )
+    friends = (teens ?? []).map((t: any) => ({
+      id: t.id as string,
+      pseudo:
+        (t.pseudo as string | null) ??
+        (nameById.get(t.id) as string | null) ??
+        "Anonyme",
+      avatar_url: (t.avatar_url as string | null) ?? null,
     }))
   }
 
@@ -62,24 +76,33 @@ export default async function NewFriendDefiPage() {
         </Button>
       </div>
 
-      <header className="space-y-2">
-        <h1 className="text-3xl font-black tracking-tight">Lancer un défi</h1>
-        <p className="text-sm text-muted-foreground">
-          Choisis un adversaire, un type de défi, ton enjeu en XP. La mise est
-          débitée à la création; ton adversaire est débité à l&apos;acceptation;
-          le pot va au gagnant.
+      <header className="space-y-3">
+        <span className="eyebrow tracking-[0.16em] text-pink">Lancer un défi</span>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+          Défie ton <em className="font-semibold italic text-pink">crew</em>
+        </h1>
+        <p className="text-sm text-mute">
+          Choisis un adversaire et un type de défi. Pas de mise, pas de transfert
+          d&apos;XP — le gagnant prend la couronne, c&apos;est tout.
         </p>
       </header>
 
+      <NivCoach
+        mood="hype"
+        message="Yallah, défie ton crew et prends la couronne !"
+      />
+
       {friends.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/40 p-6 text-center">
-          <p className="text-sm text-zinc-400">
-            Aucun ami pour le moment. Ajoute des amis avant de lancer un défi.
-          </p>
-          <Button asChild className="mt-4">
-            <Link href="/teen/friends">Ajouter des amis</Link>
-          </Button>
-        </div>
+        <NivEmpty
+          mood="calm"
+          title="Aucun ami pour le moment"
+          description="Ajoute des amis avant de lancer un défi."
+          action={
+            <Button variant="pink" asChild>
+              <Link href="/teen/friends">Ajouter des amis</Link>
+            </Button>
+          }
+        />
       ) : (
         <NewFriendDefiForm friends={friends} />
       )}

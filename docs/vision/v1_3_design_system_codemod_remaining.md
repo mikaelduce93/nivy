@@ -1,5 +1,10 @@
 # V1.3 Design System Codemod — Remaining Work
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 **Status**: Day 1 + Day 2 done by sub-agent Polish-B (2026-05-08).
 **Source plan**: `docs/vision/audit-content-personalization/wave4-reports/V5_design_system.md` (Path D — Migrate + Promote).
 **Ticket**: TICKET-048 [ui-completion] Design-system color reconciliation.

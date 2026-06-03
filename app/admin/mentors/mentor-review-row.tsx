@@ -43,6 +43,12 @@ function docVariant(status: string): StatusVariant {
   }
 }
 
+const DOC_STATUS_LABEL: Record<string, string> = {
+  approved: "Approuvé",
+  rejected: "Rejeté",
+  pending: "En attente",
+}
+
 interface DocLite {
   id: string
   doc_type: string
@@ -134,19 +140,19 @@ export function MentorReviewRow({
       : "—"
 
   return (
-    <li className="rounded border border-border bg-card p-4">
+    <li className="flex flex-col rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <div className="font-semibold text-foreground">
+          <div className="font-semibold text-ink">
             {mentor.full_name ?? "Sans nom"}
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-mute">
             {mentor.email ?? "(email inconnu)"}
             {mentor.years_experience != null
               ? ` · ${mentor.years_experience} ans d'exp.`
               : ""}
           </div>
-          <div className="text-xs text-muted-foreground/80">
+          <div className="text-xs text-mute">
             Inscrit le {new Date(mentor.created_at).toLocaleString("fr-FR")}
           </div>
         </div>
@@ -155,11 +161,13 @@ export function MentorReviewRow({
             variant={kycVariant(mentor.kyc_status)}
             label={`KYC : ${mentor.kyc_status}`}
             size="sm"
+            className="font-mono uppercase tracking-[0.16em]"
           />
           <StatusBadge
             variant={statusVariant(mentor.status)}
             label={`Statut : ${mentor.status}`}
             size="sm"
+            className="font-mono uppercase tracking-[0.16em]"
           />
         </div>
       </header>
@@ -180,7 +188,7 @@ export function MentorReviewRow({
           {mentor.expertise_tags.map((t) => (
             <span
               key={t}
-              className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+              className="rounded-md border-2 border-ink bg-paper px-2 py-0.5 font-mono text-xs text-mute"
             >
               {t}
             </span>
@@ -189,20 +197,20 @@ export function MentorReviewRow({
       )}
 
       {mentor.bio && (
-        <p className="mb-3 line-clamp-3 rounded bg-background px-3 py-2 text-xs text-foreground/90">
+        <p className="mb-3 line-clamp-3 rounded-lg border-2 border-ink bg-paper px-3 py-2 text-xs text-ink-2">
           {mentor.bio}
         </p>
       )}
 
       <div className="mb-3">
-        <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="mb-1 flex items-center justify-between text-xs text-mute">
           <span>Documents KYC</span>
           <span>
             {verifiedCount}/{mentor.documents.length} approuvés
           </span>
         </div>
         {mentor.documents.length === 0 ? (
-          <div className="rounded bg-background px-3 py-2 text-xs text-muted-foreground">
+          <div className="rounded-lg border-2 border-ink bg-paper px-3 py-2 text-xs text-mute">
             Aucun document soumis.
           </div>
         ) : (
@@ -210,26 +218,27 @@ export function MentorReviewRow({
             {mentor.documents.map((d) => (
               <li
                 key={d.id}
-                className="flex items-center justify-between rounded bg-background px-3 py-2 text-xs"
+                className="flex items-center justify-between rounded-lg border-2 border-ink bg-paper px-3 py-2 text-xs"
               >
-                <span className="text-foreground/90">{d.doc_type}</span>
+                <span className="text-ink-2">{d.doc_type}</span>
                 <span className="flex items-center gap-3">
                   <StatusBadge
                     variant={docVariant(d.status)}
-                    label={d.status}
+                    label={DOC_STATUS_LABEL[d.status] ?? d.status}
                     size="sm"
+                    className="font-mono uppercase tracking-[0.16em]"
                   />
                   {d.signedUrl ? (
                     <a
                       href={d.signedUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-info underline-offset-4 hover:underline"
+                      className="text-teal underline-offset-4 hover:underline"
                     >
                       Ouvrir
                     </a>
                   ) : (
-                    <span className="text-muted-foreground/70">URL indisponible</span>
+                    <span className="text-mute">URL indisponible</span>
                   )}
                 </span>
               </li>
@@ -246,7 +255,7 @@ export function MentorReviewRow({
             placeholder="Motif de rejet (obligatoire)"
             rows={2}
             maxLength={1000}
-            className="w-full rounded border border-input bg-background p-2 text-sm text-foreground"
+            className="w-full rounded-lg border-2 border-ink bg-paper p-2 text-sm text-ink"
           />
         </div>
       )}
@@ -258,9 +267,9 @@ export function MentorReviewRow({
           <Button
             type="button"
             size="sm"
+            variant="lime"
             disabled={busy}
             onClick={approve}
-            className="bg-success text-success-foreground hover:bg-success/90"
           >
             Approuver
           </Button>
@@ -268,7 +277,8 @@ export function MentorReviewRow({
             <Button
               type="button"
               size="sm"
-              variant="destructive"
+              variant="outline"
+              className="text-destructive"
               disabled={busy}
               onClick={() => setShowReject(true)}
             >
@@ -288,7 +298,7 @@ export function MentorReviewRow({
               <Button
                 type="button"
                 size="sm"
-                variant="secondary"
+                variant="outline"
                 disabled={busy}
                 onClick={() => {
                   setShowReject(false)
@@ -308,9 +318,9 @@ export function MentorReviewRow({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded bg-background px-2 py-1">
-      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="text-foreground/90">{children}</div>
+    <div className="rounded-lg border-2 border-ink bg-paper px-2 py-1">
+      <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">{label}</div>
+      <div className="text-ink-2">{children}</div>
     </div>
   )
 }

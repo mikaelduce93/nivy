@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type CommentWithUser } from "../schema"
 
 /**
@@ -59,7 +60,7 @@ export async function addActivityComment(
 
     return { success: true, comment }
   } catch (error) {
-    console.error("Erreur addActivityComment:", error)
+    logDbError("activity-feed.addActivityComment", error)
     return { success: false, error: "Impossible d'ajouter le commentaire" }
   }
 }
@@ -116,7 +117,7 @@ export async function getActivityComments(activityId: string): Promise<{
 
     return { success: true, comments: rootComments }
   } catch (error) {
-    console.error("Erreur getActivityComments:", error)
+    logDbError("activity-feed.getActivityComments", error)
     return { success: false, error: "Impossible de charger les commentaires" }
   }
 }
@@ -161,7 +162,7 @@ export async function editActivityComment(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur editActivityComment:", error)
+    logDbError("activity-feed.editActivityComment", error)
     return { success: false, error: "Impossible de modifier le commentaire" }
   }
 }
@@ -198,7 +199,7 @@ export async function deleteActivityComment(commentId: string): Promise<{
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur deleteActivityComment:", error)
+    logDbError("activity-feed.deleteActivityComment", error)
     return { success: false, error: "Impossible de supprimer le commentaire" }
   }
 }

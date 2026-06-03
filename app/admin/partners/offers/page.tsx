@@ -7,11 +7,11 @@
  * which the DB CHECK constraint requires together (canon §3.2 invariant).
  */
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
-import { EmptyState } from "@/components/ui/states/empty-state"
-import { Tag } from "lucide-react"
+import { NivEmpty } from "@/components/brand"
+import { StatCard } from "@/components/admin/stat-card"
+import BackButton from "@/components/admin/BackButton"
 import { OfferDecisionRow } from "./offer-decision-row"
 
 export const dynamic = "force-dynamic"
@@ -34,8 +34,8 @@ export default async function AdminPartnerOffersPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-white">Modération des offres</h1>
-        <p className="text-red-400">Accès refusé — rôle administrateur requis.</p>
+        <h1 className="mb-2 text-2xl font-bold text-ink">Modération des offres</h1>
+        <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
   }
@@ -81,26 +81,29 @@ export default async function AdminPartnerOffersPage() {
 
   return (
     <main className="container mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-6 flex items-center gap-3">
-        <Link href="/admin/partners" className="text-sm text-zinc-400 underline-offset-4 hover:text-white hover:underline">
-          ← Retour partenaires
-        </Link>
-      </div>
+      <BackButton href="/admin/partners" label="Retour partenaires" />
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-          <Tag className="w-7 h-7 text-amber-400" />
-          Modération des offres ({pending?.length ?? 0})
+        <span className="eyebrow tracking-[0.16em] text-mute">Partenaires · Offres</span>
+        <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink">
+          Offres en <em className="font-semibold italic text-pink">attente</em>
         </h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Toute nouvelle offre partenaire entre en file d&apos;attente avec status=pending_approval. Approuver bascule status=approved + is_active=true (atomique via CHECK contrainte DB).
+        <p className="mt-1 text-sm text-mute">
+          Chaque nouvelle offre partenaire arrive ici avant publication. Approuver l&apos;active
+          côté ado immédiatement.
         </p>
       </header>
 
+      <section className="mb-8 grid gap-3 sm:grid-cols-3">
+        <StatCard label="En attente" value={pending.length} tone="gold" />
+        <StatCard label="Partenaires" value={partnerIds.length} tone="teal" />
+        <StatCard label="À traiter" value={pending.length} tone="coral" />
+      </section>
+
       {pending.length === 0 ? (
-        <EmptyState
-          icon={Tag}
-          title="Aucune offre en attente"
+        <NivEmpty
+          mood="proud"
+          title="Tout est traité, le crew assure"
           description="Toutes les offres soumises ont été traitées."
         />
       ) : (

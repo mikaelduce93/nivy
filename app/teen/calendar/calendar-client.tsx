@@ -1,20 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
 import {
-  Calendar as CalendarIcon,
   Clock,
   MapPin,
   ChevronLeft,
   ChevronRight,
-  Zap,
   Bell,
   Check,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Niv, NivEmpty } from "@/components/brand"
 
 const MONTHS = [
   "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -22,12 +20,13 @@ const MONTHS = [
 ]
 const DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
 
-const TYPE_CONFIG: Record<string, { color: string; icon: string }> = {
-  event:     { color: "from-accent-soft to-pink-500",       icon: "🎉" },
-  challenge: { color: "from-brand-soft to-purple-500",  icon: "🧠" },
-  battle:    { color: "from-orange-500 to-red-500",         icon: "⚔️" },
-  workshop:  { color: "from-success-soft to-emerald-500",     icon: "💻" },
-  sport:     { color: "from-blue-500 to-cyan-500",          icon: "🏃" },
+// Pastilles d'event par type, en tokens charte (teal/gold/rose/lime/coral).
+const TYPE_CONFIG: Record<string, { dot: string; icon: string }> = {
+  event:     { dot: "bg-pink", icon: "🎉" },
+  challenge: { dot: "bg-teal", icon: "🧠" },
+  battle:    { dot: "bg-coral", icon: "⚔️" },
+  workshop:  { dot: "bg-lime", icon: "💻" },
+  sport:     { dot: "bg-gold", icon: "🏃" },
 }
 
 function getTypeConfig(type: string) {
@@ -97,32 +96,27 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
 
   return (
     <div className="space-y-8 pt-6">
-      {/* Header */}
-      <header>
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-info-soft to-blue-500 flex items-center justify-center">
-            <CalendarIcon className="w-6 h-6 text-black" />
-          </div>
-          <div>
-            <h1 className="text-4xl font-black tracking-tighter uppercase italic">Calendrier</h1>
-            <p className="text-zinc-500 text-sm font-medium">Tes événements à venir</p>
-          </div>
+      {/* Hero éditorial */}
+      <header className="flex items-center gap-4">
+        <Niv mood="happy" size={72} className="shrink-0" />
+        <div>
+          <p className="eyebrow tracking-[0.16em] text-pink">Ton agenda</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight">
+            Ton <em className="font-semibold italic text-pink">calendrier</em>
+          </h1>
+          <p className="mt-1 text-sm text-mute">Tes événements à venir.</p>
         </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-6">
         {/* Calendar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5"
-        >
+        <StickerCard variant="default" className="p-6">
           {/* Month Navigation */}
           <div className="flex items-center justify-between mb-6">
             <Button variant="ghost" size="icon" onClick={prevMonth} aria-label="Mois précédent">
               <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </Button>
-            <h2 className="text-xl font-black uppercase" aria-live="polite">
+            <h2 className="font-display text-xl font-extrabold uppercase tracking-tight" aria-live="polite">
               {MONTHS[currentMonth]} {currentYear}
             </h2>
             <Button variant="ghost" size="icon" onClick={nextMonth} aria-label="Mois suivant">
@@ -133,7 +127,7 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
           {/* Days Header */}
           <div className="grid grid-cols-7 gap-2 mb-4">
             {DAYS.map((day) => (
-              <div key={day} className="text-center text-sm font-bold text-zinc-500 uppercase">
+              <div key={day} className="text-center font-mono text-xs font-bold uppercase tracking-[0.08em] text-mute">
                 {day}
               </div>
             ))}
@@ -150,49 +144,43 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
               const isToday = dateStr === todayStr
 
               return (
-                <motion.button
+                <button
                   key={idx}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedDate(dateStr)}
                   className={cn(
                     "relative aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all",
                     isSelected
-                      ? "bg-info-soft text-black"
+                      ? "-translate-x-0.5 -translate-y-0.5 border-2 border-ink bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
                       : isToday
-                        ? "bg-brand-soft/20 text-white border border-brand-soft/30"
-                        : "hover:bg-white/5"
+                        ? "border-2 border-ink text-ink"
+                        : "border-2 border-transparent text-ink hover:border-ink"
                   )}
                 >
-                  <span className="font-bold">{day}</span>
+                  <span className="font-display font-extrabold tabular-nums">{day}</span>
                   {dayEvents.length > 0 && (
                     <div className="flex gap-1">
-                      {dayEvents.slice(0, 3).map((_, i) => (
+                      {dayEvents.slice(0, 3).map((event, i) => (
                         <div
                           key={i}
                           className={cn(
                             "w-1.5 h-1.5 rounded-full",
-                            isSelected ? "bg-black/50" : "bg-accent-soft"
+                            isSelected ? "bg-paper" : getTypeConfig(event.type).dot
                           )}
                         />
                       ))}
                     </div>
                   )}
-                </motion.button>
+                </button>
               )
             })}
           </div>
-        </motion.div>
+        </StickerCard>
 
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Selected Day Events */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5"
-          >
-            <h3 className="font-black text-lg mb-4">
+          <StickerCard variant="default" className="p-6">
+            <h3 className="font-display text-lg font-extrabold tracking-tight mb-4">
               {selectedDate
                 ? new Date(selectedDate + "T12:00:00").toLocaleDateString("fr-FR", {
                     weekday: "long",
@@ -203,103 +191,80 @@ export function CalendarClient({ upcomingEvents }: CalendarClientProps) {
             </h3>
 
             {selectedEvents.length === 0 ? (
-              <div className="text-center py-8">
-                <CalendarIcon className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500">Aucun événement ce jour</p>
-              </div>
+              <NivEmpty
+                mood="calm"
+                title="Aucun événement ce jour"
+                description="Choisis un autre jour ou réserve ta prochaine sortie."
+              />
             ) : (
               <div className="space-y-4">
                 {selectedEvents.map((event) => {
                   const config = getTypeConfig(event.type)
                   return (
-                    <div
-                      key={event.id}
-                      className={cn(
-                        "p-4 rounded-2xl border transition-all",
-                        event.registered
-                          ? "bg-success-soft/10 border-success-soft/30"
-                          : "bg-zinc-800/50 border-white/5"
-                      )}
-                    >
+                    <StickerCard key={event.id} variant="panel" className="p-4">
                       <div className="flex items-start gap-3">
                         <div className="text-2xl">{config.icon}</div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-white">{event.title}</h4>
-                          <div className="flex items-center gap-3 mt-2 text-sm text-zinc-400">
+                          <h4 className="font-display font-extrabold tracking-tight text-ink">{event.title}</h4>
+                          <div className="flex items-center gap-3 mt-2 font-mono text-xs text-mute">
                             {event.time && (
                               <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
+                                <Clock className="w-3 h-3" aria-hidden="true" />
                                 {event.time}
                               </div>
                             )}
                             {event.location && (
                               <div className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
+                                <MapPin className="w-3 h-3" aria-hidden="true" />
                                 {event.location}
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center justify-between mt-3">
-                            {event.xpReward > 0 && (
-                              <div className="flex items-center gap-2 text-brand-soft">
-                                <Zap className="w-4 h-4" />
-                                <span className="font-bold">+{event.xpReward} XP</span>
-                              </div>
-                            )}
-                            {event.registered ? (
-                              <span className="flex items-center gap-1 text-success-soft text-sm font-bold">
-                                <Check className="w-4 h-4" /> {event.rsvpLabel}
-                              </span>
-                            ) : (
-                              <Button size="sm" className="bg-info-soft text-black font-bold">
-                                S'inscrire
-                              </Button>
-                            )}
-                          </div>
+                          {event.registered && (
+                            <span className="mt-3 inline-flex items-center gap-1 rounded-full border-2 border-ink bg-lime px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-on-bright">
+                              <Check className="w-3 h-3" aria-hidden="true" /> {event.rsvpLabel}
+                            </span>
+                          )}
                         </div>
                       </div>
-                    </div>
+                    </StickerCard>
                   )
                 })}
               </div>
             )}
-          </motion.div>
+          </StickerCard>
 
           {/* Upcoming */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className="p-6 rounded-3xl bg-zinc-900/50 border border-white/5"
-          >
-            <h3 className="font-black text-lg mb-4">À venir</h3>
+          <StickerCard variant="default" className="p-6">
+            <h3 className="font-display text-lg font-extrabold tracking-tight mb-4">À venir</h3>
             {upcoming.length === 0 ? (
-              <EmptyState
-                preset="events"
-                size="small"
-                title="Pas d'événements prévus"
-                description="Reviens bientôt pour découvrir les prochains événements."
+              <NivEmpty
+                mood="calm"
+                title="Calme plat"
+                description="Réserve ta prochaine sortie pour remplir ton agenda."
               />
             ) : (
               <div className="space-y-3">
                 {upcoming.map((event) => (
-                  <div key={event.id} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/50">
-                    <div className="text-xl">{getTypeConfig(event.type).icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-sm text-white truncate">{event.title}</h4>
-                      <p className="text-xs text-zinc-500">
-                        {new Date(event.date + "T12:00:00").toLocaleDateString("fr-FR", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </p>
+                  <StickerCard key={event.id} variant="panel" className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="text-xl">{getTypeConfig(event.type).icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-display font-extrabold text-sm tracking-tight text-ink truncate">{event.title}</h4>
+                        <p className="font-mono text-xs text-mute">
+                          {new Date(event.date + "T12:00:00").toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </p>
+                      </div>
+                      <Bell className="w-4 h-4 text-mute" aria-hidden="true" />
                     </div>
-                    <Bell className="w-4 h-4 text-zinc-500" />
-                  </div>
+                  </StickerCard>
                 ))}
               </div>
             )}
-          </motion.div>
+          </StickerCard>
         </div>
       </div>
     </div>

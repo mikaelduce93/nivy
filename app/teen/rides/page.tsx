@@ -1,31 +1,62 @@
 /**
  * /teen/rides — Rides hub.
  *
- * V1.3-B mobile polish:
- * - Dock clearance hoisted to TeenLayout.
- * - h1 bumped to 4xl + italic to match teen surfaces.
- * - "Nouveau trajet" CTA gets shrink-0 + min-h-11 (44px touch).
- * - Long pickup/dropoff addresses truncate via line-clamp-1 to avoid overflow.
- * - Cards use design-system tokens via existing shadcn Card (which inherits
- *   border + bg-card from CSS variables) — no raw cyan/emerald hex.
+ * Refonte V2 (#158) — charte paper :
+ * - Hero éditorial tutoyé (eyebrow mono + <em> rose).
+ * - Trajets en <StickerCard> ; statuts FR en pills mono.
+ * - États vides via <NivEmpty> (Niv calm).
+ * - Préserve getUserRole/ride_bookings query + le split upcoming/history.
  */
 
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
-import { H1 } from "@/components/ui/headings"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
+import { getT } from "@/lib/i18n/server"
+import { rideStatusLabel } from "@/lib/i18n/status-labels"
+import type { Translator } from "@/lib/i18n"
 import Link from "next/link"
-import { Plus, MapPin, Car } from "lucide-react"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { Plus, MapPin, Car, Users, ChevronRight } from "lucide-react"
 
 export const dynamic = "force-dynamic"
+
+// Ton FR mono par statut (couleurs charte). Le libellé est désormais centralisé
+// via rideStatusLabel() — on ne garde ici que le mapping vers la classe couleur.
+const RIDE_STATUS_CLS: Record<string, string> = {
+  completed: "bg-lime/15 text-ink border-ink",
+  cancelled: "bg-muted text-mute border-ink",
+  denied: "bg-destructive/15 text-destructive border-ink",
+  in_progress: "bg-teal/15 text-ink border-ink",
+  dispatched: "bg-teal/15 text-ink border-ink",
+  pending: "bg-gold/15 text-ink border-ink",
+  approved: "bg-teal/15 text-ink border-ink",
+}
+
+// Libellés FR des modes de paiement / fournisseurs (présentation seulement —
+// jamais le slug DB brut, ex. "split_with_parent").
+const PAYMENT_LABELS: Record<string, string> = {
+  coins: "Coins ⊙",
+  dh: "DH",
+  cash: "Espèces",
+  card: "Carte",
+  split_with_parent: "Partagé parent",
+  parent: "Payé par le parent",
+}
+const PROVIDER_LABELS: Record<string, string> = {
+  careem: "Careem",
+  yango: "Yango",
+  heetch: "Heetch",
+  indrive: "inDrive",
+  nivy: "Nivy",
+  internal: "Nivy",
+}
 
 export default async function TeenRidesPage() {
   const userInfo = await getUserRole()
   if (!userInfo || userInfo.role !== "teen") redirect("/login")
+  const t = await getT()
   const supabase = await createClient()
 
   const { data: rides } = await supabase
@@ -46,23 +77,24 @@ export default async function TeenRidesPage() {
   )
 
   return (
-    <div className="container mx-auto space-y-6">
+    <div className="container mx-auto space-y-8 pt-6">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-info-soft to-success-soft">
-            <Car className="h-6 w-6 text-black" aria-hidden />
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-teal/20">
+            <Car className="h-7 w-7 text-ink" aria-hidden />
           </div>
           <div className="min-w-0">
-            <H1 className="text-4xl font-black tracking-tighter uppercase leading-none">
-              Mes trajets
-            </H1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Réservez vos trajets — chaque demande est validée par votre parent.
+            <p className="eyebrow tracking-[0.16em]">Mobilité</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight">
+              Tes <em className="font-semibold italic text-pink">trajets</em>
+            </h1>
+            <p className="mt-1 text-sm text-mute">
+              Réserve ton trajet, ton parent valide avant que ça parte.
             </p>
           </div>
         </div>
         <Link href="/teen/rides/request" className="shrink-0">
-          <Button className="min-h-11">
+          <Button variant="pink" className="min-h-11">
             <Plus className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Nouveau trajet</span>
             <span className="sm:hidden">Nouveau</span>
@@ -70,42 +102,63 @@ export default async function TeenRidesPage() {
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>À venir</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {upcoming.length === 0 ? (
-            <EmptyState
-              size="small"
-              icon={Car}
-              title="Aucun trajet à venir"
-              description="Réserve un trajet pour rejoindre tes amis ou aller à un événement."
-              action={{ label: "Nouveau trajet", href: "/teen/rides/request" }}
-            />
-          ) : (
-            upcoming.map((r) => <RideRow key={r.id} ride={r} />)
-          )}
-        </CardContent>
-      </Card>
+      <Link href="/teen/rides/groups" className="block">
+        <StickerCard variant="hover" className="flex-row items-center gap-3 p-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-pink/20">
+            <Users className="h-5 w-5 text-ink" aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-ink">Sorties à plusieurs</p>
+            <p className="text-xs text-mute">
+              Organise un trajet groupé, invite tes amis et partagez la note.
+            </p>
+          </div>
+          <ChevronRight className="h-5 w-5 shrink-0 text-mute" aria-hidden />
+        </StickerCard>
+      </Link>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Historique</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {history.length === 0 ? (
-            <EmptyState
-              size="small"
-              icon={MapPin}
-              title="Aucun trajet passé"
-              description="Tes trajets terminés s'afficheront ici une fois ton premier ride complété."
-            />
-          ) : (
-            history.map((r) => <RideRow key={r.id} ride={r} />)
-          )}
-        </CardContent>
-      </Card>
+      <section className="space-y-3">
+        <h2 className="font-mono text-[12px] font-bold uppercase tracking-[0.16em] text-mute">
+          À venir
+        </h2>
+        {upcoming.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Aucun trajet à venir"
+            description="Réserve un trajet pour rejoindre tes amis ou aller à un événement."
+            action={
+              <Button asChild variant="pink" className="min-h-11">
+                <Link href="/teen/rides/request">Nouveau trajet</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <div className="space-y-3">
+            {upcoming.map((r) => (
+              <RideRow key={r.id} ride={r} t={t} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="font-mono text-[12px] font-bold uppercase tracking-[0.16em] text-mute">
+          Historique
+        </h2>
+        {history.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Aucun trajet passé"
+            description="Tes trajets terminés s'afficheront ici une fois ton premier ride complété."
+          />
+        ) : (
+          <div className="space-y-3">
+            {history.map((r) => (
+              <RideRow key={r.id} ride={r} t={t} />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   )
 }
@@ -122,41 +175,46 @@ interface RideRowProps {
     payment_method: string
     provider: string
   }
+  t: Translator
 }
 
-function RideRow({ ride }: RideRowProps) {
+function RideRow({ ride, t }: RideRowProps) {
   const dt = new Date(ride.scheduled_for)
+  const statusLabel = rideStatusLabel(ride.status, t)
+  const statusCls = RIDE_STATUS_CLS[ride.status] ?? "bg-muted text-mute border-ink"
   return (
-    <div className="flex items-start justify-between gap-3 rounded-md border border-border p-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start gap-2 text-sm font-medium text-foreground">
-          <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-          <span className="line-clamp-2 break-words">
-            {ride.pickup_address} → {ride.dropoff_address}
+    <StickerCard className="gap-0 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-2 text-sm font-bold text-ink">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            <span className="line-clamp-2 break-words">
+              {ride.pickup_address} → {ride.dropoff_address}
+            </span>
+          </div>
+          <div className="mt-1 font-mono text-xs text-mute">
+            {[
+              dt.toLocaleString("fr-FR"),
+              ride.provider ? (PROVIDER_LABELS[ride.provider] ?? ride.provider) : null,
+              ride.payment_method
+                ? (PAYMENT_LABELS[ride.payment_method] ?? ride.payment_method)
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </div>
+        </div>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <span
+            className={`inline-flex items-center rounded-full border-2 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] ${statusCls}`}
+          >
+            {statusLabel}
+          </span>
+          <span className="font-mono text-sm font-bold tabular-nums text-ink">
+            {ride.actual_dh ?? ride.estimated_dh ?? "—"} DH
           </span>
         </div>
-        <div className="mt-1 text-xs text-muted-foreground">
-          {dt.toLocaleString("fr-FR")} · {ride.provider} · {ride.payment_method}
-        </div>
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-1">
-        <StatusBadge
-          variant={statusVariant(ride.status)}
-          size="sm"
-          label={ride.status}
-        />
-        <span className="text-sm font-semibold tabular-nums text-foreground">
-          {ride.actual_dh ?? ride.estimated_dh ?? "—"} DH
-        </span>
-      </div>
-    </div>
+    </StickerCard>
   )
-}
-
-function statusVariant(status: string): StatusVariant {
-  if (status === "completed") return "success"
-  if (status === "cancelled" || status === "denied") return "danger"
-  if (status === "in_progress" || status === "dispatched") return "info"
-  if (status === "pending" || status === "approved") return "pending"
-  return "neutral"
 }

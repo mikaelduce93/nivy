@@ -15,96 +15,60 @@ import { cn } from '@/lib/utils'
 // instead of staying locked to the card neutral.
 const cardVariants = cva(
   [
-    // Base styles
+    // Base — carte « sticker » néo-brutaliste (charte paper V1.5)
     'relative flex flex-col gap-6 py-6',
     'bg-card text-card-foreground',
-    'rounded-[2.5rem] border border-border/50',
-    // Transitions
-    'transition-all duration-300 ease-out',
+    'rounded-2xl border-2 border-ink shadow-stkr-md',
+    'transition-all duration-200 ease-out',
   ].join(' '),
   {
     variants: {
       variant: {
         default: [
-          'shadow-sm',
-          'hover:shadow-lg hover:shadow-primary/5',
-          'hover:-translate-y-1 hover:border-primary/20',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
-        // ── Semantic tinted surfaces (TICKET-011) ─────────────────────────
-        // Each uses the corresponding `--color-*-soft` token (mathematically
-        // derived from its semantic source via color-mix in OKLCH) plus a
-        // 1px border in the source color at reduced opacity for definition.
+        // ── Surfaces teintées (soft tokens charte) + bordure encre + ombre sticker ──
         brand: [
-          'bg-brand-soft text-foreground',
-          'border-primary/30',
-          'shadow-sm',
-          'hover:shadow-lg hover:shadow-primary/10',
-          'hover:-translate-y-1 hover:border-primary/50',
+          'bg-brand-soft text-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
         accent: [
-          'bg-accent-soft text-foreground',
-          'border-accent/30',
-          'shadow-sm',
-          'hover:shadow-lg hover:shadow-accent/10',
-          'hover:-translate-y-1 hover:border-accent/50',
+          'bg-accent-soft text-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
         success: [
-          'bg-success-soft text-foreground',
-          'border-success/30',
-          'shadow-sm',
-          'hover:shadow-lg hover:shadow-success/10',
-          'hover:-translate-y-1 hover:border-success/50',
+          'bg-success-soft text-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
         info: [
-          'bg-info-soft text-foreground',
-          'border-info/30',
-          'shadow-sm',
-          'hover:shadow-lg hover:shadow-info/10',
-          'hover:-translate-y-1 hover:border-info/50',
+          'bg-info-soft text-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
         warning: [
-          'bg-warning-soft text-foreground',
-          'border-warning/30',
-          'shadow-sm',
-          'hover:shadow-lg hover:shadow-warning/10',
-          'hover:-translate-y-1 hover:border-warning/50',
+          'bg-warning-soft text-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
         danger: [
-          'bg-danger-soft text-foreground',
-          'border-destructive/30',
-          'shadow-sm',
-          'hover:shadow-lg hover:shadow-destructive/10',
-          'hover:-translate-y-1 hover:border-destructive/50',
+          'bg-danger-soft text-foreground border-ink',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
-        // ── Existing decorative variants ──────────────────────────────────
-        // glass: TICKET-011 spec — over-image translucent surface. Note this
-        // changes from the prior `bg-card/60 backdrop-blur-xl` look; existing
-        // call sites that relied on the heavier card-tint look should switch
-        // to the new `gradient` or `flat` variants if needed.
+        // ── Variants décoratifs : neutralisés en cartes paper (glass/glow
+        // dépréciés — plus de backdrop-blur ni glow, cf. F4/F5) ──
         glass: [
-          'bg-white/10 backdrop-blur-md',
-          'border-white/20',
-          'shadow-xl shadow-black/5',
-          'hover:bg-white/15 hover:border-white/30',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
         glow: [
-          'bg-card/80 backdrop-blur-md',
-          'shadow-[0_0_0_1px_oklch(from_var(--primary)_l_c_h_/_0.1),0_8px_32px_-8px_oklch(from_var(--primary)_l_c_h_/_0.15)]',
-          'hover:shadow-[0_0_0_1px_oklch(from_var(--primary)_l_c_h_/_0.2),0_16px_48px_-12px_oklch(from_var(--primary)_l_c_h_/_0.25)]',
-          'hover:-translate-y-1',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink',
         ].join(' '),
         interactive: [
           'cursor-pointer',
-          'shadow-sm',
-          'hover:shadow-xl hover:shadow-primary/10',
-          'hover:-translate-y-2 hover:border-primary/30',
-          'active:translate-y-0 active:shadow-md',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
+          'active:translate-x-0 active:translate-y-0 active:shadow-stkr-sm',
         ].join(' '),
         flat: 'border-0 shadow-none bg-muted/50',
         gradient: [
-          'bg-gradient-to-br from-card via-card to-muted/50',
-          'border-0',
-          'shadow-lg shadow-primary/5',
+          'bg-secondary',
+          'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr',
         ].join(' '),
       },
       padding: {
@@ -150,7 +114,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-title"
-      className={cn('leading-tight font-bold text-lg tracking-tight', className)}
+      className={cn('font-display leading-tight font-bold text-lg tracking-tight', className)}
       {...props}
     />
   )

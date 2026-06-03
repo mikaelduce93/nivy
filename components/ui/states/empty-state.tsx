@@ -1,16 +1,16 @@
 'use client'
 
 /**
- * TEENS PARTY MOROCCO - Empty State Component
- * ============================================
+ * NIVY — Empty State
+ * ==================
  *
- * Premium empty state with animated illustrations,
- * glow effects, and dramatic entry animations.
+ * État vide canonique de l'app (charte paper). Rend la mascotte Niv via
+ * `<NivEmpty>` (F4) — plus aucun glow/particule/glass. API conservée pour ne
+ * pas casser les ~70 écrans consommateurs.
  */
 
 import * as React from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar,
   Ticket,
@@ -33,8 +33,9 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button, PremiumButton } from '@/components/ui/button'
-import { FloatingParticles, GlowPulse, PALETTES } from '@/components/ui/effects/particle-system'
+import { Button } from '@/components/ui/button'
+import { NivEmpty } from '@/components/brand'
+import type { NivMood } from '@/components/brand/niv'
 
 /* ==========================================================================
    PRESET ILLUSTRATIONS
@@ -126,7 +127,7 @@ const presetMessages: Record<string, { title: string; description: string }> = {
   },
   coins: {
     title: 'Pas encore de coins',
-    description: 'Termine des quêtes quotidiennes pour earn tes premiers coins et débloquer la boutique.',
+    description: 'Termine des quêtes quotidiennes pour gagner tes premiers coins et débloquer la boutique.',
   },
   feed: {
     title: 'Ton feed est vide',
@@ -150,9 +151,9 @@ interface EmptyStateAction {
 }
 
 interface EmptyStateProps {
-  /** Preset type for automatic icon and messages */
+  /** Preset type for automatic messages */
   preset?: keyof typeof presetIcons
-  /** Custom icon (overrides preset) */
+  /** @deprecated Niv est désormais la mascotte ; l'icône Lucide n'est plus rendue. */
   icon?: LucideIcon
   /** Title (overrides preset) */
   title?: string
@@ -164,6 +165,8 @@ interface EmptyStateProps {
   secondaryAction?: EmptyStateAction
   /** Size variant */
   size?: 'small' | 'default' | 'large'
+  /** Humeur de Niv (défaut `calm` ; `proud`/`hype` pour les états d'amorçage). */
+  nivMood?: NivMood
   /** Additional className */
   className?: string
   /** Children for custom content */
@@ -172,250 +175,57 @@ interface EmptyStateProps {
 
 export function EmptyState({
   preset,
-  icon: customIcon,
   title: customTitle,
   description: customDescription,
   action,
   secondaryAction,
   size = 'default',
+  nivMood = 'calm',
   className,
   children,
 }: EmptyStateProps) {
-  // Resolve icon, title, description from preset or custom
-  const Icon = customIcon || (preset ? presetIcons[preset] : Inbox)
   const presetData = preset ? presetMessages[preset] : null
   const title = customTitle || presetData?.title || 'Rien à afficher'
   const description = customDescription || presetData?.description || 'Aucun contenu disponible.'
 
-  // Size classes
-  const sizeClasses = {
-    small: {
-      container: 'py-8',
-      iconWrapper: 'w-14 h-14',
-      icon: 'w-6 h-6',
-      title: 'text-base',
-      description: 'text-sm',
-      particleCount: 8,
-    },
-    default: {
-      container: 'py-12',
-      iconWrapper: 'w-20 h-20',
-      icon: 'w-9 h-9',
-      title: 'text-xl',
-      description: 'text-sm',
-      particleCount: 12,
-    },
-    large: {
-      container: 'py-20',
-      iconWrapper: 'w-28 h-28',
-      icon: 'w-12 h-12',
-      title: 'text-2xl',
-      description: 'text-base',
-      particleCount: 18,
-    },
+  const containerPad = size === 'small' ? 'py-8' : size === 'large' ? 'py-20' : 'py-12'
+  const btnSize = size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'default'
+
+  const renderBtn = (a: EmptyStateAction, primary: boolean) => {
+    const variant =
+      a.variant === 'outline' ? 'outline' : a.variant === 'ghost' ? 'ghost' : primary ? 'pink' : 'outline'
+    if (a.href) {
+      return (
+        <Button asChild variant={variant} size={btnSize}>
+          <Link href={a.href}>{a.label}</Link>
+        </Button>
+      )
+    }
+    return (
+      <Button variant={variant} size={btnSize} onClick={a.onClick}>
+        {a.label}
+      </Button>
+    )
   }
 
-  const classes = sizeClasses[size]
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.1,
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 200,
-        damping: 20,
-      },
-    },
-  }
+  const actionNode =
+    action || secondaryAction ? (
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        {action && renderBtn(action, true)}
+        {secondaryAction && renderBtn(secondaryAction, false)}
+      </div>
+    ) : undefined
 
   return (
-    <motion.div
-      className={cn(
-        'flex flex-col items-center justify-center text-center relative',
-        classes.container,
-        className
-      )}
-      role="status"
-      aria-label={title}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {/* Background particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <FloatingParticles
-          count={classes.particleCount}
-          colors={PALETTES.lavender}
-          direction="random"
-          speed="slow"
-          glow={true}
-        />
-      </div>
-
-      {/* Animated Icon with glow */}
-      <motion.div variants={itemVariants} className="relative z-10">
-        <GlowPulse color="#8b5cf6" intensity="medium" speed="slow">
-          <motion.div
-            className={cn(
-              'rounded-2xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm flex items-center justify-center border border-white/10 relative overflow-hidden',
-              classes.iconWrapper
-            )}
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            animate={{
-              y: [0, -8, 0],
-            }}
-            transition={{
-              y: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
-            }}
-          >
-            {/* Shimmer overlay */}
-            <motion.div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.1) 50%, transparent 75%)',
-              }}
-              animate={{
-                x: ['-100%', '200%'],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatDelay: 2,
-              }}
-            />
-            
-            {/* Rotating ring */}
-            <motion.div
-              className="absolute inset-0 border-2 border-brand-soft/20 rounded-2xl"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            />
-            
-            <Icon className={cn('text-brand-soft relative z-10', classes.icon)} />
-          </motion.div>
-        </GlowPulse>
-      </motion.div>
-
-      {/* Title with gradient */}
-      <motion.h3 
-        variants={itemVariants}
-        className={cn(
-          'font-black text-white mb-2 mt-6 tracking-tight relative z-10',
-          classes.title
-        )}
-      >
-        {title}
-      </motion.h3>
-
-      {/* Description */}
-      <motion.p 
-        variants={itemVariants}
-        className={cn(
-          'text-zinc-400 max-w-sm mb-8 relative z-10',
-          classes.description
-        )}
-      >
-        {description}
-      </motion.p>
-
-      {/* Custom children */}
-      {children && (
-        <motion.div variants={itemVariants} className="relative z-10">
-          {children}
-        </motion.div>
-      )}
-
-      {/* Actions with glow effect */}
-      <AnimatePresence>
-        {(action || secondaryAction) && (
-          <motion.div 
-            variants={itemVariants}
-            className="flex items-center gap-3 relative z-10"
-          >
-            {action && (
-              action.href ? (
-                <Link href={action.href}>
-                  <motion.div
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <PremiumButton 
-                      variant={action.variant === 'outline' ? 'outline' : action.variant === 'ghost' ? 'ghost' : 'lavender'} 
-                      size={size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'default'}
-                      glow={true}
-                      ripple={true}
-                    >
-                      <Sparkles className="w-4 h-4 mr-1.5" />
-                      {action.label}
-                    </PremiumButton>
-                  </motion.div>
-                </Link>
-              ) : (
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <PremiumButton
-                    variant={action.variant === 'outline' ? 'outline' : action.variant === 'ghost' ? 'ghost' : 'lavender'}
-                    size={size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'default'}
-                    onClick={action.onClick}
-                    glow={true}
-                    ripple={true}
-                  >
-                    <Sparkles className="w-4 h-4 mr-1.5" />
-                    {action.label}
-                  </PremiumButton>
-                </motion.div>
-              )
-            )}
-            {secondaryAction && (
-              secondaryAction.href ? (
-                <Link href={secondaryAction.href}>
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button 
-                      variant={secondaryAction.variant || 'outline'} 
-                      size={size === 'small' ? 'sm' : 'default'}
-                    >
-                      {secondaryAction.label}
-                    </Button>
-                  </motion.div>
-                </Link>
-              ) : (
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button
-                    variant={secondaryAction.variant || 'outline'}
-                    size={size === 'small' ? 'sm' : 'default'}
-                    onClick={secondaryAction.onClick}
-                  >
-                    {secondaryAction.label}
-                  </Button>
-                </motion.div>
-              )
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+    <div className={cn('flex flex-col items-center', containerPad, className)}>
+      <NivEmpty
+        mood={nivMood}
+        title={title}
+        description={description}
+        action={actionNode}
+        className="w-full max-w-md"
+      />
+      {children ? <div className="mt-4 w-full max-w-md">{children}</div> : null}
+    </div>
   )
 }

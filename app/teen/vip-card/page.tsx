@@ -30,7 +30,9 @@ export default async function VipCardPage() {
   ])
 
   const userXP = vipTier?.lifetimeXp ?? profile?.total_xp ?? 0
-  const tierSlug = (vipTier?.tier || "bronze").toLowerCase()
+  // #66 — default to the real entry tier 'standard' (vip_tiers.tier_level 0,
+  // matching getUserVipTier's own default), not 'bronze'.
+  const tierSlug = (vipTier?.tier || "standard").toLowerCase()
   const memberSince = profile?.created_at ?? null
 
   return <VipCardClient userXP={userXP} tierSlug={tierSlug} memberSince={memberSince} />

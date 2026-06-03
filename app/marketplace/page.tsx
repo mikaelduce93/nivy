@@ -7,13 +7,41 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { Search, Plus } from "lucide-react"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Button } from "@/components/ui/button"
+import { NivEmpty } from "@/components/brand"
 
 export const dynamic = "force-dynamic"
 
 const CATEGORIES = [
   "clothing","books","school","sport","gaming","art","crafts","tickets","services","other",
 ] as const
+
+// Libellés FR des catégories (mapping présentation — slugs serveur inchangés).
+const CATEGORY_LABELS: Record<string, string> = {
+  clothing: "Vêtements",
+  books: "Livres",
+  school: "Scolaire",
+  sport: "Sport",
+  gaming: "Gaming",
+  art: "Art",
+  crafts: "Fait main",
+  tickets: "Billets",
+  services: "Services",
+  other: "Autre",
+}
+
+const CONDITION_LABELS: Record<string, string> = {
+  new: "Neuf",
+  like_new: "Comme neuf",
+  good: "Bon état",
+  fair: "Correct",
+  poor: "Usé",
+}
 
 interface Listing {
   id: string
@@ -55,98 +83,160 @@ export default async function MarketplacePage({
   const listings = await getListings(sp)
 
   return (
-    <main className="min-h-screen mx-auto max-w-5xl px-4 py-8">
-      <header className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Marketplace</h1>
-          <p className="text-sm text-gray-600">Achète et vends en toute sécurité entre teens.</p>
-        </div>
-        <Link
-          href="/marketplace/sell"
-          className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          Vendre
-        </Link>
-      </header>
+    <div className="min-h-screen bg-paper">
+      <Navbar />
+      <main className="mx-auto max-w-5xl px-4 pb-20 pt-24">
+        {/* Hero éditorial */}
+        <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow tracking-[0.18em] text-mute">Marketplace Nivy</p>
+            <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Achète &amp; vends entre <em className="font-semibold italic text-pink">ton crew</em>
+            </h1>
+            <p className="mt-2 text-mute">En toute sécurité, entre teens vérifiés.</p>
+          </div>
+          <Button asChild variant="pink" className="shadow-stkr-md">
+            <Link href="/marketplace/sell">
+              <Plus className="size-4" aria-hidden="true" />
+              Vendre un article
+            </Link>
+          </Button>
+        </header>
 
-      <form className="mb-6 flex flex-wrap gap-2 items-end" method="GET">
-        <input
-          name="search"
-          placeholder="Rechercher…"
-          defaultValue={sp.search ?? ""}
-          className="rounded border px-3 py-2 text-sm"
-        />
-        <select name="category" defaultValue={sp.category ?? ""} className="rounded border px-3 py-2 text-sm">
-          <option value="">Toutes catégories</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-        <input
-          name="city"
-          placeholder="Ville"
-          defaultValue={sp.city ?? ""}
-          className="rounded border px-3 py-2 text-sm"
-        />
-        <input
-          name="max_price"
-          type="number"
-          placeholder="Prix max (coins)"
-          defaultValue={sp.max_price ?? ""}
-          className="rounded border px-3 py-2 text-sm w-40"
-        />
-        <button className="rounded bg-gray-800 text-white px-4 py-2 text-sm">Filtrer</button>
-        <Link href="/marketplace/my-listings" className="ml-auto text-sm text-blue-600 underline">
-          Mes annonces
-        </Link>
-        <Link href="/marketplace/orders" className="text-sm text-blue-600 underline">
-          Mes commandes
-        </Link>
-      </form>
+        {/* Onglets espace perso */}
+        <nav className="mb-6 flex flex-wrap gap-2" aria-label="Mon espace marketplace">
+          <Link
+            href="/marketplace/my-listings"
+            className="inline-flex min-h-touch items-center rounded-xl border-2 border-ink bg-white px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-[0.12em] text-ink shadow-stkr-sm transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink"
+          >
+            Mes annonces
+          </Link>
+          <Link
+            href="/marketplace/orders"
+            className="inline-flex min-h-touch items-center rounded-xl border-2 border-ink bg-white px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-[0.12em] text-ink shadow-stkr-sm transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink"
+          >
+            Mes commandes
+          </Link>
+        </nav>
 
-      {listings.length === 0 ? (
-        <p className="text-gray-500">Aucune annonce active pour le moment.</p>
-      ) : (
-        <ul className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-          {listings.map((l, idx) => (
-            <li key={l.id} className="border rounded-lg overflow-hidden bg-white">
-              {/* TICKET-024 — View Transitions morph anchor. Pairs with the
-                  hero on /marketplace/listings/[id]. */}
-              <Link
-                href={`/marketplace/listings/${l.id}`}
-                className="block"
-                style={{ viewTransitionName: `vt-listing-${l.id}` }}
-              >
-                <div className="relative aspect-square bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden">
-                  {l.images && l.images[0] ? (
-                    <Image
-                      src={l.images[0]}
-                      alt={l.title}
-                      fill
-                      // First 3 cards are above-the-fold on most viewports → mark
-                      // as LCP candidates. Lower-priority for the rest.
-                      priority={idx < 3}
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <span className="text-xs">no image</span>
-                  )}
-                </div>
-                <div className="p-3 space-y-1">
-                  <div className="font-semibold truncate">{l.title}</div>
-                  <div className="text-sm text-gray-600">
-                    {l.price_coins != null ? `${l.price_coins} coins` : `${l.price_dh} DH`}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {l.city ?? "—"} · {l.condition ?? l.category}
-                  </div>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+        {/* Barre de filtres (GET natif préservé) */}
+        <form className="mb-8 flex flex-wrap items-end gap-3" method="GET">
+          <label className="flex min-w-[180px] flex-1 flex-col gap-1.5">
+            <span className="eyebrow tracking-[0.16em]">Rechercher</span>
+            <span className="flex h-11 items-center rounded-xl border-2 border-line bg-white px-3 transition-colors focus-within:border-ink">
+              <Search className="size-4 text-mute" aria-hidden="true" />
+              <input
+                name="search"
+                placeholder="Un sweat, une manette…"
+                defaultValue={sp.search ?? ""}
+                className="ml-2 h-full w-full bg-transparent text-sm outline-none placeholder:text-mute"
+              />
+            </span>
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="eyebrow tracking-[0.16em]">Catégorie</span>
+            <select
+              name="category"
+              defaultValue={sp.category ?? ""}
+              className="h-11 rounded-xl border-2 border-line bg-white px-3 text-sm font-medium text-ink outline-none transition-colors focus:border-ink"
+            >
+              <option value="">Toutes catégories</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>{CATEGORY_LABELS[c] ?? c}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="eyebrow tracking-[0.16em]">Ville</span>
+            <input
+              name="city"
+              placeholder="Casablanca…"
+              defaultValue={sp.city ?? ""}
+              className="h-11 w-40 rounded-xl border-2 border-line bg-white px-3 text-sm outline-none transition-colors placeholder:text-mute focus:border-ink"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="eyebrow tracking-[0.16em]">Prix max</span>
+            <input
+              name="max_price"
+              type="number"
+              placeholder="⊙ coins"
+              defaultValue={sp.max_price ?? ""}
+              className="h-11 w-36 rounded-xl border-2 border-line bg-white px-3 font-mono text-sm outline-none transition-colors placeholder:text-mute focus:border-ink"
+            />
+          </label>
+          <Button type="submit" variant="outline" className="h-11">Filtrer</Button>
+        </form>
+
+        {listings.length === 0 ? (
+          <NivEmpty
+            mood="calm"
+            title="Aucune annonce pour le moment"
+            description="Sois le premier à proposer un article à ton crew."
+            action={
+              <Button asChild variant="pink">
+                <Link href="/marketplace/sell">Mets ton premier article en vente</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
+            {listings.map((l, idx) => (
+              <li key={l.id}>
+                {/* TICKET-024 — View Transitions morph anchor. Pairs with the
+                    hero on /marketplace/listings/[id]. */}
+                <Link
+                  href={`/marketplace/listings/${l.id}`}
+                  className="block focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+                  style={{ viewTransitionName: `vt-listing-${l.id}` }}
+                >
+                  <StickerCard variant="hover" className="overflow-hidden">
+                    <div className="relative aspect-square overflow-hidden border-b-2 border-ink bg-paper-2">
+                      {l.images && l.images[0] ? (
+                        <Image
+                          src={l.images[0]}
+                          alt={l.title}
+                          fill
+                          // First 3 cards are above-the-fold on most viewports → mark
+                          // as LCP candidates. Lower-priority for the rest.
+                          priority={idx < 3}
+                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-full items-center justify-center text-xs text-mute">
+                          Pas de photo
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2 p-3">
+                      <div className="truncate font-display font-bold">{l.title}</div>
+                      <div className="font-mono text-lg font-bold tabular-nums">
+                        {l.price_coins != null ? (
+                          <span className="text-coral">⊙ {l.price_coins}</span>
+                        ) : (
+                          <span className="text-ink">{l.price_dh} DH</span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {l.condition ? (
+                          <span className="rounded-full border-2 border-ink bg-white px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+                            {CONDITION_LABELS[l.condition] ?? l.condition}
+                          </span>
+                        ) : null}
+                        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
+                          {l.city ?? CATEGORY_LABELS[l.category] ?? l.category}
+                        </span>
+                      </div>
+                    </div>
+                  </StickerCard>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </main>
+      <Footer />
+    </div>
   )
 }

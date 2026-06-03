@@ -1,23 +1,20 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   Calendar,
   ArrowLeft,
   MapPin,
   Clock,
-  Users,
   Ticket,
-  CheckCircle,
-  AlertCircle,
-  Star,
-  Filter
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { NivEmpty } from "@/components/brand"
+import { Marquee } from "@/components/kit/marquee"
 
 async function getTeenBookings(parentId: string) {
   const supabase = await createClient()
@@ -38,13 +35,13 @@ async function getTeenBookings(parentId: string) {
   const { data: bookings, error } = await supabase
     .from("bookings")
     .select(`
-      id, teen_id, status, payment_status, total_price, ticket_code, created_at,
+      id, user_id, status, payment_status, total_amount, booking_reference, created_at,
       event:event_id (
         id, title, description, event_date, event_start,
         venue_name, city, image_url, price, category
       )
     `)
-    .in("teen_id", teenIds)
+    .in("user_id", teenIds)
     .order("created_at", { ascending: false })
 
   if (error) {
@@ -58,7 +55,7 @@ async function getTeenBookings(parentId: string) {
 
   const decorated = (bookings ?? []).map((b: any) => ({
     ...b,
-    teen: { id: b.teen_id, full_name: teenNameMap.get(b.teen_id) ?? "Teen" },
+    teen: { id: b.user_id, full_name: teenNameMap.get(b.user_id) ?? "Teen" },
   }))
 
   const now = new Date()
@@ -117,311 +114,219 @@ export default async function ParentEventsPage() {
     return timeString.substring(0, 5)
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string): { text: string; variant: StatusVariant } => {
     switch (status) {
       case "confirmed":
-        return {
-          icon: CheckCircle,
-          text: "Confirmé",
-          class: "bg-emerald-500/20 text-emerald-400"
-        }
+        return { text: "Confirmé", variant: "success" }
       case "pending":
-        return {
-          icon: AlertCircle,
-          text: "En attente",
-          class: "bg-amber-500/20 text-amber-400"
-        }
+        return { text: "En attente", variant: "warning" }
       case "cancelled":
-        return {
-          icon: AlertCircle,
-          text: "Annulé",
-          class: "bg-red-500/20 text-red-400"
-        }
+        return { text: "Annulé", variant: "danger" }
       default:
-        return {
-          icon: Ticket,
-          text: status,
-          class: "bg-zinc-500/20 text-zinc-400"
-        }
+        return { text: status.replace(/_/g, " "), variant: "neutral" }
     }
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="container mx-auto px-6 py-32">
-        {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-6 py-10">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/parent">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au dashboard
           </Link>
         </Button>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-white">Événements</h1>
-            <p className="text-zinc-400">Suivez les événements de vos teens</p>
-          </div>
-          <Button variant="outline" className="border-zinc-700 text-zinc-300">
-            <Filter className="h-4 w-4 mr-2" />
-            Filtrer
-          </Button>
+        {/* Header éditorial */}
+        <div className="mb-8">
+          <p className="eyebrow text-pink">SORTIES · EVENTS</p>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            Les sorties de <em className="font-semibold italic text-pink">ton crew</em>
+          </h1>
+          <p className="mt-2 text-sm text-mute">Suis les événements réservés par tes teens.</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-emerald-400 font-medium">À venir</p>
-                  <p className="text-3xl font-black text-white">{upcoming.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-emerald-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-blue-400 font-medium">Confirmés</p>
-                  <p className="text-3xl font-black text-white">
-                    {upcoming.filter((b: any) => b.status === "confirmed").length}
-                  </p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-blue-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-amber-400 font-medium">En attente</p>
-                  <p className="text-3xl font-black text-white">
-                    {upcoming.filter((b: any) => b.status === "pending").length}
-                  </p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <AlertCircle className="h-6 w-6 text-amber-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-purple-400 font-medium">Total passés</p>
-                  <p className="text-3xl font-black text-white">{past.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Ticket className="h-6 w-6 text-purple-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Récap en stickers (hiérarchie : à venir dominant) */}
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <StickerCard className="p-4">
+            <p className="eyebrow text-mute">À venir</p>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-ink">{upcoming.length}</p>
+          </StickerCard>
+          <StickerCard className="p-4">
+            <p className="eyebrow text-mute">Confirmés</p>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-lime">
+              {upcoming.filter((b: any) => b.status === "confirmed").length}
+            </p>
+          </StickerCard>
+          <StickerCard className="p-4">
+            <p className="eyebrow text-mute">Passés</p>
+            <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-teal">{past.length}</p>
+          </StickerCard>
         </div>
 
-        {/* Upcoming Bookings */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-emerald-400" />
-              Réservations à venir
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {upcoming.length > 0 ? (
-              <div className="space-y-4">
-                {upcoming.map((booking: any) => {
-                  const status = getStatusBadge(booking.status)
-                  const StatusIcon = status.icon
-                  return (
-                    <div
-                      key={booking.id}
-                      className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-emerald-500/30 transition-all"
-                    >
-                      <div className="flex flex-col md:flex-row md:items-center gap-4">
-                        {/* Event Image */}
-                        <div className="relative w-full md:w-32 h-24 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center overflow-hidden">
-                          {booking.event?.image_url ? (
-                            <Image
-                              src={booking.event.image_url}
-                              alt={booking.event?.title || "Évènement"}
-                              fill
-                              sizes="(max-width: 768px) 100vw, 128px"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Calendar className="h-10 w-10 text-emerald-400" />
-                          )}
+        {/* Réservations à venir */}
+        <section className="mb-10 space-y-4">
+          <h2 className="eyebrow text-mute">Réservations à venir</h2>
+          {upcoming.length > 0 ? (
+            <div className="space-y-4">
+              {upcoming.map((booking: any) => {
+                const status = getStatusBadge(booking.status)
+                return (
+                  <StickerCard key={booking.id} variant="hover" className="p-5">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                      <div className="relative h-24 w-full overflow-hidden rounded-xl border-2 border-ink bg-paper md:w-32">
+                        {booking.event?.image_url ? (
+                          <Image
+                            src={booking.event.image_url}
+                            alt={booking.event?.title || "Évènement"}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 128px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="grid h-full place-items-center">
+                            <Calendar className="h-10 w-10 text-mute" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <h3 className="font-display text-lg font-bold text-ink">
+                              {booking.event?.title || "Événement"}
+                            </h3>
+                            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-mute">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                {formatDate(booking.event?.event_date)}
+                              </span>
+                              {booking.event?.event_start && (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-4 w-4" />
+                                  {formatTime(booking.event.event_start)}
+                                </span>
+                              )}
+                              {(booking.event?.venue_name || booking.event?.city) && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-4 w-4" />
+                                  {booking.event?.venue_name || booking.event?.city}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <StatusBadge variant={status.variant} label={status.text} size="sm" />
                         </div>
 
-                        {/* Event Info */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <h3 className="text-lg font-bold text-white">
-                                {booking.event?.title || "Événement"}
-                              </h3>
-                              <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-zinc-400">
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="h-4 w-4" />
-                                  {formatDate(booking.event?.event_date)}
-                                </span>
-                                {booking.event?.event_start && (
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="h-4 w-4" />
-                                    {formatTime(booking.event.event_start)}
-                                  </span>
-                                )}
-                                {(booking.event?.venue_name || booking.event?.city) && (
-                                  <span className="flex items-center gap-1">
-                                    <MapPin className="h-4 w-4" />
-                                    {booking.event?.venue_name || booking.event?.city}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <span className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full ${status.class}`}>
-                              <StatusIcon className="h-3 w-3" />
-                              {status.text}
-                            </span>
-                          </div>
-
-                          {/* Teen info & Price */}
-                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-zinc-800">
-                            <div className="flex items-center gap-2">
-                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold text-sm">
-                                {booking.teen?.full_name?.charAt(0) || "?"}
-                              </div>
-                              <span className="text-sm text-zinc-300">{booking.teen?.full_name || "Teen"}</span>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-black text-emerald-400">{booking.total_price || 0} DH</p>
-                              <p className="text-xs text-zinc-500">Code: {booking.ticket_code}</p>
-                            </div>
+                        <div className="mt-4 flex items-center justify-between border-t-2 border-ink/10 pt-4">
+                          <span className="text-sm text-ink-2">{booking.teen?.full_name || "Teen"}</span>
+                          <div className="text-right">
+                            <p className="font-mono text-base font-bold tabular-nums text-ink">
+                              {booking.total_amount || 0} DH
+                            </p>
+                            <p className="font-mono text-xs text-mute">Code : {booking.booking_reference}</p>
                           </div>
                         </div>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <EmptyState
-                preset="tickets"
-                description="Vos teens n'ont pas encore de réservations à venir"
-              />
-            )}
-          </CardContent>
-        </Card>
+                  </StickerCard>
+                )
+              })}
+            </div>
+          ) : (
+            <NivEmpty
+              title="Aucune réservation à venir"
+              description="Tes teens n'ont pas encore de sortie réservée 🎟️"
+            />
+          )}
+        </section>
 
-        {/* Available Events */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-white flex items-center gap-2">
-              <Star className="h-5 w-5 text-yellow-400" />
-              Événements disponibles
-            </CardTitle>
-            <Button variant="ghost" size="sm" asChild className="text-emerald-400 hover:text-emerald-300">
-              <Link href="/agenda">
-                Voir tout
-              </Link>
+        {/* Événements disponibles */}
+        {upcomingEvents.length > 0 && (
+          <Marquee
+            items={upcomingEvents.map((e: any) => e.title)}
+            speed="slow"
+            className="mb-6 rounded-2xl"
+          />
+        )}
+        <section className="mb-10 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="eyebrow text-mute">Événements disponibles</h2>
+            <Button asChild variant="ghost" size="sm" className="text-pink hover:text-pink">
+              <Link href="/agenda">Voir tout</Link>
             </Button>
-          </CardHeader>
-          <CardContent>
-            {upcomingEvents.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {upcomingEvents.map((event: any) => (
-                  <div
-                    key={event.id}
-                    className="p-4 rounded-xl bg-zinc-800 border border-zinc-700 hover:border-emerald-500/30 transition-all"
-                  >
-                    <div className="relative h-32 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center mb-3 overflow-hidden">
-                      {event.image_url ? (
-                        <Image
-                          src={event.image_url}
-                          alt={event.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          className="object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <Calendar className="h-12 w-12 text-emerald-400" />
-                      )}
-                    </div>
-                    <h4 className="font-bold text-white mb-1">{event.title}</h4>
-                    <div className="flex items-center gap-2 text-xs text-zinc-400 mb-2">
-                      <Calendar className="h-3 w-3" />
-                      {formatDate(event.event_date)}
-                      <span className="text-zinc-600">•</span>
-                      <MapPin className="h-3 w-3" />
-                      {event.city}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-emerald-400 font-bold">{event.price} DH</span>
-                      <Button size="sm" variant="outline" className="border-zinc-600 text-zinc-300 hover:border-emerald-500/50" asChild>
-                        <Link href={`/events/${event.id}`}>
-                          Voir
-                        </Link>
-                      </Button>
-                    </div>
+          </div>
+          {upcomingEvents.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {upcomingEvents.map((event: any) => (
+                <StickerCard key={event.id} variant="hover" className="p-4">
+                  <div className="relative mb-3 h-32 overflow-hidden rounded-xl border-2 border-ink bg-paper">
+                    {event.image_url ? (
+                      <Image
+                        src={event.image_url}
+                        alt={event.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="grid h-full place-items-center">
+                        <Calendar className="h-12 w-12 text-mute" />
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-zinc-500 py-8">Aucun événement disponible</p>
-            )}
-          </CardContent>
-        </Card>
+                  <h4 className="font-display font-bold text-ink">{event.title}</h4>
+                  <div className="mt-1 flex items-center gap-2 text-xs text-mute">
+                    <Calendar className="h-3 w-3" />
+                    {formatDate(event.event_date)}
+                    <span>·</span>
+                    <MapPin className="h-3 w-3" />
+                    {event.city}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="font-mono text-sm font-bold tabular-nums text-ink">{event.price} DH</span>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link href={`/agenda/${event.id}`}>Voir</Link>
+                    </Button>
+                  </div>
+                </StickerCard>
+              ))}
+            </div>
+          ) : (
+            <p className="py-8 text-center text-mute">Aucun événement disponible</p>
+          )}
+        </section>
 
-        {/* Past Bookings */}
+        {/* Historique */}
         {past.length > 0 && (
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Clock className="h-5 w-5 text-zinc-400" />
-                Historique
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {past.slice(0, 5).map((booking: any) => (
-                  <div
-                    key={booking.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800"
-                  >
+          <section className="space-y-3">
+            <h2 className="eyebrow text-mute">Historique</h2>
+            <div className="space-y-3">
+              {past.slice(0, 5).map((booking: any) => (
+                <StickerCard key={booking.id} className="p-4">
+                  <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center">
-                        <Ticket className="h-5 w-5 text-zinc-500" />
+                      <div className="grid h-10 w-10 place-items-center rounded-xl border-2 border-ink bg-paper">
+                        <Ticket className="h-5 w-5 text-mute" />
                       </div>
                       <div>
-                        <p className="font-medium text-zinc-300">
+                        <p className="font-medium text-ink-2">
                           {booking.event?.title || "Événement"}
                         </p>
-                        <p className="text-xs text-zinc-500">
-                          {formatDate(booking.event?.event_date)} • {booking.teen?.full_name}
+                        <p className="font-mono text-xs text-mute">
+                          {formatDate(booking.event?.event_date)} · {booking.teen?.full_name}
                         </p>
                       </div>
                     </div>
-                    <span className="text-zinc-400">{booking.total_price} DH</span>
+                    <span className="font-mono text-sm font-semibold tabular-nums text-ink">
+                      {booking.total_amount} DH
+                    </span>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </StickerCard>
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </div>

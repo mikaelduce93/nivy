@@ -46,61 +46,61 @@ export function PartnerAwaitingApproval({
     : null
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-12 max-w-3xl">
         {/* Hero */}
         <Card
           className={`mb-6 border ${
             isRejected
-              ? "bg-red-500/10 border-red-500/30"
-              : "bg-amber-500/10 border-amber-500/30"
+              ? "bg-destructive/10 border-destructive/30"
+              : "bg-gold/10 border-gold/30"
           }`}
         >
           <CardContent className="p-8">
             <div className="flex items-start gap-4">
               <div
                 className={`h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-                  isRejected ? "bg-red-500/20" : "bg-amber-500/20"
+                  isRejected ? "bg-destructive/20" : "bg-gold/20"
                 }`}
               >
                 {isRejected ? (
-                  <XCircle className="h-7 w-7 text-red-400" />
+                  <XCircle className="h-7 w-7 text-destructive" />
                 ) : isSuspended ? (
-                  <AlertTriangle className="h-7 w-7 text-amber-400" />
+                  <AlertTriangle className="h-7 w-7 text-gold" />
                 ) : (
-                  <Clock className="h-7 w-7 text-amber-400" />
+                  <Clock className="h-7 w-7 text-gold" />
                 )}
               </div>
               <div className="flex-1">
                 <p
                   className={`text-xs font-black uppercase tracking-widest mb-1 ${
-                    isRejected ? "text-red-400" : "text-amber-400"
+                    isRejected ? "text-destructive" : "text-gold"
                   }`}
                 >
                   {headline}
                 </p>
-                <h1 className="text-3xl font-black text-white tracking-tight">
+                <h1 className="text-3xl font-black text-ink tracking-tight">
                   {companyName}
                 </h1>
                 {submittedLabel && !isRejected && (
-                  <p className="text-sm text-zinc-400 mt-2">
+                  <p className="text-sm text-mute mt-2">
                     Demande soumise le {submittedLabel}
                   </p>
                 )}
                 {isRejected ? (
-                  <p className="text-sm text-zinc-300 mt-3 leading-relaxed">
+                  <p className="text-sm text-ink-2 mt-3 leading-relaxed">
                     Votre demande de partenariat n&apos;a pas été approuvée.
                     Notre équipe vous a contacté(e) par email avec les
                     raisons du refus et les éventuelles étapes pour
                     soumettre à nouveau.
                   </p>
                 ) : isSuspended ? (
-                  <p className="text-sm text-zinc-300 mt-3 leading-relaxed">
+                  <p className="text-sm text-ink-2 mt-3 leading-relaxed">
                     Votre compte partenaire a été temporairement suspendu.
                     Contactez le support pour rétablir votre accès.
                   </p>
                 ) : (
-                  <p className="text-sm text-zinc-300 mt-3 leading-relaxed">
+                  <p className="text-sm text-ink-2 mt-3 leading-relaxed">
                     Notre équipe est en train d&apos;examiner votre dossier.
                     Vous recevrez un email dès que votre compte sera activé,
                     sous 24 à 48h ouvrées. En attendant, vous pouvez
@@ -114,10 +114,10 @@ export function PartnerAwaitingApproval({
 
         {/* What happens next */}
         {!isRejected && !isSuspended && (
-          <Card className="bg-zinc-900 border-zinc-800 mb-6">
+          <Card className="bg-card border-ink mb-6">
             <CardContent className="p-6">
-              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Shield className="h-5 w-5 text-cyan-400" />
+              <h2 className="text-lg font-bold text-ink mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-teal" />
                 Prochaines étapes
               </h2>
               <ol className="space-y-3">
@@ -144,12 +144,12 @@ export function PartnerAwaitingApproval({
                   const Icon = step.icon
                   return (
                     <li key={idx} className="flex items-start gap-3">
-                      <div className="h-9 w-9 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                        <Icon className="h-4 w-4 text-cyan-400" />
+                      <div className="h-9 w-9 rounded-lg bg-teal/10 border border-teal/20 flex items-center justify-center flex-shrink-0">
+                        <Icon className="h-4 w-4 text-teal" />
                       </div>
                       <div>
-                        <p className="font-medium text-white">{step.title}</p>
-                        <p className="text-sm text-zinc-400">{step.desc}</p>
+                        <p className="font-medium text-ink">{step.title}</p>
+                        <p className="text-sm text-mute">{step.desc}</p>
                       </div>
                     </li>
                   )
@@ -164,7 +164,7 @@ export function PartnerAwaitingApproval({
           {!isRejected && !isSuspended && (
             <Button
               asChild
-              className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+              className="flex-1 bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink"
             >
               <Link href="/partner/kyc">
                 <FileText className="h-4 w-4 mr-2" />
@@ -176,7 +176,7 @@ export function PartnerAwaitingApproval({
           <Button
             asChild
             variant="outline"
-            className="flex-1 border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+            className="flex-1 border-ink text-ink-2 hover:bg-card"
           >
             <Link href="/partner/support">
               <Mail className="h-4 w-4 mr-2" />
@@ -185,11 +185,11 @@ export function PartnerAwaitingApproval({
           </Button>
         </div>
 
-        <p className="text-xs text-zinc-500 text-center mt-6">
+        <p className="text-xs text-mute text-center mt-6">
           Une question ? Écrivez-nous à{" "}
           <a
             href="mailto:partenaires@nivy.ma"
-            className="text-cyan-400 hover:underline"
+            className="text-teal hover:underline"
           >
             partenaires@nivy.ma
           </a>

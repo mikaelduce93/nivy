@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { motion } from "framer-motion"
 import Link from "next/link"
 import {
   Brain,
@@ -16,7 +15,9 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { Niv, DarkSurface, NivEmpty } from "@/components/brand"
 import { getCategoryMeta } from "@/lib/quiz/catalog"
 import type { QuizCategorySummary, QuizSummary } from "@/lib/quiz/schema"
 
@@ -84,116 +85,114 @@ export function QuizHubClient({
 
   return (
     <div className="min-h-screen pb-32 space-y-8 pt-6" data-testid="teen-quiz-hub">
-      {/* Header */}
+      {/* Header — hero éditorial */}
       <header className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-soft to-purple-500 flex items-center justify-center">
-              <Brain className="w-6 h-6 text-black" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase italic">Quiz</h1>
-              <p className="text-zinc-500 text-sm font-medium">Teste tes connaissances</p>
-            </div>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="eyebrow tracking-[0.16em]">Cerveau · Quiz</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight">
+              Teste tes <em className="font-semibold italic text-pink">connaissances</em>
+            </h1>
+            <p className="text-sm text-mute">Gagne de l'XP en répondant juste.</p>
           </div>
           <Link
             href="/teen/quiz/history"
-            className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border-2 border-ink bg-white px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-[0.12em] text-ink shadow-stkr-sm transition-colors hover:bg-paper-2"
           >
-            <HistoryIcon className="w-4 h-4" />
+            <HistoryIcon className="size-4" aria-hidden="true" />
             <span>Historique</span>
           </Link>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard
-            icon={<CheckCircle className="w-4 h-4 text-success-soft" />}
+            icon={<CheckCircle className="size-4 text-lime" aria-hidden="true" />}
             value={stats.totalCompleted.toString()}
             label="Complétés"
           />
           <StatCard
-            icon={<Target className="w-4 h-4 text-accent-soft" />}
+            icon={<Target className="size-4 text-teal" aria-hidden="true" />}
             value={`${stats.averageScore}%`}
             label="Moyenne"
-            delay={0.1}
+            valueClassName="text-teal"
           />
           <StatCard
-            icon={<Zap className="w-4 h-4 text-brand-soft" />}
+            icon={<Zap className="size-4 text-gold" aria-hidden="true" />}
             value={stats.totalXpEarned.toLocaleString()}
             label="XP Total"
-            delay={0.2}
+            valueClassName="text-gold"
           />
           <StatCard
-            icon={<Trophy className="w-4 h-4 text-yellow-500" />}
+            icon={<Trophy className="size-4 text-lime" aria-hidden="true" />}
             value={stats.perfectCount.toString()}
             label="100%"
-            delay={0.3}
+            valueClassName="text-lime"
           />
         </div>
       </header>
 
-      {/* Daily Challenge */}
+      {/* Daily Challenge — surface sombre ponctuelle */}
       {dailyQuiz.quiz && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative overflow-hidden rounded-3xl p-8 bg-gradient-to-br from-brand-soft/20 to-purple-500/10 border border-brand-soft/30"
+        <DarkSurface
+          tone="pink"
+          shadow
+          className="p-8"
           data-testid="daily-quiz-card"
         >
-          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-brand-soft/20 text-brand-soft text-xs font-black uppercase">
+          <div className="absolute right-4 top-4 rounded-full border-2 border-paper/30 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-pink">
             Quotidien
           </div>
 
-          <div className="flex items-center gap-6 flex-wrap">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-soft to-purple-500 flex items-center justify-center">
-              <Brain className="w-10 h-10 text-black" />
-            </div>
-            <div className="flex-1 min-w-[240px]">
-              <h3 className="text-2xl font-black text-white mb-1">{dailyQuiz.quiz.title}</h3>
-              <p className="text-zinc-400 mb-4">
+          <div className="flex flex-wrap items-center gap-6">
+            <Niv mood="hype" float size={88} className="shrink-0" />
+            <div className="min-w-[240px] flex-1">
+              <h3 className="font-display text-2xl font-extrabold text-paper mb-1">
+                {dailyQuiz.quiz.title}
+              </h3>
+              <p className="text-paper/70 mb-4">
                 {dailyQuiz.quiz.description ||
                   `${dailyQuiz.quiz.questions_count} questions pour tester tes connaissances`}
               </p>
-              <div className="flex items-center gap-6 flex-wrap">
+              <div className="flex flex-wrap items-center gap-6">
                 <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-brand-soft" />
-                  <span className="font-bold text-brand-soft">
+                  <Zap className="size-5 text-gold" aria-hidden="true" />
+                  <span className="font-mono font-bold text-gold">
                     +{dailyQuiz.quiz.xp_reward ?? 50} XP
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  <span className="font-bold text-yellow-500">
+                  <Star className="size-5 text-pink" aria-hidden="true" />
+                  <span className="font-mono font-bold text-paper">
                     {dailyQuiz.quiz.questions_count} questions
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-zinc-400" />
-                  <span className="text-zinc-400">
+                  <Clock className="size-5 text-paper/60" aria-hidden="true" />
+                  <span className="font-mono text-paper/60">
                     {dailyQuiz.quiz.time_limit_minutes ?? 15} min
                   </span>
                 </div>
               </div>
             </div>
-            <Link href={`/teen/quiz/${dailyQuiz.quiz.id}`}>
-              <Button className="bg-brand-soft text-black font-bold hover:bg-brand-soft/80">
-                <Play className="w-4 h-4 mr-2" />
+            <Button asChild variant="pink">
+              <Link href={`/teen/quiz/${dailyQuiz.quiz.id}`}>
+                <Play className="size-4" aria-hidden="true" />
                 {dailyQuiz.completedToday ? "Rejouer" : "Commencer"}
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
-        </motion.div>
+        </DarkSurface>
       )}
 
       {/* Categories */}
       <section className="space-y-4">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-xl font-black uppercase">Catégories</h2>
+          <p className="eyebrow tracking-[0.16em]">Catégories</p>
           {selectedSubject && (
             <button
               onClick={() => setSelectedSubject(null)}
-              className="text-xs text-zinc-500 hover:text-white"
+              className="font-mono text-xs text-mute hover:text-ink"
             >
               ← Retour aux catégories
             </button>
@@ -202,78 +201,79 @@ export function QuizHubClient({
 
         {!selectedSubject ? (
           visibleCategories.length === 0 ? (
-            <EmptyCard
+            <NivEmpty
+              mood="calm"
               title="Aucune catégorie disponible"
               description="Les quiz arrivent bientôt — reviens plus tard !"
+              data-testid="quiz-empty-state"
             />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {visibleCategories.map((category, idx) => {
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              {visibleCategories.map((category) => {
                 const Icon = category.meta.icon
                 const progress =
                   category.total > 0 ? (category.completed / category.total) * 100 : 0
                 return (
-                  <motion.button
+                  <button
                     key={category.id}
                     type="button"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    whileHover={{ scale: 1.02, y: -4 }}
                     onClick={() => setSelectedSubject(category.id)}
-                    className="text-left relative p-6 rounded-3xl bg-zinc-900/50 border border-white/5 hover:border-white/20 transition-all"
+                    className="flex flex-col rounded-2xl border-2 border-ink bg-white p-6 text-left shadow-stkr-md transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
                     data-testid={`quiz-category-${category.id}`}
                   >
-                    <div
-                      className={cn(
-                        "w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-gradient-to-br",
-                        category.meta.color,
-                      )}
-                    >
-                      <Icon className="w-7 h-7 text-white" />
-                    </div>
-                    <h3 className="font-black text-lg text-white mb-1">{category.meta.name}</h3>
-                    <p className="text-sm text-zinc-400 mb-4">
+                    <span className="mb-4 grid size-14 place-items-center rounded-2xl border-2 border-ink bg-paper-2">
+                      <Icon className="size-7 text-ink" aria-hidden="true" />
+                    </span>
+                    <h3 className="font-display text-lg font-extrabold text-ink mb-1">
+                      {category.meta.name}
+                    </h3>
+                    <p className="font-mono text-sm text-mute mb-4">
                       {category.completed}/{category.total} quiz
                     </p>
-                    <Progress value={progress} className="h-2" />
-                  </motion.button>
+                    <SegmentedProgress
+                      steps={Math.max(1, category.total)}
+                      current={category.completed}
+                      aria-label={`${Math.round(progress)}% complété`}
+                    />
+                  </button>
                 )
               })}
             </div>
           )
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {subjectQuizzes.length === 0 ? (
-              <EmptyCard
+              <NivEmpty
+                mood="calm"
                 title="Pas encore de quiz ici"
                 description="Cette catégorie attend ses premiers quiz."
+                data-testid="quiz-empty-state"
               />
             ) : (
               subjectQuizzes.map((quiz) => (
                 <Link
                   key={quiz.id}
                   href={`/teen/quiz/${quiz.id}`}
-                  className="p-5 rounded-3xl bg-zinc-900/50 border border-white/5 hover:border-white/20 transition-all"
+                  className="flex flex-col rounded-2xl border-2 border-ink bg-white p-5 shadow-stkr-md transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
                   data-testid={`quiz-card-${quiz.id}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-white truncate">{quiz.title}</h3>
+                      <h3 className="font-bold text-ink truncate">{quiz.title}</h3>
                       {quiz.description && (
-                        <p className="text-sm text-zinc-400 line-clamp-2 mt-1">
+                        <p className="text-sm text-mute line-clamp-2 mt-1">
                           {quiz.description}
                         </p>
                       )}
-                      <div className="mt-3 flex items-center gap-4 text-xs text-zinc-500">
+                      <div className="mt-3 flex items-center gap-4 font-mono text-xs text-mute">
                         <span>{quiz.questions_count} questions</span>
                         {quiz.difficulty && <span className="capitalize">{quiz.difficulty}</span>}
                         {quiz.grade_level && <span>{quiz.grade_level}</span>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-brand-soft shrink-0">
-                      <Zap className="w-4 h-4" />
-                      <span className="text-sm font-bold">+{quiz.xp_reward ?? 50}</span>
+                    <div className="flex shrink-0 items-center gap-1 text-gold">
+                      <Zap className="size-4" aria-hidden="true" />
+                      <span className="font-mono text-sm font-bold">+{quiz.xp_reward ?? 50}</span>
                     </div>
                   </div>
                 </Link>
@@ -285,57 +285,55 @@ export function QuizHubClient({
 
       {/* Recent attempts */}
       <section className="space-y-4">
-        <h2 className="text-xl font-black uppercase">Récents</h2>
+        <p className="eyebrow tracking-[0.16em]">Récents</p>
         {recentAttempts.length === 0 ? (
-          <EmptyCard
+          <NivEmpty
+            mood="happy"
             title="Aucun quiz joué"
             description="Lance ton premier quiz pour commencer à gagner de l'XP."
+            data-testid="quiz-empty-state"
           />
         ) : (
           <div className="space-y-3" data-testid="recent-attempts">
-            {recentAttempts.map((attempt, idx) => (
-              <motion.div
-                key={attempt.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.04 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
-              >
-                <div className="w-12 h-12 rounded-xl bg-brand-soft/20 flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-brand-soft" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-white truncate">
-                    {attempt.quiz?.title ?? "Quiz supprimé"}
-                  </h4>
-                  <p className="text-sm text-zinc-400 capitalize">
-                    {attempt.quiz?.subject ?? "—"}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div
-                    className={cn(
-                      "font-black text-lg",
-                      attempt.score >= 90
-                        ? "text-success-soft"
-                        : attempt.score >= 70
-                          ? "text-yellow-500"
-                          : "text-accent-soft",
-                    )}
-                  >
-                    {attempt.score}%
+            {recentAttempts.map((attempt) => (
+              <StickerCard key={attempt.id} className="p-4">
+                <div className="flex items-center gap-4">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper-2">
+                    <Brain className="size-6 text-ink" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-bold text-ink truncate">
+                      {attempt.quiz?.title ?? "Quiz supprimé"}
+                    </h4>
+                    <p className="text-sm text-mute capitalize">
+                      {attempt.quiz?.subject ?? "—"}
+                    </p>
                   </div>
-                  {(attempt.xp_earned ?? 0) > 0 && (
-                    <div className="flex items-center gap-1 text-xs text-brand-soft">
-                      <Zap className="w-3 h-3" />
-                      <span>+{attempt.xp_earned}</span>
+                  <div className="text-right">
+                    <div
+                      className={cn(
+                        "font-display text-lg font-extrabold tabular-nums",
+                        attempt.score >= 90
+                          ? "text-lime"
+                          : attempt.score >= 70
+                            ? "text-gold"
+                            : "text-coral",
+                      )}
+                    >
+                      {attempt.score}%
                     </div>
-                  )}
+                    {(attempt.xp_earned ?? 0) > 0 && (
+                      <div className="flex items-center justify-end gap-1 font-mono text-xs text-gold">
+                        <Zap className="size-3" aria-hidden="true" />
+                        <span>+{attempt.xp_earned}</span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="shrink-0 font-mono text-xs text-mute">
+                    {formatRelativeTime(attempt.created_at)}
+                  </span>
                 </div>
-                <span className="text-xs text-zinc-500 shrink-0">
-                  {formatRelativeTime(attempt.created_at)}
-                </span>
-              </motion.div>
+              </StickerCard>
             ))}
           </div>
         )}
@@ -348,37 +346,22 @@ function StatCard({
   icon,
   value,
   label,
-  delay = 0,
+  valueClassName,
 }: {
   icon: React.ReactNode
   value: string
   label: string
-  delay?: number
+  valueClassName?: string
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
-    >
+    <StickerCard className="items-center p-4 text-center">
       <div className="flex items-center justify-center gap-2 mb-1">
         {icon}
-        <span className="font-black text-xl">{value}</span>
+        <span className={cn("font-mono text-xl font-bold tabular-nums text-ink", valueClassName)}>
+          {value}
+        </span>
       </div>
-      <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{label}</p>
-    </motion.div>
-  )
-}
-
-function EmptyCard({ title, description }: { title: string; description: string }) {
-  return (
-    <div
-      className="p-8 rounded-3xl bg-zinc-900/40 border border-dashed border-white/10 text-center"
-      data-testid="quiz-empty-state"
-    >
-      <h3 className="font-bold text-white mb-1">{title}</h3>
-      <p className="text-sm text-zinc-400">{description}</p>
-    </div>
+      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{label}</p>
+    </StickerCard>
   )
 }

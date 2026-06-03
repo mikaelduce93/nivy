@@ -6,6 +6,12 @@ import {
   CSRFAwareForm,
   useCSRFAwareSubmit,
 } from "@/components/forms/csrf-aware-form"
+import { Button } from "@/components/ui/button"
+import { FieldInput } from "@/components/ui/field-input"
+import {
+  SelectSticker,
+  SelectStickerItem,
+} from "@/components/ui/select-sticker"
 
 interface TeenOption {
   id: string
@@ -92,108 +98,86 @@ export function ManualTopupForm({ teens }: { teens: TeenOption[] }) {
   return (
     <CSRFAwareForm
       onSubmit={submit}
-      className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6"
+      className="rounded-2xl border-2 border-ink bg-white p-6 shadow-stkr-md"
       autoComplete="off"
     >
       <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="block text-xs uppercase text-zinc-500">Teen</label>
-          <select
-            value={teenId}
-            onChange={(e) => setTeenId(e.target.value)}
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
-          >
-            {teens.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SelectSticker
+          label="Teen"
+          value={teenId}
+          onValueChange={setTeenId}
+        >
+          {teens.map((t) => (
+            <SelectStickerItem key={t.id} value={t.id}>
+              {t.name}
+            </SelectStickerItem>
+          ))}
+        </SelectSticker>
 
-        <div>
-          <label className="block text-xs uppercase text-zinc-500">Montant (DH)</label>
-          <input
-            type="number"
-            min={1}
-            step="0.01"
-            value={amountDh}
-            onChange={(e) => setAmountDh(e.target.value)}
-            inputMode="decimal"
-            autoComplete="transaction-amount"
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
-          />
-        </div>
+        <FieldInput
+          label="Montant (DH)"
+          type="number"
+          min={1}
+          step="0.01"
+          value={amountDh}
+          onChange={(e) => setAmountDh(e.target.value)}
+          inputMode="decimal"
+          autoComplete="transaction-amount"
+          className="font-mono"
+        />
 
-        <div>
-          <label className="block text-xs uppercase text-zinc-500">Opérateur PSP</label>
-          <select
-            value={provider}
-            onChange={(e) => setProvider(e.target.value)}
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
-          >
-            {PROVIDERS.map((p) => (
-              <option key={p.value} value={p.value}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SelectSticker
+          label="Opérateur PSP"
+          value={provider}
+          onValueChange={setProvider}
+        >
+          {PROVIDERS.map((p) => (
+            <SelectStickerItem key={p.value} value={p.value}>
+              {p.label}
+            </SelectStickerItem>
+          ))}
+        </SelectSticker>
 
-        <div>
-          <label className="block text-xs uppercase text-zinc-500">
-            Référence transaction
-          </label>
-          <input
-            type="text"
-            value={providerRef}
-            onChange={(e) => setProviderRef(e.target.value)}
-            placeholder="ex. CP12345678"
-            autoComplete="off"
-            spellCheck={false}
-            autoCapitalize="characters"
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
-          />
-        </div>
+        <FieldInput
+          label="Référence transaction"
+          type="text"
+          value={providerRef}
+          onChange={(e) => setProviderRef(e.target.value)}
+          placeholder="ex. CP12345678"
+          autoComplete="off"
+          spellCheck={false}
+          autoCapitalize="characters"
+          className="font-mono"
+        />
 
-        <div className="md:col-span-2">
-          <label className="block text-xs uppercase text-zinc-500">
-            Justificatif (chemin bucket privé, optionnel)
-          </label>
-          <input
-            type="text"
-            value={screenshotPath}
-            onChange={(e) => setScreenshotPath(e.target.value)}
-            placeholder="topup-evidence/<parent_id>/<file>.jpg"
-            autoComplete="off"
-            spellCheck={false}
-            className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 p-2 text-white"
-          />
-          <p className="mt-1 text-xs text-zinc-500">
-            Téléversez d'abord la capture d'écran du reçu PSP via le bucket privé,
-            puis collez ici le chemin.
-          </p>
-        </div>
+        <FieldInput
+          containerClassName="md:col-span-2"
+          label="Justificatif (chemin bucket privé, optionnel)"
+          type="text"
+          value={screenshotPath}
+          onChange={(e) => setScreenshotPath(e.target.value)}
+          placeholder="topup-evidence/<parent_id>/<file>.jpg"
+          autoComplete="off"
+          spellCheck={false}
+          className="font-mono"
+          hint="Téléverse d'abord la capture du reçu PSP via le bucket privé, puis colle ici le chemin."
+        />
       </div>
 
       {error && (
-        <p className="mt-4 rounded-md border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-300">
+        <p className="mt-4 rounded-xl border-2 border-pink/40 bg-pink/10 p-3 text-sm text-pink">
           {error}
         </p>
       )}
       {ok && (
-        <p className="mt-4 rounded-md border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-300">
+        <p className="mt-4 rounded-xl border-2 border-lime/40 bg-lime/10 p-3 text-sm text-ink">
           {ok}
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={busy}
-        className="mt-6 rounded-md bg-emerald-500 px-6 py-2 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={busy} variant="pink" className="mt-6">
         {busy ? "Envoi..." : "Soumettre la demande"}
-      </button>
+      </Button>
     </CSRFAwareForm>
   )
 }

@@ -20,7 +20,6 @@
  */
 
 import { useEffect, useMemo, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Brain,
@@ -28,7 +27,6 @@ import {
   Palette,
   Zap,
   Users,
-  Swords,
   Plus,
   Check,
   X,
@@ -40,7 +38,7 @@ import {
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { DefiCard, type DefiStatus } from "@/components/teen/defi-card"
 import { Button } from "@/components/ui/button"
-import { EmptyState as SharedEmptyState } from "@/components/ui/states/empty-state"
+import { NivCoach, NivEmpty } from "@/components/brand"
 import { cn } from "@/lib/utils"
 
 // =============================================================================
@@ -85,10 +83,10 @@ type StatusFilter = "pending" | "active" | "completed"
 // Same five tabs as quests-hub-client.tsx so the row stays consistent
 // when the user toggles back and forth.
 const QUEST_TABS: HubTab[] = [
-  { id: "daily", label: "Daily", icon: Zap },
-  { id: "brain", label: "Brain", icon: Brain },
-  { id: "body", label: "Body", icon: Dumbbell },
-  { id: "creative", label: "Creative", icon: Palette },
+  { id: "daily", label: "Quotidien", icon: Zap },
+  { id: "brain", label: "Cerveau", icon: Brain },
+  { id: "body", label: "Corps", icon: Dumbbell },
+  { id: "creative", label: "Créa", icon: Palette },
   { id: "friends", label: "Défis amis", icon: Users },
 ]
 
@@ -253,29 +251,36 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
     <div className="space-y-8 pt-6">
       {/* Header */}
       <header className="space-y-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-pink-500 via-rose-400 to-fuchsia-400">
-              <Users className="w-6 h-6 text-black" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-ink bg-pink shadow-stkr-sm">
+              <Users className="w-6 h-6 text-ink" />
             </div>
-            <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase italic">
-                Défis amis
+            <div className="space-y-1">
+              <span className="eyebrow tracking-[0.16em] text-pink">PVP · Entre amis</span>
+              <h1 className="font-display text-4xl font-extrabold leading-[0.95] tracking-tight text-ink">
+                Défis <em className="font-semibold italic text-pink underline decoration-pink/40 underline-offset-4">amis</em>
               </h1>
-              <p className="text-zinc-500 text-sm font-medium">
-                Affronte ton crew, mise des XP, prends la couronne
+              <p className="text-mute text-sm">
+                Affronte ton crew et prends la couronne
               </p>
             </div>
           </div>
 
           <Button
+            variant="pink"
             onClick={() => router.push("/teen/quests/friend-defis/new")}
-            className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-black uppercase tracking-wider"
           >
             <Plus className="w-4 h-4 mr-2" />
             Lancer un défi
           </Button>
         </div>
+
+        {/* Niv coach — pose hype */}
+        <NivCoach
+          mood="hype"
+          message="Yallah, défie ton crew et prends la couronne !"
+        />
 
         {/* Hub tabs (shared with /teen/quests) */}
         <HubTabs tabs={QUEST_TABS} defaultTab="friends" />
@@ -292,11 +297,10 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
                 type="button"
                 onClick={() => setStatusFilter(f.id)}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-wider transition-all",
-                  "ring-1",
+                  "inline-flex items-center gap-2 rounded-full border-2 border-ink px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-all motion-reduce:translate-x-0 motion-reduce:translate-y-0",
                   isActive
-                    ? "bg-pink-500/20 text-pink-200 ring-pink-400/40"
-                    : "bg-white/5 text-zinc-400 ring-white/10 hover:text-zinc-200 hover:bg-white/10",
+                    ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                    : "bg-white text-ink shadow-stkr-sm hover:-translate-x-0.5 hover:-translate-y-0.5",
                 )}
                 aria-pressed={isActive}
               >
@@ -305,7 +309,7 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
                 <span
                   className={cn(
                     "ml-1 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[10px]",
-                    isActive ? "bg-pink-400/30 text-pink-100" : "bg-white/10 text-zinc-300",
+                    isActive ? "bg-paper/20 text-paper" : "bg-ink/10 text-ink",
                   )}
                 >
                   {count}
@@ -319,44 +323,35 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
         {actionError ? (
           <div
             role="alert"
-            className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+            className="rounded-2xl border-2 border-ink bg-white px-4 py-3 text-sm text-coral shadow-stkr-sm"
           >
-            <strong className="font-black">Erreur : </strong>
+            <strong className="font-bold">Erreur : </strong>
             {actionError}
           </div>
         ) : null}
       </header>
 
       {/* Grid */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={statusFilter}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -16 }}
-          transition={{ duration: 0.25 }}
-        >
-          {visible.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {visible.map((c, idx) => (
-                <FriendDefiTile
-                  key={c.id}
-                  row={c}
-                  teenAuthId={teenAuthId}
-                  filter={statusFilter}
-                  busy={pendingActionId === c.id}
-                  onAccept={handleAccept}
-                  onDecline={handleDecline}
-                  onRecordProgress={handleRecordProgress}
-                  index={idx}
-                />
-              ))}
-            </div>
-          ) : (
-            <FriendDefisEmptyState filter={statusFilter} />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      <div>
+        {visible.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {visible.map((c) => (
+              <FriendDefiTile
+                key={c.id}
+                row={c}
+                teenAuthId={teenAuthId}
+                filter={statusFilter}
+                busy={pendingActionId === c.id}
+                onAccept={handleAccept}
+                onDecline={handleDecline}
+                onRecordProgress={handleRecordProgress}
+              />
+            ))}
+          </div>
+        ) : (
+          <FriendDefisEmptyState filter={statusFilter} />
+        )}
+      </div>
     </div>
   )
 }
@@ -373,7 +368,6 @@ interface FriendDefiTileProps {
   onAccept: (id: string) => void
   onDecline: (id: string) => void
   onRecordProgress: (id: string) => void
-  index: number
 }
 
 function FriendDefiTile({
@@ -384,7 +378,6 @@ function FriendDefiTile({
   onAccept,
   onDecline,
   onRecordProgress,
-  index,
 }: FriendDefiTileProps) {
   const isOpponent = row.opponent_id === teenAuthId
   const isCreator = row.creator_id === teenAuthId
@@ -409,20 +402,16 @@ function FriendDefiTile({
   const refDate = filter === "pending" && row.expires_at ? row.expires_at : row.ends_at
   const daysLeft = computeDaysLeft(refDate)
 
-  // Pot precedence: v2 xp_pot (sum of stakes) → v1 stake_xp → 0. Display
-  // the pot as the XP reward chip on the card so the stake stays visible.
+  // #206 — friend défis are bragging-rights only: no XP stake/transfer, so
+  // xp_pot/stake_xp are 0 for new challenges and the card shows no XP chip.
+  // Legacy rows (pre-#206) may still carry a pot; surface it for honesty.
   const xpReward = row.xp_pot && row.xp_pot > 0 ? row.xp_pot : row.stake_xp || 0
 
   const title = row.name || friendlyKindLabel(row.challenge_kind) || "Défi entre amis"
   const description = describeChallenge(row, isCreator)
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
-      className="space-y-3"
-    >
+    <div className="space-y-3">
       <DefiCard
         type="friend"
         title={title}
@@ -446,7 +435,8 @@ function FriendDefiTile({
               onClick={() => onAccept(row.id)}
               disabled={busy}
               size="sm"
-              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-black uppercase tracking-wider"
+              variant="lime"
+              className="flex-1 uppercase tracking-wider"
             >
               <Check className="w-4 h-4 mr-1" />
               Accepter
@@ -456,7 +446,7 @@ function FriendDefiTile({
               disabled={busy}
               size="sm"
               variant="outline"
-              className="flex-1 border-red-500/40 text-red-200 hover:bg-red-500/10 font-black uppercase tracking-wider"
+              className="flex-1 uppercase tracking-wider"
             >
               <X className="w-4 h-4 mr-1" />
               Refuser
@@ -465,7 +455,7 @@ function FriendDefiTile({
         ) : null}
 
         {filter === "pending" && isCreator ? (
-          <p className="text-xs text-zinc-500 italic">
+          <p className="text-xs text-mute italic">
             En attente de réponse de l'adversaire…
           </p>
         ) : null}
@@ -475,7 +465,8 @@ function FriendDefiTile({
             onClick={() => onRecordProgress(row.id)}
             disabled={busy}
             size="sm"
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white font-black uppercase tracking-wider"
+            variant="pink"
+            className="w-full uppercase tracking-wider"
           >
             <TrendingUp className="w-4 h-4 mr-1" />
             +1 progression
@@ -486,7 +477,7 @@ function FriendDefiTile({
           <CompletedSummary row={row} teenAuthId={teenAuthId} />
         ) : null}
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -499,14 +490,14 @@ function CompletedSummary({
 }) {
   if (row.is_draw) {
     return (
-      <p className="text-xs font-bold uppercase tracking-wider text-amber-300">
-        Match nul — pot partagé
+      <p className="text-xs font-bold uppercase tracking-wider text-gold">
+        Match nul
       </p>
     )
   }
   if (!row.winner_id) {
     return (
-      <p className="text-xs italic text-zinc-500">
+      <p className="text-xs italic text-mute">
         Résolution en attente…
       </p>
     )
@@ -515,11 +506,11 @@ function CompletedSummary({
   return (
     <p
       className={cn(
-        "text-xs font-black uppercase tracking-wider",
-        won ? "text-emerald-300" : "text-zinc-400",
+        "text-xs font-bold uppercase tracking-wider",
+        won ? "text-lime" : "text-mute",
       )}
     >
-      {won ? `Victoire +${row.xp_pot ?? 0} XP` : "Défaite"}
+      {won ? "Victoire 👑" : "Défaite"}
     </p>
   )
 }
@@ -548,14 +539,7 @@ function FriendDefisEmptyState({ filter }: { filter: StatusFilter }) {
 
   const msg = messages[filter]
 
-  return (
-    <SharedEmptyState
-      preset="quests"
-      size="default"
-      title={msg.title}
-      description={msg.description}
-    />
-  )
+  return <NivEmpty mood="calm" title={msg.title} description={msg.description} />
 }
 
 // =============================================================================

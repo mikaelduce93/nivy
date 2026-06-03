@@ -21,10 +21,11 @@ import { redirect } from "next/navigation"
 import { TeenSidebar } from "@/components/dashboard/teen/sidebar"
 import { TeenHeader } from "@/components/dashboard/teen/header"
 import { GamificationProvider } from "@/components/gamification/gamification-provider"
-import { EliteAICompanion } from "@/components/ai/elite-ai-companion"
 import { ClientErrorBoundary } from "@/components/common/client-error-boundary"
 import { PushPermissionPrompt } from "@/components/teen/push-permission-prompt"
 import { SkipToContent } from "@/components/ui/skip-to-content"
+import { StreakPinger } from "@/components/teen/streak-pinger"
+import { MobileBottomNav } from "@/components/teen/dashboard/mobile-nav"
 
 export default async function TeenLayout({
   children,
@@ -48,7 +49,8 @@ export default async function TeenLayout({
             in the role layout so Tab from the URL bar reveals it before any
             header / sidebar item. */}
         <SkipToContent />
-        <div className="pointer-events-none fixed inset-0 bg-dots opacity-20" />
+        {/* #40 — login-streak WRITE runs here post-hydration, not during RSC render. */}
+        <StreakPinger />
         <TeenHeader userInfo={userInfo} />
         <div className="flex relative">
           <TeenSidebar />
@@ -62,19 +64,16 @@ export default async function TeenLayout({
           <main
             id="main-content"
             tabIndex={-1}
-            className="relative flex-1 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-6 md:pb-6 md:ml-64 outline-none"
+            className="relative flex-1 p-4 pb-dock md:p-6 md:pb-6 md:ml-64 outline-none"
           >
             {children}
           </main>
         </div>
-        <ClientErrorBoundary>
-          <EliteAICompanion
-            role="teen"
-            teenName={userInfo.fullName?.split(' ')[0] || 'Champ'}
-            userId={userInfo.teenData?.id}
-            context={userInfo.teenData}
-          />
-        </ClientErrorBoundary>
+        {/* #202 Coach Niv — Phase 0 : EliteAICompanion (« Kai ») DÉMONTÉ.
+            C'était un composant @deprecated (#83) à profil de risque mineurs
+            (vrai prénom envoyé au LLM, aucun garde-fou, hors charte). Le coach
+            canonique est « Niv » (components/teen/avatar-coach.tsx, chat gardé).
+            Le launcher flottant unifié <NivCoachLauncher> arrive en #210. */}
         {/*
           V1.2 Wave 3 U3 — deferred push permission prompt. Mounts globally for
           the teen domain, but only renders after the user has demonstrated
@@ -86,6 +85,12 @@ export default async function TeenLayout({
           <div className="[&>div]:!bottom-24 md:[&>div]:!bottom-6">
             <PushPermissionPrompt />
           </div>
+        </ClientErrorBoundary>
+        {/* #203 — bottom-nav mobile montée AU NIVEAU DU LAYOUT : elle est donc
+            présente sur TOUTES les pages teen (avant, elle vivait dans le
+            dashboard-content et n'existait que sur l'accueil). md:hidden. */}
+        <ClientErrorBoundary>
+          <MobileBottomNav />
         </ClientErrorBoundary>
       </div>
     </GamificationProvider>

@@ -1,8 +1,9 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Users, Wallet, TrendingUp, Gift, ArrowRight, ArrowDownToLine, Image as ImageIcon, QrCode, FileText } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { DarkSurface, StatHero, NivCoach, NivEmpty } from "@/components/brand"
+import { Users, Wallet, TrendingUp, Gift, ArrowRight, ArrowDownToLine, Image as ImageIcon, FileText } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { ShareButtons } from "@/components/ambassador/share-buttons"
@@ -10,56 +11,72 @@ import { ShareButtons } from "@/components/ambassador/share-buttons"
 async function getAmbassadorStats(profileId: string) {
   const supabase = await createClient()
 
-  // Get ambassador data
+  // #33 — real ambassadors schema: keyed on user_id; code + commission_pct
+  // live on the row. The old profile_id/total_referrals/total_earnings/
+  // commission_rate columns and the referral_codes/referral_usage tables don't
+  // match this flow. Referrals come from referral_attribution and earnings
+  // from ambassador_commissions (both keyed on ambassadors.id).
   const { data: ambassador } = await supabase
     .from("ambassadors")
-    .select("id, total_referrals, total_earnings, commission_rate")
-    .eq("profile_id", profileId)
-    .single()
+    .select("id, code, commission_pct")
+    .eq("user_id", profileId)
+    .maybeSingle()
 
   if (!ambassador) return null
 
-  // Get referral code
-  const { data: referralCode } = await supabase
-    .from("referral_codes")
-    .select("code")
-    .eq("ambassador_id", ambassador.id)
-    .eq("is_active", true)
-    .single()
-
-  // Get recent referrals (users who used this ambassador's code)
-  const { data: recentReferrals } = await supabase
-    .from("referral_usage")
-    .select(`
-      id,
-      commission_amount,
-      created_at,
-      user:user_id (
-        full_name
-      )
-    `)
-    .eq("ambassador_id", ambassador.id)
-    .order("created_at", { ascending: false })
-    .limit(5)
-
-  // Get this month's referrals count
   const startOfMonth = new Date()
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
-  const { count: monthlyReferrals } = await supabase
-    .from("referral_usage")
-    .select("*", { count: "exact", head: true })
-    .eq("ambassador_id", ambassador.id)
-    .gte("created_at", startOfMonth.toISOString())
+  const [{ count: totalReferrals }, { count: monthlyReferrals }, { data: commissions }] =
+    await Promise.all([
+      supabase
+        .from("referral_attribution")
+        .select("*", { count: "exact", head: true })
+        .eq("ambassador_id", ambassador.id),
+      supabase
+        .from("referral_attribution")
+        .select("*", { count: "exact", head: true })
+        .eq("ambassador_id", ambassador.id)
+        .gte("attributed_at", startOfMonth.toISOString()),
+      supabase
+        .from("ambassador_commissions")
+        .select("id, amount_dh, created_at, referred_user_id")
+        .eq("ambassador_id", ambassador.id)
+        .order("created_at", { ascending: false }),
+    ])
+
+  const commissionRows = commissions || []
+  const totalEarnings = commissionRows.reduce(
+    (sum, c) => sum + (Number(c.amount_dh) || 0),
+    0,
+  )
+
+  // Resolve referred-user names separately (no FK ambassador_commissions→profiles).
+  const referredIds = [...new Set(commissionRows.map((c) => c.referred_user_id).filter(Boolean))]
+  const nameById = new Map<string, string>()
+  if (referredIds.length > 0) {
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", referredIds)
+    for (const p of profs || []) nameById.set(p.id, p.full_name || "Utilisateur")
+  }
+
+  const recentReferrals = commissionRows.slice(0, 5).map((c) => ({
+    id: c.id,
+    created_at: c.created_at,
+    commission_amount: Number(c.amount_dh) || 0,
+    user: { full_name: nameById.get(c.referred_user_id) || "Utilisateur" },
+  }))
 
   return {
-    totalReferrals: ambassador.total_referrals || 0,
-    totalEarnings: ambassador.total_earnings || 0,
-    commissionRate: ambassador.commission_rate || 15,
-    referralCode: referralCode?.code || profileId.slice(0, 8).toUpperCase(),
+    totalReferrals: totalReferrals || 0,
+    totalEarnings,
+    commissionRate: Number(ambassador.commission_pct) || 10,
+    referralCode: ambassador.code || profileId.slice(0, 8).toUpperCase(),
     monthlyReferrals: monthlyReferrals || 0,
-    recentReferrals: recentReferrals || []
+    recentReferrals,
   }
 }
 
@@ -79,112 +96,102 @@ export default async function AmbassadorDashboardPage() {
   const monthlyReferrals = stats?.monthlyReferrals || 0
   const recentReferrals = stats?.recentReferrals || []
 
+  const firstName = userInfo.fullName.split(" ")[0]
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-32">
-        {/* Welcome Banner */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-8 text-white mb-8">
-          <div className="relative z-10">
-            <h1 className="text-3xl font-black mb-2">
-              Bienvenue, {userInfo.fullName.split(" ")[0]} !
+    <div className="bg-paper">
+      <div className="container mx-auto px-6 py-20 md:py-32">
+        {/* Hero éditorial */}
+        <div className="mb-8 grid gap-6 lg:grid-cols-[1.3fr_1fr] lg:items-stretch">
+          <div className="flex flex-col justify-center">
+            <span className="eyebrow tracking-[0.16em] text-pink">Ambassadeur</span>
+            <h1 className="mt-2 font-display text-4xl font-extrabold leading-tight tracking-tight text-ink">
+              Salut {firstName}, <em className="font-semibold italic text-pink">gagne</em> du cash réel à chaque inscription.
             </h1>
-            <p className="text-white/80 text-lg">
-              Partagez Nivy et gagnez {commissionRate}% de commission sur chaque inscription
+            <p className="mt-3 max-w-lg text-mute">
+              Partage ton code Nivy et touche {commissionRate}% de commission sur chaque famille que tu ramènes.
             </p>
-            <div className="mt-6 flex flex-wrap gap-4">
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-5 py-3">
-                <p className="text-xs text-white/70">Votre code</p>
-                <p className="text-2xl font-black font-mono tracking-wider">{referralCode}</p>
-              </div>
-              <ShareButtons referralCode={referralCode} />
-            </div>
           </div>
-          <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-white/10 blur-3xl" />
+
+          {/* Code parrain — surface sombre, le produit (Mono géant) */}
+          <StatHero
+            eyebrow="Ton code parrain"
+            value={<span className="font-mono tracking-wider">{referralCode}</span>}
+            tone="pink"
+            size="sm"
+            meta={
+              <div className="mt-3 flex flex-wrap gap-3">
+                <ShareButtons referralCode={referralCode} />
+              </div>
+            }
+          />
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-blue-400 font-medium">Filleuls</p>
-                  <p className="text-3xl font-black text-white">{totalReferrals}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-blue-400" />
-                </div>
+        {/* KPI — cartes sticker (1 dominant en surface sombre : commissions) */}
+        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="eyebrow tracking-[0.16em] text-mute">Filleuls</span>
+                <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-ink">{totalReferrals}</p>
               </div>
-            </CardContent>
-          </Card>
+              <Users className="h-6 w-6 text-teal" />
+            </div>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-emerald-400 font-medium">Commissions</p>
-                  <p className="text-3xl font-black text-white">
-                    {totalEarnings.toLocaleString()} DH
-                  </p>
-                </div>
-                <Link href="/ambassador/withdrawals" className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center hover:bg-emerald-500/30 transition-colors">
-                  <Wallet className="h-6 w-6 text-emerald-400" />
-                </Link>
-              </div>
-              <Button asChild size="sm" className="w-full mt-3 bg-emerald-500 hover:bg-emerald-600 text-white">
-                <Link href="/ambassador/withdrawals">
-                  <ArrowDownToLine className="h-4 w-4 mr-2" />
-                  Retirer
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Commissions — surface sombre (argent) */}
+          <DarkSurface tone="lime" shadow className="p-5">
+            <div className="flex items-center justify-between">
+              <span className="eyebrow tracking-[0.16em] text-paper/60">Commissions</span>
+              <Wallet className="h-5 w-5 text-lime" />
+            </div>
+            <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-lime">
+              {totalEarnings.toLocaleString()} <span className="font-mono text-sm text-paper/60">DH</span>
+            </p>
+            <Button asChild variant="lime" size="sm" className="mt-3 w-full">
+              <Link href="/ambassador/withdrawals">
+                <ArrowDownToLine className="h-4 w-4 mr-2" />
+                Retirer
+              </Link>
+            </Button>
+          </DarkSurface>
 
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-purple-400 font-medium">Ce mois</p>
-                  <p className="text-3xl font-black text-white">+{monthlyReferrals}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-purple-400" />
-                </div>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="eyebrow tracking-[0.16em] text-mute">Ce mois</span>
+                <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-ink">+{monthlyReferrals}</p>
               </div>
-            </CardContent>
-          </Card>
+              <TrendingUp className="h-6 w-6 text-pink" />
+            </div>
+          </StickerCard>
 
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-amber-400 font-medium">Taux</p>
-                  <p className="text-3xl font-black text-white">{commissionRate}%</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <Gift className="h-6 w-6 text-amber-400" />
-                </div>
+          <StickerCard className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="eyebrow tracking-[0.16em] text-mute">Taux</span>
+                <p className="mt-1 font-display text-3xl font-extrabold tabular-nums text-ink">{commissionRate}%</p>
               </div>
-            </CardContent>
-          </Card>
+              <Gift className="h-6 w-6 text-gold" />
+            </div>
+          </StickerCard>
         </div>
 
         {/* Content Grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* Recent Referrals */}
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-border">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg text-white">Derniers filleuls</CardTitle>
-              <Button variant="ghost" size="sm" asChild className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10">
+        <div className="mb-8 grid gap-6 md:grid-cols-2">
+          {/* Derniers filleuls */}
+          <StickerCard className="p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-display text-lg font-extrabold text-ink">Derniers filleuls</h2>
+              <Button variant="ghost" size="sm" asChild>
                 <Link href="/ambassador/referrals">
                   Voir tout <ArrowRight className="h-4 w-4 ml-1" />
                 </Link>
               </Button>
-            </CardHeader>
-            <CardContent className="space-y-3">
+            </div>
+            <div className="space-y-3">
               {recentReferrals.length > 0 ? (
-                recentReferrals.slice(0, 3).map((referral: any, i: number) => {
+                recentReferrals.slice(0, 3).map((referral: any) => {
                   const userName = referral.user?.full_name || "Utilisateur"
                   const date = new Date(referral.created_at)
                   const now = new Date()
@@ -192,133 +199,119 @@ export default async function AmbassadorDashboardPage() {
                   const dateText = diffDays === 0 ? "Aujourd'hui" : diffDays === 1 ? "Hier" : `Il y a ${diffDays} jours`
 
                   return (
-                    <div key={referral.id} className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:border-amber-500/30 transition-all">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-lg">
+                    <div key={referral.id} className="flex items-center justify-between gap-3 rounded-xl border-2 border-line bg-white p-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-pink font-display text-lg font-extrabold text-ink">
                           {userName.charAt(0)}
                         </div>
-                        <div>
-                          <p className="font-semibold text-white">{userName}</p>
-                          <p className="text-xs text-zinc-400">{dateText}</p>
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-ink">{userName}</p>
+                          <p className="font-mono text-xs text-mute">{dateText}</p>
                         </div>
                       </div>
-                      <span className="text-xs px-3 py-1 rounded-full font-medium bg-emerald-500/20 text-emerald-400">
+                      <span className="shrink-0 rounded-full border-2 border-ink bg-lime px-3 py-1 font-mono text-xs font-semibold text-on-bright">
                         actif
                       </span>
                     </div>
                   )
                 })
               ) : (
-                <div className="text-center py-6">
-                  <p className="text-zinc-500 mb-2">Pas encore de filleuls</p>
-                  <p className="text-xs text-zinc-600">Partagez votre code pour commencer !</p>
-                </div>
+                <NivEmpty
+                  title="Pas encore de filleuls"
+                  description="Partage ton code pour ramener ta première famille."
+                />
               )}
-              <Button variant="ghost" className="w-full text-amber-400 hover:text-amber-300 hover:bg-amber-500/10" asChild>
+              <Button variant="outline" className="w-full" asChild>
                 <Link href="/ambassador/referrals">Voir tous les filleuls</Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </StickerCard>
 
-          {/* Commission History */}
-          <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-border">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg text-white">Historique commissions</CardTitle>
-              <Button variant="ghost" size="sm" asChild className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10">
+          {/* Historique commissions */}
+          <StickerCard className="p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-display text-lg font-extrabold text-ink">Historique commissions</h2>
+              <Button variant="ghost" size="sm" asChild>
                 <Link href="/ambassador/commissions">
                   Voir tout <ArrowRight className="h-4 w-4 ml-1" />
                 </Link>
               </Button>
-            </CardHeader>
-            <CardContent className="space-y-3">
+            </div>
+            <div className="space-y-3">
               {recentReferrals.length > 0 ? (
-                recentReferrals.slice(0, 3).map((referral: any, i: number) => {
+                recentReferrals.slice(0, 3).map((referral: any) => {
                   const userName = referral.user?.full_name || "Utilisateur"
                   const date = new Date(referral.created_at)
                   const dateText = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 
                   return (
-                    <div key={referral.id} className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
-                      <div>
-                        <p className="font-black text-emerald-400">+{referral.commission_amount || 0} DH</p>
-                        <p className="text-xs text-zinc-400">Inscription {userName}</p>
+                    <div key={referral.id} className="flex items-center justify-between gap-3 rounded-xl border-2 border-line bg-white p-4">
+                      <div className="min-w-0">
+                        <p className="font-mono text-lg font-bold tabular-nums text-lime">+{referral.commission_amount || 0} DH</p>
+                        <p className="truncate text-xs text-mute">Inscription {userName}</p>
                       </div>
-                      <p className="text-sm text-zinc-500">{dateText}</p>
+                      <p className="shrink-0 font-mono text-sm text-mute">{dateText}</p>
                     </div>
                   )
                 })
               ) : (
-                <div className="text-center py-6">
-                  <p className="text-zinc-500 mb-2">Pas encore de commissions</p>
-                  <p className="text-xs text-zinc-600">Vos commissions apparaîtront ici</p>
-                </div>
+                <NivEmpty
+                  title="Pas encore de commissions"
+                  description="Tes gains apparaîtront ici dès la première inscription."
+                />
               )}
-              <Button variant="ghost" className="w-full text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10" asChild>
+              <Button variant="outline" className="w-full" asChild>
                 <Link href="/ambassador/commissions">Voir tout l'historique</Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </StickerCard>
         </div>
 
-        {/* Quick Actions */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-border mb-8">
-          <CardHeader>
-            <CardTitle className="text-lg text-white">Actions rapides</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button variant="outline" className="h-auto py-6 flex-col border-border bg-card hover:bg-accent hover:border-amber-500/30" asChild>
-                <Link href="/ambassador/marketing">
-                  <ImageIcon className="h-8 w-8 mb-3 text-purple-400" />
-                  <span className="text-white">Matériel Marketing</span>
-                </Link>
-              </Button>
-              <Button variant="outline" className="h-auto py-6 flex-col border-border bg-card hover:bg-accent hover:border-amber-500/30" asChild>
-                <Link href="/ambassador/withdrawals">
-                  <ArrowDownToLine className="h-8 w-8 mb-3 text-emerald-400" />
-                  <span className="text-white">Retirer</span>
-                </Link>
-              </Button>
-              <Button variant="outline" className="h-auto py-6 flex-col border-border bg-card hover:bg-accent hover:border-amber-500/30" asChild>
-                <Link href="/ambassador/referrals">
-                  <Users className="h-8 w-8 mb-3 text-amber-400" />
-                  <span className="text-white">Mes Filleuls</span>
-                </Link>
-              </Button>
-              <Button variant="outline" className="h-auto py-6 flex-col border-border bg-card hover:bg-accent hover:border-amber-500/30" asChild>
-                <Link href="/ambassador/commissions">
-                  <FileText className="h-8 w-8 mb-3 text-blue-400" />
-                  <span className="text-white">Historique</span>
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Actions rapides */}
+        <StickerCard className="mb-8 p-6">
+          <h2 className="mb-4 font-display text-lg font-extrabold text-ink">Actions rapides</h2>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Button variant="outline" className="h-auto flex-col py-6" asChild>
+              <Link href="/ambassador/marketing">
+                <ImageIcon className="mb-3 h-8 w-8 text-pink" />
+                <span>Matériel marketing</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col py-6" asChild>
+              <Link href="/ambassador/withdrawals">
+                <ArrowDownToLine className="mb-3 h-8 w-8 text-lime" />
+                <span>Retirer</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col py-6" asChild>
+              <Link href="/ambassador/referrals">
+                <Users className="mb-3 h-8 w-8 text-gold" />
+                <span>Mes filleuls</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col py-6" asChild>
+              <Link href="/ambassador/commissions">
+                <FileText className="mb-3 h-8 w-8 text-teal" />
+                <span>Historique</span>
+              </Link>
+            </Button>
+          </div>
+        </StickerCard>
 
-        {/* Tips */}
-        <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-amber-500/20">
-          <CardHeader>
-            <CardTitle className="text-lg text-white flex items-center gap-2">
-              <span className="text-2xl">💡</span> Conseils pour gagner plus
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-5 bg-card/80 rounded-xl border border-border">
-                <p className="font-bold text-white mb-2">Partagez sur les réseaux</p>
-                <p className="text-sm text-zinc-400">Instagram, TikTok, WhatsApp sont vos meilleurs alliés</p>
-              </div>
-              <div className="p-5 bg-card/80 rounded-xl border border-border">
-                <p className="font-bold text-white mb-2">Parlez-en autour de vous</p>
-                <p className="text-sm text-zinc-400">Famille, amis, collègues avec des ados</p>
-              </div>
-              <div className="p-5 bg-card/80 rounded-xl border border-border">
-                <p className="font-bold text-white mb-2">Créez du contenu</p>
-                <p className="text-sm text-zinc-400">Témoignages, photos d'events, stories</p>
-              </div>
+        {/* Coach Niv — conseils */}
+        <NivCoach
+          mood="hype"
+          message={
+            <div className="space-y-2">
+              <p className="font-semibold text-paper">Mes 3 conseils pour gagner plus :</p>
+              <ul className="list-disc space-y-1 pl-4 text-paper/80">
+                <li>Partage ton code sur Insta, TikTok et WhatsApp — c'est là que ça convertit.</li>
+                <li>Parles-en autour de toi : familles, amis, voisins avec des ados.</li>
+                <li>Crée du contenu : stories d'events, témoignages, photos.</li>
+              </ul>
             </div>
-          </CardContent>
-        </Card>
+          }
+        />
       </div>
     </div>
   )

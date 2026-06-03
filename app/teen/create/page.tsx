@@ -5,10 +5,41 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
+
+import { StickerCard } from "@/components/ui/sticker-card"
+import { FieldInput } from "@/components/ui/field-input"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
+import { Button } from "@/components/ui/button"
+import { NivCoach } from "@/components/brand"
 
 const TYPES = ["photo", "video", "story", "tutorial", "review"] as const
 const CATEGORIES = ["sport", "art", "tech", "academic", "food", "lifestyle"] as const
 const VISIBILITY = ["private", "friends", "crew", "public"] as const
+
+// Libellés FR Gen-Z — purement présentation. La VALEUR envoyée au POST reste
+// l'enum d'origine (iso-fonctionnel : mapping libellé→valeur uniquement).
+const TYPE_LABELS: Record<(typeof TYPES)[number], string> = {
+  photo: "Photo",
+  video: "Vidéo",
+  story: "Story",
+  tutorial: "Tuto",
+  review: "Avis",
+}
+const CATEGORY_LABELS: Record<(typeof CATEGORIES)[number], string> = {
+  sport: "Sport",
+  art: "Art",
+  tech: "Tech",
+  academic: "Études",
+  food: "Food",
+  lifestyle: "Lifestyle",
+}
+const VISIBILITY_LABELS: Record<(typeof VISIBILITY)[number], string> = {
+  private: "Privé",
+  friends: "Amis",
+  crew: "Crew",
+  public: "Public",
+}
 
 export default function CreateSubmissionPage() {
   const router = useRouter()
@@ -52,102 +83,148 @@ export default function CreateSubmissionPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-xl px-4 py-6">
-      <h1 className="mb-4 text-2xl font-semibold">Créer un post</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Type</label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as (typeof TYPES)[number])}
-            className="mt-1 w-full rounded border p-2"
-          >
-            {TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="container mx-auto max-w-xl space-y-6 px-4 py-6">
+      <header className="space-y-2">
+        <p className="eyebrow">Créer · Partager</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          Créer un <em className="font-semibold italic text-pink not-italic">post</em>
+        </h1>
+        <p className="max-w-md text-mute">
+          Montre ta création au feed. Choisis le format, ajoute un titre et publie.
+        </p>
+      </header>
 
-        <div>
-          <label className="block text-sm font-medium">Catégorie</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as (typeof CATEGORIES)[number])}
-            className="mt-1 w-full rounded border p-2"
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
+      <StickerCard className="gap-5 p-5 sm:p-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <SelectSticker
+              label="Type"
+              value={type}
+              onValueChange={(v) => setType(v as (typeof TYPES)[number])}
+            >
+              {TYPES.map((t) => (
+                <SelectStickerItem key={t} value={t}>
+                  {TYPE_LABELS[t]}
+                </SelectStickerItem>
+              ))}
+            </SelectSticker>
 
-        <div>
-          <label className="block text-sm font-medium">Titre</label>
-          <input
+            <SelectSticker
+              label="Catégorie"
+              value={category}
+              onValueChange={(v) => setCategory(v as (typeof CATEGORIES)[number])}
+            >
+              {CATEGORIES.map((c) => (
+                <SelectStickerItem key={c} value={c}>
+                  {CATEGORY_LABELS[c]}
+                </SelectStickerItem>
+              ))}
+            </SelectSticker>
+          </div>
+
+          <FieldInput
+            label="Titre"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mt-1 w-full rounded border p-2"
             maxLength={120}
+            placeholder="Un titre qui claque"
           />
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium">Description</label>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={4}
-            className="mt-1 w-full rounded border p-2"
-            maxLength={2000}
-          />
-        </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="create-body" className="eyebrow tracking-[0.16em]">
+              Description
+            </label>
+            <textarea
+              id="create-body"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={4}
+              maxLength={2000}
+              placeholder="Raconte ce que tu partages…"
+              className="w-full rounded-xl border-2 border-input bg-card px-3.5 py-2.5 text-base outline-none transition-colors placeholder:text-mute focus:border-ink md:text-sm"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium">URL média (image/vidéo)</label>
-          <input
+          <FieldInput
+            label="URL média (image/vidéo)"
             type="url"
             value={mediaUrl}
             onChange={(e) => setMediaUrl(e.target.value)}
             placeholder="https://..."
-            className="mt-1 w-full rounded border p-2"
           />
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium">Visibilité</label>
-          <select
-            value={visibility}
-            onChange={(e) => setVisibility(e.target.value as (typeof VISIBILITY)[number])}
-            className="mt-1 w-full rounded border p-2"
-          >
-            {VISIBILITY.map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </select>
-          {visibility === "public" && (
-            <p className="mt-1 text-xs text-gray-500">
-              Les posts publics passent par la modération avant publication.
-            </p>
+          <div className="space-y-2">
+            <SelectSticker
+              label="Visibilité"
+              value={visibility}
+              onValueChange={(v) => setVisibility(v as (typeof VISIBILITY)[number])}
+            >
+              {VISIBILITY.map((v) => (
+                <SelectStickerItem key={v} value={v}>
+                  {VISIBILITY_LABELS[v]}
+                </SelectStickerItem>
+              ))}
+            </SelectSticker>
+            {visibility === "public" && (
+              <NivCoach
+                mood="proud"
+                tone="paper"
+                message="Les posts publics passent par la modération avant publication."
+              />
+            )}
+          </div>
+
+          {error && (
+            <div className="rounded-xl border-2 border-coral bg-white px-3.5 py-2.5 text-sm font-medium text-coral shadow-stkr-sm">
+              {error}
+            </div>
           )}
-        </div>
 
-        {error && <div className="rounded bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+          <Button
+            type="submit"
+            variant="pink"
+            disabled={submitting || (!body && !mediaUrl)}
+            className="w-full"
+          >
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            {submitting ? "Envoi…" : "Publier"}
+          </Button>
+        </form>
+      </StickerCard>
 
-        <button
-          type="submit"
-          disabled={submitting || (!body && !mediaUrl)}
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {submitting ? "Envoi…" : "Publier"}
-        </button>
-      </form>
+      {/* Aperçu live — carte post style feed, construite pendant la saisie. */}
+      <section className="space-y-2">
+        <p className="eyebrow">Aperçu</p>
+        <StickerCard variant="panel" className="overflow-hidden">
+          {mediaUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={mediaUrl}
+              alt=""
+              className="aspect-video w-full border-b-2 border-ink object-cover"
+            />
+          ) : (
+            <div className="grid aspect-video place-items-center border-b-2 border-ink bg-paper-2 font-mono text-xs uppercase tracking-widest text-mute">
+              {TYPE_LABELS[type]}
+            </div>
+          )}
+          <div className="space-y-2 p-4">
+            <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-wide text-mute">
+              <span className="rounded-full border-2 border-ink px-2 py-0.5 text-ink">
+                {CATEGORY_LABELS[category]}
+              </span>
+              <span>{VISIBILITY_LABELS[visibility]}</span>
+            </div>
+            <h3 className="font-display text-lg font-bold text-ink">
+              {title.trim() || "Titre de ton post"}
+            </h3>
+            {body.trim() && (
+              <p className="line-clamp-3 text-sm text-mute">{body}</p>
+            )}
+          </div>
+        </StickerCard>
+      </section>
     </div>
   )
 }

@@ -1,13 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { Dumbbell, Zap, Flame, Trophy, Clock, Play, Check, Target, Heart, Timer, TrendingUp, Calendar, Star } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
+import { Dumbbell, Zap, Trophy, Check, Target, Heart, Star } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { StickerTabs } from "@/components/brand/sticker-tab"
+import { Niv, NivCoach, NivEmpty, NivCelebration } from "@/components/brand"
 import { DefiCard } from "@/components/teen/defi-card"
-import { EmptyState } from "@/components/ui/states/empty-state"
 import { PhysicalChallengeActions } from "@/components/teen/physical-challenge-actions"
 
 export type ApiChallenge = {
@@ -51,10 +50,10 @@ export type ApiStats = {
 
 // CATEGORIES is a UI catalogue (filter chips), not a data array
 const CATEGORIES = [
-  { id: "all", label: "Tous", icon: Dumbbell },
-  { id: "strength", label: "Force", icon: Target },
-  { id: "cardio", label: "Cardio", icon: Heart },
-  { id: "core", label: "Core", icon: Star },
+  { value: "all", label: "Tous", icon: <Dumbbell /> },
+  { value: "strength", label: "Force", icon: <Target /> },
+  { value: "cardio", label: "Cardio", icon: <Heart /> },
+  { value: "core", label: "Core", icon: <Star /> },
 ]
 
 // Human-readable label for canonical interest_taxonomy tags. Keeps the
@@ -128,161 +127,107 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
 
   const completedToday = dailyChallenges.filter((c) => c.is_completed).length
   const totalToday = dailyChallenges.length
-  const todayPct = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0
+  const allDoneToday = totalToday > 0 && completedToday === totalToday
 
-  // TODO(data): expose teen-level workout history & weekly minutes via API.
-  // For now derive what we can from stats; rest displayed as 0/empty.
-  const totalWorkouts = stats.completed
+  // Seules les métriques réellement câblées via getSportChallenges.
+  const totalCompleted = stats.completed
   const totalXPEarned = stats.totalXpEarned
-  const currentStreak = 0
-  const minutesThisWeek = 0
-  const workoutHistory: Array<{ id: string; name: string; date: string; duration: string; xp: number }> = []
 
   return (
-    <div className="min-h-screen pb-32 space-y-8 pt-6">
-      {/* Header */}
+    <div className="min-h-screen space-y-8 pb-32 pt-6">
+      {/* Header éditorial */}
       <header className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                <Dumbbell className="w-6 h-6 text-black" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Défis Physiques</h1>
-                <p className="text-zinc-500 text-sm font-medium">Bouge et gagne des XP</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Streak */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/30">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <span className="font-black text-orange-500">{currentStreak}</span>
-            <span className="text-xs text-orange-500/70">jours</span>
+        <div className="flex items-center gap-4">
+          <Niv mood="hype" size={72} className="shrink-0" />
+          <div>
+            <p className="eyebrow tracking-[0.16em]">Bouge · Défis</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight">
+              Bouge, gagne des <em className="font-semibold italic text-pink">XP</em>
+            </h1>
+            <p className="text-sm text-mute">Relève les défis physiques et grimpe en XP.</p>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
-          >
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <Trophy className="w-4 h-4 text-yellow-500" />
-              <span className="font-black text-xl">{totalWorkouts}</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Workouts</p>
-          </motion.div>
+        <NivCoach mood="hype" message="Un défi à la fois. Termine ta journée et reviens demain pour la suite !" />
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
-          >
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-brand-soft" />
-              <span className="font-black text-xl">{totalXPEarned.toLocaleString()}</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">XP Total</p>
-          </motion.div>
+        {/* Stats réelles — pills sticker mono */}
+        <div className="grid grid-cols-3 gap-3">
+          <StickerCard className="items-center gap-1 p-4 text-center">
+            <span className="flex items-center gap-1.5 font-display text-2xl font-extrabold tabular-nums text-pink">
+              <Trophy className="size-4 text-pink" aria-hidden="true" />
+              {totalCompleted}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Défis réussis</span>
+          </StickerCard>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
-          >
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <Timer className="w-4 h-4 text-success-soft" />
-              <span className="font-black text-xl">{minutesThisWeek}</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Min/Semaine</p>
-          </motion.div>
+          <StickerCard className="items-center gap-1 p-4 text-center">
+            <span className="flex items-center gap-1.5 font-display text-xl sm:text-2xl font-extrabold tabular-nums text-gold">
+              <Zap className="size-4 text-gold" aria-hidden="true" />
+              {totalXPEarned.toLocaleString()}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">XP total</span>
+          </StickerCard>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
-          >
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <Check className="w-4 h-4 text-accent-soft" />
-              <span className="font-black text-xl">{completedToday}/{totalToday}</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Aujourd'hui</p>
-          </motion.div>
+          <StickerCard className="items-center gap-1 p-4 text-center">
+            <span className="flex items-center gap-1.5 font-display text-2xl font-extrabold tabular-nums text-teal">
+              <Check className="size-4 text-teal" aria-hidden="true" />
+              {completedToday}/{totalToday}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Aujourd'hui</span>
+          </StickerCard>
         </div>
       </header>
 
-      {/* Today's Progress */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="p-6 rounded-3xl bg-gradient-to-br from-orange-500/10 to-red-500/5 border border-orange-500/20"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-black text-lg">Progression du jour</h3>
-          <span className="text-sm text-orange-500 font-bold">{todayPct}%</span>
-        </div>
-        <Progress value={todayPct} className="h-3" />
-        <p className="text-sm text-zinc-500 mt-3">
-          {totalToday > 0 && completedToday === totalToday
-            ? "Bravo! Tu as terminé tous les défis du jour! 🎉"
-            : `${Math.max(0, totalToday - completedToday)} défis restants pour compléter ta journée`}
-        </p>
-      </motion.div>
+      {/* Progression du jour */}
+      {allDoneToday ? (
+        <NivCelebration
+          tone="lime"
+          palette="levelup"
+          title="Journée complète"
+          value={`${completedToday}/${totalToday}`}
+          caption="Bravo ! Tu as terminé tous les défis du jour."
+        />
+      ) : (
+        <StickerCard className="gap-4 p-6">
+          <div className="flex items-center justify-between">
+            <p className="eyebrow tracking-[0.16em]">Progression du jour</p>
+            <span className="font-mono text-sm font-bold text-pink tabular-nums">
+              {completedToday}/{totalToday}
+            </span>
+          </div>
+          <SegmentedProgress steps={Math.max(1, totalToday)} current={completedToday} size="md" />
+          <p className="text-sm text-mute">
+            {totalToday > 0
+              ? `${Math.max(0, totalToday - completedToday)} défis restants pour compléter ta journée`
+              : "Aucun défi du jour pour l'instant."}
+          </p>
+        </StickerCard>
+      )}
 
-      {/* Categories */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
-        {CATEGORIES.map((cat) => {
-          const Icon = cat.icon
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setCategory(cat.id)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
-                category === cat.id
-                  ? "bg-orange-500 text-black"
-                  : "bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800/50"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              {cat.label}
-            </button>
-          )
-        })}
-      </div>
+      {/* Filtres */}
+      <StickerTabs
+        ariaLabel="Catégories de défis"
+        value={category}
+        onValueChange={setCategory}
+        tabs={CATEGORIES}
+      />
 
-      {/* Daily Challenges — unified <DefiCard type="physical" /> */}
+      {/* Défis du jour — unified <DefiCard type="physical" /> */}
       <section className="space-y-4">
-        <h2 className="text-xl font-black uppercase">Défis du Jour</h2>
+        <p className="eyebrow tracking-[0.16em]">Défis du jour</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredChallenges.map((challenge, idx) => {
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {filteredChallenges.map((challenge) => {
             const props = challengeToDefiProps(challenge)
             const tags = (challenge.tags ?? []).slice(0, 3)
             return (
-              <motion.div
-                key={challenge.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="space-y-2"
-              >
+              <div key={challenge.id} className="space-y-2">
                 {tags.length > 0 && (
-                  <div
-                    className="flex flex-wrap gap-1.5 px-1"
-                    aria-label="Tags du défi"
-                  >
+                  <div className="flex flex-wrap gap-1.5 px-1" aria-label="Tags du défi">
                     {tags.map((t) => (
                       <span
                         key={t}
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                        className="rounded-full border-2 border-ink bg-paper-2 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ink"
                       >
                         {tagToLabel(t)}
                       </span>
@@ -300,46 +245,36 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
                   currentValue={challenge.progress?.current_value ?? 0}
                   objectiveValue={challenge.objective_value}
                 />
-              </motion.div>
+              </div>
             )
           })}
         </div>
       </section>
 
-      {/* Programs — unified <DefiCard type="physical" /> */}
+      {/* Programmes — unified <DefiCard type="physical" /> */}
       <section className="space-y-4">
-        <h2 className="text-xl font-black uppercase">Programmes</h2>
+        <p className="eyebrow tracking-[0.16em]">Programmes</p>
 
         {programs.length === 0 && !loading && (
-          <EmptyState
-            size="small"
-            icon={Calendar}
-            title="Aucun programme disponible"
-            description="Aucun programme physique n'est disponible pour le moment. Reviens bientôt !"
+          <NivEmpty
+            mood="calm"
+            title="Pas de programme pour l'instant"
+            description="Aucun programme physique disponible. Reviens bientôt pour de nouveaux défis !"
           />
         )}
 
         <div className="space-y-4">
-          {programs.map((program, idx) => {
+          {programs.map((program) => {
             const props = challengeToDefiProps(program)
             const tags = (program.tags ?? []).slice(0, 3)
             return (
-              <motion.div
-                key={program.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="space-y-2"
-              >
+              <div key={program.id} className="space-y-2">
                 {tags.length > 0 && (
-                  <div
-                    className="flex flex-wrap gap-1.5 px-1"
-                    aria-label="Tags du programme"
-                  >
+                  <div className="flex flex-wrap gap-1.5 px-1" aria-label="Tags du programme">
                     {tags.map((t) => (
                       <span
                         key={t}
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                        className="rounded-full border-2 border-ink bg-paper-2 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ink"
                       >
                         {tagToLabel(t)}
                       </span>
@@ -357,61 +292,11 @@ export function DefisPhysiquesClient({ teenId, challenges, stats }: Props) {
                   currentValue={program.progress?.current_value ?? 0}
                   objectiveValue={program.objective_value}
                 />
-              </motion.div>
+              </div>
             )
           })}
         </div>
       </section>
-
-      {/* Workout History */}
-      {/* TODO(data): no per-teen workout sessions endpoint yet — list stays empty until backend exists. */}
-      {workoutHistory.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-black uppercase">Historique</h2>
-          <div className="space-y-3">
-            {workoutHistory.map((workout, idx) => (
-              <motion.div
-                key={workout.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5"
-              >
-                <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                  <Dumbbell className="w-6 h-6 text-orange-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-white truncate">{workout.name}</h4>
-                  <div className="flex items-center gap-3 text-sm text-zinc-400">
-                    <span>{workout.date}</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {workout.duration}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-brand-soft">
-                  <Zap className="w-4 h-4" />
-                  <span className="font-bold">+{workout.xp}</span>
-                </div>
-                <Check className="w-5 h-5 text-success-soft" />
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Quick Start */}
-      <div className="flex gap-4">
-        <Button className="flex-1 h-14 bg-orange-500 text-black font-bold hover:bg-orange-400">
-          <Play className="w-5 h-5 mr-2" />
-          Workout Rapide
-        </Button>
-        <Button variant="outline" className="flex-1 h-14">
-          <TrendingUp className="w-5 h-5 mr-2" />
-          Mes Stats
-        </Button>
-      </div>
     </div>
   )
 }

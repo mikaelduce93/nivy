@@ -2,10 +2,12 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { ArrowLeft, GraduationCap, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Clock, GraduationCap, Eye, Sparkles } from "lucide-react"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
+import { Niv, DarkSurface, NivEmpty } from "@/components/brand"
+import { MentorSessionActions } from "@/components/parent/mentor-session-row"
 
 export const dynamic = "force-dynamic"
 
@@ -123,209 +125,213 @@ export default async function ParentMentorSessionsPage() {
       minute: "2-digit",
     })
 
-  const statusLabel = (s: string) => {
+  const statusLabel = (s: string): { text: string; variant: StatusVariant } => {
     switch (s) {
       case "pending_approval":
-        return { text: "En attente", cls: "bg-amber-500/20 text-amber-400" }
+        return { text: "En attente", variant: "warning" }
       case "approved":
-        return { text: "Approuvée", cls: "bg-emerald-500/20 text-emerald-400" }
+        return { text: "Approuvée", variant: "success" }
       case "denied":
-        return { text: "Refusée", cls: "bg-red-500/20 text-red-400" }
+        return { text: "Refusée", variant: "danger" }
       case "completed":
-        return { text: "Terminée", cls: "bg-blue-500/20 text-blue-400" }
+        return { text: "Terminée", variant: "info" }
       case "cancelled":
-        return { text: "Annulée", cls: "bg-zinc-500/20 text-zinc-400" }
+        return { text: "Annulée", variant: "neutral" }
       case "no_show":
-        return { text: "Absent", cls: "bg-rose-500/20 text-rose-400" }
+        return { text: "Absent", variant: "danger" }
       case "dispatched":
-        return { text: "Démarrée", cls: "bg-cyan-500/20 text-cyan-400" }
+        return { text: "Démarrée", variant: "info" }
       default:
-        return { text: s, cls: "bg-zinc-500/20 text-zinc-400" }
+        return { text: s.replace(/_/g, " "), variant: "neutral" }
     }
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-8 space-y-6">
-      <Button
-        variant="ghost"
-        asChild
-        className="text-zinc-400 hover:text-white"
-      >
+    <div className="container mx-auto p-4 md:p-8 space-y-8">
+      <Button variant="ghost" asChild className="text-mute hover:text-ink">
         <Link href="/parent">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Retour au dashboard
         </Link>
       </Button>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-            <GraduationCap className="h-7 w-7 text-emerald-400" />
-            Sessions de mentorat
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Approuvez les sessions de mentorat réservées par vos teens.
-          </p>
-        </div>
-      </div>
+      {/* Header éditorial */}
+      <header>
+        <p className="eyebrow text-pink">SUIVI · MENTORAT</p>
+        <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+          Les sessions de <em className="font-semibold italic text-pink">ton crew</em>
+        </h1>
+        <p className="mt-2 text-sm text-mute">
+          Approuve les sessions de mentorat réservées par tes teens.
+        </p>
+      </header>
 
       {loadError && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-xl border-2 border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {loadError}
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-amber-400" />
-            En attente d&apos;approbation
-            {pending.length > 0 && (
-              <Badge variant="outline" className="ml-2">
+      {/* Bandeau compteur surface sombre quand des demandes attendent */}
+      {pending.length > 0 && (
+        <DarkSurface tone="gold" shadow className="p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="eyebrow tracking-[0.16em] text-paper/60">À approuver</p>
+              <p className="mt-1 font-display text-4xl font-extrabold tabular-nums text-gold">
                 {pending.length}
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {pending.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-6 text-center">
-              Aucune demande en attente
-            </p>
-          ) : (
-            pending.map((s) => {
-              const teen = teenMap.get(s.mentee_user_id)
-              const mentor = mentorMap.get(s.mentor_id)
-              return (
-                <Link
-                  key={s.id}
-                  href={`/parent/mentor-sessions/${s.id}`}
-                  className="block"
-                >
-                  <div className="flex items-start justify-between border rounded-md p-4 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-colors">
+                <span className="ml-2 align-middle font-sans text-base font-medium text-paper/70">
+                  {pending.length > 1 ? "demandes attendent" : "demande attend"} ton feu vert
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 flex items-start gap-3 border-t border-paper/15 pt-4">
+            <Niv mood="proud" size={48} className="shrink-0" />
+            <div>
+              <span className="eyebrow tracking-[0.14em] text-pink">Niv</span>
+              <p className="mt-1 text-sm text-paper/90">
+                Vérifie l&apos;identité du mentor avant de valider, akhouya.
+              </p>
+            </div>
+          </div>
+        </DarkSurface>
+      )}
+
+      {/* En attente */}
+      <section className="space-y-4">
+        <h2 className="eyebrow text-mute">En attente d&apos;approbation</h2>
+        {pending.length === 0 ? (
+          <NivEmpty
+            mood="happy"
+            title="Walou en attente"
+            description="Ton crew est sage 👌 Les nouvelles demandes de session s'afficheront ici."
+          />
+        ) : (
+          pending.map((s) => {
+            const teen = teenMap.get(s.mentee_user_id)
+            const mentor = mentorMap.get(s.mentor_id)
+            const mentorName = mentor?.full_name ?? "Mentor"
+            return (
+              <StickerCard key={s.id} className="p-5">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
                       {mentor?.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={mentor.avatar_url}
-                          alt={mentor.full_name ?? "Mentor"}
-                          className="w-12 h-12 rounded-full object-cover border border-zinc-700"
+                          alt={mentorName}
+                          className="h-12 w-12 rounded-full border-2 border-ink object-cover"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center">
-                          <GraduationCap className="w-6 h-6 text-zinc-400" />
+                        <div className="grid h-12 w-12 place-items-center rounded-full border-2 border-ink bg-paper">
+                          <GraduationCap className="h-6 w-6 text-mute" />
                         </div>
                       )}
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold">
-                            {mentor?.full_name ?? "Mentor"}
-                          </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-display text-base font-bold text-ink">{mentorName}</p>
                           {s.is_intro && (
-                            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
-                              <Sparkles className="w-3 h-3 mr-1" />
-                              Intro gratuite
-                            </Badge>
+                            <StatusBadge
+                              variant="success"
+                              icon={Sparkles}
+                              label="Intro gratuite"
+                              size="sm"
+                            />
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          Pour{" "}
-                          <span className="text-zinc-300">
-                            {teen?.full_name ?? "Teen"}
-                          </span>
+                        <p className="text-xs text-mute">
+                          Pour <span className="text-ink-2">{teen?.full_name ?? "Teen"}</span>
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-mono text-xs text-mute">
                           {formatDateTime(s.scheduled_for)} · {s.duration_minutes} min
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <span className="text-sm font-bold">
-                        {s.is_intro
-                          ? "Gratuit"
-                          : `${s.amount_dh ?? 0} DH`}
-                      </span>
+                    <div className="text-right">
+                      <p className="font-mono text-base font-bold tabular-nums text-ink">
+                        {s.is_intro ? "Gratuit" : `${s.amount_dh ?? 0} DH`}
+                      </p>
                       {!s.is_intro && s.amount_coins ? (
-                        <span className="text-xs text-zinc-500">
-                          {s.amount_coins} coins
-                        </span>
+                        <p className="font-mono text-xs text-coral">⊙ {s.amount_coins}</p>
                       ) : null}
-                      <Eye className="w-4 h-4 text-zinc-400" />
                     </div>
                   </div>
-                </Link>
-              )
-            })
-          )}
-        </CardContent>
-      </Card>
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-ink/10 pt-4">
+                    <Button asChild variant="ghost" size="sm" className="text-mute hover:text-ink">
+                      <Link href={`/parent/mentor-sessions/${s.id}`}>Voir le détail</Link>
+                    </Button>
+                    <MentorSessionActions
+                      sessionId={s.id}
+                      mentorName={mentorName}
+                      teenName={teen?.full_name ?? "Teen"}
+                      amountDh={s.amount_dh ?? undefined}
+                      amountCoins={s.amount_coins ?? undefined}
+                      isIntro={s.is_intro}
+                    />
+                  </div>
+                </div>
+              </StickerCard>
+            )
+          })
+        )}
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Historique</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {decided.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-6 text-center">
-              Aucune session passée.
-            </p>
-          ) : (
-            decided.map((s) => {
-              const teen = teenMap.get(s.mentee_user_id)
-              const mentor = mentorMap.get(s.mentor_id)
-              const status = statusLabel(s.status)
-              return (
-                <Link
-                  key={s.id}
-                  href={`/parent/mentor-sessions/${s.id}`}
-                  className="block"
-                >
-                  <div className="flex items-center justify-between border rounded-md p-3 hover:bg-zinc-900/40 transition-colors">
+      {/* Historique */}
+      <section className="space-y-3">
+        <h2 className="eyebrow text-mute">Historique</h2>
+        {decided.length === 0 ? (
+          <NivEmpty title="Aucune session passée" description="Les sessions traitées s'afficheront ici." />
+        ) : (
+          decided.map((s) => {
+            const teen = teenMap.get(s.mentee_user_id)
+            const mentor = mentorMap.get(s.mentor_id)
+            const mentorName = mentor?.full_name ?? "Mentor"
+            const status = statusLabel(s.status)
+            return (
+              <Link key={s.id} href={`/parent/mentor-sessions/${s.id}`} className="block">
+                <StickerCard variant="hover" className="p-4">
+                  <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       {mentor?.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={mentor.avatar_url}
-                          alt={mentor.full_name ?? "Mentor"}
-                          className="w-10 h-10 rounded-full object-cover border border-zinc-700"
+                          alt={mentorName}
+                          className="h-10 w-10 rounded-full border-2 border-ink object-cover"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
-                          <GraduationCap className="w-5 h-5 text-zinc-400" />
+                        <div className="grid h-10 w-10 place-items-center rounded-full border-2 border-ink bg-paper">
+                          <GraduationCap className="h-5 w-5 text-mute" />
                         </div>
                       )}
                       <div>
-                        <p className="text-sm font-medium">
-                          {mentor?.full_name ?? "Mentor"}{" "}
-                          <span className="text-zinc-500 text-xs">
-                            · {teen?.full_name ?? "Teen"}
-                          </span>
+                        <p className="text-sm font-semibold text-ink">
+                          {mentorName}
+                          <span className="ml-1 text-xs text-mute">· {teen?.full_name ?? "Teen"}</span>
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-mono text-xs text-mute">
                           {formatDateTime(s.scheduled_for)} · {s.duration_minutes} min
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${status.cls}`}
-                      >
-                        {status.text}
-                      </span>
-                      <span className="text-sm font-semibold">
+                      <StatusBadge variant={status.variant} label={status.text} size="sm" />
+                      <span className="font-mono text-sm font-semibold tabular-nums text-ink">
                         {s.is_intro ? "Gratuit" : `${s.amount_dh ?? 0} DH`}
                       </span>
                     </div>
                   </div>
-                </Link>
-              )
-            })
-          )}
-        </CardContent>
-      </Card>
+                </StickerCard>
+              </Link>
+            )
+          })
+        )}
+      </section>
     </div>
   )
 }

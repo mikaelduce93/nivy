@@ -91,6 +91,11 @@ async function handleCallback(request: NextRequest) {
       // CMI return URL would otherwise insert a second payment_transactions
       // row with the same provider_transaction_id. Skip the writes if the
       // booking is already paid AND we already have the matching tx row.
+      // #25 — bookings has no cmi_transaction_id/cmi_auth_code columns; and
+      // payment_transactions is a coin-top-up ledger (CHECK amount_coins>0,
+      // psp_provider set, no booking_id/amount/currency/provider columns) — it
+      // can't represent a booking PSP payment. The booking row
+      // (payment_status='paid', guarded for idempotency) is the source of truth.
       if (booking.payment_status !== "paid") {
         await supabase
           .from("bookings")
@@ -99,33 +104,8 @@ async function handleCallback(request: NextRequest) {
             status: "confirmed",
             paid_at: new Date().toISOString(),
             payment_method: "cmi",
-            cmi_transaction_id: result.transactionId,
-            cmi_auth_code: result.authCode,
           })
           .eq("id", booking.id)
-      }
-
-      const { data: existingTx } = await supabase
-        .from("payment_transactions")
-        .select("id")
-        .eq("booking_id", booking.id)
-        .eq("provider_transaction_id", result.transactionId ?? "")
-        .maybeSingle()
-
-      if (!existingTx) {
-        await supabase.from("payment_transactions").insert({
-          booking_id: booking.id,
-          amount: result.amount || booking.total_amount,
-          currency: "MAD",
-          status: "completed",
-          provider: "cmi",
-          provider_transaction_id: result.transactionId,
-          metadata: {
-            authCode: result.authCode,
-            responseCode: result.responseCode,
-            source: "callback",
-          },
-        })
       }
 
       // Send confirmation email — fire-and-forget.
@@ -140,28 +120,14 @@ async function handleCallback(request: NextRequest) {
 
       // Wave 6F — idempotency on failure path: only mark booking failed
       // if it isn't already paid (some other rail might have succeeded).
+      // #25 — bookings has no payment_error column; no payment_transactions
+      // write (see success branch). Failure detail is carried in the redirect.
       if (booking.payment_status !== "paid") {
         await supabase
           .from("bookings")
-          .update({
-            payment_status: "failed",
-            payment_error: result.message,
-          })
+          .update({ payment_status: "failed" })
           .eq("id", booking.id)
       }
-
-      await supabase.from("payment_transactions").insert({
-        booking_id: booking.id,
-        amount: booking.total_amount,
-        currency: "MAD",
-        status: "failed",
-        provider: "cmi",
-        error_message: result.message,
-        metadata: {
-          responseCode: result.responseCode,
-          source: "callback",
-        },
-      })
 
       return NextResponse.redirect(
         new URL(

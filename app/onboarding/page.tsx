@@ -1,10 +1,10 @@
 'use client'
 
 /**
- * TEENS PARTY MOROCCO - Onboarding Page
- * =====================================
+ * Nivy — Orchestrateur d'onboarding
+ * =================================
  *
- * Page d'onboarding complète avec:
+ * Squelette du flow d'inscription Nivy :
  * - Transitions fluides entre étapes
  * - Persistance de l'état (reprise)
  * - Validation progressive
@@ -19,12 +19,14 @@ import { Button } from '@/components/ui/button'
 import { ChevronRight, Loader2, SkipForward } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useJuice } from '@/lib/hooks/use-juice'
+import { MeshBackground } from '@/components/ui/effects/mesh-background'
+import { SegmentedProgress } from '@/components/ui/progress'
+import { Niv, NivCoach } from '@/components/brand'
 
 // Onboarding hook & components
 import { useOnboarding } from '@/lib/hooks/use-onboarding'
 import {
   StepTransition,
-  ProgressIndicator,
   ResumePrompt,
 } from '@/components/onboarding/onboarding-transition'
 
@@ -67,7 +69,6 @@ export default function OnboardingPage() {
     completedSteps,
     data,
     direction,
-    progress,
     isLoading,
     isResuming,
     canGoNext,
@@ -99,8 +100,8 @@ export default function OnboardingPage() {
       } = await supabase.auth.getUser()
 
       if (user) {
-        // User is authenticated, redirect to dashboard
-        router.push('/dashboard')
+        // User is authenticated — hand off to the role router (no /dashboard route).
+        router.push('/auth/redirect')
       }
     }
 
@@ -124,11 +125,11 @@ export default function OnboardingPage() {
       // Final juice — confetti + sound + haptic
       play('level_up')
       completeOnboarding()
-      // Wave 1.3: teens go through personalization steps before landing on dashboard.
-      // Parents/partners and other roles continue to /dashboard as before.
+      // Wave 1.3: teens go through personalization steps before landing.
+      // Parents/partners and other roles go to the role router (no /dashboard route).
       const personalizeNext = data.userType === 'teen'
         ? '/onboarding/interests'
-        : '/dashboard'
+        : '/auth/redirect'
       // Delay redirect to show celebration
       setTimeout(() => {
         router.push(personalizeNext)
@@ -160,17 +161,20 @@ export default function OnboardingPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Chargement...</p>
+      <div className="relative min-h-screen bg-paper flex items-center justify-center">
+        <MeshBackground />
+        <div className="relative z-10 flex flex-col items-center gap-4 text-center">
+          <Niv size={96} mood="calm" float />
+          <Loader2 className="w-6 h-6 animate-spin text-pink mx-auto" />
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-mute">Chargement...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 flex flex-col">
+    <div className="relative min-h-screen bg-paper flex flex-col">
+      <MeshBackground />
       {/* Gamification Reward Popup */}
       <OnboardingRewardPopup
         reward={gamification.currentReward}
@@ -190,17 +194,17 @@ export default function OnboardingPage() {
       </AnimatePresence>
 
       {/* Progress Bar - Fixed at top */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-sm border-b">
+      <div className="fixed top-0 left-0 right-0 z-40 border-b-2 border-ink bg-paper">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          {/* "Étape X / N" label - explicit progression visible from step 1 */}
+          {/* "Étape X / N" eyebrow - explicit progression visible from step 1 */}
           <div className="flex items-center justify-between mb-2">
             <p
-              className="text-xs sm:text-sm font-bold tracking-wide text-foreground"
+              className="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-[0.16em] text-ink"
               aria-live="polite"
               aria-atomic="true"
             >
-              Étape <span className="text-primary">{stepNumber}</span>
-              <span className="text-muted-foreground"> / {totalSteps}</span>
+              Étape <span className="text-pink">{stepNumber}</span>
+              <span className="text-mute"> / {totalSteps}</span>
             </p>
             {/* XP Display - Compact for header */}
             <div className="hidden sm:block">
@@ -208,11 +212,10 @@ export default function OnboardingPage() {
             </div>
           </div>
           <div className="flex-1">
-            <ProgressIndicator
-              currentStep={currentStep}
-              completedSteps={completedSteps}
-              userType={data.userType}
-              progress={progress}
+            <SegmentedProgress
+              steps={totalSteps}
+              current={currentStepIndex >= 0 ? currentStepIndex : 0}
+              size="md"
             />
           </div>
         </div>
@@ -222,11 +225,11 @@ export default function OnboardingPage() {
       {currentStep !== 'completion' && (
         <div className="fixed top-24 right-4 sm:right-6 z-40">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() => router.push('/auth/login')}
-            className="text-muted-foreground hover:text-foreground gap-1"
-            aria-label="Passer l'onboarding et aller à la connexion"
+            className="gap-1 bg-paper"
+            aria-label="Passer l'inscription et aller à la connexion"
           >
             <SkipForward className="w-4 h-4" />
             <span className="hidden sm:inline">Passer cette étape</span>
@@ -237,10 +240,22 @@ export default function OnboardingPage() {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-32">
+      <div className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-32">
         <div className="w-full max-w-6xl flex gap-6">
           {/* Main step content */}
           <div className="flex-1 max-w-4xl">
+          {/* Splash Niv + coach — shell-level, étape welcome uniquement */}
+          {currentStep === 'welcome' && (
+            <div className="mb-6 flex flex-col items-center gap-5 text-center">
+              <Niv size={132} mood="hype" float />
+              <NivCoach
+                tone="paper"
+                mood="happy"
+                message="Salam ! C'est Niv, je t'accompagne pour créer ton compte Nivy. Quelques étapes et c'est parti."
+                className="w-full max-w-md text-left"
+              />
+            </div>
+          )}
           <StepTransition direction={direction} stepKey={currentStep}>
             {/* Welcome Step */}
             {currentStep === 'welcome' && <WelcomeStep onNext={handleStepComplete} />}

@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { FieldInput } from "@/components/ui/field-input"
+import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
+import { CheckRound } from "@/components/ui/check-round"
+import { Confetti } from "@/components/ui/effects/confetti"
+import { NivCoach } from "@/components/brand"
 import { Loader2, ArrowDownToLine } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -15,12 +17,16 @@ interface WithdrawalFormProps {
   minimumWithdrawal: number
 }
 
-export function WithdrawalForm({ ambassadorId, availableBalance, minimumWithdrawal }: WithdrawalFormProps) {
+// #57 — ambassadorId prop is no longer sent to the API (the server resolves the
+// ambassador from the session); kept in the interface for call-site compat.
+export function WithdrawalForm({ availableBalance, minimumWithdrawal }: WithdrawalFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [amount, setAmount] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("")
   const [paymentDetails, setPaymentDetails] = useState("")
+  // Présentationnel uniquement : déclenche confettis + check à la confirmation.
+  const [celebrate, setCelebrate] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,7 +58,7 @@ export function WithdrawalForm({ ambassadorId, availableBalance, minimumWithdraw
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ambassadorId,
+          // #57 — no ambassadorId: the server derives it from the session.
           amount: amountNum,
           paymentMethod,
           paymentDetails,
@@ -63,6 +69,7 @@ export function WithdrawalForm({ ambassadorId, availableBalance, minimumWithdraw
 
       if (result.success) {
         toast.success("Demande de retrait envoyée !")
+        setCelebrate(true)
         setAmount("")
         setPaymentMethod("")
         setPaymentDetails("")
@@ -90,95 +97,99 @@ export function WithdrawalForm({ ambassadorId, availableBalance, minimumWithdraw
     }
   }
 
+  // Délais fusionnés depuis les anciennes cartes « méthodes de paiement ».
+  const getMethodDelay = () => {
+    switch (paymentMethod) {
+      case "bank":
+        return "Virement vers un RIB marocain · 2-3 jours ouvrés"
+      case "cashplus":
+        return "Retrait en agence Cash Plus · 24-48h"
+      case "mobile_wallet":
+        return "Orange Money, inwi money · instantané"
+      default:
+        return undefined
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Amount */}
-      <div className="space-y-2">
-        <Label className="text-zinc-300">Montant à retirer</Label>
-        <div className="relative">
-          <Input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder={`Min. ${minimumWithdrawal} DH`}
-            min={minimumWithdrawal}
-            max={availableBalance}
-            className="bg-zinc-800 border-zinc-700 text-white pr-16 focus:border-emerald-500"
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">DH</span>
-        </div>
-        <p className="text-xs text-zinc-500">
-          Disponible: {availableBalance.toLocaleString()} DH
-        </p>
-      </div>
+      <Confetti trigger={celebrate} palette="success" />
 
-      {/* Quick amount buttons */}
-      <div className="flex gap-2">
+      {/* Amount — gros input mono charte */}
+      <FieldInput
+        label="Montant à retirer"
+        type="number"
+        inputMode="numeric"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        placeholder={`Min. ${minimumWithdrawal} DH`}
+        min={minimumWithdrawal}
+        max={availableBalance}
+        hint={`Disponible : ${availableBalance.toLocaleString()} DH`}
+        className="h-14 font-mono text-2xl font-bold tabular-nums"
+      />
+
+      {/* Quick amount pills — tags actifs ink */}
+      <div className="flex flex-wrap gap-2">
         {[100, 200, 500].filter(v => v <= availableBalance).map((value) => (
-          <Button
+          <button
             key={value}
             type="button"
-            variant="outline"
-            size="sm"
             onClick={() => setAmount(value.toString())}
-            className={`border-zinc-700 ${amount === value.toString() ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'text-zinc-400 hover:text-white'}`}
+            className={`rounded-full border-2 border-ink px-4 py-1.5 font-mono text-xs font-semibold transition-colors ${amount === value.toString() ? 'bg-ink text-paper' : 'bg-white text-ink hover:bg-paper-2'}`}
           >
             {value} DH
-          </Button>
+          </button>
         ))}
-        <Button
+        <button
           type="button"
-          variant="outline"
-          size="sm"
           onClick={() => setAmount(availableBalance.toString())}
-          className={`border-zinc-700 ${amount === availableBalance.toString() ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'text-zinc-400 hover:text-white'}`}
+          className={`rounded-full border-2 border-ink px-4 py-1.5 font-mono text-xs font-semibold transition-colors ${amount === availableBalance.toString() ? 'bg-ink text-paper' : 'bg-white text-ink hover:bg-paper-2'}`}
         >
           Tout
-        </Button>
+        </button>
       </div>
 
-      {/* Payment Method */}
-      <div className="space-y-2">
-        <Label className="text-zinc-300">Méthode de paiement</Label>
-        <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-          <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
-            <SelectValue placeholder="Sélectionner une méthode" />
-          </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700">
-            <SelectItem value="bank" className="text-white hover:bg-zinc-700">
-              Virement bancaire
-            </SelectItem>
-            <SelectItem value="cashplus" className="text-white hover:bg-zinc-700">
-              Cash Plus
-            </SelectItem>
-            <SelectItem value="mobile_wallet" className="text-white hover:bg-zinc-700">
-              Portefeuille mobile
-            </SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Payment Method — select sticker + délai fusionné */}
+      <div className="space-y-1.5">
+        <SelectSticker
+          label="Méthode de paiement"
+          placeholder="Sélectionner une méthode"
+          value={paymentMethod}
+          onValueChange={setPaymentMethod}
+        >
+          <SelectStickerItem value="bank">Virement bancaire</SelectStickerItem>
+          <SelectStickerItem value="cashplus">Cash Plus</SelectStickerItem>
+          <SelectStickerItem value="mobile_wallet">Portefeuille mobile</SelectStickerItem>
+        </SelectSticker>
+        {getMethodDelay() && (
+          <p className="font-mono text-xs text-mute">{getMethodDelay()}</p>
+        )}
       </div>
 
       {/* Payment Details */}
       {paymentMethod && (
-        <div className="space-y-2">
-          <Label className="text-zinc-300">
-            {paymentMethod === "bank" ? "RIB bancaire" : "Numéro de téléphone"}
-          </Label>
-          <Input
-            type={paymentMethod === "bank" ? "text" : "tel"}
-            value={paymentDetails}
-            onChange={(e) => setPaymentDetails(e.target.value)}
-            placeholder={getPlaceholder()}
-            className="bg-zinc-800 border-zinc-700 text-white focus:border-emerald-500"
-          />
-        </div>
+        <FieldInput
+          label={paymentMethod === "bank" ? "RIB bancaire" : "Numéro de téléphone"}
+          type={paymentMethod === "bank" ? "text" : "tel"}
+          value={paymentDetails}
+          onChange={(e) => setPaymentDetails(e.target.value)}
+          placeholder={getPlaceholder()}
+        />
       )}
+
+      {/* Coach Niv — rassure sur délais/sécurité */}
+      <NivCoach
+        mood="calm"
+        message="Ton virement part vers le compte que tu indiques, traité sous 24-72h. On te notifie par email à chaque étape — zéro stress."
+      />
 
       {/* Submit */}
       <Button
         type="submit"
+        variant="lime"
         disabled={loading || !amount || !paymentMethod || !paymentDetails}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-6"
+        className="w-full py-6"
       >
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin mr-2" />
@@ -188,11 +199,13 @@ export function WithdrawalForm({ ambassadorId, availableBalance, minimumWithdraw
         Demander le retrait
       </Button>
 
-      {/* Info */}
-      <p className="text-xs text-zinc-500 text-center">
-        Les retraits sont traités sous 24-72h selon la méthode choisie.
-        Vous serez notifié par email.
-      </p>
+      {/* Confirmation — check rond lime */}
+      {celebrate && (
+        <div className="flex items-center justify-center gap-2 text-sm font-semibold text-ink">
+          <CheckRound checked aria-label="Demande envoyée" />
+          Demande envoyée ! Tu seras notifié par email.
+        </div>
+      )}
     </form>
   )
 }

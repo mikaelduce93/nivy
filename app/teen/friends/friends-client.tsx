@@ -1,18 +1,16 @@
 "use client"
 
 import { useEffect, useState, useOptimistic, startTransition } from "react"
+import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
 import { usePrefersReducedMotion } from "@/lib/hooks/use-reduced-motion"
 import { EASE_STANDARD, DURATION_NORMAL } from "@/lib/motion/easing"
 import {
-  Users,
   Search,
   UserPlus,
-  MessageCircle,
   Zap,
   Trophy,
-  MoreVertical,
   Check,
   X,
   Sparkles,
@@ -21,6 +19,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/ui/states/empty-state"
+import { Niv, NivEmpty, DarkSurface } from "@/components/brand"
 import { SwipeableCard } from "@/components/ui/swipeable-card"
 import { useOptimisticRunner } from "@/lib/hooks/use-optimistic-mutation"
 import { toast as juicyToast } from "@/lib/utils/toast"
@@ -304,48 +303,56 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
       />
       {/* Header */}
       <header className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-soft to-pink-500 flex items-center justify-center">
-                <Users className="w-6 h-6 text-black" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase italic">Amis</h1>
-                <p className="text-zinc-400 text-sm font-medium">
-                  {friends.length} amis • {onlineCount} en ligne
-                </p>
-              </div>
-            </div>
+            <p className="eyebrow text-pink">Ton crew</p>
+            <h1 className="font-display text-4xl font-extrabold leading-none tracking-tight text-ink">
+              Tes <em className="font-semibold italic text-pink">amis</em>
+            </h1>
+            <p className="font-mono text-xs text-mute">
+              {friends.length} amis · {onlineCount} en ligne
+            </p>
           </div>
 
-          <Button className="bg-accent-soft text-black font-bold">
+          <Niv mood="happy" size={64} className="shrink-0" />
+        </div>
+
+        {/* Search */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <label htmlFor="friend-search" className="sr-only">
+              Rechercher un ami
+            </label>
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mute"
+              aria-hidden="true"
+            />
+            <Input
+              id="friend-search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher un ami..."
+              aria-label="Rechercher un ami"
+              className="pl-12 h-12 rounded-xl bg-white border-2 border-ink"
+            />
+          </div>
+
+          <Button
+            variant="pink"
+            className="h-12 shrink-0"
+            onClick={() => {
+              if (typeof document !== "undefined") {
+                document.getElementById("friend-search")?.focus()
+              }
+            }}
+          >
             <UserPlus className="w-4 h-4 mr-2" />
             Ajouter
           </Button>
         </div>
 
-        {/* Search */}
-        <div className="relative">
-          <label htmlFor="friend-search" className="sr-only">
-            Rechercher un ami
-          </label>
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400"
-            aria-hidden="true"
-          />
-          <Input
-            id="friend-search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher un ami..."
-            aria-label="Rechercher un ami"
-            className="pl-12 h-12 rounded-xl bg-zinc-900/50 border-white/10"
-          />
-        </div>
-
         {/* Tabs */}
-        <div role="tablist" aria-label="Filtres amis" className="flex items-center gap-2">
+        <div role="tablist" aria-label="Filtres amis" className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map((t) => {
             const active = tab === t.id
             return (
@@ -353,18 +360,17 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                 key={t.id}
                 role="tab"
                 aria-selected={active}
-                aria-pressed={active}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "px-4 py-2 rounded-xl font-bold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft",
+                  "shrink-0 px-4 py-2 rounded-xl border-2 border-ink font-mono text-xs font-bold uppercase tracking-wide transition-all focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
                   active
-                    ? "bg-accent-soft text-black"
-                    : "bg-zinc-900/50 text-zinc-300 hover:text-white",
+                    ? "bg-ink text-paper shadow-stkr-pink"
+                    : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm",
                 )}
               >
                 {t.label}
                 {t.id === "requests" && optimisticRequests.length > 0 && (
-                  <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-xs">
+                  <span className="ml-2 px-2 py-0.5 rounded-full bg-pink text-ink text-xs">
                     <span className="sr-only">
                       {optimisticRequests.length} demande{optimisticRequests.length > 1 ? "s" : ""} en attente
                     </span>
@@ -380,10 +386,10 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
       {/* Pending Requests */}
       {tab === "requests" && (
         <section className="space-y-4">
-          <h2 className="text-xl font-black uppercase">Demandes en attente</h2>
+          <h2 className="font-display text-xl font-extrabold tracking-tight text-ink">Demandes en attente</h2>
 
           {loadingRequests ? (
-            <div className="text-zinc-500 text-sm">Chargement…</div>
+            <div className="text-mute text-sm">Chargement…</div>
           ) : optimisticRequests.length === 0 ? (
             <EmptyState
               preset="search"
@@ -407,12 +413,12 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                   }}
                   disabled={actioningRequestId === request.id}
                   leftAction={
-                    <span className="px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                    <span className="px-3 py-1 rounded-full bg-destructive text-ink text-xs font-bold">
                       Refuser
                     </span>
                   }
                   rightAction={
-                    <span className="px-3 py-1 rounded-full bg-green-500 text-white text-xs font-bold">
+                    <span className="px-3 py-1 rounded-full bg-lime text-ink text-xs font-bold">
                       Accepter
                     </span>
                   }
@@ -421,15 +427,15 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-accent-soft/10 border border-accent-soft/30"
+                    className="flex items-center gap-4 p-4 rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md"
                   >
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
+                    <div className="w-14 h-14 rounded-full border-2 border-ink bg-pink flex items-center justify-center text-xl font-bold text-ink">
                       {request.name.charAt(0).toUpperCase()}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white">{request.name}</h4>
-                      <p className="text-sm text-zinc-400">
+                      <h4 className="font-bold text-ink">{request.name}</h4>
+                      <p className="text-sm text-mute">
                         {request.mutual > 0 ? `${request.mutual} amis en commun • ` : ""}
                         {request.sentAt}
                       </p>
@@ -438,7 +444,8 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                     <div className="flex items-center gap-2">
                       <Button
                         size="icon"
-                        className="rounded-full bg-success-soft text-black"
+                        variant="lime"
+                        className="rounded-full"
                         onClick={() => respondToRequest(request.id, "accept")}
                         disabled={actioningRequestId === request.id}
                         aria-label={`Accepter la demande de ${request.name}`}
@@ -467,7 +474,7 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
       {/* Friends List */}
       {tab !== "requests" && (
         <section className="space-y-4">
-          <h2 className="text-xl font-black uppercase">
+          <h2 className="font-display text-xl font-extrabold tracking-tight text-ink">
             {tab === "online" ? "En ligne maintenant" : "Tous les amis"}
           </h2>
 
@@ -504,11 +511,11 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                     duration: reduced ? 0 : DURATION_NORMAL,
                     ease: EASE_STANDARD,
                   }}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-colors"
+                  className="flex items-center gap-4 p-4 rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
                 >
                   {/* Avatar */}
                   <div className="relative">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
+                    <div className="w-14 h-14 rounded-full border-2 border-ink bg-pink flex items-center justify-center text-xl font-bold text-ink">
                       {friend.name.charAt(0)}
                     </div>
                     <div
@@ -521,12 +528,12 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                           : "Hors ligne"
                       }
                       className={cn(
-                        "absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-zinc-900",
+                        "absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-ink",
                         friend.status === "online"
-                          ? "bg-green-500"
+                          ? "bg-lime"
                           : friend.status === "away"
-                          ? "bg-yellow-500"
-                          : "bg-zinc-500",
+                          ? "bg-gold"
+                          : "bg-muted",
                       )}
                     />
                   </div>
@@ -534,40 +541,20 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-white">{friend.name}</h4>
+                      <h4 className="font-bold text-ink">{friend.name}</h4>
                     </div>
                     {friend.mutual_calculated && friend.mutual > 0 && (
-                      <p className="text-sm text-zinc-400">{friend.mutual} amis en commun</p>
+                      <p className="text-sm text-mute">{friend.mutual} amis en commun</p>
                     )}
                   </div>
 
                   {/* XP */}
                   <div className="text-right">
-                    <div className="flex items-center gap-1 text-brand-soft">
+                    <div className="flex items-center gap-1 text-gold">
                       <Zap className="w-4 h-4" />
-                      <span className="font-bold">{friend.xp.toLocaleString()}</span>
+                      <span className="font-mono font-bold tabular-nums">{friend.xp.toLocaleString()}</span>
                     </div>
-                    <p className="text-xs text-zinc-400 uppercase">XP</p>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full"
-                      aria-label={`Envoyer un message à ${friend.name}`}
-                    >
-                      <MessageCircle className="w-5 h-5" aria-hidden="true" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full"
-                      aria-label={`Plus d'options pour ${friend.name}`}
-                    >
-                      <MoreVertical className="w-5 h-5" aria-hidden="true" />
-                    </Button>
+                    <p className="font-mono text-xs text-mute uppercase">XP</p>
                   </div>
                 </motion.div>
                 ))}
@@ -582,14 +569,16 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
       {tab !== "requests" && (
         <section className="space-y-4" aria-label="Suggestions d'amis">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-brand-soft" />
-            <h2 className="text-xl font-black uppercase">Suggestions</h2>
+            <Sparkles className="w-5 h-5 text-pink" />
+            <h2 className="font-display text-xl font-extrabold tracking-tight text-ink">Suggestions</h2>
           </div>
 
           {suggestions.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-zinc-900/40 border border-white/5 text-sm text-zinc-400">
-              Aucune suggestion pour le moment
-            </div>
+            <NivEmpty
+              mood="proud"
+              title="Aucune suggestion pour le moment"
+              description="Reviens bientôt : on te trouvera de nouveaux potes selon tes affinités."
+            />
           ) : (
             <div className="space-y-3">
               {suggestions.map((sugg, idx) => {
@@ -611,12 +600,12 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                       })
                     }
                     leftAction={
-                      <span className="px-3 py-1 rounded-full bg-zinc-700 text-white text-xs font-bold">
+                      <span className="px-3 py-1 rounded-full bg-muted text-ink text-xs font-bold">
                         Masquer
                       </span>
                     }
                     rightAction={
-                      <span className="px-3 py-1 rounded-full bg-zinc-700 text-white text-xs font-bold">
+                      <span className="px-3 py-1 rounded-full bg-muted text-ink text-xs font-bold">
                         Masquer
                       </span>
                     }
@@ -625,22 +614,22 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
-                      className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-brand-soft/30 transition-colors"
+                      className="flex items-center gap-4 p-4 rounded-2xl border-2 border-ink bg-white text-ink shadow-stkr-md transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
                     >
                     {/* Avatar */}
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-soft to-info-soft flex items-center justify-center text-xl font-bold text-white">
+                    <div className="w-14 h-14 rounded-full border-2 border-ink bg-pink flex items-center justify-center text-xl font-bold text-ink">
                       {sugg.name.charAt(0).toUpperCase()}
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white truncate">{sugg.name}</h4>
+                      <h4 className="font-bold text-ink truncate">{sugg.name}</h4>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="text-xs text-zinc-400 font-medium">
+                        <span className="font-mono text-xs text-mute">
                           Niveau {sugg.level}
                         </span>
                         <span
-                          className="px-2 py-0.5 rounded-full bg-brand-soft/15 border border-brand-soft/30 text-[10px] font-bold uppercase tracking-wide text-brand-soft"
+                          className="px-2 py-0.5 rounded-full border-2 border-ink bg-teal font-mono text-[10px] font-bold uppercase tracking-wide text-paper"
                           title={
                             sugg.source === "neighbours"
                               ? "Affinité calculée par teen_neighbours"
@@ -654,14 +643,9 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
 
                     {/* Action */}
                     <Button
+                      variant={invited ? "outline" : "pink"}
                       onClick={() => inviteSuggestion(sugg.teen_id)}
                       disabled={invited}
-                      className={cn(
-                        "font-bold",
-                        invited
-                          ? "bg-zinc-800 text-zinc-400"
-                          : "bg-brand-soft text-black hover:bg-brand-soft/90",
-                      )}
                     >
                       {invited ? (
                         <>
@@ -685,22 +669,20 @@ export default function FriendsClient({ initialSuggestions }: FriendsClientProps
       )}
 
       {/* Leaderboard Preview */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="p-6 rounded-3xl bg-gradient-to-r from-yellow-500/10 to-amber-500/5 border border-yellow-500/20"
-      >
+      <DarkSurface tone="gold" shadow className="p-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-yellow-500/20 flex items-center justify-center">
-            <Trophy className="w-7 h-7 text-yellow-500" />
+          <div className="w-14 h-14 rounded-2xl border-2 border-paper/30 flex items-center justify-center">
+            <Trophy className="w-7 h-7 text-gold" />
           </div>
           <div className="flex-1">
-            <h3 className="font-black text-white">Classement Amis</h3>
-            <p className="text-sm text-zinc-400">Vois qui a le plus d&apos;XP parmi tes amis</p>
+            <h3 className="font-display text-lg font-extrabold tracking-tight text-paper">Classement Amis</h3>
+            <p className="text-sm text-paper/70">Vois qui a le plus d&apos;XP parmi tes amis</p>
           </div>
-          <Button variant="outline">Voir le classement</Button>
+          <Button asChild variant="pink" className="shrink-0">
+            <Link href="/teen/leaderboard">Voir le classement</Link>
+          </Button>
         </div>
-      </motion.div>
+      </DarkSurface>
     </div>
   )
 }

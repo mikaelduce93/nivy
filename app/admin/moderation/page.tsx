@@ -14,10 +14,8 @@ import { Suspense } from "react"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { getAdminInfo } from "@/lib/auth/admin-permissions"
 import { adapterFor, listSupportedContentTypes } from "@/lib/admin/moderation-adapters"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ShieldAlert, ShieldCheck } from "lucide-react"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivEmpty } from "@/components/brand"
 import { ModerationDecisionRow } from "./moderation-decision-row"
 
 export const dynamic = "force-dynamic"
@@ -51,8 +49,8 @@ export default async function AdminModerationPage({ searchParams }: PageProps) {
   if (!admin.permissions["content.view"]) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-white">Modération</h1>
-        <p className="text-red-400">Accès refusé — permission `content.view` requise.</p>
+        <h1 className="text-2xl font-bold text-ink">Modération</h1>
+        <p className="text-destructive">Accès refusé — permission `content.view` requise.</p>
       </main>
     )
   }
@@ -106,91 +104,91 @@ export default async function AdminModerationPage({ searchParams }: PageProps) {
 
   return (
     <main className="container mx-auto max-w-6xl px-4 py-8 space-y-6">
-      <header>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <ShieldAlert className="w-7 h-7 text-amber-400" />
-          Modération
-          <Badge className="bg-amber-500/20 text-amber-300">{totalPending} en attente</Badge>
-        </h1>
-        <p className="text-zinc-400 text-sm mt-1">
-          Inbox unifié — moderation_queue source de vérité. Décisions auditées.
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <span className="eyebrow tracking-[0.16em] text-mute">Modération</span>
+          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink">
+            Inbox de <em className="font-semibold italic text-pink">modération</em>
+          </h1>
+          <p className="mt-1 text-sm text-mute">
+            Une seule file, source de vérité. Chaque décision est auditée.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="font-display text-5xl font-extrabold leading-none tabular-nums text-gold">
+            {totalPending}
+          </p>
+          <span className="eyebrow tracking-[0.14em] text-mute">En attente</span>
+        </div>
       </header>
 
-      {/* Filter tabs */}
-      <div className="flex flex-wrap items-center gap-2">
-        {FILTERS.map((f) => {
-          const params = new URLSearchParams()
-          params.set("filter", f.key)
-          if (type) params.set("type", type)
-          const isActive = activeFilter === f.key
-          return (
-            <Link
-              key={f.key}
-              href={`/admin/moderation?${params.toString()}`}
-              className={
-                "rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider " +
-                (isActive
-                  ? "bg-amber-500/20 text-amber-200 ring-1 ring-amber-400/40"
-                  : "bg-zinc-900 text-zinc-400 hover:text-white ring-1 ring-zinc-800")
-              }
-            >
-              {f.label}
-            </Link>
-          )
-        })}
-        <span className="mx-2 text-zinc-700">·</span>
+      {/* Filter tabs — navigation par lien, look sticker-tab (actif = fond ink + texte paper + ombre rose). */}
+      <div className="space-y-3">
+        <div className="inline-flex gap-1 rounded-2xl border-2 border-ink bg-white p-1.5">
+          {FILTERS.map((f) => {
+            const params = new URLSearchParams()
+            params.set("filter", f.key)
+            if (type) params.set("type", type)
+            const isActive = activeFilter === f.key
+            return (
+              <Link
+                key={f.key}
+                href={`/admin/moderation?${params.toString()}`}
+                className={
+                  "inline-flex items-center rounded-xl px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-all " +
+                  (isActive
+                    ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                    : "text-mute hover:text-ink")
+                }
+              >
+                {f.label}
+              </Link>
+            )
+          })}
+        </div>
         <ContentTypeFilters activeType={type ?? null} counters={counters} activeFilter={activeFilter} />
       </div>
 
       {/* Decision rows */}
       {rows.length === 0 ? (
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-10">
-            <EmptyState
-              icon={ShieldCheck}
-              title="File vide"
-              description={
-                activeFilter === "pending"
-                  ? "Aucun item en attente. Bonne nouvelle."
-                  : "Aucun item ne correspond à ce filtre."
-              }
-            />
-          </CardContent>
-        </Card>
+        <NivEmpty
+          mood="proud"
+          title="File vide, le crew assure"
+          description={
+            activeFilter === "pending"
+              ? "Aucun item en attente. Bonne nouvelle — rien à modérer."
+              : "Aucun item ne correspond à ce filtre."
+          }
+        />
       ) : (
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white text-base">
-              {rows.length} {rows.length === 1 ? "item" : "items"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={null}>
-              <ul className="space-y-3">
-                {rows.map((r) => {
-                  const adapter = adapterFor(r.content_type)
-                  const repCount = r.content_id
-                    ? reportCounts.get(`${r.content_type}:${r.content_id}`) ?? 0
-                    : 0
-                  return (
-                    <ModerationDecisionRow
-                      key={r.id}
-                      row={r}
-                      contentLabel={adapter?.label ?? r.content_type}
-                      supported={!!adapter}
-                      reportCount={repCount}
-                    />
-                  )
-                })}
-              </ul>
-            </Suspense>
-          </CardContent>
-        </Card>
+        <StickerCard className="gap-4 p-5">
+          <p className="eyebrow tracking-[0.14em] text-mute">
+            {rows.length} {rows.length === 1 ? "item" : "items"}
+          </p>
+          <Suspense fallback={null}>
+            <ul className="space-y-3">
+              {rows.map((r) => {
+                const adapter = adapterFor(r.content_type)
+                const repCount = r.content_id
+                  ? reportCounts.get(`${r.content_type}:${r.content_id}`) ?? 0
+                  : 0
+                return (
+                  <ModerationDecisionRow
+                    key={r.id}
+                    row={r}
+                    contentLabel={adapter?.label ?? r.content_type}
+                    supported={!!adapter}
+                    reportCount={repCount}
+                  />
+                )
+              })}
+            </ul>
+          </Suspense>
+        </StickerCard>
       )}
 
-      <p className="text-xs text-zinc-500">
-        Décisions canoniques: dismiss · hide · delete · restore · escalate · warn · suspend.
+      <p className="text-xs text-mute">
+        Décisions canoniques : dismiss · hide · delete · restore · escalate · warn · suspend.
         warn et suspend agissent sur l&apos;utilisateur (à brancher Wave 4A.2). Les types non
         supportés renvoient 409 unsupported_action — pas de fake success.
       </p>
@@ -216,10 +214,10 @@ function ContentTypeFilters({
       <Link
         href={`/admin/moderation?filter=${activeFilter}`}
         className={
-          "rounded-full px-3 py-1 text-xs font-medium " +
+          "inline-flex items-center rounded-xl border-2 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] transition-all " +
           (!activeType
-            ? "bg-blue-500/20 text-blue-200 ring-1 ring-blue-400/40"
-            : "bg-zinc-900 text-zinc-400 hover:text-white ring-1 ring-zinc-800")
+            ? "-translate-x-0.5 -translate-y-0.5 border-ink bg-ink text-paper shadow-stkr-pink"
+            : "border-line bg-white text-mute hover:border-ink hover:text-ink")
         }
       >
         Tous types
@@ -229,20 +227,23 @@ function ContentTypeFilters({
         params.set("filter", activeFilter)
         params.set("type", t)
         const isActive = activeType === t
+        const count = counters.get(t) ?? 0
         return (
           <Link
             key={t}
             href={`/admin/moderation?${params.toString()}`}
             className={
-              "rounded-full px-3 py-1 text-xs font-medium " +
+              "inline-flex items-center gap-1.5 rounded-xl border-2 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] transition-all " +
               (isActive
-                ? "bg-blue-500/20 text-blue-200 ring-1 ring-blue-400/40"
-                : "bg-zinc-900 text-zinc-400 hover:text-white ring-1 ring-zinc-800")
+                ? "-translate-x-0.5 -translate-y-0.5 border-ink bg-ink text-paper shadow-stkr-pink"
+                : "border-line bg-white text-mute hover:border-ink hover:text-ink")
             }
           >
             {t}
-            {(counters.get(t) ?? 0) > 0 && (
-              <span className="ml-1 text-amber-300">{counters.get(t)}</span>
+            {count > 0 && (
+              <span className="grid min-w-5 place-items-center rounded-full border-2 border-ink bg-pink px-1 text-[10px] text-ink">
+                {count}
+              </span>
             )}
           </Link>
         )

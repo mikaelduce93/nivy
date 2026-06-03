@@ -8,10 +8,10 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
       type={type}
       data-slot="input"
       className={cn(
-        // Base styles — h-11 (44px) for mobile touch target compliance (TICKET-004)
-        'flex h-11 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs md:text-sm',
-        // Border and background
-        'border-input dark:bg-input/30',
+        // Base — charte paper : h-11 (44px tactile), bordure 2px, fond carte
+        'flex h-11 w-full min-w-0 rounded-xl border-2 bg-card px-3.5 py-1 text-base md:text-sm',
+        // Border (line par défaut, encre au focus)
+        'border-input',
         // Text and placeholder
         'text-foreground placeholder:text-muted-foreground',
         // Selection
@@ -19,12 +19,10 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
         // File input
         'file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground',
         // Transitions
-        'transition-colors duration-200',
-        // Focus states — surface-aware ring (TICKET-018).
-        // Falls back to --ring on surfaces that do not override --focus-ring-color.
-        // Keeps 3px ring + border highlight — WCAG 2.4.7.
-        'outline-none focus-visible:border-[color:var(--focus-ring-color,var(--ring))]',
-        'focus-visible:ring-[3px] focus-visible:ring-[color:var(--focus-ring-color,var(--ring))]/50',
+        'transition-colors duration-150',
+        // Focus — bordure encre + anneau rose (surface-aware, WCAG 2.4.7)
+        'outline-none focus-visible:border-ink',
+        'focus-visible:ring-[3px] focus-visible:ring-[color:var(--focus-ring-color,var(--ring))]/40',
         // Invalid states
         'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
         // Disabled states

@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { Loader2, SkipForward, Sparkles } from "lucide-react"
+import { Loader2, SkipForward } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
+import { NivCoach, NivEmpty } from "@/components/brand"
 import { cn } from "@/lib/utils"
 
 export interface InterestTaxonomyRow {
@@ -130,73 +131,82 @@ export function InterestPicker({
   const enough = count >= minSelected
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-6">
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5" />
-          Étape Découverte
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Qu'est-ce qui te fait vibrer ?
+    <div className="mx-auto w-full max-w-3xl space-y-6">
+      <div className="space-y-3 text-center">
+        <p className="eyebrow tracking-[0.16em]">Étape 1 / 4 · Découverte</p>
+        <SegmentedProgress steps={4} current={0} className="mx-auto max-w-xs" />
+        <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+          Qu'est-ce qui te fait{" "}
+          <em className="font-semibold italic text-pink">vibrer</em> ?
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        <p className="text-sm text-mute sm:text-base">
           Choisis entre {minSelected} et {maxSelected} centres d'intérêt. On personnalisera ton flux.
         </p>
       </div>
 
-      <Card className="p-4 sm:p-6">
-        <div className="space-y-6">
-          {grouped.map(([category, items]) => (
-            <section key={category} aria-labelledby={`cat-${category}`}>
-              <h2
-                id={`cat-${category}`}
-                className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3"
-              >
-                {CATEGORY_LABELS[category] ?? category}
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {items.map((row) => {
-                  const isOn = selected.has(row.tag)
-                  return (
-                    <motion.button
-                      key={row.tag}
-                      type="button"
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => toggle(row.tag)}
-                      aria-pressed={isOn}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 px-3 py-2 rounded-full border text-sm font-medium",
-                        "transition-all duration-150 active:scale-95 select-none",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-                        isOn
-                          ? "bg-primary text-primary-foreground border-primary shadow-sm shadow-primary/30"
-                          : "bg-background hover:bg-muted border-border text-foreground"
-                      )}
-                    >
-                      {row.icon ? <span aria-hidden>{row.icon}</span> : null}
-                      <span>{row.display_fr ?? row.display_en ?? row.tag}</span>
-                    </motion.button>
-                  )
-                })}
-              </div>
-            </section>
-          ))}
-        </div>
-      </Card>
+      <NivCoach
+        mood="hype"
+        message="Dis-moi ce qui te branche — je te construis un flux rien qu'à toi."
+      />
 
-      <div className="sticky bottom-0 z-10 -mx-4 px-4 py-4 bg-gradient-to-t from-background via-background to-transparent">
-        <div className="max-w-3xl mx-auto flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+      {grouped.length === 0 ? (
+        <NivEmpty
+          title="Catalogue indisponible"
+          description="On n'a pas pu charger les centres d'intérêt. Tu peux passer cette étape et y revenir plus tard."
+        />
+      ) : (
+        <StickerCard className="p-4 sm:p-6">
+          <div className="space-y-6">
+            {grouped.map(([category, items]) => (
+              <section key={category} aria-labelledby={`cat-${category}`}>
+                <h2
+                  id={`cat-${category}`}
+                  className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-mute"
+                >
+                  {CATEGORY_LABELS[category] ?? category}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {items.map((row) => {
+                    const isOn = selected.has(row.tag)
+                    return (
+                      <button
+                        key={row.tag}
+                        type="button"
+                        onClick={() => toggle(row.tag)}
+                        aria-pressed={isOn}
+                        className={cn(
+                          "inline-flex select-none items-center gap-1.5 rounded-full border-2 px-3 py-2 text-sm font-medium transition-all duration-150",
+                          "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
+                          isOn
+                            ? "-translate-x-0.5 -translate-y-0.5 border-ink bg-ink text-paper shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                            : "border-ink bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm motion-reduce:translate-x-0 motion-reduce:translate-y-0"
+                        )}
+                      >
+                        {row.icon ? <span aria-hidden>{row.icon}</span> : null}
+                        <span>{row.display_fr ?? row.display_en ?? row.tag}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        </StickerCard>
+      )}
+
+      <div className="sticky bottom-0 z-10 -mx-4 bg-gradient-to-t from-paper via-paper to-transparent px-4 py-4">
+        <div className="mx-auto flex max-w-3xl flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Button
             variant="ghost"
             size="lg"
             onClick={handleSkip}
             disabled={submitting !== null}
-            className="text-muted-foreground"
+            className="text-mute"
           >
             {submitting === "skip" ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             ) : (
-              <SkipForward className="w-4 h-4" />
+              <SkipForward className="size-4" aria-hidden="true" />
             )}
             Passer cette étape
           </Button>
@@ -204,14 +214,15 @@ export function InterestPicker({
           <div className="flex items-center gap-3">
             <span
               className={cn(
-                "text-sm font-semibold tabular-nums",
-                enough ? "text-primary" : "text-muted-foreground"
+                "font-mono text-sm font-bold tabular-nums",
+                enough ? "text-pink" : "text-mute"
               )}
               aria-live="polite"
             >
               {count} / {maxSelected}
             </span>
             <Button
+              variant="pink"
               size="lg"
               onClick={handleConfirm}
               disabled={!enough || submitting !== null}
@@ -219,13 +230,11 @@ export function InterestPicker({
             >
               {submitting === "confirm" ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                   Sauvegarde…
                 </>
               ) : (
-                <>
-                  Continuer
-                </>
+                "Continuer"
               )}
             </Button>
           </div>

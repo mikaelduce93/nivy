@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 
 interface Props {
   driverId: string
@@ -39,23 +38,34 @@ export function DriverActions({ driverId, kycStatus }: Props) {
 
   if (kycStatus !== "pending") {
     return (
-      <p className="text-sm text-muted-foreground">
-        Statut actuel : <strong>{kycStatus}</strong>
+      <p className="text-sm text-paper/80">
+        Statut actuel :{" "}
+        <strong className="font-mono uppercase tracking-[0.12em] text-paper">
+          {kycStatus}
+        </strong>
       </p>
     )
   }
 
   return (
-    <Card>
-      <CardContent className="p-4 flex items-center gap-3">
-        <Button onClick={() => decide("approve")} disabled={busy}>
-          Approuver KYC
-        </Button>
-        <Button variant="destructive" onClick={() => decide("reject")} disabled={busy}>
-          Rejeter
-        </Button>
-        {error && <span className="text-sm text-destructive">{error}</span>}
-      </CardContent>
-    </Card>
+    <div className="flex flex-col gap-3">
+      <Button
+        variant="lime"
+        className="w-full justify-center"
+        onClick={() => decide("approve")}
+        disabled={busy}
+      >
+        Approuver KYC
+      </Button>
+      <Button
+        variant="outline"
+        className="w-full justify-center border-paper/40 bg-transparent text-paper hover:bg-paper/10"
+        onClick={() => decide("reject")}
+        disabled={busy}
+      >
+        Rejeter
+      </Button>
+      {error && <span className="text-sm font-medium text-coral">{error}</span>}
+    </div>
   )
 }

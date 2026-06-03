@@ -9,7 +9,6 @@ import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { GlowPulse, PALETTES } from '@/components/ui/effects/particle-system'
 import { CursorHoverArea } from '@/components/ui/effects/elite-cursor'
 import { LongPressMenu, type LongPressMenuItem } from '@/components/ui/long-press-menu'
 import { Copy, Flag } from 'lucide-react'
@@ -55,46 +54,13 @@ type FeedActivity = {
   presenceType?: PresenceActivityType
 }
 
-const fallbackActivities: FeedActivity[] = [
-  {
-    id: 'demo-1',
-    created_at: new Date().toISOString(),
-    user: { username: 'Amine', avatar_url: '/avatars/amine.jpg' },
-    activity_type: { name: 'Nouvelle mission', emoji: '🎯', type: 'achievement' },
-    title: 'A complété un défi quotidien',
-    likes_count: 12,
-    comments_count: 3,
-    shares_count: 1,
-  },
-  {
-    id: 'demo-2',
-    created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-    user: { username: 'Sara', avatar_url: '/avatars/sara.jpg' },
-    activity_type: { name: 'Event', emoji: '🎉', type: 'event' },
-    title: "S'est inscrite à la soirée de vendredi",
-    likes_count: 24,
-    comments_count: 8,
-    shares_count: 4,
-  },
-  {
-    id: 'demo-3',
-    created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-    user: { username: 'Lina', avatar_url: '/avatars/lina.jpg' },
-    activity_type: { name: 'XP gagné', emoji: '✨', type: 'xp' },
-    title: 'A gagné 150 XP',
-    likes_count: 7,
-    comments_count: 0,
-    shares_count: 0,
-  },
-]
-
 // Activity type colors
 const activityTypeColors: Record<string, { bg: string; border: string; glow: string }> = {
-  achievement: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', glow: 'rgba(245, 158, 11, 0.3)' },
+  achievement: { bg: 'bg-gold/10', border: 'border-gold/20', glow: 'rgba(245, 158, 11, 0.3)' },
   event: { bg: 'bg-accent-soft/10', border: 'border-accent-soft/20', glow: 'rgba(244, 63, 94, 0.3)' },
   xp: { bg: 'bg-brand-soft/10', border: 'border-brand-soft/20', glow: 'rgba(139, 92, 246, 0.3)' },
-  presence: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', glow: 'rgba(16, 185, 129, 0.3)' },
-  default: { bg: 'bg-white/5', border: 'border-white/10', glow: 'rgba(255, 255, 255, 0.1)' },
+  presence: { bg: 'bg-lime/10', border: 'border-lime/20', glow: 'rgba(16, 185, 129, 0.3)' },
+  default: { bg: 'bg-paper-2', border: 'border-ink', glow: 'rgba(255, 255, 255, 0.1)' },
 }
 
 // Presence event configs
@@ -170,9 +136,12 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
   }, [])
 
   const activities = useMemo(() => {
-    const baseActivities = Array.isArray(initialActivities) && initialActivities.length > 0
-      ? initialActivities as FeedActivity[]
-      : fallbackActivities
+    // #201 Stop the lies — empty-safe : on n'affiche JAMAIS de faux posts de
+    // remplissage (anciennement `fallbackActivities` Amine/Sara/Lina). Si le
+    // feed réel est vide, on rend un état vide honnête (voir plus bas).
+    const baseActivities = Array.isArray(initialActivities)
+      ? (initialActivities as FeedActivity[])
+      : []
 
     return [...presenceEvents, ...baseActivities]
   }, [initialActivities, presenceEvents])
@@ -224,6 +193,14 @@ export function SocialFeed({ initialActivities = [], userId }: SocialFeedProps) 
     <div className="h-full flex flex-col px-4 sm:px-6 pb-4 sm:pb-6">
       {/* Activity cards */}
       <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide">
+        {activities.length === 0 && (
+          <div className="flex h-full min-h-[160px] flex-col items-center justify-center py-12 text-center">
+            <span className="eyebrow tracking-[0.16em] text-mute">En direct</span>
+            <p className="mt-2 text-sm text-mute">
+              Rien en direct pour l&apos;instant — l&apos;activité de ton crew apparaîtra ici.
+            </p>
+          </div>
+        )}
         <AnimatePresence mode="popLayout">
           {activities.map((activity, index) => {
             // Only attach Signaler when this is a real feed_post id (UUID).
@@ -377,8 +354,8 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
         "relative rounded-xl sm:rounded-2xl p-3 sm:p-4 transition-all duration-300 cursor-pointer",
         colors.bg,
         "border",
-        isHovered ? 'border-white/20' : colors.border,
-        "backdrop-blur-sm"
+        isHovered ? 'border-ink' : colors.border,
+        ""
       )}
     >
       {/* Glow effect on hover */}
@@ -415,19 +392,19 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               />
             )}
             <Avatar 
-              className="h-9 w-9 sm:h-10 sm:w-10 border border-white/10"
+              className="h-9 w-9 sm:h-10 sm:w-10 border border-ink"
               showStatus={isPresence}
               presenceStatus={isPresence ? 'online' : undefined}
             >
               <AvatarImage src={activity.user?.avatar_url} />
-              <AvatarFallback className="bg-zinc-800 text-white font-bold text-sm">
+              <AvatarFallback className="bg-card text-ink font-bold text-sm">
                 {username[0]}
               </AvatarFallback>
             </Avatar>
           </motion.div>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-white">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-ink">
               <span className="truncate">{username}</span>
               {activity.activity_type?.emoji && (
                 <motion.span
@@ -439,7 +416,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               )}
               {isPresence && (
                 <motion.span 
-                  className="ml-1 text-[8px] sm:text-[10px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 uppercase tracking-wider"
+                  className="ml-1 text-[8px] sm:text-[10px] font-black px-1.5 py-0.5 rounded-full bg-lime/20 text-lime uppercase tracking-wider"
                   animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
@@ -447,12 +424,12 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
                 </motion.span>
               )}
             </div>
-            <div className="text-[10px] sm:text-xs text-zinc-500">{timeLabel}</div>
+            <div className="text-[10px] sm:text-xs text-mute">{timeLabel}</div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-white/90 font-medium">{title}</div>
+        <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-ink/90 font-medium">{title}</div>
 
         {/* Interaction buttons */}
         {!isPresence && (
@@ -465,8 +442,8 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
                 className={cn(
                   "flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all",
                   isLiked 
-                    ? "bg-red-500/20 text-red-400 border border-red-500/30" 
-                    : "bg-white/5 text-zinc-400 border border-white/10 hover:text-red-400 hover:border-red-500/30"
+                    ? "bg-destructive/20 text-destructive border border-destructive/30" 
+                    : "bg-paper-2 text-mute border border-ink hover:text-destructive hover:border-destructive/30"
                 )}
               >
                 <motion.div
@@ -483,7 +460,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 border border-white/10 text-[10px] sm:text-xs font-bold hover:text-brand-soft hover:border-brand-soft/30 transition-all"
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-paper-2 text-mute border border-ink text-[10px] sm:text-xs font-bold hover:text-brand-soft hover:border-brand-soft/30 transition-all"
               >
                 <MessageCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {activity.comments_count ?? 0}
@@ -494,7 +471,7 @@ function EliteActivityCard({ activity, index, isLiked, onLike }: EliteActivityCa
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 border border-white/10 text-[10px] sm:text-xs font-bold hover:text-success-soft hover:border-success-soft/30 transition-all"
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-paper-2 text-mute border border-ink text-[10px] sm:text-xs font-bold hover:text-success-soft hover:border-success-soft/30 transition-all"
               >
                 <Share2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {activity.shares_count ?? 0}

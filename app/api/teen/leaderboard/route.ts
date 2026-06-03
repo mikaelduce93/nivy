@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getUserRole } from '@/lib/auth/get-user-role'
 
 export async function GET(request: NextRequest) {
@@ -15,21 +15,16 @@ export async function GET(request: NextRequest) {
     const timeframe = searchParams.get('timeframe') || 'all_time'
     const limit = parseInt(searchParams.get('limit') || '20')
 
-    const supabase = await createClient()
+    // #32 — XP rankings span all teens; user_xp RLS is self/parent-read only,
+    // so the (authz'd via getUserRole) social reads use the service-role client.
+    const supabase = createServiceRoleClient()
 
-    // Get leaderboard data
-    let query = supabase
+    // #32 — user_xp keys on teen_id (not user_id), level is current_level, and
+    // there's no FK user_xp→profiles (so the embed is unresolvable). Read the
+    // ranking, then resolve names/avatars from profiles separately.
+    const query = supabase
       .from('user_xp')
-      .select(`
-        user_id,
-        total_xp,
-        level,
-        user:profiles(
-          id,
-          full_name,
-          avatar_url
-        )
-      `)
+      .select('teen_id, total_xp, current_level')
       .order('total_xp', { ascending: false })
       .limit(limit)
 
@@ -48,28 +43,39 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // Resolve names/avatars (profiles.id == teens.id == user_xp.teen_id).
+    const rankTeenIds = (leaderboard ?? []).map((e) => e.teen_id as string).filter(Boolean)
+    const profileById = new Map<string, { full_name: string | null; avatar_url: string | null }>()
+    if (rankTeenIds.length > 0) {
+      const { data: profs } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', rankTeenIds)
+      for (const p of profs ?? []) profileById.set(p.id, { full_name: p.full_name, avatar_url: p.avatar_url })
+    }
+
     // Find user's rank
     let userRank = -1
     let userXp = 0
 
     const rankings = leaderboard?.map((entry, index) => {
-      const user = entry.user as unknown as { full_name?: string; avatar_url?: string } | null
+      const user = profileById.get(entry.teen_id as string) ?? null
       const rank = index + 1
-      
-      if (entry.user_id === teenId) {
+
+      if (entry.teen_id === teenId) {
         userRank = rank
         userXp = entry.total_xp
       }
 
       return {
         rank,
-        id: entry.user_id,
+        id: entry.teen_id,
         name: user?.full_name || 'Unknown',
         avatar_url: user?.avatar_url,
         xp: entry.total_xp,
-        level: entry.level || 1,
+        level: entry.current_level || 1,
         badge: rank === 1 ? '🏆' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : undefined,
-        isYou: entry.user_id === teenId,
+        isYou: entry.teen_id === teenId,
       }
     }) || []
 

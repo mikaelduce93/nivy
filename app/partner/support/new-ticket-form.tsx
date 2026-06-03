@@ -3,8 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { FieldInput } from "@/components/ui/field-input"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -38,38 +37,34 @@ export function NewTicketForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label className="text-zinc-300">Sujet</Label>
-        <Input
-          required
-          minLength={3}
-          maxLength={200}
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          placeholder="Ex: Problème de scanner"
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label className="text-zinc-300">Message</Label>
+      <FieldInput
+        label="Sujet"
+        required
+        minLength={3}
+        maxLength={200}
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+        placeholder="Ex : problème de scanner"
+      />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="ticket-body" className="eyebrow tracking-[0.16em]">
+          Message
+        </label>
         <Textarea
+          id="ticket-body"
           required
           minLength={10}
           maxLength={5000}
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="Décrivez votre problème ou question…"
-          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[150px]"
+          placeholder="Raconte ton souci ou ta question…"
+          className="min-h-[150px] focus-visible:border-ink focus-visible:ring-0"
         />
       </div>
-      <Button
-        type="submit"
-        disabled={isPending}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
-      >
+      <Button type="submit" variant="pink" disabled={isPending} className="w-full">
         {isPending ? (
           <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
             Envoi…
           </>
         ) : (

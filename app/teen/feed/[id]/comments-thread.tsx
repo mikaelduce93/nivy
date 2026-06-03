@@ -14,6 +14,7 @@
 import * as React from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { NivEmpty } from "@/components/brand"
 import { Flag, Trash2 } from "lucide-react"
 
 type Comment = {
@@ -183,9 +184,9 @@ export function CommentsThread({ postId, currentUserId }: Props) {
 
   return (
     <section className="space-y-4" aria-label="Commentaires">
-      <h2 className="text-lg font-semibold text-foreground">Commentaires</h2>
+      <h2 className="font-display text-lg font-extrabold tracking-tight text-ink">Commentaires</h2>
 
-      {loading && <p className="text-sm text-muted-foreground">Chargement…</p>}
+      {loading && <p className="text-sm text-mute">Chargement…</p>}
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}
@@ -193,14 +194,16 @@ export function CommentsThread({ postId, currentUserId }: Props) {
       )}
 
       {!loading && !error && roots.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          Aucun commentaire. Sois le premier à réagir.
-        </p>
+        <NivEmpty
+          mood="calm"
+          title="Pas encore de commentaire"
+          description="Sois le premier à réagir."
+        />
       )}
 
       <ul className="space-y-3">
         {roots.map((c) => (
-          <li key={c.id} className="rounded-xl border border-border bg-card/30 p-3">
+          <li key={c.id} className="flex flex-col rounded-2xl border-2 border-ink bg-white p-3 text-ink shadow-stkr-sm">
             <CommentRow
               comment={c}
               currentUserId={currentUserId}
@@ -209,7 +212,7 @@ export function CommentsThread({ postId, currentUserId }: Props) {
               onReport={() => reportComment(c.id)}
             />
             {(repliesByRoot.get(c.id) ?? []).map((r) => (
-              <div key={r.id} className="mt-3 ml-4 border-l border-border pl-3">
+              <div key={r.id} className="mt-3 ml-4 border-l-2 border-ink pl-3">
                 <CommentRow
                   comment={r}
                   currentUserId={currentUserId}
@@ -224,9 +227,9 @@ export function CommentsThread({ postId, currentUserId }: Props) {
       </ul>
 
       {/* Composer */}
-      <div className="space-y-2 rounded-xl border border-border bg-card/30 p-3">
+      <div className="flex flex-col gap-2 rounded-2xl border-2 border-ink bg-white p-3 text-ink shadow-stkr-sm">
         {replyTo && (
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center justify-between text-xs text-mute">
             <span>Réponse à un commentaire</span>
             <button
               type="button"
@@ -244,11 +247,12 @@ export function CommentsThread({ postId, currentUserId }: Props) {
           rows={3}
           placeholder="Écris un commentaire…"
           aria-label="Composer un commentaire"
-          className="w-full resize-none rounded-lg border border-border bg-background p-2 text-sm text-foreground"
+          className="w-full resize-none rounded-xl border-2 border-ink bg-paper p-2 text-sm text-ink placeholder:text-mute focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
         />
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">{composer.length}/500</span>
+          <span className="font-mono text-xs text-mute">{composer.length}/500</span>
           <Button
+            variant="pink"
             size="sm"
             onClick={submitComment}
             disabled={submitting || composer.trim().length === 0}
@@ -293,7 +297,7 @@ function CommentRow({
           <button
             type="button"
             onClick={onReport}
-            className="inline-flex items-center gap-1 hover:text-orange-500"
+            className="inline-flex items-center gap-1 hover:text-coral"
             aria-label="Signaler ce commentaire"
           >
             <Flag className="h-3 w-3" />

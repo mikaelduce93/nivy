@@ -83,10 +83,10 @@ export function EventsCarousel() {
                   />
                   <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                     {event.has_aefe_discount && (
-                      <Badge className="bg-blue-500 text-white text-xs">AEFE -20%</Badge>
+                      <Badge className="bg-teal text-ink text-xs">AEFE -20%</Badge>
                     )}
                     {isAlmostFull && (
-                      <Badge className="bg-orange-500 text-white text-xs">Bientôt complet</Badge>
+                      <Badge className="bg-coral text-ink text-xs">Bientôt complet</Badge>
                     )}
                   </div>
                 </div>

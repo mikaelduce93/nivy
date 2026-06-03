@@ -1,5 +1,10 @@
 # Parent Custom Chores — Vision
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 ## Vision
 
 **Parents create custom missions / chores for their teen with money rewards.** This is the bridge between the digital reward economy of Nivy and the lived reality of family life in Morocco. Examples the founder explicitly calls out:

@@ -135,7 +135,7 @@ export async function AvatarCoach({
 
   // Resolve display fields with sensible defaults.
   const name = (avatar?.name || "Niv").trim() || "Niv"
-  const color = avatar?.color || "#A78BFA" // gen-z lavender default
+  const color = avatar?.color || "#ff3d80" // Niv pink default (charte)
   const skin = avatar?.skin || "default"
   const mood = (latest?.mood || avatar?.mood || "neutral").toLowerCase()
 
@@ -208,9 +208,9 @@ function ChoreNudgeSection({
     <section
       aria-label="Corvée à finir"
       className={cn(
-        "mt-2 sm:mt-3 w-full overflow-hidden rounded-2xl border border-emerald-400/20",
-        "bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent",
-        "backdrop-blur-md",
+        "mt-2 sm:mt-3 w-full overflow-hidden rounded-2xl border border-lime/20",
+        "bg-gradient-to-br from-lime/10 via-lime/5 to-transparent",
+        "",
         compact ? "p-3" : "p-4 sm:p-5",
         className,
       )}
@@ -219,7 +219,7 @@ function ChoreNudgeSection({
         <div
           aria-hidden
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-full ring-2 ring-emerald-300/30",
+            "flex shrink-0 items-center justify-center rounded-full ring-2 ring-lime/30",
             compact ? "h-10 w-10 text-lg" : "h-12 w-12 text-2xl",
           )}
           style={{
@@ -230,18 +230,18 @@ function ChoreNudgeSection({
           <span aria-hidden>🧹</span>
         </div>
         <div className="min-w-0 flex-1">
-          <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-emerald-300/80">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-lime/80">
             Tâche à finir
           </span>
           <p
             className={cn(
-              "mt-1 truncate text-white",
+              "mt-1 truncate text-ink",
               compact ? "text-sm font-medium" : "text-base sm:text-lg font-semibold",
             )}
           >
             {nudge.title}
           </p>
-          <p className="mt-0.5 text-xs text-white/60">
+          <p className="mt-0.5 text-xs text-ink/60">
             {nudge.reward_dh > 0 ? `${nudge.reward_dh} DH` : null}
             {nudge.reward_dh > 0 && nudge.reward_xp > 0 ? " · " : null}
             {nudge.reward_xp > 0 ? `${nudge.reward_xp} XP` : null}
@@ -252,8 +252,9 @@ function ChoreNudgeSection({
               href="/teen/chores"
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs sm:text-sm font-bold",
-                "bg-emerald-400 text-emerald-950 hover:bg-emerald-300 transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200",
+                // #201 Stop the lies — texte était invisible (text-lime sur bg-lime).
+                "bg-lime text-ink hover:bg-lime/90 transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime",
               )}
             >
               Finir maintenant

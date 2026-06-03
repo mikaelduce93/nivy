@@ -16,10 +16,10 @@
  */
 
 import { notFound } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, CheckCircle2, Database, ExternalLink, FileText } from "lucide-react"
-import Link from "next/link"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { DarkSurface } from "@/components/brand"
+import { AlertCircle, CheckCircle2, Database, ExternalLink, FileText, ShieldCheck } from "lucide-react"
 import BackButton from "@/components/admin/BackButton"
 import { getAdminInfo, logAdminAction } from "@/lib/auth/admin-permissions"
 
@@ -88,106 +88,114 @@ export default async function SQLScriptsPage() {
   const sqlEditorUrl = resolveSupabaseSqlEditorUrl()
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="container mx-auto px-6 py-32">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-6 py-12 md:py-32">
         <BackButton href="/admin" label="Retour au dashboard" />
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4 flex items-center gap-4">
-            <Database className="w-12 h-12 text-cyan-400" />
-            Scripts SQL — super_admin
+
+        {/* Header */}
+        <header className="mb-8 space-y-2">
+          <p className="eyebrow">Super Admin · SQL</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink flex items-center gap-3">
+            <Database className="h-8 w-8 text-teal" />
+            Console <em className="font-semibold italic text-pink">SQL</em>
           </h1>
-          <p className="text-zinc-400 text-lg">
-            Console réservée aux super-admins ; chaque accès est journalisé dans <code>audit_log</code>.
-          </p>
-        </div>
+          <p className="text-mute">Réservée aux super-admins.</p>
+        </header>
 
-        <Card className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 border-blue-500/30 mb-8">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-3">
-              <AlertCircle className="w-6 h-6 text-blue-400" />
+        {/* Bandeau sombre : zone auditée */}
+        <DarkSurface tone="coral" shadow className="mb-8 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="mt-0.5 h-6 w-6 text-coral" />
+              <div>
+                <h2 className="font-display text-lg font-extrabold tracking-tight text-paper">
+                  Chaque accès est journalisé
+                </h2>
+                <p className="mt-1 text-sm text-paper/70">
+                  Toute ouverture de cette console écrit une entrée dans{" "}
+                  <code className="font-mono text-paper">audit_log</code> (action{" "}
+                  <code className="font-mono text-paper">sql_console_access</code>).
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full border-2 border-paper/40 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-paper">
+              Audité
+            </span>
+          </div>
+        </DarkSurface>
+
+        {/* Pourquoi manuellement */}
+        <StickerCard className="mb-8 gap-3 p-6">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-teal" />
+            <h2 className="font-display text-lg font-bold tracking-tight text-ink">
               Pourquoi exécuter manuellement ?
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-zinc-300 space-y-3">
-            <p>
-              Pour des raisons de sécurité, l&apos;exécution de SQL arbitraire n&apos;est pas autorisée depuis l&apos;application. Les
-              scripts doivent être exécutés via le SQL Editor Supabase.
-            </p>
-          </CardContent>
-        </Card>
+            </h2>
+          </div>
+          <p className="text-ink-2">
+            Pour des raisons de sécurité, l&apos;exécution de SQL arbitraire n&apos;est pas autorisée depuis
+            l&apos;application. Les scripts doivent être exécutés via le SQL Editor Supabase.
+          </p>
+        </StickerCard>
 
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
-          <CardHeader>
-            <CardTitle className="text-white">Accéder au SQL Editor</CardTitle>
-            <CardDescription>Ouvrez le SQL Editor Supabase pour exécuter les scripts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              asChild
-              size="lg"
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white h-14"
-            >
-              <a href={sqlEditorUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-5 h-5 mr-3" />
-                Ouvrir Supabase SQL Editor
-              </a>
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Accès SQL Editor */}
+        <StickerCard className="mb-8 gap-4 p-6">
+          <div>
+            <h2 className="font-display text-lg font-bold tracking-tight text-ink">Accéder au SQL Editor</h2>
+            <p className="text-sm text-mute">Ouvrez le SQL Editor Supabase pour exécuter les scripts.</p>
+          </div>
+          <Button asChild variant="default" size="lg" className="h-14 w-full">
+            <a href={sqlEditorUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="mr-3 h-5 w-5" />
+              Ouvrir Supabase SQL Editor
+            </a>
+          </Button>
+        </StickerCard>
 
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800 mb-8">
-          <CardHeader>
-            <CardTitle className="text-white">Scripts à exécuter dans l&apos;ordre</CardTitle>
-            <CardDescription>Copiez le contenu de chaque script et collez-le dans le SQL Editor</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {SCRIPTS.map((script, index) => (
-                <div key={script.id} className="p-4 bg-zinc-900 rounded-xl border border-zinc-800">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                      <span className="text-cyan-400 font-bold">{index + 1}</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-white font-semibold flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
-                        {script.name}
-                      </h3>
-                      <p className="text-zinc-400 text-sm mt-1">{script.description}</p>
-                      <p className="text-zinc-500 text-xs mt-2 font-mono">Fichier: scripts/{script.name}</p>
-                    </div>
-                  </div>
+        {/* Liste des scripts */}
+        <StickerCard className="mb-8 gap-4 p-6">
+          <div>
+            <h2 className="font-display text-lg font-bold tracking-tight text-ink">
+              Scripts à exécuter dans l&apos;ordre
+            </h2>
+            <p className="text-sm text-mute">Copiez le contenu de chaque script et collez-le dans le SQL Editor.</p>
+          </div>
+          <div className="space-y-3">
+            {SCRIPTS.map((script, index) => (
+              <div
+                key={script.id}
+                className="flex items-start gap-4 rounded-xl border-2 border-ink bg-white p-4 shadow-stkr-sm"
+              >
+                <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full border-2 border-ink bg-ink font-mono text-sm font-bold text-paper">
+                  {index + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="flex items-center gap-2 font-mono text-sm font-bold text-ink">
+                    <FileText className="h-4 w-4" />
+                    {script.name}
+                  </h3>
+                  <p className="mt-1 text-sm text-mute">{script.description}</p>
+                  <p className="mt-2 font-mono text-xs text-mute">scripts/{script.name}</p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </StickerCard>
 
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <CheckCircle2 className="w-6 h-6 text-green-400" />
-              Instructions étape par étape
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <ol className="text-zinc-300 space-y-3 list-decimal list-inside">
-              <li>Cliquez sur &quot;Ouvrir Supabase SQL Editor&quot; ci-dessus</li>
-              <li>Copiez le contenu du fichier souhaité</li>
-              <li>Collez-le dans l&apos;éditeur SQL et cliquez sur &quot;Run&quot;</li>
-              <li>Attendez la confirmation</li>
-              <li>Répétez dans l&apos;ordre</li>
-            </ol>
-            <div className="mt-6">
-              <Link href="/docs/EXECUTER_SCRIPTS_SQL.md">
-                <Button variant="outline" className="border-zinc-700 text-zinc-300">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Voir le guide complet
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Instructions */}
+        <StickerCard className="gap-4 p-6">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-lime" />
+            <h2 className="font-display text-lg font-bold tracking-tight text-ink">Instructions étape par étape</h2>
+          </div>
+          <ol className="list-inside list-decimal space-y-2 text-ink-2">
+            <li>Cliquez sur « Ouvrir Supabase SQL Editor » ci-dessus</li>
+            <li>Copiez le contenu du fichier souhaité</li>
+            <li>Collez-le dans l&apos;éditeur SQL et cliquez sur « Run »</li>
+            <li>Attendez la confirmation</li>
+            <li>Répétez dans l&apos;ordre</li>
+          </ol>
+        </StickerCard>
       </div>
     </div>
   )

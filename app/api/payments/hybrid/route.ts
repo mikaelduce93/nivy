@@ -64,12 +64,13 @@ export const POST = withSecurity(
         .single()
 
       // Get booking details
+      // #42 — bookings has no booking_tickets relation in the live schema
+      // (table absent); only the events embed is valid.
       const { data: booking, error: bookingError } = await supabase
         .from("bookings")
         .select(`
           *,
-          events (id, title, date, image_url),
-          booking_tickets (child_id)
+          events (id, title, date, image_url)
         `)
         .eq("id", bookingId)
         .single()
@@ -79,7 +80,8 @@ export const POST = withSecurity(
       }
 
       // Verify user owns this booking or is admin
-      if (booking.parent_id !== user.id && profile?.role !== "admin") {
+      // #42 — bookings owner column is user_id (no parent_id in the schema).
+      if (booking.user_id !== user.id && profile?.role !== "admin") {
         return errorResponse("Vous n'êtes pas autorisé à payer cette réservation", 403)
       }
 
@@ -95,7 +97,7 @@ export const POST = withSecurity(
       // Get teen's XP balance
       const { data: userXP, error: xpError } = await supabase
         .from("user_xp")
-        .select("total_xp, available_xp")
+        .select("total_xp")
         .eq("teen_id", teenId)
         .single()
 
@@ -118,17 +120,23 @@ export const POST = withSecurity(
       // Check if parental approval is required
       if (paymentResult.requiresParentalApproval && profile?.role === "teen") {
         // Create parental approval request
+        // #30 — real parental_approvals schema: action_type (NOT NULL, valid
+        // value), resource_type/resource_id, amount, details jsonb, status,
+        // requested_at/expires_at (NOT NULL). No type/amount_dh/booking_id/
+        // created_at columns.
         const { data: approvalRequest, error: approvalError } = await supabase
           .from("parental_approvals")
           .insert({
             teen_id: teenId,
-            parent_id: booking.parent_id,
-            type: "xp_payment",
+            parent_id: booking.user_id,
+            action_type: "booking",
+            resource_type: "booking",
+            resource_id: bookingId,
             amount: xpAmount,
-            amount_dh: paymentResult.xpValueDH,
-            booking_id: bookingId,
+            details: { xp_value_dh: paymentResult.xpValueDH, payment_method: paymentMethod },
             status: "pending",
-            created_at: new Date().toISOString(),
+            requested_at: new Date().toISOString(),
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           })
           .select()
           .single()
@@ -138,17 +146,11 @@ export const POST = withSecurity(
           return errorResponse("Impossible de créer la demande d'approbation", 500)
         }
 
-        // Send notification to parent
-        await supabase.from("notifications").insert({
-          user_id: booking.parent_id,
-          type: "xp_approval_request",
-          title: "Approbation requise",
-          message: `Votre enfant souhaite utiliser ${xpAmount} XP (${paymentResult.xpValueDH} DH) pour payer une réservation.`,
-          read: false,
-          resource_type: "parental_approval",
-          resource_id: approvalRequest.id,
-          created_at: new Date().toISOString(),
-        })
+        // #42 — parent notification removed: the `notifications` table does not
+        // exist (canon uses `user_notifications`). Notification wiring for this
+        // approval is tracked under #70. The approval row above is the
+        // source of truth surfaced in the parent approvals queue.
+        // (parental_approvals column alignment is tracked under #30.)
 
         return jsonResponse({
           success: true,
@@ -160,30 +162,22 @@ export const POST = withSecurity(
 
       // Process XP deduction if any XP is being used
       if (xpAmount > 0) {
-        // Deduct XP from user
-        const { error: deductError } = await supabase
-          .from("user_xp")
-          .update({
-            total_xp: availableXP - paymentResult.xpAmount,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("teen_id", teenId)
-
-        if (deductError) {
-          console.error("[Hybrid Payment] Failed to deduct XP:", deductError)
-          return errorResponse("Erreur lors de la déduction des XP", 500)
-        }
-
-        // Record XP transaction in ledger
-        await supabase.from("xp_transactions").insert({
-          teen_id: teenId,
-          amount: -paymentResult.xpAmount,
-          type: "purchase",
-          description: `Paiement réservation ${booking.booking_reference}`,
-          reference_type: "booking",
-          reference_id: bookingId,
-          created_at: new Date().toISOString(),
+        // #47 — atomic debit via the SECURITY DEFINER RPC (SELECT ... FOR
+        // UPDATE + guarded balance + ledger insert in one transaction),
+        // executed with service-role. Replaces the non-atomic read-then-write
+        // (which also wrote an invalid xp_transactions.type='purchase').
+        const { createServiceRoleClient } = await import("@/lib/supabase/service-role")
+        const sr = createServiceRoleClient()
+        const { data: debitResult, error: debitRpcError } = await sr.rpc("deduct_xp_for_payment", {
+          p_teen_id: teenId,
+          p_amount: paymentResult.xpAmount,
+          p_booking_id: bookingId,
+          p_reference: `Paiement réservation ${booking.booking_reference}`,
         })
+
+        if (debitRpcError || !debitResult?.success) {
+          return errorResponse(debitResult?.error || "Solde XP insuffisant", 400)
+        }
 
         // Update booking with XP info
         await supabase
@@ -211,30 +205,11 @@ export const POST = withSecurity(
           })
           .eq("id", bookingId)
 
-        // Log payment
-        await supabase.from("payment_logs").insert({
-          booking_id: bookingId,
-          user_id: user.id,
-          amount: 0,
-          xp_used: paymentResult.xpAmount,
-          xp_value: paymentResult.xpValueDH,
-          currency: "MAD",
-          status: "succeeded",
-          type: "xp_only",
-          created_at: new Date().toISOString(),
-        })
-
-        // Create notification for parent
-        await supabase.from("notifications").insert({
-          user_id: booking.parent_id,
-          type: "payment_success",
-          title: "Paiement XP confirmé",
-          message: `Réservation ${booking.booking_reference} payée avec ${paymentResult.xpAmount} XP`,
-          read: false,
-          resource_type: "booking",
-          resource_id: bookingId,
-          created_at: new Date().toISOString(),
-        })
+        // #42 — removed payment_logs + notifications inserts: neither table
+        // exists in the live schema. The booking row above (payment_status,
+        // payment_method, paid_at) is the source of truth; the xp_transactions
+        // ledger row written earlier records the XP spend. Notification wiring
+        // is tracked under #70.
 
         return jsonResponse({
           success: true,
@@ -277,17 +252,19 @@ export const POST = withSecurity(
             xpValue: paymentResult.xpValueDH.toString(),
             type: "hybrid_payment",
           },
-          successUrl: `${appUrl}/mes-reservations/${bookingId}?payment=success`,
-          cancelUrl: `${appUrl}/mes-reservations/${bookingId}?payment=cancelled`,
+          successUrl: `${appUrl}/reservation/confirmation?booking=${bookingId}&payment=success`,
+          cancelUrl: `${appUrl}/reservation/paiement?booking=${bookingId}&payment=cancelled`,
         })
 
-        // Update booking with payment method
+        // Update booking with payment method.
+        // #42 — stripe_session_id column doesn't exist on bookings; the
+        // session id is returned to the client below and the Stripe webhook
+        // reconciles via session metadata.bookingId.
         await supabase
           .from("bookings")
           .update({
             payment_status: "pending",
             payment_method: "hybrid_stripe",
-            stripe_session_id: session.id,
             updated_at: new Date().toISOString(),
           })
           .eq("id", bookingId)
@@ -328,12 +305,18 @@ export const POST = withSecurity(
         })
 
         if (!cmiPayment.success) {
-          // Rollback XP deduction if CMI fails
+          // #47 — additive refund via add_xp_to_user (not the old "restore to
+          // read value" which clobbered concurrent writes).
           if (xpAmount > 0) {
-            await supabase
-              .from("user_xp")
-              .update({ total_xp: availableXP })
-              .eq("teen_id", teenId)
+            const { createServiceRoleClient } = await import("@/lib/supabase/service-role")
+            await createServiceRoleClient().rpc("add_xp_to_user", {
+              p_teen_id: teenId,
+              p_xp_amount: paymentResult.xpAmount,
+              p_source_type: "refund",
+              p_source_category: "payment_refund",
+              p_source_id: bookingId,
+              p_description: `Remboursement XP — échec CMI réservation ${booking.booking_reference}`,
+            })
           }
           return errorResponse(cmiPayment.error || "Erreur CMI", 500)
         }
@@ -369,12 +352,18 @@ export const POST = withSecurity(
         })
 
         if (!mmPayment.success) {
-          // Rollback XP deduction if MM fails
+          // #47 — additive refund via add_xp_to_user (not the old "restore to
+          // read value" which clobbered concurrent writes).
           if (xpAmount > 0) {
-            await supabase
-              .from("user_xp")
-              .update({ total_xp: availableXP })
-              .eq("teen_id", teenId)
+            const { createServiceRoleClient } = await import("@/lib/supabase/service-role")
+            await createServiceRoleClient().rpc("add_xp_to_user", {
+              p_teen_id: teenId,
+              p_xp_amount: paymentResult.xpAmount,
+              p_source_type: "refund",
+              p_source_category: "payment_refund",
+              p_source_id: bookingId,
+              p_description: `Remboursement XP — échec Mobile Money réservation ${booking.booking_reference}`,
+            })
           }
           return errorResponse(mmPayment.error || "Erreur Mobile Money", 500)
         }

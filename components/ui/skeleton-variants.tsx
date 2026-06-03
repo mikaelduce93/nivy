@@ -82,9 +82,14 @@ interface SkeletonProps {
   glowColor?: string
 }
 
-export function Skeleton({ 
-  className, 
-  variant = 'default', 
+/**
+ * @deprecated #72 — this premium `Skeleton` is a homonym of the primitive in
+ * `components/ui/skeleton.tsx`. Import it as `SkeletonPremium` from the unified
+ * barrel `@/components/ui/skeletons` to disambiguate.
+ */
+export function Skeleton({
+  className,
+  variant = 'default',
   animate = true,
   shimmerSpeed = 'medium',
   premium = false,
@@ -111,7 +116,7 @@ export function Skeleton({
         'relative overflow-hidden',
         premium ? 'bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-white/[0.08]' : 'bg-white/5',
         variantClasses[variant],
-        glow && 'shadow-[0_0_20px_-5px_var(--glow-color)]',
+        glow && '',
         className
       )}
       style={{

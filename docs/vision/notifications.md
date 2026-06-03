@@ -1,5 +1,10 @@
 # Notifications System — Vision vs. Reality
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Audit date: 2026-05-07 · Source: live Supabase project `imchornjvmgmaovhypco`, code in `lib/notifications/`, `app/api/notifications/`, `lib/emails.ts`, `lib/resend.ts`, migration `016_gamified_notifications.sql`.
 
 ## 1. Intent (Product Vision)

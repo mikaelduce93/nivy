@@ -102,25 +102,25 @@ export function ProspectKycUploader({ token }: { token: string }) {
 
   if (done) {
     return (
-      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center space-y-3">
-        <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
-        <p className="font-semibold text-emerald-200">Document envoyé</p>
-        <p className="text-xs text-zinc-400">
+      <div className="rounded-2xl border border-lime/30 bg-lime/10 p-6 text-center space-y-3">
+        <CheckCircle2 className="w-10 h-10 text-lime mx-auto" />
+        <p className="font-semibold text-lime">Document envoyé</p>
+        <p className="text-xs text-mute">
           L&apos;équipe Nivy va le revoir. Tu seras contacté par email pour la suite.
         </p>
-        <p className="text-[11px] text-zinc-500 font-mono break-all">{done}</p>
+        <p className="text-[11px] text-mute font-mono break-all">{done}</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 space-y-4">
+    <div className="rounded-2xl border border-ink bg-card p-5 space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="prospect-kyc-doc" className="text-zinc-300">
+        <Label htmlFor="prospect-kyc-doc" className="text-ink-2">
           Type de document
         </Label>
         <Select value={docType} onValueChange={setDocType}>
-          <SelectTrigger id="prospect-kyc-doc" className="bg-zinc-950 border-zinc-700 text-white">
+          <SelectTrigger id="prospect-kyc-doc" className="bg-background border-ink text-ink">
             <SelectValue placeholder="Choisis un type…" />
           </SelectTrigger>
           <SelectContent>
@@ -144,7 +144,7 @@ export function ProspectKycUploader({ token }: { token: string }) {
         type="button"
         onClick={() => fileRef.current?.click()}
         disabled={busy || !docType}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full"
+        className="bg-teal hover:bg-teal text-ink font-bold w-full"
       >
         {busy ? (
           <>
@@ -158,7 +158,7 @@ export function ProspectKycUploader({ token }: { token: string }) {
           </>
         )}
       </Button>
-      <p className="text-[11px] text-zinc-500">
+      <p className="text-[11px] text-mute">
         Bucket privé · jamais d&apos;URL publique · admin lit via lien signé 15 min · 10 MB max.
       </p>
     </div>

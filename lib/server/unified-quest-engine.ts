@@ -115,8 +115,19 @@ export async function getUnifiedQuests(): Promise<UnifiedQuest[]> {
     })
   }
 
-  // Randomize or sort by priority
-  return quests.sort(() => Math.random() - 0.5)
+  // #208 — tri DÉTERMINISTE (le `sort(() => Math.random() - 0.5)` précédent
+  // était non déterministe ET biaisé). Ordre par pilier puis XP décroissant.
+  const PILLAR_ORDER: Record<UnifiedQuest["pillar"], number> = {
+    intellect: 0,
+    vitality: 1,
+    creativity: 2,
+    social: 3,
+  }
+  return quests.sort(
+    (a, b) =>
+      (PILLAR_ORDER[a.pillar] - PILLAR_ORDER[b.pillar]) ||
+      (b.xp_reward - a.xp_reward),
+  )
 }
 
 /**

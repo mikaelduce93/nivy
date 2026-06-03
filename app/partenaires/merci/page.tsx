@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Clock, Mail, Phone, Home, ArrowRight } from 'lucide-react'
+import { CheckCircle2, Clock, Mail, Home, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 // Wave 3B.1 / canon §2.1, D3 — the reference is the persisted partners.id
@@ -19,7 +19,7 @@ function PartnerThankYouInner() {
   const reference = ref ? ref.slice(0, 8).toUpperCase() : ''
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-ink flex items-center justify-center p-4">
       <div className="container max-w-3xl">
 
         <motion.div
@@ -34,9 +34,9 @@ function PartnerThankYouInner() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="w-24 h-24 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center"
+              className="w-24 h-24 rounded-full bg-gradient-to-br from-lime to-lime flex items-center justify-center"
             >
-              <CheckCircle2 className="w-12 h-12 text-white" />
+              <CheckCircle2 className="w-12 h-12 text-ink" />
             </motion.div>
           </div>
 
@@ -47,10 +47,10 @@ function PartnerThankYouInner() {
             transition={{ delay: 0.3 }}
             className="text-center mb-8"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-lime via-lime to-teal bg-clip-text text-transparent">
               Demande envoyée avec succès !
             </h1>
-            <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-xl text-mute max-w-2xl mx-auto">
               Merci pour votre intérêt à devenir partenaire. Nous avons bien reçu votre demande d'inscription.
             </p>
           </motion.div>
@@ -64,45 +64,45 @@ function PartnerThankYouInner() {
           >
 
             {/* Next Steps */}
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-ink">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-cyan-400" />
+                <CardTitle className="text-ink flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-teal" />
                   Prochaines étapes
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0">
-                    <span className="text-cyan-400 font-semibold text-sm">1</span>
+                  <div className="w-8 h-8 rounded-full bg-teal/20 border border-teal/30 flex items-center justify-center flex-shrink-0">
+                    <span className="text-teal font-semibold text-sm">1</span>
                   </div>
                   <div>
-                    <h4 className="text-white font-medium mb-1">Examen de votre demande</h4>
-                    <p className="text-sm text-zinc-400">
-                      Notre équipe va examiner votre demande dans les <span className="text-white font-semibold">48 heures</span> suivantes.
+                    <h4 className="text-ink font-medium mb-1">Examen de votre demande</h4>
+                    <p className="text-sm text-mute">
+                      Notre équipe va examiner votre demande dans les <span className="text-ink font-semibold">48 heures</span> suivantes.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
-                    <span className="text-purple-400 font-semibold text-sm">2</span>
+                  <div className="w-8 h-8 rounded-full bg-pink/20 border border-pink/30 flex items-center justify-center flex-shrink-0">
+                    <span className="text-pink font-semibold text-sm">2</span>
                   </div>
                   <div>
-                    <h4 className="text-white font-medium mb-1">Vérification des informations</h4>
-                    <p className="text-sm text-zinc-400">
+                    <h4 className="text-ink font-medium mb-1">Vérification des informations</h4>
+                    <p className="text-sm text-mute">
                       Nous vérifierons les informations fournies et pourrons vous contacter pour plus de détails.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center flex-shrink-0">
-                    <span className="text-green-400 font-semibold text-sm">3</span>
+                  <div className="w-8 h-8 rounded-full bg-lime/20 border border-lime/30 flex items-center justify-center flex-shrink-0">
+                    <span className="text-lime font-semibold text-sm">3</span>
                   </div>
                   <div>
-                    <h4 className="text-white font-medium mb-1">Activation de votre compte</h4>
-                    <p className="text-sm text-zinc-400">
+                    <h4 className="text-ink font-medium mb-1">Activation de votre compte</h4>
+                    <p className="text-sm text-mute">
                       Une fois approuvé, vous recevrez vos identifiants pour accéder à votre dashboard partenaire.
                     </p>
                   </div>
@@ -111,44 +111,34 @@ function PartnerThankYouInner() {
             </Card>
 
             {/* Contact Info */}
-            <Card className="bg-gradient-to-br from-cyan-500/10 to-purple-500/10 border-cyan-500/30">
+            <Card className="bg-gradient-to-br from-teal/10 to-pink/10 border-teal/30">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-cyan-400" />
+                <CardTitle className="text-ink flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-teal" />
                   Un email de confirmation vous a été envoyé
                 </CardTitle>
-                <CardDescription className="text-zinc-400">
+                <CardDescription className="text-mute">
                   Vérifiez votre boîte de réception pour plus de détails
                 </CardDescription>
               </CardHeader>
             </Card>
 
             {/* Support */}
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-ink">
               <CardContent className="pt-6">
-                <h4 className="text-white font-medium mb-3">Des questions ?</h4>
-                <p className="text-sm text-zinc-400 mb-4">
+                <h4 className="text-ink font-medium mb-3">Des questions ?</h4>
+                <p className="text-sm text-mute mb-4">
                   Notre équipe est disponible pour répondre à toutes vos questions sur le programme de partenariat.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button
                     variant="outline"
-                    className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+                    className="border-teal/50 text-teal hover:bg-teal/10"
                     asChild
                   >
                     <a href="mailto:partners@example.com">
                       <Mail className="w-4 h-4 mr-2" />
                       partners@example.com
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
-                    asChild
-                  >
-                    <a href="tel:+212XXXXXXXXX">
-                      <Phone className="w-4 h-4 mr-2" />
-                      +212 XXX-XXXXXX
                     </a>
                   </Button>
                 </div>
@@ -166,7 +156,7 @@ function PartnerThankYouInner() {
           >
             <Button
               asChild
-              className="bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white"
+              className="bg-gradient-to-r from-teal to-teal hover:from-teal hover:to-teal text-ink"
             >
               <Link href="/">
                 <Home className="w-4 h-4 mr-2" />
@@ -176,7 +166,7 @@ function PartnerThankYouInner() {
             <Button
               asChild
               variant="outline"
-              className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              className="border-ink text-ink-2 hover:bg-card"
             >
               <Link href="/devenir-partenaire">
                 En savoir plus sur le programme
@@ -194,15 +184,15 @@ function PartnerThankYouInner() {
           >
             {reference ? (
               <>
-                <p className="text-sm text-zinc-500">
-                  Référence dossier : <span className="text-zinc-400 font-mono">#{reference}</span>
+                <p className="text-sm text-mute">
+                  Référence dossier : <span className="text-mute font-mono">#{reference}</span>
                 </p>
-                <p className="text-xs text-zinc-600 mt-2">
+                <p className="text-xs text-mute mt-2">
                   Conservez cette référence pour toute correspondance avec l&apos;équipe Nivy.
                 </p>
               </>
             ) : (
-              <p className="text-xs text-zinc-600">
+              <p className="text-xs text-mute">
                 Vérifie ton email pour le lien de suivi de ton dossier.
               </p>
             )}

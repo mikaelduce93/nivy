@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { SegmentedProgress } from "@/components/ui/progress"
 import {
-  ArrowRight, ArrowLeft, Trophy, Calendar, Crown, Users,
-  Zap, Gift, Star, Sparkles, ChevronLeft, ChevronRight,
-  CheckCircle2, Shield, Heart, Smartphone
+  Trophy, Calendar, Crown, Users,
+  Zap, Star, ChevronLeft, ChevronRight,
+  CheckCircle2, Shield, Heart
 } from 'lucide-react'
 import { GamificationIntro } from './gamification/gamification-intro'
 
@@ -24,9 +24,9 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
   const parentFeatures = [
     {
       icon: Shield,
-      title: "Dashboard Parental",
+      title: "Dashboard parental",
       description: "Gérez tous les profils de vos enfants depuis un seul endroit",
-      color: "from-blue-500 to-cyan-500",
+      accent: "text-teal",
       details: [
         "Vue d'ensemble des activités",
         "Suivi en temps réel",
@@ -37,9 +37,9 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
     },
     {
       icon: Calendar,
-      title: "Réservations Faciles",
+      title: "Réservations faciles",
       description: "Réservez et payez en quelques clics",
-      color: "from-green-500 to-emerald-500",
+      accent: "text-lime",
       details: [
         "Calendrier interactif",
         "Paiement sécurisé",
@@ -52,7 +52,7 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
       icon: Crown,
       title: "Pass VIP",
       description: "Économisez avec les abonnements mensuels",
-      color: "from-yellow-500 to-orange-500",
+      accent: "text-gold",
       details: [
         "Jusqu'à 30% de réduction",
         "Events inclus",
@@ -63,9 +63,9 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
     },
     {
       icon: Heart,
-      title: "Sécurité & Suivi",
+      title: "Sécurité & suivi",
       description: "Vos enfants en sécurité, vous en tranquillité",
-      color: "from-pink-500 to-rose-500",
+      accent: "text-pink",
       details: [
         "Photos des événements",
         "Encadrement professionnel",
@@ -79,9 +79,9 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
   const teenFeatures = [
     {
       icon: Trophy,
-      title: "Système de Badges",
+      title: "Système de badges",
       description: "Complète des défis et deviens une légende",
-      color: "from-yellow-500 to-orange-500",
+      accent: "text-gold",
       details: [
         "Défis quotidiens",
         "Badges exclusifs",
@@ -92,9 +92,9 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
     },
     {
       icon: Users,
-      title: "Retrouve tes Amis",
+      title: "Retrouve tes amis",
       description: "Vois qui participe aux events et rejoins-les",
-      color: "from-purple-500 to-pink-500",
+      accent: "text-pink",
       details: [
         "Liste d'amis",
         "Voir les participants",
@@ -105,9 +105,9 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
     },
     {
       icon: Star,
-      title: "Ton Profil Unique",
+      title: "Ton profil unique",
       description: "Personnalise ton avatar et montre ta personnalité",
-      color: "from-blue-500 to-cyan-500",
+      accent: "text-teal",
       details: [
         "Avatar personnalisé",
         "Pseudo unique",
@@ -118,9 +118,9 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
     },
     {
       icon: Zap,
-      title: "Events Exclusifs",
+      title: "Events exclusifs",
       description: "Accède à des événements réservés aux membres",
-      color: "from-green-500 to-emerald-500",
+      accent: "text-lime",
       details: [
         "Events VIP",
         "Réservation prioritaire",
@@ -176,27 +176,15 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
     return (
       <div className="space-y-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 mb-4">
-            <Zap className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm font-medium text-cyan-400">
-              Bonus: Système de Gamification
-            </span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-black mb-3">
-            Découvre ton{' '}
-            <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Pouvoir XP
-            </span>
+        <div className="text-center">
+          <p className="eyebrow tracking-[0.18em] text-mute mb-3">Bonus · Gamification</p>
+          <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-ink">
+            Découvre ton <em className="font-semibold not-italic text-pink">Pouvoir XP</em>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Gagne des points, débloque des badges et deviens une légende!
+          <p className="text-mute max-w-2xl mx-auto">
+            Gagne des points, débloque des badges et deviens une légende !
           </p>
-        </motion.div>
+        </div>
 
         {/* Gamification Tutorial */}
         <GamificationIntro
@@ -210,95 +198,59 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-primary">
-            {currentFeature + 1} / {features.length}
-          </span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-black mb-3">
-          {userType === 'parent' ? 'Vos Outils' : 'Tes Avantages'}
+      <div className="text-center">
+        <p className="eyebrow tracking-[0.18em] text-mute mb-3">
+          {String(currentFeature + 1).padStart(2, '0')} / {features.length}
+        </p>
+        <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-3 text-ink">
+          {userType === 'parent' ? 'Vos outils' : 'Tes avantages'}
         </h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-mute max-w-2xl mx-auto">
           Découvrez les fonctionnalités qui vont vous simplifier la vie
         </p>
-      </motion.div>
+      </div>
 
       {/* Feature Card */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentFeature}
-          initial={{ opacity: 0, scale: 0.9, rotateY: 90 }}
-          animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-          exit={{ opacity: 0, scale: 0.9, rotateY: -90 }}
-          transition={{ duration: 0.4 }}
-        >
-          <Card className="overflow-hidden border-2 max-w-2xl mx-auto">
-            {/* Header with gradient */}
-            <div className={`relative h-48 bg-gradient-to-br ${currentFeatureData.color} flex flex-col items-center justify-center text-white`}>
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="text-6xl mb-4"
+      <StickerCard className="overflow-hidden max-w-2xl mx-auto">
+        {/* Header pastel pilier */}
+        <div className="flex flex-col items-center justify-center text-ink bg-paper border-b-2 border-ink py-10">
+          <div className="text-6xl mb-4" aria-hidden="true">
+            {currentFeatureData.image}
+          </div>
+          <div className="flex items-center gap-2">
+            <Icon className={`w-6 h-6 ${currentFeatureData.accent}`} />
+            <h3 className="text-2xl font-display font-extrabold">{currentFeatureData.title}</h3>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-8">
+          <p className="text-lg text-mute mb-6 text-center">
+            {currentFeatureData.description}
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {currentFeatureData.details.map((detail) => (
+              <div
+                key={detail}
+                className="flex items-center gap-3 p-3 rounded-xl border-2 border-ink bg-paper"
               >
-                {currentFeatureData.image}
-              </motion.div>
-
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="flex items-center gap-2"
-              >
-                <Icon className="w-6 h-6" />
-                <h3 className="text-2xl font-black">{currentFeatureData.title}</h3>
-              </motion.div>
-            </div>
-
-            {/* Content */}
-            <div className="p-8">
-              <p className="text-lg text-muted-foreground mb-6 text-center">
-                {currentFeatureData.description}
-              </p>
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                {currentFeatureData.details.map((detail, index) => (
-                  <motion.div
-                    key={detail}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
-                  >
-                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${currentFeatureData.color} flex items-center justify-center flex-shrink-0`}>
-                      <CheckCircle2 className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-sm font-medium">{detail}</span>
-                  </motion.div>
-                ))}
+                <span
+                  className="grid size-8 shrink-0 place-items-center rounded-full border-2 border-ink bg-lime"
+                  aria-hidden="true"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-ink" />
+                </span>
+                <span className="text-sm font-medium">{detail}</span>
               </div>
-            </div>
-          </Card>
-        </motion.div>
-      </AnimatePresence>
+            ))}
+          </div>
+        </div>
+      </StickerCard>
 
-      {/* Progress Dots */}
-      <div className="flex justify-center gap-2">
-        {features.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentFeature(index)}
-            className={`h-2 rounded-full transition-all ${
-              index === currentFeature ? 'w-8 bg-primary' : 'w-2 bg-secondary hover:bg-secondary/80'
-            }`}
-          />
-        ))}
+      {/* Progress segmenté */}
+      <div className="max-w-2xl mx-auto">
+        <SegmentedProgress steps={features.length} current={currentFeature} />
       </div>
 
       {/* Navigation */}
@@ -313,8 +265,9 @@ export function FeaturesStep({ userType, onNext, onBack }: FeaturesStepProps) {
         </Button>
 
         <Button
+          variant="pink"
           onClick={handleNext}
-          className="gap-2 bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 text-white"
+          className="gap-2"
         >
           {currentFeature < features.length - 1 ? 'Suivant' : 'Terminer'}
           <ChevronRight className="w-4 h-4" />

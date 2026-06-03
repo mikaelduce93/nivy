@@ -48,12 +48,16 @@ export async function GET(_request: NextRequest) {
       for (const p of presence) presenceMap[p.user_id as string] = p.status as string
     }
 
-    const { data: xpRows } = await supabase
+    // #32 — user_xp keys on teen_id (friendIds are teens.id), not user_id. Its
+    // RLS is self/parent-read only, so reading friends' XP needs service-role.
+    const { createServiceRoleClient } = await import("@/lib/supabase/service-role")
+    const sr = createServiceRoleClient()
+    const { data: xpRows } = await sr
       .from("user_xp")
-      .select("user_id, total_xp")
-      .in("user_id", friendIds)
+      .select("teen_id, total_xp")
+      .in("teen_id", friendIds)
     if (xpRows) {
-      for (const x of xpRows) xpMap[x.user_id as string] = (x.total_xp as number) || 0
+      for (const x of xpRows) xpMap[x.teen_id as string] = (x.total_xp as number) || 0
     }
   }
 

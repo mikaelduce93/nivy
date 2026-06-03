@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getUserRole } from '@/lib/auth/get-user-role'
+import { AntiAbuseSystem, type UsageMetrics } from '@/lib/gamification/anti-abuse'
 
 export async function POST(request: NextRequest) {
   try {
@@ -128,11 +129,51 @@ export async function POST(request: NextRequest) {
     // success: true (the quest IS completed) but with `xpEarned: 0`
     // and `idempotent_replay: true` so the UI can show "déjà complété"
     // instead of crediting fake XP.
+    // #41 — anti-abuse daily XP caps, finally wired into the real grant path.
+    // Thresholds come from the single source of truth, LIMITS in
+    // lib/gamification/anti-abuse.ts (no duplicated/desynced constants): we sum
+    // today's XP from the canonical ledger and let AntiAbuseSystem.checkAction
+    // decide the adjusted grant — soft cap (≥2000/day) halves it, hard cap
+    // (≥5000/day) zeroes it. The grant RPC is still called at 0 so the hard cap
+    // leaves an auditable amount=0 xp_transactions row.
     let xpAwarded = 0
+    let capApplied: 'soft' | 'hard' | null = null
+    let capWarning: string | undefined
     if (xpReward > 0 && !alreadyCompleted) {
+      // Day boundary mirrors Postgres date_trunc('day', NOW()) on a UTC DB.
+      const startOfDay = `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`
+      let dailyXP = 0
+      const { data: todayTx, error: sumError } = await supabase
+        .from('xp_transactions')
+        .select('amount')
+        .eq('teen_id', teenId)
+        .gte('created_at', startOfDay)
+      if (sumError) {
+        // Fail open: a ledger read error must not block a legitimate grant.
+        console.error('daily XP sum failed; granting without cap:', sumError)
+      } else {
+        dailyXP = (todayTx ?? []).reduce((acc, t) => acc + (t.amount ?? 0), 0)
+      }
+
+      const metrics: UsageMetrics = {
+        dailyXP,
+        dailyQuests: 0,
+        sessionTimeMinutes: 0,
+        rapidActionsCount: 0,
+      }
+      const decision = AntiAbuseSystem.checkAction(metrics, xpReward)
+      capWarning = decision.warning
+      capApplied =
+        decision.warning === 'daily_cap_reached'
+          ? 'hard'
+          : decision.warning === 'soft_cap_active'
+            ? 'soft'
+            : null
+      const effectiveXp = decision.adjustedXP
+
       const { error: xpError } = await supabase.rpc('add_xp_to_user', {
         p_teen_id: teenId,
-        p_xp_amount: xpReward,
+        p_xp_amount: effectiveXp,
         p_source_type: questType,
         p_source_category: 'quest',
         p_source_id: questId,
@@ -146,7 +187,7 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         )
       }
-      xpAwarded = xpReward
+      xpAwarded = effectiveXp
     }
 
     // Wave 6J — only log a fresh activity when this call actually
@@ -154,10 +195,17 @@ export async function POST(request: NextRequest) {
     // entry and inflate the user's "quest_completed" history.
     if (!alreadyCompleted) {
       try {
-        await supabase.from('activities').insert({
+        // Canonical table `user_activities` (mig 018): no `type`/`metadata`
+        // columns — the semantic type + payload live in the `data` jsonb. We
+        // keep quest_id inside `data` rather than `target_id` (uuid) to avoid a
+        // cast failure when questId isn't a uuid.
+        await supabase.from('user_activities').insert({
           user_id: teenId,
-          type: 'quest_completed',
-          metadata: {
+          title: 'Quête complétée',
+          description: `Quête ${questType} complétée (+${xpAwarded} XP)`,
+          target_type: 'quest',
+          data: {
+            type: 'quest_completed',
             quest_id: questId,
             quest_type: questType,
             xp_earned: xpAwarded,
@@ -172,6 +220,8 @@ export async function POST(request: NextRequest) {
       success: true,
       type: questType,
       xpEarned: xpAwarded,
+      cap_applied: capApplied,
+      ...(capWarning ? { warning: capWarning } : {}),
       idempotent_replay: alreadyCompleted,
     })
   } catch (error) {

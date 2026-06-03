@@ -26,13 +26,12 @@
  */
 
 import { redirect } from "next/navigation"
-import Link from "next/link"
-import { Sparkles, MapPin, RefreshCw } from "lucide-react"
+import { RefreshCw, ArrowRight } from "lucide-react"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { DefiCard, type DefiVariant } from "@/components/teen/defi-card"
 import { recordSignal, recordSignalAsync } from "@/lib/analytics/signals"
-import { EmptyState } from "@/components/ui/states/empty-state"
+import { Niv, NivEmpty } from "@/components/brand"
 
 // ----------------------------------------------------------------------------
 // Types
@@ -345,33 +344,43 @@ export default async function TeenOffresPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       {/* Header */}
-      <header className="mb-6">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/30">
-            <Sparkles className="h-4 w-4 text-emerald-300" aria-hidden />
-          </span>
-          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">
-            Wave 3 · Personalized
-          </span>
+      <header className="mb-6 flex items-start gap-4">
+        <Niv mood="hype" size={64} className="shrink-0" />
+        <div>
+          <p className="eyebrow tracking-[0.16em]">Rien que pour toi</p>
+          <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-ink">
+            Offres &amp; <em className="font-semibold italic text-pink">défis</em>
+          </h1>
+          <p className="mt-1 text-sm text-mute">
+            Sélection personnalisée selon tes centres d&apos;intérêt et ta ville.
+            Scanne sur place pour les défis, fonce vers le partenaire pour les
+            réductions.
+          </p>
         </div>
-        <h1 className="text-2xl font-black leading-tight text-white sm:text-3xl">
-          Offres &amp; défis partenaires
-        </h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Sélection personnalisée selon tes centres d&apos;intérêt et ta ville.
-          Scanne sur place pour les défis, fonce vers le partenaire pour les
-          réductions.
-        </p>
       </header>
 
       {/* Empty state */}
       {offers.length === 0 ? (
-        <EmptyState
-          icon={MapPin}
+        <NivEmpty
+          mood="happy"
           title="Pas encore d'offres pour toi"
           description="Affine tes centres d'intérêt pour débloquer des défis et réductions chez nos partenaires près de chez toi."
-          action={{ label: "Choisir mes intérêts", href: "/onboarding/interests" }}
-          secondaryAction={{ label: "Voir la map", href: "/teen/map", variant: "outline" }}
+          action={
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <a
+                href="/onboarding/interests"
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-ink bg-pink px-4 py-2 text-sm font-bold text-ink transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
+              >
+                Choisir mes intérêts
+              </a>
+              <a
+                href="/teen/map"
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-ink bg-white px-4 py-2 text-sm font-bold text-ink transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-md"
+              >
+                Voir la map
+              </a>
+            </div>
+          }
         />
       ) : (
         <section
@@ -383,11 +392,11 @@ export default async function TeenOffresPage() {
             const ctaLabel = ctaLabelFor(o)
             const description = descriptionFor(o)
             const target = o.isChallenge
-              ? `/teen/scan?offer=${encodeURIComponent(o.id)}`
+              ? `/teen/map?offer=${encodeURIComponent(o.id)}`
               : (o.externalUrl ?? "/teen/map")
 
             return (
-              <article key={o.id} className="relative">
+              <article key={o.id} className="flex flex-col">
                 <DefiCard
                   type={variant}
                   title={o.title}
@@ -397,31 +406,35 @@ export default async function TeenOffresPage() {
                   status="active"
                   iconName={o.isChallenge ? "QrCode" : "Tag"}
                   daysLeft={o.daysLeft ?? undefined}
+                  className="flex-1 rounded-b-none border-b-0"
                   // We render the CTA via a separate server-action <form>
                   // so signal capture happens before navigation. The
                   // DefiCard's internal `href` is intentionally omitted.
                 />
 
-                {/* Action: server-action form → records click signal → redirect */}
-                <div className="-mt-3 px-5 pb-5">
-                  <form action={trackAndGo} className="flex justify-end">
-                    <input type="hidden" name="teen_id" value={teenId} />
-                    <input type="hidden" name="offer_id" value={o.id} />
-                    <input type="hidden" name="target" value={target} />
-                    <input
-                      type="hidden"
-                      name="surface"
-                      value="teen_offres_list"
-                    />
-                    <button
-                      type="submit"
-                      className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-black transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                      aria-label={`${ctaLabel} — ${o.title}`}
-                    >
-                      {ctaLabel}
-                    </button>
-                  </form>
-                </div>
+                {/* Action: server-action form → records click signal → redirect.
+                    Rendu flush sous la carte (continuité du sticker), bordure 2px. */}
+                <form
+                  action={trackAndGo}
+                  className="flex justify-end rounded-b-2xl border-2 border-t-0 border-ink bg-white px-5 py-3"
+                >
+                  <input type="hidden" name="teen_id" value={teenId} />
+                  <input type="hidden" name="offer_id" value={o.id} />
+                  <input type="hidden" name="target" value={target} />
+                  <input
+                    type="hidden"
+                    name="surface"
+                    value="teen_offres_list"
+                  />
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-3 py-1.5 font-mono text-[11px] font-bold text-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+                    aria-label={`${ctaLabel} — ${o.title}`}
+                  >
+                    {ctaLabel}
+                    <ArrowRight className="h-3 w-3" aria-hidden />
+                  </button>
+                </form>
               </article>
             )
           })}
@@ -430,7 +443,7 @@ export default async function TeenOffresPage() {
 
       {/* Footer hint */}
       {offers.length > 0 ? (
-        <p className="mt-6 flex items-center justify-center gap-1 text-[11px] text-zinc-500">
+        <p className="mt-6 flex items-center justify-center gap-1 text-[11px] text-mute">
           <RefreshCw className="h-3 w-3" aria-hidden />
           Le classement évolue selon tes signaux (vues, clics, scans).
         </p>

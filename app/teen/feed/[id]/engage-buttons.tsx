@@ -10,18 +10,21 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { Confetti } from "@/components/ui/effects/confetti"
+import { useT } from "@/lib/i18n"
 
 type Action = "view" | "like" | "comment" | "share" | "save"
 
 export default function EngageButtons({ submissionId }: { submissionId: string }) {
   const router = useRouter()
+  const t = useT()
   const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState<string | null>(null)
+  const [celebrate, setCelebrate] = useState(false)
 
   async function fire(action: Action) {
     setBusy(true)
-    setMsg(null)
     try {
       const res = await fetch(`/api/teen/feed/${submissionId}/engage`, {
         method: "POST",
@@ -30,9 +33,13 @@ export default function EngageButtons({ submissionId }: { submissionId: string }
       })
       const json = await res.json()
       if (!res.ok) {
-        setMsg(json.error ?? "Erreur")
+        toast.error(json.error ?? t("teen.feed.actionFailed"))
       } else {
-        setMsg(`OK${json.xp ? ` · ${JSON.stringify(json.xp)}` : ""}`)
+        if (action === "like") {
+          setCelebrate(true)
+          window.setTimeout(() => setCelebrate(false), 1200)
+        }
+        toast.success(t("teen.feed.engaged"))
         router.refresh()
       }
     } finally {
@@ -42,19 +49,27 @@ export default function EngageButtons({ submissionId }: { submissionId: string }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button disabled={busy} onClick={() => fire("like")} variant="outline" size="sm">
-        ♥ Like
+      <Confetti trigger={celebrate} palette="reward" numberOfPieces={80} />
+      <Button disabled={busy} onClick={() => fire("like")} variant="pink" size="sm">
+        {t("teen.feed.like")}
       </Button>
-      <Button disabled={busy} onClick={() => fire("comment")} variant="outline" size="sm">
-        💬 Comment
+      <Button
+        disabled={busy}
+        onClick={() => {
+          document.getElementById("comments")?.scrollIntoView({ behavior: "smooth" })
+          fire("comment")
+        }}
+        variant="outline"
+        size="sm"
+      >
+        {t("teen.feed.comment")}
       </Button>
       <Button disabled={busy} onClick={() => fire("share")} variant="outline" size="sm">
-        ↗ Share
+        {t("teen.feed.share")}
       </Button>
       <Button disabled={busy} onClick={() => fire("save")} variant="outline" size="sm">
-        🔖 Save
+        {t("teen.feed.save")}
       </Button>
-      {msg && <span className="ml-2 text-xs text-muted-foreground">{msg}</span>}
     </div>
   )
 }

@@ -3,10 +3,13 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { CheckCircle2, Clock, AlertCircle, Loader2 } from "lucide-react"
+import { AlertCircle, Loader2 } from "lucide-react"
 import { HybridCheckout } from "@/components/payment/hybrid-checkout"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { DarkSurface, NivCelebration, NivCoach } from "@/components/brand"
+import { CheckRound } from "@/components/ui/check-round"
+import { Confetti } from "@/components/ui/effects/confetti"
 import { fetchWithCSRF } from "@/lib/security/fetch-with-csrf"
 
 interface TeenCheckoutClientProps {
@@ -96,7 +99,7 @@ export function TeenCheckoutClient({
         setView({ kind: "completed", xpUsed: Math.floor(xpUsed) })
         // Brief pause so the success state is visible before redirect.
         setTimeout(() => {
-          router.push(`/mes-reservations/${bookingId}?payment=success`)
+          router.push(`/reservation/confirmation?booking=${bookingId}&payment=success`)
         }, 1200)
         return
       }
@@ -153,71 +156,83 @@ export function TeenCheckoutClient({
 
   if (view.kind === "submitting") {
     return (
-      <Card className="p-8 bg-zinc-900 border-zinc-800 text-center space-y-4">
-        <Loader2 className="w-10 h-10 mx-auto animate-spin text-emerald-400" />
+      <StickerCard className="p-8 text-center items-center gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-pink" />
         <div>
-          <p className="font-bold text-white">Traitement du paiement…</p>
-          <p className="text-xs text-zinc-400 mt-1">Ne ferme pas cette page.</p>
+          <p className="font-display font-bold text-ink">Traitement du paiement…</p>
+          <p className="text-xs text-mute mt-1">Ne ferme pas cette page.</p>
         </div>
-      </Card>
+      </StickerCard>
     )
   }
 
   if (view.kind === "pending_approval") {
     return (
-      <Card className="p-8 bg-zinc-900 border-amber-500/40 text-center space-y-4">
-        <Clock className="w-10 h-10 mx-auto text-amber-400" />
-        <div className="space-y-2">
-          <h2 className="text-xl font-black text-white">Approbation parentale requise</h2>
-          <p className="text-sm text-zinc-300">
-            Tu utilises {view.xpUsed.toLocaleString()} XP ({view.xpValueDH.toFixed(2)} DH).
-            On a envoyé une demande à ton parent — tu seras notifié dès la réponse.
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+      <DarkSurface tone="gold" shadow className="p-6 sm:p-8 space-y-5">
+        <span className="eyebrow tracking-[0.16em] text-paper/60">En attente</span>
+        <h2 className="font-display text-xl font-extrabold text-paper">
+          Ton parent doit <em className="font-semibold italic text-gold">valider</em>
+        </h2>
+        <NivCoach
+          mood="calm"
+          message="Ton parent valide, je te préviens dès qu'on a sa réponse !"
+        />
+        <p className="font-mono text-sm tabular-nums text-paper/70">
+          {view.xpUsed.toLocaleString()} XP · {view.xpValueDH.toFixed(2)} DH
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 pt-1">
           <Button
+            variant="pink"
             className="flex-1"
-            onClick={() => router.push(`/mes-reservations/${bookingId}`)}
+            onClick={() => router.push(`/reservation/confirmation?booking=${bookingId}`)}
           >
             Voir ma réservation
           </Button>
           <Button
             variant="outline"
-            className="flex-1"
-            onClick={() => router.push("/teen/shop")}
+            className="flex-1 border-paper/40 text-paper hover:text-ink"
+            onClick={() => router.push("/teen/wallet?tab=shop")}
           >
             Retour au shop
           </Button>
         </div>
-      </Card>
+      </DarkSurface>
     )
   }
 
   if (view.kind === "completed") {
     return (
-      <Card className="p-8 bg-zinc-900 border-emerald-500/40 text-center space-y-4">
-        <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400" />
-        <div>
-          <h2 className="text-xl font-black text-white">Paiement confirmé</h2>
-          <p className="text-sm text-zinc-300 mt-1">
-            {view.xpUsed.toLocaleString()} XP utilisés. Redirection en cours…
-          </p>
-        </div>
-      </Card>
+      <>
+        <Confetti trigger palette="xp" />
+        <NivCelebration
+          tone="lime"
+          palette="xp"
+          trigger={false}
+          title="Paiement confirmé"
+          value={
+            <span className="inline-flex items-center gap-3">
+              <CheckRound checked disabled aria-label="Paiement validé" />
+              {view.xpUsed.toLocaleString()}
+            </span>
+          }
+          caption={`${view.xpUsed.toLocaleString()} XP utilisés. Redirection en cours…`}
+        />
+      </>
     )
   }
 
   if (view.kind === "error") {
     return (
-      <Card className="p-8 bg-zinc-900 border-red-500/40 text-center space-y-4">
-        <AlertCircle className="w-10 h-10 mx-auto text-red-400" />
+      <StickerCard className="p-8 text-center items-center gap-4">
+        <AlertCircle className="w-10 h-10 text-coral" />
         <div>
-          <h2 className="text-xl font-black text-white">Paiement non effectué</h2>
-          <p className="text-sm text-zinc-300 mt-1">{view.message}</p>
+          <h2 className="font-display text-xl font-extrabold text-ink">Paiement non effectué</h2>
+          <p className="text-sm text-ink-2 mt-1">{view.message}</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full">
           {view.canRetry && (
             <Button
+              variant="pink"
               className="flex-1"
               onClick={() => setView({ kind: "idle" })}
             >
@@ -227,12 +242,12 @@ export function TeenCheckoutClient({
           <Button
             variant="outline"
             className="flex-1"
-            onClick={() => router.push("/teen/shop")}
+            onClick={() => router.push("/teen/wallet?tab=shop")}
           >
             Retour au shop
           </Button>
         </div>
-      </Card>
+      </StickerCard>
     )
   }
 
@@ -246,7 +261,7 @@ export function TeenCheckoutClient({
 
       <button
         onClick={() => router.back()}
-        className="w-full text-muted-foreground text-sm hover:text-foreground transition-colors"
+        className="w-full text-mute text-sm hover:text-ink transition-colors"
       >
         Annuler
       </button>

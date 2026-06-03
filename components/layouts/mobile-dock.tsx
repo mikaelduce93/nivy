@@ -20,6 +20,9 @@ import {
   Store,
   Banknote,
   Share2,
+  CalendarCheck,
+  UserCog,
+  Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
@@ -44,7 +47,11 @@ interface NavItem {
   badge?: number
 }
 
-// Custom hook for notifications (could be connected to real-time data)
+/**
+ * @deprecated #62 — replaced by real role-scoped counts fetched from
+ * GET /api/teen/notifications/badge-counts (see MobileDock below). Kept for
+ * git history; no longer called.
+ */
 function useNotifications() {
   // In a real app, this would fetch from an API or realtime subscription
   const [notifications] = useState({
@@ -57,15 +64,41 @@ function useNotifications() {
 
 export function MobileDock() {
   const pathname = usePathname()
-  const notifications = useNotifications()
   const [mounted, setMounted] = useState(false)
   const prefersReducedMotion = useReducedMotion()
 
   const isTeenArea = pathname?.startsWith("/teen")
+
+  // #62 — real, RLS-scoped teen badge counts (Quests=challenge, Social=social
+  // unread user_notifications). Only fetched inside the teen area; other zones
+  // (public/admin/partner/ambassador) keep no badges.
+  const [notifications, setNotifications] = useState<{ quests: number; social: number }>({
+    quests: 0,
+    social: 0,
+  })
+  useEffect(() => {
+    if (!isTeenArea) {
+      setNotifications({ quests: 0, social: 0 })
+      return
+    }
+    let cancelled = false
+    fetch("/api/teen/notifications/badge-counts")
+      .then((r) => (r.ok ? r.json() : { quests: 0, social: 0 }))
+      .then((d) => {
+        if (!cancelled) {
+          setNotifications({ quests: Number(d?.quests) || 0, social: Number(d?.social) || 0 })
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [isTeenArea, pathname])
   const isParentArea = pathname?.startsWith("/parent")
   const isAdminArea = pathname?.startsWith("/admin")
   const isPartnerArea = pathname?.startsWith("/partner")
   const isAmbassadorArea = pathname?.startsWith("/ambassador")
+  const isMentorArea = pathname?.startsWith("/mentor")
 
   useEffect(() => {
     setMounted(true)
@@ -239,6 +272,41 @@ export function MobileDock() {
     },
   ]
 
+  // #221 — mentor mobile nav. The MentorSidebar is hidden md:flex and the
+  // MentorHeader has no hamburger, so without a dedicated branch the dock fell
+  // back to publicNavItems on /mentor/* → mentor nav unreachable on mobile.
+  // Mirrors components/dashboard/mentor/sidebar.tsx (same hrefs).
+  const mentorNavItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      href: "/mentor/dashboard",
+      icon: Home,
+      color: "rgb(125, 211, 252)",
+      glowColor: "rgba(125, 211, 252, 0.5)",
+    },
+    {
+      label: "Sessions",
+      href: "/mentor/sessions",
+      icon: CalendarCheck,
+      color: "rgb(196, 181, 253)",
+      glowColor: "rgba(196, 181, 253, 0.5)",
+    },
+    {
+      label: "Profil",
+      href: "/mentor/profile/edit",
+      icon: UserCog,
+      color: "rgb(253, 164, 175)",
+      glowColor: "rgba(253, 164, 175, 0.5)",
+    },
+    {
+      label: "Dispo",
+      href: "/mentor/availability",
+      icon: Clock,
+      color: "rgb(190, 242, 100)",
+      glowColor: "rgba(190, 242, 100, 0.5)",
+    },
+  ]
+
   const publicNavItems: NavItem[] = [
     {
       label: "Agenda",
@@ -291,9 +359,11 @@ export function MobileDock() {
       ? partnerNavItems
       : isAmbassadorArea
         ? ambassadorNavItems
-        : isTeenArea
-          ? teenNavItems
-          : publicNavItems
+        : isMentorArea
+          ? mentorNavItems
+          : isTeenArea
+            ? teenNavItems
+            : publicNavItems
 
   // Compute the "home" path of the active zone so we don't mark the home
   // tab as active for every nested route. Default `/teen` was hardcoded.
@@ -303,9 +373,11 @@ export function MobileDock() {
       ? "/partner"
       : isAmbassadorArea
         ? "/ambassador"
-        : isTeenArea
-          ? "/teen"
-          : "/"
+        : isMentorArea
+          ? "/mentor/dashboard"
+          : isTeenArea
+            ? "/teen"
+            : "/"
 
   // SSR safety - render a placeholder on server
   if (!mounted) {
@@ -315,7 +387,7 @@ export function MobileDock() {
         role="navigation"
         aria-label="Navigation mobile"
       >
-        <div className="flex w-full items-center justify-around rounded-3xl border border-white/10 bg-zinc-900/95 p-2 backdrop-blur-xl">
+        <div className="flex w-full items-center justify-around rounded-2xl border-2 border-ink bg-night p-2 text-paper">
           {navItems.map((item) => {
             const Icon = item.icon
             return (
@@ -324,8 +396,8 @@ export function MobileDock() {
                 href={item.href}
                 className="flex flex-1 flex-col items-center gap-0.5 py-2.5 min-h-touch"
               >
-                <Icon className="h-6 w-6 text-zinc-500" />
-                <span className="text-[10px] font-semibold text-zinc-500">
+                <Icon className="h-6 w-6 text-paper/50" />
+                <span className="text-[10px] font-semibold text-paper/50">
                   {item.label}
                 </span>
               </Link>
@@ -342,16 +414,16 @@ export function MobileDock() {
       role="navigation"
       aria-label="Navigation mobile"
     >
-      {/* Gradient backdrop fade */}
-      <div 
-        className="pointer-events-none absolute inset-0"
+      {/* Fondu paper sous le dock (le contenu défile vers le fond crème) */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 -z-10"
         style={{
-          background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent)',
+          background: 'linear-gradient(to top, var(--paper), transparent)',
         }}
       />
-      
-      {/* Main dock container */}
-      <div className="relative flex w-full items-center justify-around rounded-3xl border border-white/10 bg-zinc-900/95 p-2 shadow-2xl backdrop-blur-xl">
+
+      {/* Dock — surface night charte, bordure encre, sans néon ni blur */}
+      <div className="relative flex w-full items-center justify-around rounded-2xl border-2 border-ink bg-night p-2 text-paper shadow-stkr-md">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href || (item.href !== zoneHome && pathname?.startsWith(item.href))
@@ -367,7 +439,7 @@ export function MobileDock() {
               <motion.div
                 className={cn(
                   "relative flex flex-col items-center gap-0.5 rounded-xl py-2.5 min-h-touch",
-                  !isActive && "hover:bg-white/5"
+                  !isActive && "hover:bg-paper-2"
                 )}
                 // Tap feedback: 1 -> 0.92 -> 1 over ~80ms (TICKET-019).
                 whileTap={
@@ -385,7 +457,7 @@ export function MobileDock() {
                     aria-hidden="true"
                     className="absolute inset-0 rounded-xl"
                     style={{
-                      background: `linear-gradient(to top, ${item.glowColor.replace('0.5', '0.18')}, transparent)`,
+                      background: 'linear-gradient(to top, color-mix(in oklch, var(--pink) 24%, transparent), transparent)',
                     }}
                     transition={
                       prefersReducedMotion
@@ -419,8 +491,7 @@ export function MobileDock() {
                         isActive ? "drop-shadow-lg" : ""
                       )}
                       style={{
-                        color: isActive ? item.color : "#71717a",
-                        filter: isActive ? `drop-shadow(0 0 8px ${item.glowColor})` : 'none',
+                        color: isActive ? "var(--pink)" : "color-mix(in oklch, var(--paper) 55%, transparent)",
                       }}
                       aria-hidden="true"
                     />
@@ -433,7 +504,7 @@ export function MobileDock() {
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="absolute -right-2 -top-1.5 flex min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-md"
+                        className="absolute -right-2 -top-1.5 flex min-w-[18px] items-center justify-center rounded-full border border-ink bg-pink px-1 text-[10px] font-bold text-ink"
                       >
                         {item.badge > 9 ? '9+' : item.badge}
                       </motion.div>
@@ -445,7 +516,7 @@ export function MobileDock() {
                 <motion.span
                   className={cn(
                     "relative z-10 text-[10px] font-semibold",
-                    isActive ? "text-white" : "text-zinc-500"
+                    isActive ? "text-paper" : "text-paper/55"
                   )}
                   initial={false}
                   animate={{ opacity: isActive ? 1 : 0.6 }}
@@ -467,8 +538,7 @@ export function MobileDock() {
                       exit={{ scale: 0, opacity: 0 }}
                       className="relative z-10 mt-0.5 h-1 w-1 rounded-full"
                       style={{
-                        backgroundColor: item.color,
-                        boxShadow: `0 0 8px ${item.glowColor}`,
+                        backgroundColor: "var(--pink)",
                       }}
                     />
                   )}

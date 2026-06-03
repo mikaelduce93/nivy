@@ -73,7 +73,7 @@ describe("Wave 6C — XP grants carry full audit reason", () => {
       const src = stripComments(read(f))
       for (const phantom of ["add_user_xp", "deduct_user_xp", "get_user_xp"]) {
         expect(src, `${f} must not call phantom RPC ${phantom}`).not.toMatch(
-          new RegExp(`\\bsupabase\\.rpc\\(['\"]${phantom}['\"]`),
+          new RegExp(`\\bsupabase\\.rpc\\(['"]${phantom}['"]`),
         )
       }
     }
@@ -99,7 +99,7 @@ describe("Wave 6C — /api/teen/tokens POST is deprecated (410)", () => {
       "exchange_tokens",
     ]) {
       expect(src, `tokens route must not call phantom RPC ${phantom}`).not.toMatch(
-        new RegExp(`\\bsupabase\\.rpc\\(['\"]${phantom}['\"]`),
+        new RegExp(`\\bsupabase\\.rpc\\(['"]${phantom}['"]`),
       )
     }
   })

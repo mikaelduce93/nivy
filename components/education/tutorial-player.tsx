@@ -165,7 +165,7 @@ export function TutorialPlayer({
   return (
     <div className="space-y-4">
       {/* Video container */}
-      <div className="relative aspect-video bg-zinc-900 rounded-2xl overflow-hidden">
+      <div className="relative aspect-video bg-card rounded-2xl overflow-hidden">
         {/* Thumbnail/placeholder when not playing */}
         {!isPlaying && (
           <div
@@ -176,14 +176,14 @@ export function TutorialPlayer({
                 : "linear-gradient(to br, #18181b, #27272a)",
             }}
           >
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-ink/50 flex items-center justify-center">
               <motion.button
-                className="w-20 h-20 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center"
+                className="w-20 h-20 rounded-full bg-gradient-to-r from-teal to-teal flex items-center justify-center"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsPlaying(true)}
               >
-                <Play className="w-8 h-8 text-white ml-1" />
+                <Play className="w-8 h-8 text-ink ml-1" />
               </motion.button>
             </div>
           </div>
@@ -191,11 +191,11 @@ export function TutorialPlayer({
 
         {/* Video content (would be replaced with actual video player) */}
         {isPlaying && (
-          <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
+          <div className="absolute inset-0 bg-card flex items-center justify-center">
             <div className="text-center">
-              <BookOpen className="w-16 h-16 text-cyan-500 mx-auto mb-4" />
-              <p className="text-white font-medium">{tutorial.title}</p>
-              <p className="text-zinc-500 text-sm">Lecture en cours...</p>
+              <BookOpen className="w-16 h-16 text-teal mx-auto mb-4" />
+              <p className="text-ink font-medium">{tutorial.title}</p>
+              <p className="text-mute text-sm">Lecture en cours...</p>
             </div>
           </div>
         )}
@@ -204,11 +204,11 @@ export function TutorialPlayer({
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
           {/* Progress bar */}
           <div
-            className="h-1 bg-zinc-700 rounded-full mb-3 cursor-pointer"
+            className="h-1 bg-muted rounded-full mb-3 cursor-pointer"
             onClick={handleSeek}
           >
             <motion.div
-              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full relative"
+              className="h-full bg-gradient-to-r from-teal to-teal rounded-full relative"
               style={{ width: `${progress}%` }}
             >
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg" />
@@ -218,7 +218,7 @@ export function TutorialPlayer({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
-                className="text-white hover:text-cyan-400 transition-colors"
+                className="text-ink hover:text-teal transition-colors"
                 onClick={() => setIsPlaying(!isPlaying)}
               >
                 {isPlaying ? (
@@ -228,19 +228,19 @@ export function TutorialPlayer({
                 )}
               </button>
               <button
-                className="text-white hover:text-cyan-400 transition-colors"
+                className="text-ink hover:text-teal transition-colors"
                 onClick={() => setCurrentTime(Math.max(0, currentTime - 10))}
               >
                 <SkipBack className="w-5 h-5" />
               </button>
               <button
-                className="text-white hover:text-cyan-400 transition-colors"
+                className="text-ink hover:text-teal transition-colors"
                 onClick={() => setCurrentTime(Math.min(duration, currentTime + 10))}
               >
                 <SkipForward className="w-5 h-5" />
               </button>
               <button
-                className="text-white hover:text-cyan-400 transition-colors"
+                className="text-ink hover:text-teal transition-colors"
                 onClick={() => setIsMuted(!isMuted)}
               >
                 {isMuted ? (
@@ -249,19 +249,19 @@ export function TutorialPlayer({
                   <Volume2 className="w-5 h-5" />
                 )}
               </button>
-              <span className="text-sm text-zinc-400">
+              <span className="text-sm text-mute">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
             </div>
 
             <div className="flex items-center gap-3">
               {isCompleted && (
-                <span className="flex items-center gap-1 text-green-400 text-sm">
+                <span className="flex items-center gap-1 text-lime text-sm">
                   <CheckCircle2 className="w-4 h-4" />
                   Complete
                 </span>
               )}
-              <button className="text-white hover:text-cyan-400 transition-colors">
+              <button className="text-ink hover:text-teal transition-colors">
                 <Maximize className="w-5 h-5" />
               </button>
             </div>
@@ -270,24 +270,24 @@ export function TutorialPlayer({
       </div>
 
       {/* Tutorial info */}
-      <Card className="p-4 bg-zinc-900 border-zinc-800">
-        <h2 className="text-lg font-bold text-white mb-2">{tutorial.title}</h2>
-        <p className="text-zinc-400 text-sm mb-4">{tutorial.description}</p>
+      <Card className="p-4 bg-card border-ink">
+        <h2 className="text-lg font-bold text-ink mb-2">{tutorial.title}</h2>
+        <p className="text-mute text-sm mb-4">{tutorial.description}</p>
 
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-400">
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-card text-mute">
             {tutorial.subject}
           </span>
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-400">
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-card text-mute">
             <Clock className="w-3 h-3 inline mr-1" />
             {tutorial.video_duration_minutes} min
           </span>
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-400">
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-teal/10 text-teal">
             <Zap className="w-3 h-3 inline mr-1" />
             +{tutorial.xp_reward} XP
           </span>
           {isCompleted && (
-            <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400">
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-lime/10 text-lime">
               <CheckCircle2 className="w-3 h-3 inline mr-1" />
               Complete
             </span>
@@ -298,29 +298,29 @@ export function TutorialPlayer({
       {/* Completion modal */}
       {showCompletionModal && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
           <motion.div
-            className="bg-zinc-900 rounded-2xl p-6 max-w-md mx-4 text-center"
+            className="bg-card rounded-2xl p-6 max-w-md mx-4 text-center"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
             <motion.div
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 mx-auto mb-4 flex items-center justify-center"
+              className="w-20 h-20 rounded-full bg-gradient-to-br from-lime to-lime mx-auto mb-4 flex items-center justify-center"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", delay: 0.2 }}
             >
-              <CheckCircle2 className="w-10 h-10 text-white" />
+              <CheckCircle2 className="w-10 h-10 text-ink" />
             </motion.div>
-            <h3 className="text-2xl font-black text-white mb-2">Tutoriel termine !</h3>
-            <p className="text-zinc-400 mb-4">
-              Tu as gagne <span className="text-cyan-400 font-bold">+{tutorial.xp_reward} XP</span>
+            <h3 className="text-2xl font-black text-ink mb-2">Tutoriel termine !</h3>
+            <p className="text-mute mb-4">
+              Tu as gagne <span className="text-teal font-bold">+{tutorial.xp_reward} XP</span>
             </p>
             <Button
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-500"
+              className="w-full bg-gradient-to-r from-teal to-teal"
               onClick={() => setShowCompletionModal(false)}
             >
               Continuer
@@ -349,10 +349,10 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
       onClick={onClick}
       className="cursor-pointer"
     >
-      <Card className="overflow-hidden bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+      <Card className="overflow-hidden bg-card border-ink hover:border-ink transition-colors">
         {/* Thumbnail */}
         <div
-          className="aspect-video bg-zinc-800 relative"
+          className="aspect-video bg-card relative"
           style={{
             backgroundImage: tutorial.thumbnail_url
               ? `url(${tutorial.thumbnail_url})`
@@ -362,15 +362,15 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
           }}
         >
           {/* Duration badge */}
-          <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-black/80 text-white text-xs">
+          <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-ink/80 text-paper text-xs">
             {tutorial.video_duration_minutes} min
           </div>
 
           {/* Progress bar */}
           {(tutorial.progress_percent || 0) > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800">
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-card">
               <div
-                className="h-full bg-cyan-500"
+                className="h-full bg-teal"
                 style={{ width: `${tutorial.progress_percent}%` }}
               />
             </div>
@@ -378,27 +378,27 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
 
           {/* Completed overlay */}
           {tutorial.completed && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <CheckCircle2 className="w-12 h-12 text-green-500" />
+            <div className="absolute inset-0 bg-ink/50 flex items-center justify-center">
+              <CheckCircle2 className="w-12 h-12 text-lime" />
             </div>
           )}
         </div>
 
         {/* Content */}
         <div className="p-4">
-          <h3 className="font-bold text-white mb-1 line-clamp-2">{tutorial.title}</h3>
-          <p className="text-sm text-zinc-500 line-clamp-2 mb-3">{tutorial.description}</p>
+          <h3 className="font-bold text-ink mb-1 line-clamp-2">{tutorial.title}</h3>
+          <p className="text-sm text-mute line-clamp-2 mb-3">{tutorial.description}</p>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-400">
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-card text-mute">
                 {tutorial.subject}
               </span>
-              <span className="px-2 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-400">
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-teal/10 text-teal">
                 +{tutorial.xp_reward} XP
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-zinc-500" />
+            <ChevronRight className="w-4 h-4 text-mute" />
           </div>
         </div>
       </Card>

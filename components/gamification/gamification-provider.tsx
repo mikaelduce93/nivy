@@ -37,14 +37,14 @@ import {
 } from "@/lib/hooks/use-gamification"
 import { XPGainPopup } from "./xp-bar"
 import { LevelUpAnimation } from "./level-badge"
-import { LevelUpModal } from "./level-up-modal"
 import { AchievementUnlockModal, AchievementToast } from "./achievement-unlock"
 import { StreakBrokenModal } from "./streak-flame"
 import { CelebrationOverlay, CelebrationType } from "./celebration-overlay"
 import { useXPFloat, XPFloatContainer } from "./xp-float"
 import { useJuice } from "@/lib/hooks/use-juice"
-import { Celebrate } from "@/components/ui/celebrate"
 import { useAnnounce } from "@/components/a11y/announce-region"
+import { NivCelebration } from "@/components/brand"
+import { Button } from "@/components/ui/button"
 
 /* ==========================================================================
    TYPES
@@ -64,9 +64,9 @@ interface GamificationContextValue {
   showXPGain: (amount: number, reason?: string, coords?: { x: number, y: number }) => void
   showLevelUp: (fromLevel: number, toLevel: number) => void
   /**
-   * Declenche la modale LevelUpModal (audit Phase 3.1).
+   * Déclenche le moment de pic level-up (#187 — surface <NivCelebration>).
    * @param level Nouveau niveau
-   * @param xpToNext XP restant pour le prochain niveau (optionnel)
+   * @param xpToNext Conservé pour compat de signature (non utilisé par le pic)
    */
   triggerLevelUp: (level: number, xpToNext?: number) => void
   showAchievementUnlock: (achievement: Achievement, fullModal?: boolean) => void
@@ -99,16 +99,12 @@ export function GamificationProvider({
   // UI states for animations/modals
   const [xpPopup, setXPPopup] = useState<{ amount: number; reason?: string } | null>(null)
   const [levelUp, setLevelUp] = useState<{ from: number; to: number } | null>(null)
-  const [levelUpModal, setLevelUpModal] = useState<{
-    level: number
-    xpToNext?: number
-  } | null>(null)
+  // #187 — moment de pic level-up : surface sombre charte <NivCelebration>.
+  // Remplace l'ancienne triple pile (LevelUpModal + CelebrationOverlay + Celebrate).
+  const [levelUpCelebration, setLevelUpCelebration] = useState<{ level: number } | null>(null)
   const [achievementModal, setAchievementModal] = useState<Achievement | null>(null)
   const [achievementToast, setAchievementToast] = useState<Achievement | null>(null)
   const [streakBroken, setStreakBroken] = useState<number | null>(null)
-  // Wave 3 / TICKET-022 — unified <Celebrate> burst for level-ups.
-  // Edge-triggered: handlers flip true; onComplete flips it back.
-  const [celebrateLevelUp, setCelebrateLevelUp] = useState(false)
 
   // New Celebration Overlay State
   const [celebration, setCelebration] = useState<{
@@ -149,23 +145,12 @@ export function GamificationProvider({
     playJuice('xp_gain')
   }, [playJuice])
 
-  const handleLevelUp = useCallback((newLevel: number, oldLevel: number) => {
-    // Audit Phase 3.1: declenche la LevelUpModal dediee (confetti + rewards).
-    // CelebrationOverlay reste en place pour les autres types de celebrations.
-    setLevelUpModal({ level: newLevel })
-    setCelebration({
-      isOpen: true,
-      type: 'level-up',
-      title: `NIVEAU ${newLevel} !`,
-      subtitle: `Tu es passé du niveau ${oldLevel} au niveau ${newLevel}`,
-      xpEarned: undefined // XP is gained before level up usually
-    })
+  const handleLevelUp = useCallback((newLevel: number, _oldLevel: number) => {
+    // #187 — moment de pic charte : une seule surface <NivCelebration>
+    // (confettis charte + prefers-reduced-motion gérés en interne).
+    setLevelUpCelebration({ level: newLevel })
     // Big juicy moment: fanfare sound + success haptic + fireworks confetti.
     playJuice('level_up')
-    // Wave 3 / TICKET-022 — fire the unified Celebrate burst on top of the
-    // existing modal stack so reduced-motion users still get a check-icon
-    // acknowledgement.
-    setCelebrateLevelUp(true)
     // Wave 3 / TICKET-050 — single SR announcement on the same trigger.
     announce("Niveau supérieur débloqué!")
     // setLevelUp({ from: oldLevel, to: newLevel }) // Disable old animation
@@ -231,22 +216,14 @@ export function GamificationProvider({
     playJuice('xp_gain')
   }, [showFloat, playJuice])
 
-  const showLevelUp = useCallback((fromLevel: number, toLevel: number) => {
-    setLevelUpModal({ level: toLevel })
-    setCelebration({
-      isOpen: true,
-      type: 'level-up',
-      title: `NIVEAU ${toLevel} !`,
-      subtitle: `Tu es passé du niveau ${fromLevel} au niveau ${toLevel}`,
-    })
+  const showLevelUp = useCallback((_fromLevel: number, toLevel: number) => {
+    setLevelUpCelebration({ level: toLevel })
     playJuice('level_up')
-    setCelebrateLevelUp(true)
   }, [playJuice])
 
-  const triggerLevelUp = useCallback((level: number, xpToNext?: number) => {
-    setLevelUpModal({ level, xpToNext })
+  const triggerLevelUp = useCallback((level: number, _xpToNext?: number) => {
+    setLevelUpCelebration({ level })
     playJuice('level_up')
-    setCelebrateLevelUp(true)
   }, [playJuice])
 
   const showAchievementUnlock = useCallback((achievement: Achievement, fullModal = false) => {
@@ -363,20 +340,37 @@ export function GamificationProvider({
         )}
       </AnimatePresence>
 
-      {/* Level Up Modal (audit Phase 3.1) */}
-      <LevelUpModal
-        isOpen={levelUpModal !== null}
-        newLevel={levelUpModal?.level ?? 1}
-        xpToNextLevel={levelUpModal?.xpToNext}
-        onClose={() => setLevelUpModal(null)}
-      />
-
-      {/* Wave 3 / TICKET-022 — unified Celebrate burst for level-ups */}
-      <Celebrate
-        trigger={celebrateLevelUp}
-        variant="levelup"
-        onComplete={() => setCelebrateLevelUp(false)}
-      />
+      {/* #187 — moment de pic level-up : surface sombre charte plein écran.
+          <NivCelebration> déclenche les confettis charte à l'apparition
+          (coupés sous prefers-reduced-motion). */}
+      {levelUpCelebration && (
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- backdrop click-to-dismiss sur une overlay role=dialog (pré-existant)
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Niveau supérieur"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-ink/80 p-4"
+          onClick={() => setLevelUpCelebration(null)}
+        >
+          <div
+            className="w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <NivCelebration
+              tone="teal"
+              palette="levelup"
+              title="Niveau supérieur"
+              value={levelUpCelebration.level}
+              caption="Continue comme ça, tu déchires !"
+              action={
+                <Button variant="pink" onClick={() => setLevelUpCelebration(null)}>
+                  C&apos;est parti
+                </Button>
+              }
+            />
+          </div>
+        </div>
+      )}
 
       {/* New Celebration Overlay */}
       <CelebrationOverlay

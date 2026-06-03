@@ -15,7 +15,7 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json()
-    const { profileId, fullName, username, bio, avatarEmoji } = body
+    const { profileId, fullName, username } = body
 
     // Verify profileId matches current user
     if (profileId !== userInfo.profileId) {
@@ -25,7 +25,7 @@ export async function PATCH(request: Request) {
       )
     }
 
-    // Validate username if provided
+    // Le pseudo vit sur teens.pseudo (profiles n'a ni username ni bio).
     if (username) {
       if (!/^[a-zA-Z0-9_]+$/.test(username)) {
         return NextResponse.json(
@@ -34,15 +34,14 @@ export async function PATCH(request: Request) {
         )
       }
 
-      // Check username uniqueness
-      const { data: existingUser } = await supabase
-        .from("profiles")
+      const { data: existingPseudo } = await supabase
+        .from("teens")
         .select("id")
-        .eq("username", username.toLowerCase())
+        .eq("pseudo", username.toLowerCase())
         .neq("id", profileId)
-        .single()
+        .maybeSingle()
 
-      if (existingUser) {
+      if (existingPseudo) {
         return NextResponse.json(
           { success: false, error: "Ce pseudo est déjà pris" },
           { status: 400 }
@@ -50,36 +49,34 @@ export async function PATCH(request: Request) {
       }
     }
 
-    // Validate bio length
-    if (bio && bio.length > 200) {
-      return NextResponse.json(
-        { success: false, error: "La bio ne peut pas dépasser 200 caractères" },
-        { status: 400 }
-      )
+    // full_name → profiles
+    if (fullName) {
+      const { error: profileErr } = await supabase
+        .from("profiles")
+        .update({ full_name: fullName, updated_at: new Date().toISOString() })
+        .eq("id", profileId)
+      if (profileErr) {
+        console.error("Profile update error:", profileErr)
+        return NextResponse.json(
+          { success: false, error: "Erreur lors de la mise à jour" },
+          { status: 500 }
+        )
+      }
     }
 
-    // Build update object
-    const updateData: any = {
-      updated_at: new Date().toISOString(),
-    }
-
-    if (fullName) updateData.full_name = fullName
-    if (username !== undefined) updateData.username = username?.toLowerCase() || null
-    if (bio !== undefined) updateData.bio = bio || null
-    if (avatarEmoji) updateData.avatar_emoji = avatarEmoji
-
-    // Update profile
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update(updateData)
-      .eq("id", profileId)
-
-    if (updateError) {
-      console.error("Profile update error:", updateError)
-      return NextResponse.json(
-        { success: false, error: "Erreur lors de la mise à jour" },
-        { status: 500 }
-      )
+    // username → teens.pseudo
+    if (username !== undefined) {
+      const { error: pseudoErr } = await supabase
+        .from("teens")
+        .update({ pseudo: username ? username.toLowerCase() : null, updated_at: new Date().toISOString() })
+        .eq("id", profileId)
+      if (pseudoErr) {
+        console.error("Teen pseudo update error:", pseudoErr)
+        return NextResponse.json(
+          { success: false, error: "Erreur lors de la mise à jour" },
+          { status: 500 }
+        )
+      }
     }
 
     // Log activity

@@ -78,7 +78,7 @@ export async function GET(
 
     // Calculate items and totals
     const ticketQuantity = booking.quantity || 1
-    const unitPrice = booking.unit_price || (booking.total_price / ticketQuantity)
+    const unitPrice = booking.unit_price || (booking.total_amount / ticketQuantity)
     const subtotal = unitPrice * ticketQuantity
 
     const items = [
@@ -119,7 +119,7 @@ export async function GET(
       subtotal,
       discount: discount > 0 ? discount : undefined,
       discountLabel,
-      total: booking.total_price,
+      total: booking.total_amount,
 
       paymentMethod: getPaymentMethodLabel(booking.payment_method),
       paymentStatus: booking.payment_status as "paid" | "pending" | "failed",

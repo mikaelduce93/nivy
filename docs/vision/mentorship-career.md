@@ -1,5 +1,10 @@
 # Mentorship & Career Exploration — Vision
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Status: **GREENFIELD** (concept-only). No `mentors`, `mentor_sessions`, `career_pathways`, `internships`, or `internship_applications` tables exist live (verified via `information_schema.tables` on project `imchornjvmgmaovhypco`). Adjacent live infrastructure: `passion_paths` (5 rows seeded, 0 levels), `passion_path_levels` (0), `teen_passion_path_progress` (0), `passion_tutorials` (0). The Pilier CREA migration `gamification-system/database/migrations/022_pillars_system.sql:427-520` defines the passion-path data model but is not the same surface as career mentorship — it covers hobby skill ladders (dance, music, art, tech, writing, photography, video, fashion, cooking, diy), not adult-to-teen advisory or internships.
 
 ---

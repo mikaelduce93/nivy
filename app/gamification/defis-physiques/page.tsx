@@ -1,6 +1,11 @@
 // REDIRECT: /gamification/defis-physiques now redirects to /teen/defis-physiques (server-wired Supabase page).
-import { redirect } from "next/navigation"
+// #184 — aligned with the wave: permanentRedirect (308) + robots:noindex.
+import { permanentRedirect } from "next/navigation"
+
+export const dynamic = "force-static"
+
+export const metadata = { robots: { index: false, follow: false } }
 
 export default function GamificationDefisPhysiquesPage() {
-  redirect("/teen/defis-physiques")
+  permanentRedirect("/teen/defis-physiques")
 }

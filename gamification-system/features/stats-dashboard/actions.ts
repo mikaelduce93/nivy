@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type ActivityType,
   type DashboardStats,
@@ -56,7 +57,7 @@ export async function updateDailyActivity(
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur updateDailyActivity:", error)
+    logDbError("stats-dashboard.updateDailyActivity", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -88,7 +89,7 @@ export async function getDailyActivity(
 
     return data
   } catch (error) {
-    console.error("Erreur getDailyActivity:", error)
+    logDbError("stats-dashboard.getDailyActivity", error)
     return null
   }
 }
@@ -121,7 +122,7 @@ export async function getActivityHistory(
 
     return data || []
   } catch (error) {
-    console.error("Erreur getActivityHistory:", error)
+    logDbError("stats-dashboard.getActivityHistory", error)
     return []
   }
 }
@@ -152,7 +153,7 @@ export async function getLifetimeStats(): Promise<LifetimeStats | null> {
 
     return data
   } catch (error) {
-    console.error("Erreur getLifetimeStats:", error)
+    logDbError("stats-dashboard.getLifetimeStats", error)
     return null
   }
 }
@@ -184,7 +185,7 @@ export async function refreshLifetimeStats(): Promise<{
 
     return { success: true }
   } catch (error) {
-    console.error("Erreur refreshLifetimeStats:", error)
+    logDbError("stats-dashboard.refreshLifetimeStats", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -218,7 +219,7 @@ export async function getMonthlyStats(
 
     return data || []
   } catch (error) {
-    console.error("Erreur getMonthlyStats:", error)
+    logDbError("stats-dashboard.getMonthlyStats", error)
     return []
   }
 }
@@ -249,7 +250,7 @@ export async function getUserMilestones(): Promise<Milestone[]> {
 
     return data || []
   } catch (error) {
-    console.error("Erreur getUserMilestones:", error)
+    logDbError("stats-dashboard.getUserMilestones", error)
     return []
   }
 }
@@ -283,7 +284,7 @@ export async function checkAndAwardMilestones(): Promise<{
 
     return { success: true, newMilestones: data || [] }
   } catch (error) {
-    console.error("Erreur checkAndAwardMilestones:", error)
+    logDbError("stats-dashboard.checkAndAwardMilestones", error)
     return { success: false, newMilestones: [], error: "Erreur lors de la vérification" }
   }
 }
@@ -314,7 +315,7 @@ export async function getPersonalRecords(): Promise<PersonalRecord[]> {
 
     return data || []
   } catch (error) {
-    console.error("Erreur getPersonalRecords:", error)
+    logDbError("stats-dashboard.getPersonalRecords", error)
     return []
   }
 }
@@ -352,7 +353,7 @@ export async function updatePersonalRecord(
 
     return { success: true, isNewRecord: data === true }
   } catch (error) {
-    console.error("Erreur updatePersonalRecord:", error)
+    logDbError("stats-dashboard.updatePersonalRecord", error)
     return { success: false, isNewRecord: false, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -381,7 +382,7 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
 
     return data
   } catch (error) {
-    console.error("Erreur getDashboardStats:", error)
+    logDbError("stats-dashboard.getDashboardStats", error)
     return null
   }
 }
@@ -409,7 +410,7 @@ export async function getActivityStats(
 
     return data
   } catch (error) {
-    console.error("Erreur getActivityStats:", error)
+    logDbError("stats-dashboard.getActivityStats", error)
     return null
   }
 }
@@ -439,7 +440,7 @@ export async function getPlatformAverages(
 
     return data
   } catch (error) {
-    console.error("Erreur getPlatformAverages:", error)
+    logDbError("stats-dashboard.getPlatformAverages", error)
     return null
   }
 }
@@ -514,7 +515,7 @@ export async function getStatsComparison(): Promise<{
       },
     }
   } catch (error) {
-    console.error("Erreur getStatsComparison:", error)
+    logDbError("stats-dashboard.getStatsComparison", error)
     return null
   }
 }
@@ -570,7 +571,7 @@ export async function getUserGlobalRank(): Promise<{
 
     return { rank, totalUsers: total, percentile }
   } catch (error) {
-    console.error("Erreur getUserGlobalRank:", error)
+    logDbError("stats-dashboard.getUserGlobalRank", error)
     return null
   }
 }
@@ -662,7 +663,7 @@ export async function updateLoginStreak(): Promise<{
 
     return { success: true, currentStreak: newStreak }
   } catch (error) {
-    console.error("Erreur updateLoginStreak:", error)
+    logDbError("stats-dashboard.updateLoginStreak", error)
     return { success: false, currentStreak: 0, error: "Erreur lors de la mise à jour" }
   }
 }
@@ -724,7 +725,7 @@ export async function generateStatsShareData(): Promise<{
       },
     }
   } catch (error) {
-    console.error("Erreur generateStatsShareData:", error)
+    logDbError("stats-dashboard.generateStatsShareData", error)
     return { success: false, error: "Erreur lors de la génération" }
   }
 }

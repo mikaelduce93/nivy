@@ -203,7 +203,7 @@ export function PullToRefresh({
         <div
           className={cn(
             "mt-2 flex h-10 w-10 items-center justify-center rounded-full",
-            "border border-white/10 bg-zinc-900/85 text-white shadow-lg backdrop-blur-md",
+            "border border-ink bg-card text-ink shadow-lg ",
           )}
           role="status"
           aria-live="polite"

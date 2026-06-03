@@ -27,27 +27,27 @@ import type { DailyChallenge } from "@/lib/hooks/use-gamification"
 const CATEGORY_CONFIG = {
   school: {
     icon: BookOpen,
-    gradient: "from-blue-500 to-cyan-500",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/30",
+    gradient: "from-teal to-teal",
+    bg: "bg-teal/10",
+    border: "border-teal/30",
     label: "School",
-    color: "text-blue-400",
+    color: "text-teal",
   },
   sport: {
     icon: Dumbbell,
-    gradient: "from-green-500 to-emerald-500",
-    bg: "bg-green-500/10",
-    border: "border-green-500/30",
+    gradient: "from-lime to-lime",
+    bg: "bg-lime/10",
+    border: "border-lime/30",
     label: "Sport",
-    color: "text-green-400",
+    color: "text-lime",
   },
   crea: {
     icon: Palette,
-    gradient: "from-purple-500 to-pink-500",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/30",
+    gradient: "from-pink to-pink",
+    bg: "bg-pink/10",
+    border: "border-pink/30",
     label: "Créa",
-    color: "text-purple-400",
+    color: "text-pink",
   },
 }
 
@@ -76,8 +76,8 @@ export function DailyChallenges({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-bold text-white">Défis du jour</h3>
-          <p className="text-sm text-zinc-500">
+          <h3 className="text-xl font-bold text-ink">Défis du jour</h3>
+          <p className="text-sm text-mute">
             {completedCount} / {totalCount} complétés
           </p>
         </div>
@@ -92,7 +92,7 @@ export function DailyChallenges({
               fill="transparent"
               stroke="currentColor"
               strokeWidth="4"
-              className="text-zinc-800"
+              className="text-ink"
             />
             <motion.circle
               cx="24"
@@ -117,7 +117,7 @@ export function DailyChallenges({
             </defs>
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm font-bold text-white">{completedCount}</span>
+            <span className="text-sm font-bold text-ink">{completedCount}</span>
           </div>
         </div>
       </div>
@@ -152,22 +152,22 @@ export function DailyChallenges({
           animate={{ opacity: 1, scale: 1 }}
         >
           <motion.div
-            className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center"
+            className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-teal to-pink flex items-center justify-center"
             animate={{ rotate: [0, 10, -10, 0] }}
             transition={{ duration: 0.5, repeat: 3 }}
           >
-            <Trophy className="w-8 h-8 text-white" />
+            <Trophy className="w-8 h-8 text-ink" />
           </motion.div>
-          <h4 className="text-xl font-bold text-white mb-2">Bravo !</h4>
-          <p className="text-zinc-400">Tu as complété tous les défis du jour !</p>
+          <h4 className="text-xl font-bold text-ink mb-2">Bravo !</h4>
+          <p className="text-mute">Tu as complété tous les défis du jour !</p>
         </motion.div>
       )}
 
       {/* Empty state */}
       {totalCount === 0 && (
         <div className="text-center py-8">
-          <RefreshCw className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <p className="text-zinc-400">Aucun défi pour aujourd'hui</p>
+          <RefreshCw className="w-12 h-12 text-mute mx-auto mb-4" />
+          <p className="text-mute">Aucun défi pour aujourd'hui</p>
         </div>
       )}
     </div>
@@ -262,9 +262,9 @@ function DailyChallengeCard({
       className={cn(
         "relative p-4 rounded-2xl border transition-all",
         isCompleted
-          ? "bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/30"
+          ? "bg-gradient-to-br from-lime/10 to-lime/10 border-lime/30"
           : isSkipped
-          ? "bg-zinc-900/50 border-zinc-800 opacity-50"
+          ? "bg-card border-ink opacity-50"
           : cn(config.bg, config.border)
       )}
       whileHover={!isCompleted && !isSkipped ? { scale: 1.02 } : {}}
@@ -275,20 +275,20 @@ function DailyChallengeCard({
           className={cn(
             "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0",
             isCompleted
-              ? "bg-gradient-to-br from-green-500 to-emerald-500"
+              ? "bg-gradient-to-br from-lime to-lime"
               : isSkipped
-              ? "bg-zinc-800"
+              ? "bg-card"
               : `bg-gradient-to-br ${config.gradient}`
           )}
           animate={isCompleted ? { scale: [1, 1.1, 1] } : {}}
           transition={{ duration: 0.3 }}
         >
           {isCompleted ? (
-            <Check className="w-6 h-6 text-white" />
+            <Check className="w-6 h-6 text-ink" />
           ) : isSkipped ? (
-            <X className="w-6 h-6 text-zinc-600" />
+            <X className="w-6 h-6 text-mute" />
           ) : (
-            <Icon className="w-6 h-6 text-white" />
+            <Icon className="w-6 h-6 text-ink" />
           )}
         </motion.div>
 
@@ -299,7 +299,7 @@ function DailyChallengeCard({
               {config.label}
             </span>
             {validationType === "timer" && (
-              <span className="text-xs text-zinc-500 flex items-center gap-1">
+              <span className="text-xs text-mute flex items-center gap-1">
                 <Timer className="w-3 h-3" />
                 {Math.floor(requiredSeconds / 60)} min
               </span>
@@ -308,29 +308,29 @@ function DailyChallengeCard({
 
           <h4 className={cn(
             "font-bold mb-1",
-            isCompleted || isSkipped ? "text-zinc-500" : "text-white"
+            isCompleted || isSkipped ? "text-mute" : "text-ink"
           )}>
             {challenge.challenge?.title}
           </h4>
 
           {challenge.challenge?.description && (
-            <p className="text-sm text-zinc-500 mb-2">
+            <p className="text-sm text-mute mb-2">
               {challenge.challenge.description}
             </p>
           )}
 
           {/* XP Reward */}
           <div className="flex items-center gap-2">
-            <Zap className={cn("w-4 h-4", isCompleted ? "text-green-400" : "text-cyan-400")} />
+            <Zap className={cn("w-4 h-4", isCompleted ? "text-lime" : "text-teal")} />
             <span className={cn(
               "font-bold text-sm",
-              isCompleted ? "text-green-400" : "text-cyan-400"
+              isCompleted ? "text-lime" : "text-teal"
             )}>
               {isCompleted ? "+" : ""}{challenge.challenge?.xp_reward || 0} XP
             </span>
 
             {isCompleted && challenge.completed_at && (
-              <span className="text-xs text-zinc-500 ml-auto">
+              <span className="text-xs text-mute ml-auto">
                 Complété à {new Date(challenge.completed_at).toLocaleTimeString("fr-FR", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -348,7 +348,7 @@ function DailyChallengeCard({
                 className={cn(
                   "p-2 rounded-xl",
                   `bg-gradient-to-br ${config.gradient}`,
-                  "text-white"
+                  "text-ink"
                 )}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -359,7 +359,7 @@ function DailyChallengeCard({
               </motion.button>
             ) : (
               <motion.button
-                className="p-2 rounded-xl bg-green-500 text-white"
+                className="p-2 rounded-xl bg-lime text-ink"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleComplete}
@@ -374,7 +374,7 @@ function DailyChallengeCard({
             )}
 
             <motion.button
-              className="p-2 rounded-xl bg-zinc-800 text-zinc-400 hover:text-white"
+              className="p-2 rounded-xl bg-card text-mute hover:text-ink"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleSkip}
@@ -389,7 +389,7 @@ function DailyChallengeCard({
       {/* Timer display */}
       {showTimer && validationType === "timer" && !isCompleted && (
         <motion.div
-          className="mt-4 pt-4 border-t border-zinc-800"
+          className="mt-4 pt-4 border-t border-ink"
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
         >
@@ -398,20 +398,20 @@ function DailyChallengeCard({
               <motion.div
                 className={cn(
                   "w-3 h-3 rounded-full",
-                  isTimerRunning ? "bg-green-500" : "bg-zinc-600"
+                  isTimerRunning ? "bg-lime" : "bg-muted"
                 )}
                 animate={isTimerRunning ? { scale: [1, 1.2, 1] } : {}}
                 transition={{ duration: 1, repeat: Infinity }}
               />
-              <span className="text-2xl font-mono font-bold text-white">
+              <span className="text-2xl font-mono font-bold text-ink">
                 {formatTime(timerSeconds)}
               </span>
-              <span className="text-zinc-500">/ {formatTime(requiredSeconds)}</span>
+              <span className="text-mute">/ {formatTime(requiredSeconds)}</span>
             </div>
 
             {timerSeconds >= requiredSeconds && (
               <motion.span
-                className="text-green-400 font-bold"
+                className="text-lime font-bold"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
@@ -421,7 +421,7 @@ function DailyChallengeCard({
           </div>
 
           {/* Progress bar */}
-          <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mt-3">
+          <div className="h-2 bg-card rounded-full overflow-hidden mt-3">
             <motion.div
               className={cn("h-full rounded-full", `bg-gradient-to-r ${config.gradient}`)}
               style={{ width: `${Math.min((timerSeconds / requiredSeconds) * 100, 100)}%` }}
@@ -439,12 +439,12 @@ function DailyChallengeCard({
         >
           <div className="absolute top-2 right-2">
             <motion.div
-              className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center"
+              className="w-6 h-6 rounded-full bg-lime flex items-center justify-center"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring" }}
             >
-              <Check className="w-4 h-4 text-white" />
+              <Check className="w-4 h-4 text-ink" />
             </motion.div>
           </div>
         </motion.div>
@@ -489,9 +489,9 @@ export function ChallengeCategoryFilter({
               "px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all",
               isSelected
                 ? cat.key
-                  ? cn(`bg-gradient-to-r ${cat.gradient ?? ""} text-white`)
-                  : "bg-white text-black"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
+                  ? cn(`bg-gradient-to-r ${cat.gradient ?? ""} text-ink`)
+                  : "bg-white text-ink"
+                : "bg-card text-mute hover:text-ink"
             )}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -528,36 +528,36 @@ export function ChallengeStats({ challenges, className }: ChallengeStatsProps) {
 
   return (
     <div className={cn("grid grid-cols-2 gap-4", className)}>
-      <div className="bg-zinc-900 rounded-xl p-4">
+      <div className="bg-card rounded-xl p-4">
         <div className="flex items-center gap-2 mb-1">
-          <Check className="w-4 h-4 text-green-400" />
-          <span className="text-sm text-zinc-500">Complétés</span>
+          <Check className="w-4 h-4 text-lime" />
+          <span className="text-sm text-mute">Complétés</span>
         </div>
-        <span className="text-2xl font-bold text-white">{stats.completed}</span>
+        <span className="text-2xl font-bold text-ink">{stats.completed}</span>
       </div>
 
-      <div className="bg-zinc-900 rounded-xl p-4">
+      <div className="bg-card rounded-xl p-4">
         <div className="flex items-center gap-2 mb-1">
-          <Zap className="w-4 h-4 text-cyan-400" />
-          <span className="text-sm text-zinc-500">XP gagnés</span>
+          <Zap className="w-4 h-4 text-teal" />
+          <span className="text-sm text-mute">XP gagnés</span>
         </div>
-        <span className="text-2xl font-bold text-cyan-400">+{stats.xpEarned}</span>
+        <span className="text-2xl font-bold text-teal">+{stats.xpEarned}</span>
       </div>
 
-      <div className="bg-zinc-900 rounded-xl p-4">
+      <div className="bg-card rounded-xl p-4">
         <div className="flex items-center gap-2 mb-1">
-          <Clock className="w-4 h-4 text-yellow-400" />
-          <span className="text-sm text-zinc-500">En attente</span>
+          <Clock className="w-4 h-4 text-gold" />
+          <span className="text-sm text-mute">En attente</span>
         </div>
-        <span className="text-2xl font-bold text-white">{stats.pending}</span>
+        <span className="text-2xl font-bold text-ink">{stats.pending}</span>
       </div>
 
-      <div className="bg-zinc-900 rounded-xl p-4">
+      <div className="bg-card rounded-xl p-4">
         <div className="flex items-center gap-2 mb-1">
-          <X className="w-4 h-4 text-red-400" />
-          <span className="text-sm text-zinc-500">Passés</span>
+          <X className="w-4 h-4 text-destructive" />
+          <span className="text-sm text-mute">Passés</span>
         </div>
-        <span className="text-2xl font-bold text-zinc-500">{stats.skipped}</span>
+        <span className="text-2xl font-bold text-mute">{stats.skipped}</span>
       </div>
     </div>
   )

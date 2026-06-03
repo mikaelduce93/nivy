@@ -225,81 +225,113 @@
   /* --------------------------------------------------------------------------
      GEN-Z MUTED NEON PALETTE
      -------------------------------------------------------------------------- */
-  --gen-z-lavender: oklch(0.75 0.12 290);      /* Lavender-blue */
-  --gen-z-lime: oklch(0.82 0.18 130);          /* Dusty lime */
-  --gen-z-coral: oklch(0.72 0.14 25);          /* Sunset coral */
-  --gen-z-peach: oklch(0.85 0.10 55);          /* Soft peach */
-  --gen-z-mint: oklch(0.80 0.12 165);          /* Tech mint */
-  --gen-z-grape: oklch(0.55 0.20 300);         /* Deep grape */
-  --gen-z-sky: oklch(0.78 0.12 230);           /* Sky blue */
-  --gen-z-rose: oklch(0.75 0.14 350);          /* Dusty rose */
-  --gen-z-yellow: oklch(0.88 0.16 95);         /* Soft yellow */
-  --gen-z-teal: oklch(0.72 0.14 180);          /* Ocean teal */
+  /* --------------------------------------------------------------------------
+     NIVY PAPER PALETTE — charte refonte V1.5 (HEX → OKLCH exacts)
+     Source de vérité couleur. Voir docs/refonte/00-CHARTE-GRAPHIQUE-NIVY.md §1.
+     -------------------------------------------------------------------------- */
+  --paper: oklch(0.9480 0.0188 83.1);      /* #f4ede0 crème — fond principal */
+  --paper-2: oklch(0.9153 0.0247 83.4);    /* #ebe2d1 — fond secondaire */
+  --ink: oklch(0.1649 0.0291 289.4);       /* #0e0c1a — encre / bordures */
+  --ink-2: oklch(0.2787 0.0351 296.1);     /* #2a2538 — texte secondaire */
+  --mute: oklch(0.5038 0.0198 76.0);       /* #6b6358 — texte tertiaire */
+  --line: oklch(0.8572 0.0292 84.6);       /* #d9cfbb — séparateurs */
+  --pink: oklch(0.6695 0.2305 5.7);        /* #ff3d80 — accent n°1 */
+  --pink-soft: oklch(0.8554 0.0876 356.2); /* #ffb8d1 */
+  --teal: oklch(0.5748 0.0955 194.8);      /* #0f8a8a */
+  --gold: oklch(0.7646 0.1443 81.9);       /* #e0a82e — XP */
+  --lime: oklch(0.6881 0.1485 129.3);      /* #7dac3e — succès */
+  --coral: oklch(0.7275 0.1732 39.0);      /* #ff7a4d — coins */
+  --night: oklch(0.1649 0.0291 289.4);     /* #0e0c1a — surfaces sombres */
+  --night-2: oklch(0.2175 0.0517 289.9);   /* #1a1530 */
+  --brand: var(--pink);
+
+  /* Legacy gen-z palette — repointée sur la charte (dépréciée, cf. F4/F5).
+     Conservée pour ne rien casser tant que les utilitaires/composants gen-z
+     ne sont pas migrés ; les valeurs pointent désormais vers la charte paper. */
+  --gen-z-lavender: var(--pink);
+  --gen-z-lime: var(--lime);
+  --gen-z-coral: var(--coral);
+  --gen-z-peach: var(--gold);
+  --gen-z-mint: var(--teal);
+  --gen-z-grape: var(--ink-2);
+  --gen-z-sky: var(--teal);
+  --gen-z-rose: var(--pink-soft);
+  --gen-z-yellow: var(--gold);
+  --gen-z-teal: var(--teal);
 
   /* --------------------------------------------------------------------------
-     SEMANTIC SOFT ALIASES (V1.3 design-system reconciliation — TICKET-048)
-     Same OKLCH values as the gen-z-* tokens above. Defined as semantic-named
-     aliases so feature code can drop the "gen-z" naming and refer to
-     decorative roles by purpose. The legacy gen-z-* tokens stay defined for
-     backwards compatibility until the codemod sweep (Day 4) removes them.
+     OMBRES « STICKER » néo-brutalistes (dures, décalées) — charte §1/§3
      -------------------------------------------------------------------------- */
-  --brand-soft: color-mix(in oklch, var(--primary) 12%, var(--background));
-  --accent-soft: color-mix(in oklch, var(--accent) 12%, var(--background));
-  --success-soft: color-mix(in oklch, var(--success) 12%, var(--background));
-  --info-soft: color-mix(in oklch, var(--info) 12%, var(--background));
-  --warning-soft: color-mix(in oklch, var(--warning) 12%, var(--background));
-  --danger-soft: color-mix(in oklch, var(--destructive) 12%, var(--background));
+  --shadow-stkr: 6px 6px 0 var(--ink);
+  --shadow-stkr-sm: 3px 3px 0 var(--ink);
+  --shadow-stkr-md: 4px 4px 0 var(--ink);
+  --shadow-stkr-lg: 5px 5px 0 var(--ink);
+  --shadow-stkr-pink: 4px 4px 0 var(--pink);
+  --shadow-soft: 0 24px 48px -16px rgb(14 12 26 / 0.18);
 
-  /* Base - Warm off-white backgrounds */
-  --background: oklch(0.98 0.005 80);
-  --foreground: oklch(0.20 0.02 280);
+  /* --------------------------------------------------------------------------
+     SOFT COMPANIONS — dérivés color-mix sur la palette paper (charte)
+     -------------------------------------------------------------------------- */
+  --brand-soft: color-mix(in oklch, var(--pink) 14%, var(--paper));
+  --accent-soft: color-mix(in oklch, var(--pink) 14%, var(--paper));
+  --success-soft: color-mix(in oklch, var(--lime) 18%, var(--paper));
+  --info-soft: color-mix(in oklch, var(--teal) 18%, var(--paper));
+  --warning-soft: color-mix(in oklch, var(--gold) 20%, var(--paper));
+  --danger-soft: color-mix(in oklch, var(--destructive) 16%, var(--paper));
 
-  /* Card - Slightly warm elevated surfaces */
-  --card: oklch(0.995 0.003 80);
-  --card-foreground: oklch(0.20 0.02 280);
+  /* ── Tokens sémantiques shadcn → charte paper ──
+     Régle générale néo-brutaliste : --primary = encre (bouton solide workhorse),
+     --pink reste l'accent loud exposé via variants/utilitaires (cf. F3). */
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  /* Card — surfaces blanches (#fff dans les mockups) */
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink);
 
   /* Popover */
-  --popover: oklch(0.995 0.003 80);
-  --popover-foreground: oklch(0.20 0.02 280);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ink);
 
-  /* Primary - Lavender-blue (dreamy, Gen-Z) */
-  --primary: oklch(0.60 0.18 290);
-  --primary-foreground: oklch(0.98 0 0);
+  /* Primary — encre (solide), texte paper */
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
 
-  /* Secondary - Dusty lime surface */
-  --secondary: oklch(0.94 0.04 130);
-  --secondary-foreground: oklch(0.30 0.08 130);
+  /* Secondary — surface paper-2 */
+  --secondary: var(--paper-2);
+  --secondary-foreground: var(--ink);
 
-  /* Muted - Soft warm gray */
-  --muted: oklch(0.92 0.01 80);
-  --muted-foreground: oklch(0.50 0.02 280);
+  /* Muted */
+  --muted: var(--paper-2);
+  --muted-foreground: var(--mute);
 
-  /* Accent - Sunset coral (energetic) */
-  --accent: oklch(0.68 0.18 25);
-  --accent-foreground: oklch(0.98 0 0);
+  /* Accent — surface douce rosée (hovers shadcn : dropdown/command/etc.) */
+  --accent: color-mix(in oklch, var(--pink) 12%, var(--paper));
+  --accent-foreground: var(--ink);
 
-  /* Destructive - Vibrant red */
+  /* Destructive — rouge vif (distinct du corail) */
   --destructive: oklch(0.58 0.24 25);
-  --destructive-foreground: oklch(0.98 0 0);
+  --destructive-foreground: var(--paper);
 
-  /* Success - Fresh lime green */
-  --success: oklch(0.65 0.20 145);
-  --success-foreground: oklch(0.98 0 0);
+  /* Success — lime charte (texte encre pour le contraste WCAG) */
+  --success: var(--lime);
+  --success-foreground: var(--ink);
 
-  /* Warning - Warm amber */
-  --warning: oklch(0.78 0.16 75);
-  --warning-foreground: oklch(0.25 0.05 75);
+  /* Warning — or charte */
+  --warning: var(--gold);
+  --warning-foreground: var(--ink);
 
-  /* Info - Sky blue */
-  --info: oklch(0.62 0.16 240);
-  --info-foreground: oklch(0.98 0 0);
+  /* Info — teal charte */
+  --info: var(--teal);
+  --info-foreground: var(--paper);
 
-  /* Border and input - Soft with hint of lavender */
-  --border: oklch(0.88 0.02 290);
-  --input: oklch(0.88 0.02 290);
+  /* Border and input — ligne douce (les bordures dures 2px ink sont posées
+     explicitement par les primitives, cf. F3) */
+  --border: var(--line);
+  --input: var(--line);
 
-  /* Ring - Focus states (lavender) */
-  --ring: oklch(0.60 0.18 290);
+  /* Ring — focus rose (charte) */
+  --ring: var(--pink);
 
   /* --------------------------------------------------------------------------
      SURFACE-AWARE FOCUS RING (TICKET-018)
@@ -311,22 +343,22 @@
      -------------------------------------------------------------------------- */
   --focus-ring-color: var(--ring);
 
-  /* Charts - Gen-Z vibrant palette */
-  --chart-1: oklch(0.60 0.18 290); /* Lavender */
-  --chart-2: oklch(0.68 0.18 25);  /* Coral */
-  --chart-3: oklch(0.72 0.16 130); /* Lime */
-  --chart-4: oklch(0.62 0.16 240); /* Sky */
-  --chart-5: oklch(0.78 0.16 75);  /* Yellow */
+  /* Charts — accents charte (rose/teal/or/lime/corail) */
+  --chart-1: var(--pink);
+  --chart-2: var(--teal);
+  --chart-3: var(--gold);
+  --chart-4: var(--lime);
+  --chart-5: var(--coral);
 
-  /* Sidebar - Light lavender tint */
-  --sidebar: oklch(0.96 0.02 290);
-  --sidebar-foreground: oklch(0.20 0.02 280);
-  --sidebar-primary: oklch(0.60 0.18 290);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.92 0.03 290);
-  --sidebar-accent-foreground: oklch(0.30 0.05 290);
-  --sidebar-border: oklch(0.88 0.02 290);
-  --sidebar-ring: oklch(0.60 0.18 290);
+  /* Sidebar — paper */
+  --sidebar: var(--paper-2);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: color-mix(in oklch, var(--pink) 12%, var(--paper));
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--pink);
 
   /* --------------------------------------------------------------------------
      ON-BRIGHT TEXT TOKEN
@@ -336,148 +368,117 @@
      themes), so the text on top must stay dark in both modes for readability.
      This is theme-invariant by design — do NOT override in .dark.
      -------------------------------------------------------------------------- */
-  --color-on-bright: oklch(0.20 0.02 280); /* near-black, matches foreground hue */
+  --color-on-bright: var(--ink); /* texte sur surfaces vives (charte) */
 
   /* --------------------------------------------------------------------------
-     GEN-Z NEON PILLARS — Light mode fallback
-     --------------------------------------------------------------------------
-     The dark theme defines saturated neons (`.dark { --neon-* }`). Without a
-     light-mode counterpart, any page that uses `var(--neon-party)` etc. while
-     the user is on the light theme would resolve to "unset" and break neon
-     borders / shadows. We mirror the same hues here but with slightly higher
-     L (to read on warm off-white) and lower chroma (to avoid harsh blowouts
-     in daylight). Same hue families = consistent brand identity, only the
-     intensity drops.
+     NEON PILLARS — repointés sur la charte (décoratif only, dépréciés F4/F5).
+     Conservés définis pour ne pas casser les classes/composants qui les
+     référencent encore ; pointent désormais vers les accents paper.
      -------------------------------------------------------------------------- */
-  --neon-party: oklch(0.62 0.22 300);    /* Violet/Magenta */
-  --neon-vitality: oklch(0.70 0.20 130); /* Lime */
-  --neon-intellect: oklch(0.65 0.18 230); /* Cyan */
-  --neon-creativity: oklch(0.68 0.20 30); /* Coral */
-  --neon-prestige: oklch(0.75 0.16 75);  /* Gold */
+  --neon-party: var(--pink);
+  --neon-vitality: var(--lime);
+  --neon-intellect: var(--teal);
+  --neon-creativity: var(--coral);
+  --neon-prestige: var(--gold);
 }
 
 /* ============================================================================
    3. DARK MODE THEME - Gen-Z Deep Navy/Charcoal
    ============================================================================ */
 .dark {
-  /* Gen-Z Muted Neon - Brighter for dark mode */
-  --gen-z-lavender: oklch(0.78 0.14 290);
-  --gen-z-lime: oklch(0.85 0.20 130);
-  --gen-z-coral: oklch(0.75 0.16 25);
-  --gen-z-peach: oklch(0.82 0.12 55);
-  --gen-z-mint: oklch(0.82 0.14 165);
-  --gen-z-grape: oklch(0.65 0.22 300);
-  --gen-z-sky: oklch(0.80 0.14 230);
-  --gen-z-rose: oklch(0.78 0.16 350);
-  --gen-z-yellow: oklch(0.90 0.18 95);
-  --gen-z-teal: oklch(0.75 0.16 180);
+  /* ── Mode sombre : palette « night » de la charte ──
+     Les tokens littéraux (--paper/--ink/--pink/--lime/...) sont hérités de
+     :root ; on ne redéfinit ici que les rôles sémantiques. */
+  --background: var(--night);            /* #0e0c1a */
+  --foreground: var(--paper);
 
-  /* Semantic soft aliases — dark-mode mirror (see light theme above). */
-  --brand-soft: color-mix(in oklch, var(--primary) 18%, var(--background));
-  --accent-soft: color-mix(in oklch, var(--accent) 18%, var(--background));
-  --success-soft: color-mix(in oklch, var(--success) 18%, var(--background));
-  --info-soft: color-mix(in oklch, var(--info) 18%, var(--background));
-  --warning-soft: color-mix(in oklch, var(--warning) 18%, var(--background));
-  --danger-soft: color-mix(in oklch, var(--destructive) 18%, var(--background));
+  --card: var(--night-2);                /* #1a1530 */
+  --card-foreground: var(--paper);
 
-  /* Base - Deep navy (NOT pure black) for Gen-Z aesthetic */
-  --background: oklch(0.12 0.025 280);
-  --foreground: oklch(0.96 0.01 280);
+  --popover: var(--night-2);
+  --popover-foreground: var(--paper);
 
-  /* Card - Elevated with subtle purple tint */
-  --card: oklch(0.16 0.03 285);
-  --card-foreground: oklch(0.96 0.01 280);
+  /* Primary — clair sur fond sombre */
+  --primary: var(--paper);
+  --primary-foreground: var(--ink);
 
-  /* Popover */
-  --popover: oklch(0.18 0.035 285);
-  --popover-foreground: oklch(0.96 0.01 280);
+  --secondary: var(--ink-2);
+  --secondary-foreground: var(--paper);
 
-  /* Primary - Bright lavender for dark backgrounds */
-  --primary: oklch(0.72 0.18 290);
-  --primary-foreground: oklch(0.15 0.02 280);
+  --muted: var(--ink-2);
+  --muted-foreground: oklch(0.72 0.02 280);
 
-  /* Secondary - Deep purple surface */
-  --secondary: oklch(0.20 0.04 290);
-  --secondary-foreground: oklch(0.92 0.02 290);
+  --accent: color-mix(in oklch, var(--pink) 26%, var(--night));
+  --accent-foreground: var(--paper);
 
-  /* Muted - Soft purple-gray */
-  --muted: oklch(0.25 0.03 285);
-  --muted-foreground: oklch(0.65 0.02 280);
-
-  /* Accent - Vibrant coral for dark mode */
-  --accent: oklch(0.75 0.20 25);
-  --accent-foreground: oklch(0.12 0.02 25);
-
-  /* Destructive */
   --destructive: oklch(0.65 0.26 25);
-  --destructive-foreground: oklch(0.98 0 0);
+  --destructive-foreground: var(--paper);
 
-  /* Success - Bright lime */
-  --success: oklch(0.72 0.22 145);
-  --success-foreground: oklch(0.15 0.05 145);
+  --success: var(--lime);
+  --success-foreground: var(--ink);
 
-  /* Warning - Vibrant amber */
-  --warning: oklch(0.82 0.18 75);
-  --warning-foreground: oklch(0.20 0.05 75);
+  --warning: var(--gold);
+  --warning-foreground: var(--ink);
 
-  /* Info - Bright sky blue */
-  --info: oklch(0.72 0.18 240);
-  --info-foreground: oklch(0.15 0.05 240);
+  --info: oklch(0.68 0.11 195);
+  --info-foreground: var(--ink);
 
-  /* Border and input - Subtle purple */
-  --border: oklch(0.28 0.04 290);
-  --input: oklch(0.28 0.04 290);
+  --border: oklch(0.31 0.03 290);
+  --input: oklch(0.31 0.03 290);
 
-  /* Ring */
-  --ring: oklch(0.72 0.18 290);
-
-  /* Surface-aware focus ring (TICKET-018) — dark mode default */
+  --ring: var(--pink);
   --focus-ring-color: var(--ring);
 
-  /* Charts - Vibrant Gen-Z palette for dark mode */
-  --chart-1: oklch(0.72 0.18 290); /* Lavender */
-  --chart-2: oklch(0.75 0.20 25);  /* Coral */
-  --chart-3: oklch(0.80 0.20 130); /* Lime */
-  --chart-4: oklch(0.72 0.18 240); /* Sky */
-  --chart-5: oklch(0.82 0.18 75);  /* Yellow */
+  /* Soft companions — dark (mix sur night) */
+  --brand-soft: color-mix(in oklch, var(--pink) 26%, var(--night));
+  --accent-soft: color-mix(in oklch, var(--pink) 26%, var(--night));
+  --success-soft: color-mix(in oklch, var(--lime) 26%, var(--night));
+  --info-soft: color-mix(in oklch, var(--teal) 26%, var(--night));
+  --warning-soft: color-mix(in oklch, var(--gold) 26%, var(--night));
+  --danger-soft: color-mix(in oklch, var(--destructive) 26%, var(--night));
 
-  /* Sidebar - Deep purple */
-  --sidebar: oklch(0.14 0.03 285);
-  --sidebar-foreground: oklch(0.96 0.01 280);
-  --sidebar-primary: oklch(0.72 0.18 290);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.20 0.04 290);
-  --sidebar-accent-foreground: oklch(0.92 0.02 290);
-  --sidebar-border: oklch(0.28 0.04 290);
-  --sidebar-ring: oklch(0.72 0.18 290);
+  /* Charts */
+  --chart-1: var(--pink);
+  --chart-2: var(--teal);
+  --chart-3: var(--gold);
+  --chart-4: var(--lime);
+  --chart-5: var(--coral);
 
-  /* Dark mode shadows - Colored glow effect */
-  --shadow-xs: 0 1px 3px 0 oklch(0.72 0.18 290 / 0.1);
-  --shadow-sm: 0 2px 6px 0 oklch(0.72 0.18 290 / 0.15);
-  --shadow-md: 0 4px 12px -2px oklch(0.72 0.18 290 / 0.2);
-  --shadow-lg: 0 8px 24px -4px oklch(0.72 0.18 290 / 0.25);
-  --shadow-xl: 0 16px 40px -8px oklch(0.72 0.18 290 / 0.3);
-  --shadow-2xl: 0 24px 60px -12px oklch(0.72 0.18 290 / 0.35);
+  /* Sidebar — night */
+  --sidebar: var(--night-2);
+  --sidebar-foreground: var(--paper);
+  --sidebar-primary: var(--paper);
+  --sidebar-primary-foreground: var(--ink);
+  --sidebar-accent: color-mix(in oklch, var(--pink) 26%, var(--night));
+  --sidebar-accent-foreground: var(--paper);
+  --sidebar-border: oklch(0.31 0.03 290);
+  --sidebar-ring: var(--pink);
 
-  /* --------------------------------------------------------------------------
-     GEN-Z NEON PILLARS (Life RPG) - More vibrant
-     -------------------------------------------------------------------------- */
-  --neon-party: oklch(0.72 0.28 300);    /* Bright Violet/Magenta */
-  --neon-vitality: oklch(0.80 0.24 130); /* Bright Lime */
-  --neon-intellect: oklch(0.75 0.22 230); /* Bright Cyan */
-  --neon-creativity: oklch(0.75 0.24 30); /* Bright Coral */
-  --neon-prestige: oklch(0.85 0.20 75);  /* Bright Gold */
+  /* Ombres sticker — dark (ombre noire pour rester lisibles) */
+  --shadow-stkr: 6px 6px 0 oklch(0 0 0 / 0.5);
+  --shadow-stkr-sm: 3px 3px 0 oklch(0 0 0 / 0.5);
+  --shadow-stkr-md: 4px 4px 0 oklch(0 0 0 / 0.5);
+  --shadow-stkr-lg: 5px 5px 0 oklch(0 0 0 / 0.5);
+  --shadow-stkr-pink: 4px 4px 0 var(--pink);
+
+  --shadow-xs: 0 1px 3px 0 oklch(0 0 0 / 0.4);
+  --shadow-sm: 0 2px 6px 0 oklch(0 0 0 / 0.45);
+  --shadow-md: 0 4px 12px -2px oklch(0 0 0 / 0.5);
+  --shadow-lg: 0 8px 24px -4px oklch(0 0 0 / 0.5);
+  --shadow-xl: 0 16px 40px -8px oklch(0 0 0 / 0.55);
+  --shadow-2xl: 0 24px 60px -12px oklch(0 0 0 / 0.6);
+
+  /* gen-z + neon : hérités de :root (déjà repointés charte) */
 }
 
 /* ============================================================================
    4. TAILWIND THEME MAPPING
    ============================================================================ */
 @theme inline {
-  /* Typography - Silicon Valley Premium Grade */
-  /* Geist: Clean, Modern, Highly Legible (by Vercel) */
-  --font-sans: var(--font-geist), "Geist", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: var(--font-geist), "Geist", system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+  /* Typography — charte refonte V1.5 (Bricolage display / Inter body / JetBrains mono) */
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Semantic Colors */
   --color-background: var(--background);
@@ -559,6 +560,31 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger-soft: var(--danger-soft);
 
+  /* ── Palette charte paper exposée en utilitaires (bg-pink, text-ink, border-line, …) ── */
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-mute: var(--mute);
+  --color-line: var(--line);
+  --color-pink: var(--pink);
+  --color-pink-soft: var(--pink-soft);
+  --color-teal: var(--teal);
+  --color-gold: var(--gold);
+  --color-lime: var(--lime);
+  --color-coral: var(--coral);
+  --color-night: var(--night);
+  --color-night-2: var(--night-2);
+  --color-brand: var(--brand);
+
+  /* Ombres « sticker » en utilitaires (shadow-stkr, shadow-stkr-pink, …) */
+  --shadow-stkr: var(--shadow-stkr);
+  --shadow-stkr-sm: var(--shadow-stkr-sm);
+  --shadow-stkr-md: var(--shadow-stkr-md);
+  --shadow-stkr-lg: var(--shadow-stkr-lg);
+  --shadow-stkr-pink: var(--shadow-stkr-pink);
+  --shadow-soft: var(--shadow-soft);
+
   /* On-Bright text token (theme-invariant) */
   --color-on-bright: var(--color-on-bright);
 }
@@ -588,6 +614,7 @@
 
   /* Premium Typography Hierarchy */
   h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display); /* Bricolage Grotesque (charte) */
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     text-wrap: balance;
   }
@@ -746,13 +773,14 @@
   /* --------------------------------------------------------------------------
      Interactive States
      -------------------------------------------------------------------------- */
+  /* hover-lift / hover-glow — réinterprétés en « sticker » (charte) */
   .hover-lift {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-all duration-200 ease-out;
   }
 
   .hover-lift:hover {
-    @apply -translate-y-1;
-    box-shadow: 0 20px 40px -12px var(--primary);
+    @apply -translate-x-0.5 -translate-y-0.5;
+    box-shadow: var(--shadow-stkr);
   }
 
   .hover-scale {
@@ -764,73 +792,17 @@
   }
 
   .hover-glow {
-    @apply transition-shadow duration-300 ease-out;
+    @apply transition-shadow duration-200 ease-out;
   }
 
   .hover-glow:hover {
-    box-shadow: 0 0 40px -10px var(--primary);
+    box-shadow: var(--shadow-stkr-pink);
   }
 
-  /* --------------------------------------------------------------------------
-     Glass Effects
-     -------------------------------------------------------------------------- */
-  .glass {
-    @apply bg-background/80 backdrop-blur-md border border-border/50;
-  }
-
-  .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-xl;
-  }
-
-  .glass-card-hover {
-    @apply transition-all duration-300 hover:bg-card/70 hover:border-white/20 hover:scale-[1.02] hover:shadow-2xl;
-  }
-
-  .glass-panel {
-    @apply bg-background/70 backdrop-blur-2xl border border-white/5;
-  }
-
-  /* --------------------------------------------------------------------------
-     Neon Effects
-     -------------------------------------------------------------------------- */
-  .neon-border-party {
-    box-shadow: 0 0 15px -5px var(--neon-party), inset 0 0 10px -5px var(--neon-party);
-    @apply border-purple-500/50;
-  }
-  
-  .neon-text-party {
-    text-shadow: 0 0 10px var(--neon-party);
-    @apply text-purple-400;
-  }
-
-  .neon-border-vitality {
-    box-shadow: 0 0 15px -5px var(--neon-vitality), inset 0 0 10px -5px var(--neon-vitality);
-    @apply border-green-500/50;
-  }
-
-  .neon-text-vitality {
-    text-shadow: 0 0 10px var(--neon-vitality);
-    @apply text-green-400;
-  }
-
-  .neon-border-intellect {
-    box-shadow: 0 0 15px -5px var(--neon-intellect), inset 0 0 10px -5px var(--neon-intellect);
-    @apply border-cyan-500/50;
-  }
-
-  .neon-text-intellect {
-    text-shadow: 0 0 10px var(--neon-intellect);
-    @apply text-cyan-400;
-  }
-
-  .neon-border-prestige {
-    box-shadow: 0 0 15px -5px var(--neon-prestige), inset 0 0 10px -5px var(--neon-prestige);
-    @apply border-yellow-500/50;
-  }
-
-  .neon-text-prestige {
-    text-shadow: 0 0 10px var(--neon-prestige);
-    @apply text-yellow-400;
+  /* Eyebrow — label mono uppercase (signature charte §3) */
+  .eyebrow {
+    font-family: var(--font-mono);
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-mute;
   }
 
   /* --------------------------------------------------------------------------
@@ -949,6 +921,21 @@
   .top-safe {
     top: env(safe-area-inset-top, 0px);
   }
+}
+
+/* --------------------------------------------------------------------------
+   Mobile dock clearance — single source (V5 #222).
+   The ~6rem md:hidden bottom dock requires fixed/sticky surfaces to clear
+   it. These utilities centralize the previously copy-pasted
+   calc(6rem + env(safe-area-inset-bottom)) literal. Tailwind v4 @utility
+   must live at top level (not inside @layer).
+   -------------------------------------------------------------------------- */
+@utility pb-dock {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+}
+
+@utility bottom-dock {
+  bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* ============================================================================
@@ -1081,6 +1068,17 @@
     }
   }
 
+  /* Marquee — barre ink défilante (charte §3, <Marquee> F8). Boucle sans
+     couture : la piste contient la liste deux fois, translate 0 → -50%. */
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
   /* TICKET-004 — Field error shake (reduced-motion neutralised by global rule) */
   @keyframes field-shake {
     0%, 100% { transform: translateX(0); }
@@ -1153,6 +1151,10 @@
 
   .animate-bounce-subtle {
     animation: bounce-subtle 2s ease-in-out infinite;
+  }
+
+  .animate-marquee {
+    animation: marquee 32s linear infinite;
   }
 
   /* TICKET-004 — Field error shake utility */
@@ -1658,28 +1660,13 @@
   /* --------------------------------------------------------------------------
      Gen-Z Text Gradients
      -------------------------------------------------------------------------- */
+  /* DÉPRÉCIÉ : plus de texte dégradé/holographique gen-z — emphase rose plein (charte) */
   .text-gen-z-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(
-      135deg,
-      var(--gen-z-lavender) 0%,
-      var(--gen-z-coral) 50%,
-      var(--gen-z-lime) 100%
-    );
+    color: var(--pink);
   }
 
   .text-gen-z-holographic {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(
-      90deg,
-      var(--gen-z-lavender),
-      var(--gen-z-coral),
-      var(--gen-z-lime),
-      var(--gen-z-sky),
-      var(--gen-z-lavender)
-    );
-    background-size: 200% 100%;
-    animation: holographic 3s ease-in-out infinite;
+    color: var(--pink);
   }
 
   /* --------------------------------------------------------------------------

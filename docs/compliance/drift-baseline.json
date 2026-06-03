@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-06-03",
+  "audit_source": "V7 #255 (drift profiles/user_profiles + empty-catch guard)",
+  "total_violations": 13,
+  "files_in_scope": 1597,
+  "violations_by_rule": {
+    "DRIFT-002": 13
+  },
+  "violations_by_file_rule": {
+    "app/admin/utilisateurs/page.tsx": {
+      "DRIFT-002": 2
+    },
+    "app/api/check-in/entry/route.ts": {
+      "DRIFT-002": 1
+    },
+    "app/api/check-in/exit/route.ts": {
+      "DRIFT-002": 1
+    },
+    "app/api/circles/route.ts": {
+      "DRIFT-002": 1
+    },
+    "app/api/parent/export-pdf/route.ts": {
+      "DRIFT-002": 2
+    },
+    "app/api/parent/live/route.ts": {
+      "DRIFT-002": 1
+    },
+    "app/api/parent/teens/search/route.ts": {
+      "DRIFT-002": 2
+    },
+    "lib/hooks/teen-dashboard.ts": {
+      "DRIFT-002": 1
+    },
+    "lib/payments/psp-webhook.ts": {
+      "DRIFT-002": 1
+    },
+    "lib/server/teen-identities.ts": {
+      "DRIFT-002": 1
+    }
+  }
+}

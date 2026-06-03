@@ -1,5 +1,10 @@
 # Search & Discovery — Vision
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 ## 1. Problem
 
 Nivy is a multi-surface platform: events (parties, sports, culture), partner offers (VIP card discounts), clubs (sport, art, music, tech), quizzes (subject/grade), academic help (subjects/tutors), birthday venues, friends, and crews. Teens and parents must locate the *right* item across a growing catalog spanning multiple Moroccan cities (Casablanca first, then Rabat/Marrakech). Without robust discovery, the catalog becomes an inert list and engagement collapses to "what's on the home dashboard." The discovery problem is heterogeneous — events filter on city/date/age/price, offers on partner/discount/proximity, friends on username/code/QR, quizzes on subject/grade, tutors on subject/availability — but a unified mental model ("I want X near me, soon, that I can afford") must thread through all of them.

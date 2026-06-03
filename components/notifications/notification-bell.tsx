@@ -52,7 +52,20 @@ export function NotificationBell({ userId }: NotificationBellProps) {
       const response = await fetch(`/api/notifications?userId=${userId}`)
       const result = await response.json()
       if (result.success) {
-        setNotifications(result.data || [])
+        // #70 — map the canonical user_notifications shape (is_read/body/data)
+        // onto the bell's view model.
+        const rows = (result.data || []) as Array<Record<string, unknown>>
+        setNotifications(
+          rows.map((row) => ({
+            id: String(row.id),
+            type: ((row.data as { type?: string } | null)?.type as Notification["type"]) || "system",
+            title: String(row.title ?? ""),
+            message: String(row.body ?? ""),
+            read: !!row.is_read,
+            created_at: String(row.created_at ?? ""),
+            link: (row.action_url as string | null) ?? undefined,
+          }))
+        )
       }
     } catch (error) {
       console.error("Failed to fetch notifications:", error)
@@ -102,15 +115,15 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   const getIcon = (type: string) => {
     switch (type) {
       case "booking":
-        return <Calendar className="h-4 w-4 text-emerald-400" />
+        return <Calendar className="h-4 w-4 text-lime" />
       case "reward":
-        return <Gift className="h-4 w-4 text-purple-400" />
+        return <Gift className="h-4 w-4 text-pink" />
       case "friend":
-        return <Users className="h-4 w-4 text-blue-400" />
+        return <Users className="h-4 w-4 text-teal" />
       case "alert":
-        return <AlertTriangle className="h-4 w-4 text-orange-400" />
+        return <AlertTriangle className="h-4 w-4 text-coral" />
       default:
-        return <Bell className="h-4 w-4 text-zinc-400" />
+        return <Bell className="h-4 w-4 text-mute" />
     }
   }
 
@@ -140,13 +153,13 @@ export function NotificationBell({ userId }: NotificationBellProps) {
               ? `Notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
               : "Notifications"
           }
-          className="relative text-zinc-400 hover:text-white hover:bg-zinc-800"
+          className="relative text-mute hover:text-ink hover:bg-card"
         >
           <Bell className="h-5 w-5" aria-hidden="true" />
           {unreadCount > 0 && (
             <span
               aria-hidden="true"
-              className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center"
+              className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-ink text-xs font-bold flex items-center justify-center"
             >
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
@@ -154,17 +167,17 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-80 p-0 bg-zinc-900 border-zinc-800"
+        className="w-80 p-0 bg-card border-ink"
         align="end"
       >
-        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-          <h3 className="font-bold text-white">Notifications</h3>
+        <div className="flex items-center justify-between p-4 border-b border-ink">
+          <h3 className="font-bold text-ink">Notifications</h3>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
               size="sm"
               onClick={markAllAsRead}
-              className="text-xs text-emerald-400 hover:text-emerald-300 h-auto py-1 px-2"
+              className="text-xs text-lime hover:text-lime h-auto py-1 px-2"
             >
               Tout marquer lu
             </Button>
@@ -174,34 +187,34 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         <div className="max-h-96 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+              <Loader2 className="h-6 w-6 animate-spin text-mute" />
             </div>
           ) : notifications.length > 0 ? (
             notifications.map((notification) => (
               <div
                 key={notification.id}
                 onClick={() => markAsRead(notification.id)}
-                className={`p-4 border-b border-zinc-800 cursor-pointer hover:bg-zinc-800/50 transition-colors ${
-                  !notification.read ? "bg-zinc-800/30" : ""
+                className={`p-4 border-b border-ink cursor-pointer hover:bg-card transition-colors ${
+                  !notification.read ? "bg-card" : ""
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-card flex items-center justify-center flex-shrink-0">
                     {getIcon(notification.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-white truncate">
+                      <p className="text-sm font-semibold text-ink truncate">
                         {notification.title}
                       </p>
                       {!notification.read && (
-                        <span className="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                        <span className="h-2 w-2 rounded-full bg-lime flex-shrink-0" />
                       )}
                     </div>
-                    <p className="text-xs text-zinc-400 mt-1 line-clamp-2">
+                    <p className="text-xs text-mute mt-1 line-clamp-2">
                       {notification.message}
                     </p>
-                    <p className="text-xs text-zinc-500 mt-1">
+                    <p className="text-xs text-mute mt-1">
                       {formatTime(notification.created_at)}
                     </p>
                   </div>
@@ -210,17 +223,17 @@ export function NotificationBell({ userId }: NotificationBellProps) {
             ))
           ) : (
             <div className="py-8 text-center">
-              <Bell className="h-12 w-12 mx-auto mb-3 text-zinc-700" />
-              <p className="text-zinc-500 text-sm">Aucune notification</p>
+              <Bell className="h-12 w-12 mx-auto mb-3 text-ink" />
+              <p className="text-mute text-sm">Aucune notification</p>
             </div>
           )}
         </div>
 
         {notifications.length > 0 && (
-          <div className="p-3 border-t border-zinc-800">
+          <div className="p-3 border-t border-ink">
             <Button
               variant="ghost"
-              className="w-full text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+              className="w-full text-lime hover:text-lime hover:bg-lime/10"
               onClick={() => setOpen(false)}
             >
               Voir tout

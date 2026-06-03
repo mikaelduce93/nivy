@@ -7,19 +7,19 @@ import { createClient } from "@/lib/supabase/server"
 // Subject display metadata — deterministic, no DB dependency.
 // Color and icon assignments are config-only.
 const SUBJECT_META: Record<string, { color: string; icon: string }> = {
-  math:        { color: "from-blue-500 to-cyan-500",       icon: "📐" },
-  french:      { color: "from-purple-500 to-pink-500",     icon: "📖" },
-  arabic:      { color: "from-green-600 to-emerald-600",   icon: "ع" },
-  english:     { color: "from-red-500 to-rose-500",        icon: "🇬🇧" },
-  physics:     { color: "from-green-500 to-emerald-500",   icon: "⚗️" },
-  svt:         { color: "from-teal-500 to-cyan-500",       icon: "🌿" },
-  history:     { color: "from-amber-500 to-orange-500",    icon: "🗺️" },
-  philosophy:  { color: "from-violet-500 to-purple-500",   icon: "💭" },
-  islamic:     { color: "from-emerald-600 to-green-700",   icon: "🕌" },
-  sport:       { color: "from-orange-500 to-red-500",      icon: "🏃" },
-  art:         { color: "from-pink-500 to-fuchsia-500",    icon: "🎨" },
-  music:       { color: "from-yellow-500 to-amber-500",    icon: "🎵" },
-  informatique:{ color: "from-sky-500 to-blue-500",        icon: "💻" },
+  math:        { color: "from-teal to-teal",       icon: "📐" },
+  french:      { color: "from-pink to-pink",     icon: "📖" },
+  arabic:      { color: "from-lime to-lime",   icon: "ع" },
+  english:     { color: "from-destructive to-pink",        icon: "🇬🇧" },
+  physics:     { color: "from-lime to-lime",   icon: "⚗️" },
+  svt:         { color: "from-teal to-teal",       icon: "🌿" },
+  history:     { color: "from-gold to-coral",    icon: "🗺️" },
+  philosophy:  { color: "from-pink to-pink",   icon: "💭" },
+  islamic:     { color: "from-lime to-lime",   icon: "🕌" },
+  sport:       { color: "from-coral to-destructive",      icon: "🏃" },
+  art:         { color: "from-pink to-pink",    icon: "🎨" },
+  music:       { color: "from-gold to-gold",    icon: "🎵" },
+  informatique:{ color: "from-teal to-teal",        icon: "💻" },
 }
 
 export default async function AideScolairePage() {
@@ -98,7 +98,7 @@ export default async function AideScolairePage() {
   // Build subject cards from real grade data
   const subjects = gradeStats.bySubject.map((s) => {
     const meta = SUBJECT_META[s.subject] ?? {
-      color: "from-zinc-600 to-zinc-500",
+      color: "from-paper-2 to-card",
       icon: "📚",
     }
     return {
@@ -130,15 +130,15 @@ export default async function AideScolairePage() {
 function AideScolaireSkeleton() {
   return (
     <div className="space-y-8 pt-6 animate-pulse">
-      <div className="h-14 bg-zinc-800/50 rounded-2xl w-64" />
-      <div className="grid grid-cols-3 gap-4">
+      <div className="h-14 bg-card rounded-2xl w-64" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-24 bg-zinc-800/30 rounded-2xl" />
+          <div key={i} className="h-24 bg-card rounded-2xl" />
         ))}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-48 bg-zinc-800/30 rounded-3xl" />
+          <div key={i} className="h-48 bg-card rounded-2xl" />
         ))}
       </div>
     </div>

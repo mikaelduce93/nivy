@@ -1,0 +1,209 @@
+########## idx=0 | app/teen/vip-card/vip-card-client.tsx | medium
+---CUR---
+<h2 className="mt-1 font-display text-5xl font-extrabold uppercase text-gold">{currentTier.name}</h2>
+---NEW---
+<h2 className="mt-1 break-words font-display text-3xl font-extrabold uppercase text-gold sm:text-5xl">{currentTier.name}</h2>
+
+########## idx=1 | components/circles/circle-chat.tsx | medium
+---CUR---
+<div className="h-full flex flex-col bg-background">
+---NEW---
+<div className="h-[calc(100dvh-4rem-2rem)] md:h-full flex flex-col bg-background">
+
+########## idx=2 | app/teen/food/[partner_id]/menu-cart-client.tsx | medium
+---CUR---
+className="grid h-9 w-9 place-items-center rounded-xl border-2 border-ink bg-pink text-base font-bold text-ink transition-colors hover:bg-pink/80 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+---NEW---
+className="grid h-11 w-11 place-items-center rounded-xl border-2 border-ink bg-pink text-base font-bold text-ink transition-colors hover:bg-pink/80 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40"
+
+########## idx=4 | app/teen/defis-physiques/defis-physiques-client.tsx | low
+---CUR---
+flex items-center gap-1.5 font-display text-2xl font-extrabold tabular-nums text-gold
+---NEW---
+flex items-center gap-1.5 font-display text-xl sm:text-2xl font-extrabold tabular-nums text-gold
+
+########## idx=6 | app/parent/grades/page.tsx | medium
+---CUR---
+grid grid-cols-3 gap-4
+---NEW---
+grid grid-cols-1 gap-3 sm:grid-cols-3
+
+########## idx=7 | app/parent/grades/page.tsx | low
+---CUR---
+          <div className="flex gap-2">
+            {(["pending", "approved", "rejected", "all"] as const).map((f) => (
+---NEW---
+          <div className="flex flex-wrap gap-2">
+            {(["pending", "approved", "rejected", "all"] as const).map((f) => (
+
+########## idx=8 | app/parent/page.tsx | medium
+---CUR---
+className="mt-2 font-display text-5xl font-extrabold leading-[1.02] tracking-tight md:text-6xl"
+---NEW---
+className="mt-2 font-display text-3xl font-extrabold leading-[1.05] tracking-tight sm:text-4xl md:text-6xl"
+
+########## idx=9 | components/parent/dashboard/financial-overview.tsx | low
+---CUR---
+<p className="font-display text-5xl font-extrabold leading-none tabular-nums">
+          {monthlySpending.toLocaleString("fr-FR")} <span className="font-mono text-xl font-medium text-mute">{currency}</span>
+---NEW---
+<p className="font-display text-4xl font-extrabold leading-none tabular-nums sm:text-5xl">
+          {monthlySpending.toLocaleString("fr-FR")} <span className="font-mono text-lg font-medium text-mute sm:text-xl">{currency}</span>
+
+########## idx=10 | app/parent/history/page.tsx | low
+---CUR---
+<div className="flex items-center justify-between gap-4">
+---NEW---
+<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+
+########## idx=11 | components/partners/RetailPartnerForm.tsx | medium
+---CUR---
+      {/* Progress Steps */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          {STEPS.map((step, index) => (
+            <div key={step.id} className="flex items-center flex-1">
+              <div className="flex flex-col items-center flex-1">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
+                  currentStep >= step.id
+                    ? 'bg-teal border-teal text-ink'
+                    : 'bg-card border-ink text-mute'
+                }`}>
+                  <step.icon className="w-6 h-6" />
+                </div>
+                <span className={`text-xs mt-2 text-center ${
+                  currentStep >= step.id ? 'text-teal' : 'text-mute'
+                }`}>
+                  {step.title}
+                </span>
+              </div>
+---NEW---
+      {/* Progress Steps */}
+      <div className="mb-8">
+        <p className="sm:hidden text-center text-sm font-bold mb-3">
+          Étape {currentStep}/{STEPS.length} — {STEPS[currentStep - 1].title}
+        </p>
+        <div className="flex items-center justify-between">
+          {STEPS.map((step, index) => (
+            <div key={step.id} className="flex items-center flex-1">
+              <div className="flex flex-col items-center flex-1">
+                <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-all ${
+                  currentStep >= step.id
+                    ? 'bg-teal border-teal text-ink'
+                    : 'bg-card border-ink text-mute'
+                }`}>
+                  <step.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <span className={`hidden sm:block text-xs mt-2 text-center ${
+                  currentStep >= step.id ? 'text-teal' : 'text-mute'
+                }`}>
+                  {step.title}
+                </span>
+              </div>
+
+########## idx=12 | components/partners/VenuePartnerForm.tsx | medium
+---CUR---
+                <span className={`text-xs mt-2 text-center ${
+                  currentStep >= step.id ? 'text-pink' : 'text-mute'
+                }`}>
+                  {step.title}
+                </span>
+---NEW---
+                <span className={`hidden sm:block text-xs mt-2 text-center ${
+                  currentStep >= step.id ? 'text-pink' : 'text-mute'
+                }`}>
+                  {step.title}
+                </span>
+
+########## idx=13 | components/partner/dashboard/feeds.tsx | low
+---CUR---
+              <div
+                key={tx.id}
+                className="flex items-center justify-between p-6 rounded-[2rem] bg-white/[0.03] border border-ink hover:border-info-soft/30 transition-all duration-500"
+              >
+---NEW---
+              <div
+                key={tx.id}
+                className="flex items-center justify-between gap-3 p-4 sm:p-6 rounded-[2rem] bg-white/[0.03] border border-ink hover:border-info-soft/30 transition-all duration-500"
+              >
+
+########## idx=14 | app/partner/events/page.tsx | medium
+---CUR---
+<div className="flex items-start justify-between gap-4">
+---NEW---
+<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+
+########## idx=15 | app/devenir-partenaire/page.tsx | low
+---CUR---
+<h1 className="text-5xl md:text-7xl font-black text-ink mb-6">
+---NEW---
+<h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-ink mb-6">
+
+########## idx=16 | app/devenir-ambassadeur/page.tsx | low
+---CUR---
+text-5xl md:text-7xl font-black text-ink mb-6
+---NEW---
+text-4xl sm:text-5xl md:text-7xl font-black text-ink mb-6
+
+########## idx=17 | app/devenir-ambassadeur/programme/page.tsx | low
+---CUR---
+className="relative text-5xl md:text-7xl font-black text-ink"
+---NEW---
+className="relative text-3xl sm:text-5xl md:text-7xl font-black text-ink"
+
+########## idx=19 | app/ambassador/page.tsx | low
+---CUR---
+container mx-auto px-6 py-32
+---NEW---
+container mx-auto px-6 py-20 md:py-32
+
+########## idx=21 | app/ambassador/marketing/page.tsx | low
+---CUR---
+className="min-h-screen bg-paper"
+---NEW---
+className="bg-paper"
+
+########## idx=23 | components/dashboard/mentor/sidebar.tsx | medium
+---CUR---
+    <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:pt-20 bg-card border-r border-ink">
+---NEW---
+    <aside className="fixed inset-x-0 bottom-0 z-40 flex flex-row justify-around border-t border-ink bg-card pb-[env(safe-area-inset-bottom)] md:inset-x-auto md:bottom-auto md:inset-y-0 md:z-auto md:w-64 md:flex-col md:justify-start md:border-r md:border-t-0 md:pt-20 md:pb-0">
+
+########## idx=24 | app/admin/permissions/page.tsx | low
+---CUR---
+      <div className="container mx-auto px-6 py-32">
+---NEW---
+      <div className="container mx-auto px-6 py-12 md:py-32">
+
+########## idx=25 | app/devenir-ambassadeur/page.tsx | low
+---CUR---
+text-5xl md:text-7xl font-black text-ink mb-6
+---NEW---
+text-4xl sm:text-5xl md:text-7xl font-black text-ink mb-6
+
+########## idx=26 | app/devenir-partenaire/page.tsx | medium
+---CUR---
+className="text-5xl md:text-7xl font-black text-ink mb-6"
+---NEW---
+className="text-4xl sm:text-5xl md:text-7xl font-black text-ink mb-6"
+
+########## idx=27 | app/devenir-ambassadeur/programme/page.tsx | low
+---CUR---
+relative text-5xl md:text-7xl font-black text-ink
+---NEW---
+relative text-4xl sm:text-5xl md:text-7xl font-black text-ink
+
+########## idx=28 | app/page.tsx | low
+---CUR---
+<div className="flex justify-center">
+---NEW---
+<div className="flex justify-center overflow-hidden">
+
+########## idx=29 | app/page.tsx | low
+---CUR---
+<p className="mt-2 font-display text-[54px] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
+                  2 480 <span className="ml-1 text-lg font-medium text-paper/60">niv. 7</span>
+---NEW---
+<p className="mt-2 font-display text-[clamp(2.25rem,9vw,54px)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">
+                  2 480 <span className="ml-1 text-lg font-medium text-paper/60">niv. 7</span>
+

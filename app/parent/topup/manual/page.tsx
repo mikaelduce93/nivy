@@ -12,7 +12,17 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
+import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { NivCoach, NivEmpty } from "@/components/brand"
 import { ManualTopupForm } from "./manual-topup-form"
+
+const STEPS = [
+  "Effectue le virement DH au compte Nivy via ton opérateur.",
+  "Garde la référence de transaction (un numéro de 8 à 12 chiffres sur le reçu).",
+  "Soumets le formulaire ci-dessous.",
+  "L'admin Nivy vérifie et crédite les coins du teen.",
+]
 
 export const dynamic = "force-dynamic"
 
@@ -60,89 +70,105 @@ export default async function ParentManualTopupPage() {
   ])
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-background text-ink">
       <div className="container mx-auto max-w-3xl px-6 py-12">
         <Link
           href="/parent/topup"
-          className="mb-6 inline-block text-sm text-zinc-400 hover:text-white"
+          className="mb-6 inline-block text-sm text-mute hover:text-ink"
         >
           ← Retour
         </Link>
 
-        <h1 className="mb-2 text-3xl font-black">Recharge manuelle (PSP)</h1>
-        <p className="mb-8 text-zinc-400">
-          Vous avez transféré des DH via Cash Plus, Wafacash ou M2T ? Renseignez
-          la référence de votre virement et un admin créditera les coins sous 24h.
-        </p>
+        <header className="mb-6">
+          <p className="eyebrow">Recharge manuelle</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+            Recharge via{" "}
+            <em className="font-semibold italic text-pink">opérateur</em>
+          </h1>
+          <p className="mt-2 text-mute">
+            Tu as transféré des DH via Cash Plus, Wafacash ou M2T ? Renseigne la
+            référence de ton virement et un admin crédite les coins.
+          </p>
+        </header>
 
-        <div className="mb-8 rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5 text-sm">
-          <p className="font-semibold text-cyan-300">Comment procéder</p>
-          <ol className="ml-4 mt-2 list-decimal space-y-1 text-zinc-300">
-            <li>Effectuez le virement DH au compte Nivy via votre opérateur.</li>
-            <li>
-              Conservez la référence de transaction (souvent un numéro de 8 à 12 chiffres
-              imprimé sur le reçu).
-            </li>
-            <li>Soumettez le formulaire ci-dessous.</li>
-            <li>L'admin Nivy vérifie et crédite les coins du teen.</li>
+        <NivCoach
+          className="mb-8"
+          mood="calm"
+          message="Garde ton reçu sous la main, un admin valide ta recharge sous 24h."
+        />
+
+        <StickerCard className="mb-8 gap-3 p-5">
+          <p className="eyebrow">Comment procéder</p>
+          <ol className="space-y-3">
+            {STEPS.map((step, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full border-2 border-ink bg-ink font-mono text-sm font-bold text-paper">
+                  {i + 1}
+                </span>
+                <span className="text-sm text-ink-2">{step}</span>
+              </li>
+            ))}
           </ol>
-        </div>
+        </StickerCard>
 
         {teens.length === 0 ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-8 text-center">
-            <p className="text-zinc-300">Aucun teen lié à votre compte.</p>
-            <Link
-              href="/parent/teens/add"
-              className="mt-4 inline-block rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-black"
-            >
-              Ajouter un teen
-            </Link>
-          </div>
+          <NivEmpty
+            title="Aucun teen lié"
+            description="Lie d'abord un teen à ton compte pour pouvoir le recharger."
+            action={
+              <Button asChild variant="pink">
+                <Link href="/parent/teens/add">Ajouter un teen</Link>
+              </Button>
+            }
+          />
         ) : (
           <ManualTopupForm teens={teens} />
         )}
 
         {recent.length > 0 && (
           <div className="mt-12">
-            <h2 className="mb-4 text-xl font-bold text-white">Vos demandes récentes</h2>
+            <h2 className="mb-4 font-display text-xl font-extrabold text-ink">
+              Tes demandes récentes
+            </h2>
             <div className="space-y-2">
               {recent.map((r: any) => (
-                <div
+                <StickerCard
                   key={r.id}
-                  className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/40 p-4"
+                  className="flex-row items-center justify-between gap-3 p-4"
                 >
                   <div>
-                    <p className="text-sm text-zinc-300">
-                      <span className="font-semibold text-white">
+                    <p className="text-sm text-ink-2">
+                      <span className="font-mono font-bold text-ink">
                         {Number(r.amount_dh).toFixed(2)} DH
-                      </span>
-                      {" "}via {r.provider} • réf. <code>{r.provider_ref}</code>
+                      </span>{" "}
+                      via {r.provider} • réf.{" "}
+                      <code className="font-mono text-ink">{r.provider_ref}</code>
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="font-mono text-xs text-mute">
                       {new Date(r.created_at).toLocaleString("fr-FR")}
                     </p>
                     {r.rejection_reason && (
-                      <p className="mt-1 text-xs text-rose-400">
+                      <p className="mt-1 text-xs text-pink">
                         Rejeté : {r.rejection_reason}
                       </p>
                     )}
                   </div>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    className={`shrink-0 rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.12em] ${
                       r.status === "confirmed"
-                        ? "bg-emerald-500/20 text-emerald-300"
+                        ? "bg-lime/20 text-ink"
                         : r.status === "rejected"
-                        ? "bg-rose-500/20 text-rose-300"
-                        : "bg-amber-500/20 text-amber-300"
+                        ? "bg-pink/20 text-pink"
+                        : "bg-gold/20 text-ink"
                     }`}
                   >
                     {r.status === "confirmed"
-                      ? "Crédité"
+                      ? "Crédité ✓"
                       : r.status === "rejected"
                       ? "Rejeté"
                       : "En attente"}
                   </span>
-                </div>
+                </StickerCard>
               ))}
             </div>
           </div>

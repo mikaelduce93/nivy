@@ -86,7 +86,7 @@ export function ApprovalButtons({
         <Button
           size={compact ? "icon" : "sm"}
           variant="outline"
-          className={`${compact ? "h-8 w-8" : "h-8"} border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50`}
+          className={compact ? "h-8 w-8" : "h-8"}
           onClick={() => openConfirmModal("reject")}
           disabled={loading !== null}
           title="Refuser"
@@ -104,7 +104,8 @@ export function ApprovalButtons({
         </Button>
         <Button
           size={compact ? "icon" : "sm"}
-          className={`${compact ? "h-8 w-8" : "h-8"} bg-emerald-500 hover:bg-emerald-600 text-white`}
+          variant="lime"
+          className={`${compact ? "h-8 w-8" : "h-8"} hover:shadow-stkr-pink`}
           onClick={() => openConfirmModal("approve")}
           disabled={loading !== null}
           title="Approuver"
@@ -124,56 +125,56 @@ export function ApprovalButtons({
 
       {/* Confirmation Modal */}
       <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+        <DialogContent className="bg-card border-2 border-ink text-ink">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {pendingAction === "approve" ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-emerald-400" />
+                  <CheckCircle className="h-5 w-5 text-lime" />
                   Confirmer l'approbation
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="h-5 w-5 text-red-400" />
+                  <AlertTriangle className="h-5 w-5 text-destructive" />
                   Confirmer le refus
                 </>
               )}
             </DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-mute">
               {pendingAction === "approve" ? (
                 <>
                   Êtes-vous sûr de vouloir approuver cette demande ?
-                  {teenName && <span className="block mt-1 text-zinc-300">De: {teenName}</span>}
+                  {teenName && <span className="block mt-1 text-ink-2">De: {teenName}</span>}
                 </>
               ) : (
                 <>
                   Êtes-vous sûr de vouloir refuser cette demande ?
-                  {teenName && <span className="block mt-1 text-zinc-300">De: {teenName}</span>}
+                  {teenName && <span className="block mt-1 text-ink-2">De: {teenName}</span>}
                 </>
               )}
             </DialogDescription>
           </DialogHeader>
 
           {/* Request Summary */}
-          <div className="p-4 bg-zinc-800 rounded-lg border border-zinc-700">
-            <p className="font-medium text-white">{title || "Demande d'approbation"}</p>
+          <div className="rounded-xl border-2 border-ink bg-paper p-4">
+            <p className="font-medium text-ink">{title || "Demande d'approbation"}</p>
             {amount && (
-              <p className="text-emerald-400 font-bold mt-1">{amount} DH</p>
+              <p className="mt-1 font-mono font-bold text-ink">{amount} DH</p>
             )}
           </div>
 
           {/* Rejection Reason (only for reject) */}
           {pendingAction === "reject" && (
             <div className="space-y-2">
-              <Label className="text-zinc-300">Raison du refus (optionnel)</Label>
+              <Label className="text-ink-2">Raison du refus (optionnel)</Label>
               <Textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Expliquez pourquoi vous refusez cette demande..."
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[80px]"
+                className="bg-card border-ink text-ink placeholder:text-mute min-h-[80px]"
                 maxLength={500}
               />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-mute">
                 Cette raison sera communiquée au teen
               </p>
             </div>
@@ -184,18 +185,13 @@ export function ApprovalButtons({
               variant="outline"
               onClick={() => setShowConfirmModal(false)}
               disabled={loading !== null}
-              className="border-zinc-700 text-zinc-300"
             >
               Annuler
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={loading !== null}
-              className={
-                pendingAction === "approve"
-                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                  : "bg-red-500 hover:bg-red-600 text-white"
-              }
+              variant={pendingAction === "approve" ? "lime" : "destructive"}
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />

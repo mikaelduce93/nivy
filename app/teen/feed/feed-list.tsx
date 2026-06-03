@@ -122,7 +122,7 @@ export function FeedList({
             disabled={loadingMore}
             aria-label="Charger plus de posts"
           >
-            {loadingMore ? 'Chargement…' : 'Charger plus'}
+            {loadingMore ? 'Chargement…' : 'Charger plus de posts'}
           </Button>
         </div>
       )}
@@ -253,40 +253,40 @@ function FeedListRow({
         duration: reduced ? 0 : DURATION_NORMAL,
         ease: EASE_STANDARD,
       }}
-      className="rounded-2xl border border-border bg-card/30 p-4 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md select-none"
+      className="flex flex-col rounded-2xl border-2 border-ink bg-white p-4 text-ink shadow-stkr-md transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-pink motion-reduce:translate-x-0 motion-reduce:translate-y-0 select-none"
     >
       <Link
         href={postUrl}
         className="block"
         style={{ viewTransitionName: `vt-feed-${p.id}` }}
       >
-        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
           {p.featured && (
-            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-warning-foreground">
-              ★ Featured
+            <span className="rounded-full border-2 border-ink bg-gold px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink">
+              ★ À la une
             </span>
           )}
           {p.type && (
-            <span className="rounded-full bg-muted px-2 py-0.5 capitalize text-muted-foreground">
+            <span className="rounded-full border-2 border-ink bg-paper px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink">
               {p.type}
             </span>
           )}
           {p.category && (
-            <span className="rounded-full bg-info-soft/15 px-2 py-0.5 text-info">
+            <span className="rounded-full border-2 border-ink bg-teal px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-paper">
               {p.category}
             </span>
           )}
         </div>
         {title && (
-          <h2 className="text-lg font-medium text-foreground">{title}</h2>
+          <h2 className="font-display text-lg font-extrabold tracking-tight text-ink">{title}</h2>
         )}
         {p.content && (
-          <p className="text-sm text-muted-foreground line-clamp-3">
+          <p className="text-sm text-mute line-clamp-3">
             {p.content}
           </p>
         )}
         {media && (
-          <div className="relative mt-3 aspect-video w-full overflow-hidden rounded-xl">
+          <div className="relative mt-3 aspect-video w-full overflow-hidden rounded-xl border-2 border-ink">
             <Image
               src={media}
               alt={title ?? ''}
@@ -296,13 +296,15 @@ function FeedListRow({
             />
           </div>
         )}
-        <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
-          <span aria-label={p.user_liked ? 'Aimé' : 'Likes'}>
+        <div className="mt-3 flex items-center gap-4 font-mono text-xs">
+          <span className="text-pink" aria-label={p.user_liked ? 'Aimé' : "J'aime"}>
             {p.user_liked ? '♥' : '♡'} {p.likes_count ?? 0}
           </span>
-          <span>💬 {p.comments_count ?? 0}</span>
-          <span>↗ {p.shares_count ?? 0}</span>
-          {p.user_saved && <span aria-label="Sauvegardé">🔖</span>}
+          <span className="text-teal" aria-label="Commentaires">💬 {p.comments_count ?? 0}</span>
+          <span className="text-mute" aria-label="Partages">↗ {p.shares_count ?? 0}</span>
+          {p.user_saved && (
+            <span className="text-gold" aria-label="Sauvegardé">🔖</span>
+          )}
         </div>
       </Link>
 
@@ -335,7 +337,7 @@ function FeedListRow({
               aria-disabled={reporting || p.user_reported}
               className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
             >
-              <Flag className="h-5 w-5 text-orange-500" />
+              <Flag className="h-5 w-5 text-coral" />
               <span>{p.user_reported ? 'Déjà signalé' : reporting ? 'Signalement…' : 'Signaler'}</span>
             </button>
             {!isOwnPost && (
@@ -346,7 +348,7 @@ function FeedListRow({
                 aria-disabled={blocking}
                 className="flex items-center gap-3 rounded-lg p-3 text-left hover:bg-muted disabled:opacity-50"
               >
-                <UserX className="h-5 w-5 text-red-500" />
+                <UserX className="h-5 w-5 text-destructive" />
                 <span>{blocking ? 'Blocage…' : "Bloquer l'auteur"}</span>
               </button>
             )}

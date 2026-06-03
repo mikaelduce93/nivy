@@ -1,7 +1,20 @@
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { Niv, NivCoach } from "@/components/brand"
 import { MentorProfileForm, type MentorProfile } from "./profile-form"
+
+const STATUS_FR: Record<string, string> = {
+  active: "Actif",
+  pending: "En attente",
+  suspended: "Suspendu",
+  denied: "Refusé",
+}
+const KYC_FR: Record<string, string> = {
+  approved: "Vérifié",
+  pending: "En cours",
+  rejected: "Refusé",
+}
 
 export default async function MentorProfileEditPage() {
   const userInfo = await getUserRole()
@@ -21,30 +34,43 @@ export default async function MentorProfileEditPage() {
     .maybeSingle()
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
+    <div className="min-h-screen bg-background text-ink -m-4 md:-m-8 lg:-m-10 p-4 md:p-8 lg:p-10 -mt-24 pt-24">
       <div className="max-w-3xl mx-auto space-y-8">
-        <header className="border-b border-white/5 pb-6">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tighter">Mon profil mentor</h1>
-          <p className="text-zinc-400 mt-2">
-            Bio, expertises, tarification et tranche d'âge des mentees.
-          </p>
+        <header className="flex items-start gap-4 border-b border-ink pb-6">
+          <Niv mood="happy" size={72} className="hidden shrink-0 sm:block" />
+          <div>
+            <p className="eyebrow tracking-[0.16em] text-pink">Profil mentor</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
+              Ta <em className="font-semibold italic text-pink">vitrine</em> mentor
+            </h1>
+            <p className="mt-2 text-mute">
+              Bio, expertises, tarif et tranche d&apos;âge de tes mentees.
+            </p>
+          </div>
         </header>
 
         {!data ? (
-          <div className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6 text-amber-100">
-            Aucune fiche mentor n'existe encore pour ce compte. Contactez un administrateur ou
-            lancez une candidature via <code>/api/mentor/apply</code>.
-          </div>
+          <NivCoach
+            mood="calm"
+            message="Aucune fiche mentor n'existe encore pour ce compte. Contacte le support pour lancer ta candidature."
+          />
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-3">
-              <Stat label="Statut" value={data.status || "pending"} />
-              <Stat label="KYC" value={data.kyc_status || "pending"} />
+            <div className="flex flex-wrap gap-2">
+              <Stat label="Statut" value={STATUS_FR[data.status ?? ""] ?? data.status ?? "En attente"} accent="text-gold" />
+              <Stat label="KYC" value={KYC_FR[data.kyc_status ?? ""] ?? data.kyc_status ?? "En cours"} accent="text-teal" />
               <Stat
                 label="Note"
                 value={data.rating != null ? `${Number(data.rating).toFixed(1)} / 5` : "—"}
+                accent="text-pink"
               />
             </div>
+
+            <NivCoach
+              mood="proud"
+              message="Une bio béton + une vidéo d'intro = 2x plus de bookings, akhouya. Soigne-les."
+            />
+
             <MentorProfileForm profile={data as MentorProfile} />
           </>
         )}
@@ -53,11 +79,11 @@ export default async function MentorProfileEditPage() {
   )
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, accent }: { label: string; value: string; accent: string }) {
   return (
-    <div className="rounded-2xl border border-white/5 bg-zinc-900/40 px-4 py-3">
-      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{label}</p>
-      <p className="text-sm font-black text-white mt-1 truncate">{value}</p>
+    <div className="rounded-xl border-2 border-line bg-paper-2 px-4 py-2.5">
+      <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">{label}</p>
+      <p className={`mt-0.5 font-display text-sm font-extrabold ${accent}`}>{value}</p>
     </div>
   )
 }

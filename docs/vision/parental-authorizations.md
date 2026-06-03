@@ -1,5 +1,10 @@
 # Parental Authorizations — Vision Audit
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 > Read-only audit. Working dir: `C:\Users\Shadow\Desktop\NIVY`. Supabase project: `imchornjvmgmaovhypco`. Audited 2026-05-07.
 
 Parental authorizations are the **per-action consent layer** of Nivy. They are conceptually and operationally **distinct from the one-time e-signature CGU gate** (covered in `docs/vision/parent-control.md`). The e-signature establishes the legal capacity of a parent to use the platform on behalf of a minor; authorizations are the day-to-day decisions: "yes, my teen may book this event", "yes, this 250 DH purchase is approved", "yes, my teen may meet this coach next Tuesday", "yes, my teen may join this crew at this partner location".

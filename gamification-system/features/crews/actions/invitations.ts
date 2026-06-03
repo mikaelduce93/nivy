@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 
 /**
  * Invite un utilisateur à rejoindre le crew
@@ -33,7 +34,7 @@ export async function inviteToCrew(
     })
 
     if (error) {
-      console.error("Error inviting to crew:", error)
+      logDbError("crews.inviteToCrew", error)
       return { success: false, error: error.message }
     }
 
@@ -43,7 +44,7 @@ export async function inviteToCrew(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in inviteToCrew:", error)
+    logDbError("crews.inviteToCrew", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -76,7 +77,7 @@ export async function respondToCrewInvitation(
     })
 
     if (error) {
-      console.error("Error responding to invitation:", error)
+      logDbError("crews.respondToCrewInvitation", error)
       return { success: false, error: error.message }
     }
 
@@ -88,7 +89,7 @@ export async function respondToCrewInvitation(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in respondToCrewInvitation:", error)
+    logDbError("crews.respondToCrewInvitation", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -122,7 +123,7 @@ export async function requestToJoinCrew(
     })
 
     if (error) {
-      console.error("Error requesting to join:", error)
+      logDbError("crews.requestToJoinCrew", error)
       return { success: false, error: error.message }
     }
 
@@ -134,7 +135,7 @@ export async function requestToJoinCrew(
 
     return { success: true, joined: data.joined, error: null }
   } catch (error) {
-    console.error("Error in requestToJoinCrew:", error)
+    logDbError("crews.requestToJoinCrew", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -182,7 +183,7 @@ export async function handleJoinRequest(
     })
 
     if (error) {
-      console.error("Error handling join request:", error)
+      logDbError("crews.handleJoinRequest", error)
       return { success: false, error: error.message }
     }
 
@@ -194,7 +195,7 @@ export async function handleJoinRequest(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in handleJoinRequest:", error)
+    logDbError("crews.handleJoinRequest", error)
     return { success: false, error: "Erreur serveur" }
   }
 }

@@ -93,10 +93,10 @@ export function MinimalArchetypeWizard({
   }
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800 max-w-3xl mx-auto">
+    <Card className="bg-card border-ink max-w-3xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-white">Inscription {archetypeLabel}</CardTitle>
-        <CardDescription className="text-zinc-400">
+        <CardTitle className="text-ink">Inscription {archetypeLabel}</CardTitle>
+        <CardDescription className="text-mute">
           Quelques informations suffisent. Tu pourras compléter ton profil après l&apos;activation
           admin.
         </CardDescription>
@@ -105,18 +105,18 @@ export function MinimalArchetypeWizard({
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="archetype-company" className="text-zinc-300">
+              <Label htmlFor="archetype-company" className="text-ink-2">
                 Nom de l&apos;entreprise / structure *
               </Label>
               <Input
                 id="archetype-company"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                className="bg-background border-ink text-ink mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="archetype-email" className="text-zinc-300">
+              <Label htmlFor="archetype-email" className="text-ink-2">
                 Email professionnel *
               </Label>
               <Input
@@ -125,11 +125,11 @@ export function MinimalArchetypeWizard({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                className="bg-background border-ink text-ink mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="archetype-phone" className="text-zinc-300">
+              <Label htmlFor="archetype-phone" className="text-ink-2">
                 Téléphone *
               </Label>
               <Input
@@ -138,12 +138,12 @@ export function MinimalArchetypeWizard({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 autoComplete="tel"
-                className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                className="bg-background border-ink text-ink mt-1"
                 placeholder="+212 6XX-XXXXXX"
               />
             </div>
             <div>
-              <Label htmlFor="archetype-website" className="text-zinc-300">
+              <Label htmlFor="archetype-website" className="text-ink-2">
                 Site web (optionnel)
               </Label>
               <Input
@@ -152,41 +152,41 @@ export function MinimalArchetypeWizard({
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
                 autoComplete="url"
-                className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                className="bg-background border-ink text-ink mt-1"
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="archetype-description" className="text-zinc-300">
+            <Label htmlFor="archetype-description" className="text-ink-2">
               Description (optionnel)
             </Label>
             <Textarea
               id="archetype-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="bg-zinc-950 border-zinc-800 text-white mt-1 min-h-20"
+              className="bg-background border-ink text-ink mt-1 min-h-20"
               maxLength={2000}
               placeholder="Ce que tu proposes, ton expertise, ta zone d'intervention…"
             />
           </div>
 
-          <div className="border-t border-zinc-800 pt-6">
-            <h3 className="text-base font-semibold text-white mb-4">Contact principal</h3>
+          <div className="border-t border-ink pt-6">
+            <h3 className="text-base font-semibold text-ink mb-4">Contact principal</h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="archetype-contact-name" className="text-zinc-300">
+                <Label htmlFor="archetype-contact-name" className="text-ink-2">
                   Nom complet *
                 </Label>
                 <Input
                   id="archetype-contact-name"
                   value={contactPersonName}
                   onChange={(e) => setContactPersonName(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                  className="bg-background border-ink text-ink mt-1"
                 />
               </div>
               <div>
-                <Label htmlFor="archetype-contact-phone" className="text-zinc-300">
+                <Label htmlFor="archetype-contact-phone" className="text-ink-2">
                   Téléphone (optionnel)
                 </Label>
                 <Input
@@ -195,7 +195,7 @@ export function MinimalArchetypeWizard({
                   value={contactPersonPhone}
                   onChange={(e) => setContactPersonPhone(e.target.value)}
                   autoComplete="tel"
-                  className="bg-zinc-950 border-zinc-800 text-white mt-1"
+                  className="bg-background border-ink text-ink mt-1"
                 />
               </div>
             </div>
@@ -208,7 +208,7 @@ export function MinimalArchetypeWizard({
             setConfirmPassword={setConfirmPassword}
           />
 
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+          <div className="rounded-2xl border border-gold/30 bg-gold/10 p-4 text-sm text-gold">
             Cette demande sera revue par l&apos;équipe Nivy. Tu recevras un email d&apos;invitation
             après l&apos;activation. Pas de connexion immédiate.
           </div>
@@ -216,7 +216,7 @@ export function MinimalArchetypeWizard({
           <Button
             type="submit"
             disabled={busy || !ready}
-            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold"
+            className="w-full h-12 bg-teal hover:bg-teal text-ink font-bold"
           >
             {busy ? (
               <>

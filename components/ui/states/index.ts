@@ -34,6 +34,8 @@ export {
 } from './offline-indicator'
 
 // Skeleton Sets
+// @deprecated #72 — import skeletons from the single barrel
+// `@/components/ui/skeletons` instead of this `states` barrel.
 export {
   // Base skeletons
   SkeletonText,

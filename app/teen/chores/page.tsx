@@ -64,9 +64,9 @@ export default async function TeenChoresPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-32 max-w-3xl">
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
+        <Button variant="ghost" asChild className="mb-6 text-mute hover:text-ink">
           <Link href="/teen">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
@@ -74,11 +74,11 @@ export default async function TeenChoresPage() {
         </Button>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-white flex items-center gap-2">
-            <ListChecks className="h-7 w-7 text-emerald-400" />
+          <h1 className="text-3xl font-black text-ink flex items-center gap-2">
+            <ListChecks className="h-7 w-7 text-lime" />
             Mes corvées
           </h1>
-          <p className="text-zinc-400 mt-1">
+          <p className="text-mute mt-1">
             Termine tes missions familiales pour gagner des coins et de l'XP.
           </p>
         </div>

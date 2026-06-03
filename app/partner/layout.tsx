@@ -5,6 +5,7 @@ import { PartnerHeader } from "@/components/dashboard/partner/header"
 import { AgentFloatingButton } from "@/components/ai/AgentFloatingButton"
 import { SkipToContent } from "@/components/ui/skip-to-content"
 import { createClient } from "@/lib/supabase/server"
+import { getFeatureFlag } from "@/lib/features/flags"
 
 export default async function PartnerLayout({
   children,
@@ -30,11 +31,18 @@ export default async function PartnerLayout({
     .eq("email", userInfo.email)
     .maybeSingle()
 
+  // #63 — legacy AgentSheet/FriendMap IA panel behind an off-by-default flag.
+  const legacyAgentEnabled = await getFeatureFlag("legacy_agent_sheet")
+
   return (
     <div className="min-h-screen bg-background">
       {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
       <SkipToContent />
-      <PartnerHeader userInfo={userInfo} />
+      <PartnerHeader
+        userInfo={userInfo}
+        partnerType={(partner?.partner_type as PartnerType) ?? null}
+        partnerStatus={(partner?.status as any) ?? null}
+      />
       <div className="flex">
         <PartnerSidebar
           partnerType={(partner?.partner_type as PartnerType) ?? null}
@@ -48,7 +56,7 @@ export default async function PartnerLayout({
           {children}
         </main>
       </div>
-      <AgentFloatingButton role="partner" context={userInfo.partnerData} />
+      {legacyAgentEnabled && <AgentFloatingButton role="partner" context={userInfo.partnerData} />}
     </div>
   )
 }

@@ -1,5 +1,10 @@
 # Marketplace C2C — Peer-to-Peer Selling for Teens
 
+> **HISTORIQUE — ne fait plus foi.** Cette spec date du 2026-05-07. La source
+> de vérité est `docs/canon/*.locked.md` (générée le 2026-05-08, qui a tranché
+> les contradictions). En cas de divergence, le canon gagne. Index : `docs/canon/INDEX.locked.md`.
+
+
 ## 1. Vision & Intent
 
 Nivy's C2C marketplace is a **safe, moderated peer-to-peer trading space** modeled on Vinted / Facebook Marketplace, but tailored to teens (13–17) under parental oversight. The product enables teens (and their parents) to **buy and sell among themselves**: used clothing, books, school supplies, sports gear, gaming consoles, handmade art, crafts, jewelry, concert ticket resale, peer tutoring services, and limited small services (dog-walking, gardening) for older teens.

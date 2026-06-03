@@ -4,18 +4,26 @@ import { Footer } from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Star, Music, Award, Calendar, Clock, Users } from "lucide-react"
-import Link from "next/link"
+import { DjTabs } from "./dj-tabs"
+import { Star, Calendar, Clock, Users } from "lucide-react"
 import Image from "next/image"
 import { notFound } from "next/navigation"
+import { getPublicAppConfig } from "@/lib/config/app-config"
 
-export default async function DJProfilePage({ params }: { params: { id: string } }) {
+export default async function DJProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  // Next 15/16: params is a Promise and must be awaited before use, otherwise
+  // dj.id resolves to undefined and every DJ profile 404s.
+  const { id } = await params
   const supabase = await createClient()
+  const { contactEmail } = getPublicAppConfig()
 
-  const { data: dj } = await supabase.from("djs").select("*").eq("id", params.id).single()
+  const { data: dj } = await supabase.from("djs").select("*").eq("id", id).single()
 
   if (!dj) notFound()
+
+  // No DJ-booking backend exists yet; "Réserver"/"Devis" open a real quote
+  // request by email rather than linking to a dangling /djs/[id]/reserver route.
+  const quoteHref = `mailto:${contactEmail}?subject=${encodeURIComponent(`Réservation DJ — ${dj.stage_name}`)}`
 
   return (
     <>
@@ -36,28 +44,29 @@ export default async function DJProfilePage({ params }: { params: { id: string }
             <div className="max-w-7xl mx-auto">
               <div className="flex items-end justify-between">
                 <div>
-                  <h1 className="text-5xl font-bold text-white mb-2">{dj.stage_name}</h1>
-                  <p className="text-2xl text-white/80">{dj.name}</p>
+                  <h1 className="text-5xl font-bold text-ink mb-2">{dj.stage_name}</h1>
+                  <p className="text-2xl text-ink/80">{dj.name}</p>
                   <div className="flex items-center gap-4 mt-4">
-                    <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2">
-                      <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-                      <span className="text-white font-semibold text-lg">{dj.rating}</span>
-                      <span className="text-white/70">({dj.total_reviews} avis)</span>
+                    <div className="flex items-center gap-1 bg-ink/50  rounded-full px-4 py-2">
+                      <Star className="h-5 w-5 fill-gold text-gold" />
+                      <span className="text-ink font-semibold text-lg">{dj.rating}</span>
+                      <span className="text-ink/70">({dj.total_reviews} avis)</span>
                     </div>
                     <Badge variant="secondary" className="text-lg px-4 py-2">
                       {dj.total_events} événements
                     </Badge>
                   </div>
                 </div>
-                <Link href={`/djs/${dj.id}/reserver`}>
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-emerald-600 to-coral-600 hover:from-emerald-700 hover:to-coral-700 text-lg px-8"
-                  >
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-lime to-coral-600 hover:from-lime hover:to-coral-700 text-lg px-8"
+                >
+                  <a href={quoteHref}>
                     <Calendar className="mr-2 h-5 w-5" />
                     Réserver
-                  </Button>
-                </Link>
+                  </a>
+                </Button>
               </div>
             </div>
           </div>
@@ -69,88 +78,12 @@ export default async function DJProfilePage({ params }: { params: { id: string }
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-8">
-                <Tabs defaultValue="about">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="about">À Propos</TabsTrigger>
-                    <TabsTrigger value="videos">Vidéos</TabsTrigger>
-                    <TabsTrigger value="reviews">Avis</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="about" className="space-y-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Biographie</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-lg leading-relaxed">{dj.bio}</p>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Spécialités</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-2 gap-4">
-                          {dj.specialties?.map((specialty: string) => (
-                            <div key={specialty} className="flex items-center gap-2">
-                              <Award className="h-5 w-5 text-emerald-600" />
-                              <span>{specialty}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Styles Musicaux</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex flex-wrap gap-2">
-                          {dj.music_styles?.map((style: string) => (
-                            <Badge key={style} variant="secondary" className="text-base px-4 py-2">
-                              <Music className="mr-2 h-4 w-4" />
-                              {style}
-                            </Badge>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-
-                  <TabsContent value="videos" className="space-y-6">
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {dj.video_urls?.map((url: string, index: number) => (
-                            <div
-                              key={index}
-                              className="aspect-video bg-muted rounded-lg flex items-center justify-center"
-                            >
-                              <p className="text-muted-foreground">Vidéo {index + 1}</p>
-                            </div>
-                          ))}
-                          {(!dj.video_urls || dj.video_urls.length === 0) && (
-                            <div className="col-span-2 text-center py-12 text-muted-foreground">
-                              Aucune vidéo disponible pour le moment
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-
-                  <TabsContent value="reviews">
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="text-center py-12 text-muted-foreground">
-                          Les avis seront bientôt disponibles
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                </Tabs>
+                <DjTabs
+                  bio={dj.bio}
+                  specialties={dj.specialties}
+                  musicStyles={dj.music_styles}
+                  videoUrls={dj.video_urls}
+                />
               </div>
 
               {/* Sidebar */}
@@ -161,7 +94,7 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <div className="text-4xl font-bold text-emerald-600">{dj.hourly_rate} DH</div>
+                      <div className="text-4xl font-bold text-lime">{dj.hourly_rate} DH</div>
                       <div className="text-muted-foreground">par heure</div>
                     </div>
                     <div className="space-y-2 pt-4 border-t">
@@ -174,11 +107,11 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                         <span>Matériel professionnel inclus</span>
                       </div>
                     </div>
-                    <Link href={`/djs/${dj.id}/reserver`} className="block">
-                      <Button className="w-full" size="lg">
+                    <Button asChild className="w-full" size="lg">
+                      <a href={quoteHref}>
                         Demander un Devis
-                      </Button>
-                    </Link>
+                      </a>
+                    </Button>
                   </CardContent>
                 </Card>
 
@@ -188,8 +121,8 @@ export default async function DJProfilePage({ params }: { params: { id: string }
                   </CardHeader>
                   <CardContent>
                     {dj.is_available ? (
-                      <div className="flex items-center gap-2 text-emerald-600">
-                        <div className="h-3 w-3 rounded-full bg-emerald-600 animate-pulse" />
+                      <div className="flex items-center gap-2 text-lime">
+                        <div className="h-3 w-3 rounded-full bg-lime animate-pulse" />
                         <span className="font-medium">Disponible</span>
                       </div>
                     ) : (

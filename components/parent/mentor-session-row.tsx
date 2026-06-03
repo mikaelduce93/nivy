@@ -158,7 +158,7 @@ export function MentorSessionActions({
         <Button
           size={compact ? "icon" : "sm"}
           variant="outline"
-          className={`${compact ? "h-8 w-8" : "h-9"} border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50`}
+          className={`${compact ? "h-8 w-8" : "h-9"} border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive/50`}
           onClick={() => open("reject")}
           disabled={loading !== null}
           title="Refuser"
@@ -176,7 +176,7 @@ export function MentorSessionActions({
         </Button>
         <Button
           size={compact ? "icon" : "sm"}
-          className={`${compact ? "h-8 w-8" : "h-9"} bg-emerald-500 hover:bg-emerald-600 text-white`}
+          className={`${compact ? "h-8 w-8" : "h-9"} bg-lime hover:bg-lime text-ink`}
           onClick={() => open("approve")}
           disabled={loading !== null}
           title="Approuver"
@@ -195,27 +195,27 @@ export function MentorSessionActions({
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+        <DialogContent className="bg-card border-ink text-ink">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {pendingAction === "approve" ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-emerald-400" />
+                  <CheckCircle className="h-5 w-5 text-lime" />
                   Confirmer l&apos;approbation
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="h-5 w-5 text-red-400" />
+                  <AlertTriangle className="h-5 w-5 text-destructive" />
                   Confirmer le refus
                 </>
               )}
             </DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-mute">
               {pendingAction === "approve"
                 ? "Cette action débitera les coins du teen et autorisera la session."
                 : "La session sera refusée et le teen sera notifié."}
               {teenName && (
-                <span className="block mt-1 text-zinc-300">Teen : {teenName}</span>
+                <span className="block mt-1 text-ink-2">Teen : {teenName}</span>
               )}
             </DialogDescription>
           </DialogHeader>
@@ -226,17 +226,17 @@ export function MentorSessionActions({
             className="space-y-4"
             basePaddingBottom={0}
           >
-            <div className="p-4 bg-zinc-800 rounded-lg border border-zinc-700 space-y-1">
-              <p className="font-medium text-white">
+            <div className="p-4 bg-card rounded-lg border border-ink space-y-1">
+              <p className="font-medium text-ink">
                 Session avec {mentorName ?? "mentor"}
               </p>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-mute">
                 {isIntro ? (
-                  <span className="text-emerald-400">
+                  <span className="text-lime">
                     Session d&apos;intro gratuite
                   </span>
                 ) : (
-                  <span className="text-emerald-400 font-bold">
+                  <span className="text-lime font-bold">
                     {amountDh ?? 0} DH
                     {amountCoins ? ` (${amountCoins} coins)` : ""}
                   </span>
@@ -249,7 +249,7 @@ export function MentorSessionActions({
                 name="reason"
                 error={touched ? errors.reason : undefined}
               >
-                <FormLabel className="text-zinc-300">
+                <FormLabel className="text-ink-2">
                   Raison du refus (optionnel)
                 </FormLabel>
                 <Textarea
@@ -259,13 +259,13 @@ export function MentorSessionActions({
                   onChange={(e) => setReason(e.target.value)}
                   onBlur={() => setTouched(true)}
                   placeholder="Expliquez pourquoi vous refusez cette session..."
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[80px]"
+                  className="bg-card border-ink text-ink placeholder:text-mute min-h-[80px]"
                   maxLength={REASON_MAX}
                   aria-invalid={!!(touched && errors.reason)}
                 />
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-mute">
                   Cette raison sera communiquée au teen.
-                  <span className="ml-1 text-zinc-600">
+                  <span className="ml-1 text-mute">
                     ({reason.length}/{REASON_MAX})
                   </span>
                 </p>
@@ -279,7 +279,7 @@ export function MentorSessionActions({
                 variant="outline"
                 onClick={() => setShowModal(false)}
                 disabled={loading !== null || success !== null}
-                className="border-zinc-700 text-zinc-300"
+                className="border-ink text-ink-2"
               >
                 Annuler
               </Button>
@@ -289,8 +289,8 @@ export function MentorSessionActions({
                 aria-busy={loading !== null}
                 className={
                   pendingAction === "approve"
-                    ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                    : "bg-red-500 hover:bg-red-600 text-white"
+                    ? "bg-lime hover:bg-lime text-ink"
+                    : "bg-destructive hover:bg-destructive text-ink"
                 }
               >
                 {success ? (

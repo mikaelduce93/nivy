@@ -1,16 +1,20 @@
+/**
+ * @deprecated Surface « logs produit » historique. Le journal canonique de
+ * conformité (rétention 7 ans, spec §18/§29 inv.8) est `/admin/audit-log`.
+ * Route conservée pour compat ; préférer l'audit-log pour toute nouvelle
+ * exploitation (routing refonte §6 #2).
+ */
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { StickerCard } from "@/components/ui/sticker-card"
+import { StatCard } from "@/components/admin/stat-card"
+import { NivEmpty } from "@/components/brand"
+import BackButton from "@/components/admin/BackButton"
 import {
   Activity,
-  Clock,
-  User,
   Calendar,
-  Filter,
-  Download,
-  ArrowLeft,
+  User,
   LogIn,
   LogOut,
   Edit,
@@ -20,7 +24,6 @@ import {
   CreditCard,
   Users
 } from "lucide-react"
-import Link from "next/link"
 
 async function getActivityLogs() {
   const supabase = await createClient()
@@ -58,44 +61,43 @@ export default async function AdminLogsPage() {
   const getActionIcon = (action: string) => {
     switch (action) {
       case "login":
-        return <LogIn className="h-4 w-4 text-emerald-400" />
+        return <LogIn className="h-4 w-4 text-lime" />
       case "logout":
-        return <LogOut className="h-4 w-4 text-zinc-400" />
+        return <LogOut className="h-4 w-4 text-mute" />
       case "create":
-        return <Plus className="h-4 w-4 text-blue-400" />
+        return <Plus className="h-4 w-4 text-teal" />
       case "update":
-        return <Edit className="h-4 w-4 text-amber-400" />
+        return <Edit className="h-4 w-4 text-gold" />
       case "delete":
-        return <Trash2 className="h-4 w-4 text-red-400" />
+        return <Trash2 className="h-4 w-4 text-coral" />
       case "permission":
-        return <ShieldCheck className="h-4 w-4 text-purple-400" />
+        return <ShieldCheck className="h-4 w-4 text-pink" />
       case "payment":
-        return <CreditCard className="h-4 w-4 text-emerald-400" />
+        return <CreditCard className="h-4 w-4 text-lime" />
       case "user":
-        return <Users className="h-4 w-4 text-blue-400" />
+        return <Users className="h-4 w-4 text-teal" />
       default:
-        return <Activity className="h-4 w-4 text-zinc-400" />
+        return <Activity className="h-4 w-4 text-mute" />
     }
   }
 
-  const getActionBadge = (action: string) => {
+  // Pastille d'action colorée charte (bordure ink + accent token).
+  const getActionDot = (action: string) => {
     switch (action) {
       case "login":
-        return "bg-emerald-500/20 text-emerald-400"
-      case "logout":
-        return "bg-zinc-500/20 text-zinc-400"
-      case "create":
-        return "bg-blue-500/20 text-blue-400"
-      case "update":
-        return "bg-amber-500/20 text-amber-400"
-      case "delete":
-        return "bg-red-500/20 text-red-400"
-      case "permission":
-        return "bg-purple-500/20 text-purple-400"
       case "payment":
-        return "bg-emerald-500/20 text-emerald-400"
+        return "bg-lime/15 text-lime"
+      case "create":
+      case "user":
+        return "bg-teal/15 text-teal"
+      case "update":
+        return "bg-gold/15 text-gold"
+      case "delete":
+        return "bg-coral/15 text-coral"
+      case "permission":
+        return "bg-pink/15 text-pink"
       default:
-        return "bg-zinc-500/20 text-zinc-400"
+        return "bg-ink/5 text-mute"
     }
   }
 
@@ -121,148 +123,82 @@ export default async function AdminLogsPage() {
   const loginCount = logs.filter((log: any) => log.action === "login").length
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <div className="container mx-auto px-6 py-32">
-        {/* Back button */}
-        <Button variant="ghost" asChild className="mb-6 text-zinc-400 hover:text-white">
-          <Link href="/admin">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Retour au dashboard
-          </Link>
-        </Button>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-6 py-12 md:py-32">
+        <BackButton href="/admin" label="Retour au dashboard" />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-white">Logs d'Activité</h1>
-            <p className="text-zinc-400">Surveillez toutes les actions sur la plateforme</p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
-              <Filter className="h-4 w-4 mr-2" />
-              Filtrer
-            </Button>
-            <Button variant="outline" className="border-zinc-700 text-zinc-300">
-              <Download className="h-4 w-4 mr-2" />
-              Exporter
-            </Button>
-          </div>
-        </div>
+        <header className="mb-8 space-y-2">
+          <p className="eyebrow">Système · Logs</p>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
+            Logs d&apos;<em className="font-semibold italic text-pink">activité</em>
+          </h1>
+          <p className="text-mute">
+            Surveillez toutes les actions sur la plateforme. Journal canonique de conformité :{" "}
+            <span className="font-mono text-ink-2">/admin/audit-log</span>.
+          </p>
+        </header>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-emerald-400 font-medium">Total Logs</p>
-                  <p className="text-3xl font-black text-white">{logs.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-emerald-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-blue-400 font-medium">Aujourd'hui</p>
-                  <p className="text-3xl font-black text-white">{todayLogs.length}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-blue-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-purple-400 font-medium">Utilisateurs</p>
-                  <p className="text-3xl font-black text-white">{uniqueUsers}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <User className="h-6 w-6 text-purple-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 bg-zinc-900">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-amber-400 font-medium">Connexions</p>
-                  <p className="text-3xl font-black text-white">{loginCount}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <LogIn className="h-6 w-6 text-amber-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <StatCard label="Total logs" value={logs.length} tone="lime" icon={<Activity className="h-5 w-5" />} />
+          <StatCard label="Aujourd'hui" value={todayLogs.length} tone="teal" icon={<Calendar className="h-5 w-5" />} />
+          <StatCard label="Utilisateurs" value={uniqueUsers} tone="coral" icon={<User className="h-5 w-5" />} />
+          <StatCard label="Connexions" value={loginCount} tone="gold" icon={<LogIn className="h-5 w-5" />} />
         </div>
 
-        {/* Activity Log List */}
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Activity className="h-5 w-5 text-emerald-400" />
-              Journal d'activité
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {logs.length > 0 ? (
-              <div className="space-y-2">
-                {logs.map((log: any) => (
-                  <div
-                    key={log.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all"
+        {/* Activity Log List — timeline éditoriale */}
+        <StickerCard className="gap-4 p-6">
+          <div className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-lime" />
+            <h2 className="font-display text-lg font-bold tracking-tight text-ink">Journal d&apos;activité</h2>
+          </div>
+
+          {logs.length > 0 ? (
+            <ol className="relative space-y-3 border-l-2 border-ink/15 pl-5">
+              {logs.map((log: any) => (
+                <li key={log.id} className="relative">
+                  <span
+                    className={`absolute -left-[27px] grid h-8 w-8 place-items-center rounded-full border-2 border-ink ${getActionDot(
+                      log.action
+                    )}`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-zinc-800 flex items-center justify-center">
-                        {getActionIcon(log.action)}
+                    {getActionIcon(log.action)}
+                  </span>
+                  <div className="flex flex-wrap items-start justify-between gap-2 rounded-xl border-2 border-ink bg-white px-4 py-3 shadow-stkr-sm">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-semibold text-ink">{log.description || log.action}</p>
+                        <span className="rounded-full border-2 border-ink px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+                          {log.action}
+                        </span>
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-white">{log.description || log.action}</p>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${getActionBadge(log.action)}`}>
-                            {log.action}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-zinc-400">
-                          <User className="h-3 w-3" />
-                          <span>{log.user?.full_name || log.user?.email || "Système"}</span>
-                          {log.resource_type && (
-                            <>
-                              <span>•</span>
-                              <span>{log.resource_type}</span>
-                            </>
-                          )}
-                        </div>
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-mute">
+                        <User className="h-3 w-3" />
+                        <span>{log.user?.full_name || log.user?.email || "Système"}</span>
+                        {log.user_id ? (
+                          <span className="font-mono text-[11px]">#{String(log.user_id).slice(0, 8)}</span>
+                        ) : null}
+                        {log.resource_type && (
+                          <>
+                            <span>•</span>
+                            <span className="font-mono">{log.resource_type}</span>
+                          </>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 text-zinc-500">
-                      <Clock className="h-4 w-4" />
-                      <span className="text-sm">{formatDate(log.created_at)}</span>
-                    </div>
+                    <span className="font-mono text-xs text-mute">{formatDate(log.created_at)}</span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Activity className="h-16 w-16 mx-auto mb-4 text-zinc-700" />
-                <h3 className="text-xl font-bold text-white mb-2">Aucun log</h3>
-                <p className="text-zinc-400">Les logs d'activité apparaîtront ici</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <NivEmpty
+              title="Aucun log"
+              description="Les logs d'activité apparaîtront ici."
+            />
+          )}
+        </StickerCard>
       </div>
     </div>
   )
