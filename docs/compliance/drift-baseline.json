@@ -1,20 +1,8 @@
 {
-  "generated_at": "2026-06-02",
+  "generated_at": "2026-06-03",
   "audit_source": "V7 #255 (drift profiles/user_profiles + empty-catch guard)",
-  "total_violations": 13,
+  "total_violations": 0,
   "files_in_scope": 276,
-  "violations_by_rule": {
-    "DRIFT-002": 13
-  },
-  "violations_by_file_rule": {
-    "gamification-system/features/challenges/actions.ts": {
-      "DRIFT-002": 1
-    },
-    "gamification-system/features/crews/actions/activity.ts": {
-      "DRIFT-002": 8
-    },
-    "gamification-system/features/special-challenges/actions.ts": {
-      "DRIFT-002": 4
-    }
-  }
+  "violations_by_rule": {},
+  "violations_by_file_rule": {}
 }
