@@ -28,6 +28,7 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { checkPseudoAvailable, getSchools, getInterests } from "@/features/teens"
 import Image from "next/image"
+import { isTeenAge, TEEN_AGE_ERROR, teenDateOfBirthBounds } from "@/lib/constants/age"
 
 interface AddTeenFormProps {
   parentId: string
@@ -194,7 +195,8 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
   }
 
   const age = calculateAge(newTeen.dateOfBirth)
-  const isAgeValid = age !== null && age >= 10 && age <= 18
+  const isAgeValid = age !== null && isTeenAge(age)
+  const dobBounds = teenDateOfBirthBounds()
 
   // Filter schools based on search
   const filteredSchools = schools.filter(school =>
@@ -410,7 +412,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     }
 
     if (!isAgeValid) {
-      toast.error("L'âge doit être entre 10 et 18 ans")
+      toast.error(TEEN_AGE_ERROR)
       return
     }
 
@@ -803,8 +805,8 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             type="date"
             value={newTeen.dateOfBirth}
             onChange={(e) => updateNewTeen("dateOfBirth", e.target.value)}
-            max={new Date(new Date().setFullYear(new Date().getFullYear() - 10)).toISOString().split("T")[0]}
-            min={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
+            max={dobBounds.max}
+            min={dobBounds.min}
             required
             success={age !== null && isAgeValid}
             error={age !== null && !isAgeValid ? "L'âge doit être entre 10 et 18 ans" : undefined}

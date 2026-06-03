@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { cn } from "@/lib/utils"
+import { TEEN_AGE_RANGE_LABEL } from "@/lib/constants/age"
 import {
   Users, User, Shield, Heart, Calendar, Trophy,
   Check, ChevronLeft, ChevronRight
@@ -50,7 +51,7 @@ export function ProfileTypeStep({ selectedType, onSelect, onNext, onBack }: Prof
       icon: User,
       eyebrow: "Compte ado",
       title: "Je suis ado",
-      subtitle: "J'ai 13-17 ans",
+      subtitle: `J'ai ${TEEN_AGE_RANGE_LABEL}`,
       accent: "text-pink",
       features: [
         {

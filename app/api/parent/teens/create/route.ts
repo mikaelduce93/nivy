@@ -3,6 +3,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
 import { randomBytes } from "node:crypto"
 import { getUserRole } from "@/lib/auth/get-user-role"
+import { ageFromDateOfBirth, isTeenAge, TEEN_AGE_ERROR } from "@/lib/constants/age"
 import { z } from "zod"
 
 /**
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Age window 10–18 (canon §1 teen row).
+    // Age window — single source of truth (#292): TEEN_MIN_AGE..TEEN_MAX_AGE.
     const birthDate = new Date(body.dateOfBirth)
     if (Number.isNaN(birthDate.getTime())) {
       return NextResponse.json(
@@ -96,15 +97,10 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
-    const today = new Date()
-    let age = today.getFullYear() - birthDate.getFullYear()
-    const monthDiff = today.getMonth() - birthDate.getMonth()
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--
-    }
-    if (age < 10 || age > 18) {
+    const age = ageFromDateOfBirth(birthDate)
+    if (!isTeenAge(age)) {
       return NextResponse.json(
-        { success: false, error: "L'âge doit être entre 10 et 18 ans" },
+        { success: false, error: TEEN_AGE_ERROR },
         { status: 400 }
       )
     }

@@ -4,6 +4,7 @@ import crypto from "crypto"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
 import { getAppUrl, getServerAppConfig } from "@/lib/config/app-config"
 import { resend, EMAIL_FROM, isResendConfigured } from "@/lib/resend"
+import { ageFromDateOfBirth, isTeenAge, TEEN_AGE_ERROR } from "@/lib/constants/age"
 
 /**
  * Register a teen account with parent validation
@@ -47,18 +48,12 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validate age (11-17)
-    const birthDate = new Date(dateOfBirth)
-    const today = new Date()
-    let age = today.getFullYear() - birthDate.getFullYear()
-    const monthDiff = today.getMonth() - birthDate.getMonth()
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--
-    }
+    // Validate age — single source of truth (#292): TEEN_MIN_AGE..TEEN_MAX_AGE.
+    const age = ageFromDateOfBirth(dateOfBirth)
 
-    if (age < 11 || age > 17) {
+    if (!isTeenAge(age)) {
       return NextResponse.json(
-        { success: false, error: "Tu dois avoir entre 11 et 17 ans" },
+        { success: false, error: TEEN_AGE_ERROR },
         { status: 400 }
       )
     }

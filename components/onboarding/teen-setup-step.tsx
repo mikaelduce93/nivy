@@ -11,6 +11,12 @@ import {
 } from 'lucide-react'
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import {
+  ageFromDateOfBirth,
+  isTeenAge,
+  TEEN_AGE_ERROR,
+  teenDateOfBirthBounds,
+} from "@/lib/constants/age"
 
 /**
  * TICKET-031 — Onboarding interest capture preview.
@@ -126,16 +132,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
     }
   }, [errors])
 
-  const calculateAge = (birthDate: string) => {
-    const today = new Date()
-    const birth = new Date(birthDate)
-    let age = today.getFullYear() - birth.getFullYear()
-    const monthDiff = today.getMonth() - birth.getMonth()
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--
-    }
-    return age
-  }
+  const calculateAge = (birthDate: string) => ageFromDateOfBirth(birthDate)
+  const dobBounds = teenDateOfBirthBounds()
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -152,8 +150,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
       newErrors.dateOfBirth = 'Date de naissance requise'
     } else {
       const age = calculateAge(formData.dateOfBirth)
-      if (age < 11 || age > 17) {
-        newErrors.dateOfBirth = 'Tu dois avoir entre 11 et 17 ans'
+      if (!isTeenAge(age)) {
+        newErrors.dateOfBirth = TEEN_AGE_ERROR
       }
     }
 
@@ -322,7 +320,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
               }
               value={formData.dateOfBirth}
               onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
+              min={dobBounds.min}
+              max={dobBounds.max}
             />
           </div>
 
