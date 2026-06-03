@@ -199,7 +199,7 @@ export default function ParentsPage() {
               Un espace pensé pour <em className="italic font-semibold text-pink">les mineurs.</em>
             </h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {SAFETY.map((c) => (
               <StickerCard key={c.title} variant="panel" className="gap-3 p-6">
                 <span className="grid size-11 place-items-center rounded-xl border-2 border-ink bg-lime text-ink" aria-hidden="true">
@@ -222,7 +222,7 @@ export default function ParentsPage() {
               Vous fixez les règles. <em className="italic font-semibold text-pink">Sans être le DAB.</em>
             </h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {CONTROL.map((c) => (
               <StickerCard key={c.title} variant="hover" className="gap-3 p-6">
                 <span className="grid size-11 place-items-center rounded-xl border-2 border-ink bg-pink text-white" aria-hidden="true">
@@ -244,7 +244,7 @@ export default function ParentsPage() {
             <h2 id="parents-money" className="mt-3 font-display text-[clamp(1.875rem,4vw,3rem)] font-extrabold leading-[0.97] tracking-[-0.03em] text-paper text-balance">
               Vos dirhams restent <em className="italic font-semibold text-pink">vos dirhams.</em>
             </h2>
-            <div className="mt-8 grid gap-5 sm:grid-cols-3">
+            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
               <div className="rounded-2xl border-2 border-ink bg-night-2 p-5">
                 <Wallet className="size-6 text-gold" aria-hidden="true" />
                 <h3 className="mt-3 font-display text-lg font-extrabold tracking-[-0.02em] text-paper">Conservés en escrow</h3>
@@ -305,7 +305,7 @@ export default function ParentsPage() {
               jamais de la sécurité en option. Sans engagement.
             </p>
           </div>
-          <PricingGrid className="lg:grid-cols-4">
+          <PricingGrid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {PLANS.map((plan) => (
               <PricingSticker
                 key={plan.name}
