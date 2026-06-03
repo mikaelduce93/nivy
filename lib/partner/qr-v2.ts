@@ -136,6 +136,97 @@ export function verifyV2Qr(
   return { ok: true }
 }
 
+// ─── Link QR (parent↔teen) — #296 ─────────────────────────────────────────
+// Dedicated format `nivy:link:v1:{subject_id}:{token}:{exp}:{nonce}:{hmac}`.
+// Reuses the same HMAC seed (partner_qr_secret) as the VIP format but with a
+// `link:` domain separator in the signed payload, so a VIP QR can NEVER verify
+// as a link QR (and vice-versa) even though both draw from the same seed. The
+// raw `token` is the secret persisted as sha256(token) in `teen_link_tokens`.
+
+const LINK_MAX_TTL_SECONDS = 86_400 // 24h (shareable link upper bound)
+const LINK_PREFIX = "nivy:link:v1:"
+
+export interface SignedLinkQr {
+  qr: string
+  subject_id: string
+  token: string
+  exp_unix: number
+  nonce: string
+}
+
+export interface ParsedLinkQr {
+  ok: true
+  subject_id: string
+  token: string
+  exp_unix: number
+  nonce: string
+  hmac_b64: string
+}
+
+function linkCanonicalPayload(
+  subject_id: string,
+  token: string,
+  exp_unix: number,
+  nonce: string,
+): string {
+  return `link:${subject_id}:${token}:${exp_unix}:${nonce}`
+}
+
+/**
+ * Sign a fresh link QR. `subject_id` is the issuer (teen id for teen→parent,
+ * parent id for parent→teen); `token` is the raw single-use token (base64url,
+ * no `:`). Caller loads the seed via `loadQrSecretSeed()`.
+ */
+export function signLinkQr(opts: {
+  seed_b64: string
+  subject_id: string
+  token: string
+  ttl_seconds?: number
+}): SignedLinkQr {
+  const ttl = Math.min(opts.ttl_seconds ?? DEFAULT_TTL_SECONDS, LINK_MAX_TTL_SECONDS)
+  const exp_unix = nowUnix() + ttl
+  const nonce = newNonce()
+  const payload = linkCanonicalPayload(opts.subject_id, opts.token, exp_unix, nonce)
+  const sig = hmacB64(opts.seed_b64, payload)
+  const qr = `${LINK_PREFIX}${opts.subject_id}:${opts.token}:${exp_unix}:${nonce}:${sig}`
+  return { qr, subject_id: opts.subject_id, token: opts.token, exp_unix, nonce }
+}
+
+/** Pure parse of a link QR — does NOT verify the HMAC. */
+export function parseLinkQr(qr: string): ParsedLinkQr | QrParseFailure {
+  if (!qr || typeof qr !== "string") return { ok: false, reason: "empty" }
+  if (!qr.startsWith(LINK_PREFIX)) return { ok: false, reason: "wrong_prefix" }
+  const parts = qr.slice(LINK_PREFIX.length).split(":")
+  if (parts.length !== 5) return { ok: false, reason: "wrong_field_count" }
+  const [subject_id, token, exp_str, nonce, hmac_b64] = parts
+  if (!subject_id) return { ok: false, reason: "invalid_user_id" }
+  if (!token || token.length < 16) return { ok: false, reason: "invalid_card_number" }
+  const exp_unix = Number(exp_str)
+  if (!Number.isFinite(exp_unix) || exp_unix <= 0) {
+    return { ok: false, reason: "invalid_exp_unix" }
+  }
+  if (!nonce || nonce.length < 16) return { ok: false, reason: "invalid_nonce" }
+  if (!hmac_b64 || hmac_b64.length < 16) return { ok: false, reason: "invalid_hmac" }
+  return { ok: true, subject_id, token, exp_unix, nonce, hmac_b64 }
+}
+
+/** Verify a parsed link QR against the seed. Constant-time HMAC compare. */
+export function verifyLinkQr(
+  parsed: ParsedLinkQr,
+  seed_b64: string,
+): { ok: true } | { ok: false; reason: "expired" | "bad_signature" } {
+  if (parsed.exp_unix < nowUnix()) return { ok: false, reason: "expired" }
+  const expected = hmacB64(
+    seed_b64,
+    linkCanonicalPayload(parsed.subject_id, parsed.token, parsed.exp_unix, parsed.nonce),
+  )
+  const a = Buffer.from(parsed.hmac_b64, "base64")
+  const b = Buffer.from(expected, "base64")
+  if (a.length !== b.length) return { ok: false, reason: "bad_signature" }
+  if (!timingSafeEqual(a, b)) return { ok: false, reason: "bad_signature" }
+  return { ok: true }
+}
+
 /** Resolve the server-side HMAC seed from `partner_qr_secret`. Service-role only. */
 export async function loadQrSecretSeed(
   serviceRole: { from: (table: string) => any },
