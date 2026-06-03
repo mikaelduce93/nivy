@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { type Crew, type UserCrewData } from "../schema"
 
 /**
@@ -26,7 +27,7 @@ export async function getUserCrew(): Promise<{
     })
 
     if (error) {
-      console.error("Error fetching user crew:", error)
+      logDbError("crews.getUserCrew", error)
       return { data: null, error: error.message }
     }
 

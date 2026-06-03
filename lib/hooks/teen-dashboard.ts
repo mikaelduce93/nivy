@@ -119,10 +119,10 @@ export function useTeenData(userId: string | undefined): UseTeenDataResult {
       
       if (profileError) throw profileError
 
-      // Fetch teen-specific data
+      // Fetch teen-specific data — la vue expose `pseudo` (pas `username`).
       const { data: teenData } = await supabase
         .from('teen_full_profile')
-        .select('username, level')
+        .select('pseudo, level')
         .eq('id', userId)
         .single()
 
@@ -152,7 +152,7 @@ export function useTeenData(userId: string | undefined): UseTeenDataResult {
       setProfile({
         id: userId,
         full_name: profileData?.full_name || 'Teen',
-        username: teenData?.username,
+        username: teenData?.pseudo,
         avatar_url: profileData?.avatar_url,
         level: teenData?.level || 1,
         total_xp: xpData?.total_xp || 0,

@@ -24,19 +24,87 @@ export async function GET(request: Request) {
       )
     }
 
-    // Search by email or linking code
-    const { data: teen, error } = await supabase
-      .from("profiles")
-      .select("id, full_name, email, username, avatar_url")
-      .eq("role", "teen")
-      .or(`email.eq.${query},linking_code.eq.${query.toUpperCase()}`)
-      .single()
+    const trimmed = query.trim()
+    const lowered = trimmed.toLowerCase()
+    const codeUpper = trimmed.toUpperCase()
 
-    if (error || !teen) {
+    // Resolve the teen id from one of three identifiers:
+    //   1. teens.pseudo (canonical public handle — was profiles.username, 42703)
+    //   2. linking_codes.code redeemed by the teen (was profiles.linking_code, 42703)
+    //   3. profiles.email (real column on the slim profiles table)
+    let teenId: string | null = null
+
+    const { data: teenByPseudo } = await supabase
+      .from("teens")
+      .select("id")
+      .eq("pseudo", lowered)
+      .maybeSingle()
+
+    if (teenByPseudo) {
+      teenId = teenByPseudo.id
+    }
+
+    if (!teenId) {
+      const { data: codeRow } = await supabase
+        .from("linking_codes")
+        .select("used_by")
+        .eq("code", codeUpper)
+        .maybeSingle()
+
+      if (codeRow?.used_by) {
+        teenId = codeRow.used_by
+      }
+    }
+
+    if (!teenId) {
+      const { data: profileByEmail } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("role", "teen")
+        .eq("email", lowered)
+        .maybeSingle()
+
+      if (profileByEmail) {
+        teenId = profileByEmail.id
+      }
+    }
+
+    if (!teenId) {
       return NextResponse.json(
         { success: false, error: "Aucun teen trouvé avec cet identifiant" },
         { status: 404 }
       )
+    }
+
+    // Assemble the teen card from the real sources: profiles (email/full_name)
+    // + teens (pseudo/avatar). pseudo falls back to full_name like get_user_crew.
+    const [{ data: profileRow }, { data: teenRow }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, full_name, email, avatar_url, role")
+        .eq("id", teenId)
+        .eq("role", "teen")
+        .maybeSingle(),
+      supabase
+        .from("teens")
+        .select("id, pseudo, avatar_url")
+        .eq("id", teenId)
+        .maybeSingle(),
+    ])
+
+    if (!profileRow) {
+      return NextResponse.json(
+        { success: false, error: "Aucun teen trouvé avec cet identifiant" },
+        { status: 404 }
+      )
+    }
+
+    const teen = {
+      id: profileRow.id,
+      full_name: profileRow.full_name,
+      email: profileRow.email,
+      username: teenRow?.pseudo ?? null,
+      avatar_url: teenRow?.avatar_url ?? profileRow.avatar_url ?? null,
     }
 
     // Check if already linked

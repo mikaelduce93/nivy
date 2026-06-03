@@ -112,20 +112,8 @@ export async function POST(request: Request) {
     const supabase = await createClient()
     const pseudoLower = body.pseudo.toLowerCase()
 
-    // Pseudo uniqueness — defensive read via the user-bound client.
-    const { data: existingPseudoProfile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", pseudoLower)
-      .maybeSingle()
-
-    if (existingPseudoProfile) {
-      return NextResponse.json(
-        { success: false, error: "Ce pseudo est déjà utilisé" },
-        { status: 400 }
-      )
-    }
-
+    // Pseudo uniqueness — teens.pseudo is the canonical source. The slim
+    // profiles table has no username column (drift), so we only check teens.
     const { data: existingTeenPseudo } = await supabase
       .from("teens")
       .select("id")
@@ -223,11 +211,11 @@ export async function POST(request: Request) {
       )
     }
 
-    // 3. Username + linking_code on profiles (created by trigger).
+    // 3. Sync avatar/onboarding on profiles (created by trigger). The pseudo
+    //    lives on teens.pseudo (set in step 2); profiles has no username column.
     await admin
       .from("profiles")
       .update({
-        username: pseudoLower,
         avatar_url: body.avatarUrl ?? null,
         is_onboarded: false,
       })

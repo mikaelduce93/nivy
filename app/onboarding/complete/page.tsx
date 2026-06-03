@@ -51,12 +51,12 @@ export default async function OnboardingCompletePage() {
   let starterXp: number | null = null
   let starterCoins: number | null = null
   try {
-    const { data: prof } = await supabase
-      .from("profiles")
+    const { data: xpRow } = await supabase
+      .from("user_xp")
       .select("total_xp")
-      .eq("id", userInfo.profileId)
+      .eq("teen_id", userInfo.profileId)
       .maybeSingle()
-    if (prof && typeof prof.total_xp === "number") starterXp = prof.total_xp
+    if (xpRow && typeof xpRow.total_xp === "number") starterXp = xpRow.total_xp
   } catch {
     /* best-effort — le récap est décoratif, pas bloquant */
   }

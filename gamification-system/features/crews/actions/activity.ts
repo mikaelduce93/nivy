@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type Crew,
   type CrewMember,
@@ -29,7 +30,7 @@ export async function getCrewLeaderboard(
     })
 
     if (error) {
-      console.error("Error fetching crew leaderboard:", error)
+      logDbError("crews.getCrewLeaderboard", error)
       return { data: [], error: error.message }
     }
 

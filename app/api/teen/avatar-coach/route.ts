@@ -255,11 +255,16 @@ export async function POST(request: Request) {
       .eq("teen_id", user.id)
       .maybeSingle<AvatarRow>()
     const coachName = (avatar?.name || "Niv").trim() || "Niv"
-    const { data: pseudoRow } = await supabase
-      .from("profiles")
+    // Drift schéma corrigé : le pseudo vit sur `teens` (profiles n'expose plus
+    // de colonne pseudo → 42703). PII-safe : pseudo, jamais le vrai prénom.
+    const { data: pseudoRow, error: pseudoErr } = await supabase
+      .from("teens")
       .select("pseudo")
       .eq("id", user.id)
       .maybeSingle()
+    if (pseudoErr) {
+      console.error("[avatar-coach] pseudo fetch error:", pseudoErr)
+    }
     const teenFirstName = (pseudoRow?.pseudo as string | null | undefined)?.trim() || "champion"
 
     // #202 — profil réel léger pour personnaliser (PII-safe). Colonnes réelles de
