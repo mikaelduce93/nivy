@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { NivCoach } from "@/components/brand"
 import { CheckCircle2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import { fetchWithCSRF } from "@/lib/security/fetch-with-csrf"
 
 /**
  * V11 #298 — parent-side camera surface to scan the teen's `nivy:link:v1` QR.
@@ -28,7 +29,7 @@ export function ScanTeenClient() {
     }
     setProcessing(true)
     try {
-      const res = await fetch("/api/parent/link-teen/scan", {
+      const res = await fetchWithCSRF("/api/parent/link-teen/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ qr_payload: qr }),

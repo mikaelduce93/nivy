@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { Copy, Loader2, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
+import { fetchWithCSRF } from "@/lib/security/fetch-with-csrf"
 
 interface InviteData {
   code: string
@@ -28,7 +29,7 @@ export function InviteTeenClient() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch("/api/parent/teens/invite", { method: "POST" })
+      const res = await fetchWithCSRF("/api/parent/teens/invite", { method: "POST" })
       const data = await res.json()
       if (!data.success) {
         setError(data.error ?? "Erreur lors de la génération du code.")

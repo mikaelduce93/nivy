@@ -3,9 +3,13 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { linkParentTeen } from "@/lib/teens/link-cascade"
+import { validateCsrfRequest } from "@/lib/security/csrf"
 
 export async function POST(request: Request) {
   try {
+    if (!(await validateCsrfRequest(request))) {
+      return NextResponse.json({ success: false, error: "Jeton CSRF invalide" }, { status: 403 })
+    }
     const supabase = await createClient()
     const userInfo = await getUserRole()
 
@@ -143,6 +147,9 @@ export async function GET(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    if (!(await validateCsrfRequest(request))) {
+      return NextResponse.json({ success: false, error: "Jeton CSRF invalide" }, { status: 403 })
+    }
     const supabase = await createClient()
     const userInfo = await getUserRole()
 

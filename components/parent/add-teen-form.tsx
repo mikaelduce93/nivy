@@ -29,6 +29,7 @@ import {
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { checkPseudoAvailable, getInterests } from "@/features/teens"
+import { fetchWithCSRF } from "@/lib/security/fetch-with-csrf"
 import Image from "next/image"
 import { isTeenAge, TEEN_AGE_ERROR, teenDateOfBirthBounds } from "@/lib/constants/age"
 
@@ -330,7 +331,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
     setLoading(true)
     try {
-      const response = await fetch("/api/parent/teens", {
+      const response = await fetchWithCSRF("/api/parent/teens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -419,7 +420,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
         }
       }
 
-      const response = await fetch("/api/parent/teens/create", {
+      const response = await fetchWithCSRF("/api/parent/teens/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

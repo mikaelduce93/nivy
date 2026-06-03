@@ -12,6 +12,7 @@ import { randomInt } from "node:crypto"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { getAppUrl } from "@/lib/config/app-config"
+import { validateCsrfRequest } from "@/lib/security/csrf"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -22,8 +23,11 @@ function sixDigitCode(): string {
   return String(randomInt(0, 1_000_000)).padStart(6, "0")
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    if (!(await validateCsrfRequest(request))) {
+      return NextResponse.json({ success: false, error: "Jeton CSRF invalide" }, { status: 403 })
+    }
     const userInfo = await getUserRole()
     if (!userInfo || userInfo.role !== "parent") {
       return NextResponse.json({ success: false, error: "Non autorisé" }, { status: 401 })

@@ -45,6 +45,28 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { sep } from 'node:path'
 
 const BASELINE_PATH = 'docs/compliance/drift-baseline.json'
+const RELATIONS_PATH = 'docs/compliance/db-relations.json'
+
+// V11 #313 — to_regclass guard. Every literal `.from('<table>')` must target a
+// REAL public relation (allowlist snapshot). Built-in `.from` (Buffer/Array/…)
+// and `storage.from('<bucket>')` are excluded by the object-token check.
+const REAL_RELATIONS = loadRealRelations()
+const FROM_LITERAL = /(\w+)?\s*\??\.\s*from\(\s*['"]([a-z_][a-z0-9_]*)['"]\s*\)/g
+const NON_DB_FROM_OBJECTS = new Set([
+  'Buffer', 'Array', 'Date', 'Object', 'Set', 'Map', 'Promise', 'Number', 'String', 'JSON',
+  'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array',
+  'Int32Array', 'Uint32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array',
+  'storage', // supabase.storage.from('<bucket>') — buckets are not relations
+])
+
+function loadRealRelations() {
+  try {
+    const data = JSON.parse(readFileSync(RELATIONS_PATH, 'utf8'))
+    return new Set(data.relations || [])
+  } catch {
+    return null // file missing → DRIFT-004 disabled (graceful)
+  }
+}
 
 const GHOST_TABLE = /\buser_profiles\b/
 const GHOST_COLS = '(?:pseudo|level|xp|username|coins|parent_id|is_muted|muted_until)'
@@ -59,6 +81,7 @@ const RULES = {
   'DRIFT-001': 'référence à la table fantôme `user_profiles` (inexistante live → 42P01).',
   'DRIFT-002': 'colonne fantôme de `profiles` (pseudo/level/xp/username/coins/parent_id/is_muted/muted_until → 42703). Source réelle: teens / user_xp / user_coins.',
   'DRIFT-003': 'catch {} vide : la panne DB est avalée sans log. Utiliser logDbError(scope, error).',
+  'DRIFT-004': "to_regclass : `.from('<table>')` littéral cible une relation inexistante (42P01). Vérifier le nom contre docs/compliance/db-relations.json.",
 }
 
 function shouldScanFile(file) {
@@ -109,6 +132,22 @@ function scanFile(file) {
     if (FROM_PROFILES.test(ln)) sinceFromProfiles = 0
     if (sinceFromProfiles <= 10 && SELECT_LIKE.test(ln)) out.push({ ruleId: 'DRIFT-002', line: i + 1 })
     if (EMPTY_CATCH.test(ln)) out.push({ ruleId: 'DRIFT-003', line: i + 1 })
+    // DRIFT-004 — to_regclass: literal .from('<table>') must be a real relation.
+    // Skip comment lines (line/block) to avoid flagging documented examples.
+    const trimmed = ln.trimStart()
+    const isCommentLine = trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')
+    if (REAL_RELATIONS && !isCommentLine) {
+      FROM_LITERAL.lastIndex = 0
+      let m
+      while ((m = FROM_LITERAL.exec(ln)) !== null) {
+        // Skip when the match sits after a `//` line comment on the same line.
+        if (ln.slice(0, m.index).includes('//')) continue
+        const obj = m[1]
+        const table = m[2]
+        if (obj && NON_DB_FROM_OBJECTS.has(obj)) continue
+        if (!REAL_RELATIONS.has(table)) out.push({ ruleId: 'DRIFT-004', line: i + 1 })
+      }
+    }
     sinceFromProfiles++
   }
   return out

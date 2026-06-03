@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { ageFromDateOfBirth, isTeenAge, TEEN_AGE_ERROR } from "@/lib/constants/age"
 import { sendTeenMagicLinkEmail } from "@/lib/email/teen-access"
+import { validateCsrfRequest } from "@/lib/security/csrf"
 import { z } from "zod"
 
 /**
@@ -59,6 +60,11 @@ const bodySchema = z
 
 export async function POST(request: Request) {
   try {
+    // #313 — reject parent mutations without a valid CSRF token.
+    if (!(await validateCsrfRequest(request))) {
+      return NextResponse.json({ success: false, error: "Jeton CSRF invalide" }, { status: 403 })
+    }
+
     const userInfo = await getUserRole()
 
     if (!userInfo || userInfo.role !== "parent") {

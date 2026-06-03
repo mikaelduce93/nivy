@@ -1,14 +1,48 @@
 {
   "generated_at": "2026-06-03",
   "audit_source": "V7 #255 (drift profiles/user_profiles + empty-catch guard)",
-  "total_violations": 13,
-  "files_in_scope": 1597,
+  "total_violations": 114,
+  "files_in_scope": 1620,
   "violations_by_rule": {
-    "DRIFT-002": 13
+    "DRIFT-004": 103,
+    "DRIFT-002": 11
   },
   "violations_by_file_rule": {
+    "app/admin/analytics/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "app/admin/logs/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "app/admin/tag-normalize/page.tsx": {
+      "DRIFT-004": 1
+    },
     "app/admin/utilisateurs/page.tsx": {
       "DRIFT-002": 2
+    },
+    "app/ambassador/boutique/page.tsx": {
+      "DRIFT-004": 3
+    },
+    "app/api/admin/kpis/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/admin/scorecard/route.ts": {
+      "DRIFT-004": 3
+    },
+    "app/api/admin/tag-aliases/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/ambassador/shop/points/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/ambassador/shop/redeem/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/ambassador/shop/rewards/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/authorizations/revoke/route.ts": {
+      "DRIFT-004": 1
     },
     "app/api/check-in/entry/route.ts": {
       "DRIFT-002": 1
@@ -19,8 +53,38 @@
     "app/api/circles/route.ts": {
       "DRIFT-002": 1
     },
-    "app/api/parent/export-pdf/route.ts": {
-      "DRIFT-002": 2
+    "app/api/clubs/cancel/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/clubs/pause/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/clubs/resume/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/cron/birthday-greetings/route.ts": {
+      "DRIFT-004": 2
+    },
+    "app/api/cron/tag-normalize/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/cron/weekly-leaderboard-rollup/route.ts": {
+      "DRIFT-004": 2
+    },
+    "app/api/e-signature/create/route.ts": {
+      "DRIFT-004": 3
+    },
+    "app/api/newsletter/subscribe/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/parent/budget/route.ts": {
+      "DRIFT-004": 2
+    },
+    "app/api/parent/e-signature/create/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/parent/insights/route.ts": {
+      "DRIFT-004": 1
     },
     "app/api/parent/live/route.ts": {
       "DRIFT-002": 1
@@ -28,11 +92,122 @@
     "app/api/parent/teens/search/route.ts": {
       "DRIFT-002": 2
     },
+    "app/api/partner/apply-discount/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/partner/verify-card/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/partners/wizard/submit/route.ts": {
+      "DRIFT-004": 3
+    },
+    "app/api/teen/creativity/creations/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/teen/creativity/paths/route.ts": {
+      "DRIFT-004": 6
+    },
+    "app/api/teen/profile/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/teen/quests/complete/route.ts": {
+      "DRIFT-004": 5
+    },
+    "app/api/teen/quests/start/route.ts": {
+      "DRIFT-004": 4
+    },
+    "app/api/teen/recommendations/route.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/teen/share/route.ts": {
+      "DRIFT-004": 2
+    },
+    "app/api/teen/subscription/handlers.ts": {
+      "DRIFT-004": 1
+    },
+    "app/api/webhooks/stripe/dispatcher.ts": {
+      "DRIFT-004": 8
+    },
+    "app/blog/page.tsx": {
+      "DRIFT-004": 2
+    },
+    "app/carte-vip/recompenses/page.tsx": {
+      "DRIFT-004": 2
+    },
+    "app/communaute/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "app/djs/[id]/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "app/djs/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "app/galerie/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "app/parent/history/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "app/teen/profile/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "app/teen/quests/[id]/page.tsx": {
+      "DRIFT-004": 2
+    },
+    "app/temoignages/page.tsx": {
+      "DRIFT-004": 1
+    },
+    "components/club-enrollment-form.tsx": {
+      "DRIFT-004": 2
+    },
+    "components/gamification/challenges/video-proof-uploader.tsx": {
+      "DRIFT-004": 1
+    },
+    "components/post-actions.tsx": {
+      "DRIFT-004": 2
+    },
+    "components/review-form.tsx": {
+      "DRIFT-004": 1
+    },
+    "components/reviews-list.tsx": {
+      "DRIFT-004": 1
+    },
+    "gamification-system/database/run-migrations.ts": {
+      "DRIFT-004": 1
+    },
+    "gamification-system/features/crews/actions-social.ts": {
+      "DRIFT-004": 2
+    },
+    "gamification-system/features/crews/social-graph.ts": {
+      "DRIFT-004": 2
+    },
+    "gamification-system/features/pillars/actions.ts": {
+      "DRIFT-004": 2
+    },
+    "gamification-system/features/social-sharing/actions.ts": {
+      "DRIFT-004": 1
+    },
+    "lib/ai/agent-actions.ts": {
+      "DRIFT-004": 1
+    },
+    "lib/ai/context-engine.ts": {
+      "DRIFT-004": 4
+    },
+    "lib/feed/system-activity.ts": {
+      "DRIFT-004": 2
+    },
     "lib/hooks/teen-dashboard.ts": {
       "DRIFT-002": 1
     },
+    "lib/notifications/triggers.ts": {
+      "DRIFT-004": 1
+    },
     "lib/payments/psp-webhook.ts": {
       "DRIFT-002": 1
+    },
+    "lib/server/data-fetching.ts": {
+      "DRIFT-004": 2
     },
     "lib/server/teen-identities.ts": {
       "DRIFT-002": 1

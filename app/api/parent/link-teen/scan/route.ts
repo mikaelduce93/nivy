@@ -14,6 +14,7 @@ import { loadQrSecretSeed, parseLinkQr, verifyLinkQr } from "@/lib/partner/qr-v2
 import { consumeTeenLinkToken } from "@/lib/teens/link-token"
 import { linkParentTeen } from "@/lib/teens/link-cascade"
 import { parentHasActiveSignature } from "@/lib/teens/balance-activation"
+import { validateCsrfRequest } from "@/lib/security/csrf"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -21,6 +22,9 @@ export const runtime = "nodejs"
 const bodySchema = z.object({ qr_payload: z.string().min(8).max(2048) })
 
 export async function POST(request: Request) {
+  if (!(await validateCsrfRequest(request))) {
+    return NextResponse.json({ success: false, error: "Jeton CSRF invalide" }, { status: 403 })
+  }
   const userInfo = await getUserRole()
   if (!userInfo || userInfo.role !== "parent") {
     return NextResponse.json({ success: false, error: "unauthenticated" }, { status: 401 })
