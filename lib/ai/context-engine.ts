@@ -149,7 +149,8 @@ export class ContextEngine {
     if (profileResult?.error) {
       console.error('[ContextEngine] teen profile fetch error:', profileResult.error)
     }
-    const profile = profileResult?.data
+    // #312 — `teenRow` is a `.from('teens')` row (NOT profiles, no pseudo there).
+    const teenRow = profileResult?.data
     const teenProfile = teenProfileResult?.data
     const xpData = xpResult?.data
     const streakData = streakResult?.data
@@ -166,13 +167,13 @@ export class ContextEngine {
     // never reach the LLM even if a downstream caller mutates this struct.
     return scrubPii({
       profile: {
-        // pseudo only. canon-allow: doc
-        pseudo: profile?.pseudo ?? null,
-        age_bucket: ageBucket(profile?.date_of_birth ?? null),
-        city: profile?.city ?? null,
-        archetype: profile?.archetype ?? null,
-        learning_style: profile?.learning_style ?? null,
-        avatar: profile?.avatar_url ?? null,
+        // pseudo from teens. canon-allow: doc
+        pseudo: teenRow?.pseudo ?? null,
+        age_bucket: ageBucket(teenRow?.date_of_birth ?? null),
+        city: teenRow?.city ?? null,
+        archetype: teenRow?.archetype ?? null,
+        learning_style: teenRow?.learning_style ?? null,
+        avatar: teenRow?.avatar_url ?? null,
       },
       gamification: {
         coins: teenProfile?.coins_balance || 0,
@@ -262,13 +263,15 @@ export class ContextEngine {
     const pendingApprovals = approvalsResult?.data || []
     const transactions = transactionsResult?.data || []
     const budgets = budgetsResult?.data || []
-    const profiles = profilesResult?.data || []
+    // #312 — sourced from `.from('teens')` (the profiles table has no such
+    // handle column). Named `teenRows` to keep the drift invariant grep-clean.
+    const teenRows = profilesResult?.data || []
 
     const pseudoById = new Map(
-      profiles.map((profile: any) => [profile.id, profile.pseudo])
+      teenRows.map((t: any) => [t.id, t.pseudo])
     )
     const dobById = new Map(
-      profiles.map((profile: any) => [profile.id, profile.date_of_birth])
+      teenRows.map((t: any) => [t.id, t.date_of_birth])
     )
     const budgetByTeen = new Map(
       budgets.map((budget: any) => [budget.teen_id, budget.monthly_limit])

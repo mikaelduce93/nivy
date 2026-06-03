@@ -494,7 +494,7 @@ function generateReportHTML(data: ReportData): string {
             <td>${formatDate(b.created_at)}</td>
             <td>${b.booking_reference}</td>
             <td>${b.events?.title || "-"}</td>
-            <td>${b.booking_tickets?.map((t: any) => t.profiles?.pseudo || t.profiles?.full_name).join(", ") || "-"}</td>
+            <td>${b.booking_tickets?.map((t: any) => t.profiles?.full_name).join(", ") || "-"}</td>
             <td>${formatCurrency(b.total_amount)}</td>
             <td>${b.xp_used ? `${b.xp_used} XP` : "-"}</td>
             <td><span class="status status-${b.payment_status}">${b.payment_status}</span></td>
@@ -530,7 +530,7 @@ function generateReportHTML(data: ReportData): string {
               (t) => `
           <tr>
             <td>${formatDate(t.created_at)}</td>
-            <td>${t.profiles?.pseudo || t.profiles?.full_name || "-"}</td>
+            <td>${t.profiles?.full_name || "-"}</td>
             <td>${t.type}</td>
             <td>${t.description || "-"}</td>
             <td class="${t.amount >= 0 ? "amount-positive" : "amount-negative"}">${formatXP(t.amount)}</td>
