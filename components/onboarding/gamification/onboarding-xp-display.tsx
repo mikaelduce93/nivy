@@ -89,7 +89,9 @@ export function OnboardingXPDisplay({
             >
               <Zap className="w-4 h-4 text-ink" />
             </motion.div>
-            <span className="text-mute text-sm font-medium">XP Onboarding</span>
+            {/* #308 — libellé non ambigu : compteur d'avancement d'inscription
+                (PAS de l'XP réelle créditée, qui arrive après validation). */}
+            <span className="text-mute text-sm font-medium">Progression d'inscription</span>
           </div>
 
           <motion.div
@@ -202,6 +204,8 @@ export function OnboardingXPCompact({ currentXP, className }: OnboardingXPCompac
       )}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
+      title="Progression d'inscription"
+      aria-label="Progression d'inscription"
     >
       <div className="w-5 h-5 rounded-full border-2 border-ink bg-gold flex items-center justify-center">
         <Zap className="w-3 h-3 text-ink" />
@@ -214,7 +218,8 @@ export function OnboardingXPCompact({ currentXP, className }: OnboardingXPCompac
           transition={{ duration: 0.5 }}
         />
       </div>
-      <span className="text-ink font-mono text-xs font-bold">{currentXP} XP</span>
+      {/* #308 — « pts » d'avancement, pas de l'XP réelle. */}
+      <span className="text-ink font-mono text-xs font-bold">{currentXP} pts</span>
     </motion.div>
   )
 }

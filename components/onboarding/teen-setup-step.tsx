@@ -47,8 +47,17 @@ const PHONE_RE = /^(\+212|0)[67]\d{8}$/
 // Sub-steps. Index 2 (parent) is the last DATA-collection step → submit there;
 // steps after it (crew) are post-submit engagement, reached only once the
 // pending registration exists.
-const SUB_STEPS = ["identité", "vibe de Niv", "contact parent", "ton crew"] as const
+const SUB_STEPS = ["identité", "vibe de Niv", "contact parent", "ton crew", "starter pack"] as const
 const PARENT_STEP = 2
+
+// #308 — récompense visible immédiatement, « pré-débloquée », créditée à la
+// validation parentale (la célébration arrive AVANT la friction parentale).
+const STARTER_PACK: Array<{ icon: string; label: string }> = [
+  { icon: "⚡", label: "+500 XP de bienvenue" },
+  { icon: "🎨", label: "Un skin Niv exclusif" },
+  { icon: "🧠", label: "4 quiz débloqués" },
+  { icon: "🔥", label: "Ton streak démarré" },
+]
 
 const ARCHETYPE_CHIPS: Array<{ value: Archetype; label: string; icon: string; hint: string }> = [
   { value: "creator", label: "Créateur", icon: "🎨", hint: "Tu aimes imaginer et fabriquer" },
@@ -418,6 +427,35 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 <Copy className="size-4" aria-hidden="true" />
                 Copier le lien d'invitation
               </Button>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-5 text-center">
+              <div className="flex justify-center">
+                <Niv mood="hype" size={88} float />
+              </div>
+              <div>
+                <p className="eyebrow tracking-[0.16em] text-pink">Starter pack</p>
+                <h3 className="mt-1 font-display text-2xl font-extrabold text-ink">
+                  {formData.teenFirstName ? `Bravo ${formData.teenFirstName} !` : "Bravo !"}
+                </h3>
+                <p className="mt-1 text-sm text-mute">Voici ce qui t'attend dès l'activation de ton compte :</p>
+              </div>
+              <ul className="mx-auto grid max-w-sm gap-2 text-left">
+                {STARTER_PACK.map((item) => (
+                  <li
+                    key={item.label}
+                    className="flex items-center gap-3 rounded-2xl border-2 border-ink bg-white p-3 shadow-stkr-sm"
+                  >
+                    <span className="text-2xl" aria-hidden="true">{item.icon}</span>
+                    <span className="text-sm font-semibold text-ink">{item.label}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="rounded-2xl border-2 border-ink bg-lime/15 p-3 text-sm font-semibold text-ink">
+                🔒 Pré-débloqué — activé dès que ton parent valide ton inscription.
+              </p>
             </div>
           )}
         </form>
