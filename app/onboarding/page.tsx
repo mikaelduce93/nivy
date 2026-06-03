@@ -12,7 +12,7 @@
  * - GAMIFICATION: XP, badges, tutoriel
  */
 
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -107,6 +107,29 @@ export default function OnboardingPage() {
 
     checkAuth()
   }, [router])
+
+  // #288 — entrée d'inscription unique : capter l'intention transmise par les
+  // CTA de la home et de /parents (?role=parent|teen, ?plan=…) pour pré-segmenter
+  // le parcours. Lu depuis window.location (évite le bail-out CSR de
+  // useSearchParams). Appliqué une seule fois.
+  const intentApplied = useRef(false)
+  useEffect(() => {
+    if (intentApplied.current) return
+    intentApplied.current = true
+    const params = new URLSearchParams(window.location.search)
+    const plan = params.get('plan')
+    const role = params.get('role')
+    if (plan) {
+      try {
+        localStorage.setItem('nivy_selected_plan', plan)
+      } catch {
+        /* localStorage indisponible — l'intention de plan est simplement ignorée */
+      }
+    }
+    if (role === 'parent' || role === 'teen') {
+      selectUserType(role)
+    }
+  }, [selectUserType])
 
   // Compute step index for "Étape X / N" label
   const stepList = useMemo(() => buildStepList(data.userType ?? null), [data.userType])
