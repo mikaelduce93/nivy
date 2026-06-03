@@ -173,3 +173,50 @@ export function getAppUrl(): string {
 export function getSocialBaseUrl(): string {
   return resolveSocialBaseUrl(resolveAppUrl())
 }
+
+/* ════════════════════════ ESCROW / TIERS E-MONEY (#289) ════════════════════════ */
+
+export interface EscrowConfig {
+  /** Nom du tiers e-money agree BAM, ou null tant qu'il n'est pas contractualise. */
+  partnerName: string | null
+  /** True quand le tiers est nomme (donc contractualise). */
+  isNamed: boolean
+  /** Phrase canonique autonome (FAQ, /parents, JSON-LD). */
+  statement: string
+  /** Fragment inline (apres « Les coins … »). */
+  clause: string
+  /** Variante courte (barre de garantie, puces). */
+  short: string
+}
+
+/**
+ * Source unique pour l'affirmation d'escrow (#289).
+ *
+ * Le tiers e-money agree BAM n'est pas encore contractualise : tant que
+ * `NEXT_PUBLIC_ESCROW_PARTNER_NAME` n'est pas defini, on ne nomme PAS le tiers
+ * et on formule l'escrow AU CONDITIONNEL (on n'affirme pas un acquis non
+ * contractualise). Quand le partenaire est signe, definir cette variable
+ * d'environnement suffit a le nommer partout (home, FAQ, /parents, JSON-LD).
+ *
+ * Note: les chaines retournees portent les accents corrects (texte UI).
+ */
+export function getEscrowConfig(): EscrowConfig {
+  const partnerName =
+    process.env.NEXT_PUBLIC_ESCROW_PARTNER_NAME?.trim() || null
+  const isNamed = Boolean(partnerName)
+  const authority = "établissement de monnaie électronique agréé par Bank Al-Maghrib"
+
+  const statement = isNamed
+    ? `Les coins sont adossés au dirham et conservés en escrow chez ${partnerName}, ${authority}.`
+    : `Les coins sont adossés au dirham ; ils seront conservés en escrow auprès d'un ${authority} (partenaire en cours de contractualisation).`
+
+  const clause = isNamed
+    ? `conservés en escrow chez ${partnerName} (${authority})`
+    : `qui seront conservés en escrow auprès d'un ${authority} (partenaire en cours de contractualisation)`
+
+  const short = isNamed
+    ? `Escrow chez ${partnerName} · agréé BAM`
+    : "Escrow e-money agréé BAM · partenaire en cours"
+
+  return { partnerName, isNamed, statement, clause, short }
+}

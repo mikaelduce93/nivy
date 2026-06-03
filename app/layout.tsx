@@ -20,7 +20,7 @@ import { SentryUserContext } from "@/components/monitoring/sentry-user-context"
 import { SentryWebVitals } from "@/components/monitoring/sentry-web-vitals"
 import { AppProviders } from "./providers"
 import { Toaster } from "@/components/ui/sonner"
-import { getPublicAppConfig } from "@/lib/config/app-config"
+import { getPublicAppConfig, getEscrowConfig } from "@/lib/config/app-config"
 import { I18nProvider } from "@/lib/i18n"
 import { getLocale } from "@/lib/i18n/server"
 import { LOCALE_HTML_LANG, isRtlLocale } from "@/lib/i18n/types"
@@ -159,6 +159,10 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale()
 
+  // #289 — affirmation d'escrow centralisee (conditionnelle tant que le tiers
+  // e-money agree BAM n'est pas contractualise).
+  const escrow = getEscrowConfig()
+
   // i18n: derive `lang` and `dir` from the active locale so AR (MSA) renders
   // RTL the moment translators flip the bundle on. See `lib/i18n/types.ts` for
   // the canonical mapping (Darija stays `ar-MA` + LTR in V1 since it ships in
@@ -200,7 +204,7 @@ export default async function RootLayout({
                   "name": "Comment fonctionnent les XP et les coins ?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Les XP récompensent l'effort et la régularité : ils ne sont jamais convertibles en argent. Les coins sont une monnaie prépayée adossée au dirham (DH), conservée en escrow auprès d'un établissement de monnaie électronique agréé par Bank Al-Maghrib, et servent à payer les services de l'app."
+                    "text": `Les XP récompensent l'effort et la régularité : ils ne sont jamais convertibles en argent. ${escrow.statement} Les coins servent à payer les services de l'app.`
                   }
                 },
                 {

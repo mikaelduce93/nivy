@@ -1,11 +1,13 @@
 import { Shield, Award, Lock } from 'lucide-react'
+import { getEscrowConfig } from '@/lib/config/app-config'
 
 // Bandeau de réassurance — charte paper néo-brutaliste : fond crème, bordure 2px
 // ink, pas de dégradé. Chaque claim est vérifiable (politique produit), aucun
-// chiffre de notoriété non sourcé.
+// chiffre de notoriété non sourcé. L'affirmation d'escrow vient de la source
+// unique (#289), conditionnelle tant que le tiers e-money n'est pas nommé.
 const ITEMS = [
   { icon: Shield, title: '13–17 ans uniquement', sub: "Contrôle d'âge" },
-  { icon: Award, title: 'BAM-conforme', sub: 'Escrow e-money agréé' },
+  { icon: Award, title: 'BAM-conforme', sub: getEscrowConfig().short },
   { icon: Lock, title: 'CNDP loi 09-08', sub: 'Données protégées' },
 ] as const
 
