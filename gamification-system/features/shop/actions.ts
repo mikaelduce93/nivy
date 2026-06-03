@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type ShopReward,
   type UserPurchase,
@@ -39,13 +40,13 @@ export async function getCategories(): Promise<{
       .order("display_order")
 
     if (error) {
-      console.error("Error fetching categories:", error)
+      logDbError("shop.getCategories", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as RewardCategory[], error: null }
   } catch (error) {
-    console.error("Error in getCategories:", error)
+    logDbError("shop.getCategories", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -79,13 +80,13 @@ export async function getRewards(
     })
 
     if (error) {
-      console.error("Error fetching rewards:", error)
+      logDbError("shop.getRewards", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as ShopReward[], error: null }
   } catch (error) {
-    console.error("Error in getRewards:", error)
+    logDbError("shop.getRewards", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -107,7 +108,7 @@ export async function getFeaturedRewards(): Promise<{
     const featured = data.filter((r) => r.is_featured)
     return { data: featured, error: null }
   } catch (error) {
-    console.error("Error in getFeaturedRewards:", error)
+    logDbError("shop.getFeaturedRewards", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -128,7 +129,7 @@ export async function getRewardById(
     const reward = data.find((r) => r.reward_id === rewardId)
     return { data: reward || null, error: null }
   } catch (error) {
-    console.error("Error in getRewardById:", error)
+    logDbError("shop.getRewardById", error)
     return { data: null, error: "Erreur serveur" }
   }
 }
@@ -167,7 +168,7 @@ export async function purchaseReward(
     })
 
     if (error) {
-      console.error("Error purchasing reward:", error)
+      logDbError("shop.purchaseReward", error)
       return { success: false, error: error.message }
     }
 
@@ -188,7 +189,7 @@ export async function purchaseReward(
       error: null,
     }
   } catch (error) {
-    console.error("Error in purchaseReward:", error)
+    logDbError("shop.purchaseReward", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -222,13 +223,13 @@ export async function getUserPurchases(
     })
 
     if (error) {
-      console.error("Error fetching purchases:", error)
+      logDbError("shop.getUserPurchases", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as UserPurchase[], error: null }
   } catch (error) {
-    console.error("Error in getUserPurchases:", error)
+    logDbError("shop.getUserPurchases", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -274,7 +275,7 @@ export async function useReward(input: UseRewardInput): Promise<{
     })
 
     if (error) {
-      console.error("Error using reward:", error)
+      logDbError("shop.useReward", error)
       return { success: false, error: error.message }
     }
 
@@ -292,7 +293,7 @@ export async function useReward(input: UseRewardInput): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in useReward:", error)
+    logDbError("shop.useReward", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -324,7 +325,7 @@ export async function toggleWishlist(
     })
 
     if (error) {
-      console.error("Error toggling wishlist:", error)
+      logDbError("shop.toggleWishlist", error)
       return { success: false, action: "removed", error: error.message }
     }
 
@@ -336,7 +337,7 @@ export async function toggleWishlist(
       error: null,
     }
   } catch (error) {
-    console.error("Error in toggleWishlist:", error)
+    logDbError("shop.toggleWishlist", error)
     return { success: false, action: "removed", error: "Erreur serveur" }
   }
 }
@@ -358,7 +359,7 @@ export async function getWishlist(): Promise<{
     const wishlist = data.filter((r) => r.is_in_wishlist)
     return { data: wishlist, error: null }
   } catch (error) {
-    console.error("Error in getWishlist:", error)
+    logDbError("shop.getWishlist", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -440,7 +441,7 @@ export async function validatePromoCode(
       error: null,
     }
   } catch (error) {
-    console.error("Error in validatePromoCode:", error)
+    logDbError("shop.validatePromoCode", error)
     return { valid: false, error: "Erreur serveur" }
   }
 }
@@ -510,7 +511,7 @@ export async function getShopSummary(): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in getShopSummary:", error)
+    logDbError("shop.getShopSummary", error)
     return { data: null, error: "Erreur serveur" }
   }
 }

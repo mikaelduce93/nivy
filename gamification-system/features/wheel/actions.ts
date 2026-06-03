@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type WheelSegment,
   type SpinResult,
@@ -39,13 +40,13 @@ export async function getWheelSegments(): Promise<{
       .order("segment_index")
 
     if (error) {
-      console.error("Error fetching segments:", error)
+      logDbError("wheel.getWheelSegments", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as WheelSegment[], error: null }
   } catch (error) {
-    console.error("Error in getWheelSegments:", error)
+    logDbError("wheel.getWheelSegments", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -77,13 +78,13 @@ export async function canSpinWheel(): Promise<{
     })
 
     if (error) {
-      console.error("Error checking spin availability:", error)
+      logDbError("wheel.canSpinWheel", error)
       return { data: null, error: error.message }
     }
 
     return { data: data as CanSpin, error: null }
   } catch (error) {
-    console.error("Error in canSpinWheel:", error)
+    logDbError("wheel.canSpinWheel", error)
     return { data: null, error: "Erreur serveur" }
   }
 }
@@ -118,7 +119,7 @@ export async function spinWheel(
     })
 
     if (error) {
-      console.error("Error spinning wheel:", error)
+      logDbError("wheel.spinWheel", error)
       return { data: null, error: error.message }
     }
 
@@ -133,7 +134,7 @@ export async function spinWheel(
 
     return { data: data as SpinResult, error: null }
   } catch (error) {
-    console.error("Error in spinWheel:", error)
+    logDbError("wheel.spinWheel", error)
     return { data: null, error: "Erreur serveur" }
   }
 }
@@ -175,13 +176,13 @@ export async function getWheelStats(): Promise<{
     })
 
     if (error) {
-      console.error("Error fetching wheel stats:", error)
+      logDbError("wheel.getWheelStats", error)
       return { data: null, error: error.message }
     }
 
     return { data: data as WheelStats, error: null }
   } catch (error) {
-    console.error("Error in getWheelStats:", error)
+    logDbError("wheel.getWheelStats", error)
     return { data: null, error: "Erreur serveur" }
   }
 }
@@ -216,13 +217,13 @@ export async function getSpinHistory(
     })
 
     if (error) {
-      console.error("Error fetching spin history:", error)
+      logDbError("wheel.getSpinHistory", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as SpinHistoryEntry[], error: null }
   } catch (error) {
-    console.error("Error in getSpinHistory:", error)
+    logDbError("wheel.getSpinHistory", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -249,7 +250,7 @@ export async function getCurrentJackpot(): Promise<{
       .single()
 
     if (error) {
-      console.error("Error fetching jackpot:", error)
+      logDbError("wheel.getCurrentJackpot", error)
       return { data: null, error: error.message }
     }
 
@@ -262,7 +263,7 @@ export async function getCurrentJackpot(): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in getCurrentJackpot:", error)
+    logDbError("wheel.getCurrentJackpot", error)
     return { data: null, error: "Erreur serveur" }
   }
 }
@@ -324,7 +325,7 @@ export async function getWheelSummary(): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in getWheelSummary:", error)
+    logDbError("wheel.getWheelSummary", error)
     return { data: null, error: "Erreur serveur" }
   }
 }

@@ -17,17 +17,25 @@ export type DbErrorLike = {
 
 /**
  * Logge une erreur DB de façon structurée (champs extraits, jamais l'objet nu).
- * No-op si `error` est falsy, pour pouvoir l'appeler inconditionnellement.
+ *
+ * Accepte `unknown` pour pouvoir convertir indifféremment un `PostgrestError`
+ * (`if (error) ...`) OU une exception attrapée (`catch (error)`, typée `unknown`).
+ * No-op si `error` est falsy.
  */
-export function logDbError(scope: string, error: DbErrorLike): void {
+export function logDbError(scope: string, error: unknown): void {
   if (!error) return
+  if (typeof error !== "object") {
+    console.error(`[db:${scope}]`, String(error))
+    return
+  }
+  const e = error as { message?: string; code?: string; details?: string; hint?: string }
   console.error(
     `[db:${scope}]`,
     JSON.stringify({
-      message: error.message ?? null,
-      code: error.code ?? null,
-      details: error.details ?? null,
-      hint: error.hint ?? null,
+      message: e.message ?? null,
+      code: e.code ?? null,
+      details: e.details ?? null,
+      hint: e.hint ?? null,
     }),
   )
 }

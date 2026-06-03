@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { revalidatePath } from "next/cache"
 import {
   type UserCollectible,
@@ -23,7 +24,7 @@ export async function getUserCollections(
   })
 
   if (error) {
-    console.error("Error fetching user collections:", error)
+    logDbError("collections.getUserCollections", error)
     return null
   }
 
@@ -51,7 +52,7 @@ export async function getUserCollectiblesForSet(
     .eq("collectible_items.set_id", setId)
 
   if (error) {
-    console.error("Error fetching user collectibles:", error)
+    logDbError("collections.getUserCollectiblesForSet", error)
     return []
   }
 
@@ -75,7 +76,7 @@ export async function getUserSetProgress(
     .single()
 
   if (error && error.code !== "PGRST116") {
-    console.error("Error fetching user set progress:", error)
+    logDbError("collections.getUserSetProgress", error)
     return null
   }
 
@@ -115,7 +116,7 @@ export async function addCollectibleToUser(
   })
 
   if (error) {
-    console.error("Error adding collectible:", error)
+    logDbError("collections.addCollectibleToUser", error)
     return { success: false, error: error.message }
   }
 
@@ -147,7 +148,7 @@ export async function getRandomCollectible(
   })
 
   if (error) {
-    console.error("Error getting random collectible:", error)
+    logDbError("collections.getRandomCollectible", error)
     return null
   }
 

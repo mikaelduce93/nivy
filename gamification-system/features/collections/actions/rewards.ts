@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logDbError } from "@/lib/observability/log-db-error"
 import { revalidatePath } from "next/cache"
 import { getUserSetProgress } from "./user-collections"
 
@@ -28,7 +29,7 @@ export async function claimSetRewards(
   })
 
   if (error) {
-    console.error("Error claiming rewards:", error)
+    logDbError("collections.claimSetRewards", error)
     return { success: false, error: error.message }
   }
 

@@ -33,7 +33,7 @@ export async function getUserCrew(): Promise<{
 
     return { data: data as UserCrewData, error: null }
   } catch (error) {
-    console.error("Error in getUserCrew:", error)
+    logDbError("crews.getUserCrew", error)
     return { data: null, error: "Erreur serveur" }
   }
 }
@@ -58,13 +58,13 @@ export async function getCrewBySlug(slug: string): Promise<{
       if (error.code === "PGRST116") {
         return { data: null, error: "Crew introuvable" }
       }
-      console.error("Error fetching crew:", error)
+      logDbError("crews.getCrewBySlug", error)
       return { data: null, error: error.message }
     }
 
     return { data: data as Crew, error: null }
   } catch (error) {
-    console.error("Error in getCrewBySlug:", error)
+    logDbError("crews.getCrewBySlug", error)
     return { data: null, error: "Erreur serveur" }
   }
 }

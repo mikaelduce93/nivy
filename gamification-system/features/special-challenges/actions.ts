@@ -10,6 +10,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { resolveTeenIdentities } from "@/lib/server/teen-identities"
 import { revalidatePath } from "next/cache"
+import { logDbError } from "@/lib/observability/log-db-error"
 import {
   type SpecialChallenge,
   type SpecialChallengeType,
@@ -40,13 +41,13 @@ export async function getSpecialChallengeTypes(): Promise<{
       .order("challenge_category")
 
     if (error) {
-      console.error("Error fetching challenge types:", error)
+      logDbError("special-challenges.getSpecialChallengeTypes", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as SpecialChallengeType[], error: null }
   } catch (error) {
-    console.error("Error in getSpecialChallengeTypes:", error)
+    logDbError("special-challenges.getSpecialChallengeTypes", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -74,13 +75,13 @@ export async function getActiveSpecialChallenges(): Promise<{
     })
 
     if (error) {
-      console.error("Error fetching active challenges:", error)
+      logDbError("special-challenges.getActiveSpecialChallenges", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as SpecialChallenge[], error: null }
   } catch (error) {
-    console.error("Error in getActiveSpecialChallenges:", error)
+    logDbError("special-challenges.getActiveSpecialChallenges", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -102,7 +103,7 @@ export async function getFlashChallenges(): Promise<{
     const flashChallenges = data.filter((c) => c.is_flash)
     return { data: flashChallenges, error: null }
   } catch (error) {
-    console.error("Error in getFlashChallenges:", error)
+    logDbError("special-challenges.getFlashChallenges", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -140,7 +141,7 @@ export async function getSpecialChallengeDetails(challengeId: string): Promise<{
       .single()
 
     if (challengeError) {
-      console.error("Error fetching challenge:", challengeError)
+      logDbError("special-challenges.getSpecialChallengeDetails", challengeError)
       return {
         data: { challenge: null, submissions: [], userSubmission: null },
         error: challengeError.message,
@@ -156,7 +157,7 @@ export async function getSpecialChallengeDetails(challengeId: string): Promise<{
       .order("vote_count", { ascending: false })
 
     if (submissionsError) {
-      console.error("Error fetching submissions:", submissionsError)
+      logDbError("special-challenges.getSpecialChallengeDetails", submissionsError)
     }
 
     const subIdents = await resolveTeenIdentities(supabase, (submissions || []).map((s: any) => s.user_id))
@@ -215,7 +216,7 @@ export async function getSpecialChallengeDetails(challengeId: string): Promise<{
       error: null,
     }
   } catch (error) {
-    console.error("Error in getSpecialChallengeDetails:", error)
+    logDbError("special-challenges.getSpecialChallengeDetails", error)
     return {
       data: { challenge: null, submissions: [], userSubmission: null },
       error: "Erreur serveur",
@@ -259,7 +260,7 @@ export async function submitPhoto(
     })
 
     if (error) {
-      console.error("Error submitting photo:", error)
+      logDbError("special-challenges.submitPhoto", error)
       return { success: false, error: error.message }
     }
 
@@ -275,7 +276,7 @@ export async function submitPhoto(
       error: null,
     }
   } catch (error) {
-    console.error("Error in submitPhoto:", error)
+    logDbError("special-challenges.submitPhoto", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -305,13 +306,13 @@ export async function getQuizQuestions(
     })
 
     if (error) {
-      console.error("Error fetching quiz questions:", error)
+      logDbError("special-challenges.getQuizQuestions", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as QuizQuestion[], error: null }
   } catch (error) {
-    console.error("Error in getQuizQuestions:", error)
+    logDbError("special-challenges.getQuizQuestions", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -354,7 +355,7 @@ export async function submitQuizAnswers(
     })
 
     if (error) {
-      console.error("Error submitting quiz:", error)
+      logDbError("special-challenges.submitQuizAnswers", error)
       return { success: false, error: error.message }
     }
 
@@ -371,7 +372,7 @@ export async function submitQuizAnswers(
       error: null,
     }
   } catch (error) {
-    console.error("Error in submitQuizAnswers:", error)
+    logDbError("special-challenges.submitQuizAnswers", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -414,7 +415,7 @@ export async function submitGeolocation(
     })
 
     if (error) {
-      console.error("Error submitting location:", error)
+      logDbError("special-challenges.submitGeolocation", error)
       return { success: false, error: error.message }
     }
 
@@ -430,7 +431,7 @@ export async function submitGeolocation(
       error: null,
     }
   } catch (error) {
-    console.error("Error in submitGeolocation:", error)
+    logDbError("special-challenges.submitGeolocation", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -467,7 +468,7 @@ export async function voteOnSubmission(
     })
 
     if (error) {
-      console.error("Error voting:", error)
+      logDbError("special-challenges.voteOnSubmission", error)
       return { success: false, error: error.message }
     }
 
@@ -479,7 +480,7 @@ export async function voteOnSubmission(
 
     return { success: true, error: null }
   } catch (error) {
-    console.error("Error in voteOnSubmission:", error)
+    logDbError("special-challenges.voteOnSubmission", error)
     return { success: false, error: "Erreur serveur" }
   }
 }
@@ -513,13 +514,13 @@ export async function getGeolocationZones(
     const { data, error } = await query
 
     if (error) {
-      console.error("Error fetching zones:", error)
+      logDbError("special-challenges.getGeolocationZones", error)
       return { data: [], error: error.message }
     }
 
     return { data: data as GeolocationZone[], error: null }
   } catch (error) {
-    console.error("Error in getGeolocationZones:", error)
+    logDbError("special-challenges.getGeolocationZones", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -569,7 +570,7 @@ export async function getUserChallengeHistory(): Promise<{
       .limit(50)
 
     if (error) {
-      console.error("Error fetching history:", error)
+      logDbError("special-challenges.getUserChallengeHistory", error)
       return { data: [], error: error.message }
     }
 
@@ -594,7 +595,7 @@ export async function getUserChallengeHistory(): Promise<{
 
     return { data: formatted, error: null }
   } catch (error) {
-    console.error("Error in getUserChallengeHistory:", error)
+    logDbError("special-challenges.getUserChallengeHistory", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
@@ -647,7 +648,7 @@ export async function getChallengeLeaderboard(
     const { data, error } = await query
 
     if (error) {
-      console.error("Error fetching leaderboard:", error)
+      logDbError("special-challenges.getChallengeLeaderboard", error)
       return { data: [], error: error.message }
     }
 
@@ -671,7 +672,7 @@ export async function getChallengeLeaderboard(
 
     return { data: formatted, error: null }
   } catch (error) {
-    console.error("Error in getChallengeLeaderboard:", error)
+    logDbError("special-challenges.getChallengeLeaderboard", error)
     return { data: [], error: "Erreur serveur" }
   }
 }
