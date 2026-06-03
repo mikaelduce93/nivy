@@ -26,9 +26,9 @@
  *   DRIFT-003  `catch {}` / `catch (e) {}` vide (panne DB avalée sans log).
  *              Préférer `logDbError(scope, error)` (lib/observability/log-db-error.ts).
  *
- * ── SCOPE (V7) ─────────────────────────────────────────────────────────────
- * app/teen/** et gamification-system/features/** (.ts/.tsx). L'extension à tout
- * le repo + l'intégration CI sont suivies par V8 #265.
+ * ── SCOPE ──────────────────────────────────────────────────────────────────
+ * app/** , lib/** , components/** , gamification-system/** (.ts/.tsx). Élargi en
+ * V8 #265 (était app/teen + features en V7) + intégré au gate CI canon-compliance.
  *
  * Baseline file:   docs/compliance/drift-baseline.json
  * Modes:
@@ -65,7 +65,14 @@ function shouldScanFile(file) {
   const norm = file.split(sep).join('/')
   if (!/\.(ts|tsx)$/.test(norm)) return false
   if (/\.d\.ts$/.test(norm)) return false
-  return norm.startsWith('app/teen/') || norm.startsWith('gamification-system/features/')
+  // V8 #265 — scope élargi à tout le code source applicatif (était app/teen +
+  // gamification-system/features). La dette existante hors V7 est figée par la baseline.
+  return (
+    norm.startsWith('app/') ||
+    norm.startsWith('lib/') ||
+    norm.startsWith('components/') ||
+    norm.startsWith('gamification-system/')
+  )
 }
 
 function getStagedFiles() {
