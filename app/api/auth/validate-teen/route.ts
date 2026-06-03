@@ -2,6 +2,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
+import { sendTeenMagicLinkEmail } from "@/lib/email/teen-access"
 import { z } from "zod"
 
 /**
@@ -331,10 +332,13 @@ export async function POST(request: Request) {
       })
       .eq("id", registration.id)
 
-    // 6. Generate a magic link / set-password link for the teen so the
-    //    parent can forward it. Email-based magic-link is the canon path
-    //    per §1 (teen row).
+    // 6. Generate a magic link for the teen AND email it to them so the
+    //    account is actually accessible. #291 — the link was previously
+    //    returned in the JSON then dropped ("forward to teen out-of-band"),
+    //    leaving the account unreachable. Email-based magic-link is the canon
+    //    path per §1 (teen row).
     let actionLink: string | null = null
+    let magicLinkEmailed = false
     if (teenEmail) {
       const { data: linkData, error: linkGenErr } = await admin.auth.admin.generateLink({
         type: "magiclink",
@@ -344,6 +348,13 @@ export async function POST(request: Request) {
         console.error("validate-teen: generateLink failed", linkGenErr)
       } else {
         actionLink = linkData?.properties?.action_link ?? null
+        if (actionLink) {
+          magicLinkEmailed = await sendTeenMagicLinkEmail({
+            teenEmail,
+            teenName: fullName,
+            actionLink,
+          })
+        }
       }
     }
 
@@ -360,6 +371,7 @@ export async function POST(request: Request) {
         teen_email: teenEmail ?? null,
         teen_phone: teenPhone ?? null,
         magic_link_generated: actionLink !== null,
+        magic_link_emailed: magicLinkEmailed,
       },
     })
 
@@ -369,7 +381,11 @@ export async function POST(request: Request) {
       data: {
         teenId: teenUid,
         teenName: fullName,
-        actionLink, // forward to teen out-of-band
+        // #291 — the magic-link is emailed to the teen (magic_link_emailed).
+        // We still surface it so the parent can forward it manually as a
+        // fallback when email delivery is unavailable.
+        magicLinkEmailed,
+        actionLink: magicLinkEmailed ? null : actionLink,
       },
     })
   } catch (error) {

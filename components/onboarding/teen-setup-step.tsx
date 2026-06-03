@@ -90,6 +90,7 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
     teenFirstName: '',
     teenLastName: '',
     dateOfBirth: '',
+    teenEmail: '',
     parentEmail: '',
     parentPhone: ''
   })
@@ -155,6 +156,14 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
       }
     }
 
+    // #291 — l'ado saisit SON email : c'est là que son lien d'accès
+    // (magic-link) sera envoyé après validation parentale.
+    if (!formData.teenEmail.trim()) {
+      newErrors.teenEmail = 'Ton email est requis pour te connecter'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.teenEmail)) {
+      newErrors.teenEmail = 'Email invalide'
+    }
+
     if (!formData.parentEmail.trim()) {
       newErrors.parentEmail = 'Email du parent requis'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.parentEmail)) {
@@ -209,6 +218,7 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
           teenFirstName: formData.teenFirstName,
           teenLastName: formData.teenLastName,
           dateOfBirth: formData.dateOfBirth,
+          teenEmail: formData.teenEmail,
           parentEmail: formData.parentEmail,
           parentPhone: formData.parentPhone,
         }),
@@ -356,6 +366,21 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
               onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
               min={dobBounds.min}
               max={dobBounds.max}
+            />
+
+            <FieldInput
+              id="teenEmail"
+              name="teenEmail"
+              type="email"
+              label="Ton email *"
+              inputMode="email"
+              autoComplete="email"
+              spellCheck={false}
+              placeholder="toi@email.com"
+              hint="C'est ici que tu recevras ton lien de connexion une fois ton inscription validée."
+              error={errors.teenEmail}
+              value={formData.teenEmail}
+              onChange={(e) => handleInputChange('teenEmail', e.target.value)}
             />
           </div>
 

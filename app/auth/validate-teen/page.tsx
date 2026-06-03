@@ -32,6 +32,8 @@ function ValidateTeenInner() {
   const [registration, setRegistration] = useState<RegistrationData | null>(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [success, setSuccess] = useState(false)
+  // #291 — whether the teen's magic-link access email was actually sent.
+  const [magicEmailed, setMagicEmailed] = useState(false)
   // #26 — the approve POST requires teen_email (or teen_phone). Pre-fill from
   // the email the teen gave at registration; let the parent supply/fix it.
   const [teenEmail, setTeenEmail] = useState("")
@@ -102,6 +104,7 @@ function ValidateTeenInner() {
         return
       }
 
+      setMagicEmailed(Boolean(data.data?.magicLinkEmailed))
       setSuccess(true)
       toast.success("Compte teen validé!")
 
@@ -193,7 +196,11 @@ function ValidateTeenInner() {
         <NivCelebration
           tone="lime"
           title="Compte validé"
-          caption={`${registration?.teenName} peut maintenant utiliser Nivy. Redirection vers ton espace parent…`}
+          caption={
+            magicEmailed
+              ? `${registration?.teenName} va recevoir un email avec son lien de connexion. Redirection vers ton espace parent…`
+              : `${registration?.teenName} peut maintenant utiliser Nivy — transmets-lui son lien de connexion. Redirection vers ton espace parent…`
+          }
         />
       </Shell>
     )
@@ -261,7 +268,7 @@ function ValidateTeenInner() {
               placeholder="email@exemple.com"
               value={teenEmail}
               onChange={(e) => setTeenEmail(e.target.value)}
-              hint="Son compte sera créé avec cet email. Pré-rempli s'il l'a indiqué à l'inscription."
+              hint="L'email que l'ado a indiqué à l'inscription. C'est là que son lien de connexion sera envoyé."
             />
           )}
 

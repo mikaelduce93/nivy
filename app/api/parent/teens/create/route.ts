@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { randomBytes } from "node:crypto"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { ageFromDateOfBirth, isTeenAge, TEEN_AGE_ERROR } from "@/lib/constants/age"
+import { sendTeenMagicLinkEmail } from "@/lib/email/teen-access"
 import { z } from "zod"
 
 /**
@@ -241,8 +242,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // 5. Magic link.
+    // 5. Magic link — generated AND emailed to the teen so the account is
+    //    accessible (#291). Previously returned in JSON then dropped.
     let actionLink: string | null = null
+    let magicLinkEmailed = false
     if (body.teen_email) {
       const { data: linkData, error: linkGenErr } = await admin.auth.admin.generateLink({
         type: "magiclink",
@@ -252,6 +255,13 @@ export async function POST(request: Request) {
         console.error("parent/teens/create: generateLink failed", linkGenErr)
       } else {
         actionLink = linkData?.properties?.action_link ?? null
+        if (actionLink) {
+          magicLinkEmailed = await sendTeenMagicLinkEmail({
+            teenEmail: body.teen_email,
+            teenName: fullName,
+            actionLink,
+          })
+        }
       }
     }
 
@@ -279,6 +289,7 @@ export async function POST(request: Request) {
         teen_email: body.teen_email ?? null,
         teen_phone: body.teen_phone ?? null,
         magic_link_generated: actionLink !== null,
+        magic_link_emailed: magicLinkEmailed,
       },
     })
 
@@ -289,7 +300,9 @@ export async function POST(request: Request) {
         full_name: fullName,
         username: pseudoLower,
         linking_code: linkingCode,
-        actionLink,
+        magicLinkEmailed,
+        // Fallback for manual forwarding only when email delivery failed.
+        actionLink: magicLinkEmailed ? null : actionLink,
       },
       message: "Compte Teen créé avec succès",
     })
