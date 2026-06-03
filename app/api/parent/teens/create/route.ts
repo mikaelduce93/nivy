@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
-import { randomBytes } from "node:crypto"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { ageFromDateOfBirth, isTeenAge, TEEN_AGE_ERROR } from "@/lib/constants/age"
 import { sendTeenMagicLinkEmail } from "@/lib/email/teen-access"
@@ -124,9 +123,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Linking code (kept for parent-side display; canonical 6-digit code is
-    // a separate Wave M18 deliverable — out of scope for AUTH-FIX-3).
-    const linkingCode = `TEEN${randomBytes(4).toString("hex").toUpperCase()}`
+    // #299 — the cosmetic `TEEN<hex>` code was removed: the teen is created
+    // AND linked directly here (no redemption step), and the canonical 6-digit
+    // code lives in `linking_codes` via /api/parent/teens/invite. No fake code.
 
     // Service-role for auth.admin operations (canon §3.5).
     const admin = createServiceRoleClient()
@@ -271,9 +270,9 @@ export async function POST(request: Request) {
     await admin.from("user_notifications").insert({
       user_id: body.parentId,
       title: "Compte Teen créé",
-      body: `Le compte de ${body.firstName} a été créé avec succès. Code de liaison : ${linkingCode}`,
+      body: `Le compte de ${body.firstName} a été créé et lié à ton espace.`,
       is_read: false,
-      data: { type: "teen_created", teen_id: teenUid, linking_code: linkingCode },
+      data: { type: "teen_created", teen_id: teenUid },
     })
 
     // 7. Audit (singular).
@@ -299,7 +298,6 @@ export async function POST(request: Request) {
         id: teenUid,
         full_name: fullName,
         username: pseudoLower,
-        linking_code: linkingCode,
         magicLinkEmailed,
         // Fallback for manual forwarding only when email delivery failed.
         actionLink: magicLinkEmailed ? null : actionLink,

@@ -116,15 +116,29 @@ export default async function AddTeenPage() {
                     </span>
                   </Link>
                 </li>
-                <li className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-teal" aria-hidden="true" />
-                  <span>Envoyer une invitation</span>
-                  <span className="ml-auto font-mono text-[11px] uppercase tracking-wide">Bientôt</span>
+                <li>
+                  <Link
+                    href="/parent/teens/invite"
+                    className="flex items-center gap-3 rounded-xl px-1 py-1 text-ink transition-colors hover:text-pink"
+                  >
+                    <Mail className="h-4 w-4 text-teal" aria-hidden="true" />
+                    <span>Générer un code d'invitation</span>
+                    <span className="ml-auto font-mono text-[11px] uppercase tracking-wide text-pink">
+                      Inviter
+                    </span>
+                  </Link>
                 </li>
-                <li className="flex items-center gap-3">
-                  <Link2 className="h-4 w-4 text-pink" aria-hidden="true" />
-                  <span>Lien de partage</span>
-                  <span className="ml-auto font-mono text-[11px] uppercase tracking-wide">Bientôt</span>
+                <li>
+                  <Link
+                    href="/parent/teens/invite"
+                    className="flex items-center gap-3 rounded-xl px-1 py-1 text-ink transition-colors hover:text-pink"
+                  >
+                    <Link2 className="h-4 w-4 text-pink" aria-hidden="true" />
+                    <span>Lien de partage</span>
+                    <span className="ml-auto font-mono text-[11px] uppercase tracking-wide text-pink">
+                      Partager
+                    </span>
+                  </Link>
                 </li>
               </ul>
             </StickerCard>
