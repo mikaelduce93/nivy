@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
+import { linkParentTeen } from "@/lib/teens/link-cascade"
 
 export async function POST(request: Request) {
   try {
@@ -68,44 +70,26 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create link request
-    const { error: linkError } = await supabase
-      .from("parent_teen_links")
-      .insert({
-        parent_id: parentId,
-        teen_id: teenId,
-        status: "pending",
-        created_at: new Date().toISOString(),
-      })
+    // Create the link request via the factored cascade (#301). The cascade
+    // writes notifications to user_notifications + audit_log (NOT the phantom
+    // `notifications`/`activity_logs` tables this route used before).
+    const sr = createServiceRoleClient()
+    const result = await linkParentTeen(sr, {
+      parentId,
+      teenId,
+      status: "pending",
+      channel: "parent_request",
+      actorId: userInfo.profileId,
+      actorRole: "parent",
+    })
 
-    if (linkError) {
-      console.error("Link creation error:", linkError)
+    if (!result.ok) {
+      console.error("Link creation error:", result.reason)
       return NextResponse.json(
         { success: false, error: "Erreur lors de la création de la liaison" },
         { status: 500 }
       )
     }
-
-    // Create notification for teen
-    await supabase.from("notifications").insert({
-      user_id: teenId,
-      type: "link_request",
-      title: "Demande de liaison parentale",
-      message: `${userInfo.fullName} souhaite se lier à votre compte en tant que parent`,
-      data: { parent_id: parentId, parent_name: userInfo.fullName },
-      read: false,
-      created_at: new Date().toISOString(),
-    })
-
-    // Log activity
-    await supabase.from("activity_logs").insert({
-      user_id: parentId,
-      action: "create",
-      description: `Demande de liaison avec ${teen.full_name}`,
-      resource_type: "parent_teen_link",
-      resource_id: teenId,
-      created_at: new Date().toISOString(),
-    })
 
     return NextResponse.json({
       success: true,
