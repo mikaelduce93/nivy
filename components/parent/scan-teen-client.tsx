@@ -18,6 +18,7 @@ export function ScanTeenClient() {
   const router = useRouter()
   const [processing, setProcessing] = useState(false)
   const [done, setDone] = useState(false)
+  const [balanceActivated, setBalanceActivated] = useState(false)
 
   const handleScan = async (qr: string) => {
     if (processing || done) return
@@ -47,8 +48,16 @@ export function ScanTeenClient() {
         return
       }
       setDone(true)
-      toast.success(data.message ?? "Liaison réussie !")
-      setTimeout(() => router.push("/parent/teens"), 2000)
+      setBalanceActivated(Boolean(data.data?.balanceActivated))
+      // #302 — the balance is only spendable once the CGU are signed. If the
+      // parent has no active e-signature, route them to sign; else confirm.
+      if (data.data?.balanceActivated) {
+        toast.success("Liaison réussie — solde activé.")
+        setTimeout(() => router.push("/parent/teens"), 2000)
+      } else {
+        toast.success("Liaison réussie ! Signe les CGU pour activer le solde.")
+        setTimeout(() => router.push("/onboarding/parent/e-signature"), 1800)
+      }
     } catch {
       toast.error("Erreur réseau. Réessaie.")
       setProcessing(false)
@@ -60,7 +69,11 @@ export function ScanTeenClient() {
       <StickerCard className="items-center gap-3 p-8 text-center">
         <CheckCircle2 className="size-12 text-lime" aria-hidden="true" />
         <h2 className="font-display text-xl font-extrabold text-ink">Liaison réussie</h2>
-        <p className="text-sm text-mute">Redirection vers tes teens…</p>
+        <p className="text-sm text-mute">
+          {balanceActivated
+            ? "Solde activé. Redirection vers tes teens…"
+            : "Dernière étape : signe les CGU pour activer le solde…"}
+        </p>
       </StickerCard>
     )
   }

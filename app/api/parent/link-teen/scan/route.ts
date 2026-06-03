@@ -13,6 +13,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { loadQrSecretSeed, parseLinkQr, verifyLinkQr } from "@/lib/partner/qr-v2"
 import { consumeTeenLinkToken } from "@/lib/teens/link-token"
 import { linkParentTeen } from "@/lib/teens/link-cascade"
+import { parentHasActiveSignature } from "@/lib/teens/balance-activation"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -80,9 +81,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: result.reason }, { status: 500 })
   }
 
+  // #302 — the balance is only spendable once the parent has signed the CGU.
+  const balanceActivated = await parentHasActiveSignature(sr, userInfo.profileId)
+
   return NextResponse.json({
     success: true,
-    data: { teenId, linkId: result.linkId, alreadyLinked: result.alreadyActive },
+    data: { teenId, linkId: result.linkId, alreadyLinked: result.alreadyActive, balanceActivated },
     message: result.alreadyActive ? "Ce teen est déjà lié à ton compte." : "Liaison réussie.",
   })
 }

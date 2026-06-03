@@ -12,6 +12,7 @@ import { z } from "zod"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { linkParentTeen } from "@/lib/teens/link-cascade"
+import { parentHasActiveSignature } from "@/lib/teens/balance-activation"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -78,9 +79,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: result.reason }, { status: 500 })
   }
 
+  // #302 — balance is activated only once the PARENT has an active CGU
+  // signature (the teen can't sign for them).
+  const balanceActivated = await parentHasActiveSignature(sr, row.parent_id)
+
   return NextResponse.json({
     success: true,
-    data: { parentId: row.parent_id, linkId: result.linkId, alreadyLinked: result.alreadyActive },
+    data: {
+      parentId: row.parent_id,
+      linkId: result.linkId,
+      alreadyLinked: result.alreadyActive,
+      balanceActivated,
+    },
     message: result.alreadyActive ? "Tu es déjà lié à ce parent." : "Liaison réussie !",
   })
 }

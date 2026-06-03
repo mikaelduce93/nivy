@@ -20,6 +20,7 @@ export function JoinParentClient({ initialCode = "" }: { initialCode?: string })
   const [scanning, setScanning] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
+  const [balanceActivated, setBalanceActivated] = useState(true)
 
   const submit = async (value: string) => {
     if (submitting || done) return
@@ -46,8 +47,9 @@ export function JoinParentClient({ initialCode = "" }: { initialCode?: string })
         return
       }
       setDone(true)
+      setBalanceActivated(Boolean(data.data?.balanceActivated))
       toast.success(data.message ?? "Liaison réussie !")
-      setTimeout(() => router.push("/teen"), 2000)
+      setTimeout(() => router.push("/teen"), 2500)
     } catch {
       toast.error("Erreur réseau. Réessaie.")
       setSubmitting(false)
@@ -71,7 +73,11 @@ export function JoinParentClient({ initialCode = "" }: { initialCode?: string })
       <StickerCard className="items-center gap-3 p-8 text-center">
         <CheckCircle2 className="size-12 text-lime" aria-hidden="true" />
         <h2 className="font-display text-xl font-extrabold text-ink">C'est lié !</h2>
-        <p className="text-sm text-mute">Ton parent est maintenant relié à ton compte.</p>
+        <p className="text-sm text-mute">
+          {balanceActivated
+            ? "Ton parent est relié à ton compte et ton solde est actif."
+            : "Ton parent est relié à ton compte. Ton solde s'activera quand il aura validé les CGU."}
+        </p>
       </StickerCard>
     )
   }
