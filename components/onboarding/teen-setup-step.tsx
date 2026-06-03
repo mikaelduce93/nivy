@@ -17,6 +17,7 @@ import {
   TEEN_AGE_ERROR,
   teenDateOfBirthBounds,
 } from "@/lib/constants/age"
+import type { Archetype as SharedArchetype, LearningStyle as SharedLearningStyle } from "@/lib/constants/archetype"
 
 /**
  * TICKET-031 — Onboarding interest capture preview.
@@ -62,8 +63,9 @@ const INTEREST_PREVIEW_CHIPS: Array<{ tag: string; label: string; icon: string }
  * the canonical 4-archetype set used across the recommender (creator,
  * explorer, competitor, social).
  */
-type LearningStyle = 'visual' | 'auditory' | 'kinesthetic' | 'reading'
-type Archetype = 'creator' | 'explorer' | 'competitor' | 'social'
+// #303 — single source of truth for the archetype/learning-style enums.
+type LearningStyle = SharedLearningStyle
+type Archetype = SharedArchetype
 
 const LEARNING_STYLE_CHIPS: Array<{ value: LearningStyle; label: string; icon: string; hint: string }> = [
   { value: 'visual', label: 'Visuel', icon: '📺', hint: 'Schémas, vidéos, infographies' },

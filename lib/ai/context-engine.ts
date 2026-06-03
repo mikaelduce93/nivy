@@ -86,7 +86,7 @@ export class ContextEngine {
       // avatar_url). canon-allow: doc.
       supabase
         .from('teens')
-        .select('pseudo, city, avatar_url, date_of_birth, archetype')
+        .select('pseudo, city, avatar_url, date_of_birth, archetype, learning_style')
         .eq('id', userId)
         .limit(1)
         .maybeSingle()
@@ -171,6 +171,7 @@ export class ContextEngine {
         age_bucket: ageBucket(profile?.date_of_birth ?? null),
         city: profile?.city ?? null,
         archetype: profile?.archetype ?? null,
+        learning_style: profile?.learning_style ?? null,
         avatar: profile?.avatar_url ?? null,
       },
       gamification: {

@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
-
-type Style = "visual" | "auditory" | "kinesthetic" | "reading"
-type Archetype = "leader" | "explorer" | "creator" | "socializer"
+import {
+  LEARNING_STYLES,
+  deriveArchetypeFromStyle,
+  isArchetype,
+  type Archetype,
+  type LearningStyle as Style,
+} from "@/lib/constants/archetype"
 
 /**
  * POST /api/teen/onboarding/learning-style
@@ -12,22 +16,15 @@ type Archetype = "leader" | "explorer" | "creator" | "socializer"
  *
  * Server scoring:
  *   - learning_style = mode of answers (most-frequent style; ties -> first seen)
- *   - archetype = derived from style mix when not explicitly provided.
+ *   - archetype = derived from style mix when not explicitly provided AND the
+ *     teen has no archetype yet (#303: never overwrite the quiz/pre-auth pick).
+ *
+ * Archetype enum unified (#303) on the canonical 4 {creator, explorer,
+ * competitor, social} — no more divergent {leader, socializer}.
  *
  * Skip allowed: empty/missing answers writes nothing.
  */
-const STYLES: ReadonlyArray<Style> = [
-  "visual",
-  "auditory",
-  "kinesthetic",
-  "reading",
-]
-const ARCHETYPES: ReadonlyArray<Archetype> = [
-  "leader",
-  "explorer",
-  "creator",
-  "socializer",
-]
+const STYLES: ReadonlyArray<Style> = LEARNING_STYLES
 
 function scoreStyle(answers: Style[]): Style | null {
   if (answers.length === 0) return null
@@ -47,31 +44,6 @@ function scoreStyle(answers: Style[]): Style | null {
     }
   }
   return best
-}
-
-function deriveArchetype(style: Style, answers: Style[]): Archetype {
-  // Heuristic mapping — biased by dominant + secondary signals.
-  // visual-heavy + kinesthetic -> explorer
-  // kinesthetic-heavy -> leader
-  // reading/visual mix -> creator
-  // auditory-heavy -> socializer
-  const counts: Record<Style, number> = {
-    visual: 0,
-    auditory: 0,
-    kinesthetic: 0,
-    reading: 0,
-  }
-  for (const a of answers) counts[a] += 1
-
-  if (style === "kinesthetic") return "leader"
-  if (style === "auditory") return "socializer"
-  if (style === "reading") return "creator"
-  // visual: tie-break by secondary
-  if (counts.kinesthetic >= counts.reading && counts.kinesthetic >= counts.auditory) {
-    return "explorer"
-  }
-  if (counts.reading >= counts.auditory) return "creator"
-  return "socializer"
 }
 
 export async function POST(request: Request) {
@@ -95,11 +67,7 @@ export async function POST(request: Request) {
       )
       .slice(0, 8)
 
-    const explicitArch =
-      typeof body?.archetype === "string" &&
-      (ARCHETYPES as ReadonlyArray<string>).includes(body.archetype)
-        ? (body.archetype as Archetype)
-        : null
+    const explicitArch: Archetype | null = isArchetype(body?.archetype) ? body.archetype : null
 
     // Skip path
     if (answers.length === 0 && !explicitArch) {
@@ -107,11 +75,26 @@ export async function POST(request: Request) {
     }
 
     const style = scoreStyle(answers)
-    const archetype = explicitArch ?? (style ? deriveArchetype(style, answers) : null)
 
     const update: Record<string, string> = {}
     if (style) update.learning_style = style
-    if (archetype) update.archetype = archetype
+
+    // #303 — never overwrite an existing archetype (quiz/pre-auth pick wins).
+    // An explicit body.archetype always wins; otherwise we only derive-and-set
+    // when the teen has no archetype yet.
+    if (explicitArch) {
+      update.archetype = explicitArch
+    } else if (style) {
+      const { data: current } = await supabase
+        .from("teens")
+        .select("archetype")
+        .eq("id", teenId)
+        .maybeSingle()
+      if (!current?.archetype) {
+        update.archetype = deriveArchetypeFromStyle(style, answers)
+      }
+    }
+    const archetype = update.archetype ?? null
 
     if (Object.keys(update).length === 0) {
       return NextResponse.json({ success: true, skipped: true })

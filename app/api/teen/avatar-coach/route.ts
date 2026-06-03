@@ -31,6 +31,12 @@ import { resolveModelForTask } from "@/lib/ai/content-generator"
 import { supportsStreaming, supportsRunTools, type AIProviderMetadata } from "@/lib/ai/providers/base"
 import { getCoachMemoryLine, extractAndPersistMemory } from "@/lib/ai/coach-memory"
 import { buildCoachTools } from "@/lib/ai/coach-tools"
+import {
+  ARCHETYPE_LABEL_FR,
+  LEARNING_STYLE_LABEL_FR,
+  isArchetype,
+  isLearningStyle,
+} from "@/lib/constants/archetype"
 
 // #202 — le 5/jour codé en dur tuait tout usage « coach ». Configurable via env,
 // défaut 20 (le routage Claude + caching de #210 réduit le coût marginal).
@@ -111,6 +117,8 @@ TON: ami bienveillant et motivant, jamais culpabilisant. Pas d'urgence artificie
 LONGUEUR: 1 à 3 phrases courtes. Maximum 60 mots. Pas de listes, pas de markdown.
 
 RÔLE: tu encourages sur les quiz, missions, défis, sport, créativité, école. Tu peux suggérer une action déjà disponible dans l'app (ex: "Tu peux tenter le quiz du jour ?"). Tu ne donnes JAMAIS de conseil médical, juridique, financier ou psychothérapeutique.
+
+PERSONNALISATION: si le CONTEXTE indique un profil (créateur/explorateur/compétiteur/social) ou un mode d'apprentissage (visuel/auditif/kinesthésique/lecture), adapte discrètement ton angle et tes suggestions — sans jamais réciter ces étiquettes à l'ado.
 
 SUJETS INTERDITS — tu redirigeras toujours vers le parent ou un mentor:
 - Drogue, alcool, tabac, vapotage
@@ -259,13 +267,24 @@ export async function POST(request: Request) {
     // de colonne pseudo → 42703). PII-safe : pseudo, jamais le vrai prénom.
     const { data: pseudoRow, error: pseudoErr } = await supabase
       .from("teens")
-      .select("pseudo")
+      .select("pseudo, learning_style, archetype")
       .eq("id", user.id)
       .maybeSingle()
     if (pseudoErr) {
       console.error("[avatar-coach] pseudo fetch error:", pseudoErr)
     }
     const teenFirstName = (pseudoRow?.pseudo as string | null | undefined)?.trim() || "champion"
+
+    // #303 — persona (archetype + learning style) injectée dans le contexte du
+    // coach pour adapter le ton/format. Données mortes auparavant.
+    const personaBits: string[] = []
+    if (isArchetype(pseudoRow?.archetype)) {
+      personaBits.push(`profil ${ARCHETYPE_LABEL_FR[pseudoRow.archetype]}`)
+    }
+    if (isLearningStyle(pseudoRow?.learning_style)) {
+      personaBits.push(`apprend mieux en mode ${LEARNING_STYLE_LABEL_FR[pseudoRow.learning_style]}`)
+    }
+    const personaLine = personaBits.length ? `Persona : ${personaBits.join(", ")}.` : undefined
 
     // #202 — profil réel léger pour personnaliser (PII-safe). Colonnes réelles de
     // teen_full_profile uniquement (l'ancien `streak`/`interests` n'existaient pas
@@ -293,7 +312,8 @@ export async function POST(request: Request) {
 
     // #211 — mémoire long terme : résumé durable + objectifs + faits retenus.
     const memoryLine = await getCoachMemoryLine(supabase, user.id)
-    const contextLine = [profileLine, memoryLine].filter(Boolean).join(" — ") || undefined
+    const contextLine =
+      [profileLine, personaLine, memoryLine].filter(Boolean).join(" — ") || undefined
 
     // Persist the teen turn first so the cap counter advances atomically.
     const nowIso = new Date().toISOString()

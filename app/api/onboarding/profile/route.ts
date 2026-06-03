@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
+// #303 — archetype/learning-style enum unified on the shared canonical source.
+import {
+  ARCHETYPES,
+  LEARNING_STYLES,
+  isArchetype,
+  isLearningStyle,
+} from "@/lib/constants/archetype"
 
 /**
  * POST /api/onboarding/profile
@@ -26,20 +33,6 @@ import { getUserRole } from "@/lib/auth/get-user-role"
  *
  * Returns: { success, learning_style, archetype, skipped? }
  */
-
-const LEARNING_STYLES = ["visual", "auditory", "kinesthetic", "reading"] as const
-type LearningStyle = (typeof LEARNING_STYLES)[number]
-
-const ARCHETYPES = ["creator", "explorer", "competitor", "social"] as const
-type Archetype = (typeof ARCHETYPES)[number]
-
-function isLearningStyle(v: unknown): v is LearningStyle {
-  return typeof v === "string" && (LEARNING_STYLES as ReadonlyArray<string>).includes(v)
-}
-
-function isArchetype(v: unknown): v is Archetype {
-  return typeof v === "string" && (ARCHETYPES as ReadonlyArray<string>).includes(v)
-}
 
 export async function POST(request: Request) {
   try {
