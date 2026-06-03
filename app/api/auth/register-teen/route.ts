@@ -5,6 +5,7 @@ import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
 import { getAppUrl } from "@/lib/config/app-config"
 import { sendParentValidationEmail } from "@/lib/email/parent-validation"
 import { ageFromDateOfBirth, isTeenAge, TEEN_AGE_ERROR } from "@/lib/constants/age"
+import { isArchetype } from "@/lib/constants/archetype"
 
 /**
  * Register a teen account with parent validation
@@ -33,7 +34,11 @@ export async function POST(request: Request) {
       parentEmail,
       parentPhone,
       teenEmail,
+      archetype,
     } = body
+    // #309 — "vibe de Niv" pick captured pre-account; persisted on the pending
+    // row and copied to teens.archetype at parental validation.
+    const archetypeValue: string | null = isArchetype(archetype) ? archetype : null
     // Wave-A audit: SHA-256 unsalted password hashing was insecure. We no
     // longer persist the teen's password here. The auth.users row + password
     // are provisioned via Supabase Auth admin createUser at the moment the
@@ -89,6 +94,7 @@ export async function POST(request: Request) {
           token_expires_at: tokenExpiry.toISOString(),
           status: "pending",
           existing_parent_id: existingParent?.id || null,
+          archetype: archetypeValue,
         })
         .select()
         .single(),

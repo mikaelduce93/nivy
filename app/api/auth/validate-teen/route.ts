@@ -265,17 +265,19 @@ export async function POST(request: Request) {
     // 2. Insert teens row (id == auth.users.id). The trigger may have
     //    already created a stub row (id only) — UPSERT semantics keep us
     //    idempotent with the canonical FK invariant.
+    const teenUpsert: Record<string, unknown> = {
+      id: teenUid,
+      first_name: registration.teen_first_name,
+      last_name: registration.teen_last_name,
+      date_of_birth: registration.date_of_birth,
+    }
+    // #309 — carry the pre-auth "vibe" archetype onto the teen row (consumed by
+    // the coach, #303). Only set when present so we never null an existing pick.
+    if (registration.archetype) teenUpsert.archetype = registration.archetype
+
     const { error: teenInsertErr } = await admin
       .from("teens")
-      .upsert(
-        {
-          id: teenUid,
-          first_name: registration.teen_first_name,
-          last_name: registration.teen_last_name,
-          date_of_birth: registration.date_of_birth,
-        },
-        { onConflict: "id" }
-      )
+      .upsert(teenUpsert, { onConflict: "id" })
 
     if (teenInsertErr) {
       console.error("validate-teen: teens upsert failed, rolling back", teenInsertErr)

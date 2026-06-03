@@ -1,30 +1,30 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { toDataURL } from "qrcode"
 import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { FieldInput } from "@/components/ui/field-input"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { Niv, NivCoach } from "@/components/brand"
-import { ChevronLeft, ChevronRight, Loader2, CheckCircle2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, CheckCircle2, Copy } from "lucide-react"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 import {
   ageFromDateOfBirth,
   isTeenAge,
   TEEN_AGE_ERROR,
   teenDateOfBirthBounds,
 } from "@/lib/constants/age"
+import type { Archetype } from "@/lib/constants/archetype"
 
 /**
- * #307 — TeenSetupStep éclaté en MICRO-ÉTAPES plein écran (une étape = un groupe
- * de champs), avec progression visible (SegmentedProgress), auto-focus, et a11y
- * (fieldset/legend par groupe + région aria-live de résumé d'erreurs).
- *
- * #305 — la personnalisation (intérêts / style / archetype) a été retirée d'ici
- * (collectée post-auth). Cette étape reste un formulaire d'inscription :
- * identité + contact parent.
- *
- * Sous-étapes : 0 = identité (+ email ado), 1 = contact parent (soumission).
+ * #307 — micro-étapes plein écran + a11y (fieldset/legend, aria-live).
+ * #306 — funnel inversé : on engage l'ado AVANT de demander le contact parent.
+ *        Ordre : identité → vibe → contact parent (en dernier) → crew (post-soumission).
+ * #309 — étape « vibe de Niv » (écrit teens.archetype via register-teen →
+ *        pending → validation) + étape crew (lien/QR d'invitation de potes).
+ * #305 — intérêts / learning_style collectés post-auth (pas ici).
  */
 
 interface TeenSetupStepProps {
@@ -44,11 +44,23 @@ type FormData = {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^(\+212|0)[67]\d{8}$/
 
-const SUB_STEPS = ["identité", "contact parent"] as const
+// Sub-steps. Index 2 (parent) is the last DATA-collection step → submit there;
+// steps after it (crew) are post-submit engagement, reached only once the
+// pending registration exists.
+const SUB_STEPS = ["identité", "vibe de Niv", "contact parent", "ton crew"] as const
+const PARENT_STEP = 2
+
+const ARCHETYPE_CHIPS: Array<{ value: Archetype; label: string; icon: string; hint: string }> = [
+  { value: "creator", label: "Créateur", icon: "🎨", hint: "Tu aimes imaginer et fabriquer" },
+  { value: "explorer", label: "Explorateur", icon: "🧭", hint: "Tu aimes découvrir et comprendre" },
+  { value: "competitor", label: "Compétiteur", icon: "🏆", hint: "Tu aimes les défis et progresser" },
+  { value: "social", label: "Social", icon: "🤝", hint: "Tu aimes collaborer et partager" },
+]
 
 export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(0)
+  const [archetype, setArchetype] = useState<Archetype | null>(null)
   const [formData, setFormData] = useState<FormData>({
     teenFirstName: "",
     teenLastName: "",
@@ -60,14 +72,22 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const errorSummaryRef = useRef<HTMLDivElement>(null)
 
+  // Crew invite — generic "join Nivy" share link + QR (teen has no account yet).
+  const [inviteUrl, setInviteUrl] = useState("")
+  const [inviteQr, setInviteQr] = useState<string | null>(null)
+  useEffect(() => {
+    const url = `${window.location.origin}/onboarding?role=teen`
+    setInviteUrl(url)
+    toDataURL(url, { width: 200, margin: 1, color: { dark: "#0e0c1a", light: "#ffffff" } })
+      .then(setInviteQr)
+      .catch(() => setInviteQr(null))
+  }, [])
+
   const dobBounds = teenDateOfBirthBounds()
   const calculateAge = (birthDate: string) => ageFromDateOfBirth(birthDate)
 
-  // Focus the error summary region when errors appear (a11y).
   useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      errorSummaryRef.current?.focus()
-    }
+    if (Object.keys(errors).length > 0) errorSummaryRef.current?.focus()
   }, [errors])
 
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -81,26 +101,23 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
     }
   }
 
-  // Validate only the fields of the current sub-step.
   const validateStep = (s: number): boolean => {
     const e: Record<string, string> = {}
     if (s === 0) {
       if (!formData.teenFirstName.trim()) e.teenFirstName = "Prénom requis"
       if (!formData.teenLastName.trim()) e.teenLastName = "Nom requis"
-      if (!formData.dateOfBirth) {
-        e.dateOfBirth = "Date de naissance requise"
-      } else if (!isTeenAge(calculateAge(formData.dateOfBirth))) {
-        e.dateOfBirth = TEEN_AGE_ERROR
-      }
+      if (!formData.dateOfBirth) e.dateOfBirth = "Date de naissance requise"
+      else if (!isTeenAge(calculateAge(formData.dateOfBirth))) e.dateOfBirth = TEEN_AGE_ERROR
       if (!formData.teenEmail.trim()) e.teenEmail = "Ton email est requis pour te connecter"
       else if (!EMAIL_RE.test(formData.teenEmail)) e.teenEmail = "Email invalide"
-    } else if (s === 1) {
+    } else if (s === PARENT_STEP) {
       if (!formData.parentEmail.trim()) e.parentEmail = "Email du parent requis"
       else if (!EMAIL_RE.test(formData.parentEmail)) e.parentEmail = "Email invalide"
       if (!formData.parentPhone.trim()) e.parentPhone = "Téléphone du parent requis"
       else if (!PHONE_RE.test(formData.parentPhone.replace(/\s/g, "")))
         e.parentPhone = "Format: 0612345678 ou +212612345678"
     }
+    // step 1 (vibe) is optional → no validation.
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -120,7 +137,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
     }
   }
 
-  const submitRegistration = async () => {
+  // Returns true on success (does not advance — caller decides).
+  const submitRegistration = async (): Promise<boolean> => {
     setLoading(true)
     try {
       const response = await fetch("/api/auth/register-teen", {
@@ -133,6 +151,7 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
           teenEmail: formData.teenEmail,
           parentEmail: formData.parentEmail,
           parentPhone: formData.parentPhone,
+          archetype, // #309 — vibe → teens.archetype (via pending row)
         }),
       })
       const data = await response.json()
@@ -158,38 +177,57 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
         "teen_onboarding_data",
         JSON.stringify({ ...formData, registrationId: data.data.registrationId, expiresAt: data.data.expiresAt })
       )
-
-      onNext()
+      return true
     } catch (error: any) {
       console.error("Error creating teen request:", error)
       toast.error(error.message || "Erreur lors de l'envoi de la demande")
+      return false
     } finally {
       setLoading(false)
     }
   }
 
   const handleNext = async () => {
-    if (!validateStep(step)) {
-      toast.error("Veuillez corriger les erreurs")
-      return
-    }
-    if (step < SUB_STEPS.length - 1) {
+    if (step <= PARENT_STEP) {
+      if (!validateStep(step)) {
+        toast.error("Veuillez corriger les erreurs")
+        return
+      }
+      if (step < PARENT_STEP) {
+        setStep((s) => s + 1)
+      } else {
+        const ok = await submitRegistration()
+        if (ok) setStep((s) => s + 1)
+      }
+    } else if (step < SUB_STEPS.length - 1) {
       setStep((s) => s + 1)
     } else {
-      await submitRegistration()
+      onNext()
     }
   }
 
   const handleBack = () => {
+    // Post-submit steps can't go back to data collection (registration created).
+    if (step > PARENT_STEP) return
     if (step > 0) setStep((s) => s - 1)
     else onBack()
   }
 
+  const copyInvite = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteUrl)
+      toast.success("Lien copié")
+    } catch {
+      toast.error("Copie impossible")
+    }
+  }
+
   const errorMessages = Object.values(errors)
+  const isPostSubmit = step > PARENT_STEP
+  const isLastStep = step === SUB_STEPS.length - 1
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="text-center">
         <div className="mb-4 flex justify-center">
           <Niv mood="happy" size={80} float />
@@ -198,7 +236,6 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
         <h2 className="mb-3 text-balance font-display text-3xl font-extrabold text-ink sm:text-4xl">
           Crée ton compte <em className="font-semibold italic text-pink">ado</em>
         </h2>
-        {/* Sub-step progress (micro-étapes) */}
         <div className="mx-auto max-w-xs">
           <SegmentedProgress steps={SUB_STEPS.length} current={step} size="sm" />
           <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-mute" aria-live="polite">
@@ -208,7 +245,6 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
       </div>
 
       <StickerCard className="mx-auto max-w-2xl p-6 sm:p-8">
-        {/* a11y — error summary region (aria-live) */}
         {errorMessages.length > 0 && (
           <div
             ref={errorSummaryRef}
@@ -237,7 +273,6 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
           {step === 0 && (
             <fieldset className="space-y-4">
               <legend className="font-display text-lg font-bold text-ink">Tes informations</legend>
-
               <div className="grid gap-4 sm:grid-cols-2">
                 <FieldInput
                   id="teenFirstName"
@@ -260,7 +295,6 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                   onChange={(e) => handleInputChange("teenLastName", e.target.value)}
                 />
               </div>
-
               <FieldInput
                 id="dateOfBirth"
                 name="dateOfBirth"
@@ -278,7 +312,6 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 min={dobBounds.min}
                 max={dobBounds.max}
               />
-
               <FieldInput
                 id="teenEmail"
                 name="teenEmail"
@@ -298,8 +331,45 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
 
           {step === 1 && (
             <fieldset className="space-y-4">
-              <legend className="font-display text-lg font-bold text-ink">Coordonnées de tes parents</legend>
+              <legend className="font-display text-lg font-bold text-ink">La vibe de Niv</legend>
+              <p className="text-sm text-mute">
+                Choisis le profil qui te ressemble — Niv adaptera son coaching (optionnel).
+              </p>
+              <div role="radiogroup" aria-label="Ta vibe" className="grid grid-cols-2 gap-2">
+                {ARCHETYPE_CHIPS.map((opt) => {
+                  const isOn = archetype === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={isOn}
+                      onClick={() => setArchetype(isOn ? null : opt.value)}
+                      className={cn(
+                        "flex items-start gap-2.5 rounded-2xl border-2 border-ink p-3 text-left transition-all duration-150 select-none active:scale-[0.98]",
+                        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
+                        isOn
+                          ? "-translate-x-0.5 -translate-y-0.5 bg-ink text-paper shadow-stkr-pink"
+                          : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm"
+                      )}
+                    >
+                      <span className="shrink-0 text-2xl" aria-hidden="true">{opt.icon}</span>
+                      <span className="flex min-w-0 flex-col">
+                        <span className="text-sm font-semibold">{opt.label}</span>
+                        <span className={cn("text-xs leading-tight", isOn ? "text-paper/70" : "text-mute")}>
+                          {opt.hint}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </fieldset>
+          )}
 
+          {step === PARENT_STEP && (
+            <fieldset className="space-y-4">
+              <legend className="font-display text-lg font-bold text-ink">Coordonnées de tes parents</legend>
               <FieldInput
                 id="parentEmail"
                 name="parentEmail"
@@ -313,7 +383,6 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 value={formData.parentEmail}
                 onChange={(e) => handleInputChange("parentEmail", e.target.value)}
               />
-
               <FieldInput
                 id="parentPhone"
                 name="parentPhone"
@@ -327,22 +396,42 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 value={formData.parentPhone}
                 onChange={(e) => handleInputChange("parentPhone", e.target.value)}
               />
-
               <NivCoach
                 mood="calm"
-                message="Pour ta sécurité, tes parents doivent valider ton inscription. Ils recevront un email avec un lien pour créer leur compte parent et approuver ton profil."
+                message="Dernière étape avant de t'éclater : tes parents valident ton inscription (email + lien). C'est pour ta sécurité."
               />
             </fieldset>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4 text-center">
+              <h3 className="font-display text-lg font-bold text-ink">Invite ton crew 🤜🤛</h3>
+              <p className="text-sm text-mute">
+                Partage Nivy à tes potes — c'est plus fun à plusieurs (optionnel).
+              </p>
+              {inviteQr ? (
+                <div className="mx-auto grid w-fit place-items-center rounded-2xl border-2 border-ink bg-white p-3">
+                  <img src={inviteQr} alt="QR d'invitation Nivy" className="size-[180px] rounded-lg" />
+                </div>
+              ) : null}
+              <Button type="button" variant="outline" className="gap-2" onClick={copyInvite}>
+                <Copy className="size-4" aria-hidden="true" />
+                Copier le lien d'invitation
+              </Button>
+            </div>
           )}
         </form>
       </StickerCard>
 
-      {/* Navigation */}
       <div className="flex items-center justify-between gap-4">
-        <Button variant="outline" onClick={handleBack} disabled={loading} className="gap-2">
-          <ChevronLeft className="h-4 w-4" />
-          Retour
-        </Button>
+        {isPostSubmit ? (
+          <span />
+        ) : (
+          <Button variant="outline" onClick={handleBack} disabled={loading} className="gap-2">
+            <ChevronLeft className="h-4 w-4" />
+            Retour
+          </Button>
+        )}
 
         <Button variant="pink" onClick={handleNext} disabled={loading} aria-busy={loading} className="gap-2">
           {loading ? (
@@ -350,15 +439,25 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               <span aria-live="polite">Envoi en cours…</span>
             </>
-          ) : step < SUB_STEPS.length - 1 ? (
+          ) : step < PARENT_STEP ? (
             <>
               Continuer
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </>
-          ) : (
+          ) : step === PARENT_STEP ? (
             <>
               Envoyer la demande
               <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            </>
+          ) : isLastStep ? (
+            <>
+              Terminer
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </>
+          ) : (
+            <>
+              Continuer
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </>
           )}
         </Button>
