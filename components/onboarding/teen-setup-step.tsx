@@ -122,8 +122,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
     } else if (s === PARENT_STEP) {
       if (!formData.parentEmail.trim()) e.parentEmail = "Email du parent requis"
       else if (!EMAIL_RE.test(formData.parentEmail)) e.parentEmail = "Email invalide"
-      if (!formData.parentPhone.trim()) e.parentPhone = "Téléphone du parent requis"
-      else if (!PHONE_RE.test(formData.parentPhone.replace(/\s/g, "")))
+      // #311 — parent phone is OPTIONAL (no SMS sent); validate format only if filled.
+      if (formData.parentPhone.trim() && !PHONE_RE.test(formData.parentPhone.replace(/\s/g, "")))
         e.parentPhone = "Format: 0612345678 ou +212612345678"
     }
     // step 1 (vibe) is optional → no validation.
@@ -396,7 +396,7 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
                 id="parentPhone"
                 name="parentPhone"
                 type="tel"
-                label="Téléphone d'un parent *"
+                label="Téléphone d'un parent (optionnel)"
                 inputMode="tel"
                 autoComplete="off"
                 prefix="🇲🇦 +212"

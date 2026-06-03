@@ -242,6 +242,18 @@ export async function POST(request: Request) {
     }
 
     // 4. parent_teen_links — atomic with respect to the auth user.
+    //
+    // #311 — CONSENT RULE (documented, intentional asymmetry):
+    //   • Direct creation (THIS route): the parent provisions a BRAND-NEW
+    //     account for their own minor (they choose the teen's login email). As
+    //     legal guardian of a not-yet-existing account, the parent's creation
+    //     IS the authorising act; the minor expresses consent by activating via
+    //     the magic-link emailed to them. → link starts 'active'.
+    //   • Linking an EXISTING, independent teen account (/api/parent/teens POST
+    //     and the QR/code flows): that account belongs to the teen, so a third
+    //     party (parent) linking it requires the teen's explicit acceptance.
+    //     → link starts 'pending' (or 'active' only when the teen themselves
+    //     consumed the code / showed the QR, i.e. acted).
     const { error: linkErr } = await admin
       .from("parent_teen_links")
       .insert({

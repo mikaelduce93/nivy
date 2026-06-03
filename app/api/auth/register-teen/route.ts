@@ -45,10 +45,11 @@ export async function POST(request: Request) {
     // parent validates (app/api/auth/validate-teen). Any teenPassword sent
     // by the client is intentionally ignored.
 
-    // Validate required fields
-    if (!teenFirstName || !teenLastName || !dateOfBirth || !parentEmail || !parentPhone) {
+    // Validate required fields. #311 — parentPhone is now OPTIONAL (no SMS is
+    // sent, so requiring it collected unused PII). Email is the validation channel.
+    if (!teenFirstName || !teenLastName || !dateOfBirth || !parentEmail) {
       return NextResponse.json(
-        { success: false, error: "Tous les champs sont requis" },
+        { success: false, error: "Prénom, nom, date de naissance et email du parent sont requis" },
         { status: 400 }
       )
     }
@@ -89,7 +90,7 @@ export async function POST(request: Request) {
           teen_password_hash: null,
           date_of_birth: dateOfBirth,
           parent_email: parentEmail.toLowerCase(),
-          parent_phone: parentPhone,
+          parent_phone: parentPhone?.trim() || null,
           validation_token: validationToken,
           token_expires_at: tokenExpiry.toISOString(),
           status: "pending",
