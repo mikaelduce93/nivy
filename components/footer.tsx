@@ -3,12 +3,15 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Facebook, Instagram, Twitter, Mail, MapPin } from 'lucide-react'
-import { getPublicAppConfig } from "@/lib/config/app-config"
+import { getPublicAppConfig, getEscrowConfig } from "@/lib/config/app-config"
 import { PandaLogo } from "@/components/brand/panda-logo"
 import { LocaleSwitcher } from "@/components/locale-switcher"
 import { useT } from "@/lib/i18n"
 
 const { contactEmail: CONTACT_EMAIL } = getPublicAppConfig()
+// #289 — affirmation d'escrow depuis la source unique (conditionnelle tant que
+// le tiers e-money n'est pas nommé), jamais en dur.
+const { short: ESCROW_SHORT } = getEscrowConfig()
 
 type FooterLink = { label: string; href: string }
 type FooterColumn = { title: string; links: FooterLink[] }
@@ -36,6 +39,7 @@ const COLUMNS: FooterColumn[] = [
   {
     title: "Collabore",
     links: [
+      { label: "Vous êtes un commerce ?", href: "/partenaires" },
       { label: "Devenir partenaire", href: "/devenir-partenaire" },
       { label: "Ambassadeur", href: "/devenir-ambassadeur" },
       { label: "Influenceur", href: "/devenir-influenceur" },
@@ -71,7 +75,7 @@ export function Footer() {
               {!isHome && (
                 <>
                   {" "}
-                  Les ados gagnent en autonomie, les parents gardent le contrôle, les partenaires fidélisent une vraie clientèle. Coins prépayés en escrow agréé BAM, données protégées (CNDP, loi 09-08).
+                  Les ados gagnent en autonomie, les parents gardent le contrôle, les partenaires fidélisent une vraie clientèle. Coins prépayés en dirhams ({ESCROW_SHORT}), données protégées (CNDP, loi 09-08).
                 </>
               )}
             </p>
