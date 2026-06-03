@@ -38,7 +38,8 @@ const bodySchema = z
     avatarUrl: z.string().url().optional().nullable(),
     school: z.string().optional().nullable(),
     gradeLevel: z.string().optional().nullable(),
-    profiles: z.array(z.unknown()).max(2).optional(),
+    // #310 — `profiles` (macro tags School/Sport/Créa) retiré : aucune colonne
+    // de stockage, doublon conceptuel de l'archetype/des intérêts.
     interests: z.array(z.string()).optional(),
     allergies: z.string().optional().nullable(),
     photoConsent: z.boolean().optional(),
@@ -189,6 +190,13 @@ export async function POST(request: Request) {
           avatar_url: body.avatarUrl ?? null,
           school_type: body.school ?? null,
           grade_level: body.gradeLevel ?? null,
+          // #310 — safety/medical fields now PERSISTED (mig 163).
+          allergies: body.allergies ?? null,
+          photo_consent: body.photoConsent ?? false,
+          exit_permission_rules: body.exitRules ?? null,
+          emergency_contact_name: body.emergencyContactName ?? null,
+          emergency_contact_phone: body.emergencyContactPhone ?? null,
+          emergency_contact_relation: body.emergencyContactRelation ?? null,
         },
         { onConflict: "id" }
       )
@@ -216,6 +224,22 @@ export async function POST(request: Request) {
         is_onboarded: false,
       })
       .eq("id", teenUid)
+
+    // 3b. Persist selected interests (#310) — interest_taxonomy tags → teen_interests.
+    //     Best-effort (non-fatal); the teen can refine them post-auth.
+    if (body.interests && body.interests.length > 0) {
+      const rows = body.interests.slice(0, 10).map((tag) => ({
+        teen_id: teenUid,
+        tag,
+        weight: 1,
+      }))
+      const { error: interestsErr } = await admin
+        .from("teen_interests")
+        .upsert(rows, { onConflict: "teen_id,tag" })
+      if (interestsErr) {
+        console.error("parent/teens/create: teen_interests upsert failed", interestsErr.message)
+      }
+    }
 
     // 4. parent_teen_links — atomic with respect to the auth user.
     const { error: linkErr } = await admin

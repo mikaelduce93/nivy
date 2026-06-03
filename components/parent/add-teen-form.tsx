@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { FieldInput } from "@/components/ui/field-input"
 import { CheckRound } from "@/components/ui/check-round"
 import { SelectSticker, SelectStickerItem } from "@/components/ui/select-sticker"
+import { SegmentedProgress } from "@/components/ui/progress"
 import {
   Loader2,
   Search,
@@ -21,7 +22,9 @@ import {
   X,
   Heart,
   Phone,
-  Shield
+  Shield,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -39,13 +42,6 @@ const avatarOptions = [
   "🦋", "🐬", "🦅", "🐼", "🦜", "🐨", "🦖", "🐙",
   "🎮", "⚽", "🎨", "🎵", "📚", "🎬", "🏀", "🎭"
 ]
-
-// Profile types (max 2)
-const profileTypes = [
-  { id: "School", label: "School", icon: "📚", description: "Axé études" },
-  { id: "Sport", label: "Sport", icon: "⚽", description: "Sportif" },
-  { id: "Créa", label: "Créa", icon: "🎨", description: "Créatif" }
-] as const
 
 // Emergency contact relation options
 const relationOptions = [
@@ -92,6 +88,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
 
   // Create new teen states
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [createStep, setCreateStep] = useState(0)
   const [createLoading, setCreateLoading] = useState(false)
   const [newTeen, setNewTeen] = useState({
     firstName: "",
@@ -105,7 +102,6 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     avatarFile: null as File | null,
     school: "",
     gradeLevel: "",
-    profiles: [] as string[],
     interests: [] as string[],
     allergies: "",
     photoConsent: false,
@@ -292,21 +288,6 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     }
   }
 
-  // Toggle profile selection (max 2)
-  const toggleProfile = (profileId: string) => {
-    setNewTeen(prev => {
-      const current = prev.profiles
-      if (current.includes(profileId)) {
-        return { ...prev, profiles: current.filter(p => p !== profileId) }
-      }
-      if (current.length >= 2) {
-        toast.error("Maximum 2 profils autorisés")
-        return prev
-      }
-      return { ...prev, profiles: [...current, profileId] }
-    })
-  }
-
   // Toggle interest selection
   const toggleInterest = (interestId: string) => {
     setNewTeen(prev => {
@@ -453,7 +434,6 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
           // teens.school_type which has a CHECK constraint that "" violates.
           school: newTeen.school || null,
           gradeLevel: newTeen.gradeLevel || null,
-          profiles: newTeen.profiles,
           interests: newTeen.interests,
           allergies: newTeen.allergies,
           photoConsent: newTeen.photoConsent,
@@ -500,6 +480,25 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     isAgeValid &&
     // #48 — at least one of email/phone is required (mirrors server .refine)
     Boolean(newTeen.teenEmail.trim() || newTeen.teenPhone.trim())
+
+  // Step 0 ("Identité") required fields gate the first "Continuer" button.
+  const isStep0Valid = Boolean(
+    newTeen.firstName.trim() &&
+      newTeen.lastName.trim() &&
+      newTeen.pseudo.length >= 3 &&
+      pseudoAvailable === true &&
+      isAgeValid &&
+      (newTeen.teenEmail.trim() || newTeen.teenPhone.trim())
+  )
+
+  // Step labels for the progress caption.
+  const createStepLabels = ["Identité", "Scolarité & intérêts", "Sécurité & médical"]
+
+  // Close the create form and reset the wizard to step 0.
+  const closeCreateForm = () => {
+    setShowCreateForm(false)
+    setCreateStep(0)
+  }
 
   return (
     <div className="space-y-6">
@@ -624,6 +623,17 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             <h3 className="font-display text-lg font-extrabold text-ink">Nouveau compte teen</h3>
           </div>
 
+          {/* Step progress */}
+          <div className="space-y-2">
+            <SegmentedProgress steps={3} current={createStep} size="sm" />
+            <p className="eyebrow tracking-[0.14em] text-mute" aria-live="polite">
+              Étape {createStep + 1} / 3 · {createStepLabels[createStep]}
+            </p>
+          </div>
+
+          {/* ── Step 0 : Identité ── */}
+          {createStep === 0 && (
+            <>
           {/* Photo Upload */}
           <div className="space-y-3">
             <Label className="eyebrow tracking-[0.16em] flex items-center gap-2">
@@ -786,10 +796,15 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             min={dobBounds.min}
             required
             success={age !== null && isAgeValid}
-            error={age !== null && !isAgeValid ? "L'âge doit être entre 10 et 18 ans" : undefined}
+            error={age !== null && !isAgeValid ? TEEN_AGE_ERROR : undefined}
             hint={age !== null && isAgeValid ? `${age} ans` : undefined}
           />
+            </>
+          )}
 
+          {/* ── Step 1 : Scolarité & intérêts ── */}
+          {createStep === 1 && (
+            <>
           {/* École — champ texte libre (#294 : aucune table `schools` réelle ;
               l'ancien sélecteur se vidait silencieusement). */}
           <div className="space-y-3">
@@ -815,32 +830,6 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               <SelectStickerItem value="1ere">1ère</SelectStickerItem>
               <SelectStickerItem value="Terminale">Terminale</SelectStickerItem>
             </SelectSticker>
-          </div>
-
-          {/* Profiles Multi-select (max 2) */}
-          <div className="space-y-2">
-            <Label className="eyebrow tracking-[0.16em] flex items-center gap-2">
-              <Star className="h-4 w-4" />
-              Profils (max 2)
-            </Label>
-            <div className="grid grid-cols-3 gap-3">
-              {profileTypes.map((profile) => (
-                <button
-                  key={profile.id}
-                  type="button"
-                  onClick={() => toggleProfile(profile.id)}
-                  className={`p-3 rounded-xl border-2 text-center transition-all ${
-                    newTeen.profiles.includes(profile.id)
-                      ? "bg-lime/20 border-ink text-ink shadow-stkr-sm"
-                      : "bg-white border-line text-ink-2 hover:border-ink"
-                  }`}
-                >
-                  <span className="text-2xl block mb-1">{profile.icon}</span>
-                  <span className="text-sm font-semibold">{profile.label}</span>
-                  <span className="text-xs block text-mute">{profile.description}</span>
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Interests Multi-select */}
@@ -883,7 +872,12 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
               <p className="text-sm text-mute">Aucun centre d'intérêt disponible</p>
             )}
           </div>
+            </>
+          )}
 
+          {/* ── Step 2 : Sécurité & médical ── */}
+          {createStep === 2 && (
+            <>
           {/* Photo Consent */}
           <CheckRound
             checked={newTeen.photoConsent}
@@ -1008,43 +1002,66 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                 <span className="px-2 py-1 border border-line text-coral text-xs font-mono rounded-full">
                   ⊙ 0 Coins
                 </span>
-                {newTeen.profiles.map((p) => (
-                  <span key={p} className="px-2 py-1 border border-line text-ink-2 text-xs font-mono rounded-full">
-                    {profileTypes.find(pt => pt.id === p)?.icon} {p}
-                  </span>
-                ))}
               </div>
             </div>
           )}
+            </>
+          )}
 
-          {/* Buttons */}
+          {/* Navigation */}
           <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={() => setShowCreateForm(false)}
-            >
-              Annuler
-            </Button>
-            <Button
-              type="submit"
-              variant="pink"
-              disabled={createLoading || !isCreateFormValid}
-              className="flex-1 disabled:opacity-50"
-            >
-              {createLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Création...
-                </>
-              ) : (
-                <>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Créer le compte
-                </>
-              )}
-            </Button>
+            {createStep === 0 ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={closeCreateForm}
+              >
+                Annuler
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => setCreateStep((s) => s - 1)}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Retour
+              </Button>
+            )}
+
+            {createStep < 2 ? (
+              <Button
+                type="button"
+                variant="pink"
+                disabled={createStep === 0 && !isStep0Valid}
+                className="flex-1 disabled:opacity-50"
+                onClick={() => setCreateStep((s) => s + 1)}
+              >
+                Continuer
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                variant="pink"
+                disabled={createLoading || !isCreateFormValid}
+                className="flex-1 disabled:opacity-50"
+              >
+                {createLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Création...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Créer le compte
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </form>
       )}
