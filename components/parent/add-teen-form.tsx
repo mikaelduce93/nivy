@@ -21,12 +21,11 @@ import {
   X,
   Heart,
   Phone,
-  Shield,
-  ChevronDown
+  Shield
 } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { checkPseudoAvailable, getSchools, getInterests } from "@/features/teens"
+import { checkPseudoAvailable, getInterests } from "@/features/teens"
 import Image from "next/image"
 import { isTeenAge, TEEN_AGE_ERROR, teenDateOfBirthBounds } from "@/lib/constants/age"
 
@@ -69,12 +68,6 @@ function normalizeTeenPhoneE164(raw: string): string | null {
   return null
 }
 
-interface School {
-  id: string
-  name: string
-  city?: string
-}
-
 interface Interest {
   id: string
   name: string
@@ -94,7 +87,6 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
   const [error, setError] = useState("")
 
   // Referential data
-  const [schools, setSchools] = useState<School[]>([])
   const [interests, setInterests] = useState<Interest[]>([])
   const [loadingReferentials, setLoadingReferentials] = useState(true)
 
@@ -124,8 +116,6 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
   })
 
   // UI states
-  const [showSchoolDropdown, setShowSchoolDropdown] = useState(false)
-  const [schoolSearch, setSchoolSearch] = useState("")
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   // Pseudo validation states
@@ -137,14 +127,7 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
     async function loadReferentials() {
       setLoadingReferentials(true)
       try {
-        const [schoolsResult, interestsResult] = await Promise.all([
-          getSchools(),
-          getInterests()
-        ])
-
-        if (schoolsResult.success) {
-          setSchools(schoolsResult.data)
-        }
+        const interestsResult = await getInterests()
         if (interestsResult.success) {
           setInterests(interestsResult.data)
         }
@@ -197,12 +180,6 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
   const age = calculateAge(newTeen.dateOfBirth)
   const isAgeValid = age !== null && isTeenAge(age)
   const dobBounds = teenDateOfBirthBounds()
-
-  // Filter schools based on search
-  const filteredSchools = schools.filter(school =>
-    school.name.toLowerCase().includes(schoolSearch.toLowerCase()) ||
-    (school.city && school.city.toLowerCase().includes(schoolSearch.toLowerCase()))
-  )
 
   // Group interests by category
   const interestsByCategory = interests.reduce((acc, interest) => {
@@ -813,42 +790,15 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
             hint={age !== null && isAgeValid ? `${age} ans` : undefined}
           />
 
-          {/* School Selector with Search */}
+          {/* École — champ texte libre (#294 : aucune table `schools` réelle ;
+              l'ancien sélecteur se vidait silencieusement). */}
           <div className="space-y-3">
-            <div className="relative">
-              <FieldInput
-                label="École"
-                value={schoolSearch || newTeen.school}
-                onChange={(e) => {
-                  setSchoolSearch(e.target.value)
-                  setShowSchoolDropdown(true)
-                }}
-                onFocus={() => setShowSchoolDropdown(true)}
-                placeholder="Rechercher une école..."
-                className="pr-10"
-              />
-              <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-mute" />
-
-              {showSchoolDropdown && filteredSchools.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white border-2 border-ink rounded-xl shadow-stkr-sm max-h-48 overflow-auto">
-                  {filteredSchools.slice(0, 10).map((school) => (
-                    <button
-                      key={school.id}
-                      type="button"
-                      onClick={() => {
-                        updateNewTeen("school", school.name)
-                        setSchoolSearch("")
-                        setShowSchoolDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left text-sm text-ink hover:bg-ink hover:text-paper flex items-center justify-between"
-                    >
-                      <span>{school.name}</span>
-                      {school.city && <span className="text-xs text-mute">{school.city}</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <FieldInput
+              label="École"
+              value={newTeen.school}
+              onChange={(e) => updateNewTeen("school", e.target.value)}
+              placeholder="Nom de l'établissement"
+            />
 
             {/* Grade Level */}
             <SelectSticker

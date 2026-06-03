@@ -10,6 +10,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logDbError } from '@/lib/observability/log-db-error'
 import {
   createTeenSchema,
   updateTeenSchema,
@@ -37,45 +38,36 @@ async function getAuthenticatedUser() {
    ========================================================================== */
 
 /**
- * Récupère la liste des écoles disponibles
- */
-export async function getSchools(): Promise<ActionResult<any[]>> {
-  try {
-    const { supabase } = await getAuthenticatedUser()
-
-    const { data, error } = await supabase
-      .from('schools')
-      .select('*')
-      .eq('is_active', true)
-      .order('name')
-
-    if (error) throw error
-
-    return { success: true, data: data ?? [] }
-  } catch (error: any) {
-    console.error('[teens/getSchools] Error:', error)
-    return { success: false, error: error.message }
-  }
-}
-
-/**
- * Récupère la liste des centres d'intérêt
+ * Récupère la liste des centres d'intérêt.
+ *
+ * #294 — repointé de la table fantôme `interests` (inexistante → sélecteur
+ * silencieusement vide) vers `interest_taxonomy` (50 tags actifs, source réelle
+ * de `teen_interests.tag`). On expose un shape stable {id,name,category,icon}
+ * pour le consommateur (add-teen-form), où `id` est le `tag` canonique.
  */
 export async function getInterests(): Promise<ActionResult<any[]>> {
   try {
     const { supabase } = await getAuthenticatedUser()
 
     const { data, error } = await supabase
-      .from('interests')
-      .select('*')
+      .from('interest_taxonomy')
+      .select('tag, category, display_fr, icon')
       .eq('is_active', true)
-      .order('category, name')
+      .order('category')
 
     if (error) throw error
 
-    return { success: true, data: data ?? [] }
+    const mapped = (data ?? []).map((row: { tag: string; category: string; display_fr: string | null; icon: string | null }) => ({
+      id: row.tag,
+      name: row.display_fr ?? row.tag,
+      category: row.category,
+      icon: row.icon ?? undefined,
+    }))
+
+    return { success: true, data: mapped }
   } catch (error: any) {
-    console.error('[teens/getInterests] Error:', error)
+    // #294 — ne plus avaler l'erreur silencieusement (helper structuré).
+    logDbError('teens/getInterests', error)
     return { success: false, error: error.message }
   }
 }
