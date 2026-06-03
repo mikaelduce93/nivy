@@ -5,81 +5,26 @@ import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { FieldInput } from "@/components/ui/field-input"
 import { Niv, NivCoach } from "@/components/brand"
-import {
-  ChevronLeft, Loader2, CheckCircle2,
-  Sparkles, Brain, Compass
-} from 'lucide-react'
+import { ChevronLeft, Loader2, CheckCircle2 } from 'lucide-react'
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
 import {
   ageFromDateOfBirth,
   isTeenAge,
   TEEN_AGE_ERROR,
   teenDateOfBirthBounds,
 } from "@/lib/constants/age"
-import type { Archetype as SharedArchetype, LearningStyle as SharedLearningStyle } from "@/lib/constants/archetype"
 
 /**
- * TICKET-031 — Onboarding interest capture preview.
- *
- * The actual chip selector lives at /onboarding/interests (post-auth,
- * post-parent-approval) because we need a teen_id to write rows to
- * teen_interests. At this pre-auth registration step we show a
- * non-persisting chip teaser so teens see the 50-tag taxonomy before
- * they leave the form, and pre-pick can be persisted to localStorage
- * to be hydrated into <InterestPicker /> after first sign-in.
- *
- * 16 representative tags drawn from interest_taxonomy (categories
- * weighted toward 13-17 appeal — drops `lifestyle_finance` etc per
- * docs/vision/personalization-engine.md §10 Step A).
+ * #305 — the pre-auth interest/learning-style/archetype teasers were removed.
+ * They wrote only to localStorage and were never replayed post-auth (audit
+ * GAP-07/08 : "worst of both worlds" — effort sans effet). The single,
+ * canonical personalization collectors are the post-auth onboarding pages,
+ * which have a teen_id and persist to real tables:
+ *   - /onboarding/interests  → teen_interests (InterestPicker, 5-10 taxonomy tags)
+ *   - /onboarding/learning-style → teens.learning_style/archetype (#303)
+ *   - /onboarding/goals      → teen_goals + missions (#304)
+ * This step is now a focused registration form (identité + contact parent).
  */
-const INTEREST_PREVIEW_CHIPS: Array<{ tag: string; label: string; icon: string }> = [
-  { tag: 'sport_football', label: 'Football', icon: '⚽' },
-  { tag: 'sport_basketball', label: 'Basket', icon: '🏀' },
-  { tag: 'tech_gaming', label: 'Jeux vidéo', icon: '🎮' },
-  { tag: 'tech_coding', label: 'Code', icon: '💻' },
-  { tag: 'tech_ai', label: 'IA', icon: '🧠' },
-  { tag: 'art_drawing', label: 'Dessin', icon: '✏️' },
-  { tag: 'art_video', label: 'Vidéo', icon: '🎬' },
-  { tag: 'art_photography', label: 'Photo', icon: '📷' },
-  { tag: 'music_rap', label: 'Rap', icon: '🎤' },
-  { tag: 'music_pop', label: 'Pop', icon: '🎵' },
-  { tag: 'food_cooking', label: 'Cuisine', icon: '👨‍🍳' },
-  { tag: 'lifestyle_fashion', label: 'Mode', icon: '👗' },
-  { tag: 'science_astronomy', label: 'Astronomie', icon: '🔭' },
-  { tag: 'reading_fiction', label: 'Romans', icon: '📖' },
-  { tag: 'nature_animals', label: 'Animaux', icon: '🐶' },
-  { tag: 'social_volunteering', label: 'Bénévolat', icon: '🤝' },
-]
-
-/**
- * TICKET-032 — Learning style + archetype pre-auth teaser.
- *
- * Mirrors the TICKET-031 pattern: pre-auth selection writes to localStorage,
- * post-auth /api/onboarding/profile (called from /onboarding/* pages) reads
- * the cached value and persists it to teens.learning_style / teens.archetype.
- *
- * Schema values match docs/vision/personalization-engine.md §10 Step C +
- * the canonical 4-archetype set used across the recommender (creator,
- * explorer, competitor, social).
- */
-// #303 — single source of truth for the archetype/learning-style enums.
-type LearningStyle = SharedLearningStyle
-type Archetype = SharedArchetype
-
-const LEARNING_STYLE_CHIPS: Array<{ value: LearningStyle; label: string; icon: string; hint: string }> = [
-  { value: 'visual', label: 'Visuel', icon: '📺', hint: 'Schémas, vidéos, infographies' },
-  { value: 'auditory', label: 'Audio', icon: '🎧', hint: 'Podcasts, discussions, musique' },
-  { value: 'kinesthetic', label: 'Action', icon: '🤸', hint: 'Pratique, sport, expériences' },
-  { value: 'reading', label: 'Lecture', icon: '📖', hint: 'Textes, livres, articles' },
-]
-
-const ARCHETYPE_CHIPS: Array<{ value: Archetype; label: string; icon: string; hint: string }> = [
-  { value: 'creator', label: 'Créateur', icon: '🎨', hint: 'Tu aimes imaginer et fabriquer' },
-  { value: 'explorer', label: 'Explorateur', icon: '🧭', hint: 'Tu aimes découvrir et comprendre' },
-  { value: 'competitor', label: 'Compétiteur', icon: '🏆', hint: 'Tu aimes les défis et progresser' },
-  { value: 'social', label: 'Social', icon: '🤝', hint: 'Tu aimes collaborer et partager' },
-]
 
 interface TeenSetupStepProps {
   onNext: () => void
@@ -98,33 +43,6 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
-
-  // TICKET-031 — chip teaser. Persisted to localStorage so the post-auth
-  // /onboarding/interests page (which calls /api/onboarding/interests) can
-  // pre-fill the selection from the teen's pre-registration choices.
-  const [previewSelected, setPreviewSelected] = useState<Set<string>>(new Set())
-
-  // TICKET-032 — learning style + archetype pre-auth teasers. Single-pick
-  // each. Persisted to localStorage so the post-auth flow can hydrate
-  // /api/onboarding/profile without forcing the teen to re-pick.
-  const [learningStyle, setLearningStyle] = useState<LearningStyle | null>(null)
-  const [archetype, setArchetype] = useState<Archetype | null>(null)
-
-  const togglePreview = (tag: string) => {
-    setPreviewSelected((prev) => {
-      const next = new Set(prev)
-      if (next.has(tag)) {
-        next.delete(tag)
-      } else {
-        if (next.size >= 10) {
-          toast.warning('Max 10 — tu pourras en ajouter d\'autres après')
-          return prev
-        }
-        next.add(tag)
-      }
-      return next
-    })
-  }
 
   // Focus first error on submit
   useEffect(() => {
@@ -251,41 +169,12 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
         })
       }
 
-      // Store data in localStorage for reference
+      // Store registration ref for reference (used to resume the flow).
       localStorage.setItem('teen_onboarding_data', JSON.stringify({
         ...formData,
         registrationId: data.data.registrationId,
         expiresAt: data.data.expiresAt,
       }))
-
-      // TICKET-031 — pre-seed interests so /onboarding/interests can hydrate
-      // the chip selector with the teen's pre-auth picks once they sign in.
-      if (previewSelected.size > 0) {
-        try {
-          localStorage.setItem(
-            'teen_onboarding_interests_preview',
-            JSON.stringify(Array.from(previewSelected))
-          )
-        } catch {
-          // localStorage may be disabled — non-fatal, the user simply re-picks.
-        }
-      }
-
-      // TICKET-032 — pre-seed learning_style + archetype. Hydrated post-auth
-      // by the /onboarding/* flow which calls POST /api/onboarding/profile.
-      if (learningStyle || archetype) {
-        try {
-          localStorage.setItem(
-            'teen_onboarding_profile_preview',
-            JSON.stringify({
-              learning_style: learningStyle,
-              archetype,
-            })
-          )
-        } catch {
-          // localStorage may be disabled — non-fatal, teen re-picks post-auth.
-        }
-      }
 
       onNext()
     } catch (error: any) {
@@ -419,168 +308,8 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
             />
           </div>
 
-          {/* TICKET-031 — Interest chip teaser (Step A from
-              personalization-engine.md §10). Pre-auth, non-persisting:
-              writes to localStorage so /onboarding/interests can hydrate
-              the full 50-tag selector after parent approval + sign-in. */}
-          <div className="space-y-3 pt-4 border-t-2 border-ink/10">
-            <div className="flex items-center gap-2">
-              <span className="grid size-8 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper">
-                <Sparkles className="w-4 h-4 text-teal" aria-hidden="true" />
-              </span>
-              <div>
-                <h3 className="font-display font-bold text-base leading-tight text-ink">Qu'est-ce qui te fait vibrer&nbsp;?</h3>
-                <p className="text-xs text-mute">
-                  Pré-sélectionne quelques centres d'intérêt — tu pourras affiner après.
-                </p>
-              </div>
-            </div>
-
-            <div
-              role="group"
-              aria-label="Aperçu des centres d'intérêt"
-              className="flex flex-wrap gap-2"
-            >
-              {INTEREST_PREVIEW_CHIPS.map((chip) => {
-                const isOn = previewSelected.has(chip.tag)
-                return (
-                  <button
-                    key={chip.tag}
-                    type="button"
-                    onClick={() => togglePreview(chip.tag)}
-                    aria-pressed={isOn}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-medium",
-                      "border-2 border-ink transition-all duration-150 active:scale-95 select-none",
-                      "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
-                      isOn
-                        ? "bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink"
-                        : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm"
-                    )}
-                  >
-                    <span aria-hidden="true">{chip.icon}</span>
-                    <span>{chip.label}</span>
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="flex items-center justify-between text-xs">
-              <span
-                className={cn(
-                  "tabular-nums font-semibold",
-                  previewSelected.size > 0 ? "text-teal" : "text-mute"
-                )}
-                aria-live="polite"
-              >
-                {previewSelected.size} sélectionné{previewSelected.size > 1 ? "s" : ""} / 10 max
-              </span>
-              <span className="text-mute">
-                Plus de 50 catégories à découvrir ensuite
-              </span>
-            </div>
-          </div>
-
-          {/* TICKET-032 — Learning style chips (Step C from
-              personalization-engine.md §10). Single-pick, optional.
-              Persisted to localStorage; post-auth flow calls
-              /api/onboarding/profile to write to teens.learning_style. */}
-          <div className="space-y-3 pt-4 border-t-2 border-ink/10">
-            <div className="flex items-center gap-2">
-              <span className="grid size-8 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper">
-                <Brain className="w-4 h-4 text-pink" aria-hidden="true" />
-              </span>
-              <div>
-                <h3 className="font-display font-bold text-base leading-tight text-ink">Comment tu apprends le mieux&nbsp;?</h3>
-                <p className="text-xs text-mute">
-                  On adapte le contenu à ta façon de capter (optionnel).
-                </p>
-              </div>
-            </div>
-
-            <div
-              role="radiogroup"
-              aria-label="Style d'apprentissage préféré"
-              className="grid grid-cols-2 gap-2"
-            >
-              {LEARNING_STYLE_CHIPS.map((opt) => {
-                const isOn = learningStyle === opt.value
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={isOn}
-                    onClick={() => setLearningStyle(isOn ? null : opt.value)}
-                    className={cn(
-                      "flex items-start gap-2.5 p-3 rounded-2xl text-left",
-                      "border-2 border-ink transition-all duration-150 active:scale-[0.98] select-none",
-                      "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
-                      isOn
-                        ? "bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink"
-                        : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm"
-                    )}
-                  >
-                    <span className="text-2xl shrink-0" aria-hidden="true">{opt.icon}</span>
-                    <span className="flex flex-col min-w-0">
-                      <span className="text-sm font-semibold">{opt.label}</span>
-                      <span className={cn("text-xs leading-tight", isOn ? "text-paper/70" : "text-mute")}>{opt.hint}</span>
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* TICKET-032 — Archetype quick-pick. 4 archetypes
-              (creator/explorer/competitor/social) drive avatar tone +
-              content-type bias in the recommender. Single-pick, optional. */}
-          <div className="space-y-3 pt-4 border-t-2 border-ink/10">
-            <div className="flex items-center gap-2">
-              <span className="grid size-8 shrink-0 place-items-center rounded-xl border-2 border-ink bg-paper">
-                <Compass className="w-4 h-4 text-gold" aria-hidden="true" />
-              </span>
-              <div>
-                <h3 className="font-display font-bold text-base leading-tight text-ink">Tu te reconnais dans quel profil&nbsp;?</h3>
-                <p className="text-xs text-mute">
-                  Choisis celui qui te ressemble le plus (optionnel).
-                </p>
-              </div>
-            </div>
-
-            <div
-              role="radiogroup"
-              aria-label="Profil d'archetype"
-              className="grid grid-cols-2 gap-2"
-            >
-              {ARCHETYPE_CHIPS.map((opt) => {
-                const isOn = archetype === opt.value
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={isOn}
-                    onClick={() => setArchetype(isOn ? null : opt.value)}
-                    className={cn(
-                      "flex items-start gap-2.5 p-3 rounded-2xl text-left",
-                      "border-2 border-ink transition-all duration-150 active:scale-[0.98] select-none",
-                      "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-pink/40",
-                      isOn
-                        ? "bg-ink text-paper -translate-x-0.5 -translate-y-0.5 shadow-stkr-pink"
-                        : "bg-white text-ink hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-stkr-sm"
-                    )}
-                  >
-                    <span className="text-2xl shrink-0" aria-hidden="true">{opt.icon}</span>
-                    <span className="flex flex-col min-w-0">
-                      <span className="text-sm font-semibold">{opt.label}</span>
-                      <span className={cn("text-xs leading-tight", isOn ? "text-paper/70" : "text-mute")}>{opt.hint}</span>
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
+          {/* #305 — personnalisation (intérêts / style / profil) déplacée vers
+              la chaîne post-auth (single source) : plus de double saisie ici. */}
 
           {/* Coach Niv — rassure sur la validation parentale */}
           <NivCoach
