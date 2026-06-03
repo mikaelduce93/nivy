@@ -8,6 +8,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { resolveTeenIdentities } from "@/lib/server/teen-identities"
 import { revalidatePath } from "next/cache"
 import {
   type ChallengeType,
@@ -381,8 +382,7 @@ export async function getChallengeMessages(
         user_id,
         message,
         message_type,
-        created_at,
-        profiles!inner(pseudo, avatar_url)
+        created_at
       `)
       .eq("challenge_id", challengeId)
       .order("created_at", { ascending: false })
@@ -393,11 +393,12 @@ export async function getChallengeMessages(
       return { data: [], error: error.message }
     }
 
+    const idents = await resolveTeenIdentities(supabase, (data || []).map((m: any) => m.user_id))
     const messages = (data || []).map((m: any) => ({
       id: m.id,
       user_id: m.user_id,
-      pseudo: m.profiles.pseudo,
-      avatar_url: m.profiles.avatar_url,
+      pseudo: idents.get(m.user_id)?.pseudo || "Membre",
+      avatar_url: idents.get(m.user_id)?.avatar_url ?? null,
       message: m.message,
       message_type: m.message_type,
       created_at: m.created_at,

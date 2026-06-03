@@ -371,39 +371,10 @@ export const POST = withSecurity(
         }
       }
 
-      // If flagged, create moderation alert
-      if (flagged) {
-        await supabase.from("moderation_alerts").insert({
-          message_id: message.id,
-          user_id: user.id,
-          circle_id: circleId,
-          alert_type: "auto_moderated",
-          original_content: content,
-          moderated_content: moderatedContent,
-          created_at: new Date().toISOString(),
-        })
-
-        // Notify moderators
-        const { data: moderators } = await supabase
-          .from("profiles")
-          .select("id")
-          .in("role", ["admin", "moderator"])
-
-        if (moderators && moderators.length > 0) {
-          const notifications = moderators.map((mod) => ({
-            user_id: mod.id,
-            type: "moderation_alert",
-            title: "Message auto-modéré",
-            message: `Un message dans ${circle.name} a été automatiquement modéré.`,
-            read: false,
-            resource_type: "circle_message",
-            resource_id: message.id,
-            created_at: new Date().toISOString(),
-          }))
-
-          await supabase.from("notifications").insert(notifications)
-        }
-      }
+      // V9 #271 — modération circles : tables moderation_alerts / notifications absentes
+      // en base ; écritures fantômes (échec silencieux) retirées. Le contenu est déjà
+      // auto-modéré (moderatedContent) à l'insertion et signalé via wasModerated (réponse).
+      // TODO(moderation): persister l'alerte + notifier les modérateurs une fois la pipeline câblée.
 
       // Update circle member count and last activity
       await supabase
@@ -512,10 +483,10 @@ export async function DELETE(request: NextRequest) {
     const { error: deleteError } = await supabase
       .from("circle_messages")
       .update({
+        // V9 #271 — deleted_by / deletion_reason n'existent pas sur circle_messages
+        // (seules is_deleted / deleted_at existent). Soft-delete sur les colonnes réelles.
         is_deleted: true,
         deleted_at: new Date().toISOString(),
-        deleted_by: user.id,
-        deletion_reason: reason || (isModerator && !isOwner ? "moderation" : "user_request"),
       })
       .eq("id", messageId)
 
@@ -524,32 +495,10 @@ export async function DELETE(request: NextRequest) {
       return errorResponse("Erreur lors de la suppression", 500)
     }
 
-    // Log moderation action
-    if (isModerator && !isOwner) {
-      await supabase.from("moderation_logs").insert({
-        moderator_id: user.id,
-        action: "delete_message",
-        target_user_id: message.user_id,
-        resource_type: "circle_message",
-        resource_id: messageId,
-        reason,
-        metadata: {
-          circle_id: message.circle_id,
-          original_content: message.content,
-        },
-        created_at: new Date().toISOString(),
-      })
-
-      // Notify message author
-      await supabase.from("notifications").insert({
-        user_id: message.user_id,
-        type: "message_deleted",
-        title: "Message supprimé",
-        message: `Votre message a été supprimé par un modérateur.${reason ? ` Raison: ${reason}` : ""}`,
-        read: false,
-        created_at: new Date().toISOString(),
-      })
-    }
+    // V9 #271 — moderation_logs / notifications n'existent pas en base : écritures
+    // fantômes retirées (échec silencieux). À recâbler avec une vraie pipeline de
+    // modération (table moderation_logs + table notifications) si priorisé.
+    // TODO(moderation): journaliser la suppression + notifier l'auteur (message.sender_id).
 
     return jsonResponse({
       success: true,

@@ -8,6 +8,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { resolveTeenIdentities } from "@/lib/server/teen-identities"
 import { revalidatePath } from "next/cache"
 import {
   type SpecialChallenge,
@@ -149,10 +150,7 @@ export async function getSpecialChallengeDetails(challengeId: string): Promise<{
     // Récupérer les soumissions
     const { data: submissions, error: submissionsError } = await supabase
       .from("special_challenge_submissions")
-      .select(`
-        *,
-        profiles:user_id (pseudo, avatar_url)
-      `)
+      .select("*")
       .eq("challenge_id", challengeId)
       .eq("is_validated", true)
       .order("vote_count", { ascending: false })
@@ -161,12 +159,13 @@ export async function getSpecialChallengeDetails(challengeId: string): Promise<{
       console.error("Error fetching submissions:", submissionsError)
     }
 
+    const subIdents = await resolveTeenIdentities(supabase, (submissions || []).map((s: any) => s.user_id))
     const formattedSubmissions = (submissions || []).map((s: any) => ({
       id: s.id,
       challenge_id: s.challenge_id,
       user_id: s.user_id,
-      pseudo: s.profiles?.pseudo,
-      avatar_url: s.profiles?.avatar_url,
+      pseudo: subIdents.get(s.user_id)?.pseudo || "Membre",
+      avatar_url: subIdents.get(s.user_id)?.avatar_url ?? null,
       submission_type: s.submission_type,
       content: s.content,
       image_url: s.image_url,
@@ -633,10 +632,7 @@ export async function getChallengeLeaderboard(
     // Construire la requête selon le type
     let query = supabase
       .from("special_challenge_submissions")
-      .select(`
-        *,
-        profiles:user_id (pseudo, avatar_url)
-      `)
+      .select("*")
       .eq("challenge_id", challengeId)
       .eq("is_validated", true)
       .limit(limit)
@@ -655,12 +651,13 @@ export async function getChallengeLeaderboard(
       return { data: [], error: error.message }
     }
 
+    const lbIdents = await resolveTeenIdentities(supabase, (data || []).map((s: any) => s.user_id))
     const formatted = (data || []).map((s: any, index: number) => ({
       id: s.id,
       challenge_id: s.challenge_id,
       user_id: s.user_id,
-      pseudo: s.profiles?.pseudo,
-      avatar_url: s.profiles?.avatar_url,
+      pseudo: lbIdents.get(s.user_id)?.pseudo || "Membre",
+      avatar_url: lbIdents.get(s.user_id)?.avatar_url ?? null,
       submission_type: s.submission_type,
       content: s.content,
       image_url: s.image_url,

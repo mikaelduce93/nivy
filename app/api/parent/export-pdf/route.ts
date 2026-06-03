@@ -123,6 +123,8 @@ export const POST = withSecurity(
       // Get bookings
       let bookingsData: any[] = []
       if (type === "bookings" || type === "full") {
+        // V9 #270 — bookings.parent_id n'existe pas ; filtrer par les teens liés (bookings.user_id)
+        const teenIds = teens?.map((t) => t.id) || []
         const { data: bookings } = await supabase
           .from("bookings")
           .select(`
@@ -148,7 +150,7 @@ export const POST = withSecurity(
               )
             )
           `)
-          .eq("parent_id", user.id)
+          .in("user_id", teenIds)
           .gte("created_at", effectiveStartDate)
           .lte("created_at", effectiveEndDate)
           .order("created_at", { ascending: false })
@@ -196,7 +198,7 @@ export const POST = withSecurity(
               full_name
             )
           `)
-          .eq("parent_id", user.id)
+          .in("teen_id", teenIds)
           .gte("created_at", effectiveStartDate)
           .lte("created_at", effectiveEndDate)
           .order("created_at", { ascending: false })
