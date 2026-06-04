@@ -7,7 +7,7 @@ import { StickerCard } from "@/components/ui/sticker-card"
 import { FieldInput } from "@/components/ui/field-input"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { Niv, NivCoach } from "@/components/brand"
-import { ChevronLeft, ChevronRight, Loader2, CheckCircle2, Copy } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, CheckCircle2, Copy, Send, Share2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
@@ -47,7 +47,10 @@ const PHONE_RE = /^(\+212|0)[67]\d{8}$/
 // Sub-steps. Index 2 (parent) is the last DATA-collection step → submit there;
 // steps after it (crew) are post-submit engagement, reached only once the
 // pending registration exists.
-const SUB_STEPS = ["identité", "vibe de Niv", "contact parent", "ton crew", "starter pack"] as const
+// "fais valider" (index 3) is the HERO post-submit step: the teen shares the
+// validation QR/link with a parent (WhatsApp / Web Share / copy). Submit still
+// happens leaving PARENT_STEP (2); the share + crew + starter steps follow.
+const SUB_STEPS = ["identité", "vibe de Niv", "contact parent", "fais valider", "ton crew", "starter pack"] as const
 const PARENT_STEP = 2
 
 // #308 — récompense visible immédiatement, « pré-débloquée », créditée à la
@@ -92,6 +95,19 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
       .catch(() => setInviteQr(null))
   }, [])
 
+  // Parent validation link (returned by register-teen) — the primary channel:
+  // the teen shares this QR/link so a parent onboards (KYC+signature) and links.
+  const [validationUrl, setValidationUrl] = useState("")
+  const [validationQr, setValidationQr] = useState<string | null>(null)
+  const [registrationId, setRegistrationId] = useState<string | null>(null)
+  const [parentEmailProvided, setParentEmailProvided] = useState(false)
+  useEffect(() => {
+    if (!validationUrl) return
+    toDataURL(validationUrl, { width: 220, margin: 1, color: { dark: "#0e0c1a", light: "#ffffff" } })
+      .then(setValidationQr)
+      .catch(() => setValidationQr(null))
+  }, [validationUrl])
+
   const dobBounds = teenDateOfBirthBounds()
   const calculateAge = (birthDate: string) => ageFromDateOfBirth(birthDate)
 
@@ -120,9 +136,10 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
       if (!formData.teenEmail.trim()) e.teenEmail = "Ton email est requis pour te connecter"
       else if (!EMAIL_RE.test(formData.teenEmail)) e.teenEmail = "Email invalide"
     } else if (s === PARENT_STEP) {
-      if (!formData.parentEmail.trim()) e.parentEmail = "Email du parent requis"
-      else if (!EMAIL_RE.test(formData.parentEmail)) e.parentEmail = "Email invalide"
-      // #311 — parent phone is OPTIONAL (no SMS sent); validate format only if filled.
+      // Parent email + phone are OPTIONAL: the teen can skip and just share the
+      // QR/link. Validate format only when filled.
+      if (formData.parentEmail.trim() && !EMAIL_RE.test(formData.parentEmail))
+        e.parentEmail = "Email invalide"
       if (formData.parentPhone.trim() && !PHONE_RE.test(formData.parentPhone.replace(/\s/g, "")))
         e.parentPhone = "Format: 0612345678 ou +212612345678"
     }
@@ -166,25 +183,23 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
       const data = await response.json()
       if (!data.success) throw new Error(data.error || "Erreur lors de l'inscription")
 
-      const emailSent = data.data?.email_sent !== false
-      const registrationId: string | undefined = data.data?.registrationId
-      if (emailSent) {
-        toast.success("Demande envoyée !", {
-          description: "Tes parents vont recevoir un email pour valider ton inscription",
-        })
-      } else {
-        toast.warning("Demande enregistrée — email non envoyé", {
-          description: "On n'a pas réussi à envoyer l'email à tes parents. Tu peux réessayer l'envoi.",
-          duration: 10000,
-          action: registrationId
-            ? { label: "Renvoyer", onClick: () => resendParentEmail(registrationId) }
-            : undefined,
-        })
-      }
+      // Primary channel: surface the shareable validation link on the next step.
+      const regId: string | undefined = data.data?.registrationId
+      setValidationUrl(data.data?.validationUrl || "")
+      setRegistrationId(regId ?? null)
+      setParentEmailProvided(Boolean(formData.parentEmail.trim()))
+      toast.success("C'est presque bon !", {
+        description: "Partage le lien à ton parent pour activer ton compte.",
+      })
 
       localStorage.setItem(
         "teen_onboarding_data",
-        JSON.stringify({ ...formData, registrationId: data.data.registrationId, expiresAt: data.data.expiresAt })
+        JSON.stringify({
+          ...formData,
+          registrationId: regId,
+          validationUrl: data.data?.validationUrl,
+          expiresAt: data.data?.expiresAt,
+        })
       )
       return true
     } catch (error: any) {
@@ -228,6 +243,32 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
       toast.success("Lien copié")
     } catch {
       toast.error("Copie impossible")
+    }
+  }
+
+  const copyValidation = async () => {
+    try {
+      await navigator.clipboard.writeText(validationUrl)
+      toast.success("Lien copié")
+    } catch {
+      toast.error("Copie impossible")
+    }
+  }
+
+  // Web Share API ("autres applis") with clipboard fallback.
+  const shareValidation = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "Valide mon inscription Nivy",
+          text: "Valide mon inscription Nivy 🙌",
+          url: validationUrl,
+        })
+      } catch {
+        // user cancelled the share sheet — non-fatal
+      }
+    } else {
+      copyValidation()
     }
   }
 
@@ -378,16 +419,17 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
 
           {step === PARENT_STEP && (
             <fieldset className="space-y-4">
-              <legend className="font-display text-lg font-bold text-ink">Coordonnées de tes parents</legend>
+              <legend className="font-display text-lg font-bold text-ink">Tes parents (optionnel)</legend>
               <FieldInput
                 id="parentEmail"
                 name="parentEmail"
                 type="email"
-                label="Email d'un parent *"
+                label="Email d'un parent (optionnel)"
                 inputMode="email"
                 autoComplete="off"
                 spellCheck={false}
                 placeholder="parent@email.com"
+                hint="Tu peux laisser vide : à l'étape suivante tu partageras un lien/QR directement à ton parent."
                 error={errors.parentEmail}
                 value={formData.parentEmail}
                 onChange={(e) => handleInputChange("parentEmail", e.target.value)}
@@ -407,12 +449,72 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
               />
               <NivCoach
                 mood="calm"
-                message="Dernière étape avant de t'éclater : tes parents valident ton inscription (email + lien). C'est pour ta sécurité."
+                message="Pour ta sécurité, un parent valide ton inscription : il vérifie son identité et signe l'autorisation. À l'étape suivante, tu lui envoies le lien (WhatsApp, QR…)."
               />
             </fieldset>
           )}
 
+          {/* HERO post-submit step: share the parent-validation QR/link. */}
           {step === 3 && (
+            <div className="space-y-4 text-center">
+              <h3 className="font-display text-lg font-bold text-ink">
+                Fais valider par ton parent 🤝
+              </h3>
+              <p className="text-sm text-mute">
+                Envoie ce lien à ton parent : il ouvre Nivy, vérifie son identité et signe
+                l&apos;autorisation, puis ton compte est activé.
+              </p>
+              {validationQr ? (
+                <div className="mx-auto grid w-fit place-items-center rounded-2xl border-2 border-ink bg-white p-3">
+                  <img src={validationQr} alt="QR de validation à montrer à ton parent" className="size-[200px] rounded-lg" />
+                </div>
+              ) : (
+                <div className="mx-auto grid size-[200px] place-items-center rounded-2xl border-2 border-ink bg-white text-sm text-mute">
+                  <Loader2 className="size-6 animate-spin" aria-hidden="true" />
+                </div>
+              )}
+
+              {validationUrl && (
+                <div className="flex flex-col gap-2">
+                  <Button
+                    asChild
+                    variant="pink"
+                    className="w-full gap-2"
+                  >
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`Valide mon inscription Nivy 🙌 ${validationUrl}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Send className="size-4" aria-hidden="true" />
+                      Envoyer par WhatsApp
+                    </a>
+                  </Button>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" className="flex-1 gap-2" onClick={shareValidation}>
+                      <Share2 className="size-4" aria-hidden="true" />
+                      Partager
+                    </Button>
+                    <Button type="button" variant="outline" className="flex-1 gap-2" onClick={copyValidation}>
+                      <Copy className="size-4" aria-hidden="true" />
+                      Copier le lien
+                    </Button>
+                  </div>
+                  {parentEmailProvided && registrationId && (
+                    <button
+                      type="button"
+                      onClick={() => resendParentEmail(registrationId)}
+                      className="text-xs text-mute hover:text-ink hover:underline"
+                    >
+                      ou renvoyer par email
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {step === 4 && (
             <div className="space-y-4 text-center">
               <h3 className="font-display text-lg font-bold text-ink">Invite ton crew 🤜🤛</h3>
               <p className="text-sm text-mute">
@@ -430,7 +532,7 @@ export function TeenSetupStep({ onNext, onBack }: TeenSetupStepProps) {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-5 text-center">
               <div className="flex justify-center">
                 <Niv mood="hype" size={88} float />
