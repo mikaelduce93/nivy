@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
 import { sendTeenMagicLinkEmail } from "@/lib/email/teen-access"
+import { PENDING_TEEN_COOKIE } from "@/app/auth/validate-teen/start/route"
 import { z } from "zod"
 
 /**
@@ -445,7 +446,7 @@ export async function POST(request: Request) {
       },
     })
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       message: "Compte teen créé et lié à votre profil parent",
       data: {
@@ -458,6 +459,9 @@ export async function POST(request: Request) {
         actionLink: magicLinkEmailed ? null : actionLink,
       },
     })
+    // QR-onboarding: the pending-teen cookie has served its purpose — clear it.
+    res.cookies.set(PENDING_TEEN_COOKIE, "", { path: "/", maxAge: 0 })
+    return res
   } catch (error) {
     console.error("Validate teen POST error:", error)
     return NextResponse.json(

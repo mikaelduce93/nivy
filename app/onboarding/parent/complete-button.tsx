@@ -8,9 +8,12 @@ import { Button } from "@/components/ui/button"
 /**
  * Finalises parent onboarding after the e-signature step (#51).
  * Calls the canonical /api/parent/onboarding/complete endpoint so
- * profiles.is_onboarded flips to true, then forwards to /parent. The
- * endpoint hard-gates on a signed e_signatures row, so this surfaces a
- * requiresSignature error if the consent is somehow missing.
+ * profiles.is_onboarded flips to true, then forwards to /auth/redirect (the
+ * canonical post-auth switch). The endpoint hard-gates on a signed
+ * e_signatures row, so this surfaces a requiresSignature error if the consent
+ * is somehow missing. Routing via /auth/redirect lets the QR-onboarding seam
+ * send a parent who arrived from a teen-shared link back to finish validating
+ * the teen (pending-teen cookie) instead of stranding them on /parent.
  */
 export function ParentOnboardingCompleteButton() {
   const router = useRouter()
@@ -33,7 +36,7 @@ export function ParentOnboardingCompleteButton() {
         return
       }
       toast.success("Bienvenue sur ton espace parent")
-      router.replace("/parent")
+      router.replace("/auth/redirect")
       router.refresh()
     } catch (err) {
       console.error("[parent onboarding complete]", err)

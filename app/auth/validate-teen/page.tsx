@@ -16,7 +16,8 @@ import Link from "next/link"
 interface RegistrationData {
   teenName: string
   teenAge: number
-  parentEmail: string
+  parentEmailMasked: string | null
+  hasParentEmail: boolean
   teenEmail: string | null
   status: string
 }
@@ -74,8 +75,10 @@ function ValidateTeenInner() {
 
   const handleApprove = async () => {
     if (!isLoggedIn) {
-      // Redirect to login with return URL
-      router.push(`/auth/login?redirect=/auth/validate-teen?token=${token}`)
+      // New/returning parent: go through the start route which drops the
+      // pending-teen cookie, then sign-up (role=parent) → KYC + signature →
+      // /auth/redirect routes back here once onboarded.
+      router.push(`/auth/validate-teen/start?token=${token}`)
       return
     }
 
@@ -121,7 +124,7 @@ function ValidateTeenInner() {
 
   const handleReject = async () => {
     if (!isLoggedIn) {
-      router.push(`/auth/login?redirect=/auth/validate-teen?token=${token}`)
+      router.push(`/auth/validate-teen/start?token=${token}`)
       return
     }
 
@@ -248,12 +251,31 @@ function ValidateTeenInner() {
             </CardContent>
           </Card>
 
-          {/* Login prompt if not logged in */}
+          {/* Not logged in → create a parent account (primary) or sign in. */}
           {!isLoggedIn && (
             <Card variant="warning" className="p-4">
-              <CardContent className="px-0 text-sm text-ink-2">
-                <strong className="font-semibold text-ink">Connexion requise :</strong> tu dois être
-                connecté pour valider cette demande. Pas encore de compte ? Tu pourras en créer un.
+              <CardContent className="px-0 text-sm text-ink-2 space-y-2">
+                <p>
+                  <strong className="font-semibold text-ink">Pour valider en toute sécurité,</strong>{" "}
+                  crée ton compte parent (vérification d&apos;identité + autorisation signée), puis
+                  l&apos;inscription de {firstName} sera activée.
+                </p>
+                {registration?.hasParentEmail && registration.parentEmailMasked && (
+                  <p className="text-xs text-mute">
+                    Cette demande est destinée à <strong>{registration.parentEmailMasked}</strong> —
+                    connecte-toi avec cette adresse.
+                  </p>
+                )}
+                <p className="text-xs">
+                  Tu as déjà un compte ?{" "}
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/auth/validate-teen/start?token=${token}&mode=login`)}
+                    className="font-semibold text-pink hover:underline"
+                  >
+                    Se connecter
+                  </button>
+                </p>
               </CardContent>
             </Card>
           )}
@@ -284,7 +306,7 @@ function ValidateTeenInner() {
               ) : (
                 <CheckCircle className="mr-2 size-4" aria-hidden="true" />
               )}
-              {isLoggedIn ? "Valider" : "Se connecter pour valider"}
+              {isLoggedIn ? "Valider" : "Créer mon compte parent"}
             </Button>
           </div>
 

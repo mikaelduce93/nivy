@@ -38,6 +38,12 @@ function SignUpForm() {
   const searchParams = useSearchParams()
   const onboardingSource = searchParams.get("source")
   const tempUserId = searchParams.get("tempUserId")
+  // QR-onboarding: a parent arriving from a teen-shared validation link
+  // (intent=validate-teen) signs up as a parent; the confirm-email must run
+  // through /auth/callback so the session is established AND the pending-teen
+  // cookie hop in /auth/redirect fires.
+  const intent = searchParams.get("intent")
+  const isValidateTeenIntent = intent === "validate-teen"
 
   // Auto-redirect already-authenticated users to the role-aware redirect.
   useEffect(() => {
@@ -78,17 +84,22 @@ function SignUpForm() {
     setError(null)
 
     try {
+      const emailRedirectTo = isValidateTeenIntent
+        ? `${window.location.origin}/auth/callback?next=/auth/redirect`
+        : process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/redirect`
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/redirect`,
+          emailRedirectTo,
           data: {
             nom,
             prenom,
             telephone: telephone.trim() ? `+212 ${telephone.trim()}` : "",
             ville,
             accept_newsletter: acceptNewsletter,
+            // QR-onboarding: land role='parent' (handle_new_user trigger).
+            ...(isValidateTeenIntent ? { role: "parent" } : {}),
             // #52 — pre-account wizard continuity (source + tempUserId).
             ...(onboardingSource ? { onboarding_source: onboardingSource } : {}),
             ...(tempUserId ? { temp_user_id: tempUserId } : {}),
@@ -117,7 +128,14 @@ function SignUpForm() {
           </h1>
 
           <div className="mt-4">
-            <NivCoach mood="hype" message={t("auth.signup.nivBubble")} />
+            <NivCoach
+              mood="hype"
+              message={
+                isValidateTeenIntent
+                  ? "Crée ton compte parent pour valider l'inscription de ton ado et activer son espace en toute sécurité."
+                  : t("auth.signup.nivBubble")
+              }
+            />
           </div>
 
           <div className="mt-5">

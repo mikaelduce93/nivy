@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase/server"
+import { PENDING_TEEN_COOKIE } from "@/app/auth/validate-teen/start/route"
 
 /**
  * /auth/redirect — canonical post-login switch.
@@ -42,9 +44,21 @@ export default async function AuthRedirectPage() {
   const isOnboarded = Boolean(profile.is_onboarded)
 
   switch (role) {
-    case "parent":
+    case "parent": {
+      // QR-onboarding seam: a parent who arrived via a teen-shared validation
+      // link carries the pending-teen token in an httpOnly cookie. Once they
+      // are ONBOARDED (KYC + signed authorization done), send them back to
+      // finish validating the teen. If not yet onboarded, the existing
+      // onboarding redirect runs first (cookie persists until validation).
+      if (isOnboarded) {
+        const pendingToken = (await cookies()).get(PENDING_TEEN_COOKIE)?.value
+        if (pendingToken) {
+          redirect(`/auth/validate-teen?token=${encodeURIComponent(pendingToken)}`)
+        }
+      }
       redirect(isOnboarded ? "/parent" : "/onboarding/parent")
       break
+    }
 
     case "teen":
       redirect(isOnboarded ? "/teen" : "/onboarding/teen")
