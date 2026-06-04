@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
     const signatureHash = formData.get("signatureHash") as string
     const parentFullName = formData.get("parentFullName") as string
     const parentCin = formData.get("parentCin") as string
+    const locationConsent = formData.get("locationConsent") === "true"
     const cinFront = formData.get("cinFront") as File | null
     const cinBack = formData.get("cinBack") as File | null
 
@@ -121,6 +122,7 @@ export async function POST(request: NextRequest) {
         ip_address: ip,
         user_agent: userAgent,
         terms_accepted: true,
+        location_consent: locationConsent,
       })
       .select("id, signed_at")
       .single()

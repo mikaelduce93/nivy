@@ -33,6 +33,10 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
     parentCin: "",
     photoConsent: true,
     medicalConsent: true,
+    // Geolocation of a minor is more sensitive (loi 09-08/CNDP) → opt-in,
+    // default off. Grants the parent the right to locate the teen at
+    // events/trips; revocable later.
+    locationConsent: false,
     termsAccepted: false,
   })
   const [cinFrontFile, setCinFrontFile] = useState<File | null>(null)
@@ -98,6 +102,7 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
       formDataToSend.append("parentCin", formData.parentCin)
       formDataToSend.append("photoConsent", formData.photoConsent.toString())
       formDataToSend.append("medicalConsent", formData.medicalConsent.toString())
+      formDataToSend.append("locationConsent", formData.locationConsent.toString())
       formDataToSend.append("cinFront", cinFrontFile)
       formDataToSend.append("cinBack", cinBackFile)
 
@@ -164,6 +169,15 @@ export function ESignatureForm({ childId, eventId, bookingId, apiEndpoint = "/ap
                   setFormData({ ...formData, medicalConsent: checked as boolean })
                 }
                 label="J'autorise les premiers soins d'urgence si nécessaire"
+              />
+
+              <CheckRound
+                id="locationConsent"
+                checked={formData.locationConsent}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, locationConsent: checked as boolean })
+                }
+                label="J'autorise la géolocalisation de mon enfant lors des événements et trajets (révocable à tout moment)"
               />
             </div>
           </div>

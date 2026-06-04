@@ -37,6 +37,27 @@ export async function GET(request: NextRequest) {
       .single()
     if (profile?.role !== "parent") return errorResponse("Accès réservé aux parents", 403)
 
+    // Geolocation consent gate (loi 09-08/CNDP): the parent must have SIGNED
+    // the parental authorization WITH explicit location consent to see the
+    // teen's presence/location. Without it, expose nothing — return a flag so
+    // the UI can prompt the parent to enable it in their authorization.
+    const { data: locSig } = await supabase
+      .from("e_signatures")
+      .select("id")
+      .eq("parent_id", user.id)
+      .eq("terms_accepted", true)
+      .eq("location_consent", true)
+      .limit(1)
+      .maybeSingle()
+    if (!locSig) {
+      return jsonResponse({
+        teens: [],
+        recentActivity: [],
+        locationConsentRequired: true,
+        timestamp: new Date().toISOString(),
+      })
+    }
+
     const { searchParams } = new URL(request.url)
     const teenIdParam = searchParams.get("teenId")
 

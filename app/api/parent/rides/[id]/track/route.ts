@@ -29,6 +29,27 @@ export async function GET(request: Request, ctx: { params: Promise<{ id: string 
   if (ride.teen_id !== userInfo.profileId && ride.parent_id !== userInfo.profileId) {
     return NextResponse.json({ success: false, error: "forbidden" }, { status: 403 })
   }
+
+  // Geolocation consent gate (loi 09-08/CNDP): a PARENT reading the teen's GPS
+  // pings must have signed the parental authorization WITH location consent.
+  // (The teen reading their own ride is exempt.)
+  if (userInfo.role === "parent") {
+    const { data: locSig } = await admin
+      .from("e_signatures")
+      .select("id")
+      .eq("parent_id", userInfo.profileId)
+      .eq("terms_accepted", true)
+      .eq("location_consent", true)
+      .limit(1)
+      .maybeSingle()
+    if (!locSig) {
+      return NextResponse.json(
+        { success: false, error: "location_consent_required", locationConsentRequired: true },
+        { status: 403 }
+      )
+    }
+  }
+
   const { data, error } = await admin
     .from("ride_tracks")
     .select("lat,lng,speed,heading,captured_at")
