@@ -60,6 +60,18 @@ export async function POST(request: Request) {
       )
     }
 
+    const validationUrl = `${getAppUrl()}/auth/validate-teen?token=${registration.validation_token}`
+
+    // No parent email on the registration → nothing to re-send; the teen must
+    // share the link directly (QR/WhatsApp). Surface the link, not an error.
+    if (!registration.parent_email) {
+      return NextResponse.json({
+        success: true,
+        message: "Aucun email parent — partage le lien directement à ton parent.",
+        data: { email_sent: false, validationUrl },
+      })
+    }
+
     // Re-resolve parent name (best-effort) for the greeting.
     const { data: existingParent } = await admin
       .from("profiles")
@@ -67,7 +79,6 @@ export async function POST(request: Request) {
       .eq("email", registration.parent_email)
       .maybeSingle()
 
-    const validationUrl = `${getAppUrl()}/auth/validate-teen?token=${registration.validation_token}`
     const emailSent = await sendParentValidationEmail({
       parentEmail: registration.parent_email,
       parentName: existingParent?.full_name ?? undefined,
@@ -82,7 +93,7 @@ export async function POST(request: Request) {
       message: emailSent
         ? "Email de validation renvoyé."
         : "L'email n'a pas pu être renvoyé (service email indisponible).",
-      data: { email_sent: emailSent },
+      data: { email_sent: emailSent, validationUrl },
     })
   } catch (e) {
     console.error("register-teen/resend error:", e)

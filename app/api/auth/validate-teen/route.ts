@@ -72,7 +72,10 @@ export async function GET(request: Request) {
       data: {
         teenName: `${registration.teen_first_name} ${registration.teen_last_name}`,
         teenAge: calculateAge(registration.date_of_birth),
-        parentEmail: registration.parent_email,
+        // Pre-auth PII minimisation (loi 09-08/CNDP): only a masked hint of the
+        // bound parent email, never the raw address.
+        parentEmailMasked: maskEmail(registration.parent_email),
+        hasParentEmail: Boolean(registration.parent_email),
         // #26 — surface the teen email captured at registration (if any) so the
         // approve form can pre-fill it; the approve POST requires teen_email or
         // teen_phone (superRefine).
@@ -167,9 +170,26 @@ export async function POST(request: Request) {
       )
     }
 
-    if (registration.parent_email.toLowerCase() !== userInfo.email?.toLowerCase()) {
+    // Anti-hijack binding (bind-on-first-claim model):
+    //  - parent_email SET   → only that exact email may act (tamper-proof, the
+    //    parent-invited path is unchanged);
+    //  - parent_email NULL  → the first EMAIL-CONFIRMED parent who claims binds
+    //    (the teen shared the link directly). Require role='parent' so a
+    //    non-parent can't claim/grief a null-email registration.
+    const claimerEmail = userInfo.email?.toLowerCase() || ""
+    const boundEmail = registration.parent_email?.toLowerCase() || null
+    if (boundEmail && boundEmail !== claimerEmail) {
       return NextResponse.json(
-        { success: false, error: "Vous n'êtes pas autorisé à valider cette demande" },
+        {
+          success: false,
+          error: `Cette demande a été envoyée à ${maskEmail(boundEmail)}. Connecte-toi avec cette adresse pour valider.`,
+        },
+        { status: 403 }
+      )
+    }
+    if (!boundEmail && userInfo.role !== "parent") {
+      return NextResponse.json(
+        { success: false, error: "Seul un compte parent peut valider cette demande" },
         { status: 403 }
       )
     }
@@ -205,6 +225,50 @@ export async function POST(request: Request) {
         { success: false, error: "Seul un parent peut valider cette demande" },
         { status: 403 }
       )
+    }
+
+    // ─── Single-use atomic claim (BEFORE provisioning) ──────────────────
+    // Flip pending→validated guarded on status='pending' so a double-fire or
+    // concurrent claim cannot create two teen accounts. Self-bind the parent
+    // email when the registration had none. Revert to 'pending' on any
+    // downstream failure so the parent can retry.
+    const claimNowIso = new Date().toISOString()
+    const { data: claimed, error: claimErr } = await admin
+      .from("pending_teen_registrations")
+      .update({
+        status: "validated",
+        validated_at: claimNowIso,
+        validated_by: userInfo.profileId,
+        ...(boundEmail ? {} : { parent_email: claimerEmail }),
+      })
+      .eq("id", registration.id)
+      .eq("status", "pending")
+      .select("id")
+      .maybeSingle()
+
+    if (claimErr) {
+      console.error("validate-teen: claim update failed", claimErr)
+      return NextResponse.json({ success: false, error: "Erreur serveur" }, { status: 500 })
+    }
+    if (!claimed) {
+      // Already consumed (double-fire / concurrent / already validated).
+      return NextResponse.json(
+        { success: false, error: "Cette demande a déjà été traitée" },
+        { status: 409 }
+      )
+    }
+
+    // Revert the single-use claim if provisioning fails below.
+    const revertClaim = async () => {
+      await admin
+        .from("pending_teen_registrations")
+        .update({
+          status: "pending",
+          validated_at: null,
+          validated_by: null,
+          parent_email: registration.parent_email,
+        })
+        .eq("id", registration.id)
     }
 
     const teenEmail = body.teen_email
@@ -249,6 +313,7 @@ export async function POST(request: Request) {
 
     if (createErr || !created?.user) {
       console.error("validate-teen: auth.admin.createUser failed", createErr)
+      await revertClaim()
       return NextResponse.json(
         {
           success: false,
@@ -281,6 +346,7 @@ export async function POST(request: Request) {
 
     if (teenInsertErr) {
       console.error("validate-teen: teens upsert failed, rolling back", teenInsertErr)
+      await revertClaim()
       const { error: rollbackErr } = await admin.auth.admin.deleteUser(teenUid)
       console.error(
         rollbackErr
@@ -305,6 +371,7 @@ export async function POST(request: Request) {
 
     if (linkErr) {
       console.error("validate-teen: parent_teen_links insert failed, rolling back", linkErr)
+      await revertClaim()
       const { error: rollbackErr } = await admin.auth.admin.deleteUser(teenUid)
       console.error(
         rollbackErr
@@ -323,15 +390,12 @@ export async function POST(request: Request) {
       .update({ is_onboarded: false })
       .eq("id", teenUid)
 
-    // 5. Mark the registration validated.
+    // 5. Record the created teen on the (already-claimed) registration row.
+    //    The status was atomically flipped to 'validated' at the claim step;
+    //    here we only attach created_teen_id now that the teen exists.
     await admin
       .from("pending_teen_registrations")
-      .update({
-        status: "validated",
-        validated_at: new Date().toISOString(),
-        validated_by: userInfo.profileId,
-        created_teen_id: teenUid,
-      })
+      .update({ created_teen_id: teenUid })
       .eq("id", registration.id)
 
     // 6. Generate a magic link for the teen AND email it to them so the
@@ -374,6 +438,10 @@ export async function POST(request: Request) {
         teen_phone: teenPhone ?? null,
         magic_link_generated: actionLink !== null,
         magic_link_emailed: magicLinkEmailed,
+        // Consent/anti-hijack audit trail (bind-on-first-claim).
+        approver_email: claimerEmail || null,
+        self_bound: !boundEmail,
+        matched: Boolean(boundEmail && boundEmail === claimerEmail),
       },
     })
 
@@ -397,6 +465,14 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
+}
+
+/** Mask an email to a hint (k•••@gmail.com) for pre-auth PII minimisation. */
+function maskEmail(email: string | null | undefined): string | null {
+  if (!email) return null
+  const [local, domain] = email.split("@")
+  if (!domain) return "•••"
+  return `${local.slice(0, 1)}•••@${domain}`
 }
 
 function calculateAge(dateOfBirth: string): number {

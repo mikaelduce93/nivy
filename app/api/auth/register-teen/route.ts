@@ -45,11 +45,14 @@ export async function POST(request: Request) {
     // parent validates (app/api/auth/validate-teen). Any teenPassword sent
     // by the client is intentionally ignored.
 
-    // Validate required fields. #311 — parentPhone is now OPTIONAL (no SMS is
-    // sent, so requiring it collected unused PII). Email is the validation channel.
-    if (!teenFirstName || !teenLastName || !dateOfBirth || !parentEmail) {
+    // Validate required fields. parentPhone (#311) AND parentEmail are now
+    // OPTIONAL: the primary parental-validation channel is the shareable
+    // QR/WhatsApp link (the teen shares it directly), not email. Email is a
+    // fallback only. When a parent_email IS provided it strictly binds the
+    // approver (anti-hijack); when omitted, bind-on-first-claim applies.
+    if (!teenFirstName || !teenLastName || !dateOfBirth) {
       return NextResponse.json(
-        { success: false, error: "Prénom, nom, date de naissance et email du parent sont requis" },
+        { success: false, error: "Prénom, nom et date de naissance sont requis" },
         { status: 400 }
       )
     }
@@ -64,16 +67,20 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if parent email exists
-    const { data: existingParent } = await withSupabaseTimeout(
-      admin
-        .from("profiles")
-        .select("id, role, full_name")
-        .eq("email", parentEmail.toLowerCase())
-        .single(),
-      `from('profiles').select()`,
-      10000
-    )
+    // Check if parent email exists — only when an email was supplied.
+    const existingParent = parentEmail
+      ? (
+          await withSupabaseTimeout(
+            admin
+              .from("profiles")
+              .select("id, role, full_name")
+              .eq("email", parentEmail.toLowerCase())
+              .maybeSingle(),
+            `from('profiles').select()`,
+            10000
+          )
+        ).data
+      : null
 
     // Generate validation token
     const validationToken = crypto.randomBytes(32).toString("hex")
@@ -89,7 +96,7 @@ export async function POST(request: Request) {
           teen_email: teenEmail?.toLowerCase() || null,
           teen_password_hash: null,
           date_of_birth: dateOfBirth,
-          parent_email: parentEmail.toLowerCase(),
+          parent_email: parentEmail?.toLowerCase() || null,
           parent_phone: parentPhone?.trim() || null,
           validation_token: validationToken,
           token_expires_at: tokenExpiry.toISOString(),
@@ -124,17 +131,21 @@ export async function POST(request: Request) {
     const appUrl = getAppUrl()
     const validationUrl = `${appUrl}/auth/validate-teen?token=${validationToken}`
 
-    // Send email to parent (via Resend)
-    const emailSent = await sendParentValidationEmail({
-      parentEmail,
-      parentName: existingParent?.full_name,
-      teenName: `${teenFirstName} ${teenLastName}`,
-      teenAge: age,
-      validationUrl,
-      expiresAt: tokenExpiry,
-    })
+    // Send email to parent (via Resend) ONLY as an optional fallback when a
+    // parent_email was supplied. The primary channel is the shareable link
+    // (QR/WhatsApp) returned below and shown to the teen.
+    const emailSent = parentEmail
+      ? await sendParentValidationEmail({
+          parentEmail,
+          parentName: existingParent?.full_name,
+          teenName: `${teenFirstName} ${teenLastName}`,
+          teenAge: age,
+          validationUrl,
+          expiresAt: tokenExpiry,
+        })
+      : false
 
-    if (!emailSent) {
+    if (parentEmail && !emailSent) {
       // Log but don't fail - admin can resend
       console.warn(
         "[register-teen] Validation email NOT sent to:",
@@ -167,6 +178,9 @@ export async function POST(request: Request) {
         : "Demande enregistree. L'email de validation n'a pas pu etre envoye automatiquement, contactez le support si besoin.",
       data: {
         registrationId: pendingRegistration.id,
+        // Primary channel: the teen shares this link (QR/WhatsApp) with a parent.
+        validationToken,
+        validationUrl,
         email_sent: emailSent,
         sms_sent: smsSent,
         sms_available: smsAvailable,
