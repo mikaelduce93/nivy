@@ -9,6 +9,8 @@ import { StatusBadge, type StatusVariant } from "@/components/ui/status-badge"
 import { DarkSurface, NivCoach } from "@/components/brand"
 import { RideMap } from "./ride-map"
 import { RideActions } from "./ride-actions"
+import { teenLocationAllowed, parentSignedLocationConsent } from "@/lib/teens/location-consent"
+import { LocationConsentToggle } from "@/components/parent/location-consent-toggle"
 
 export const dynamic = "force-dynamic"
 
@@ -63,12 +65,25 @@ export default async function ParentRideDetailPage({ params }: Props) {
     .maybeSingle()
   if (!ride || ride.parent_id !== userInfo.profileId) notFound()
 
-  const { data: tracks } = await supabase
-    .from("ride_tracks")
-    .select("lat,lng,speed,heading,captured_at")
-    .eq("ride_id", id)
-    .order("captured_at", { ascending: true })
-    .limit(500)
+  // Geolocation consent gate (loi 09-08): only load the teen's live GPS pings
+  // if the parent signed location consent AND hasn't revoked it for this teen.
+  const locationAllowed = ride.teen_id
+    ? await teenLocationAllowed(supabase, userInfo.profileId, ride.teen_id)
+    : false
+  // Did the parent sign the baseline location consent? (drives the per-teen
+  // toggle vs the "enable in your authorization" prompt).
+  const signedLocationBaseline = ride.teen_id
+    ? await parentSignedLocationConsent(supabase, userInfo.profileId)
+    : false
+
+  const { data: tracks } = locationAllowed
+    ? await supabase
+        .from("ride_tracks")
+        .select("lat,lng,speed,heading,captured_at")
+        .eq("ride_id", id)
+        .order("captured_at", { ascending: true })
+        .limit(500)
+    : { data: [] }
 
   const { data: driver } = ride.driver_id
     ? await supabase
@@ -163,11 +178,18 @@ export default async function ParentRideDetailPage({ params }: Props) {
           <p className="eyebrow text-pink">{isLive ? "EN DIRECT" : "ITINÉRAIRE"}</p>
           {isLive && <StatusBadge variant="info" label="Suivi GPS actif" pulse size="sm" />}
         </div>
-        {isLive && (
+        {isLive && locationAllowed && (
           <NivCoach
             mood="calm"
             tone="paper"
             message="Je suis le trajet pour toi. Tu peux contacter le chauffeur à tout moment."
+          />
+        )}
+        {isLive && !locationAllowed && (
+          <NivCoach
+            mood="calm"
+            tone="paper"
+            message="La géolocalisation en direct est désactivée pour cet ado (consentement non signé ou révoqué). Tu vois l'itinéraire mais pas sa position en temps réel."
           />
         )}
         <StickerCard className="overflow-hidden p-0">
@@ -185,6 +207,24 @@ export default async function ParentRideDetailPage({ params }: Props) {
             }
           />
         </StickerCard>
+
+        {/* Per-teen geolocation consent control (loi 09-08 — revocable). */}
+        {ride.teen_id && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border-2 border-line bg-paper-2 px-4 py-3">
+            <p className="text-xs text-mute">
+              {signedLocationBaseline
+                ? "Tu peux activer ou révoquer la géolocalisation de cet ado à tout moment."
+                : "Active la géolocalisation dans ton autorisation parentale signée pour suivre cet ado."}
+            </p>
+            {signedLocationBaseline ? (
+              <LocationConsentToggle teenId={ride.teen_id} initialEnabled={locationAllowed} />
+            ) : (
+              <Button asChild variant="outline" size="sm">
+                <Link href="/parent/e-signature">Gérer mon autorisation</Link>
+              </Button>
+            )}
+          </div>
+        )}
       </section>
 
       <RideActions rideId={ride.id} status={ride.status} />

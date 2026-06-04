@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { NextRequest } from "next/server"
 import { withSecurity, errorResponse, jsonResponse } from "@/lib/security/api-middleware"
+import { parentSignedLocationConsent, allowedTeenIdsForLocation } from "@/lib/teens/location-consent"
 import { z } from "zod"
 
 const earlyCheckoutSchema = z.object({
@@ -38,18 +39,10 @@ export async function GET(request: NextRequest) {
     if (profile?.role !== "parent") return errorResponse("Accès réservé aux parents", 403)
 
     // Geolocation consent gate (loi 09-08/CNDP): the parent must have SIGNED
-    // the parental authorization WITH explicit location consent to see the
-    // teen's presence/location. Without it, expose nothing — return a flag so
-    // the UI can prompt the parent to enable it in their authorization.
-    const { data: locSig } = await supabase
-      .from("e_signatures")
-      .select("id")
-      .eq("parent_id", user.id)
-      .eq("terms_accepted", true)
-      .eq("location_consent", true)
-      .limit(1)
-      .maybeSingle()
-    if (!locSig) {
+    // the parental authorization WITH explicit location consent to see ANY
+    // teen's presence/location. Without the baseline, expose nothing — return
+    // a flag so the UI can prompt the parent to enable it in their authorization.
+    if (!(await parentSignedLocationConsent(supabase, user.id))) {
       return jsonResponse({
         teens: [],
         recentActivity: [],
@@ -72,7 +65,10 @@ export async function GET(request: NextRequest) {
       .eq("status", "active")
 
     const linkedIds = (links ?? []).map((l) => l.teen_id as string)
-    const teenIds = teenIdParam ? linkedIds.filter((id) => id === teenIdParam) : linkedIds
+    const requested = teenIdParam ? linkedIds.filter((id) => id === teenIdParam) : linkedIds
+    // Per-teen revocation: only show location for teens the parent hasn't revoked.
+    const allowedIds = await allowedTeenIdsForLocation(sr, user.id, requested)
+    const teenIds = requested.filter((id) => allowedIds.has(id))
 
     if (teenIds.length === 0) {
       return jsonResponse({ teens: [], recentActivity: [], timestamp: new Date().toISOString() })

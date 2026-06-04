@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { teenLocationAllowed } from "@/lib/teens/location-consent"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -31,18 +32,11 @@ export async function GET(request: Request, ctx: { params: Promise<{ id: string 
   }
 
   // Geolocation consent gate (loi 09-08/CNDP): a PARENT reading the teen's GPS
-  // pings must have signed the parental authorization WITH location consent.
-  // (The teen reading their own ride is exempt.)
-  if (userInfo.role === "parent") {
-    const { data: locSig } = await admin
-      .from("e_signatures")
-      .select("id")
-      .eq("parent_id", userInfo.profileId)
-      .eq("terms_accepted", true)
-      .eq("location_consent", true)
-      .limit(1)
-      .maybeSingle()
-    if (!locSig) {
+  // pings must have a SIGNED location consent AND not have revoked it for this
+  // teen. (The teen reading their own ride is exempt.)
+  if (userInfo.role === "parent" && ride.teen_id) {
+    const allowed = await teenLocationAllowed(admin, userInfo.profileId, ride.teen_id)
+    if (!allowed) {
       return NextResponse.json(
         { success: false, error: "location_consent_required", locationConsentRequired: true },
         { status: 403 }
