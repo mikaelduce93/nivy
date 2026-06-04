@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
     res.cookies.set(PENDING_TEEN_COOKIE, token, {
       httpOnly: true,
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: TOKEN_TTL_DAYS * 24 * 60 * 60,
     })

@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
         res.cookies.set(REFERRAL_COOKIE, ref, {
           httpOnly: true,
           sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
           path: "/",
           maxAge: REFERRAL_TTL_DAYS * 24 * 60 * 60,
         })
