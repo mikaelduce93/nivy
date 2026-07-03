@@ -214,9 +214,18 @@ export function PageTransitionProvider({
     }
   }, [pathname, duration, progress])
 
-  const variants = reducedMotion 
+  const variants = reducedMotion
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
     : getTransitionVariants(preset)
+
+  // #317 — /auth/redirect is a server component that throws NEXT_REDIRECT during
+  // render on every code path. Wrapping it in AnimatePresence mode="wait" (which
+  // keeps an exiting node mounted while reconciling the incoming child) makes the
+  // motion.div's presence hooks diverge between renders → "Rendered more hooks
+  // than during the previous render". Opt this pure-redirect route out of the
+  // animated child-swap; the provider (and transitions on every other route)
+  // stays mounted. Auth routing semantics are untouched.
+  const bypassTransition = pathname === '/auth/redirect'
 
   return (
     <TransitionContext.Provider 
@@ -247,27 +256,32 @@ export function PageTransitionProvider({
         </motion.div>
       )}
       
-      {/* Page content with transition */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={pathname}
-          className="relative"
-          variants={variants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={{
-            duration: reducedMotion ? 0.1 : duration,
-            ease: EASINGS.smooth,
-          }}
-          style={{
-            transformPerspective: 1200,
-            transformStyle: 'preserve-3d',
-          }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
+      {/* Page content with transition (#317: bypass the animated wrapper on the
+          redirect-only /auth/redirect route to avoid a hook-count mismatch) */}
+      {bypassTransition ? (
+        children
+      ) : (
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={pathname}
+            className="relative"
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{
+              duration: reducedMotion ? 0.1 : duration,
+              ease: EASINGS.smooth,
+            }}
+            style={{
+              transformPerspective: 1200,
+              transformStyle: 'preserve-3d',
+            }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      )}
       
       {/* Transition overlay for special effects */}
       <AnimatePresence>

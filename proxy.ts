@@ -210,6 +210,23 @@ export async function proxy(request: NextRequest) {
           url.pathname = "/"
           return NextResponse.redirect(url)
         }
+
+        // #320 — HTTP-level ring-fence for the two super-admin-only surfaces.
+        // The page-level guard (notFound()/redirect) fires only AFTER Next.js
+        // has already streamed loading.tsx with HTTP 200, so a non-super-admin
+        // probe receives a misleading 200 shell. Enforce super_admin at the
+        // request boundary for these EXACT paths so the response is a 404
+        // (fail-closed, fewer probe leaks) before any content is served.
+        const SUPER_ADMIN_ONLY_PATHS = ["/admin/scripts-sql", "/admin/permissions"]
+        const isSuperAdminOnlyPath = SUPER_ADMIN_ONLY_PATHS.some(
+          (p) => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(`${p}/`)
+        )
+        if (isSuperAdminOnlyPath && adminRole.role !== "super_admin") {
+          return new NextResponse(null, {
+            status: 404,
+            headers: response.headers,
+          })
+        }
       }
     } catch (error) {
       console.error("[v0] Error checking admin access:", error)
