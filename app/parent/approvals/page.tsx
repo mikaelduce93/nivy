@@ -41,7 +41,8 @@ async function getApprovals(parentId: string) {
       *,
       teen:teen_id (
         id,
-        full_name
+        first_name,
+        last_name
       )
     `)
     .eq("parent_id", parentId)
@@ -74,6 +75,10 @@ export default async function ParentApprovalsPage() {
   // #30 — canonical refusal status is 'denied' (not 'rejected').
   const rejectedApprovals = approvals.filter((a: any) => a.status === "denied")
 
+  // #drift — teens has no `full_name`; compose the display name from first_name/last_name.
+  const teenDisplayName = (teen: any) =>
+    [teen?.first_name, teen?.last_name].filter(Boolean).join(" ").trim() || undefined
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: 'numeric',
@@ -88,6 +93,7 @@ export default async function ParentApprovalsPage() {
   const getApprovalIcon = (type: string) => {
     switch (type) {
       case "booking":
+      case "event_booking":
         return <Ticket className="h-5 w-5 text-pink" />
       case "purchase_above_ceiling":
         return <ShoppingBag className="h-5 w-5 text-teal" />
@@ -104,6 +110,7 @@ export default async function ParentApprovalsPage() {
   const getApprovalTypeName = (type: string) => {
     switch (type) {
       case "booking":
+      case "event_booking":
         return "Réservation"
       case "purchase_above_ceiling":
         return "Achat au-dessus du plafond"
@@ -233,7 +240,7 @@ export default async function ParentApprovalsPage() {
                             {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
                           </h3>
                           <div className="mt-1 flex flex-wrap items-center gap-2 font-mono text-xs text-mute">
-                            <span>De : {approval.teen?.full_name || "Teen"}</span>
+                            <span>De : {teenDisplayName(approval.teen) || "Teen"}</span>
                             <span>•</span>
                             <span>{formatDate(approval.requested_at)}</span>
                           </div>
@@ -252,7 +259,7 @@ export default async function ParentApprovalsPage() {
                           approvalId={approval.id}
                           title={getApprovalTypeName(approval.action_type) || "Demande"}
                           amount={approval.amount}
-                          teenName={approval.teen?.full_name}
+                          teenName={teenDisplayName(approval.teen)}
                         />
                       </div>
                     </div>
@@ -285,7 +292,7 @@ export default async function ParentApprovalsPage() {
                             {getApprovalTypeName(approval.action_type) || "Demande d'approbation"}
                           </p>
                           <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-mute">
-                            <span>{approval.teen?.full_name}</span>
+                            <span>{teenDisplayName(approval.teen)}</span>
                             <span>•</span>
                             <span>{formatDate(approval.requested_at)}</span>
                           </div>

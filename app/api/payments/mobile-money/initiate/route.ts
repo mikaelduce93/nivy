@@ -31,11 +31,12 @@ export const POST = withSecurity(async (request: NextRequest) => {
     }
 
     // Get booking
+    // #drift — bookings has no `parent_id`; canonical owner column is `user_id`.
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .select('*, events(*)')
       .eq('id', bookingId)
-      .eq('parent_id', user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (bookingError || !booking) {

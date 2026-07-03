@@ -19,18 +19,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // #drift — bookings owner column is `user_id` (no `parent_id`); there is no
+  // `booking_tickets` table and no `children` table (canon teen table is `teens`).
+  // The booking model has no per-ticket rows, so we only embed the event here.
   const { data: booking, error } = await supabase
     .from('bookings')
     .select(`
       *,
-      events (*),
-      booking_tickets (
-        *,
-        children (*)
-      )
+      events (*)
     `)
     .eq('id', bookingId)
-    .eq('parent_id', user.id)
+    .eq('user_id', user.id)
     .single()
 
   if (error || !booking) {
@@ -93,7 +92,7 @@ export async function GET(request: NextRequest) {
             </tr>
             <tr>
               <td>Billets</td>
-              <td>${booking.booking_tickets?.length || 1}</td>
+              <td>1</td>
             </tr>
             <tr>
               <td>Total payé</td>
