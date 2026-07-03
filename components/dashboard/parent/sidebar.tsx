@@ -34,6 +34,9 @@ interface ParentSidebarProps {
 
 export function ParentSidebar({ userInfo }: ParentSidebarProps) {
   const pathname = usePathname()
+  // #318 — tier comes from parent_subscription_view (family_subscriptions ->
+  // user_subscriptions -> subscription_plans.tier), seeded by
+  // scripts/seed-beta-pivots.ts. Falls back to "free" when no pivot row exists.
   const tier = userInfo.parentData?.subscriptionTier || "free"
 
   const tierColors: Record<string, string> = {

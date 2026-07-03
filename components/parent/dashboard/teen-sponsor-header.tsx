@@ -26,7 +26,8 @@ export function TeenSponsorHeader({ teens }: TeenSponsorHeaderProps) {
               <span className="relative block size-full overflow-hidden rounded-full bg-paper-2">
                 <Image
                   src={teen.avatar_url || '/placeholder-user.jpg'}
-                  alt={teen.full_name}
+                  // #319 — meaningful alt on teen avatar (fallback avoids empty alt)
+                  alt={teen.full_name ? `Avatar de ${teen.full_name}` : 'Avatar du teen'}
                   fill
                   sizes="80px"
                   className="object-cover"

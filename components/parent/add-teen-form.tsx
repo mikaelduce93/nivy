@@ -648,7 +648,8 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   <div className="relative h-20 w-20 rounded-2xl border-2 border-ink overflow-hidden">
                     <Image
                       src={newTeen.avatarUrl}
-                      alt="Avatar preview"
+                      // #319 — meaningful alt using the teen name being entered
+                      alt={`Aperçu de l'avatar de ${newTeen.firstName || newTeen.pseudo || 'ton teen'}`}
                       fill
                       className="object-cover"
                     />
@@ -969,7 +970,8 @@ export function AddTeenForm({ parentId }: AddTeenFormProps) {
                   {newTeen.avatarUrl ? (
                     <Image
                       src={newTeen.avatarUrl}
-                      alt="Avatar"
+                      // #319 — meaningful alt using the teen name being entered
+                      alt={`Avatar de ${newTeen.firstName || newTeen.pseudo || 'ton teen'}`}
                       width={56}
                       height={56}
                       className="object-cover w-full h-full"

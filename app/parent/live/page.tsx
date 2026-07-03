@@ -369,7 +369,8 @@ export default function ParentLiveDashboardPage() {
                   <span className="relative block w-16 h-16 shrink-0 overflow-hidden rounded-full border-2 border-ink">
                     <Image
                       src={teen.avatarUrl}
-                      alt={teen.teenName}
+                      // #319 — meaningful alt on teen avatar (fallback avoids empty alt)
+                      alt={teen.teenName ? `Avatar de ${teen.teenName}` : 'Avatar du teen'}
                       fill
                       className="object-cover"
                       sizes="64px"

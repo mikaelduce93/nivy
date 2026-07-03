@@ -178,6 +178,7 @@ export default async function ParentEventsPage() {
                         {booking.event?.image_url ? (
                           <Image
                             src={booking.event.image_url}
+                            // #319 — non-empty alt fallback avoids the next/image console error
                             alt={booking.event?.title || "Évènement"}
                             fill
                             sizes="(max-width: 768px) 100vw, 128px"
@@ -264,7 +265,8 @@ export default async function ParentEventsPage() {
                     {event.image_url ? (
                       <Image
                         src={event.image_url}
-                        alt={event.title}
+                        // #319 — non-empty alt fallback avoids the next/image console error
+                        alt={event.title || "Évènement"}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"
                         className="object-cover"
