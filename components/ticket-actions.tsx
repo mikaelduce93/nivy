@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Calendar, Navigation, Download, Share2 } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 
 interface TicketActionsProps {
   booking: {
@@ -21,7 +21,6 @@ interface TicketActionsProps {
 }
 
 export function TicketActions({ booking }: TicketActionsProps) {
-  const { toast } = useToast()
   const [loading, setLoading] = useState<string | null>(null)
 
   const addToCalendar = () => {
@@ -53,8 +52,7 @@ export function TicketActions({ booking }: TicketActionsProps) {
     a.download = `event-${booking.booking_reference}.ics`
     a.click()
 
-    toast({
-      title: 'Ajouté au calendrier',
+    toast.success('Ajouté au calendrier', {
       description: 'L\'événement a été téléchargé',
     })
   }
@@ -78,15 +76,12 @@ export function TicketActions({ booking }: TicketActionsProps) {
       a.download = `ticket-${booking.booking_reference}.pdf`
       a.click()
 
-      toast({
-        title: 'PDF téléchargé',
+      toast.success('PDF téléchargé', {
         description: 'Votre billet a été téléchargé',
       })
     } catch (error) {
-      toast({
-        title: 'Erreur',
+      toast.error('Erreur', {
         description: 'Impossible de télécharger le PDF',
-        variant: 'destructive',
       })
     } finally {
       setLoading(null)
@@ -105,8 +100,7 @@ export function TicketActions({ booking }: TicketActionsProps) {
         // User cancelled share
       }
     } else {
-      toast({
-        title: 'Lien copié',
+      toast.success('Lien copié', {
         description: 'Le lien a été copié dans le presse-papier',
       })
       navigator.clipboard.writeText(window.location.href)

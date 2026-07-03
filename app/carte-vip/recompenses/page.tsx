@@ -1,9 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Trophy, Gift, Tag, Sparkles } from "lucide-react"
+import { Trophy, Gift, Tag, Sparkles, Clock, Check } from "lucide-react"
 import Link from "next/link"
 
-import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { StickerCard } from "@/components/ui/sticker-card"
@@ -56,6 +55,17 @@ export default async function RecompensesPage() {
             </DarkSurface>
           </div>
 
+          <div className="mb-10 flex items-start gap-3 rounded-2xl border-2 border-ink bg-gold/20 px-5 py-4">
+            <Clock className="mt-0.5 size-5 shrink-0 text-ink" aria-hidden="true" />
+            <div>
+              <p className="font-display text-base font-bold text-ink">L'échange de points arrive bientôt</p>
+              <p className="mt-1 text-sm leading-relaxed text-mute">
+                Continue d'accumuler des points de fidélité à chaque dépense. Tu pourras bientôt les échanger contre
+                ces récompenses directement ici.
+              </p>
+            </div>
+          </div>
+
           {rewards && rewards.length > 0 ? (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {rewards.map((reward) => {
@@ -99,9 +109,20 @@ export default async function RecompensesPage() {
                           <span className="font-display text-xl font-extrabold tabular-nums text-teal">{reward.points_cost} pts</span>
                         </div>
 
-                        <Button variant={canAfford && !isOutOfStock ? "pink" : "outline"} disabled>
-                          {canAfford && !isOutOfStock ? "Échange bientôt" : !canAfford ? "Pas assez de points" : "Indisponible"}
-                        </Button>
+                        {isOutOfStock ? (
+                          <span className="font-mono text-xs font-semibold uppercase tracking-[0.1em] text-mute">
+                            Indisponible
+                          </span>
+                        ) : canAfford ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-teal/20 px-3 py-1 font-mono text-xs font-bold text-ink">
+                            <Check className="size-3.5" aria-hidden="true" />
+                            Points suffisants
+                          </span>
+                        ) : (
+                          <span className="font-mono text-xs font-semibold text-mute">
+                            Encore {reward.points_cost - currentPoints} pts
+                          </span>
+                        )}
                       </div>
                     </div>
                   </StickerCard>
