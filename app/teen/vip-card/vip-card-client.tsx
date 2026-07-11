@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { Niv, DarkSurface } from "@/components/brand"
+import { VipScanQR } from "@/components/teen/vip-scan-qr"
 import {
   VIP_TIER_CONFIG,
   TIER_XP_REQUIREMENTS,
@@ -138,6 +139,16 @@ export function VipCardClient({ userXP, tierSlug, memberSince }: VipCardClientPr
           </p>
         </div>
       </DarkSurface>
+
+      {/* Scannable QR — #328: wire the signed nivy:v1 payload issued by
+          /api/teen/vip-qr to a real QR the teen shows a partner to redeem
+          an offer (verified server-side by /api/partner/scanner/apply). */}
+      <section className="space-y-4">
+        <p className="eyebrow tracking-[0.16em]">Ton QR VIP</p>
+        <StickerCard className="items-center gap-2 p-6">
+          <VipScanQR />
+        </StickerCard>
+      </section>
 
       {/* Current benefits */}
       <section className="space-y-4">

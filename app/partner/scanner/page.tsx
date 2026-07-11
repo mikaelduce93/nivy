@@ -37,6 +37,16 @@ function tierPill(tier: string) {
   )
 }
 
+// #328 — nivy:v1 QR payloads are `nivy:v1:{user_id}:{card_number}:{exp_unix}:{nonce}:{hmac}`.
+// This is a pure client-side parse (no signature check — the server verifies
+// the HMAC in /api/partner/scanner/apply) used only to populate the offer
+// picker; it never trusts this data for authorization.
+function parseNivyQrCardNumber(qr: string): { userId: string; cardNumber: string } | null {
+  const parts = qr.split(":")
+  if (parts.length !== 7 || parts[0] !== "nivy" || parts[1] !== "v1") return null
+  return { userId: parts[2], cardNumber: parts[3] }
+}
+
 export default function PartnerScannerPage() {
   const [isScanning, setIsScanning] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -47,12 +57,23 @@ export default function PartnerScannerPage() {
   const [isApplying, setIsApplying] = useState(false)
   const [transactionResult, setTransactionResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+  // #328 — the raw scanned nivy:v1 string, kept verbatim so the apply step
+  // can forward it as `qr_payload` to /api/partner/scanner/apply. Null for
+  // the legacy card-number flow (verify-card + apply-discount).
+  const [rawQrPayload, setRawQrPayload] = useState<string | null>(null)
 
   const handleScan = async (qrData: string) => {
     setIsScanning(false)
     setIsLoading(true)
     setError(null)
+    setRawQrPayload(null)
     try {
+      // #328 — nivy:v1 is rejected by verify-card ("use scanner/apply
+      // instead"); build the offer-selection view directly from the payload.
+      if (qrData.startsWith("nivy:v1:")) {
+        await loadNivyScan(qrData)
+        return
+      }
       const response = await fetch("/api/partner/verify-card", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,6 +92,76 @@ export default function PartnerScannerPage() {
       toast.error("Erreur lors de la vérification")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // #328 — nivy:v1 scans skip verify-card (rejected server-side) and load
+  // the offer picker directly: parse the user/card id from the payload
+  // client-side (display only — the server re-verifies the HMAC), fetch the
+  // partner's own live offers (RLS-scoped `partner_offers` read, same table
+  // verify-card itself reads), and stash the raw QR string so "Appliquer"
+  // can send it to the atomic /api/partner/scanner/apply endpoint.
+  const loadNivyScan = async (qrData: string) => {
+    const parsed = parseNivyQrCardNumber(qrData)
+    if (!parsed) {
+      setError("QR VIP invalide")
+      toast.error("QR VIP invalide")
+      return
+    }
+    try {
+      const sb = createClient()
+      const {
+        data: { user },
+      } = await sb.auth.getUser()
+      if (!user?.email) {
+        setError("Session partenaire invalide")
+        toast.error("Session partenaire invalide")
+        return
+      }
+      const { data: partner } = await sb
+        .from("partners")
+        .select("id")
+        .eq("email", user.email)
+        .single()
+      if (!partner) {
+        setError("Partenaire non trouvé")
+        toast.error("Partenaire non trouvé")
+        return
+      }
+      const { data: offers, error: offersError } = await sb
+        .from("partner_offers")
+        .select(
+          "id, title, description, discount_type, discount_value, discount_pct, min_purchase_amount, max_discount_amount"
+        )
+        .eq("partner_id", (partner as { id: string }).id)
+        .eq("is_active", true)
+      if (offersError) {
+        setError("Impossible de charger les offres")
+        toast.error("Impossible de charger les offres")
+        return
+      }
+      setRawQrPayload(qrData)
+      setScannedMember({
+        member: { id: parsed.userId, name: "Carte VIP", email: "", role: "teen" },
+        card: { id: "", cardNumber: parsed.cardNumber, tier: "vip", status: "active", expiresAt: "" },
+        points: { total: 0, tier: "vip" },
+        eligibleOffers: (offers || []).map((o: any) => ({
+          id: o.id,
+          name: o.title,
+          description: o.description,
+          type: o.discount_type || "percentage",
+          value: o.discount_value ?? o.discount_pct ?? 0,
+          minPurchase: o.min_purchase_amount,
+          maxDiscount: o.max_discount_amount,
+          terms: null,
+          expiresAt: "",
+          usedByUser: 0,
+        })),
+      })
+      toast.success("Carte VIP scannée")
+    } catch {
+      setError("Erreur lors du chargement des offres")
+      toast.error("Erreur lors du chargement des offres")
     }
   }
 
@@ -151,6 +242,38 @@ export default function PartnerScannerPage() {
     }
     setIsApplying(true)
     try {
+      // #328 — nivy:v1 scans route through the atomic scanner/apply endpoint
+      // (apply_partner_offer RPC: row-locked, idempotent via a fresh
+      // idempotency_key, replay-protected via the QR nonce). Legacy
+      // card-number scans keep the pre-existing apply-discount path.
+      if (rawQrPayload) {
+        const response = await fetch("/api/partner/scanner/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            qr_payload: rawQrPayload,
+            offer_id: selectedOffer,
+            purchase_amount: amount,
+            idempotency_key: crypto.randomUUID(),
+          }),
+        })
+        const data = await response.json()
+        if (!data.success) {
+          toast.error(data.message || data.error || "Erreur lors de l'application")
+          return
+        }
+        const appliedOffer = scannedMember.eligibleOffers.find((o) => o.id === selectedOffer)
+        setTransactionResult({
+          kind: "discount",
+          discountName: appliedOffer?.name ?? "Offre VIP",
+          purchaseAmount: amount,
+          discountAmount: data.discount_amount,
+          finalAmount: data.final_amount,
+          transactionId: data.usage_id,
+        })
+        toast.success("Réduction appliquée!")
+        return
+      }
       const response = await fetch("/api/partner/apply-discount", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -177,6 +300,7 @@ export default function PartnerScannerPage() {
     setPurchaseAmount("")
     setTransactionResult(null)
     setError(null)
+    setRawQrPayload(null)
   }
 
   /* ---------------------------------- Success view ---------------------------------- */
@@ -263,7 +387,11 @@ export default function PartnerScannerPage() {
               </div>
               <div>
                 <p className="eyebrow">Expire le</p>
-                <p className="font-mono text-ink">{new Date(scannedMember.card.expiresAt).toLocaleDateString("fr-FR")}</p>
+                <p className="font-mono text-ink">
+                  {scannedMember.card.expiresAt
+                    ? new Date(scannedMember.card.expiresAt).toLocaleDateString("fr-FR")
+                    : "—"}
+                </p>
               </div>
             </div>
           </StickerCard>
