@@ -24,7 +24,7 @@ import {
   skipChallenge,
   type ChallengeCategory
 } from "@/features/gamification"
-import { getMyTeens } from "@/features/teens"
+import { getMyTeens, getMyTeenSelf } from "@/features/teens"
 
 const CATEGORY_LABELS: Record<string, string> = {
   school: "École",
@@ -55,10 +55,21 @@ export default function DailyChallengesPage() {
       if (result.success && result.data && result.data.length > 0) {
         setTeens(result.data)
         setSelectedTeenId(result.data[0].id) // Select first teen by default
-      } else {
-        toast.error("Aucun profil enfant trouvé. Créez-en un d'abord !")
-        router.push('/profile/enfants/ajouter')
+        return
       }
+
+      // D2 (audit 2026-07-11) — getMyTeens est scoped PARENT (teens.parent_id
+      // = auth.uid()). Pour une session ado, auth.uid() = teens.id : on résout
+      // son propre profil au lieu de l'éjecter vers l'onboarding parent.
+      const self = await getMyTeenSelf()
+      if (self.success && self.data) {
+        setTeens([self.data])
+        setSelectedTeenId(self.data.id)
+        return
+      }
+
+      toast.error("Aucun profil enfant trouvé. Créez-en un d'abord !")
+      router.push('/profile/enfants/ajouter')
     }
 
     loadTeens()

@@ -12,6 +12,7 @@ export * from './schema'
 export {
   getInterests,
   getMyTeens,
+  getMyTeenSelf,
   getTeenById,
   checkPseudoAvailable,
   createTeen,

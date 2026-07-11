@@ -103,6 +103,41 @@ export async function getMyTeens(): Promise<ActionResult<Teen[]>> {
 }
 
 /**
+ * Récupère le profil teen de l'utilisateur connecté LUI-MÊME.
+ *
+ * D2 (audit 2026-07-11) — `getMyTeens()` est scoped parent
+ * (`teens.parent_id = auth.uid()`). Pour une session ado, `auth.uid()`
+ * correspond à `teens.id` : cette variante résout son propre profil
+ * (même pattern self-select que get-user-role / assignDailyChallenges).
+ */
+export async function getMyTeenSelf(): Promise<ActionResult<Teen>> {
+  try {
+    const { supabase, user } = await getAuthenticatedUser()
+
+    if (!user) {
+      return { success: false, error: 'Non authentifié' }
+    }
+
+    const { data, error } = await supabase
+      .from('teens')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (error) throw error
+
+    if (!data) {
+      return { success: false, error: 'Aucun profil ado pour cet utilisateur' }
+    }
+
+    return { success: true, data }
+  } catch (error: any) {
+    logDbError('teens/getMyTeenSelf', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
  * Récupère un enfant par son ID
  */
 export async function getTeenById(teenId: string): Promise<ActionResult<Teen>> {

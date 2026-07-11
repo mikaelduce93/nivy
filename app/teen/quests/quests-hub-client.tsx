@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo } from "react"
-import { Brain, Dumbbell, Palette, Zap, ArrowRight, Trophy, Users } from "lucide-react"
+import { Brain, Dumbbell, Palette, Zap, ArrowRight, Trophy, Users, Flame } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { DefiCard, type DefiCardProps } from "@/components/teen/defi-card"
@@ -26,6 +26,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { NivEmpty } from "@/components/brand"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
+import { useGamificationContext } from "@/components/gamification/gamification-provider"
 
 interface QuestsHubClientProps {
   quests: UnifiedQuest[]
@@ -38,10 +39,16 @@ interface QuestsHubClientProps {
 // #208 — chaque quête unifiée route vers sa VRAIE destination. La page détail
 // /teen/quests/[id] interrogeait des tables inexistantes (`quests`,
 // `daily_challenges`) → 404 systématique. On route par type vers l'écran réel.
-function questTarget(type: string, id: string): string {
-  switch (type) {
+// D1 (audit 2026-07-11) — les quêtes quotidiennes (user_challenges, onglet
+// « Quotidien ») étaient mappées `type: "challenge"` et atterrissaient sur
+// /teen/defis-physiques (liste physical_challenges sans rapport). Leur vraie
+// surface de complétion (formulaires de validation + crédit XP via
+// completeChallenge) est /daily : on les distingue via metadata.source.
+function questTarget(quest: Pick<UnifiedQuest, "type" | "id" | "metadata">): string {
+  if (quest.metadata?.source === "daily_challenge") return "/daily"
+  switch (quest.type) {
     case "quiz":
-      return `/teen/quiz/${id}`
+      return `/teen/quiz/${quest.id}`
     case "challenge":
       return "/teen/defis-physiques"
     case "passion":
@@ -94,6 +101,11 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
   const searchParams = useSearchParams()
   const router = useRouter()
   const currentTab = searchParams.get("tab") || "daily"
+  // Friction 2 (audit 2026-07-11) — la vraie streak vient du provider monté
+  // dans le layout teen (user_streaks temps réel), pas du nombre de quêtes
+  // faites sur l'onglet courant.
+  const { streak } = useGamificationContext()
+  const currentStreak = streak?.current_streak ?? 0
 
   // TICKET-020 — when the "friends" tab becomes active on this hub,
   // redirect to the dedicated friend-défis page. We keep the tab visible
@@ -119,6 +131,10 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
               xp_reward: c.challenge?.xp_reward || 50,
               pillar: "vitality" as const,
               status: c.status,
+              // D1 — marqueur local : cette carte est un user_challenges
+              // (engine 1), sa surface de complétion est /daily, pas
+              // /teen/defis-physiques (cf. questTarget).
+              metadata: { source: "daily_challenge" },
             }))
           : quests.slice(0, 6)
       case "brain":
@@ -164,7 +180,7 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
               xp={(xpData.total_xp || 0).toLocaleString("fr-FR")}
               coins={coinsBalance.toLocaleString("fr-FR")}
               level={xpData.level || 1}
-              streak={completedCount}
+              streak={currentStreak}
               nivMood="hype"
               size={240}
             />
@@ -216,7 +232,7 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
       {filteredQuests.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredQuests.map((quest) => {
-            const target = questTarget(quest.type, quest.id)
+            const target = questTarget(quest)
             return (
               <DefiCard
                 key={quest.id}
@@ -250,7 +266,16 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
           icon={Trophy}
           title="Défie un ami"
           description="Lance une quête compétitive avec ton crew"
-          href="/teen/social?tab=crew"
+          href="/teen/quests/friend-defis/new"
+        />
+        {/* Friction 6 (audit 2026-07-11) — seul lien vers /teen/streak = header
+            desktop (hidden md:flex). Ce hub est un pilier de la nav mobile :
+            point d'entrée streak accessible sur téléphone. */}
+        <QuickActionCard
+          icon={Flame}
+          title="Ta streak"
+          description={`${currentStreak} jour${currentStreak > 1 ? "s" : ""} d'affilée — entretiens la flamme`}
+          href="/teen/streak"
         />
       </div>
     </div>

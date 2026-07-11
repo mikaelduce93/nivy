@@ -119,7 +119,9 @@ export default async function CreatorLeaderboardPage({
             <Link href="/teen/feed" className="text-teal hover:underline">
               Feed
             </Link>
-            <Link href="/teen/leaderboard" className="text-teal hover:underline">
+            {/* Friction 5 (audit 2026-07-11) — pointait vers cette page
+                elle-même. Le vrai classement XP vit dans le hub social. */}
+            <Link href="/teen/social?tab=ranking" className="text-teal hover:underline">
               XP global
             </Link>
           </div>
