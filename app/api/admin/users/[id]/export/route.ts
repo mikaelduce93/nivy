@@ -12,6 +12,7 @@
  *   200 { ok: true, mode: 'signed_url', export_id, download_url, expires_at }
  */
 import { NextResponse } from "next/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
@@ -24,8 +25,15 @@ type SR = ReturnType<typeof createServiceRoleClient>
 const INLINE_BYTE_THRESHOLD = 1_048_576 // 1 MB
 const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24
 
+/**
+ * Untyped on purpose: walks an arbitrary, role-dependent list of table names
+ * and returns raw rows for a JSON export. `sr` is intentionally the untyped
+ * base `SupabaseClient` (not `SupabaseClient<Database>`) to avoid resolving
+ * `.from(table)` against the full ~390-table union on every one of the
+ * ~20 call sites below, which blows up `tsc` type-instantiation time/memory.
+ */
 async function safeSelect(
-  sr: SR,
+  sr: SupabaseClient,
   table: string,
   builder: (q: any) => any,
   notes: SkipNote[],

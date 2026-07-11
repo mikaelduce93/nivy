@@ -29,6 +29,7 @@
  * Auth: admin / super_admin / moderator only.
  */
 import { NextResponse } from "next/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { requireAdminPermission } from "@/lib/auth/admin-permissions"
 
@@ -58,7 +59,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ success: false, error: "forbidden" }, { status: 403 })
   }
 
-  const sr = createServiceRoleClient()
+  // Untyped on purpose: `moderation_queue` and `marketplace_listings`
+  // predate the last `types/supabase.ts` codegen and are absent from the
+  // generated `Database` type even though they exist live (see migrations
+  // 055/056/097). Casting to the base `SupabaseClient` avoids a false
+  // "table does not exist" tsc error for tables real in the DB but
+  // missing from the (stale) generated schema.
+  const sr = createServiceRoleClient() as unknown as SupabaseClient
 
   const url = new URL(req.url)
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500)

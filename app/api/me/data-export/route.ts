@@ -16,6 +16,7 @@
  */
 
 import { NextResponse } from "next/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
@@ -39,9 +40,17 @@ interface ExportPayload {
 /**
  * Wrap a Supabase select. If the table doesn't exist or RLS denies access,
  * record the skip rather than failing the whole export.
+ *
+ * Untyped on purpose: this helper walks an arbitrary, role-dependent list of
+ * table names (some of which may not exist for a given deploy) and returns
+ * raw rows for a JSON export — it is not query code whose column shape we
+ * rely on. `client` is intentionally the untyped base `SupabaseClient` (not
+ * `SupabaseClient<Database>`) to avoid resolving `.from(table)` against the
+ * full ~390-table union on every one of the ~20 call sites below, which
+ * blows up `tsc` type-instantiation time/memory.
  */
 async function safeSelect(
-  client: ReturnType<typeof createServiceRoleClient>,
+  client: SupabaseClient,
   table: string,
   builder: (q: any) => any,
   notes: SkipNote[],

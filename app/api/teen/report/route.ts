@@ -12,6 +12,7 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 
 const REPORT_SCHEMA = z.object({
@@ -43,7 +44,11 @@ const REPORT_SCHEMA = z.object({
 })
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
+  // `user_reports` predates the last `types/supabase.ts` codegen and is
+  // absent from the generated `Database` type even though it exists live
+  // (see migration 097). Cast to the base `SupabaseClient` to avoid a
+  // false "table does not exist" tsc error.
+  const supabase = (await createClient()) as unknown as SupabaseClient
   const {
     data: { user },
     error: authErr,

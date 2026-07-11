@@ -127,10 +127,12 @@ export async function POST(request: NextRequest) {
       // Activer le contenu dans sa table respective
       if (contentType && contentId) {
         const tableName = getContentTableName(contentType)
-        await supabase
-          .from(tableName)
-          .update({ is_active: true })
-          .eq("id", contentId)
+        if (tableName) {
+          await supabase
+            .from(tableName)
+            .update({ is_active: true })
+            .eq("id", contentId)
+        }
       }
     } else if (action === "reject") {
       updateData.validation_status = "rejected"
@@ -138,10 +140,12 @@ export async function POST(request: NextRequest) {
       // Désactiver le contenu
       if (contentType && contentId) {
         const tableName = getContentTableName(contentType)
-        await supabase
-          .from(tableName)
-          .update({ is_active: false })
-          .eq("id", contentId)
+        if (tableName) {
+          await supabase
+            .from(tableName)
+            .update({ is_active: false })
+            .eq("id", contentId)
+        }
       }
     } else if (action === "needs_revision") {
       updateData.validation_status = "needs_revision"
@@ -175,15 +179,18 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function getContentTableName(contentType: string): string {
-  const mapping: Record<string, string> = {
+// Schema drift note: "challenge"/"daily_challenge" used to map to a phantom
+// `challenges_templates` table that does not exist in types/supabase.ts —
+// there is no real challenge-templates table to toggle `is_active` on, so
+// those content types (and any unmapped one) now resolve to `null` and the
+// caller skips the table update rather than querying a non-existent table.
+function getContentTableName(contentType: string): "educational_quizzes" | "mission_templates" | null {
+  const mapping: Record<string, "educational_quizzes" | "mission_templates"> = {
     quiz: "educational_quizzes",
     mission: "mission_templates",
-    challenge: "challenges_templates",
-    daily_challenge: "challenges_templates",
     quest: "mission_templates",
   }
-  return mapping[contentType] || "unknown"
+  return mapping[contentType] ?? null
 }
 
 

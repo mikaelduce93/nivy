@@ -27,6 +27,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
 export const dynamic = "force-dynamic"
@@ -133,9 +134,17 @@ export async function GET(request: NextRequest) {
 
   const report: TableReport[] = []
 
+  // Untyped on purpose: this loop walks a config-driven list of tables that
+  // may not all exist (probed defensively below via `table_missing`) and
+  // whose `tags` column is not modeled uniformly in types/supabase.ts.
+  // Casting to the base `SupabaseClient` (not `SupabaseClient<Database>`)
+  // for these dynamic `.from(table)` calls avoids resolving each one against
+  // the full ~390-table union, which blows up `tsc` type-instantiation.
+  const dynamicSupabase = supabase as unknown as SupabaseClient
+
   for (const { table, idCol } of TARGET_TABLES) {
     // Probe the table + tags column.
-    const { error: probeErr } = await supabase
+    const { error: probeErr } = await dynamicSupabase
       .from(table)
       .select(`${idCol}, tags`)
       .limit(1)
@@ -167,7 +176,7 @@ export async function GET(request: NextRequest) {
     const PAGE = 500
     let from = 0
     while (true) {
-      const { data, error } = await supabase
+      const { data, error } = await dynamicSupabase
         .from(table)
         .select(`${idCol}, tags`)
         .not("tags", "is", null)
@@ -222,7 +231,7 @@ export async function GET(request: NextRequest) {
             unmappedCounts.set(d, (unmappedCounts.get(d) ?? 0) + 1)
           }
           if (!dryRun) {
-            const { error: updErr } = await supabase
+            const { error: updErr } = await dynamicSupabase
               .from(table)
               .update({ tags: filtered })
               .eq(idCol, id as string)

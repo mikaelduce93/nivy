@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js"
+import type { Database } from "@/types/supabase"
 
 /**
  * Service-role Supabase client (SERVER ONLY).
@@ -24,7 +25,7 @@ export function createServiceRoleClient() {
   if (!url) throw new Error("Supabase URL missing (SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL)")
   if (!serviceRoleKey) throw new Error("Supabase service role key missing (SUPABASE_SERVICE_ROLE_KEY)")
 
-  return createClient(url, serviceRoleKey, {
+  return createClient<Database>(url, serviceRoleKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,

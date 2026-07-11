@@ -26,6 +26,7 @@
  */
 import { NextResponse } from "next/server"
 import { z } from "zod"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import {
   logAdminAction,
   requireAdminPermission,
@@ -103,7 +104,15 @@ export async function POST(
     return NextResponse.json({ success: false, error: "forbidden" }, { status: 403 })
   }
 
-  const sr = createServiceRoleClient()
+  // Untyped on purpose: `moderation_queue` / `user_reports` and the
+  // adapter-resolved content tables (e.g. `partner_offers`) predate the
+  // last `types/supabase.ts` codegen and are absent from the generated
+  // `Database` type even though they exist live (see migrations
+  // 055/056/097). Casting to the base `SupabaseClient` here avoids a
+  // false "table does not exist" tsc error for tables that are real in
+  // the DB but missing from the (stale) generated schema, and avoids
+  // resolving `.from(adapter.table)` against the full table-name union.
+  const sr = createServiceRoleClient() as unknown as SupabaseClient
 
   const { data: queueRow, error: fetchErr } = await sr
     .from("moderation_queue")
