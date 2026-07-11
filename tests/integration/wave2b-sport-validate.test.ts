@@ -4,10 +4,14 @@
  *
  * Verifies:
  *   1. Approve flips validated=true and grants XP via canonical add_xp_to_user.
- *   2. Reject stores reason and DOES NOT call add_xp_to_user.
+ *   2. Reject keeps the reason in audit_log and DOES NOT call add_xp_to_user.
  *   3. Non-admin caller → 403.
  *   4. Already-validated row → 400 (idempotent rejection of double-approve).
  *   5. Audit log row inserted on every successful action.
+ *   6. Drift guard (audit 2026-07-11 D3): phantom columns `validated_by` /
+ *      `rejection_reason` are never written to teen_physical_challenge_progress.
+ *   7. Teen in-app notification inserted on approve & reject (no xp_reward —
+ *      XP is credited by add_xp_to_user, not by notification claim).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -23,6 +27,7 @@ interface State {
   challengeRow: Record<string, unknown> | null
   rpcCalls: Array<{ name: string; args: unknown }>
   insertedAudit: Array<Record<string, unknown>>
+  insertedNotifications: Array<Record<string, unknown>>
   updates: Array<{ table: string; values: Record<string, unknown> }>
   rpcResult: { data: unknown; error: unknown }
 }
@@ -33,6 +38,7 @@ const state: State = {
   challengeRow: null,
   rpcCalls: [],
   insertedAudit: [],
+  insertedNotifications: [],
   updates: [],
   rpcResult: { data: { success: true }, error: null },
 }
@@ -72,6 +78,7 @@ vi.mock("@/lib/supabase/service-role", () => ({
         },
         insert: (row: Record<string, unknown>) => {
           if (table === "audit_log") state.insertedAudit.push(row)
+          if (table === "user_notifications") state.insertedNotifications.push(row)
           return Promise.resolve({ data: null, error: null })
         },
       }
@@ -119,6 +126,7 @@ beforeEach(() => {
   }
   state.rpcCalls = []
   state.insertedAudit = []
+  state.insertedNotifications = []
   state.updates = []
   state.rpcResult = { data: { success: true }, error: null }
 })
@@ -141,21 +149,29 @@ describe("POST /api/admin/sport-challenges/:id/validate", () => {
     expect(args.p_xp_amount).toBe(80)
     expect(args.p_source_type).toBe("physical_challenge")
 
-    // Update flipped validated=true with admin id.
+    // Update flipped validated=true.
     const update = state.updates.find(
       (u) => u.table === "teen_physical_challenge_progress",
     )
     expect(update).toBeTruthy()
     expect(update!.values.validated).toBe(true)
-    expect(update!.values.validated_by).toBe(ADMIN_ID)
     expect(update!.values.xp_earned).toBe(80)
+    // Drift guard (audit 2026-07-11 D3): phantom column never written.
+    expect("validated_by" in update!.values).toBe(false)
 
-    // Audit log emitted.
+    // Audit log emitted (validator identity lives in actor_id).
     expect(state.insertedAudit).toHaveLength(1)
     expect(state.insertedAudit[0].action).toBe("physical_challenge.approve")
+    expect(state.insertedAudit[0].actor_id).toBe(ADMIN_ID)
+
+    // Teen notification inserted — informational only (no xp_reward: XP was
+    // already credited via add_xp_to_user; claim would double-credit).
+    expect(state.insertedNotifications).toHaveLength(1)
+    expect(state.insertedNotifications[0].user_id).toBe(TEEN_ID)
+    expect("xp_reward" in state.insertedNotifications[0]).toBe(false)
   })
 
-  it("reject stores reason and does NOT call add_xp_to_user", async () => {
+  it("reject keeps reason in audit_log and does NOT call add_xp_to_user", async () => {
     const res = await POST(
       makeRequest({ action: "reject", reason: "blurry photo" }) as any,
       ctx,
@@ -170,11 +186,21 @@ describe("POST /api/admin/sport-challenges/:id/validate", () => {
     const update = state.updates.find(
       (u) => u.table === "teen_physical_challenge_progress",
     )
-    expect(update!.values.rejection_reason).toBe("blurry photo")
     expect(update!.values.validated).toBe(false)
     expect(update!.values.completed).toBe(false)
+    // Drift guard (audit 2026-07-11 D3): phantom column never written —
+    // the reason is preserved in audit_log.metadata instead.
+    expect("rejection_reason" in update!.values).toBe(false)
 
     expect(state.insertedAudit[0].action).toBe("physical_challenge.reject")
+    expect(
+      (state.insertedAudit[0].metadata as Record<string, unknown>).reason,
+    ).toBe("blurry photo")
+
+    // Teen notification inserted with the reason.
+    expect(state.insertedNotifications).toHaveLength(1)
+    expect(state.insertedNotifications[0].user_id).toBe(TEEN_ID)
+    expect(String(state.insertedNotifications[0].body)).toContain("blurry photo")
   })
 
   it("non-admin caller → 403", async () => {

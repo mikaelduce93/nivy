@@ -89,6 +89,10 @@ export async function POST(
   const nowIso = new Date().toISOString()
 
   if (action === "reject") {
+    // Audit 2026-07-11 D3 drift fix — `rejection_reason` is NOT a column of
+    // teen_physical_challenge_progress in the live schema (types/supabase.ts);
+    // writing it made the whole reject UPDATE fail (PGRST204). The reason is
+    // kept in audit_log.metadata + the teen notification below.
     const { error: rejErr } = await sr
       .from("teen_physical_challenge_progress")
       .update({
@@ -96,7 +100,6 @@ export async function POST(
         completed: false,
         completed_at: null,
         proof_url: null,
-        rejection_reason: body.reason ?? null,
         updated_at: nowIso,
       })
       .eq("id", id)
@@ -112,6 +115,21 @@ export async function POST(
       metadata: { reason: body.reason ?? null },
     })
 
+    // Best-effort in-app notification (D3) — never fails the rejection.
+    // NB: no xp_reward on the row — claim_notification_rewards would credit it.
+    const { error: notifErr } = await sr.from("user_notifications").insert({
+      user_id: progress.teen_id,
+      title: "Preuve de défi refusée",
+      body: body.reason
+        ? `Ta preuve n'a pas été acceptée (${body.reason}). Tu peux en soumettre une nouvelle.`
+        : "Ta preuve n'a pas été acceptée. Tu peux en soumettre une nouvelle.",
+      emoji: "📸",
+      action_url: "/teen/defis-physiques",
+    })
+    if (notifErr) {
+      console.error("[admin/sport-challenges/validate] reject notification failed", notifErr)
+    }
+
     return NextResponse.json({ success: true, action: "rejected" })
   }
 
@@ -123,12 +141,15 @@ export async function POST(
     .maybeSingle()
   const xpReward = challenge?.xp_reward ?? 50
 
+  // Audit 2026-07-11 D3 drift fix — `validated_by` is NOT a column of
+  // teen_physical_challenge_progress in the live schema (types/supabase.ts);
+  // writing it made the whole approve UPDATE fail (PGRST204). The validator's
+  // identity is kept in audit_log.actor_id.
   const { error: updErr } = await sr
     .from("teen_physical_challenge_progress")
     .update({
       validated: true,
       validated_at: nowIso,
-      validated_by: user.id,
       xp_earned: xpReward,
       updated_at: nowIso,
     })
@@ -153,7 +174,6 @@ export async function POST(
       .update({
         validated: false,
         validated_at: null,
-        validated_by: null,
         xp_earned: 0,
         updated_at: new Date().toISOString(),
       })
@@ -171,6 +191,22 @@ export async function POST(
     resource_id: id,
     metadata: { xp_awarded: xpReward, challenge_id: progress.challenge_id },
   })
+
+  // Best-effort in-app notification (D3) — never fails the approval. The XP
+  // is already credited by add_xp_to_user above, so we deliberately do NOT
+  // set xp_reward on the notification (claim_notification_rewards would
+  // credit it a second time).
+  const { error: notifErr } = await sr.from("user_notifications").insert({
+    user_id: progress.teen_id,
+    title: "Défi validé !",
+    body: `Ton défi « ${challenge?.name ?? "défi physique"} » a été validé : +${xpReward} XP crédités.`,
+    emoji: "🏆",
+    priority: "high",
+    action_url: "/teen/defis-physiques",
+  })
+  if (notifErr) {
+    console.error("[admin/sport-challenges/validate] approve notification failed", notifErr)
+  }
 
   return NextResponse.json({
     success: true,

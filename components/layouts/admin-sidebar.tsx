@@ -51,6 +51,8 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { title: 'Dashboard',     href: '/admin',                icon: LayoutDashboard, requiredPermission: 'dashboard.view' },
   { title: 'Modération',    href: '/admin/moderation',     icon: ShieldAlert,     requiredPermission: 'content.view' },
+  // Audit 2026-07-11 D3 — physical-challenge proof validation queue.
+  { title: 'Défis sportifs', href: '/admin/defis-sportifs', icon: Trophy,          requiredPermission: 'content.view' },
   { title: 'Événements',    href: '/admin/evenements',     icon: Calendar,        requiredPermission: 'events.view' },
   { title: 'Réservations',  href: '/admin/reservations',   icon: Ticket,          requiredPermission: 'reservations.view' },
   { title: 'Anniversaires', href: '/admin/anniversaires',  icon: Cake,            requiredPermission: 'events.view' },
