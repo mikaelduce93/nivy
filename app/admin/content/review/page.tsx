@@ -1,10 +1,16 @@
 /**
  * Wave 3 — TICKET-008: Pedagogical reviewer admin queue.
  *
- * AI-generated quizzes (code LIKE 'AI_%') with is_active=false are queued
- * here for human review before going live to teens. Admin can inspect the
- * full questions JSON and Approve (flip is_active=true) or Reject (keep
- * is_active=false; log rejection in admin_audit_logs).
+ * AI-generated quizzes (code LIKE 'DAILY_%', written by the daily cron
+ * app/api/cron/generate-daily-content) with is_active=false are queued here
+ * for human review before going live to teens. Admin can inspect the full
+ * questions JSON and Approve (flip is_active=true) or Reject (archive: code
+ * re-prefixed REJECTED_, stays inactive; rejection logged in audit_log).
+ *
+ * Audit 2026-07-11 Q1: this page used to filter on 'AI_%', a prefix nothing
+ * ever wrote, while the cron published straight to is_active=true — the queue
+ * was permanently empty and AI content reached minors unreviewed. The
+ * convention is now DAILY_ on both sides.
  *
  * Server component: queries `educational_quizzes` directly via service-role.
  * Mutations live in: POST /api/admin/content/review/:id (action: approve|reject).
@@ -59,26 +65,30 @@ export default async function AdminContentReviewPage() {
     )
   }
 
-  // 2. Fetch pending AI-generated quizzes (is_active=false AND code LIKE 'AI_%')
-  // Service-role client bypasses RLS; cast to a tolerant shape because the
-  // generated supabase types may not yet reflect cohort_key/language columns.
+  // 2. Fetch pending AI-generated quizzes (is_active=false AND code LIKE 'DAILY_%')
+  // Rejected rows are re-prefixed REJECTED_ by the review API, so they leave
+  // this queue for good. Service-role client bypasses RLS; cast to a tolerant
+  // shape because the generated supabase types may not yet reflect
+  // cohort_key/language columns.
   const { data: rawPending, error } = await sr
     .from("educational_quizzes")
     .select(
       "id, code, title, subject, description, difficulty, grade_level, cohort_key, language, questions, quality_score, created_at",
     )
     .eq("is_active", false)
-    .like("code", "AI_%")
+    .like("code", "DAILY_%")
     .order("created_at", { ascending: true })
     .limit(100)
 
   const pending = ((rawPending ?? []) as unknown as PendingQuiz[])
 
-  // Counters: AI quizzes by status
+  // Counters: AI quizzes by status. NOTE: `active` includes DAILY_ rows the
+  // cron auto-published before the 2026-07-11 fix (never human-reviewed) —
+  // deliberately visible here so an admin can see the full live AI inventory.
   const { data: aiCounters } = await sr
     .from("educational_quizzes")
     .select("is_active")
-    .like("code", "AI_%")
+    .like("code", "DAILY_%")
     .returns<Array<{ is_active: boolean | null }>>()
   const stats = {
     pending: aiCounters?.filter((c) => c.is_active === false).length ?? 0,
@@ -110,7 +120,7 @@ export default async function AdminContentReviewPage() {
 
       <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="En attente" value={stats.pending} tone="gold" />
-        <StatCard label="Approuvés (live)" value={stats.approved} tone="lime" />
+        <StatCard label="Actifs (live)" value={stats.approved} tone="lime" />
         <StatCard label="Total IA générés" value={stats.total} tone="teal" />
       </section>
 

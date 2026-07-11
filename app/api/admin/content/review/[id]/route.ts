@@ -6,13 +6,17 @@
  *
  * Side-effects:
  *   - approve → educational_quizzes.is_active = true (quiz goes live)
- *   - reject  → educational_quizzes.is_active stays false; rejection logged
- *               in admin_audit_logs with reason
- *   - both    → admin_audit_logs INSERT (action='content.review.approve' or
- *               'content.review.reject', target_type='educational_quizzes')
+ *   - reject  → archive: code re-prefixed 'REJECTED_' so the row permanently
+ *               leaves the DAILY_% pending queue; is_active stays false
+ *               (invisible to teens via RLS + is_active filters); the payload
+ *               is kept as moderation evidence; rejection logged with reason
+ *   - both    → audit_log INSERT (action='content.review.approve' or
+ *               'content.review.reject', resource_type='educational_quizzes')
  *
  * Auth: requires admin/super_admin/moderator role in admin_roles.
- * Scope: only quizzes with code LIKE 'AI_%' (ticket constraint).
+ * Scope: only quizzes with code LIKE 'DAILY_%' — the prefix written by the
+ * generation cron (app/api/cron/generate-daily-content). Audit 2026-07-11 Q1:
+ * this guard used to check 'AI_%', a prefix nothing ever wrote.
  */
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
@@ -70,7 +74,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   if (!quiz) {
     return NextResponse.json({ success: false, error: "not_found" }, { status: 404 })
   }
-  if (!quiz.code || !quiz.code.startsWith("AI_")) {
+  if (!quiz.code || !quiz.code.startsWith("DAILY_")) {
     return NextResponse.json({ success: false, error: "not_ai_generated" }, { status: 400 })
   }
   if (quiz.is_active === true) {
@@ -107,13 +111,28 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     return NextResponse.json({ success: false, error: "reason_required" }, { status: 400 })
   }
 
-  // is_active stays false; we just log the rejection.
+  // Archive — before this fix the row kept its DAILY_ code and is_active=false,
+  // so it reappeared in the pending queue forever. Re-prefixing the code takes
+  // it out of the `code LIKE 'DAILY_%'` queue for good while preserving the
+  // questions payload as moderation evidence (no DELETE: no FK risk either).
+  // is_active stays false → invisible to teens (RLS + is_active filters).
+  // slice(0, 50) fits educational_quizzes.code VARCHAR(50); cron codes are
+  // ~35 chars so the archived code normally never truncates.
+  const archivedCode = `REJECTED_${quiz.code}`.slice(0, 50)
+  const { error: rejErr } = await sr
+    .from("educational_quizzes")
+    .update({ code: archivedCode, is_active: false, updated_at: new Date().toISOString() })
+    .eq("id", id)
+  if (rejErr) {
+    return NextResponse.json({ success: false, error: rejErr.message }, { status: 500 })
+  }
+
   await sr.from("audit_log").insert({
     actor_id: user.id,
     action: "content.review.reject",
     resource_type: "educational_quizzes",
     resource_id: id,
-    metadata: { code: quiz.code, title: quiz.title, reason },
+    metadata: { code: quiz.code, archived_code: archivedCode, title: quiz.title, reason },
   })
 
   return NextResponse.json({ success: true, id, status: "rejected" })

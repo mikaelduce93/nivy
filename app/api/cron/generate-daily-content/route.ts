@@ -12,11 +12,26 @@
  *     personalized — not flat.
  *   - Every generated payload runs through `checkContentSafety()` inside the
  *     generator (lib/ai/content-safety.ts) before it lands in DB.
+ *
+ * Moderation queue (audit 2026-07-11 Q1 — P0 minor safety):
+ *   AI-generated quizzes and missions are inserted with `is_active: false` and
+ *   a `DAILY_` code prefix — NEVER live by default. Quizzes go live only after
+ *   human approval in /admin/content/review (POST /api/admin/content/review/:id
+ *   flips is_active=true; reject archives the row under a REJECTED_ prefix).
+ *   Until approval, teens are served from the manually seeded active bank:
+ *   RLS ("Everyone can view active quizzes", 022_pillars_system.sql:1287),
+ *   `recommend_for_teen` v2 and every lib/quiz/server.ts query all filter
+ *   is_active=true, so pending content is unreachable.
  */
 
+import { createHash } from "node:crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { ContentGenerator, type GenerationParams } from "@/lib/ai/content-generator"
+import {
+  ContentGenerator,
+  type GenerationParams,
+  type GeneratedQuiz,
+} from "@/lib/ai/content-generator"
 import { checkContentSafety } from "@/lib/ai/content-safety"
 
 // ----- Cohort model ---------------------------------------------------------
@@ -137,6 +152,58 @@ function categoryForCohort(cohort: Cohort): string {
   if (top.startsWith("art_")) return "creativity"
   if (top.startsWith("social_")) return "participation"
   return "general"
+}
+
+// ----- Code + structural validation helpers ---------------------------------
+
+/**
+ * Compact unique code for a generated row. Both `educational_quizzes.code`
+ * and `mission_templates.code` are VARCHAR(50) (022_pillars_system.sql:111,
+ * 003_missions_system.sql:19); the previous format
+ * `DAILY_${today}_${cohortLabel}_${Date.now()}` overflowed 50 chars for most
+ * real cohorts, so the insert failed (22001) and the moderation queue starved.
+ * The full cohort label still lands in the `cohort_key` column — the code only
+ * needs the DAILY_ prefix (moderation-queue convention) and uniqueness.
+ * Length: 6 + 10 + 1 + 8 + 1 + ~9 = ~35 chars.
+ */
+function dailyCode(today: string, cohortLabel: string): string {
+  const cohortHash = createHash("sha1").update(cohortLabel).digest("hex").slice(0, 8)
+  return `DAILY_${today}_${cohortHash}_${Date.now().toString(36)}`
+}
+
+/**
+ * Minimal structural gate before queueing a quiz for review (audit 2026-07-11).
+ * The teen runner scores `userAnswer === q.correct` with integer answers
+ * indexed into `options` (app/api/teen/quiz/submit/route.ts:70,
+ * lib/quiz/schema.ts submitQuizSchema). A question without ≥2 options or with
+ * an out-of-range `correct` would be unplayable or always-wrong — keep it out
+ * of the moderation queue entirely. Returns a reason string, or null if OK.
+ */
+function quizStructureError(quiz: GeneratedQuiz): string | null {
+  if (!Array.isArray(quiz.questions) || quiz.questions.length === 0) {
+    return "no questions"
+  }
+  for (let i = 0; i < quiz.questions.length; i++) {
+    const q = quiz.questions[i]
+    if (typeof q.question !== "string" || q.question.trim() === "") {
+      return `question ${i + 1}: missing text`
+    }
+    if (!Array.isArray(q.options) || q.options.length < 2) {
+      return `question ${i + 1}: fewer than 2 options`
+    }
+    if (q.options.some((o) => typeof o !== "string" || o.trim() === "")) {
+      return `question ${i + 1}: empty or non-string option`
+    }
+    if (
+      typeof q.correct !== "number" ||
+      !Number.isInteger(q.correct) ||
+      q.correct < 0 ||
+      q.correct >= q.options.length
+    ) {
+      return `question ${i + 1}: correct index missing or out of range`
+    }
+  }
+  return null
 }
 
 // ----- Route ---------------------------------------------------------------
@@ -264,44 +331,60 @@ export async function POST(request: NextRequest) {
               reason: safety.reason,
             })
           } else {
-            // TICKET-007: stamp cohort_key + cohort dimensions so the
-            // recommender (recommend_for_teen v2) only surfaces this quiz
-            // to teens whose (grade, school_type, curriculum, language)
-            // matches. cohortLabel is already the cohortId() value.
-            const { data: savedQuiz, error: quizError } = await supabase
-              .from("educational_quizzes")
-              .insert({
-                code: `DAILY_${today}_${cohortLabel}_${Date.now()}`,
-                title: quiz.title,
-                description: quiz.description,
-                subject: quiz.subject,
-                difficulty: quiz.difficulty,
-                grade_level: quiz.grade_level,
-                school_type:
-                  cohort.key.school_type !== "unknown" ? cohort.key.school_type : null,
-                curriculum:
-                  cohort.key.curriculum !== "unknown" ? cohort.key.curriculum : null,
-                language: cohort.key.language,
-                cohort_key: cohortLabel,
-                questions: quiz.questions,
-                time_limit_minutes: quiz.time_limit_minutes,
-                passing_score: quiz.passing_score,
-                xp_reward: quiz.xp_reward,
-                is_active: true,
-              })
-              .select()
-              .single()
-
-            if (!quizError && savedQuiz) {
-              generatedCount++
+            const structureError = quizStructureError(quiz)
+            if (structureError) {
+              failedCount++
               generationLog.push({
                 type: "quiz",
-                id: savedQuiz.id,
                 cohort: cohortLabel,
-                cohort_size: cohort.teenCount,
+                status: "blocked_by_schema",
+                reason: structureError,
               })
             } else {
-              failedCount++
+              // TICKET-007: stamp cohort_key + cohort dimensions so the
+              // recommender (recommend_for_teen v2) only surfaces this quiz
+              // to teens whose (grade, school_type, curriculum, language)
+              // matches. cohortLabel is already the cohortId() value.
+              //
+              // Audit 2026-07-11 Q1: is_active=false — the quiz enters the
+              // human moderation queue (/admin/content/review) and only goes
+              // live once an admin approves it.
+              const { data: savedQuiz, error: quizError } = await supabase
+                .from("educational_quizzes")
+                .insert({
+                  code: dailyCode(today, cohortLabel),
+                  title: quiz.title,
+                  description: quiz.description,
+                  subject: quiz.subject,
+                  difficulty: quiz.difficulty,
+                  grade_level: quiz.grade_level,
+                  school_type:
+                    cohort.key.school_type !== "unknown" ? cohort.key.school_type : null,
+                  curriculum:
+                    cohort.key.curriculum !== "unknown" ? cohort.key.curriculum : null,
+                  language: cohort.key.language,
+                  cohort_key: cohortLabel,
+                  questions: quiz.questions,
+                  time_limit_minutes: quiz.time_limit_minutes,
+                  passing_score: quiz.passing_score,
+                  xp_reward: quiz.xp_reward,
+                  is_active: false,
+                })
+                .select()
+                .single()
+
+              if (!quizError && savedQuiz) {
+                generatedCount++
+                generationLog.push({
+                  type: "quiz",
+                  id: savedQuiz.id,
+                  cohort: cohortLabel,
+                  cohort_size: cohort.teenCount,
+                  status: "pending_review",
+                })
+              } else {
+                failedCount++
+              }
             }
           }
         }
@@ -335,10 +418,16 @@ export async function POST(request: NextRequest) {
               reason: safety.reason,
             })
           } else {
+            // Audit 2026-07-11 Q1: is_active=false — AI content is never live
+            // by default. NOTE: there is no mission review UI yet (the admin
+            // queue at /admin/content/review only covers quizzes); pending AI
+            // missions stay inactive until a reviewer activates them. Teens
+            // keep being served the manually seeded active mission bank
+            // (recommend_for_teen v2 and assign-missions filter is_active).
             const { data: savedMission, error: missionError } = await supabase
               .from("mission_templates")
               .insert({
-                code: `DAILY_${today}_${cohortLabel}_${Date.now()}`,
+                code: dailyCode(today, cohortLabel),
                 name: mission.name,
                 description: mission.description,
                 mission_type: mission.mission_type,
@@ -347,7 +436,7 @@ export async function POST(request: NextRequest) {
                 objective_target: mission.objective_target,
                 xp_reward: mission.xp_reward,
                 difficulty: mission.difficulty,
-                is_active: true,
+                is_active: false,
               })
               .select()
               .single()
@@ -359,6 +448,7 @@ export async function POST(request: NextRequest) {
                 id: savedMission.id,
                 cohort: cohortLabel,
                 cohort_size: cohort.teenCount,
+                status: "pending_review",
               })
             } else {
               failedCount++
@@ -391,7 +481,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Daily content generation completed",
+      message: "Daily content generated and queued for human review",
       cohorts: targetCohorts.length,
       total_teens: teens.length,
       generated: generatedCount,
