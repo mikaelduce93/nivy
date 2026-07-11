@@ -23,6 +23,10 @@ interface SubmitResponse {
     correctCount: number
     totalQuestions: number
     xpEarned: number
+    // Anti-farm (audit 2026-07-11 Q4) : l'XP n'est crédité qu'à la première
+    // réussite — un rejeu réussi renvoie xpAwarded=false + alreadyRewarded=true.
+    xpAwarded?: boolean
+    alreadyRewarded?: boolean
     results: Array<{
       question: string
       userAnswer: number
@@ -169,12 +173,26 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                 </div>
               </div>
               <div className="rounded-2xl border-2 border-paper/20 bg-paper/5 p-4">
-                <div className="flex items-center justify-center gap-1 font-display text-4xl sm:text-5xl font-extrabold leading-none tabular-nums text-gold">
-                  <Zap className="size-6 sm:size-7" aria-hidden="true" />+{result.xpEarned}
-                </div>
-                <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">
-                  XP gagnés
-                </div>
+                {result.passed && result.alreadyRewarded ? (
+                  <>
+                    {/* Rejeu d'un quiz déjà réussi : entraînement, pas d'XP */}
+                    <div className="grid min-h-12 place-items-center font-display text-xl sm:text-2xl font-extrabold leading-tight text-paper">
+                      Déjà réussi
+                    </div>
+                    <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">
+                      Entraînement — pas d&apos;XP
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-center gap-1 font-display text-4xl sm:text-5xl font-extrabold leading-none tabular-nums text-gold">
+                      <Zap className="size-6 sm:size-7" aria-hidden="true" />+{result.xpEarned}
+                    </div>
+                    <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">
+                      XP gagnés
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </DarkSurface>

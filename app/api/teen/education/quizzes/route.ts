@@ -171,9 +171,31 @@ export async function POST(request: NextRequest) {
     const score = Math.round((correctCount / questions.length) * 100)
     const passed = score >= (quiz.passing_score || 60)
 
-    // Calculate XP earned
-    let xpEarned = 0
+    // Anti-farm (audit 2026-07-11 Q4) — même garde que /api/teen/quiz/submit :
+    // l'XP n'est crédité qu'à la PREMIÈRE réussite ; les rejeux sont
+    // enregistrés (entraînement) mais rapportent 0 XP.
+    let alreadyRewarded = false
     if (passed) {
+      const { data: priorReward, error: priorRewardError } = await supabase
+        .from("quiz_attempts")
+        .select("id")
+        .eq("teen_id", teenId)
+        .eq("quiz_id", quizId)
+        .gt("xp_earned", 0)
+        .limit(1)
+        .maybeSingle()
+      if (priorRewardError) {
+        console.error(
+          "[education/quizzes] prior-reward check error:",
+          priorRewardError,
+        )
+      }
+      alreadyRewarded = Boolean(priorReward)
+    }
+
+    // Calculate XP earned (first pass only)
+    let xpEarned = 0
+    if (passed && !alreadyRewarded) {
       xpEarned = quiz.xp_reward || 50
       // Bonus for high scores
       if (score >= 90) xpEarned = Math.round(xpEarned * 1.5)
@@ -225,6 +247,9 @@ export async function POST(request: NextRequest) {
         correctCount,
         totalQuestions: questions.length,
         xpEarned,
+        // Anti-farm : retour honnête — pas de faux gain sur un rejeu.
+        xpAwarded: xpEarned > 0,
+        alreadyRewarded,
         results,
       },
     })

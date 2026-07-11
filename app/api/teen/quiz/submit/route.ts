@@ -81,9 +81,36 @@ export async function POST(request: NextRequest) {
     const passingScore = quiz.passing_score ?? 60
     const passed = score >= passingScore
 
-    // XP (only when passed); bonus on high scores, mirrors education/quizzes/route.ts
-    let xpEarned = 0
+    // Anti-farm (audit 2026-07-11 Q4, P0) — politique PO : rejouer un quiz
+    // reste possible (entraînement, la tentative est toujours enregistrée),
+    // mais l'XP n'est crédité qu'à la PREMIÈRE réussite. On détecte un crédit
+    // antérieur via xp_earned > 0 (plutôt que la colonne GENERATED `passed`,
+    // figée sur score >= 60 et qui peut diverger de quiz.passing_score).
+    let alreadyRewarded = false
     if (passed) {
+      const { data: priorReward, error: priorRewardError } = await supabase
+        .from("quiz_attempts")
+        .select("id")
+        .eq("teen_id", teenId)
+        .eq("quiz_id", quizId)
+        .gt("xp_earned", 0)
+        .limit(1)
+        .maybeSingle()
+      if (priorRewardError) {
+        // Fail-open : une erreur transitoire ne doit pas priver une vraie
+        // première réussite de son XP. La garde DB (migration 169, à
+        // appliquer) servira de filet idempotent côté add_xp_to_user.
+        console.error(
+          "[teen/quiz/submit] prior-reward check error:",
+          priorRewardError,
+        )
+      }
+      alreadyRewarded = Boolean(priorReward)
+    }
+
+    // XP (only on FIRST pass); bonus on high scores, mirrors education/quizzes/route.ts
+    let xpEarned = 0
+    if (passed && !alreadyRewarded) {
       const baseXp = quiz.xp_reward ?? 50
       if (score >= 90) xpEarned = Math.round(baseXp * 1.5)
       else if (score >= 80) xpEarned = Math.round(baseXp * 1.25)
@@ -228,6 +255,9 @@ export async function POST(request: NextRequest) {
         correctCount,
         totalQuestions: questions.length,
         xpEarned,
+        // Anti-farm : retour honnête pour l'écran de fin — pas de faux gain.
+        xpAwarded: xpEarned > 0,
+        alreadyRewarded,
         results,
       },
     })
