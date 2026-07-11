@@ -1,19 +1,38 @@
 import Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
-import { formatPriceFromStripe } from "@/lib/stripe"
 
 /**
  * ⚠️ INACTIF — Stripe n'est pas le PSP actif (CMI / hybride est canonique au Maroc).
- * Ce dispatcher n'est pas câblé en production.
+ * Ce dispatcher n'est pas câblé en production ; il existe pour qu'un paiement
+ * Stripe (test ou live) confirme correctement une réservation si/quand il est
+ * activé (#342). Cette réactivation NE change PAS le PSP canonique.
  *
- * Câblé sur le schéma réel (C4/#252) : handleCoinTopup crédite désormais le wallet
- * via la RPC add_coins_to_user (user_coins.balance + coin_transactions) et notifie
- * via user_notifications.
+ * Câblé sur le schéma réel (types/supabase.ts) :
+ * - handleBookingPayment (checkout.session.completed / event_booking) confirme
+ *   la réservation via bookings.payment_status/status. `bookings` n'a PAS de
+ *   colonnes stripe_session_id / stripe_payment_intent ni parent_id — ces
+ *   écritures ont été supprimées plutôt que d'écrire sur des colonnes
+ *   fantômes (cf. audit reservation.md N6). Notifie via `user_notifications`
+ *   (canon), pas `notifications` (table fantôme). Idempotent : cf. commentaire
+ *   dans handleBookingPayment.
+ * - handleCoinTopup (coin_topup, C4/#252) crédite le wallet via la RPC
+ *   add_coins_to_user (user_coins.balance + coin_transactions) et notifie via
+ *   user_notifications. Inchangé (déjà aligné schéma réel).
+ * - handlePaymentFailed notifie via user_notifications (même correction).
  *
- * Drift résiduel ASSUMÉ (code mort, hors périmètre C4) : les autres handlers visent
- * encore une table `notifications` inexistante et un schéma `bookings` plus riche
- * (stripe_session_id, stripe_payment_intent, parent_id) / `payment_logs` non vérifiés
- * en live. À réaligner (user_notifications, bookings.user_id) SI Stripe est activé.
+ * Drift résiduel ASSUMÉ (hors périmètre #342) :
+ * - `payment_logs` et `partner_subscriptions` ne sont pas des tables réelles
+ *   (jamais créées — migration 109 documente la décision "REWIRE
+ *   payment_logs→payment_transactions" comme non faite ; cf. aussi #42 dans
+ *   app/api/payments/hybrid/route.ts qui a déjà supprimé ces écritures pour
+ *   la même raison). handleSubscriptionUpdate/handleSubscriptionDeleted
+ *   (Stripe customer.subscription.*, feature "abonnement partenaire" — hors
+ *   scope réservation/topup) restent non vérifiés contre le schéma réel.
+ * - handleChargeRefunded ne peut pas corréler un remboursement Stripe à une
+ *   réservation sous le schéma réel (aucune colonne de référence Stripe sur
+ *   `bookings`, et en ajouter nécessiterait une migration — hors scope). Il
+ *   logue pour réconciliation manuelle plutôt que d'interroger une colonne
+ *   fantôme.
  */
 
 /**
@@ -43,39 +62,59 @@ export const StripeHandlers = {
 
     if (!bookingId) return
 
-    await supabase.from("bookings").update({
-      payment_status: "paid",
-      payment_method: paymentMethod,
-      stripe_session_id: session.id,
-      stripe_payment_intent: session.payment_intent,
-      paid_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      ...(parseInt(xpUsed || "0") > 0 && { xp_used: parseInt(xpUsed!), xp_value: parseFloat(xpValue!) }),
-    }).eq("id", bookingId)
+    // #342 idempotency guard: Stripe redelivers checkout.session.completed on
+    // retries / duplicate deliveries. `bookings` has no stripe_session_id
+    // column to dedupe against (types/supabase.ts), so the guard is a
+    // payment_status check: a booking already marked "paid" is not
+    // re-confirmed and does not re-notify the user.
+    const { data: existingBooking } = await supabase
+      .from("bookings")
+      .select("payment_status")
+      .eq("id", bookingId)
+      .maybeSingle()
 
-    if (userId) {
-      await supabase.from("notifications").insert({
+    if (existingBooking?.payment_status === "paid") {
+      return
+    }
+
+    // #342 — bookings has no stripe_session_id / stripe_payment_intent
+    // columns (types/supabase.ts); only real columns are written. The
+    // `.neq("payment_status", "paid")` filter is a second, DB-level
+    // idempotency guard against a race between the read above and this write
+    // (e.g. two redelivered events processed concurrently) — only rows
+    // returned by `.select("id")` below were actually (re-)confirmed here.
+    const { data: updatedRows } = await supabase
+      .from("bookings")
+      .update({
+        payment_status: "paid",
+        status: "confirmed",
+        payment_method: paymentMethod,
+        paid_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        ...(parseInt(xpUsed || "0") > 0 && { xp_used: parseInt(xpUsed!), xp_value: parseFloat(xpValue!) }),
+      })
+      .eq("id", bookingId)
+      .neq("payment_status", "paid")
+      .select("id")
+
+    if (userId && updatedRows && updatedRows.length > 0) {
+      // #342 — canon is `user_notifications` (`notifications` is a phantom
+      // table, cf. audit reservation.md N6); only real columns are written.
+      await supabase.from("user_notifications").insert({
         user_id: userId,
-        type: "payment_success",
         title: isHybrid ? "Paiement hybride confirmé" : "Paiement confirmé",
-        message: isHybrid ? `Paiement confirmé : ${xpUsed} XP utilisés + carte.` : "Votre réservation est validée.",
-        resource_type: "booking",
-        resource_id: bookingId,
+        body: isHybrid
+          ? `Paiement confirmé : ${xpUsed} XP utilisés + carte.`
+          : "Votre réservation est validée.",
       })
     }
 
-    await supabase.from("payment_logs").insert({
-      booking_id: bookingId,
-      user_id: userId,
-      stripe_session_id: session.id,
-      stripe_payment_intent: session.payment_intent,
-      amount: formatPriceFromStripe(session.amount_total || 0),
-      currency: session.currency,
-      status: "succeeded",
-      type: isHybrid ? "hybrid_payment" : "event_booking",
-      xp_used: xpUsed || null,
-      xp_value: xpValue || null,
-    })
+    // #342 — removed the `payment_logs` insert: that table does not exist in
+    // the live schema (never created — migration 109 documents the "REWIRE
+    // payment_logs→payment_transactions" decision as not done; same
+    // reasoning already applied in app/api/payments/hybrid/route.ts #42).
+    // The booking row above (payment_status/status/paid_at) is the source of
+    // truth for a Stripe-confirmed booking.
   },
 
   async handleCoinTopup(session: Stripe.Checkout.Session, supabase: any) {
@@ -101,12 +140,12 @@ export const StripeHandlers = {
     })
   },
 
-  async handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-    const supabase = await createClient()
-    await supabase.from("payment_logs").update({
-      status: "succeeded",
-      updated_at: new Date().toISOString()
-    }).eq("stripe_payment_intent", paymentIntent.id)
+  async handlePaymentSucceeded(_paymentIntent: Stripe.PaymentIntent) {
+    // #342 — no-op: this previously updated a `payment_logs` row, but that
+    // table does not exist in the live schema (see top-of-file docstring).
+    // Booking confirmation for the Checkout flow is handled by
+    // handleBookingPayment on `checkout.session.completed`, which is the
+    // authoritative event for this dispatcher's booking path.
   },
 
   async handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
@@ -114,56 +153,41 @@ export const StripeHandlers = {
     const { bookingId, userId } = paymentIntent.metadata || {}
 
     if (bookingId) {
-      await supabase.from("bookings").update({
-        payment_status: "failed",
-        updated_at: new Date().toISOString()
-      }).eq("id", bookingId)
+      // #342 idempotency: don't re-notify a booking already marked failed.
+      const { data: updatedRows } = await supabase
+        .from("bookings")
+        .update({
+          payment_status: "failed",
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", bookingId)
+        .neq("payment_status", "failed")
+        .select("id")
 
-      if (userId) {
-        await supabase.from("notifications").insert({
+      if (userId && updatedRows && updatedRows.length > 0) {
+        // #342 — canon is `user_notifications` (`notifications` is phantom).
+        await supabase.from("user_notifications").insert({
           user_id: userId,
-          type: "payment_failed",
           title: "Paiement échoué",
-          message: "Votre paiement n'a pas pu être traité.",
-          resource_type: "booking",
-          resource_id: bookingId,
+          body: "Votre paiement n'a pas pu être traité.",
         })
       }
     }
 
-    await supabase.from("payment_logs").insert({
-      booking_id: bookingId,
-      user_id: userId,
-      stripe_payment_intent: paymentIntent.id,
-      amount: formatPriceFromStripe(paymentIntent.amount || 0),
-      currency: paymentIntent.currency,
-      status: "failed",
-      error_message: paymentIntent.last_payment_error?.message,
-    })
+    // #342 — `payment_logs` removed here too (phantom table, see docstring).
   },
 
   async handleChargeRefunded(charge: Stripe.Charge) {
-    const supabase = await createClient()
-    const { data: booking } = await supabase.from("bookings").select("id, parent_id").eq("stripe_payment_intent", charge.payment_intent).single()
-
-    if (booking) {
-      await supabase.from("bookings").update({
-        payment_status: "refunded",
-        status: "cancelled",
-        updated_at: new Date().toISOString()
-      }).eq("id", booking.id)
-
-      if (booking.parent_id) {
-        await supabase.from("notifications").insert({
-          user_id: booking.parent_id,
-          type: "payment_refunded",
-          title: "Remboursement effectué",
-          message: "Votre remboursement a été traité avec succès.",
-          resource_type: "booking",
-          resource_id: booking.id,
-        })
-      }
-    }
+    // #342 — bookings has no stripe_session_id/stripe_payment_intent column
+    // (types/supabase.ts) to correlate a Stripe charge back to a booking, and
+    // no `parent_id` column either. Adding a reference column would require a
+    // migration, which is out of scope here. Rather than query phantom
+    // columns (silent Postgrest error, no-op), log for manual reconciliation.
+    console.warn(
+      `[Stripe Webhook] charge.refunded received for payment_intent=${charge.payment_intent}; ` +
+      `bookings cannot be correlated under the current schema (no stripe reference column). ` +
+      `Manual reconciliation required.`
+    )
   },
 
   async handleSubscriptionUpdate(subscription: Stripe.Subscription) {
@@ -174,6 +198,9 @@ export const StripeHandlers = {
     const periodStart = subscriptionItem?.current_period_start ?? subscription.created
     const periodEnd = subscriptionItem?.current_period_end ?? subscription.cancel_at ?? subscription.created
 
+    // NOTE (drift assumé, hors scope #342) : `partner_subscriptions` n'a pas
+    // de définition trouvée dans les migrations ni dans types/supabase.ts —
+    // feature "abonnement partenaire" distincte de la réservation/topup.
     await supabase.from("partner_subscriptions").upsert({
       partner_id: partnerId,
       stripe_subscription_id: subscription.id,
@@ -188,6 +215,7 @@ export const StripeHandlers = {
 
   async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     const supabase = await createClient()
+    // NOTE (drift assumé, hors scope #342) : cf. handleSubscriptionUpdate.
     await supabase.from("partner_subscriptions").update({
       status: "cancelled",
       cancelled_at: new Date().toISOString(),
