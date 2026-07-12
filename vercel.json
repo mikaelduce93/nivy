@@ -16,6 +16,8 @@
     { "path": "/api/cron/friend-challenge-resolve", "schedule": "30 * * * *" },
     { "path": "/api/cron/parent-chore-rollover", "schedule": "30 0 * * *" },
     { "path": "/api/cron/recommendation-metrics-rollup", "schedule": "0 23 * * *" },
-    { "path": "/api/cron/coach-retention-purge", "schedule": "0 3 1 * *" }
+    { "path": "/api/cron/coach-retention-purge", "schedule": "0 3 1 * *" },
+    { "path": "/api/cron/battle-sweeper", "schedule": "*/10 * * * *" },
+    { "path": "/api/cron/battle-anticheat", "schedule": "0 3 * * *" }
   ]
 }
