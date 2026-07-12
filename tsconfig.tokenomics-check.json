@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [],
+  "files": [
+    "types/globals.d.ts",
+    "types/modules.d.ts",
+    "lib/gamification/level-curve.ts",
+    "lib/payments/topup-packages.ts",
+    "lib/ai/prompts/roles.ts",
+    "app/api/parent/topup/route.ts",
+    "app/api/ambassador/withdrawals/route.ts",
+    "app/parent/topup/page.tsx",
+    "app/ambassador/withdrawals/page.tsx",
+    "app/carte-vip/souscrire/page.tsx",
+    "app/carte-vip/recompenses/page.tsx",
+    "components/ambassador/withdrawal-form.tsx",
+    "components/ai/AgentSheet.tsx",
+    "components/ai/AgentFloatingButton.tsx",
+    "components/ai/elite-ai-companion.tsx",
+    "tests/unit/level-curve.test.ts",
+    "next-env.d.ts"
+  ]
+}

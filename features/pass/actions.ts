@@ -54,6 +54,15 @@ async function getAuthenticatedUser() {
   return { supabase, user }
 }
 
+/**
+ * Frontière DB→domaine : `vip_cards` stocke card_type/status en text,
+ * benefits en jsonb et discount_percentage nullable ; le domaine (schema.ts)
+ * garantit les unions VIPTier/PassStatus et les défauts. Conversion unique ici.
+ */
+function toVIPCard(row: unknown): VIPCard {
+  return row as VIPCard
+}
+
 /* ==========================================================================
    VÉRIFICATIONS
    ========================================================================== */
@@ -90,7 +99,7 @@ export async function hasActivePass(
 
     if (error && error.code !== 'PGRST116') throw error
 
-    return { success: true, data: { hasPass: !!data, data: data || undefined } }
+    return { success: true, data: { hasPass: !!data, data: data ? toVIPCard(data) : undefined } }
   } catch (error: any) {
     console.error('[pass/hasActivePass] Error:', error)
     return { success: false, error: error.message }
@@ -135,7 +144,15 @@ export async function getUserPassTier(
       success: true,
       data: {
         tier: (data?.card_type as VIPTier) || null,
-        data: data || undefined,
+        // vip_cards.card_type est `text` en base ; le domaine garantit l'union
+        // VIPTier. discount_percentage nullable en base → défaut 0.
+        data: data
+          ? {
+              card_type: data.card_type as VIPTier,
+              discount_percentage: data.discount_percentage ?? 0,
+              expiry_date: data.expiry_date,
+            }
+          : undefined,
       },
     }
   } catch (error: any) {
@@ -167,7 +184,7 @@ export async function getMyPass(): Promise<ActionResult<VIPCard | null>> {
 
     if (error && error.code !== 'PGRST116') throw error
 
-    return { success: true, data }
+    return { success: true, data: data ? toVIPCard(data) : null }
   } catch (error: any) {
     console.error('[pass/getMyPass] Error:', error)
     return { success: false, error: error.message }
@@ -351,7 +368,7 @@ export async function subscribeToPass(
 
       revalidatePath('/carte-vip')
       revalidatePath('/profile')
-      return { success: true, data: { data: card } }
+      return { success: true, data: { data: toVIPCard(card) } }
     }
 
     // Otherwise, create Stripe session
@@ -475,7 +492,7 @@ export async function confirmPassSubscription(
 
     revalidatePath('/carte-vip')
     revalidatePath('/profile')
-    return { success: true, data: card }
+    return { success: true, data: toVIPCard(card) }
   } catch (error: any) {
     console.error('[pass/confirmPassSubscription] Error:', error)
     return { success: false, error: error.message }
@@ -519,7 +536,7 @@ export async function cancelPass(
 
     revalidatePath('/carte-vip')
     revalidatePath('/profile')
-    return { success: true, data: data ?? [] }
+    return { success: true, data: (data ?? []).map(toVIPCard) }
   } catch (error: any) {
     console.error('[pass/cancelPass] Error:', error)
     return { success: false, error: error.message }
@@ -603,7 +620,8 @@ export async function getPassUsageHistory(): Promise<ActionResult<VIPCardUsage[]
 
     if (error) throw error
 
-    return { success: true, data: data ?? [] }
+    // Frontière DB→domaine (usage_type text en base vs union UsageType).
+    return { success: true, data: (data ?? []) as unknown as VIPCardUsage[] }
   } catch (error: any) {
     console.error('[pass/getPassUsageHistory] Error:', error)
     return { success: false, error: error.message }

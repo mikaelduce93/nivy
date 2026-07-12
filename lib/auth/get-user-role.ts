@@ -90,7 +90,7 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
   const baseInfo: UserRoleInfo = {
     role: profile.role as UserRole || "unknown",
     profileId: profile.id,
-    email: profile.email,
+    email: profile.email ?? "",
     fullName: profile.full_name || "",
   }
 
@@ -112,7 +112,7 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
             title: teenData.title || "Rookie",
             titleIcon: teenData.title_icon || "🌱",
             coins: teenData.coins_balance || 0,
-            parentId: teenData.primary_parent_id,
+            parentId: teenData.primary_parent_id ?? undefined,
           }
         }
         break
@@ -149,15 +149,18 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
       }
 
       case "ambassador": {
+      // Drift fixé (typage régénéré 2026-07-12) : la colonne live est
+      // `commission_pct` (pas `commission_rate`) et la table est clé sur
+      // `user_id` (pas `profile_id`) — l'enrichissement échouait silencieusement.
       const { data: ambassadorData } = await supabase
         .from("ambassadors")
-        .select("commission_rate, status")
-        .eq("profile_id", user.id)
+        .select("commission_pct, status")
+        .eq("user_id", user.id)
         .single()
 
       if (ambassadorData) {
         baseInfo.ambassadorData = {
-          commissionRate: ambassadorData.commission_rate || 0,
+          commissionRate: ambassadorData.commission_pct || 0,
           status: ambassadorData.status || "pending",
         }
       }
@@ -168,7 +171,7 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
       const { data: partnerData } = await supabase
         .from("partners")
         .select("id, company_name, partner_type")
-        .eq("email", profile.email)
+        .eq("email", profile.email ?? "")
         .single()
 
       if (partnerData) {
@@ -213,7 +216,7 @@ export async function getUserRole(): Promise<UserRoleInfo | null> {
           baseInfo.subRole = adminRole.role
           baseInfo.adminData = {
             role: adminRole.role,
-            permissions: adminRole.permissions || {},
+            permissions: (adminRole.permissions as Record<string, boolean> | null) ?? {},
           }
         }
         break

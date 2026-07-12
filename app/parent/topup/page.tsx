@@ -138,6 +138,16 @@ export default async function ParentTopupPage({
   const selectedTeenId = params.teen || ""
   const hasSigned = !!parentSignature
 
+  // La vue parent_teens_overview expose `coins` (nullable), pas `total_coins`
+  // — on normalise une fois vers la forme attendue par TopupForm + sidebar.
+  const teenRows = (teens ?? [])
+    .filter((t: any) => t.teen_id)
+    .map((t: any) => ({
+      teen_id: t.teen_id as string,
+      teen_name: (t.teen_name as string | null) ?? "Teen",
+      total_coins: (t.coins as number | null) ?? 0,
+    }))
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: 'numeric',
@@ -173,7 +183,7 @@ export default async function ParentTopupPage({
           <Niv mood="hype" size={88} className="hidden shrink-0 sm:block" />
         </div>
 
-        {teens.length === 0 ? (
+        {teenRows.length === 0 ? (
           <StickerCard className="items-center gap-3 p-10 text-center" role="status">
             <Niv mood="calm" size={80} />
             <h3 className="font-display text-xl font-extrabold text-ink">
@@ -224,7 +234,7 @@ export default async function ParentTopupPage({
                   Choisir un pack
                 </h2>
                 <TopupForm
-                  teens={teens}
+                  teens={teenRows}
                   packages={topupPackages}
                   selectedTeenId={selectedTeenId}
                   parentId={userInfo.profileId}
@@ -269,7 +279,7 @@ export default async function ParentTopupPage({
               {/* Teen Balances — surface sombre ponctuelle (pattern « solde ») */}
               <div className="space-y-3">
                 <p className="eyebrow">Soldes actuels</p>
-                {teens.map((teen: any) => (
+                {teenRows.map((teen) => (
                   <DarkSurface key={teen.teen_id} tone="coral" shadow className="p-5">
                     <p className="eyebrow tracking-[0.16em] text-paper/60">
                       {teen.teen_name}

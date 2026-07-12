@@ -408,6 +408,13 @@ export type Database = {
             foreignKeyName: "adaptive_learning_tracker_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: true
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "adaptive_learning_tracker_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: true
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -417,18 +424,21 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          permissions: Json | null
           profile_id: string
           role: string
         }
         Insert: {
           created_at?: string | null
           id?: string
+          permissions?: Json | null
           profile_id: string
           role?: string
         }
         Update: {
           created_at?: string | null
           id?: string
+          permissions?: Json | null
           profile_id?: string
           role?: string
         }
@@ -542,6 +552,45 @@ export type Database = {
         }
         Relationships: []
       }
+      affinity_scores: {
+        Row: {
+          score: number
+          signal_count: number
+          tag: string
+          teen_id: string
+          updated_at: string
+        }
+        Insert: {
+          score?: number
+          signal_count?: number
+          tag: string
+          teen_id: string
+          updated_at?: string
+        }
+        Update: {
+          score?: number
+          signal_count?: number
+          tag?: string
+          teen_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affinity_scores_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affinity_scores_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_generation_templates: {
         Row: {
           category: string | null
@@ -596,6 +645,741 @@ export type Database = {
         }
         Relationships: []
       }
+      allowance_disbursements: {
+        Row: {
+          allowance_id: string
+          amount_dh: number
+          coin_transaction_id: string | null
+          condition_met: boolean | null
+          created_at: string
+          escrow_ledger_id: string | null
+          executed_at: string | null
+          id: string
+          payment_transaction_id: string | null
+          scheduled_at: string
+          skip_reason: string | null
+          status: string
+        }
+        Insert: {
+          allowance_id: string
+          amount_dh: number
+          coin_transaction_id?: string | null
+          condition_met?: boolean | null
+          created_at?: string
+          escrow_ledger_id?: string | null
+          executed_at?: string | null
+          id?: string
+          payment_transaction_id?: string | null
+          scheduled_at: string
+          skip_reason?: string | null
+          status: string
+        }
+        Update: {
+          allowance_id?: string
+          amount_dh?: number
+          coin_transaction_id?: string | null
+          condition_met?: boolean | null
+          created_at?: string
+          escrow_ledger_id?: string | null
+          executed_at?: string | null
+          id?: string
+          payment_transaction_id?: string | null
+          scheduled_at?: string
+          skip_reason?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allowance_disbursements_allowance_id_fkey"
+            columns: ["allowance_id"]
+            isOneToOne: false
+            referencedRelation: "parent_allowances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ambassador_commissions: {
+        Row: {
+          ambassador_id: string
+          amount_dh: number | null
+          amount_xp: number | null
+          available_at: string | null
+          created_at: string
+          id: string
+          paid_out_at: string | null
+          referred_user_id: string
+          source_partner_transaction_id: string | null
+          source_payment_id: string | null
+          status: string
+        }
+        Insert: {
+          ambassador_id: string
+          amount_dh?: number | null
+          amount_xp?: number | null
+          available_at?: string | null
+          created_at?: string
+          id?: string
+          paid_out_at?: string | null
+          referred_user_id: string
+          source_partner_transaction_id?: string | null
+          source_payment_id?: string | null
+          status?: string
+        }
+        Update: {
+          ambassador_id?: string
+          amount_dh?: number | null
+          amount_xp?: number | null
+          available_at?: string | null
+          created_at?: string
+          id?: string
+          paid_out_at?: string | null
+          referred_user_id?: string
+          source_partner_transaction_id?: string | null
+          source_payment_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambassador_commissions_ambassador_id_fkey"
+            columns: ["ambassador_id"]
+            isOneToOne: false
+            referencedRelation: "ambassadors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambassador_commissions_source_partner_transaction_id_fkey"
+            columns: ["source_partner_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "partner_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambassador_commissions_source_payment_id_fkey"
+            columns: ["source_payment_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ambassador_payouts: {
+        Row: {
+          ambassador_id: string
+          amount_dh: number
+          created_at: string
+          iban: string | null
+          id: string
+          method: string | null
+          paid_at: string | null
+          reference: string | null
+          status: string
+        }
+        Insert: {
+          ambassador_id: string
+          amount_dh: number
+          created_at?: string
+          iban?: string | null
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          reference?: string | null
+          status?: string
+        }
+        Update: {
+          ambassador_id?: string
+          amount_dh?: number
+          created_at?: string
+          iban?: string | null
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          reference?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambassador_payouts_ambassador_id_fkey"
+            columns: ["ambassador_id"]
+            isOneToOne: false
+            referencedRelation: "ambassadors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ambassadors: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          code: string
+          commission_pct: number
+          created_at: string
+          id: string
+          payout_iban: string | null
+          payout_method: string | null
+          status: string
+          tier: string
+          track: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          code: string
+          commission_pct?: number
+          created_at?: string
+          id?: string
+          payout_iban?: string | null
+          payout_method?: string | null
+          status?: string
+          tier?: string
+          track?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          code?: string
+          commission_pct?: number
+          created_at?: string
+          id?: string
+          payout_iban?: string | null
+          payout_method?: string | null
+          status?: string
+          tier?: string
+          track?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      anniv_extras: {
+        Row: {
+          id: string
+          is_active: boolean
+          name: string
+          pack_id: string | null
+          price_dh: number
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean
+          name: string
+          pack_id?: string | null
+          price_dh: number
+        }
+        Update: {
+          id?: string
+          is_active?: boolean
+          name?: string
+          pack_id?: string | null
+          price_dh?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anniv_extras_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "anniv_packs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anniv_order_attendees: {
+        Row: {
+          anniv_order_id: string
+          contribution_coins: number
+          created_at: string
+          group_action_id: string | null
+          id: string
+          parent_approval_id: string | null
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          anniv_order_id: string
+          contribution_coins?: number
+          created_at?: string
+          group_action_id?: string | null
+          id?: string
+          parent_approval_id?: string | null
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          anniv_order_id?: string
+          contribution_coins?: number
+          created_at?: string
+          group_action_id?: string | null
+          id?: string
+          parent_approval_id?: string | null
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anniv_order_attendees_anniv_order_id_fkey"
+            columns: ["anniv_order_id"]
+            isOneToOne: false
+            referencedRelation: "anniv_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "anniv_order_attendees_group_action_id_fkey"
+            columns: ["group_action_id"]
+            isOneToOne: false
+            referencedRelation: "group_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anniv_order_extras: {
+        Row: {
+          extra_id: string
+          order_id: string
+          quantity: number
+        }
+        Insert: {
+          extra_id: string
+          order_id: string
+          quantity?: number
+        }
+        Update: {
+          extra_id?: string
+          order_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anniv_order_extras_extra_id_fkey"
+            columns: ["extra_id"]
+            isOneToOne: false
+            referencedRelation: "anniv_extras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "anniv_order_extras_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "anniv_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anniv_orders: {
+        Row: {
+          created_at: string
+          guest_count: number
+          id: string
+          notes: string | null
+          pack_id: string
+          parent_id: string
+          party_date: string
+          status: string
+          teen_id: string
+          total_dh: number
+        }
+        Insert: {
+          created_at?: string
+          guest_count?: number
+          id?: string
+          notes?: string | null
+          pack_id: string
+          parent_id: string
+          party_date: string
+          status?: string
+          teen_id: string
+          total_dh: number
+        }
+        Update: {
+          created_at?: string
+          guest_count?: number
+          id?: string
+          notes?: string | null
+          pack_id?: string
+          parent_id?: string
+          party_date?: string
+          status?: string
+          teen_id?: string
+          total_dh?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anniv_orders_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "anniv_packs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "anniv_orders_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "anniv_orders_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anniv_packs: {
+        Row: {
+          capacity: number
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          partner_id: string | null
+          price_coins: number | null
+          price_dh: number
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          partner_id?: string | null
+          price_coins?: number | null
+          price_dh: number
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          partner_id?: string | null
+          price_coins?: number | null
+          price_dh?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anniv_packs_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_role: string | null
+          created_at: string
+          description: string | null
+          id: number
+          ip_address: string | null
+          metadata: Json
+          resource_id: string | null
+          resource_type: string | null
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          ip_address?: string | null
+          metadata?: Json
+          resource_id?: string | null
+          resource_type?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          ip_address?: string | null
+          metadata?: Json
+          resource_id?: string | null
+          resource_type?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      authorizations: {
+        Row: {
+          authorization_type: string | null
+          authorized_person_name: string | null
+          authorized_person_phone: string | null
+          authorized_person_relation: string | null
+          child_id: string | null
+          cin_back_url: string | null
+          cin_front_url: string | null
+          created_at: string
+          event_id: string | null
+          id: string
+          ip_address: string | null
+          is_valid: boolean
+          medical_consent: boolean | null
+          parent_id: string | null
+          parent_signature_url: string | null
+          photo_consent: boolean | null
+          pickup_consent: boolean | null
+          signature_hash: string | null
+          signed_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          authorization_type?: string | null
+          authorized_person_name?: string | null
+          authorized_person_phone?: string | null
+          authorized_person_relation?: string | null
+          child_id?: string | null
+          cin_back_url?: string | null
+          cin_front_url?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          ip_address?: string | null
+          is_valid?: boolean
+          medical_consent?: boolean | null
+          parent_id?: string | null
+          parent_signature_url?: string | null
+          photo_consent?: boolean | null
+          pickup_consent?: boolean | null
+          signature_hash?: string | null
+          signed_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          authorization_type?: string | null
+          authorized_person_name?: string | null
+          authorized_person_phone?: string | null
+          authorized_person_relation?: string | null
+          child_id?: string | null
+          cin_back_url?: string | null
+          cin_front_url?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          ip_address?: string | null
+          is_valid?: boolean
+          medical_consent?: boolean | null
+          parent_id?: string | null
+          parent_signature_url?: string | null
+          photo_consent?: boolean | null
+          pickup_consent?: boolean | null
+          signature_hash?: string | null
+          signed_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authorizations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      avatar_messages: {
+        Row: {
+          dismissed_at: string | null
+          displayed_at: string
+          id: string
+          message_text: string
+          mood: string | null
+          suggested_quest_id: string | null
+          teen_id: string
+        }
+        Insert: {
+          dismissed_at?: string | null
+          displayed_at?: string
+          id?: string
+          message_text: string
+          mood?: string | null
+          suggested_quest_id?: string | null
+          teen_id: string
+        }
+        Update: {
+          dismissed_at?: string | null
+          displayed_at?: string
+          id?: string
+          message_text?: string
+          mood?: string | null
+          suggested_quest_id?: string | null
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avatar_messages_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avatar_messages_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      avatars: {
+        Row: {
+          color: string | null
+          created_at: string
+          last_message_at: string | null
+          mood: string | null
+          name: string
+          skin: string | null
+          teen_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          last_message_at?: string | null
+          mood?: string | null
+          name?: string
+          skin?: string | null
+          teen_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          last_message_at?: string | null
+          mood?: string | null
+          name?: string
+          skin?: string | null
+          teen_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avatars_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: true
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avatars_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: true
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      behavioral_signals: {
+        Row: {
+          created_at: string
+          id: number
+          metadata: Json | null
+          signal_type: string
+          target_id: string | null
+          target_type: string
+          teen_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          metadata?: Json | null
+          signal_type: string
+          target_id?: string | null
+          target_type: string
+          teen_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          metadata?: Json | null
+          signal_type?: string
+          target_id?: string | null
+          target_type?: string
+          teen_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "behavioral_signals_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "behavioral_signals_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      birthday_wishes: {
+        Row: {
+          birthday_year: number
+          created_at: string
+          from_user_id: string
+          id: string
+          message: string | null
+          to_teen_id: string
+          xp_gift: number | null
+        }
+        Insert: {
+          birthday_year: number
+          created_at?: string
+          from_user_id: string
+          id?: string
+          message?: string | null
+          to_teen_id: string
+          xp_gift?: number | null
+        }
+        Update: {
+          birthday_year?: number
+          created_at?: string
+          from_user_id?: string
+          id?: string
+          message?: string | null
+          to_teen_id?: string
+          xp_gift?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "birthday_wishes_to_teen_id_fkey"
+            columns: ["to_teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "birthday_wishes_to_teen_id_fkey"
+            columns: ["to_teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blocked_users: {
         Row: {
           blocked_id: string
@@ -623,6 +1407,13 @@ export type Database = {
             foreignKeyName: "blocked_users_blocked_id_fkey"
             columns: ["blocked_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocked_users_blocked_id_fkey"
+            columns: ["blocked_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -630,7 +1421,58 @@ export type Database = {
             foreignKeyName: "blocked_users_blocker_id_fkey"
             columns: ["blocker_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocked_users_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
             referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_tickets: {
+        Row: {
+          booking_id: string
+          checked_in: boolean
+          checked_in_at: string | null
+          child_id: string | null
+          created_at: string
+          id: string
+          price: number | null
+          qr_code: string | null
+          ticket_type: string | null
+        }
+        Insert: {
+          booking_id: string
+          checked_in?: boolean
+          checked_in_at?: string | null
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          price?: number | null
+          qr_code?: string | null
+          ticket_type?: string | null
+        }
+        Update: {
+          booking_id?: string
+          checked_in?: boolean
+          checked_in_at?: string | null
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          price?: number | null
+          qr_code?: string | null
+          ticket_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_tickets_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
         ]
@@ -690,6 +1532,95 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      career_pathways: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          recommended_mentor_tags: string[]
+          recommended_partner_ids: string[]
+          recommended_quiz_ids: string[]
+          required_subjects: string[]
+          slug: string
+          title: string
+          typical_grades: string[]
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          recommended_mentor_tags?: string[]
+          recommended_partner_ids?: string[]
+          recommended_quiz_ids?: string[]
+          required_subjects?: string[]
+          slug: string
+          title: string
+          typical_grades?: string[]
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          recommended_mentor_tags?: string[]
+          recommended_partner_ids?: string[]
+          recommended_quiz_ids?: string[]
+          required_subjects?: string[]
+          slug?: string
+          title?: string
+          typical_grades?: string[]
+        }
+        Relationships: []
+      }
+      cashback_rules: {
+        Row: {
+          active_from: string | null
+          active_until: string | null
+          cashback_pct: number
+          created_at: string
+          id: string
+          is_active: boolean
+          partner_id: string | null
+          reward_id: string | null
+        }
+        Insert: {
+          active_from?: string | null
+          active_until?: string | null
+          cashback_pct?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          partner_id?: string | null
+          reward_id?: string | null
+        }
+        Update: {
+          active_from?: string | null
+          active_until?: string | null
+          cashback_pct?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          partner_id?: string | null
+          reward_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashback_rules_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
             referencedColumns: ["id"]
           },
         ]
@@ -916,6 +1847,78 @@ export type Database = {
           },
         ]
       }
+      challenges_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          title: string
+          updated_at: string
+          validation_data: Json | null
+          validation_type: string
+          xp_reward: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          title: string
+          updated_at?: string
+          validation_data?: Json | null
+          validation_type?: string
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          title?: string
+          updated_at?: string
+          validation_data?: Json | null
+          validation_type?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
+      chore_targets: {
+        Row: {
+          chore_id: string
+          created_at: string
+          teen_id: string
+        }
+        Insert: {
+          chore_id: string
+          created_at?: string
+          teen_id: string
+        }
+        Update: {
+          chore_id?: string
+          created_at?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chore_targets_chore_id_fkey"
+            columns: ["chore_id"]
+            isOneToOne: false
+            referencedRelation: "parent_chores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chore_targets_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       circle_challenge_participants: {
         Row: {
           challenge_id: string
@@ -962,6 +1965,13 @@ export type Database = {
             columns: ["challenge_id"]
             isOneToOne: false
             referencedRelation: "circle_challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_challenge_participants_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -1034,6 +2044,13 @@ export type Database = {
             foreignKeyName: "circle_challenges_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_challenges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -1085,7 +2102,21 @@ export type Database = {
             foreignKeyName: "circle_invitations_invited_by_fkey"
             columns: ["invited_by"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
             referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_invitations_invited_teen_id_fkey"
+            columns: ["invited_teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -1149,6 +2180,13 @@ export type Database = {
             foreignKeyName: "circle_members_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_members_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -1189,6 +2227,13 @@ export type Database = {
             columns: ["last_read_message_id"]
             isOneToOne: false
             referencedRelation: "circle_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_message_reads_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -1273,6 +2318,13 @@ export type Database = {
             foreignKeyName: "circle_messages_pinned_by_fkey"
             columns: ["pinned_by"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_messages_pinned_by_fkey"
+            columns: ["pinned_by"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -1281,6 +2333,13 @@ export type Database = {
             columns: ["reply_to_id"]
             isOneToOne: false
             referencedRelation: "circle_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -1320,6 +2379,13 @@ export type Database = {
             columns: ["poll_id"]
             isOneToOne: false
             referencedRelation: "circle_polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_poll_votes_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -1377,6 +2443,13 @@ export type Database = {
             columns: ["circle_id"]
             isOneToOne: false
             referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_polls_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -1452,6 +2525,13 @@ export type Database = {
             foreignKeyName: "circles_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -1512,7 +2592,212 @@ export type Database = {
             foreignKeyName: "club_attendance_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_attendance_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_members: {
+        Row: {
+          club_id: string
+          cotisation_paid: number
+          id: string
+          joined_at: string
+          role: string
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          club_id: string
+          cotisation_paid?: number
+          id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          club_id?: string
+          cotisation_paid?: number
+          id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_members_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "teen_clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_sessions: {
+        Row: {
+          club_id: string
+          created_at: string
+          created_by: string
+          id: string
+          location: string | null
+          starts_at: string | null
+          title: string
+        }
+        Insert: {
+          club_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          location?: string | null
+          starts_at?: string | null
+          title: string
+        }
+        Update: {
+          club_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          location?: string | null
+          starts_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_sessions_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "teen_clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_conversation_summaries: {
+        Row: {
+          created_at: string
+          id: string
+          summary: string
+          teen_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          summary: string
+          teen_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          summary?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_conversation_summaries_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_facts: {
+        Row: {
+          created_at: string
+          fact: string
+          id: string
+          teen_id: string
+        }
+        Insert: {
+          created_at?: string
+          fact: string
+          id?: string
+          teen_id: string
+        }
+        Update: {
+          created_at?: string
+          fact?: string
+          id?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_facts_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          goal: string
+          id: string
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          goal: string
+          id?: string
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          goal?: string
+          id?: string
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_goals_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_profile: {
+        Row: {
+          long_summary: string
+          teen_id: string
+          tone_pref: string | null
+          updated_at: string
+        }
+        Insert: {
+          long_summary?: string
+          teen_id: string
+          tone_pref?: string | null
+          updated_at?: string
+        }
+        Update: {
+          long_summary?: string
+          teen_id?: string
+          tone_pref?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_profile_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1521,6 +2806,7 @@ export type Database = {
         Row: {
           amount: number
           balance_after: number
+          client_idempotency_key: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -1532,6 +2818,7 @@ export type Database = {
         Insert: {
           amount: number
           balance_after: number
+          client_idempotency_key?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -1543,6 +2830,7 @@ export type Database = {
         Update: {
           amount?: number
           balance_after?: number
+          client_idempotency_key?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -2106,6 +3394,13 @@ export type Database = {
             foreignKeyName: "content_recommendations_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_recommendations_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -2261,10 +3556,94 @@ export type Database = {
             foreignKeyName: "creation_likes_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creation_likes_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
         ]
+      }
+      creator_engagement: {
+        Row: {
+          action: string
+          created_at: string
+          creator_user_id: string
+          id: string
+          submission_id: string
+          viewer_user_id: string
+          xp_credited_to_creator: number
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          creator_user_id: string
+          id?: string
+          submission_id: string
+          viewer_user_id: string
+          xp_credited_to_creator?: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          creator_user_id?: string
+          id?: string
+          submission_id?: string
+          viewer_user_id?: string
+          xp_credited_to_creator?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_engagement_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creator_monthly_stats: {
+        Row: {
+          category: string | null
+          month: string
+          rank_category: number | null
+          rank_overall: number | null
+          submissions_count: number
+          total_likes: number
+          total_views: number
+          updated_at: string
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          category?: string | null
+          month: string
+          rank_category?: number | null
+          rank_overall?: number | null
+          submissions_count?: number
+          total_likes?: number
+          total_views?: number
+          updated_at?: string
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          category?: string | null
+          month?: string
+          rank_category?: number | null
+          rank_overall?: number | null
+          submissions_count?: number
+          total_likes?: number
+          total_views?: number
+          updated_at?: string
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
       }
       crew_achievements: {
         Row: {
@@ -2936,21 +4315,373 @@ export type Database = {
           },
         ]
       }
+      data_deletion_requests: {
+        Row: {
+          anonymized: boolean
+          anonymized_at: string | null
+          anonymized_by: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          confirmed_via: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          notes: string | null
+          requested_at: string
+          scheduled_for: string
+          status: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          anonymized?: boolean
+          anonymized_at?: string | null
+          anonymized_by?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_via?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          notes?: string | null
+          requested_at?: string
+          scheduled_for: string
+          status?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          anonymized?: boolean
+          anonymized_at?: string | null
+          anonymized_by?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_via?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          notes?: string | null
+          requested_at?: string
+          scheduled_for?: string
+          status?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_exports: {
+        Row: {
+          completed_at: string | null
+          export_type: string
+          file_url: string | null
+          id: string
+          requested_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          export_type: string
+          file_url?: string | null
+          id?: string
+          requested_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          export_type?: string
+          file_url?: string | null
+          id?: string
+          requested_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      direct_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message: string | null
+          last_message_at: string | null
+          last_sender_id: string | null
+          unread_count_user1: number
+          unread_count_user2: number
+          updated_at: string
+          user1_id: string
+          user2_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string | null
+          last_sender_id?: string | null
+          unread_count_user1?: number
+          unread_count_user2?: number
+          updated_at?: string
+          user1_id: string
+          user2_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string | null
+          last_sender_id?: string | null
+          unread_count_user1?: number
+          unread_count_user2?: number
+          updated_at?: string
+          user1_id?: string
+          user2_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_conversations_last_sender_id_fkey"
+            columns: ["last_sender_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_conversations_last_sender_id_fkey"
+            columns: ["last_sender_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_conversations_user1_id_fkey"
+            columns: ["user1_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_conversations_user1_id_fkey"
+            columns: ["user1_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_conversations_user2_id_fkey"
+            columns: ["user2_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_conversations_user2_id_fkey"
+            columns: ["user2_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      direct_messages: {
+        Row: {
+          attachment_mime: string | null
+          attachment_path: string | null
+          attachment_size_bytes: number | null
+          content: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          attachment_mime?: string | null
+          attachment_path?: string | null
+          attachment_size_bytes?: number | null
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          attachment_mime?: string | null
+          attachment_path?: string | null
+          attachment_size_bytes?: number | null
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "direct_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discount_usage: {
+        Row: {
+          discount_amount: number | null
+          discount_id: string | null
+          final_amount: number | null
+          id: string
+          notes: string | null
+          partner_id: string | null
+          profile_id: string | null
+          purchase_amount: number | null
+          used_at: string
+        }
+        Insert: {
+          discount_amount?: number | null
+          discount_id?: string | null
+          final_amount?: number | null
+          id?: string
+          notes?: string | null
+          partner_id?: string | null
+          profile_id?: string | null
+          purchase_amount?: number | null
+          used_at?: string
+        }
+        Update: {
+          discount_amount?: number | null
+          discount_id?: string | null
+          final_amount?: number | null
+          id?: string
+          notes?: string | null
+          partner_id?: string | null
+          profile_id?: string | null
+          purchase_amount?: number | null
+          used_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_usage_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discount_usage_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      e_signatures: {
+        Row: {
+          booking_id: string | null
+          child_id: string | null
+          cin_url: string | null
+          event_id: string | null
+          id: string
+          ip_address: string | null
+          location_consent: boolean
+          parent_cin: string | null
+          parent_full_name: string | null
+          parent_id: string
+          signature_hash: string
+          signed_at: string
+          terms_accepted: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          child_id?: string | null
+          cin_url?: string | null
+          event_id?: string | null
+          id?: string
+          ip_address?: string | null
+          location_consent?: boolean
+          parent_cin?: string | null
+          parent_full_name?: string | null
+          parent_id: string
+          signature_hash: string
+          signed_at?: string
+          terms_accepted?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          child_id?: string | null
+          cin_url?: string | null
+          event_id?: string | null
+          id?: string
+          ip_address?: string | null
+          location_consent?: boolean
+          parent_cin?: string | null
+          parent_full_name?: string | null
+          parent_id?: string
+          signature_hash?: string
+          signed_at?: string
+          terms_accepted?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       educational_quizzes: {
         Row: {
           code: string
+          cohort_key: string | null
           created_at: string | null
+          curriculum: string | null
           description: string | null
           difficulty: string | null
           grade_level: string | null
           icon: string | null
           id: string
           is_active: boolean | null
+          language: string | null
+          learning_style_targets: string[] | null
           passing_score: number | null
           quality_score: number | null
           question_type_mix: Json | null
           questions: Json
+          school_type: string | null
           subject: string
+          tags: string[] | null
           time_limit_minutes: number | null
           title: string
           updated_at: string | null
@@ -2958,18 +4689,24 @@ export type Database = {
         }
         Insert: {
           code: string
+          cohort_key?: string | null
           created_at?: string | null
+          curriculum?: string | null
           description?: string | null
           difficulty?: string | null
           grade_level?: string | null
           icon?: string | null
           id?: string
           is_active?: boolean | null
+          language?: string | null
+          learning_style_targets?: string[] | null
           passing_score?: number | null
           quality_score?: number | null
           question_type_mix?: Json | null
           questions?: Json
+          school_type?: string | null
           subject: string
+          tags?: string[] | null
           time_limit_minutes?: number | null
           title: string
           updated_at?: string | null
@@ -2977,18 +4714,24 @@ export type Database = {
         }
         Update: {
           code?: string
+          cohort_key?: string | null
           created_at?: string | null
+          curriculum?: string | null
           description?: string | null
           difficulty?: string | null
           grade_level?: string | null
           icon?: string | null
           id?: string
           is_active?: boolean | null
+          language?: string | null
+          learning_style_targets?: string[] | null
           passing_score?: number | null
           quality_score?: number | null
           question_type_mix?: Json | null
           questions?: Json
+          school_type?: string | null
           subject?: string
+          tags?: string[] | null
           time_limit_minutes?: number | null
           title?: string
           updated_at?: string | null
@@ -3037,6 +4780,13 @@ export type Database = {
           xp_earned?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "educational_tutorial_progress_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "educational_tutorial_progress_teen_id_fkey"
             columns: ["teen_id"]
@@ -3112,6 +4862,70 @@ export type Database = {
           xp_reward?: number | null
         }
         Relationships: []
+      }
+      escrow_ledger: {
+        Row: {
+          amount_coins: number
+          amount_dh: number
+          created_at: string
+          created_by: string | null
+          direction: string
+          id: string
+          parent_id: string
+          reason: string | null
+          related_payment_id: string | null
+          related_spend_id: string | null
+          teen_id: string
+        }
+        Insert: {
+          amount_coins: number
+          amount_dh: number
+          created_at?: string
+          created_by?: string | null
+          direction: string
+          id?: string
+          parent_id: string
+          reason?: string | null
+          related_payment_id?: string | null
+          related_spend_id?: string | null
+          teen_id: string
+        }
+        Update: {
+          amount_coins?: number
+          amount_dh?: number
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          parent_id?: string
+          reason?: string | null
+          related_payment_id?: string | null
+          related_spend_id?: string | null
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_ledger_related_payment_id_fkey"
+            columns: ["related_payment_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escrow_ledger_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escrow_ledger_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_challenge_types: {
         Row: {
@@ -3222,8 +5036,10 @@ export type Database = {
       }
       event_check_ins: {
         Row: {
+          booking_id: string | null
           check_in_method: string | null
           checked_in_at: string | null
+          checked_in_by: string | null
           checked_out_at: string | null
           device_info: Json | null
           event_id: string
@@ -3234,8 +5050,10 @@ export type Database = {
           xp_awarded: number | null
         }
         Insert: {
+          booking_id?: string | null
           check_in_method?: string | null
           checked_in_at?: string | null
+          checked_in_by?: string | null
           checked_out_at?: string | null
           device_info?: Json | null
           event_id: string
@@ -3246,8 +5064,10 @@ export type Database = {
           xp_awarded?: number | null
         }
         Update: {
+          booking_id?: string | null
           check_in_method?: string | null
           checked_in_at?: string | null
+          checked_in_by?: string | null
           checked_out_at?: string | null
           device_info?: Json | null
           event_id?: string
@@ -3258,6 +5078,13 @@ export type Database = {
           xp_awarded?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_check_ins_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "event_check_ins_teen_id_fkey"
             columns: ["teen_id"]
@@ -3336,6 +5163,13 @@ export type Database = {
             foreignKeyName: "event_reviews_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_reviews_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -3343,39 +5177,89 @@ export type Database = {
       }
       events: {
         Row: {
+          address: string | null
+          age_max: number | null
+          age_min: number | null
+          capacity: number | null
+          category: string | null
+          city: string | null
           created_at: string | null
+          created_by: string | null
           description: string | null
+          ends_at: string | null
           event_date: string | null
           id: string
+          image_url: string | null
+          partner_id: string | null
+          price_coins: number | null
+          price_dh: number | null
           slug: string | null
+          starts_at: string | null
           status: string | null
+          tags: string[] | null
           title: string
           updated_at: string | null
           venue_id: string | null
         }
         Insert: {
+          address?: string | null
+          age_max?: number | null
+          age_min?: number | null
+          capacity?: number | null
+          category?: string | null
+          city?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
+          ends_at?: string | null
           event_date?: string | null
           id?: string
+          image_url?: string | null
+          partner_id?: string | null
+          price_coins?: number | null
+          price_dh?: number | null
           slug?: string | null
+          starts_at?: string | null
           status?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string | null
           venue_id?: string | null
         }
         Update: {
+          address?: string | null
+          age_max?: number | null
+          age_min?: number | null
+          capacity?: number | null
+          category?: string | null
+          city?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
+          ends_at?: string | null
           event_date?: string | null
           id?: string
+          image_url?: string | null
+          partner_id?: string | null
+          price_coins?: number | null
+          price_dh?: number | null
           slug?: string | null
+          starts_at?: string | null
           status?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string | null
           venue_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       family_members: {
         Row: {
@@ -3416,6 +5300,13 @@ export type Database = {
             referencedRelation: "family_subscriptions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "family_members_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "parent_subscription_view"
+            referencedColumns: ["family_subscription_id"]
+          },
         ]
       }
       family_subscriptions: {
@@ -3444,6 +5335,13 @@ export type Database = {
           subscription_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "family_subscriptions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "parent_subscription_view"
+            referencedColumns: ["user_subscription_id"]
+          },
           {
             foreignKeyName: "family_subscriptions_subscription_id_fkey"
             columns: ["subscription_id"]
@@ -3496,7 +5394,9 @@ export type Database = {
         Row: {
           content: string
           created_at: string | null
+          deleted_at: string | null
           id: string
+          is_deleted: boolean
           is_edited: boolean | null
           is_hidden: boolean | null
           likes_count: number | null
@@ -3510,7 +5410,9 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
+          is_deleted?: boolean
           is_edited?: boolean | null
           is_hidden?: boolean | null
           likes_count?: number | null
@@ -3524,7 +5426,9 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
+          is_deleted?: boolean
           is_edited?: boolean | null
           is_hidden?: boolean | null
           likes_count?: number | null
@@ -3698,67 +5602,100 @@ export type Database = {
       }
       feed_posts: {
         Row: {
+          category: string | null
           circle_id: string | null
           comments_count: number | null
           content: string | null
           created_at: string | null
+          featured: boolean | null
+          featured_at: string | null
+          featured_by: string | null
           id: string
           is_hidden: boolean | null
           is_pinned: boolean | null
           likes_count: number | null
           media_urls: Json | null
           metadata: Json | null
+          moderation_id: string | null
           post_type: string
           reference_id: string | null
           reference_type: string | null
+          related_event_id: string | null
+          related_partner_id: string | null
+          related_quest_id: string | null
           reported_count: number | null
           shares_count: number | null
+          status: string | null
+          type: string | null
           updated_at: string | null
           user_id: string
           views_count: number | null
           visibility: string | null
+          xp_earned: number | null
         }
         Insert: {
+          category?: string | null
           circle_id?: string | null
           comments_count?: number | null
           content?: string | null
           created_at?: string | null
+          featured?: boolean | null
+          featured_at?: string | null
+          featured_by?: string | null
           id?: string
           is_hidden?: boolean | null
           is_pinned?: boolean | null
           likes_count?: number | null
           media_urls?: Json | null
           metadata?: Json | null
+          moderation_id?: string | null
           post_type: string
           reference_id?: string | null
           reference_type?: string | null
+          related_event_id?: string | null
+          related_partner_id?: string | null
+          related_quest_id?: string | null
           reported_count?: number | null
           shares_count?: number | null
+          status?: string | null
+          type?: string | null
           updated_at?: string | null
           user_id: string
           views_count?: number | null
           visibility?: string | null
+          xp_earned?: number | null
         }
         Update: {
+          category?: string | null
           circle_id?: string | null
           comments_count?: number | null
           content?: string | null
           created_at?: string | null
+          featured?: boolean | null
+          featured_at?: string | null
+          featured_by?: string | null
           id?: string
           is_hidden?: boolean | null
           is_pinned?: boolean | null
           likes_count?: number | null
           media_urls?: Json | null
           metadata?: Json | null
+          moderation_id?: string | null
           post_type?: string
           reference_id?: string | null
           reference_type?: string | null
+          related_event_id?: string | null
+          related_partner_id?: string | null
+          related_quest_id?: string | null
           reported_count?: number | null
           shares_count?: number | null
+          status?: string | null
+          type?: string | null
           updated_at?: string | null
           user_id?: string
           views_count?: number | null
           visibility?: string | null
+          xp_earned?: number | null
         }
         Relationships: [
           {
@@ -3772,7 +5709,7 @@ export type Database = {
             foreignKeyName: "feed_posts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -3868,6 +5805,146 @@ export type Database = {
           },
         ]
       }
+      food_order_items: {
+        Row: {
+          customizations: Json | null
+          menu_item_id: string
+          order_id: string
+          qty: number
+          unit_price_coins: number | null
+          unit_price_dh: number
+        }
+        Insert: {
+          customizations?: Json | null
+          menu_item_id: string
+          order_id: string
+          qty?: number
+          unit_price_coins?: number | null
+          unit_price_dh: number
+        }
+        Update: {
+          customizations?: Json | null
+          menu_item_id?: string
+          order_id?: string
+          qty?: number
+          unit_price_coins?: number | null
+          unit_price_dh?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_order_items_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "food_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      food_orders: {
+        Row: {
+          accepted_at: string | null
+          cashback_xp: number | null
+          challenge_id: string | null
+          created_at: string
+          delivered_at: string | null
+          delivery_address: string | null
+          delivery_type: string
+          group_action_id: string | null
+          id: string
+          notes: string | null
+          parent_approval_id: string | null
+          parent_id: string | null
+          partner_id: string
+          payment_method: string
+          ride_booking_id: string | null
+          scheduled_for: string | null
+          status: string
+          teen_id: string
+          total_coins: number
+          total_dh: number
+        }
+        Insert: {
+          accepted_at?: string | null
+          cashback_xp?: number | null
+          challenge_id?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_type: string
+          group_action_id?: string | null
+          id?: string
+          notes?: string | null
+          parent_approval_id?: string | null
+          parent_id?: string | null
+          partner_id: string
+          payment_method?: string
+          ride_booking_id?: string | null
+          scheduled_for?: string | null
+          status?: string
+          teen_id: string
+          total_coins?: number
+          total_dh?: number
+        }
+        Update: {
+          accepted_at?: string | null
+          cashback_xp?: number | null
+          challenge_id?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_type?: string
+          group_action_id?: string | null
+          id?: string
+          notes?: string | null
+          parent_approval_id?: string | null
+          parent_id?: string | null
+          partner_id?: string
+          payment_method?: string
+          ride_booking_id?: string | null
+          scheduled_for?: string | null
+          status?: string
+          teen_id?: string
+          total_coins?: number
+          total_dh?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_orders_parent_approval_id_fkey"
+            columns: ["parent_approval_id"]
+            isOneToOne: false
+            referencedRelation: "parental_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_orders_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_orders_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_orders_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friend_activities: {
         Row: {
           activity_type: string
@@ -3919,20 +5996,81 @@ export type Database = {
             foreignKeyName: "friend_activities_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_activities_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friend_challenge_progress: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          id: string
+          last_signal_at: string | null
+          metadata: Json
+          participant_id: string
+          role: string
+          score: number
+          updated_at: string
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          id?: string
+          last_signal_at?: string | null
+          metadata?: Json
+          participant_id: string
+          role?: string
+          score?: number
+          updated_at?: string
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          last_signal_at?: string | null
+          metadata?: Json
+          participant_id?: string
+          role?: string
+          score?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "friend_challenges"
             referencedColumns: ["id"]
           },
         ]
       }
       friend_challenges: {
         Row: {
+          acceptance_status: string
+          accepted_at: string | null
+          challenge_kind: string | null
           challenge_type_id: string | null
+          completed_at: string | null
           created_at: string
           creator_id: string
           ends_at: string
+          evidence_url: string | null
+          expires_at: string | null
           id: string
           is_draw: boolean | null
           name: string | null
+          opponent_id: string | null
+          progress_creator: number
+          progress_opponent: number
+          rules: Json
           stake_xp: number | null
           starts_at: string
           status: string
@@ -3940,15 +6078,26 @@ export type Database = {
           updated_at: string
           winner_id: string | null
           winning_team: string | null
+          xp_pot: number
         }
         Insert: {
+          acceptance_status?: string
+          accepted_at?: string | null
+          challenge_kind?: string | null
           challenge_type_id?: string | null
+          completed_at?: string | null
           created_at?: string
           creator_id: string
           ends_at: string
+          evidence_url?: string | null
+          expires_at?: string | null
           id?: string
           is_draw?: boolean | null
           name?: string | null
+          opponent_id?: string | null
+          progress_creator?: number
+          progress_opponent?: number
+          rules?: Json
           stake_xp?: number | null
           starts_at?: string
           status?: string
@@ -3956,15 +6105,26 @@ export type Database = {
           updated_at?: string
           winner_id?: string | null
           winning_team?: string | null
+          xp_pot?: number
         }
         Update: {
+          acceptance_status?: string
+          accepted_at?: string | null
+          challenge_kind?: string | null
           challenge_type_id?: string | null
+          completed_at?: string | null
           created_at?: string
           creator_id?: string
           ends_at?: string
+          evidence_url?: string | null
+          expires_at?: string | null
           id?: string
           is_draw?: boolean | null
           name?: string | null
+          opponent_id?: string | null
+          progress_creator?: number
+          progress_opponent?: number
+          rules?: Json
           stake_xp?: number | null
           starts_at?: string
           status?: string
@@ -3972,6 +6132,7 @@ export type Database = {
           updated_at?: string
           winner_id?: string | null
           winning_team?: string | null
+          xp_pot?: number
         }
         Relationships: [
           {
@@ -4019,6 +6180,13 @@ export type Database = {
             foreignKeyName: "friend_connections_friend_teen_id_fkey"
             columns: ["friend_teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_connections_friend_teen_id_fkey"
+            columns: ["friend_teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -4026,7 +6194,21 @@ export type Database = {
             foreignKeyName: "friend_connections_initiated_by_fkey"
             columns: ["initiated_by"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_connections_initiated_by_fkey"
+            columns: ["initiated_by"]
+            isOneToOne: false
             referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_connections_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -4077,7 +6259,21 @@ export type Database = {
             foreignKeyName: "friend_requests_receiver_id_fkey"
             columns: ["receiver_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_requests_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
             referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_requests_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -4131,7 +6327,21 @@ export type Database = {
             foreignKeyName: "friend_suggestions_suggested_teen_id_fkey"
             columns: ["suggested_teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_suggestions_suggested_teen_id_fkey"
+            columns: ["suggested_teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_suggestions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -4197,6 +6407,13 @@ export type Database = {
             foreignKeyName: "friendships_initiated_by_fkey"
             columns: ["initiated_by"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendships_initiated_by_fkey"
+            columns: ["initiated_by"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -4204,7 +6421,21 @@ export type Database = {
             foreignKeyName: "friendships_user1_id_fkey"
             columns: ["user1_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendships_user1_id_fkey"
+            columns: ["user1_id"]
+            isOneToOne: false
             referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendships_user2_id_fkey"
+            columns: ["user2_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -4335,6 +6566,239 @@ export type Database = {
           },
         ]
       }
+      group_action_invites: {
+        Row: {
+          created_at: string
+          expires_at: string
+          group_action_id: string
+          id: string
+          is_organizer: boolean
+          parent_approval_id: string | null
+          responded_at: string | null
+          share_coins: number | null
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          group_action_id: string
+          id?: string
+          is_organizer?: boolean
+          parent_approval_id?: string | null
+          responded_at?: string | null
+          share_coins?: number | null
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          group_action_id?: string
+          id?: string
+          is_organizer?: boolean
+          parent_approval_id?: string | null
+          responded_at?: string | null
+          share_coins?: number | null
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_action_invites_group_action_id_fkey"
+            columns: ["group_action_id"]
+            isOneToOne: false
+            referencedRelation: "group_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_action_rewards: {
+        Row: {
+          created_at: string
+          group_action_id: string
+          group_size: number
+          id: string
+          label: string | null
+          reward_type: string
+          reward_value: number
+          rule_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          group_action_id: string
+          group_size: number
+          id?: string
+          label?: string | null
+          reward_type: string
+          reward_value?: number
+          rule_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          group_action_id?: string
+          group_size?: number
+          id?: string
+          label?: string | null
+          reward_type?: string
+          reward_value?: number
+          rule_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_action_rewards_group_action_id_fkey"
+            columns: ["group_action_id"]
+            isOneToOne: false
+            referencedRelation: "group_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_action_rewards_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "group_size_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          deadline: string | null
+          id: string
+          max_size: number | null
+          metadata: Json
+          organizer_id: string
+          resource_id: string | null
+          status: string
+          title: string | null
+          total_coins: number
+          updated_at: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          max_size?: number | null
+          metadata?: Json
+          organizer_id: string
+          resource_id?: string | null
+          status?: string
+          title?: string | null
+          total_coins?: number
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          max_size?: number | null
+          metadata?: Json
+          organizer_id?: string
+          resource_id?: string | null
+          status?: string
+          title?: string | null
+          total_coins?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      group_bookings: {
+        Row: {
+          created_at: string
+          event_id: string
+          group_action_id: string | null
+          id: string
+          organizer_id: string
+          parent_approval_id: string | null
+          share_coins: number
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          group_action_id?: string | null
+          id?: string
+          organizer_id: string
+          parent_approval_id?: string | null
+          share_coins?: number
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          group_action_id?: string | null
+          id?: string
+          organizer_id?: string
+          parent_approval_id?: string | null
+          share_coins?: number
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_bookings_group_action_id_fkey"
+            columns: ["group_action_id"]
+            isOneToOne: false
+            referencedRelation: "group_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_size_rules: {
+        Row: {
+          active_from: string | null
+          active_until: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string | null
+          min_group_size: number
+          partner_id: string | null
+          reward_type: string
+          reward_value: number
+          service_type: string
+        }
+        Insert: {
+          active_from?: string | null
+          active_until?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          min_group_size: number
+          partner_id?: string | null
+          reward_type: string
+          reward_value?: number
+          service_type: string
+        }
+        Update: {
+          active_from?: string | null
+          active_until?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          min_group_size?: number
+          partner_id?: string | null
+          reward_type?: string
+          reward_value?: number
+          service_type?: string
+        }
+        Relationships: []
+      }
       hashtags: {
         Row: {
           created_at: string | null
@@ -4401,6 +6865,217 @@ export type Database = {
           },
         ]
       }
+      interest_taxonomy: {
+        Row: {
+          category: string
+          display_ar: string | null
+          display_en: string | null
+          display_fr: string
+          icon: string | null
+          is_active: boolean
+          tag: string
+        }
+        Insert: {
+          category: string
+          display_ar?: string | null
+          display_en?: string | null
+          display_fr: string
+          icon?: string | null
+          is_active?: boolean
+          tag: string
+        }
+        Update: {
+          category?: string
+          display_ar?: string | null
+          display_en?: string | null
+          display_fr?: string
+          icon?: string | null
+          is_active?: boolean
+          tag?: string
+        }
+        Relationships: []
+      }
+      internship_applications: {
+        Row: {
+          applicant_user_id: string
+          cover_letter: string | null
+          created_at: string
+          decision_at: string | null
+          decision_by: string | null
+          id: string
+          internship_id: string
+          notes: string | null
+          parent_consent_at: string | null
+          parental_approval_id: string | null
+          portfolio_urls: string[]
+          status: string
+        }
+        Insert: {
+          applicant_user_id: string
+          cover_letter?: string | null
+          created_at?: string
+          decision_at?: string | null
+          decision_by?: string | null
+          id?: string
+          internship_id: string
+          notes?: string | null
+          parent_consent_at?: string | null
+          parental_approval_id?: string | null
+          portfolio_urls?: string[]
+          status?: string
+        }
+        Update: {
+          applicant_user_id?: string
+          cover_letter?: string | null
+          created_at?: string
+          decision_at?: string | null
+          decision_by?: string | null
+          id?: string
+          internship_id?: string
+          notes?: string | null
+          parent_consent_at?: string | null
+          parental_approval_id?: string | null
+          portfolio_urls?: string[]
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internship_applications_internship_id_fkey"
+            columns: ["internship_id"]
+            isOneToOne: false
+            referencedRelation: "internships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "internship_applications_parental_approval_id_fkey"
+            columns: ["parental_approval_id"]
+            isOneToOne: false
+            referencedRelation: "parental_approvals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      internships: {
+        Row: {
+          age_max: number
+          age_min: number
+          application_deadline: string | null
+          application_form: Json
+          city: string | null
+          created_at: string
+          description: string | null
+          duration: string
+          id: string
+          paid: boolean
+          partner_id: string | null
+          remote_ok: boolean
+          required_skills: string[]
+          spots_taken: number
+          spots_total: number
+          status: string
+          stipend_dh: number | null
+          title: string
+        }
+        Insert: {
+          age_max?: number
+          age_min?: number
+          application_deadline?: string | null
+          application_form?: Json
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string
+          id?: string
+          paid?: boolean
+          partner_id?: string | null
+          remote_ok?: boolean
+          required_skills?: string[]
+          spots_taken?: number
+          spots_total?: number
+          status?: string
+          stipend_dh?: number | null
+          title: string
+        }
+        Update: {
+          age_max?: number
+          age_min?: number
+          application_deadline?: string | null
+          application_form?: Json
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string
+          id?: string
+          paid?: boolean
+          partner_id?: string | null
+          remote_ok?: boolean
+          required_skills?: string[]
+          spots_taken?: number
+          spots_total?: number
+          status?: string
+          stipend_dh?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internships_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kyc_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          file_path: string
+          id: string
+          owner_user_id: string | null
+          partner_id: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          subject_kind: string | null
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          file_path: string
+          id?: string
+          owner_user_id?: string | null
+          partner_id?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          subject_kind?: string | null
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          file_path?: string
+          id?: string
+          owner_user_id?: string | null
+          partner_id?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          subject_kind?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kyc_documents_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leaderboard_snapshots: {
         Row: {
           created_at: string | null
@@ -4434,6 +7109,469 @@ export type Database = {
         }
         Relationships: []
       }
+      linking_codes: {
+        Row: {
+          child_email: string | null
+          child_full_name: string | null
+          code: string
+          created_at: string
+          expires_at: string
+          parent_id: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          child_email?: string | null
+          child_full_name?: string | null
+          code: string
+          created_at?: string
+          expires_at?: string
+          parent_id: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          child_email?: string | null
+          child_full_name?: string | null
+          code?: string
+          created_at?: string
+          expires_at?: string
+          parent_id?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
+      manual_topup_requests: {
+        Row: {
+          amount_dh: number
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          parent_id: string
+          payment_transaction_id: string | null
+          provider: string
+          provider_ref: string
+          rejection_reason: string | null
+          screenshot_path: string | null
+          status: string
+          teen_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_dh: number
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          parent_id: string
+          payment_transaction_id?: string | null
+          provider: string
+          provider_ref: string
+          rejection_reason?: string | null
+          screenshot_path?: string | null
+          status?: string
+          teen_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_dh?: number
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          parent_id?: string
+          payment_transaction_id?: string | null
+          provider?: string
+          provider_ref?: string
+          rejection_reason?: string | null
+          screenshot_path?: string | null
+          status?: string
+          teen_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manual_topup_requests_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_topup_requests_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_topup_requests_payment_transaction_id_fkey"
+            columns: ["payment_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_topup_requests_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_disputes: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          evidence_urls: string[] | null
+          id: string
+          opened_by: string
+          reason: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          transaction_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          evidence_urls?: string[] | null
+          id?: string
+          opened_by: string
+          reason: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          transaction_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          evidence_urls?: string[] | null
+          id?: string
+          opened_by?: string
+          reason?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_disputes_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_listings: {
+        Row: {
+          brand: string | null
+          category: string
+          city: string | null
+          color: string | null
+          condition: string | null
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          images: string[]
+          moderation_id: string | null
+          neighborhood: string | null
+          price_coins: number | null
+          price_dh: number | null
+          seller_id: string | null
+          seller_user_id: string
+          size: string | null
+          sold_at: string | null
+          status: string
+          title: string
+          views_count: number
+        }
+        Insert: {
+          brand?: string | null
+          category: string
+          city?: string | null
+          color?: string | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          images?: string[]
+          moderation_id?: string | null
+          neighborhood?: string | null
+          price_coins?: number | null
+          price_dh?: number | null
+          seller_id?: string | null
+          seller_user_id: string
+          size?: string | null
+          sold_at?: string | null
+          status?: string
+          title: string
+          views_count?: number
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          city?: string | null
+          color?: string | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          images?: string[]
+          moderation_id?: string | null
+          neighborhood?: string | null
+          price_coins?: number | null
+          price_dh?: number | null
+          seller_id?: string | null
+          seller_user_id?: string
+          size?: string | null
+          sold_at?: string | null
+          status?: string
+          title?: string
+          views_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_listings_moderation_id_fkey"
+            columns: ["moderation_id"]
+            isOneToOne: false
+            referencedRelation: "moderation_queue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_listings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_payouts: {
+        Row: {
+          commission_coins: number
+          created_at: string
+          gross_coins: number
+          id: string
+          net_coins: number
+          paid_at: string | null
+          period_end: string | null
+          period_start: string | null
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          commission_coins?: number
+          created_at?: string
+          gross_coins?: number
+          id?: string
+          net_coins?: number
+          paid_at?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          commission_coins?: number
+          created_at?: string
+          gross_coins?: number
+          id?: string
+          net_coins?: number
+          paid_at?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          seller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_payouts_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_sales: {
+        Row: {
+          amount_coins: number
+          buyer_teen_id: string
+          commission_coins: number
+          created_at: string
+          id: string
+          listing_id: string | null
+          net_coins: number
+          payout_id: string | null
+          seller_id: string
+          spend_id: string | null
+        }
+        Insert: {
+          amount_coins?: number
+          buyer_teen_id: string
+          commission_coins?: number
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          net_coins?: number
+          payout_id?: string | null
+          seller_id: string
+          spend_id?: string | null
+        }
+        Update: {
+          amount_coins?: number
+          buyer_teen_id?: string
+          commission_coins?: number
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          net_coins?: number
+          payout_id?: string | null
+          seller_id?: string
+          spend_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_sales_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_sales_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_sellers: {
+        Row: {
+          commission_pct: number
+          created_at: string
+          display_name: string | null
+          id: string
+          partner_id: string
+          payout_method: string
+          status: string
+        }
+        Insert: {
+          commission_pct?: number
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          partner_id: string
+          payout_method?: string
+          status?: string
+        }
+        Update: {
+          commission_pct?: number
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          partner_id?: string
+          payout_method?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      marketplace_transactions: {
+        Row: {
+          amount_coins: number
+          amount_dh: number | null
+          auto_release_at: string | null
+          buyer_user_id: string
+          cashback_xp: number
+          created_at: string
+          id: string
+          listing_id: string
+          meet_at: string | null
+          meet_location_partner_id: string | null
+          meet_method: string
+          parent_approval_id: string | null
+          platform_fee_coins: number
+          rated_by_buyer: boolean
+          rated_by_seller: boolean
+          seller_user_id: string
+          status: string
+        }
+        Insert: {
+          amount_coins: number
+          amount_dh?: number | null
+          auto_release_at?: string | null
+          buyer_user_id: string
+          cashback_xp?: number
+          created_at?: string
+          id?: string
+          listing_id: string
+          meet_at?: string | null
+          meet_location_partner_id?: string | null
+          meet_method: string
+          parent_approval_id?: string | null
+          platform_fee_coins?: number
+          rated_by_buyer?: boolean
+          rated_by_seller?: boolean
+          seller_user_id: string
+          status?: string
+        }
+        Update: {
+          amount_coins?: number
+          amount_dh?: number | null
+          auto_release_at?: string | null
+          buyer_user_id?: string
+          cashback_xp?: number
+          created_at?: string
+          id?: string
+          listing_id?: string
+          meet_at?: string | null
+          meet_location_partner_id?: string | null
+          meet_method?: string
+          parent_approval_id?: string | null
+          platform_fee_coins?: number
+          rated_by_buyer?: boolean
+          rated_by_seller?: boolean
+          seller_user_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_transactions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_transactions_meet_location_partner_id_fkey"
+            columns: ["meet_location_partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_transactions_parent_approval_id_fkey"
+            columns: ["parent_approval_id"]
+            isOneToOne: false
+            referencedRelation: "parental_approvals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memory_game_cards: {
         Row: {
           card_set: string
@@ -4466,6 +7604,387 @@ export type Database = {
           pair_id?: string
         }
         Relationships: []
+      }
+      mentor_session_recordings: {
+        Row: {
+          bucket: string
+          consent_recorded: boolean
+          created_at: string
+          deleted_at: string | null
+          duration_seconds: number | null
+          expires_at: string
+          file_path: string
+          file_size_bytes: number | null
+          id: string
+          mime_type: string | null
+          recorded_at: string
+          session_id: string
+        }
+        Insert: {
+          bucket?: string
+          consent_recorded?: boolean
+          created_at?: string
+          deleted_at?: string | null
+          duration_seconds?: number | null
+          expires_at?: string
+          file_path: string
+          file_size_bytes?: number | null
+          id?: string
+          mime_type?: string | null
+          recorded_at?: string
+          session_id: string
+        }
+        Update: {
+          bucket?: string
+          consent_recorded?: boolean
+          created_at?: string
+          deleted_at?: string | null
+          duration_seconds?: number | null
+          expires_at?: string
+          file_path?: string
+          file_size_bytes?: number | null
+          id?: string
+          mime_type?: string | null
+          recorded_at?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_session_recordings_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "mentor_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentor_session_reports: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          reporter_role: string
+          reporter_user_id: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          session_id: string
+          status: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          reporter_role: string
+          reporter_user_id: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          session_id: string
+          status?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          reporter_role?: string
+          reporter_user_id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          session_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_session_reports_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "mentor_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentor_sessions: {
+        Row: {
+          amount_coins: number
+          amount_dh: number
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          is_intro: boolean
+          meeting_provider: string | null
+          meeting_url: string | null
+          mentee_user_id: string
+          mentor_id: string
+          notes: string | null
+          parent_approval_id: string | null
+          parent_attended: boolean
+          rating_by_mentee: number | null
+          rating_by_mentor: number | null
+          recorded: boolean
+          recording_url: string | null
+          scheduled_for: string
+          status: string
+        }
+        Insert: {
+          amount_coins?: number
+          amount_dh?: number
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_intro?: boolean
+          meeting_provider?: string | null
+          meeting_url?: string | null
+          mentee_user_id: string
+          mentor_id: string
+          notes?: string | null
+          parent_approval_id?: string | null
+          parent_attended?: boolean
+          rating_by_mentee?: number | null
+          rating_by_mentor?: number | null
+          recorded?: boolean
+          recording_url?: string | null
+          scheduled_for: string
+          status?: string
+        }
+        Update: {
+          amount_coins?: number
+          amount_dh?: number
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_intro?: boolean
+          meeting_provider?: string | null
+          meeting_url?: string | null
+          mentee_user_id?: string
+          mentor_id?: string
+          notes?: string | null
+          parent_approval_id?: string | null
+          parent_attended?: boolean
+          rating_by_mentee?: number | null
+          rating_by_mentor?: number | null
+          recorded?: boolean
+          recording_url?: string | null
+          scheduled_for?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_sessions_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "mentors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentor_sessions_parent_approval_id_fkey"
+            columns: ["parent_approval_id"]
+            isOneToOne: false
+            referencedRelation: "parental_approvals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentor_strikes: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          mentor_id: string
+          notes: string | null
+          reason: string
+          related_session: string | null
+          reporter_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mentor_id: string
+          notes?: string | null
+          reason: string
+          related_session?: string | null
+          reporter_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mentor_id?: string
+          notes?: string | null
+          reason?: string
+          related_session?: string | null
+          reporter_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_strikes_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "mentors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentor_strikes_related_session_fkey"
+            columns: ["related_session"]
+            isOneToOne: false
+            referencedRelation: "mentor_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentors: {
+        Row: {
+          age_max_mentee: number
+          age_min_mentee: number
+          approved_at: string | null
+          approved_by: string | null
+          bio: string | null
+          created_at: string
+          expertise_tags: string[]
+          free_intro_session: boolean
+          hourly_rate_dh: number
+          id: string
+          intro_video_url: string | null
+          kyc_status: string
+          rating: number | null
+          sessions_count: number
+          status: string
+          user_id: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          age_max_mentee?: number
+          age_min_mentee?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          bio?: string | null
+          created_at?: string
+          expertise_tags?: string[]
+          free_intro_session?: boolean
+          hourly_rate_dh?: number
+          id?: string
+          intro_video_url?: string | null
+          kyc_status?: string
+          rating?: number | null
+          sessions_count?: number
+          status?: string
+          user_id?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          age_max_mentee?: number
+          age_min_mentee?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          bio?: string | null
+          created_at?: string
+          expertise_tags?: string[]
+          free_intro_session?: boolean
+          hourly_rate_dh?: number
+          id?: string
+          intro_video_url?: string | null
+          kyc_status?: string
+          rating?: number | null
+          sessions_count?: number
+          status?: string
+          user_id?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      menu_items: {
+        Row: {
+          allergens: string[] | null
+          available_days: number[] | null
+          available_from: string | null
+          available_until: string | null
+          calories: number | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          is_halal: boolean
+          name: string
+          nutrition_tags: string[] | null
+          partner_id: string
+          prep_time_minutes: number | null
+          price_coins: number | null
+          price_dh: number
+        }
+        Insert: {
+          allergens?: string[] | null
+          available_days?: number[] | null
+          available_from?: string | null
+          available_until?: string | null
+          calories?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_halal?: boolean
+          name: string
+          nutrition_tags?: string[] | null
+          partner_id: string
+          prep_time_minutes?: number | null
+          price_coins?: number | null
+          price_dh: number
+        }
+        Update: {
+          allergens?: string[] | null
+          available_days?: number[] | null
+          available_from?: string | null
+          available_until?: string | null
+          calories?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_halal?: boolean
+          name?: string
+          nutrition_tags?: string[] | null
+          partner_id?: string
+          prep_time_minutes?: number | null
+          price_coins?: number | null
+          price_dh?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mini_game_participants: {
         Row: {
@@ -4673,6 +8192,7 @@ export type Database = {
           objective_type: string
           season: string | null
           sort_order: number | null
+          tags: string[] | null
           updated_at: string | null
           valid_from: string | null
           valid_until: string | null
@@ -4697,6 +8217,7 @@ export type Database = {
           objective_type: string
           season?: string | null
           sort_order?: number | null
+          tags?: string[] | null
           updated_at?: string | null
           valid_from?: string | null
           valid_until?: string | null
@@ -4721,10 +8242,47 @@ export type Database = {
           objective_type?: string
           season?: string | null
           sort_order?: number | null
+          tags?: string[] | null
           updated_at?: string | null
           valid_from?: string | null
           valid_until?: string | null
           xp_reward?: number
+        }
+        Relationships: []
+      }
+      moderation_queue: {
+        Row: {
+          content_id: string | null
+          content_type: string
+          created_at: string
+          id: string
+          payload: Json | null
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          content_id?: string | null
+          content_type: string
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          content_id?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -4785,6 +8343,60 @@ export type Database = {
           release_year?: number | null
           song_title?: string
           success_rate?: number | null
+        }
+        Relationships: []
+      }
+      nivy_drivers: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          full_name: string
+          id: string
+          is_active: boolean
+          kyc_documents_url: string | null
+          kyc_status: string
+          phone: string
+          rating: number | null
+          service_cities: string[]
+          user_id: string | null
+          vehicle_make: string | null
+          vehicle_model: string | null
+          vehicle_plate: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          is_active?: boolean
+          kyc_documents_url?: string | null
+          kyc_status?: string
+          phone: string
+          rating?: number | null
+          service_cities?: string[]
+          user_id?: string | null
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_plate?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          kyc_documents_url?: string | null
+          kyc_status?: string
+          phone?: string
+          rating?: number | null
+          service_cities?: string[]
+          user_id?: string | null
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_plate?: string | null
         }
         Relationships: []
       }
@@ -5053,6 +8665,63 @@ export type Database = {
           },
         ]
       }
+      nutrition_challenges: {
+        Row: {
+          budget_coins: number | null
+          created_at: string
+          id: string
+          is_active: boolean
+          nutrition_targets: Json | null
+          parent_id: string
+          reward_xp: number | null
+          teen_id: string
+          title: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          budget_coins?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          nutrition_targets?: Json | null
+          parent_id: string
+          reward_xp?: number | null
+          teen_id: string
+          title: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          budget_coins?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          nutrition_targets?: Json | null
+          parent_id?: string
+          reward_xp?: number | null
+          teen_id?: string
+          title?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nutrition_challenges_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nutrition_challenges_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_progress: {
         Row: {
           accumulated_xp: number | null
@@ -5140,6 +8809,228 @@ export type Database = {
             foreignKeyName: "onboarding_progress_synced_to_teen_id_fkey"
             columns: ["synced_to_teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_progress_synced_to_teen_id_fkey"
+            columns: ["synced_to_teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parent_allowances: {
+        Row: {
+          amount_dh: number
+          cadence: string
+          cadence_config: Json
+          condition_config: Json | null
+          condition_threshold: number | null
+          condition_type: string | null
+          conditional: boolean
+          created_at: string
+          id: string
+          is_active: boolean
+          next_disbursement_at: string
+          parent_id: string
+          paused_until: string | null
+          teen_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_dh: number
+          cadence: string
+          cadence_config?: Json
+          condition_config?: Json | null
+          condition_threshold?: number | null
+          condition_type?: string | null
+          conditional?: boolean
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          next_disbursement_at: string
+          parent_id: string
+          paused_until?: string | null
+          teen_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_dh?: number
+          cadence?: string
+          cadence_config?: Json
+          condition_config?: Json | null
+          condition_threshold?: number | null
+          condition_type?: string | null
+          conditional?: boolean
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          next_disbursement_at?: string
+          parent_id?: string
+          paused_until?: string | null
+          teen_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_allowances_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parent_allowances_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parent_chore_completions: {
+        Row: {
+          chore_id: string
+          completed_at: string
+          evidence_url: string | null
+          id: string
+          paid_at: string | null
+          parent_verified: boolean | null
+          payout_payment_id: string | null
+          payout_xp: number | null
+          rejection_reason: string | null
+          teen_id: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          chore_id: string
+          completed_at?: string
+          evidence_url?: string | null
+          id?: string
+          paid_at?: string | null
+          parent_verified?: boolean | null
+          payout_payment_id?: string | null
+          payout_xp?: number | null
+          rejection_reason?: string | null
+          teen_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          chore_id?: string
+          completed_at?: string
+          evidence_url?: string | null
+          id?: string
+          paid_at?: string | null
+          parent_verified?: boolean | null
+          payout_payment_id?: string | null
+          payout_xp?: number | null
+          rejection_reason?: string | null
+          teen_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_chore_completions_chore_id_fkey"
+            columns: ["chore_id"]
+            isOneToOne: false
+            referencedRelation: "parent_chores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parent_chore_completions_payout_payment_id_fkey"
+            columns: ["payout_payment_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parent_chore_completions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parent_chore_completions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parent_chores: {
+        Row: {
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          evidence_required: boolean
+          id: string
+          is_active: boolean
+          parent_id: string
+          recurrence: string
+          recurrence_config: Json | null
+          required_completions: number
+          reward_dh: number | null
+          reward_xp: number | null
+          starts_at: string
+          teen_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          evidence_required?: boolean
+          id?: string
+          is_active?: boolean
+          parent_id: string
+          recurrence?: string
+          recurrence_config?: Json | null
+          required_completions?: number
+          reward_dh?: number | null
+          reward_xp?: number | null
+          starts_at?: string
+          teen_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          evidence_required?: boolean
+          id?: string
+          is_active?: boolean
+          parent_id?: string
+          recurrence?: string
+          recurrence_config?: Json | null
+          required_completions?: number
+          reward_dh?: number | null
+          reward_xp?: number | null
+          starts_at?: string
+          teen_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_chores_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parent_chores_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -5149,20 +9040,844 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          location_revoked: boolean
           parent_id: string
+          status: string
           teen_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
+          location_revoked?: boolean
           parent_id: string
+          status?: string
           teen_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
+          location_revoked?: boolean
           parent_id?: string
+          status?: string
           teen_id?: string
+        }
+        Relationships: []
+      }
+      parental_approvals: {
+        Row: {
+          action_type: string
+          amount: number | null
+          decided_at: string | null
+          decided_by: string | null
+          details: Json | null
+          expires_at: string
+          group_action_id: string | null
+          id: string
+          parent_id: string
+          requested_at: string
+          resource_id: string | null
+          resource_type: string | null
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          action_type: string
+          amount?: number | null
+          decided_at?: string | null
+          decided_by?: string | null
+          details?: Json | null
+          expires_at?: string
+          group_action_id?: string | null
+          id?: string
+          parent_id: string
+          requested_at?: string
+          resource_id?: string | null
+          resource_type?: string | null
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          action_type?: string
+          amount?: number | null
+          decided_at?: string | null
+          decided_by?: string | null
+          details?: Json | null
+          expires_at?: string
+          group_action_id?: string | null
+          id?: string
+          parent_id?: string
+          requested_at?: string
+          resource_id?: string | null
+          resource_type?: string | null
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parental_approvals_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parental_approvals_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parental_limits: {
+        Row: {
+          created_at: string
+          id: string
+          max_monthly_spend_dh: number | null
+          max_monthly_topup_dh: number | null
+          max_single_topup_dh: number | null
+          parent_id: string
+          teen_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_monthly_spend_dh?: number | null
+          max_monthly_topup_dh?: number | null
+          max_single_topup_dh?: number | null
+          parent_id: string
+          teen_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_monthly_spend_dh?: number | null
+          max_monthly_topup_dh?: number | null
+          max_single_topup_dh?: number | null
+          parent_id?: string
+          teen_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parental_limits_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parental_limits_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_challenge_check_ins: {
+        Row: {
+          created_at: string
+          id: string
+          offer_id: string
+          partner_id: string
+          scanned_at: string
+          scanner_user_id: string | null
+          teen_id: string
+          xp_awarded: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          offer_id: string
+          partner_id: string
+          scanned_at?: string
+          scanner_user_id?: string | null
+          teen_id: string
+          xp_awarded?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          offer_id?: string
+          partner_id?: string
+          scanned_at?: string
+          scanner_user_id?: string | null
+          teen_id?: string
+          xp_awarded?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_challenge_check_ins_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "partner_discounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_challenge_check_ins_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "partner_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_challenge_check_ins_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_commission_rules: {
+        Row: {
+          commission_pct: number
+          partner_type: string
+          updated_at: string
+        }
+        Insert: {
+          commission_pct: number
+          partner_type: string
+          updated_at?: string
+        }
+        Update: {
+          commission_pct?: number
+          partner_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      partner_invoices: {
+        Row: {
+          commission_dh: number
+          created_at: string
+          gross_dh: number
+          id: string
+          invoice_number: string | null
+          issued_at: string | null
+          net_dh: number
+          notes: string | null
+          paid_at: string | null
+          partner_id: string
+          payout_id: string | null
+          pdf_url: string | null
+          period_end: string
+          period_start: string
+          status: string
+          total_dh: number
+          updated_at: string
+          vat_dh: number
+          vat_pct: number
+        }
+        Insert: {
+          commission_dh?: number
+          created_at?: string
+          gross_dh?: number
+          id?: string
+          invoice_number?: string | null
+          issued_at?: string | null
+          net_dh?: number
+          notes?: string | null
+          paid_at?: string | null
+          partner_id: string
+          payout_id?: string | null
+          pdf_url?: string | null
+          period_end: string
+          period_start: string
+          status?: string
+          total_dh?: number
+          updated_at?: string
+          vat_dh?: number
+          vat_pct?: number
+        }
+        Update: {
+          commission_dh?: number
+          created_at?: string
+          gross_dh?: number
+          id?: string
+          invoice_number?: string | null
+          issued_at?: string | null
+          net_dh?: number
+          notes?: string | null
+          paid_at?: string | null
+          partner_id?: string
+          payout_id?: string | null
+          pdf_url?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string
+          total_dh?: number
+          updated_at?: string
+          vat_dh?: number
+          vat_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_invoices_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_invoices_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "partner_payouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_kyc_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          issued_by: string | null
+          partner_id: string
+          token_hash: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          issued_by?: string | null
+          partner_id: string
+          token_hash: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          issued_by?: string | null
+          partner_id?: string
+          token_hash?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_kyc_tokens_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_offer_redemptions: {
+        Row: {
+          amount_coins: number
+          code: string
+          created_at: string
+          group_action_id: string | null
+          id: string
+          idempotency_key: string | null
+          offer_id: string
+          partner_id: string
+          redeemed_at: string | null
+          spend_id: string | null
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          amount_coins?: number
+          code: string
+          created_at?: string
+          group_action_id?: string | null
+          id?: string
+          idempotency_key?: string | null
+          offer_id: string
+          partner_id: string
+          redeemed_at?: string | null
+          spend_id?: string | null
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          amount_coins?: number
+          code?: string
+          created_at?: string
+          group_action_id?: string | null
+          id?: string
+          idempotency_key?: string | null
+          offer_id?: string
+          partner_id?: string
+          redeemed_at?: string | null
+          spend_id?: string | null
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_offer_redemptions_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "partner_discounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_offer_redemptions_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "partner_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_offers: {
+        Row: {
+          applicable_categories: string[] | null
+          approved_at: string | null
+          approved_by: string | null
+          capacity: number | null
+          check_in_window_days: number | null
+          created_at: string
+          current_total_uses: number
+          description: string | null
+          discount_pct: number | null
+          discount_type: string | null
+          discount_value: number | null
+          id: string
+          is_active: boolean
+          max_check_ins: number | null
+          max_discount_amount: number | null
+          max_total_uses: number | null
+          max_uses_per_user: number | null
+          min_purchase_amount: number | null
+          min_vip_level: string | null
+          offer_type: string | null
+          partner_id: string
+          price_coins: number | null
+          price_dh: number | null
+          rejection_reason: string | null
+          requires_vip: boolean
+          status: string
+          tags: string[] | null
+          terms_and_conditions: string | null
+          title: string
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+          xp_reward: number | null
+        }
+        Insert: {
+          applicable_categories?: string[] | null
+          approved_at?: string | null
+          approved_by?: string | null
+          capacity?: number | null
+          check_in_window_days?: number | null
+          created_at?: string
+          current_total_uses?: number
+          description?: string | null
+          discount_pct?: number | null
+          discount_type?: string | null
+          discount_value?: number | null
+          id?: string
+          is_active?: boolean
+          max_check_ins?: number | null
+          max_discount_amount?: number | null
+          max_total_uses?: number | null
+          max_uses_per_user?: number | null
+          min_purchase_amount?: number | null
+          min_vip_level?: string | null
+          offer_type?: string | null
+          partner_id: string
+          price_coins?: number | null
+          price_dh?: number | null
+          rejection_reason?: string | null
+          requires_vip?: boolean
+          status?: string
+          tags?: string[] | null
+          terms_and_conditions?: string | null
+          title: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          xp_reward?: number | null
+        }
+        Update: {
+          applicable_categories?: string[] | null
+          approved_at?: string | null
+          approved_by?: string | null
+          capacity?: number | null
+          check_in_window_days?: number | null
+          created_at?: string
+          current_total_uses?: number
+          description?: string | null
+          discount_pct?: number | null
+          discount_type?: string | null
+          discount_value?: number | null
+          id?: string
+          is_active?: boolean
+          max_check_ins?: number | null
+          max_discount_amount?: number | null
+          max_total_uses?: number | null
+          max_uses_per_user?: number | null
+          min_purchase_amount?: number | null
+          min_vip_level?: string | null
+          offer_type?: string | null
+          partner_id?: string
+          price_coins?: number | null
+          price_dh?: number | null
+          rejection_reason?: string | null
+          requires_vip?: boolean
+          status?: string
+          tags?: string[] | null
+          terms_and_conditions?: string | null
+          title?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_offers_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_payouts: {
+        Row: {
+          created_at: string
+          id: string
+          paid_at: string | null
+          partner_id: string
+          period_end: string
+          period_start: string
+          reference: string | null
+          status: string
+          total_dh: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          partner_id: string
+          period_end: string
+          period_start: string
+          reference?: string | null
+          status?: string
+          total_dh: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          partner_id?: string
+          period_end?: string
+          period_start?: string
+          reference?: string | null
+          status?: string
+          total_dh?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_payouts_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_pending_credentials: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          partner_id: string
+          password_hash: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          partner_id: string
+          password_hash: string
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          partner_id?: string
+          password_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_pending_credentials_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: true
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_qr_secret: {
+        Row: {
+          id: number
+          rotated_at: string
+          secret_b64: string
+        }
+        Insert: {
+          id?: number
+          rotated_at?: string
+          secret_b64: string
+        }
+        Update: {
+          id?: number
+          rotated_at?: string
+          secret_b64?: string
+        }
+        Relationships: []
+      }
+      partner_staff: {
+        Row: {
+          id: string
+          invited_at: string | null
+          is_active: boolean
+          joined_at: string | null
+          partner_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          invited_at?: string | null
+          is_active?: boolean
+          joined_at?: string | null
+          partner_id: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          invited_at?: string | null
+          is_active?: boolean
+          joined_at?: string | null
+          partner_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_staff_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_transactions: {
+        Row: {
+          amount_coins: number | null
+          amount_dh: number | null
+          booking_id: string | null
+          cashback_xp: number | null
+          commission_dh: number | null
+          created_at: string
+          id: string
+          offer_id: string | null
+          partner_id: string
+          reward_id: string | null
+          scanned_at: string | null
+          scanner_user_id: string | null
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          amount_coins?: number | null
+          amount_dh?: number | null
+          booking_id?: string | null
+          cashback_xp?: number | null
+          commission_dh?: number | null
+          created_at?: string
+          id?: string
+          offer_id?: string | null
+          partner_id: string
+          reward_id?: string | null
+          scanned_at?: string | null
+          scanner_user_id?: string | null
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          amount_coins?: number | null
+          amount_dh?: number | null
+          booking_id?: string | null
+          cashback_xp?: number | null
+          commission_dh?: number | null
+          created_at?: string
+          id?: string
+          offer_id?: string | null
+          partner_id?: string
+          reward_id?: string | null
+          scanned_at?: string | null
+          scanner_user_id?: string | null
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_transactions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_transactions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_transactions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_xp_awards: {
+        Row: {
+          amount: number
+          applied_to_xp: boolean | null
+          approved_at: string | null
+          approved_by_parent: boolean | null
+          awarded_by: string
+          created_at: string
+          evidence_url: string | null
+          id: string
+          parent_approval_id: string | null
+          partner_id: string
+          reason: string
+          teen_id: string
+        }
+        Insert: {
+          amount: number
+          applied_to_xp?: boolean | null
+          approved_at?: string | null
+          approved_by_parent?: boolean | null
+          awarded_by: string
+          created_at?: string
+          evidence_url?: string | null
+          id?: string
+          parent_approval_id?: string | null
+          partner_id: string
+          reason: string
+          teen_id: string
+        }
+        Update: {
+          amount?: number
+          applied_to_xp?: boolean | null
+          approved_at?: string | null
+          approved_by_parent?: boolean | null
+          awarded_by?: string
+          created_at?: string
+          evidence_url?: string | null
+          id?: string
+          parent_approval_id?: string | null
+          partner_id?: string
+          reason?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_xp_awards_parent_approval_id_fkey"
+            columns: ["parent_approval_id"]
+            isOneToOne: false
+            referencedRelation: "parental_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_xp_awards_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_xp_awards_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_xp_awards_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          business_hours: Json | null
+          commission_pct: number | null
+          company_name: string
+          created_at: string
+          description: string | null
+          email: string
+          id: string
+          partner_type: string
+          phone: string | null
+          status: string
+          sub_category: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          business_hours?: Json | null
+          commission_pct?: number | null
+          company_name: string
+          created_at?: string
+          description?: string | null
+          email: string
+          id?: string
+          partner_type?: string
+          phone?: string | null
+          status?: string
+          sub_category?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          business_hours?: Json | null
+          commission_pct?: number | null
+          company_name?: string
+          created_at?: string
+          description?: string | null
+          email?: string
+          id?: string
+          partner_type?: string
+          phone?: string | null
+          status?: string
+          sub_category?: string | null
+          updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -5315,6 +10030,13 @@ export type Database = {
             foreignKeyName: "passion_tutorial_progress_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passion_tutorial_progress_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -5455,7 +10177,159 @@ export type Database = {
             foreignKeyName: "payment_requests_plan_id_fkey"
             columns: ["plan_id"]
             isOneToOne: false
+            referencedRelation: "parent_subscription_view"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "payment_requests_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_transactions: {
+        Row: {
+          amount_coins: number
+          amount_dh: number
+          client_idempotency_key: string | null
+          created_at: string
+          failure_reason: string | null
+          id: string
+          parent_id: string
+          psp_provider: string | null
+          psp_reference: string | null
+          refunded_at: string | null
+          status: string
+          succeeded_at: string | null
+          teen_id: string | null
+        }
+        Insert: {
+          amount_coins: number
+          amount_dh: number
+          client_idempotency_key?: string | null
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          parent_id: string
+          psp_provider?: string | null
+          psp_reference?: string | null
+          refunded_at?: string | null
+          status?: string
+          succeeded_at?: string | null
+          teen_id?: string | null
+        }
+        Update: {
+          amount_coins?: number
+          amount_dh?: number
+          client_idempotency_key?: string | null
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          parent_id?: string
+          psp_provider?: string | null
+          psp_reference?: string | null
+          refunded_at?: string | null
+          status?: string
+          succeeded_at?: string | null
+          teen_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pending_teen_registrations: {
+        Row: {
+          archetype: string | null
+          created_at: string
+          created_teen_id: string | null
+          date_of_birth: string
+          existing_parent_id: string | null
+          id: string
+          parent_email: string | null
+          parent_phone: string | null
+          status: string
+          teen_email: string | null
+          teen_first_name: string
+          teen_last_name: string
+          teen_password_hash: string | null
+          token_expires_at: string
+          validated_at: string | null
+          validated_by: string | null
+          validation_token: string
+        }
+        Insert: {
+          archetype?: string | null
+          created_at?: string
+          created_teen_id?: string | null
+          date_of_birth: string
+          existing_parent_id?: string | null
+          id?: string
+          parent_email?: string | null
+          parent_phone?: string | null
+          status?: string
+          teen_email?: string | null
+          teen_first_name: string
+          teen_last_name: string
+          teen_password_hash?: string | null
+          token_expires_at: string
+          validated_at?: string | null
+          validated_by?: string | null
+          validation_token: string
+        }
+        Update: {
+          archetype?: string | null
+          created_at?: string
+          created_teen_id?: string | null
+          date_of_birth?: string
+          existing_parent_id?: string | null
+          id?: string
+          parent_email?: string | null
+          parent_phone?: string | null
+          status?: string
+          teen_email?: string | null
+          teen_first_name?: string
+          teen_last_name?: string
+          teen_password_hash?: string | null
+          token_expires_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          validation_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_teen_registrations_created_teen_id_fkey"
+            columns: ["created_teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_teen_registrations_existing_parent_id_fkey"
+            columns: ["existing_parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_teen_registrations_validated_by_fkey"
+            columns: ["validated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -5514,6 +10388,13 @@ export type Database = {
             foreignKeyName: "personalized_content_assignments_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personalized_content_assignments_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -5528,12 +10409,14 @@ export type Database = {
           difficulty: string | null
           icon: string | null
           id: string
+          image_url: string | null
           is_active: boolean | null
           name: string
           objective_type: string
           objective_unit: string | null
           objective_value: number
           sport_category: string | null
+          tags: string[] | null
           valid_from: string | null
           valid_until: string | null
           xp_reward: number | null
@@ -5546,12 +10429,14 @@ export type Database = {
           difficulty?: string | null
           icon?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           name: string
           objective_type: string
           objective_unit?: string | null
           objective_value: number
           sport_category?: string | null
+          tags?: string[] | null
           valid_from?: string | null
           valid_until?: string | null
           xp_reward?: number | null
@@ -5564,12 +10449,14 @@ export type Database = {
           difficulty?: string | null
           icon?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           name?: string
           objective_type?: string
           objective_unit?: string | null
           objective_value?: number
           sport_category?: string | null
+          tags?: string[] | null
           valid_from?: string | null
           valid_until?: string | null
           xp_reward?: number | null
@@ -5602,6 +10489,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "premium_features"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "parent_subscription_view"
+            referencedColumns: ["plan_id"]
           },
           {
             foreignKeyName: "plan_features_plan_id_fkey"
@@ -6036,6 +10930,8 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_deletion_pending: boolean
+          is_onboarded: boolean
           role: string | null
           updated_at: string | null
         }
@@ -6045,6 +10941,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          is_deletion_pending?: boolean
+          is_onboarded?: boolean
           role?: string | null
           updated_at?: string | null
         }
@@ -6054,6 +10952,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_deletion_pending?: boolean
+          is_onboarded?: boolean
           role?: string | null
           updated_at?: string | null
         }
@@ -6203,6 +11103,38 @@ export type Database = {
         }
         Relationships: []
       }
+      qr_nonces: {
+        Row: {
+          expires_at: string
+          nonce: string
+          partner_id: string | null
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          expires_at: string
+          nonce: string
+          partner_id?: string | null
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          nonce?: string
+          partner_id?: string | null
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_nonces_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quiz_attempts: {
         Row: {
           answers: Json | null
@@ -6255,6 +11187,13 @@ export type Database = {
             columns: ["quiz_id"]
             isOneToOne: false
             referencedRelation: "educational_quizzes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_attempts_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -6319,6 +11258,159 @@ export type Database = {
           times_shown?: number | null
         }
         Relationships: []
+      }
+      quiz_seen_history: {
+        Row: {
+          last_seen: string
+          quiz_id: string
+          teen_id: string
+        }
+        Insert: {
+          last_seen?: string
+          quiz_id: string
+          teen_id: string
+        }
+        Update: {
+          last_seen?: string
+          quiz_id?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_seen_history_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "educational_quizzes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_seen_history_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_seen_history_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recommendation_metrics_daily: {
+        Row: {
+          clicked_count: number
+          completed_count: number
+          content_type: string
+          date: string
+          novelty_count: number
+          shown_count: number
+        }
+        Insert: {
+          clicked_count?: number
+          completed_count?: number
+          content_type: string
+          date: string
+          novelty_count?: number
+          shown_count?: number
+        }
+        Update: {
+          clicked_count?: number
+          completed_count?: number
+          content_type?: string
+          date?: string
+          novelty_count?: number
+          shown_count?: number
+        }
+        Relationships: []
+      }
+      recommendation_weights: {
+        Row: {
+          content_type: string
+          created_at: string
+          diversity_floor_pct: number
+          id: string
+          is_active: boolean
+          p1_recently_seen: number
+          p2_friend_already_did: number
+          p3_difficulty_mismatch: number
+          version: number
+          w1_affinity: number
+          w2_collab: number
+          w3_friend: number
+          w4_novelty: number
+          w5_context: number
+          w6_difficulty: number
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          diversity_floor_pct?: number
+          id?: string
+          is_active?: boolean
+          p1_recently_seen?: number
+          p2_friend_already_did?: number
+          p3_difficulty_mismatch?: number
+          version?: number
+          w1_affinity?: number
+          w2_collab?: number
+          w3_friend?: number
+          w4_novelty?: number
+          w5_context?: number
+          w6_difficulty?: number
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          diversity_floor_pct?: number
+          id?: string
+          is_active?: boolean
+          p1_recently_seen?: number
+          p2_friend_already_did?: number
+          p3_difficulty_mismatch?: number
+          version?: number
+          w1_affinity?: number
+          w2_collab?: number
+          w3_friend?: number
+          w4_novelty?: number
+          w5_context?: number
+          w6_difficulty?: number
+        }
+        Relationships: []
+      }
+      referral_attribution: {
+        Row: {
+          ambassador_id: string
+          attributed_at: string
+          expires_at: string | null
+          id: string
+          referred_user_id: string
+        }
+        Insert: {
+          ambassador_id: string
+          attributed_at?: string
+          expires_at?: string | null
+          id?: string
+          referred_user_id: string
+        }
+        Update: {
+          ambassador_id?: string
+          attributed_at?: string
+          expires_at?: string | null
+          id?: string
+          referred_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_attribution_ambassador_id_fkey"
+            columns: ["ambassador_id"]
+            isOneToOne: false
+            referencedRelation: "ambassadors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referral_codes: {
         Row: {
@@ -6438,6 +11530,396 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      ride_bookings: {
+        Row: {
+          actual_dh: number | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          curfew_override: boolean
+          dispatched_at: string | null
+          driver_id: string | null
+          dropoff_address: string
+          dropoff_lat: number | null
+          dropoff_lng: number | null
+          estimated_dh: number | null
+          event_id: string | null
+          external_booking_ref: string | null
+          group_id: string | null
+          group_leader_id: string | null
+          group_size: number
+          id: string
+          parent_approval_id: string | null
+          parent_id: string
+          payment_method: string
+          pickup_address: string
+          pickup_lat: number | null
+          pickup_lng: number | null
+          provider: string
+          rating_by_driver: number | null
+          rating_by_teen: number | null
+          return_scheduled_for: string | null
+          scheduled_for: string
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          actual_dh?: number | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          curfew_override?: boolean
+          dispatched_at?: string | null
+          driver_id?: string | null
+          dropoff_address: string
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          estimated_dh?: number | null
+          event_id?: string | null
+          external_booking_ref?: string | null
+          group_id?: string | null
+          group_leader_id?: string | null
+          group_size?: number
+          id?: string
+          parent_approval_id?: string | null
+          parent_id: string
+          payment_method?: string
+          pickup_address: string
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          provider?: string
+          rating_by_driver?: number | null
+          rating_by_teen?: number | null
+          return_scheduled_for?: string | null
+          scheduled_for: string
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          actual_dh?: number | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          curfew_override?: boolean
+          dispatched_at?: string | null
+          driver_id?: string | null
+          dropoff_address?: string
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          estimated_dh?: number | null
+          event_id?: string | null
+          external_booking_ref?: string | null
+          group_id?: string | null
+          group_leader_id?: string | null
+          group_size?: number
+          id?: string
+          parent_approval_id?: string | null
+          parent_id?: string
+          payment_method?: string
+          pickup_address?: string
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          provider?: string
+          rating_by_driver?: number | null
+          rating_by_teen?: number | null
+          return_scheduled_for?: string | null
+          scheduled_for?: string
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_bookings_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "nivy_drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_bookings_parent_approval_id_fkey"
+            columns: ["parent_approval_id"]
+            isOneToOne: false
+            referencedRelation: "parental_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_bookings_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_bookings_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ride_group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          parent_approval_id: string | null
+          teen_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          parent_approval_id?: string | null
+          teen_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          parent_approval_id?: string | null
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "ride_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_group_members_parent_approval_id_fkey"
+            columns: ["parent_approval_id"]
+            isOneToOne: false
+            referencedRelation: "parental_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_group_members_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_group_members_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ride_groups: {
+        Row: {
+          created_at: string
+          dropoff_address: string | null
+          event_id: string | null
+          id: string
+          leader_id: string
+          max_seats: number
+          pickup_address: string | null
+          ride_id: string | null
+          scheduled_for: string
+          seats_taken: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          dropoff_address?: string | null
+          event_id?: string | null
+          id?: string
+          leader_id: string
+          max_seats?: number
+          pickup_address?: string | null
+          ride_id?: string | null
+          scheduled_for: string
+          seats_taken?: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          dropoff_address?: string | null
+          event_id?: string | null
+          id?: string
+          leader_id?: string
+          max_seats?: number
+          pickup_address?: string | null
+          ride_id?: string | null
+          scheduled_for?: string
+          seats_taken?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_groups_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_groups_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "ride_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ride_tracks: {
+        Row: {
+          captured_at: string
+          heading: number | null
+          id: number
+          lat: number
+          lng: number
+          ride_id: string
+          speed: number | null
+        }
+        Insert: {
+          captured_at?: string
+          heading?: number | null
+          id?: number
+          lat: number
+          lng: number
+          ride_id: string
+          speed?: number | null
+        }
+        Update: {
+          captured_at?: string
+          heading?: number | null
+          id?: number
+          lat?: number
+          lng?: number
+          ride_id?: string
+          speed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_tracks_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "ride_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      savings_contributions: {
+        Row: {
+          amount_coins: number
+          coin_transaction_id: string | null
+          contributor_user_id: string
+          created_at: string
+          goal_id: string
+          id: string
+          source: string
+        }
+        Insert: {
+          amount_coins: number
+          coin_transaction_id?: string | null
+          contributor_user_id: string
+          created_at?: string
+          goal_id: string
+          id?: string
+          source: string
+        }
+        Update: {
+          amount_coins?: number
+          coin_transaction_id?: string | null
+          contributor_user_id?: string
+          created_at?: string
+          goal_id?: string
+          id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "savings_contributions_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "savings_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      savings_goals: {
+        Row: {
+          achieved_at: string | null
+          created_at: string
+          current_saved_coins: number
+          description: string | null
+          id: string
+          image_url: string | null
+          parent_id: string | null
+          parent_match_cap_coins: number | null
+          parent_match_contributed_coins: number
+          parent_match_pct: number
+          status: string
+          target_coins: number
+          target_date: string | null
+          teen_id: string
+          title: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          created_at?: string
+          current_saved_coins?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          parent_id?: string | null
+          parent_match_cap_coins?: number | null
+          parent_match_contributed_coins?: number
+          parent_match_pct?: number
+          status?: string
+          target_coins: number
+          target_date?: string | null
+          teen_id: string
+          title: string
+        }
+        Update: {
+          achieved_at?: string | null
+          created_at?: string
+          current_saved_coins?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          parent_id?: string | null
+          parent_match_cap_coins?: number | null
+          parent_match_contributed_coins?: number
+          parent_match_pct?: number
+          status?: string
+          target_coins?: number
+          target_date?: string | null
+          teen_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "savings_goals_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "savings_goals_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seasonal_challenges: {
         Row: {
@@ -7085,6 +12567,7 @@ export type Database = {
           stock_quantity: number | null
           stock_remaining: number | null
           stock_type: string
+          tags: string[] | null
           updated_at: string
           vip_only: boolean
           xp_cost: number
@@ -7115,6 +12598,7 @@ export type Database = {
           stock_quantity?: number | null
           stock_remaining?: number | null
           stock_type?: string
+          tags?: string[] | null
           updated_at?: string
           vip_only?: boolean
           xp_cost: number
@@ -7145,6 +12629,7 @@ export type Database = {
           stock_quantity?: number | null
           stock_remaining?: number | null
           stock_type?: string
+          tags?: string[] | null
           updated_at?: string
           vip_only?: boolean
           xp_cost?: number
@@ -7459,6 +12944,59 @@ export type Database = {
           },
         ]
       }
+      split_ledger: {
+        Row: {
+          created_at: string
+          group_action_id: string
+          id: string
+          idempotency_key: string | null
+          paid_at: string | null
+          partner_id: string | null
+          refund_spend_id: string | null
+          refunded_at: string | null
+          share_coins: number
+          spend_id: string | null
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_action_id: string
+          id?: string
+          idempotency_key?: string | null
+          paid_at?: string | null
+          partner_id?: string | null
+          refund_spend_id?: string | null
+          refunded_at?: string | null
+          share_coins: number
+          spend_id?: string | null
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          created_at?: string
+          group_action_id?: string
+          id?: string
+          idempotency_key?: string | null
+          paid_at?: string | null
+          partner_id?: string | null
+          refund_spend_id?: string | null
+          refunded_at?: string | null
+          share_coins?: number
+          spend_id?: string | null
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "split_ledger_group_action_id_fkey"
+            columns: ["group_action_id"]
+            isOneToOne: false
+            referencedRelation: "group_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sport_clubs: {
         Row: {
           address: string | null
@@ -7573,8 +13111,22 @@ export type Database = {
             foreignKeyName: "subscription_payments_plan_id_fkey"
             columns: ["plan_id"]
             isOneToOne: false
+            referencedRelation: "parent_subscription_view"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "subscription_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
             referencedRelation: "subscription_plans"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "parent_subscription_view"
+            referencedColumns: ["user_subscription_id"]
           },
           {
             foreignKeyName: "subscription_payments_subscription_id_fkey"
@@ -7669,6 +13221,39 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          body: string
+          created_at: string
+          id: string
+          requester_user_id: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          requester_user_id: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          requester_user_id?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       teen_behavioral_profile: {
         Row: {
           abandonment_rate: number | null
@@ -7753,6 +13338,67 @@ export type Database = {
             foreignKeyName: "teen_behavioral_profile_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: true
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_behavioral_profile_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: true
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teen_budget_limits: {
+        Row: {
+          blocked_partner_types: string[] | null
+          created_at: string
+          id: string
+          max_per_day_coins: number | null
+          max_per_month_coins: number | null
+          max_per_transaction_coins: number | null
+          mode: string
+          parent_id: string
+          teen_id: string
+          updated_at: string
+        }
+        Insert: {
+          blocked_partner_types?: string[] | null
+          created_at?: string
+          id?: string
+          max_per_day_coins?: number | null
+          max_per_month_coins?: number | null
+          max_per_transaction_coins?: number | null
+          mode?: string
+          parent_id: string
+          teen_id: string
+          updated_at?: string
+        }
+        Update: {
+          blocked_partner_types?: string[] | null
+          created_at?: string
+          id?: string
+          max_per_day_coins?: number | null
+          max_per_month_coins?: number | null
+          max_per_transaction_coins?: number | null
+          mode?: string
+          parent_id?: string
+          teen_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teen_budget_limits_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_budget_limits_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -7801,10 +13447,50 @@ export type Database = {
             foreignKeyName: "teen_club_memberships_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_club_memberships_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
         ]
+      }
+      teen_clubs: {
+        Row: {
+          cotisation_coins: number
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          max_members: number | null
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          cotisation_coins?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_members?: number | null
+          name: string
+          owner_id: string
+        }
+        Update: {
+          cotisation_coins?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_members?: number | null
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
       }
       teen_creations: {
         Row: {
@@ -7882,6 +13568,13 @@ export type Database = {
             foreignKeyName: "teen_creations_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_creations_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -7894,9 +13587,63 @@ export type Database = {
           },
         ]
       }
+      teen_goals: {
+        Row: {
+          achieved_at: string | null
+          created_at: string
+          goal_tag: string | null
+          goal_text: string
+          id: string
+          is_active: boolean
+          priority: number
+          target_date: string | null
+          teen_id: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          created_at?: string
+          goal_tag?: string | null
+          goal_text: string
+          id?: string
+          is_active?: boolean
+          priority?: number
+          target_date?: string | null
+          teen_id: string
+        }
+        Update: {
+          achieved_at?: string | null
+          created_at?: string
+          goal_tag?: string | null
+          goal_text?: string
+          id?: string
+          is_active?: boolean
+          priority?: number
+          target_date?: string | null
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teen_goals_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_goals_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teen_grades: {
         Row: {
           created_at: string | null
+          created_by: string | null
+          created_by_role: string | null
+          evidence_url: string | null
           grade: number
           grade_date: string
           grade_type: string | null
@@ -7916,6 +13663,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
+          created_by_role?: string | null
+          evidence_url?: string | null
           grade: number
           grade_date?: string
           grade_type?: string | null
@@ -7935,6 +13685,9 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
+          created_by_role?: string | null
+          evidence_url?: string | null
           grade?: number
           grade_date?: string
           grade_type?: string | null
@@ -7955,6 +13708,160 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "teen_grades_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_grades_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teen_interests: {
+        Row: {
+          declared_at: string
+          tag: string
+          teen_id: string
+          weight: number
+        }
+        Insert: {
+          declared_at?: string
+          tag: string
+          teen_id: string
+          weight?: number
+        }
+        Update: {
+          declared_at?: string
+          tag?: string
+          teen_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teen_interests_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_interests_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teen_link_tokens: {
+        Row: {
+          created_at: string
+          direction: string
+          expires_at: string
+          id: string
+          issued_by: string | null
+          parent_id: string | null
+          teen_id: string | null
+          token_hash: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          expires_at?: string
+          id?: string
+          issued_by?: string | null
+          parent_id?: string | null
+          teen_id?: string | null
+          token_hash: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          expires_at?: string
+          id?: string
+          issued_by?: string | null
+          parent_id?: string | null
+          teen_id?: string | null
+          token_hash?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teen_link_tokens_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_link_tokens_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_link_tokens_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teen_neighbours: {
+        Row: {
+          computed_at: string
+          neighbour_id: string
+          similarity: number
+          teen_id: string
+        }
+        Insert: {
+          computed_at?: string
+          neighbour_id: string
+          similarity: number
+          teen_id: string
+        }
+        Update: {
+          computed_at?: string
+          neighbour_id?: string
+          similarity?: number
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teen_neighbours_neighbour_id_fkey"
+            columns: ["neighbour_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_neighbours_neighbour_id_fkey"
+            columns: ["neighbour_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_neighbours_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_neighbours_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
             referencedRelation: "teens"
@@ -8020,6 +13927,65 @@ export type Database = {
             foreignKeyName: "teen_passion_path_progress_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_passion_path_progress_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teen_pathway_progress: {
+        Row: {
+          declared_interest_at: string
+          last_active_at: string | null
+          milestones_completed: number
+          notes: string | null
+          pathway_id: string
+          teen_id: string
+          total_milestones: number
+        }
+        Insert: {
+          declared_interest_at?: string
+          last_active_at?: string | null
+          milestones_completed?: number
+          notes?: string | null
+          pathway_id: string
+          teen_id: string
+          total_milestones?: number
+        }
+        Update: {
+          declared_interest_at?: string
+          last_active_at?: string | null
+          milestones_completed?: number
+          notes?: string | null
+          pathway_id?: string
+          teen_id?: string
+          total_milestones?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teen_pathway_progress_pathway_id_fkey"
+            columns: ["pathway_id"]
+            isOneToOne: false
+            referencedRelation: "career_pathways"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_pathway_progress_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_pathway_progress_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -8076,6 +14042,13 @@ export type Database = {
             foreignKeyName: "teen_personal_records_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_personal_records_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -8092,11 +14065,13 @@ export type Database = {
           progress_percent: number | null
           proof_type: string | null
           proof_url: string | null
+          rejection_reason: string | null
           started_at: string | null
           teen_id: string
           updated_at: string | null
           validated: boolean | null
           validated_at: string | null
+          validated_by: string | null
           xp_earned: number | null
         }
         Insert: {
@@ -8109,11 +14084,13 @@ export type Database = {
           progress_percent?: number | null
           proof_type?: string | null
           proof_url?: string | null
+          rejection_reason?: string | null
           started_at?: string | null
           teen_id: string
           updated_at?: string | null
           validated?: boolean | null
           validated_at?: string | null
+          validated_by?: string | null
           xp_earned?: number | null
         }
         Update: {
@@ -8126,11 +14103,13 @@ export type Database = {
           progress_percent?: number | null
           proof_type?: string | null
           proof_url?: string | null
+          rejection_reason?: string | null
           started_at?: string | null
           teen_id?: string
           updated_at?: string | null
           validated?: boolean | null
           validated_at?: string | null
+          validated_by?: string | null
           xp_earned?: number | null
         }
         Relationships: [
@@ -8145,6 +14124,13 @@ export type Database = {
             foreignKeyName: "teen_physical_challenge_progress_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_physical_challenge_progress_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -8152,44 +14138,83 @@ export type Database = {
       }
       teens: {
         Row: {
+          allergies: string | null
+          archetype: string | null
+          availability_pattern: Json | null
           avatar_url: string | null
+          city: string | null
           created_at: string | null
           curriculum: string | null
           date_of_birth: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relation: string | null
+          exit_permission_rules: string | null
           first_name: string | null
+          gender: string | null
+          grade_level: string | null
           id: string
           last_name: string | null
+          learning_style: string | null
           parent_id: string | null
+          photo_consent: boolean
           primary_language: string | null
           pseudo: string | null
+          region: string | null
           school_type: string | null
           updated_at: string | null
         }
         Insert: {
+          allergies?: string | null
+          archetype?: string | null
+          availability_pattern?: Json | null
           avatar_url?: string | null
+          city?: string | null
           created_at?: string | null
           curriculum?: string | null
           date_of_birth?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
+          exit_permission_rules?: string | null
           first_name?: string | null
+          gender?: string | null
+          grade_level?: string | null
           id?: string
           last_name?: string | null
+          learning_style?: string | null
           parent_id?: string | null
+          photo_consent?: boolean
           primary_language?: string | null
           pseudo?: string | null
+          region?: string | null
           school_type?: string | null
           updated_at?: string | null
         }
         Update: {
+          allergies?: string | null
+          archetype?: string | null
+          availability_pattern?: Json | null
           avatar_url?: string | null
+          city?: string | null
           created_at?: string | null
           curriculum?: string | null
           date_of_birth?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
+          exit_permission_rules?: string | null
           first_name?: string | null
+          gender?: string | null
+          grade_level?: string | null
           id?: string
           last_name?: string | null
+          learning_style?: string | null
           parent_id?: string | null
+          photo_consent?: boolean
           primary_language?: string | null
           pseudo?: string | null
+          region?: string | null
           school_type?: string | null
           updated_at?: string | null
         }
@@ -8568,6 +14593,39 @@ export type Database = {
         }
         Relationships: []
       }
+      topup_packages: {
+        Row: {
+          bonus_coins: number
+          coins: number
+          created_at: string
+          id: string
+          is_active: boolean
+          is_popular: boolean
+          price_dh: number
+          sort_order: number
+        }
+        Insert: {
+          bonus_coins?: number
+          coins: number
+          created_at?: string
+          id: string
+          is_active?: boolean
+          is_popular?: boolean
+          price_dh: number
+          sort_order?: number
+        }
+        Update: {
+          bonus_coins?: number
+          coins?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          price_dh?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -8608,6 +14666,13 @@ export type Database = {
             columns: ["achievement_id"]
             isOneToOne: false
             referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_achievements_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -8808,6 +14873,67 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_challenges: {
+        Row: {
+          challenge_date: string
+          challenge_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          status: string
+          teen_id: string
+          validation_data: Json | null
+          xp_earned: number | null
+        }
+        Insert: {
+          challenge_date?: string
+          challenge_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          status?: string
+          teen_id: string
+          validation_data?: Json | null
+          xp_earned?: number | null
+        }
+        Update: {
+          challenge_date?: string
+          challenge_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          status?: string
+          teen_id?: string
+          validation_data?: Json | null
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_challenges_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_challenges_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_coins: {
         Row: {
@@ -9078,6 +15204,13 @@ export type Database = {
             foreignKeyName: "user_event_challenge_progress_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_event_challenge_progress_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -9283,6 +15416,7 @@ export type Database = {
       }
       user_missions: {
         Row: {
+          assigned_via: string
           claimed_at: string | null
           completed_at: string | null
           created_at: string | null
@@ -9299,6 +15433,7 @@ export type Database = {
           xp_earned: number | null
         }
         Insert: {
+          assigned_via?: string
           claimed_at?: string | null
           completed_at?: string | null
           created_at?: string | null
@@ -9315,6 +15450,7 @@ export type Database = {
           xp_earned?: number | null
         }
         Update: {
+          assigned_via?: string
           claimed_at?: string | null
           completed_at?: string | null
           created_at?: string | null
@@ -9336,6 +15472,13 @@ export type Database = {
             columns: ["mission_id"]
             isOneToOne: false
             referencedRelation: "mission_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_missions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
             referencedColumns: ["id"]
           },
           {
@@ -9817,6 +15960,45 @@ export type Database = {
           },
         ]
       }
+      user_reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_user_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_user_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_user_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       user_seasonal_progress: {
         Row: {
           claimed_at: string | null
@@ -9895,6 +16077,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_seller_stats: {
+        Row: {
+          last_listing_at: string | null
+          listings_count: number
+          rating_avg: number
+          sold_count: number
+          total_revenue_coins: number
+          total_revenue_dh_month: number
+          trust_badge: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_listing_at?: string | null
+          listings_count?: number
+          rating_avg?: number
+          sold_count?: number
+          total_revenue_coins?: number
+          total_revenue_dh_month?: number
+          trust_badge?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_listing_at?: string | null
+          listings_count?: number
+          rating_avg?: number
+          sold_count?: number
+          total_revenue_coins?: number
+          total_revenue_dh_month?: number
+          trust_badge?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_share_stats: {
         Row: {
@@ -10215,6 +16433,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "parent_subscription_view"
+            referencedColumns: ["plan_id"]
+          },
           {
             foreignKeyName: "user_subscriptions_plan_id_fkey"
             columns: ["plan_id"]
@@ -10573,6 +16798,13 @@ export type Database = {
             foreignKeyName: "user_xp_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: true
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_xp_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: true
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -10593,6 +16825,99 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      venue_bookings: {
+        Row: {
+          created_at: string
+          group_action_id: string | null
+          id: string
+          organizer_id: string
+          parent_approval_id: string | null
+          partner_id: string
+          share_coins: number
+          slot_id: string
+          status: string
+          teen_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_action_id?: string | null
+          id?: string
+          organizer_id: string
+          parent_approval_id?: string | null
+          partner_id: string
+          share_coins?: number
+          slot_id: string
+          status?: string
+          teen_id: string
+        }
+        Update: {
+          created_at?: string
+          group_action_id?: string | null
+          id?: string
+          organizer_id?: string
+          parent_approval_id?: string | null
+          partner_id?: string
+          share_coins?: number
+          slot_id?: string
+          status?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_bookings_group_action_id_fkey"
+            columns: ["group_action_id"]
+            isOneToOne: false
+            referencedRelation: "group_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venue_bookings_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "venue_slots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      venue_slots: {
+        Row: {
+          booked: number
+          capacity: number
+          created_at: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          partner_id: string
+          price_coins: number
+          starts_at: string
+          title: string | null
+        }
+        Insert: {
+          booked?: number
+          capacity?: number
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          partner_id: string
+          price_coins?: number
+          starts_at: string
+          title?: string | null
+        }
+        Update: {
+          booked?: number
+          capacity?: number
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          partner_id?: string
+          price_coins?: number
+          starts_at?: string
+          title?: string | null
         }
         Relationships: []
       }
@@ -10630,6 +16955,121 @@ export type Database = {
             columns: ["tier_id"]
             isOneToOne: false
             referencedRelation: "vip_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vip_card_usage: {
+        Row: {
+          created_at: string
+          discount_applied: number
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          usage_date: string
+          usage_type: string
+          vip_card_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_applied?: number
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          usage_date?: string
+          usage_type: string
+          vip_card_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_applied?: number
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          usage_date?: string
+          usage_type?: string
+          vip_card_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vip_card_usage_vip_card_id_fkey"
+            columns: ["vip_card_id"]
+            isOneToOne: false
+            referencedRelation: "vip_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vip_cards: {
+        Row: {
+          auto_renew: boolean
+          benefits: Json | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          card_number: string
+          card_type: string
+          created_at: string
+          discount_percentage: number | null
+          expiry_date: string
+          id: string
+          issue_date: string
+          monthly_clubs_included: number | null
+          monthly_events_included: number | null
+          partner_discount_percentage: number | null
+          priority_booking_hours: number | null
+          profile_id: string
+          status: string
+          stripe_subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          auto_renew?: boolean
+          benefits?: Json | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          card_number: string
+          card_type: string
+          created_at?: string
+          discount_percentage?: number | null
+          expiry_date: string
+          id?: string
+          issue_date?: string
+          monthly_clubs_included?: number | null
+          monthly_events_included?: number | null
+          partner_discount_percentage?: number | null
+          priority_booking_hours?: number | null
+          profile_id: string
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auto_renew?: boolean
+          benefits?: Json | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          card_number?: string
+          card_type?: string
+          created_at?: string
+          discount_percentage?: number | null
+          expiry_date?: string
+          id?: string
+          issue_date?: string
+          monthly_clubs_included?: number | null
+          monthly_events_included?: number | null
+          partner_discount_percentage?: number | null
+          priority_booking_hours?: number | null
+          profile_id?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vip_cards_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -10833,6 +17273,39 @@ export type Database = {
           slug?: string
           tier_level?: number
           xp_multiplier?: number | null
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          event_type: string | null
+          id: string
+          payload: Json | null
+          processed: boolean
+          processed_at: string | null
+          provider: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          event_type?: string | null
+          id?: string
+          payload?: Json | null
+          processed?: boolean
+          processed_at?: string | null
+          provider: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          event_type?: string | null
+          id?: string
+          payload?: Json | null
+          processed?: boolean
+          processed_at?: string | null
+          provider?: string
         }
         Relationships: []
       }
@@ -11177,6 +17650,13 @@ export type Database = {
             foreignKeyName: "xp_monthly_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xp_monthly_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -11346,6 +17826,13 @@ export type Database = {
             foreignKeyName: "xp_weekly_teen_id_fkey"
             columns: ["teen_id"]
             isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xp_weekly_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
           },
@@ -11353,6 +17840,53 @@ export type Database = {
       }
     }
     Views: {
+      admin_audit_logs: {
+        Row: {
+          action: string | null
+          admin_id: string | null
+          created_at: string | null
+          id: number | null
+          ip_address: string | null
+          payload: Json | null
+          target_id: string | null
+          target_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          admin_id?: string | null
+          created_at?: string | null
+          id?: number | null
+          ip_address?: string | null
+          payload?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          admin_id?: string | null
+          created_at?: string | null
+          id?: number | null
+          ip_address?: string | null
+          payload?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      creator_daily_caps_status: {
+        Row: {
+          comments_xp_today: number | null
+          day: string | null
+          likes_xp_today: number | null
+          posts_today: number | null
+          shares_xp_today: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       parent_subscription_view: {
         Row: {
           cancel_at_period_end: boolean | null
@@ -11369,6 +17903,136 @@ export type Database = {
         }
         Relationships: []
       }
+      parent_teens_overview: {
+        Row: {
+          avatar_url: string | null
+          coins: number | null
+          first_name: string | null
+          last_name: string | null
+          level: number | null
+          linked_at: string | null
+          parent_id: string | null
+          pseudo: string | null
+          teen_id: string | null
+          teen_name: string | null
+          total_xp: number | null
+        }
+        Relationships: []
+      }
+      partner_discounts: {
+        Row: {
+          applicable_categories: string[] | null
+          created_at: string | null
+          current_total_uses: number | null
+          description: string | null
+          discount_name: string | null
+          discount_type: string | null
+          discount_value: number | null
+          id: string | null
+          is_active: boolean | null
+          max_discount_amount: number | null
+          max_total_uses: number | null
+          max_uses_per_user: number | null
+          min_purchase_amount: number | null
+          min_vip_level: string | null
+          partner_id: string | null
+          requires_vip: boolean | null
+          terms_and_conditions: string | null
+          updated_at: string | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          applicable_categories?: string[] | null
+          created_at?: string | null
+          current_total_uses?: number | null
+          description?: string | null
+          discount_name?: string | null
+          discount_type?: never
+          discount_value?: number | null
+          id?: string | null
+          is_active?: boolean | null
+          max_discount_amount?: number | null
+          max_total_uses?: number | null
+          max_uses_per_user?: number | null
+          min_purchase_amount?: number | null
+          min_vip_level?: string | null
+          partner_id?: string | null
+          requires_vip?: boolean | null
+          terms_and_conditions?: string | null
+          updated_at?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          applicable_categories?: string[] | null
+          created_at?: string | null
+          current_total_uses?: number | null
+          description?: string | null
+          discount_name?: string | null
+          discount_type?: never
+          discount_value?: number | null
+          id?: string | null
+          is_active?: boolean | null
+          max_discount_amount?: number | null
+          max_total_uses?: number | null
+          max_uses_per_user?: number | null
+          min_purchase_amount?: number | null
+          min_vip_level?: string | null
+          partner_id?: string | null
+          requires_vip?: boolean | null
+          terms_and_conditions?: string | null
+          updated_at?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_offers_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teen_full_profile: {
+        Row: {
+          avatar_url: string | null
+          coins_balance: number | null
+          first_name: string | null
+          id: string | null
+          last_name: string | null
+          level: number | null
+          primary_parent_id: string | null
+          pseudo: string | null
+          title: string | null
+          title_icon: string | null
+          total_xp: number | null
+        }
+        Relationships: []
+      }
+      user_coins_spendable: {
+        Row: {
+          locked_in_goals: number | null
+          spendable: number | null
+          teen_id: string | null
+          total: number | null
+        }
+        Insert: {
+          locked_in_goals?: never
+          spendable?: never
+          teen_id?: string | null
+          total?: number | null
+        }
+        Update: {
+          locked_in_goals?: never
+          spendable?: never
+          teen_id?: string | null
+          total?: number | null
+        }
+        Relationships: []
+      }
       v_leaderboard_all_time: {
         Row: {
           avatar_url: string | null
@@ -11382,15 +18046,7 @@ export type Database = {
           teen_id: string | null
           total_xp: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_xp_teen_id_fkey"
-            columns: ["teen_id"]
-            isOneToOne: true
-            referencedRelation: "teens"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       v_leaderboard_monthly: {
         Row: {
@@ -11408,15 +18064,7 @@ export type Database = {
           xp_earned: number | null
           year: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "xp_monthly_teen_id_fkey"
-            columns: ["teen_id"]
-            isOneToOne: false
-            referencedRelation: "teens"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       v_leaderboard_weekly: {
         Row: {
@@ -11433,21 +18081,98 @@ export type Database = {
           week_start: string | null
           xp_earned: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "xp_weekly_teen_id_fkey"
-            columns: ["teen_id"]
-            isOneToOne: false
-            referencedRelation: "teens"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      wallet_ledger: {
+        Row: {
+          amount: number | null
+          balance_after: number | null
+          client_idempotency_key: string | null
+          created_at: string | null
+          description: string | null
+          direction: string | null
+          id: string | null
+          source_id: string | null
+          source_type: string | null
+          teen_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          balance_after?: number | null
+          client_idempotency_key?: string | null
+          created_at?: string | null
+          description?: string | null
+          direction?: string | null
+          id?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          teen_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          balance_after?: number | null
+          client_idempotency_key?: string | null
+          created_at?: string | null
+          description?: string | null
+          direction?: string | null
+          id?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          teen_id?: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {
+      _advance_next_disbursement: {
+        Args: { p_cadence: string; p_cadence_config: Json; p_current: string }
+        Returns: string
+      }
+      _approval_finalize: {
+        Args: {
+          p_action_type: string
+          p_approval_id: string
+          p_decision: string
+          p_extra_metadata?: Json
+          p_parent_id: string
+          p_reason?: string
+          p_resource_id: string
+          p_resource_type: string
+          p_teen_id: string
+        }
+        Returns: undefined
+      }
+      _cashback_pct: { Args: { p_partner_id?: string }; Returns: number }
+      _check_topup_caps: {
+        Args: { p_amount_dh: number; p_parent_id: string; p_teen_id: string }
+        Returns: Json
+      }
+      _debit_teen_coins: {
+        Args: {
+          p_amount_coins: number
+          p_idempotency_key?: string
+          p_partner_id?: string
+          p_reward_id?: string
+          p_teen_id: string
+        }
+        Returns: Json
+      }
+      _parent_link_active: {
+        Args: { p_parent_id: string; p_teen_id: string }
+        Returns: boolean
+      }
+      _vip_rank: { Args: { p_level: string }; Returns: number }
+      accept_friend_challenge_v2: {
+        Args: { p_challenge_id: string }
+        Returns: Json
+      }
       accept_friend_request: {
         Args: { p_receiver_id: string; p_request_id: string }
         Returns: string
+      }
+      accrue_marketplace_payout: {
+        Args: { p_seller_id: string }
+        Returns: Json
       }
       add_activity_comment: {
         Args: {
@@ -11455,6 +18180,15 @@ export type Database = {
           p_content: string
           p_parent_id?: string
           p_user_id: string
+        }
+        Returns: Json
+      }
+      add_club_session: {
+        Args: {
+          p_club_id: string
+          p_location?: string
+          p_starts_at?: string
+          p_title: string
         }
         Returns: Json
       }
@@ -11505,6 +18239,15 @@ export type Database = {
         }
         Returns: Json
       }
+      add_user_xp: {
+        Args: {
+          p_source_id?: string
+          p_source_type: string
+          p_user_id: string
+          p_xp_amount: number
+        }
+        Returns: Json
+      }
       add_vip_xp: {
         Args: { p_source?: string; p_user_id: string; p_xp: number }
         Returns: Json
@@ -11520,12 +18263,82 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_approve_mentor: {
+        Args: { p_admin_user_id: string; p_mentor_id: string }
+        Returns: Json
+      }
+      apply_mentor: {
+        Args: {
+          p_bio: string
+          p_expertise: string[]
+          p_hourly_rate?: number
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      apply_partner_offer: {
+        Args: {
+          p_idempotency_key: string
+          p_member_user_id: string
+          p_nonce: string
+          p_offer_id: string
+          p_purchase_amount: number
+          p_qr_exp_unix: number
+        }
+        Returns: Json
+      }
+      apply_to_internship: {
+        Args: {
+          p_applicant_id: string
+          p_cover_letter: string
+          p_internship_id: string
+          p_portfolio_urls?: string[]
+        }
+        Returns: Json
+      }
+      approve_ride: {
+        Args: { p_decision?: string; p_parent_id?: string; p_ride_id: string }
+        Returns: Json
+      }
       are_friends: {
         Args: { p_user1: string; p_user2: string }
         Returns: boolean
       }
       assign_missions_for_period: {
         Args: { p_date?: string; p_mission_type: string; p_teen_id: string }
+        Returns: Json
+      }
+      assign_missions_for_teen: { Args: { p_teen_id: string }; Returns: number }
+      award_creator_xp: {
+        Args: {
+          p_creator_user_id: string
+          p_signal_type: string
+          p_submission_id: string
+          p_viewer_user_id?: string
+        }
+        Returns: Json
+      }
+      block_user_v2: {
+        Args: { p_blocked: string; p_blocker: string; p_reason?: string }
+        Returns: string
+      }
+      book_mentor_session: {
+        Args: {
+          p_consent_recorded?: boolean
+          p_duration_minutes?: number
+          p_mentee_user_id: string
+          p_mentor_id: string
+          p_scheduled_for: string
+        }
+        Returns: Json
+      }
+      buy_listing: {
+        Args: {
+          p_buyer_id: string
+          p_listing_id: string
+          p_meet_location_partner_id?: string
+          p_meet_method: string
+        }
         Returns: Json
       }
       calculate_balance_bonus: { Args: { p_teen_id: string }; Returns: Json }
@@ -11546,6 +18359,10 @@ export type Database = {
       }
       calculate_vip_tier: { Args: { p_user_id: string }; Returns: Json }
       can_spin_wheel: { Args: { p_user_id: string }; Returns: Json }
+      cancel_ride: {
+        Args: { p_caller_id?: string; p_reason?: string; p_ride_id: string }
+        Returns: Json
+      }
       cancel_subscription: {
         Args: { p_immediate?: boolean; p_reason?: string; p_user_id: string }
         Returns: Json
@@ -11611,12 +18428,20 @@ export type Database = {
         Returns: boolean
       }
       complete_referral: { Args: { p_referred_user_id: string }; Returns: Json }
+      complete_ride: {
+        Args: { p_actual_dh: number; p_caller_id?: string; p_ride_id: string }
+        Returns: Json
+      }
       complete_seasonal_challenge: {
         Args: { p_challenge_id: string; p_user_id: string }
         Returns: Json
       }
       complete_special_challenge: {
         Args: { p_challenge_id: string }
+        Returns: Json
+      }
+      confirm_receipt: {
+        Args: { p_buyer_id: string; p_transaction_id: string }
         Returns: Json
       }
       create_activity: {
@@ -11671,8 +18496,36 @@ export type Database = {
         }
         Returns: Json
       }
+      create_friend_challenge_v2: {
+        Args: {
+          p_challenge_kind: string
+          p_duration_hours?: number
+          p_expires_in_hours?: number
+          p_name?: string
+          p_opponent_id: string
+          p_rules?: Json
+          p_target_value?: number
+          p_xp_stake?: number
+        }
+        Returns: Json
+      }
       create_game_session: {
         Args: { p_game_type_slug: string; p_settings?: Json; p_user_id: string }
+        Returns: Json
+      }
+      create_group_action: {
+        Args: {
+          p_action_type: string
+          p_deadline?: string
+          p_invitee_ids?: string[]
+          p_max_size?: number
+          p_resource_id?: string
+          p_title?: string
+        }
+        Returns: Json
+      }
+      create_listing: {
+        Args: { p_params: Json; p_seller_id: string }
         Returns: Json
       }
       create_notification_from_template: {
@@ -11739,13 +18592,113 @@ export type Database = {
         }
         Returns: Json
       }
+      create_teen_club: {
+        Args: {
+          p_cotisation_coins?: number
+          p_description?: string
+          p_max_members?: number
+          p_name: string
+        }
+        Returns: Json
+      }
+      create_teen_event: {
+        Args: {
+          p_address?: string
+          p_capacity?: number
+          p_city?: string
+          p_description?: string
+          p_price_coins?: number
+          p_starts_at?: string
+          p_title: string
+        }
+        Returns: Json
+      }
+      decide_internship_application: {
+        Args: {
+          p_application_id: string
+          p_decider_id: string
+          p_decision: string
+          p_notes?: string
+        }
+        Returns: Json
+      }
+      decline_friend_challenge_v2: {
+        Args: { p_challenge_id: string }
+        Returns: Json
+      }
+      deduct_xp_for_payment: {
+        Args: {
+          p_amount: number
+          p_booking_id?: string
+          p_reference?: string
+          p_teen_id: string
+        }
+        Returns: Json
+      }
+      derive_quiz_cohort_key: {
+        Args: {
+          p_curriculum: string
+          p_grade_level: string
+          p_language: string
+          p_school_type: string
+        }
+        Returns: string
+      }
       detect_school_type: { Args: { p_school_name: string }; Returns: string }
+      disburse_allowance: { Args: { p_allowance_id: string }; Returns: Json }
+      dispatch_ride: {
+        Args: { p_caller_id?: string; p_driver_id: string; p_ride_id: string }
+        Returns: Json
+      }
       end_game_session: { Args: { p_session_id: string }; Returns: Json }
+      ensure_direct_conversation: {
+        Args: { p_other: string; p_self: string }
+        Returns: string
+      }
       equip_profile_item: {
         Args: { p_item_id: string; p_item_type: string; p_user_id: string }
         Returns: boolean
       }
+      evolve_all_teens: { Args: never; Returns: Json }
+      expire_old_friend_requests: { Args: never; Returns: number }
       expire_old_missions: { Args: never; Returns: number }
+      feature_submission: {
+        Args: { p_admin_user_id: string; p_submission_id: string }
+        Returns: Json
+      }
+      finalize_group_anniv: {
+        Args: {
+          p_anniv_order_id: string
+          p_group_action_id: string
+          p_total_dh: number
+        }
+        Returns: Json
+      }
+      finalize_group_event_booking: {
+        Args: { p_event_id: string; p_group_action_id: string }
+        Returns: Json
+      }
+      finalize_group_food_order: {
+        Args: {
+          p_address?: string
+          p_delivery_type: string
+          p_group_action_id: string
+          p_items: Json
+          p_partner_id: string
+        }
+        Returns: Json
+      }
+      finalize_group_ride: {
+        Args: {
+          p_dropoff: string
+          p_event_id?: string
+          p_group_action_id: string
+          p_pickup: string
+          p_scheduled_for: string
+          p_total_dh: number
+        }
+        Returns: Json
+      }
       generate_friend_suggestions: {
         Args: { p_limit?: number; p_teen_id: string }
         Returns: undefined
@@ -11876,6 +18829,61 @@ export type Database = {
           xp_reward: number
         }[]
       }
+      get_feed_cursor_page: {
+        Args: {
+          p_cursor_created_at?: string
+          p_cursor_featured?: boolean
+          p_cursor_id?: string
+          p_limit?: number
+          p_user_id: string
+        }
+        Returns: {
+          category: string
+          comments_count: number
+          content: string
+          created_at: string
+          featured: boolean
+          id: string
+          likes_count: number
+          media_urls: Json
+          metadata: Json
+          shares_count: number
+          status: string
+          type: string
+          user_id: string
+          user_liked: boolean
+          user_reported: boolean
+          user_saved: boolean
+          visibility: string
+        }[]
+      }
+      get_feed_cursor_page_anon: {
+        Args: {
+          p_cursor_created_at?: string
+          p_cursor_featured?: boolean
+          p_cursor_id?: string
+          p_limit?: number
+        }
+        Returns: {
+          category: string
+          comments_count: number
+          content: string
+          created_at: string
+          featured: boolean
+          id: string
+          likes_count: number
+          media_urls: Json
+          metadata: Json
+          shares_count: number
+          status: string
+          type: string
+          user_id: string
+          user_liked: boolean
+          user_reported: boolean
+          user_saved: boolean
+          visibility: string
+        }[]
+      }
       get_friends: {
         Args: { p_teen_id: string }
         Returns: {
@@ -11954,6 +18962,10 @@ export type Database = {
       get_or_create_referral_code: {
         Args: { p_user_id: string }
         Returns: Json
+      }
+      get_partner_commission_pct: {
+        Args: { p_partner_id: string }
+        Returns: number
       }
       get_personalized_feed: {
         Args: {
@@ -12274,12 +19286,121 @@ export type Database = {
         }
         Returns: Json
       }
+      is_active_circle_member: {
+        Args: { p_circle_id: string; p_teen_id: string }
+        Returns: boolean
+      }
+      is_active_crew_member: {
+        Args: { p_crew_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_blocked_either: {
+        Args: { p_a: string; p_b: string }
+        Returns: boolean
+      }
+      is_challenge_participant: {
+        Args: { p_challenge_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_circle_admin: {
+        Args: { p_circle_id: string; p_teen_id: string }
+        Returns: boolean
+      }
+      is_crew_admin: {
+        Args: { p_crew_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      issue_partner_invoice: {
+        Args: { p_admin_id: string; p_invoice_id: string }
+        Returns: {
+          commission_dh: number
+          created_at: string
+          gross_dh: number
+          id: string
+          invoice_number: string | null
+          issued_at: string | null
+          net_dh: number
+          notes: string | null
+          paid_at: string | null
+          partner_id: string
+          payout_id: string | null
+          pdf_url: string | null
+          period_end: string
+          period_start: string
+          status: string
+          total_dh: number
+          updated_at: string
+          vat_dh: number
+          vat_pct: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "partner_invoices"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       join_game_session: {
         Args: { p_session_id: string; p_user_id: string }
         Returns: Json
       }
+      join_teen_club: { Args: { p_club_id: string }; Returns: Json }
+      leaderboard_all_time: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          city: string
+          current_streak: number
+          level: number
+          longest_streak: number
+          percentile: number
+          pseudo: string
+          rank: number
+          teen_id: string
+          total_xp: number
+        }[]
+      }
+      leaderboard_monthly: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          best_weekly_rank: number
+          challenges_completed: number
+          city: string
+          events_attended: number
+          level: number
+          month: number
+          pseudo: string
+          rank: number
+          streak_max: number
+          teen_id: string
+          xp_earned: number
+          year: number
+        }[]
+      }
+      leaderboard_weekly: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          challenges_completed: number
+          city: string
+          events_attended: number
+          level: number
+          pseudo: string
+          rank: number
+          streak_max: number
+          teen_id: string
+          week_end: string
+          week_start: string
+          xp_earned: number
+        }[]
+      }
       leave_crew: {
         Args: { p_crew_id: string; p_user_id: string }
+        Returns: Json
+      }
+      lock_to_goal: {
+        Args: { p_amount: number; p_goal_id: string; p_teen_id: string }
         Returns: Json
       }
       make_prediction: {
@@ -12291,22 +19412,173 @@ export type Database = {
         }
         Returns: Json
       }
+      manual_topup_threshold_status: { Args: never; Returns: Json }
       mark_notifications_read: {
         Args: { p_notification_ids?: string[]; p_user_id: string }
         Returns: number
       }
       mark_user_offline: { Args: never; Returns: undefined }
+      marketplace_auto_release_escrow: {
+        Args: never
+        Returns: {
+          error: string
+          status: string
+          transaction_id: string
+        }[]
+      }
+      mentor_can_dm_teen: {
+        Args: { p_mentor_id: string; p_teen_id: string }
+        Returns: boolean
+      }
+      mentor_complete_session: { Args: { p_session_id: string }; Returns: Json }
+      mentor_is_admin: { Args: { p_uid: string }; Returns: boolean }
+      mp_is_admin: { Args: { p_uid: string }; Returns: boolean }
       open_advent_day: {
         Args: { p_day_number: number; p_user_id: string }
         Returns: Json
       }
+      open_dispute: {
+        Args: { p_reason: string; p_transaction_id: string; p_user_id: string }
+        Returns: Json
+      }
+      parent_approve_booking: {
+        Args: { p_approval_id: string; p_parent_id: string }
+        Returns: Json
+      }
+      parent_approve_content: {
+        Args: { p_approval_id: string; p_parent_id: string }
+        Returns: Json
+      }
+      parent_approve_food: {
+        Args: { p_approval_id: string; p_parent_id: string }
+        Returns: Json
+      }
+      parent_approve_group_action: {
+        Args: { p_approval_id: string; p_parent_id: string }
+        Returns: Json
+      }
+      parent_approve_purchase: {
+        Args: { p_approval_id: string; p_parent_id: string }
+        Returns: Json
+      }
+      parent_approve_ride: {
+        Args: { p_approval_id: string; p_parent_id: string }
+        Returns: Json
+      }
+      parent_approve_session: {
+        Args: { p_parent_id: string; p_session_id: string }
+        Returns: Json
+      }
+      parent_approve_session_v2: {
+        Args: { p_approval_id: string; p_parent_id: string }
+        Returns: Json
+      }
+      parent_deny_booking: {
+        Args: { p_approval_id: string; p_parent_id: string; p_reason?: string }
+        Returns: Json
+      }
+      parent_deny_content: {
+        Args: { p_approval_id: string; p_parent_id: string; p_reason?: string }
+        Returns: Json
+      }
+      parent_deny_food: {
+        Args: { p_approval_id: string; p_parent_id: string; p_reason?: string }
+        Returns: Json
+      }
+      parent_deny_group_action: {
+        Args: { p_approval_id: string; p_parent_id: string }
+        Returns: Json
+      }
+      parent_deny_purchase: {
+        Args: { p_approval_id: string; p_parent_id: string; p_reason?: string }
+        Returns: Json
+      }
+      parent_deny_ride: {
+        Args: { p_approval_id: string; p_parent_id: string; p_reason?: string }
+        Returns: Json
+      }
+      parent_deny_session: {
+        Args: { p_parent_id: string; p_reason?: string; p_session_id: string }
+        Returns: Json
+      }
+      parent_deny_session_v2: {
+        Args: { p_approval_id: string; p_parent_id: string; p_reason?: string }
+        Returns: Json
+      }
+      partner_accept_food_order: {
+        Args: { p_order_id: string; p_partner_user_id: string }
+        Returns: Json
+      }
+      partner_reject_food_order: {
+        Args: { p_order_id: string; p_reason?: string }
+        Returns: Json
+      }
+      payout_chore_reward: {
+        Args: { p_completion_id: string; p_verified_by: string }
+        Returns: Json
+      }
+      place_food_order: {
+        Args: {
+          p_address?: string
+          p_delivery_type: string
+          p_items: Json
+          p_partner_id: string
+          p_payment_method?: string
+          p_scheduled_for?: string
+          p_teen_id: string
+        }
+        Returns: Json
+      }
       process_special_challenges: { Args: never; Returns: undefined }
+      prune_expired_mentor_recordings: { Args: never; Returns: number }
+      purchase_partner_offer: {
+        Args: {
+          p_idempotency_key?: string
+          p_offer_id: string
+          p_teen_id: string
+        }
+        Returns: Json
+      }
       purchase_reward: {
         Args: { p_promo_code?: string; p_reward_id: string; p_user_id: string }
         Returns: Json
       }
+      purge_coach_data: { Args: { p_days?: number }; Returns: undefined }
+      rate_mentor_session: {
+        Args: { p_rater_id: string; p_rating: number; p_session_id: string }
+        Returns: Json
+      }
       recalculate_all_pillar_scores: {
         Args: { p_teen_id: string }
+        Returns: Json
+      }
+      recommend_for_teen: {
+        Args: {
+          p_content_type: string
+          p_language?: string
+          p_n?: number
+          p_teen_id: string
+        }
+        Returns: Json[]
+      }
+      recommend_friends: {
+        Args: { p_limit?: number; p_teen_id: string }
+        Returns: Json[]
+      }
+      recommend_quizzes_for_teen: {
+        Args: { p_limit?: number; p_teen_id: string }
+        Returns: {
+          quiz_id: string
+          reason: string
+          score: number
+        }[]
+      }
+      recompute_neighbours: {
+        Args: { p_limit?: number; p_teen_id: string }
+        Returns: number
+      }
+      record_friend_challenge_progress_v2: {
+        Args: { p_challenge_id: string; p_delta?: number; p_metadata?: Json }
         Returns: Json
       }
       record_link_click: {
@@ -12319,6 +19591,14 @@ export type Database = {
         }
         Returns: Json
       }
+      record_marketplace_sale: {
+        Args: {
+          p_buyer_teen_id: string
+          p_idempotency_key?: string
+          p_listing_id: string
+        }
+        Returns: Json
+      }
       record_onboarding_step: {
         Args: {
           p_step: string
@@ -12327,6 +19607,17 @@ export type Database = {
           p_xp?: number
         }
         Returns: Json
+      }
+      record_signal: {
+        Args: {
+          p_metadata?: Json
+          p_signal_type: string
+          p_target_id: string
+          p_target_type: string
+          p_teen_id: string
+          p_weight?: number
+        }
+        Returns: number
       }
       record_social_share: {
         Args: {
@@ -12349,13 +19640,70 @@ export type Database = {
         }
         Returns: string
       }
+      refresh_creator_monthly_stats: { Args: never; Returns: number }
       refund_booking_xp: { Args: { p_booking_id: string }; Returns: boolean }
+      refund_group_split: {
+        Args: { p_group_action_id: string; p_teen_id?: string }
+        Returns: Json
+      }
+      register_marketplace_seller: {
+        Args: {
+          p_commission_pct?: number
+          p_display_name?: string
+          p_partner_id: string
+          p_payout_method?: string
+        }
+        Returns: Json
+      }
+      release_from_goal: {
+        Args: { p_goal_id: string; p_reason?: string }
+        Returns: Json
+      }
       remove_message_reaction: {
         Args: { p_emoji: string; p_message_id: string; p_teen_id: string }
         Returns: Json
       }
+      request_group_opposition: {
+        Args: { p_action_type: string; p_group_action_id: string }
+        Returns: Json
+      }
+      request_ride: {
+        Args: {
+          p_caller_id?: string
+          p_curfew_override?: boolean
+          p_dropoff_address: string
+          p_dropoff_lat?: number
+          p_dropoff_lng?: number
+          p_estimated_dh?: number
+          p_event_id?: string
+          p_payment_method?: string
+          p_pickup_address: string
+          p_pickup_lat?: number
+          p_pickup_lng?: number
+          p_provider?: string
+          p_scheduled_for: string
+          p_teen_id: string
+        }
+        Returns: Json
+      }
       request_to_join_crew: {
         Args: { p_crew_id: string; p_message?: string; p_user_id: string }
+        Returns: Json
+      }
+      reserve_group_venue_slot: {
+        Args: { p_group_action_id: string; p_slot_id: string }
+        Returns: Json
+      }
+      resolve_dispute: {
+        Args: {
+          p_admin_notes?: string
+          p_dispute_id: string
+          p_resolution: string
+        }
+        Returns: Json
+      }
+      resolve_friend_challenge_v2: {
+        Args: { p_challenge_id: string }
         Returns: Json
       }
       resolve_prediction: {
@@ -12368,6 +19716,10 @@ export type Database = {
       }
       respond_to_crew_invitation: {
         Args: { p_accept: boolean; p_invitation_id: string; p_user_id: string }
+        Returns: Json
+      }
+      respond_to_group_invite: {
+        Args: { p_group_action_id: string; p_response: string }
         Returns: Json
       }
       send_circle_message: {
@@ -12405,6 +19757,16 @@ export type Database = {
         Args: { p_message?: string; p_receiver_id: string; p_sender_id: string }
         Returns: string
       }
+      spend_teen_coins: {
+        Args: {
+          p_amount_coins: number
+          p_idempotency_key?: string
+          p_partner_id?: string
+          p_reward_id?: string
+          p_teen_id: string
+        }
+        Returns: Json
+      }
       spend_tokens: {
         Args: {
           p_amount: number
@@ -12417,6 +19779,15 @@ export type Database = {
       }
       spin_wheel: {
         Args: { p_spin_type?: string; p_user_id: string }
+        Returns: Json
+      }
+      split_group_purchase: {
+        Args: {
+          p_group_action_id: string
+          p_idempotency_key?: string
+          p_participants: Json
+          p_partner_id?: string
+        }
         Returns: Json
       }
       start_challenge: { Args: { p_challenge_id: string }; Returns: undefined }
@@ -12483,6 +19854,25 @@ export type Database = {
         Args: { p_reward_id: string; p_user_id: string }
         Returns: Json
       }
+      top_up_teen:
+        | {
+            Args: {
+              p_amount_dh: number
+              p_parent_id: string
+              p_teen_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_amount_dh: number
+              p_parent_id: string
+              p_provider: string
+              p_provider_ref: string
+              p_teen_id: string
+            }
+            Returns: Json
+          }
       track_share_click: { Args: { p_share_code: string }; Returns: Json }
       transfer_tokens: {
         Args: {
@@ -12496,6 +19886,10 @@ export type Database = {
       }
       unlock_achievement: {
         Args: { p_achievement_code: string; p_teen_id: string }
+        Returns: Json
+      }
+      unlock_group_size_rewards: {
+        Args: { p_group_action_id: string; p_partner_id?: string }
         Returns: Json
       }
       unlock_profile_item: {
@@ -12516,6 +19910,7 @@ export type Database = {
         }
         Returns: Json
       }
+      update_affinity_scores: { Args: { p_teen_id: string }; Returns: number }
       update_challenge_progress: {
         Args: { p_source?: string; p_user_id: string }
         Returns: number
@@ -12604,8 +19999,21 @@ export type Database = {
         Returns: Json
       }
       validate_quiz_content: { Args: { p_quiz_id: string }; Returns: Json }
+      verify_chore_completion: {
+        Args: {
+          p_action: string
+          p_completion_id: string
+          p_parent_id: string
+          p_rejection_reason?: string
+        }
+        Returns: Json
+      }
       vote_on_submission: {
         Args: { p_submission_id: string; p_user_id: string; p_vote: number }
+        Returns: Json
+      }
+      withdraw_from_goal: {
+        Args: { p_destination?: string; p_goal_id: string; p_metadata?: Json }
         Returns: Json
       }
     }

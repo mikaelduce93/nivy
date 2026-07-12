@@ -1,3 +1,4 @@
+// drift-allow: game_sessions livrée par la mig 181 (train G4, agent DB parallèle) — régénérer db-relations.json après application. Le code gère déjà la table absente (fallback « Bientôt »).
 /**
  * Mini-jeux G4 — helpers serveur (SPEC-G4 §7, §6.2)
  * =================================================

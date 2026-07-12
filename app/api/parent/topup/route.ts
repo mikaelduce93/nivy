@@ -176,13 +176,25 @@ export async function POST(request: Request) {
     // psp_provider+psp_reference; we tag this manual rail per F5.
     // The RPC computes amount_coins server-side as amount_dh*100 (canon §2.1).
     const providerRef = `manual:${idempotencyKey}`
-    const { data: rpcData, error } = await admin.rpc("top_up_teen", {
+    const { data: rpcRaw, error } = await admin.rpc("top_up_teen", {
       p_parent_id: parentId,
       p_teen_id: teenId,
       p_amount_dh: amountDh,
       p_provider: "manual",
       p_provider_ref: providerRef,
     })
+    // Le RPC retourne un jsonb (typé Json par le codegen Supabase) ; contrat
+    // réel documenté dans la migration 179 / 095.
+    const rpcData = (rpcRaw ?? null) as {
+      success?: boolean
+      error?: string
+      cap_dh?: number
+      mtd_dh?: number
+      payment_id?: string
+      amount_coins?: number
+      new_balance?: number
+      idempotent_replay?: boolean
+    } | null
 
     if (error) {
       console.error("[topup] RPC error:", error)
