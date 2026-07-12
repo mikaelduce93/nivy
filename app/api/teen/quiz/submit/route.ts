@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
-import { submitQuizSchema, type QuizQuestion } from "@/lib/quiz/schema"
+import { getQuizAnswerKey } from "@/lib/quiz/server"
+import { submitQuizSchema } from "@/lib/quiz/schema"
 import { recordSignalAsync } from "@/lib/analytics/signals"
 
 /**
@@ -12,6 +13,12 @@ import { recordSignalAsync } from "@/lib/analytics/signals"
  * Re-grades the quiz server-side from the canonical answer key, persists a
  * `quiz_attempts` row, and grants XP through the existing `add_xp_to_user`
  * RPC (the same path used by `app/api/teen/education/quizzes/route.ts`).
+ *
+ * J0 (spec G4 §3.0, migration 180) : la clé de réponses est lue via
+ * `getQuizAnswerKey` (lecture authenticated pré-180, bascule service-role
+ * une fois la colonne verrouillée). `correct`/`explanation` ne sont renvoyés
+ * qu'ICI, après soumission, question par question — jamais dans le payload
+ * initial du runner.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -33,10 +40,11 @@ export async function POST(request: NextRequest) {
     const { quizId, answers, timeSpentSeconds } = validation.data
     const supabase = await createClient()
 
-    // Load the quiz answer key
+    // Quiz metadata via le client user (la RLS 022 vérifie is_active) — la
+    // colonne `questions` n'est plus dans ce select (verrouillée par la 180).
     const { data: quiz, error: quizError } = await supabase
       .from("educational_quizzes")
-      .select("id, title, questions, passing_score, xp_reward, subject, tags")
+      .select("id, title, passing_score, xp_reward, subject, tags")
       .eq("id", quizId)
       .eq("is_active", true)
       .maybeSingle()
@@ -49,9 +57,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 })
     }
 
-    const questions = Array.isArray(quiz.questions)
-      ? (quiz.questions as QuizQuestion[])
-      : []
+    // Answer key — server-side scoring only (J0).
+    const questions = await getQuizAnswerKey(supabase, quizId)
+    if (!questions) {
+      return NextResponse.json({ error: "Failed to load quiz" }, { status: 500 })
+    }
     if (questions.length === 0) {
       return NextResponse.json({ error: "Quiz has no questions" }, { status: 400 })
     }
@@ -76,6 +86,14 @@ export async function POST(request: NextRequest) {
         isCorrect,
       }
     })
+
+    // J0 — la correction/explication n'est révélée qu'APRÈS soumission, dans
+    // cette réponse (le payload initial du runner est strippé). La version
+    // persistée dans quiz_attempts.answers reste `results` (shape inchangée).
+    const responseResults = results.map((r, i) => ({
+      ...r,
+      explanation: questions[i]?.explanation ?? null,
+    }))
 
     const score = Math.round((correctCount / questions.length) * 100)
     const passingScore = quiz.passing_score ?? 60
@@ -258,7 +276,7 @@ export async function POST(request: NextRequest) {
         // Anti-farm : retour honnête pour l'écran de fin — pas de faux gain.
         xpAwarded: xpEarned > 0,
         alreadyRewarded,
-        results,
+        results: responseResults,
       },
     })
   } catch (error) {

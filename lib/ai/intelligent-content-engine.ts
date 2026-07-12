@@ -71,12 +71,14 @@ class TeenProfileRepository {
       supabase.rpc("calculate_teen_behavioral_profile", { p_teen_id: teenId }),
       supabase
         .from("quiz_attempts")
+        // J0 (migration 180) : l'embed ne lit plus `questions` (clé de
+        // réponses, verrouillée pour authenticated) — seule sa longueur était
+        // utilisée, or `quiz_attempts.total_questions` la porte déjà.
         .select(`
           *,
           educational_quizzes (
             subject,
-            difficulty,
-            questions
+            difficulty
           )
         `)
         .eq("teen_id", teenId)
@@ -109,9 +111,11 @@ class TeenProfileRepository {
 
   static async getActiveQuizzes(limit = 100) {
     const supabase = await this.getSupabase()
+    // J0 (migration 180) : colonnes explicites (le scoring n'utilise que
+    // id/subject/difficulty) — `select("*")` échouerait en 42501 post-180.
     return await supabase
       .from("educational_quizzes")
-      .select("*")
+      .select("id, subject, difficulty")
       .eq("is_active", true)
       .limit(limit)
   }
@@ -160,7 +164,9 @@ class ProfileAnalyzer {
     if (attempts.length === 0) return { avgTimeSpent: 900, preferredDifficulty: "normal", optimalLength: 10 }
 
     const times = attempts.map(a => a.time_spent_seconds).filter(Boolean)
-    const lengths = attempts.map(a => a.educational_quizzes?.questions?.length).filter(Boolean)
+    // J0 : longueur du quiz lue sur quiz_attempts.total_questions (l'embed ne
+    // ramène plus le JSONB `questions`, verrouillé par la migration 180).
+    const lengths = attempts.map(a => a.total_questions).filter(Boolean)
     
     // Group scores by difficulty
     const diffScores: Record<string, number[]> = {}

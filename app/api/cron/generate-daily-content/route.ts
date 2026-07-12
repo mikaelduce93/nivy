@@ -27,6 +27,7 @@
 import { createHash } from "node:crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import {
   ContentGenerator,
   type GenerationParams,
@@ -221,7 +222,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const supabase = await createClient()
+    // J0 (spec G4 §3.0) : client service-role — ce cron tournait sur le client
+    // serveur anon (aucune session sur une requête Vercel Cron), donc ses
+    // écritures `educational_quizzes`/`mission_templates` dépendaient de
+    // grants anon, et le RETURNING de l'insert quiz aurait cassé une fois la
+    // colonne `questions` verrouillée par la migration 180 (REVOKE SELECT
+    // anon/authenticated ; service_role garde tout). Même pattern que les
+    // autres crons (ex. tag-normalize). La route reste gated CRON_SECRET.
+    const supabase = createServiceRoleClient()
     const today = new Date().toISOString().split("T")[0]
 
     // Idempotency — if today already finished, short-circuit.
@@ -507,6 +515,9 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(_request: NextRequest) {
   try {
+    // GET (status public, non gated) : on GARDE le client anon — passer au
+    // service-role élargirait la surface pré-auth (canon V8), et cette lecture
+    // de daily_content_schedule n'est pas concernée par la migration 180.
     const supabase = await createClient()
     const today = new Date().toISOString().split("T")[0]
 

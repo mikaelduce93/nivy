@@ -87,9 +87,11 @@ export async function GET(request: NextRequest) {
       const passedQuizIds = quizAttempts?.map((a) => a.quiz_id) || []
 
       for (const weakSubject of weakSubjects.slice(0, 3)) {
+        // J0 (migration 180) : colonnes explicites, sans `questions` — un
+        // `select("*")` échouerait en 42501 une fois la 180 appliquée.
         const { data: quizzes } = await supabase
           .from("educational_quizzes")
-          .select("*")
+          .select("id, title, description, xp_reward")
           .eq("subject", weakSubject.subject)
           .eq("is_active", true)
           .not("id", "in", passedQuizIds.length > 0 ? `(${passedQuizIds.join(",")})` : "(00000000-0000-0000-0000-000000000000)")

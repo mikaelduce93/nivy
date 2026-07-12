@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { getQuizAnswerKey, getQuizQuestionCounts } from "@/lib/quiz/server"
 
 /**
  * GET /api/teen/education/quizzes
  * Fetch available quizzes with optional filters
+ *
+ * J0 (spec G4 §3.0, migration 180) : cette route renvoyait le JSONB
+ * `questions` brut (clé `correct` incluse) au client. Elle sert désormais
+ * les métadonnées + `questions_count` — les énoncés se prennent via
+ * /api/teen/quiz/[id] (payload strippé), la correction via le submit.
  *
  * Query params:
  * - teenId: UUID of the teen (required)
@@ -37,10 +43,13 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Build query
+    // Build query — colonnes explicites, SANS `questions` (clé de réponses,
+    // verrouillée par la migration 180).
     let query = supabase
       .from("educational_quizzes")
-      .select("*")
+      .select(
+        "id, code, title, description, subject, difficulty, grade_level, time_limit_minutes, passing_score, xp_reward, icon, is_active, created_at",
+      )
       .eq("is_active", true)
       .order("created_at", { ascending: false })
 
@@ -64,6 +73,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const questionCounts = await getQuizQuestionCounts(supabase)
+
     // Get teen's quiz attempts to show completion status
     const { data: attempts } = await supabase
       .from("quiz_attempts")
@@ -81,6 +92,9 @@ export async function GET(request: NextRequest) {
 
       return {
         ...quiz,
+        // J0 : `questions` (clé de réponses) ne sort plus — le compteur suffit
+        // aux listes (RPC 180, fallback pré-180 dans lib/quiz/server.ts).
+        questions_count: questionCounts.get(quiz.id) ?? 0,
         attempts_count: quizAttempts.length,
         best_score: bestAttempt?.score || null,
         passed: bestAttempt?.passed || false,
@@ -134,10 +148,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get quiz details
+    // Get quiz details — colonnes explicites, SANS `questions` (J0 : la
+    // colonne est verrouillée pour authenticated par la migration 180, et un
+    // `select("*")` PostgREST échouerait en 42501 une fois la 180 appliquée).
     const { data: quiz, error: quizError } = await supabase
       .from("educational_quizzes")
-      .select("*")
+      .select("id, title, passing_score, xp_reward")
       .eq("id", quizId)
       .single()
 
@@ -148,12 +164,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Parse questions and calculate score
-    const questions = quiz.questions as Array<{
-      question: string
-      options: string[]
-      correct: number
-    }>
+    // Answer key — server-side scoring only (J0) : lecture authenticated
+    // pré-180, bascule service-role une fois la colonne verrouillée.
+    const questions = await getQuizAnswerKey(supabase, quizId)
+    if (!questions || questions.length === 0) {
+      return NextResponse.json(
+        { error: "Quiz not found" },
+        { status: 404 }
+      )
+    }
 
     let correctCount = 0
     const results = questions.map((q, index) => {

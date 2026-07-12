@@ -18,9 +18,14 @@ export async function getAcademicData(teenId: string) {
   const supabase = await createClient()
 
   // 1. Get Quizzes
+  // J0 (spec G4 §3.0, migration 180) : colonnes explicites, SANS `questions`
+  // — le spread `...q` du retour renvoyait la clé de réponses (`correct`) au
+  // client, et un `select("*")` échouerait en 42501 une fois la 180 appliquée.
   const { data: quizzes } = await supabase
     .from("educational_quizzes")
-    .select("*")
+    .select(
+      "id, code, title, description, subject, difficulty, grade_level, time_limit_minutes, passing_score, xp_reward, icon",
+    )
     .eq("is_active", true)
 
   // 2. Get User's Quiz Attempts (best score per quiz)

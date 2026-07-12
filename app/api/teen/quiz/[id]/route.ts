@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
+import { getQuizQuestionsPublic } from "@/lib/quiz/server"
 import { z } from "zod"
-import type { Quiz } from "@/lib/quiz/schema"
+import type { QuizPublic } from "@/lib/quiz/schema"
 
 const paramsSchema = z.object({
   id: z.string().uuid("ID de quiz invalide"),
@@ -12,9 +13,13 @@ const paramsSchema = z.object({
  * GET /api/teen/quiz/[id]
  *
  * Fetch a single quiz with its questions (for the taking-quiz page).
- * IMPORTANT: returns the `correct` index too — the answer key is necessary
- * for the existing `educational_quizzes`-style scoring done client-side
- * during the run; the server re-validates on submit.
+ *
+ * J0 (spec G4 §3.0, migration 180) : la clé de réponses ne quitte JAMAIS le
+ * serveur dans ce payload — les questions sont servies SANS `correct` ni
+ * `explanation` (RPC `get_quiz_questions_stripped`, fallback strip TS tant
+ * que la 180 n'est pas appliquée). Le scoring est serveur ; la correction et
+ * l'explication reviennent question par question dans la RÉPONSE de
+ * /api/teen/quiz/submit, après soumission seulement.
  */
 export async function GET(
   _request: NextRequest,
@@ -40,7 +45,7 @@ export async function GET(
     const { data: quiz, error } = await supabase
       .from("educational_quizzes")
       .select(
-        "id, code, title, description, subject, difficulty, grade_level, questions, time_limit_minutes, passing_score, xp_reward, icon, is_active",
+        "id, code, title, description, subject, difficulty, grade_level, time_limit_minutes, passing_score, xp_reward, icon",
       )
       .eq("id", validation.data.id)
       .eq("is_active", true)
@@ -55,7 +60,12 @@ export async function GET(
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 })
     }
 
-    const result: Quiz = {
+    const questions = await getQuizQuestionsPublic(supabase, quiz.id)
+    if (questions === null) {
+      return NextResponse.json({ error: "Quiz not found" }, { status: 404 })
+    }
+
+    const result: QuizPublic = {
       id: quiz.id,
       code: quiz.code,
       title: quiz.title,
@@ -63,7 +73,7 @@ export async function GET(
       subject: quiz.subject,
       difficulty: quiz.difficulty,
       grade_level: quiz.grade_level,
-      questions: Array.isArray(quiz.questions) ? (quiz.questions as Quiz["questions"]) : [],
+      questions,
       time_limit_minutes: quiz.time_limit_minutes,
       passing_score: quiz.passing_score,
       xp_reward: quiz.xp_reward,

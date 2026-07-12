@@ -16,6 +16,18 @@ export interface QuizQuestion {
   type?: "mcq" | "true_false" | "multiple_choice"
 }
 
+/**
+ * J0 (spec G4 §3.0, migration 180) — a question as served to the CLIENT:
+ * the answer key (`correct`) and `explanation` never leave the server before
+ * submission. The correction comes back in the /api/teen/quiz/submit response.
+ */
+export type QuizQuestionPublic = Omit<QuizQuestion, "correct" | "explanation">
+
+/** Client-facing quiz payload — questions stripped of the answer key. */
+export interface QuizPublic extends Omit<Quiz, "questions"> {
+  questions: QuizQuestionPublic[]
+}
+
 /** Row-shape for a fully-loaded quiz (from `educational_quizzes`). */
 export interface Quiz {
   id: string

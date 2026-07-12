@@ -104,7 +104,13 @@ export async function POST(request: NextRequest) {
                 xp_reward: generated.xp_reward,
                 is_active: true,
               })
-              .select()
+              // J0 (migration 180) : RETURNING explicite sans `questions` —
+              // un `.select()` implicite échouerait en 42501 une fois la
+              // colonne verrouillée pour authenticated (les admins passent
+              // par le rôle PostgREST `authenticated` aussi).
+              .select(
+                "id, code, title, description, subject, difficulty, grade_level, time_limit_minutes, passing_score, xp_reward, is_active",
+              )
               .single()
 
             if (!quizError && quiz) {

@@ -10,7 +10,7 @@ import { SegmentedProgress } from "@/components/ui/progress"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { Niv, DarkSurface } from "@/components/brand"
 import { Confetti } from "@/components/ui/effects/confetti"
-import type { Quiz } from "@/lib/quiz/schema"
+import type { QuizPublic } from "@/lib/quiz/schema"
 import { getCategoryMeta } from "@/lib/quiz/catalog"
 import { markPushPromptEligible } from "@/components/teen/push-permission-prompt"
 
@@ -27,16 +27,20 @@ interface SubmitResponse {
     // réussite — un rejeu réussi renvoie xpAwarded=false + alreadyRewarded=true.
     xpAwarded?: boolean
     alreadyRewarded?: boolean
+    // J0 : la correction (correctAnswer) et l'explication arrivent ICI, dans
+    // la réponse du submit — le payload initial du quiz est strippé
+    // (`correct`/`explanation` absents, spec G4 §3.0 / migration 180).
     results: Array<{
       question: string
       userAnswer: number
       correctAnswer: number
       isCorrect: boolean
+      explanation?: string | null
     }>
   }
 }
 
-export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
+export function QuizRunnerClient({ quiz }: { quiz: QuizPublic }) {
   const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<number[]>(() =>
@@ -224,6 +228,9 @@ export function QuizRunnerClient({ quiz }: { quiz: Quiz }) {
                       <p className="text-sm text-mute mt-1">
                         Bonne réponse : <strong>{quiz.questions[i].options[r.correctAnswer]}</strong>
                       </p>
+                    )}
+                    {r.explanation && (
+                      <p className="text-sm text-mute mt-1">{r.explanation}</p>
                     )}
                   </div>
                 </div>

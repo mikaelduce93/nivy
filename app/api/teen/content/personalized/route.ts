@@ -53,9 +53,15 @@ export async function GET(request: NextRequest) {
 
     // Récupérer les quiz recommandés
     if (contentType === "all" || contentType === "quiz") {
+      // J0 (spec G4 §3.0, migration 180) : colonnes explicites, SANS
+      // `questions` — cette route renvoyait le JSONB brut (clé `correct`
+      // incluse) au client via le spread `...quiz`, et un `select("*")`
+      // échouerait en 42501 une fois la colonne verrouillée par la 180.
       let quizQuery = supabase
         .from("educational_quizzes")
-        .select("*")
+        .select(
+          "id, code, title, description, subject, difficulty, grade_level, time_limit_minutes, passing_score, xp_reward, icon, is_active, created_at",
+        )
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(limit)

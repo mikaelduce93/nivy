@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
+import { getQuizQuestionCounts } from "@/lib/quiz/server"
 import type { QuizCategorySummary, QuizSummary } from "@/lib/quiz/schema"
 
 /**
@@ -10,6 +11,10 @@ import type { QuizCategorySummary, QuizSummary } from "@/lib/quiz/schema"
  * each with the total quiz count and how many distinct quizzes the current
  * teen has passed at least once. Optionally returns the quizzes for one
  * subject when `?subject=...` is provided.
+ *
+ * J0 (spec G4 §3.0) : ne lit plus la colonne `questions` (clé de réponses,
+ * verrouillée par la migration 180) — le compteur passe par
+ * `get_quiz_question_counts` (fallback pré-180 dans lib/quiz/server.ts).
  *
  * Response: { categories: QuizCategorySummary[]; quizzes?: QuizSummary[] }
  */
@@ -28,7 +33,7 @@ export async function GET(request: NextRequest) {
     const { data: quizzes, error } = await supabase
       .from("educational_quizzes")
       .select(
-        "id, code, title, description, subject, difficulty, grade_level, questions, time_limit_minutes, passing_score, xp_reward, icon",
+        "id, code, title, description, subject, difficulty, grade_level, time_limit_minutes, passing_score, xp_reward, icon",
       )
       .eq("is_active", true)
       .order("subject", { ascending: true })
@@ -61,6 +66,7 @@ export async function GET(request: NextRequest) {
     // Build the lightweight per-subject quiz list when requested
     let filteredQuizzes: QuizSummary[] | undefined
     if (subject) {
+      const questionCounts = await getQuizQuestionCounts(supabase)
       filteredQuizzes = (quizzes ?? [])
         .filter((q) => q.subject === subject)
         .map<QuizSummary>((q) => ({
@@ -71,7 +77,7 @@ export async function GET(request: NextRequest) {
           subject: q.subject,
           difficulty: q.difficulty,
           grade_level: q.grade_level,
-          questions_count: Array.isArray(q.questions) ? q.questions.length : 0,
+          questions_count: questionCounts.get(q.id) ?? 0,
           time_limit_minutes: q.time_limit_minutes,
           passing_score: q.passing_score,
           xp_reward: q.xp_reward,

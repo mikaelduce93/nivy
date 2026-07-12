@@ -34,9 +34,11 @@ export async function getUnifiedQuests(): Promise<UnifiedQuest[]> {
   const quests: UnifiedQuest[] = []
 
   // 1. INTELLECT: AI Quizzes
+  // J0 (migration 180) : colonnes explicites, sans `questions` (clé de
+  // réponses) — un `select("*")` échouerait en 42501 une fois la 180 appliquée.
   const { data: quizzes } = await supabase
     .from("educational_quizzes")
-    .select("*")
+    .select("id, title, description, subject, difficulty, xp_reward")
     .eq("is_active", true)
     .limit(3)
 

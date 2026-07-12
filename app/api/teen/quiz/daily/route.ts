@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
+import { getQuizQuestionCounts } from "@/lib/quiz/server"
 
 /**
  * GET /api/teen/quiz/daily
@@ -9,6 +10,10 @@ import { getUserRole } from "@/lib/auth/get-user-role"
  * every teen on the same calendar day (UTC), and rotates daily through the
  * pool of active quizzes. Also reports whether the current teen has already
  * attempted today's quiz (so the UI can show a "completed" state).
+ *
+ * J0 (spec G4 §3.0) : ne lit plus la colonne `questions` (clé de réponses,
+ * verrouillée par la migration 180) — le compteur passe par
+ * `get_quiz_question_counts` (fallback pré-180 dans lib/quiz/server.ts).
  */
 export async function GET(_request: NextRequest) {
   try {
@@ -23,7 +28,7 @@ export async function GET(_request: NextRequest) {
     const { data: pool, error } = await supabase
       .from("educational_quizzes")
       .select(
-        "id, code, title, description, subject, difficulty, grade_level, questions, time_limit_minutes, passing_score, xp_reward, icon",
+        "id, code, title, description, subject, difficulty, grade_level, time_limit_minutes, passing_score, xp_reward, icon",
       )
       .eq("is_active", true)
       .order("id", { ascending: true })
@@ -40,6 +45,8 @@ export async function GET(_request: NextRequest) {
     // Days since unix epoch (UTC), rotates the pool deterministically
     const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24))
     const todays = pool[dayIndex % pool.length]
+
+    const questionCounts = await getQuizQuestionCounts(supabase)
 
     // Has the teen attempted today's quiz today?
     const startOfDay = new Date()
@@ -63,7 +70,7 @@ export async function GET(_request: NextRequest) {
         subject: todays.subject,
         difficulty: todays.difficulty,
         grade_level: todays.grade_level,
-        questions_count: Array.isArray(todays.questions) ? todays.questions.length : 0,
+        questions_count: questionCounts.get(todays.id) ?? 0,
         time_limit_minutes: todays.time_limit_minutes,
         passing_score: todays.passing_score,
         xp_reward: todays.xp_reward,
