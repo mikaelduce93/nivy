@@ -3,7 +3,8 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { Suspense } from "react"
 import { StreakClient } from "./streak-client"
 import { getLifetimeStats, getActivityHistory } from "@/gamification-system/features/stats-dashboard/actions"
-import { getDailyMissions } from "@/gamification-system/features/missions/actions"
+import { getDailyChallenges } from "@/features/gamification/actions"
+import type { UserChallenge } from "@/features/gamification/schema"
 
 export default async function StreakPage() {
   const userInfo = await getUserRole()
@@ -12,12 +13,20 @@ export default async function StreakPage() {
     redirect("/auth/redirect")
   }
 
+  const teenId = userInfo.teenData?.id ?? userInfo.profileId
+
   // #40 — read-only render. The streak WRITE runs post-hydration via the teen
   // layout's StreakPinger, not here (no DB mutation / revalidatePath in render).
-  const [lifetimeStats, history, missionsResult] = await Promise.all([
+  const [lifetimeStats, history, challenges] = await Promise.all([
     getLifetimeStats().catch(() => null),
     getActivityHistory(10).catch(() => []),
-    getDailyMissions().catch(() => ({ data: [], error: null })),
+    // G2-B (D4 P0) — moteur unique user_challenges : mêmes défis du jour que
+    // le hub /teen/quests. L'ancien getDailyMissions (moteur parallèle
+    // user_missions) affichait des missions auto-« complétées + N XP » dont
+    // l'XP n'était jamais crédité — triggers neutralisés (migration 171).
+    getDailyChallenges(teenId)
+      .then((r) => (r.success ? r.data : ([] as UserChallenge[])))
+      .catch(() => [] as UserChallenge[]),
   ])
 
   const currentStreak = lifetimeStats?.current_login_streak ?? 0
@@ -31,12 +40,13 @@ export default async function StreakPage() {
     xpEarned: day.xp_earned ?? 0,
   }))
 
-  // Daily missions become the DAILY_TASKS
-  const dailyTasks = (missionsResult.data || []).slice(0, 6).map((m: any) => ({
-    id: m.id as string,
-    title: m.name as string,
-    completed: m.status === "completed" || m.status === "claimed",
-    xp: m.xp_reward as number,
+  // Défis du jour (user_challenges) → DAILY_TASKS. `completed` reflète le
+  // moteur réel : l'XP affiché est bien celui crédité par completeChallenge.
+  const dailyTasks = (challenges || []).slice(0, 6).map((c) => ({
+    id: c.id,
+    title: c.challenge?.title ?? "Défi du jour",
+    completed: c.status === "completed",
+    xp: c.challenge?.xp_reward ?? 0,
   }))
 
   // Static milestones config — no backing table yet, but values are

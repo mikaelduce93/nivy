@@ -152,7 +152,7 @@ export function StreakClient({
           <SegmentedProgress steps={Math.max(1, dailyTasks.length)} current={completedTasks} size="md" />
 
           {dailyTasks.length === 0 ? (
-            <EmptyState preset="quests" size="small" title="Missions du jour à venir" description="Les missions quotidiennes se chargent une fois connecté." />
+            <EmptyState preset="quests" size="small" title="Défis du jour à venir" description="Tes défis quotidiens apparaîtront ici une fois assignés." />
           ) : (
             <div className="space-y-3">
               {dailyTasks.map((task) => (
@@ -177,7 +177,7 @@ export function StreakClient({
 
           {completedTasks < dailyTasks.length && dailyTasks.length > 0 && (
             <Button asChild variant="pink" className="w-full">
-              <Link href="/daily"><Flame className="mr-2 size-4" aria-hidden="true" />Compléter pour maintenir la streak</Link>
+              <Link href="/teen/daily"><Flame className="mr-2 size-4" aria-hidden="true" />Compléter pour maintenir la streak</Link>
             </Button>
           )}
         </StickerCard>
