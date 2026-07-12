@@ -27,15 +27,15 @@ export default async function NewFriendDefiPage() {
   // Pull accepted friends — both directions of the friendship table.
   const { data: friendRows } = await supabase
     .from("friendships")
-    .select("user_id, friend_user_id, status")
-    .or(`user_id.eq.${teenId},friend_user_id.eq.${teenId}`)
+    .select("user1_id, user2_id, status")
+    .or(`user1_id.eq.${teenId},user2_id.eq.${teenId}`)
     .eq("status", "accepted")
     .limit(50)
 
   const friendIds = Array.from(
     new Set(
       (friendRows ?? []).map((r: any) =>
-        r.user_id === teenId ? r.friend_user_id : r.user_id,
+        r.user1_id === teenId ? r.user2_id : r.user1_id,
       ),
     ),
   ).filter(Boolean)

@@ -34,6 +34,7 @@ import {
   Clock,
   Trophy,
   AlertCircle,
+  Swords,
 } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { DefiCard, type DefiStatus } from "@/components/teen/defi-card"
@@ -267,13 +268,24 @@ export function FriendDefisClient({ teenAuthId, challenges }: FriendDefisClientP
             </div>
           </div>
 
-          <Button
-            variant="pink"
-            onClick={() => router.push("/teen/quests/friend-defis/new")}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Lancer un défi
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* G4-B2 — lien croisé vers les battles 1v1 synchrones (temps
+                réel), complémentaires des défis asynchrones de cette page. */}
+            <Button
+              variant="outline"
+              onClick={() => router.push("/teen/battles")}
+            >
+              <Swords className="w-4 h-4 mr-2" />
+              Battle en direct
+            </Button>
+            <Button
+              variant="pink"
+              onClick={() => router.push("/teen/quests/friend-defis/new")}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Lancer un défi
+            </Button>
+          </div>
         </div>
 
         {/* Niv coach — pose hype */}
