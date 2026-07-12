@@ -162,7 +162,7 @@ export async function addXP(input: AddXPInput): Promise<ActionResult<any>> {
 
     if (error) throw error
 
-    revalidatePath('/daily')
+    revalidatePath('/teen/daily')
     revalidatePath('/gamification')
     return { success: true, data: result }
   } catch (error: any) {
@@ -554,7 +554,7 @@ export async function completeChallenge(
       },
     })
 
-    revalidatePath('/daily')
+    revalidatePath('/teen/daily')
     revalidatePath('/gamification')
 
     const xpData = xpResult.success ? xpResult.data : null
@@ -591,7 +591,7 @@ export async function skipChallenge(
 
     if (error) throw error
 
-    revalidatePath('/daily')
+    revalidatePath('/teen/daily')
     return { success: true, data: null }
   } catch (error: any) {
     console.error('[gamification/skipChallenge] Error:', error)

@@ -189,8 +189,12 @@ const nextConfig = {
       {
         // #68 — point straight at the canonical route (was → /gamification/missions,
         // which itself 308'd to /teen/quests — two hops).
+        // G2-C (audit 2026-07-11) — la surface de complétion des quêtes
+        // quotidiennes est rapatriée sous /teen/daily : /daily y pointe
+        // désormais directement (avant : /teen/quests, qui renvoyait la carte
+        // « Quotidien » vers /daily → boucle).
         source: '/daily',
-        destination: '/teen/quests',
+        destination: '/teen/daily',
         permanent: false,
       },
 

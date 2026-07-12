@@ -45,7 +45,7 @@ interface QuestsHubClientProps {
 // surface de complétion (formulaires de validation + crédit XP via
 // completeChallenge) est /daily : on les distingue via metadata.source.
 function questTarget(quest: Pick<UnifiedQuest, "type" | "id" | "metadata">): string {
-  if (quest.metadata?.source === "daily_challenge") return "/daily"
+  if (quest.metadata?.source === "daily_challenge") return "/teen/daily"
   switch (quest.type) {
     case "quiz":
       return `/teen/quiz/${quest.id}`
