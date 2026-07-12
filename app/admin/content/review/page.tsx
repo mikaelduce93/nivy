@@ -1,25 +1,38 @@
 /**
- * Wave 3 — TICKET-008: Pedagogical reviewer admin queue.
+ * Wave 3 — TICKET-008 · G3-C: Pedagogical reviewer admin queue.
  *
- * AI-generated quizzes (code LIKE 'DAILY_%', written by the daily cron
- * app/api/cron/generate-daily-content) with is_active=false are queued here
- * for human review before going live to teens. Admin can inspect the full
- * questions JSON and Approve (flip is_active=true) or Reject (archive: code
- * re-prefixed REJECTED_, stays inactive; rejection logged in audit_log).
+ * AI-generated content (code LIKE 'DAILY_%', written by the daily cron
+ * app/api/cron/generate-daily-content) with is_active=false is queued here
+ * for human review before going live to teens. Admin can inspect the payload
+ * and Approve (flip is_active=true) or Reject (archive: code re-prefixed
+ * REJECTED_, stays inactive; rejection logged in audit_log).
  *
  * Audit 2026-07-11 Q1: this page used to filter on 'AI_%', a prefix nothing
  * ever wrote, while the cron published straight to is_active=true — the queue
  * was permanently empty and AI content reached minors unreviewed. The
  * convention is now DAILY_ on both sides.
  *
- * Server component: queries `educational_quizzes` directly via service-role.
- * Mutations live in: POST /api/admin/content/review/:id (action: approve|reject).
+ * G3-C (volume tooling):
+ *   - quiz queue got multi-select + bulk approve/reject (<ReviewQueue> →
+ *     POST /api/admin/content/review/batch, max 200 ids);
+ *   - mission_templates queue added (the cron also writes DAILY_ missions
+ *     with is_active=false; until now they accumulated with no review UI);
+ *   - "Actifs jamais revus" legacy section: live DAILY_ quizzes with no
+ *     human-approval trace, with bulk deactivate back into the queue.
+ *
+ * Server component: queries `educational_quizzes` / `mission_templates`
+ * directly via service-role. Mutations live in:
+ *   - POST /api/admin/content/review/:id     (unit, quiz only — pre-G3-C)
+ *   - POST /api/admin/content/review/batch   (bulk + missions + deactivate)
  */
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
-import { ReviewQuizRow } from "./review-quiz-row"
+import { ReviewQueue } from "./review-queue"
+import type { PendingQuiz } from "./review-quiz-row"
+import type { PendingMission } from "./review-mission-row"
+import { LegacyActiveQuizzes, type LegacyActiveQuiz } from "./legacy-active-quizzes"
 import { StatCard } from "@/components/admin/stat-card"
 import { NivEmpty } from "@/components/brand"
 
@@ -27,20 +40,8 @@ export const dynamic = "force-dynamic"
 
 const ADMIN_ROLES = new Set(["admin", "super_admin", "moderator"])
 
-interface PendingQuiz {
-  id: string
-  code: string
-  title: string
-  subject: string
-  description: string | null
-  difficulty: string | null
-  grade_level: string | null
-  cohort_key: string | null
-  language: string | null
-  questions: unknown
-  quality_score: number | null
-  created_at: string | null
-}
+/** Cap on the "active never reviewed" scan (see heuristic note below). */
+const LEGACY_SCAN_LIMIT = 500
 
 export default async function AdminContentReviewPage() {
   // 1. Auth + admin gate
@@ -59,7 +60,7 @@ export default async function AdminContentReviewPage() {
   if (!role || !ADMIN_ROLES.has(role.role)) {
     return (
       <main className="container mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-2 text-2xl font-bold text-ink">Modération · Quiz IA</h1>
+        <h1 className="mb-2 text-2xl font-bold text-ink">Modération · Contenu IA</h1>
         <p className="text-destructive">Accès refusé — rôle administrateur requis.</p>
       </main>
     )
@@ -82,18 +83,84 @@ export default async function AdminContentReviewPage() {
 
   const pending = ((rawPending ?? []) as unknown as PendingQuiz[])
 
-  // Counters: AI quizzes by status. NOTE: `active` includes DAILY_ rows the
-  // cron auto-published before the 2026-07-11 fix (never human-reviewed) —
-  // deliberately visible here so an admin can see the full live AI inventory.
+  // 3. Fetch pending AI-generated missions — same convention as quizzes
+  // (schema: gamification-system/database/migrations/003_missions_system.sql).
+  const { data: rawMissions, error: missionsError } = await sr
+    .from("mission_templates")
+    .select(
+      "id, code, name, description, mission_type, category, objective_type, objective_target, xp_reward, difficulty, created_at",
+    )
+    .eq("is_active", false)
+    .like("code", "DAILY_%")
+    .order("created_at", { ascending: true })
+    .limit(100)
+
+  const pendingMissions: PendingMission[] = rawMissions ?? []
+
+  // 4. Legacy section — « Actifs jamais revus » (G3-C, PO tool).
+  //
+  // Heuristic: code LIKE 'DAILY_%' AND is_active=true, MINUS ids that carry an
+  // audit_log entry action='content.review.approve' /
+  // resource_type='educational_quizzes' (both the unit and the batch approve
+  // routes write that entry) — so quizzes approved through the review UI
+  // post-fix are correctly excluded, leaving (in practice) the rows the cron
+  // auto-published before the 2026-07-11 fail-closed fix.
+  //
+  // Documented limits of the heuristic:
+  //   - a quiz whose approval audit INSERT failed (the routes don't check that
+  //     insert's error) shows up here even though a human approved it;
+  //   - a quiz activated outside the review UI (direct SQL/seed) shows up here
+  //     — arguably correct: no human review trace exists;
+  //   - if audit_log is ever purged, previously-approved quizzes reappear;
+  //   - the scan is capped at LEGACY_SCAN_LIMIT active rows (flagged in UI).
+  // Nothing is deactivated automatically — the bulk action below is explicit.
+  const { data: rawActive } = await sr
+    .from("educational_quizzes")
+    .select("id, code, title, subject, created_at")
+    .eq("is_active", true)
+    .like("code", "DAILY_%")
+    .order("created_at", { ascending: true })
+    .limit(LEGACY_SCAN_LIMIT)
+
+  const activeQuizzes: LegacyActiveQuiz[] = rawActive ?? []
+  let approvedIds = new Set<string>()
+  if (activeQuizzes.length > 0) {
+    // audit_log is not in the generated Database types (see unit route which
+    // also writes to it untyped) — cast the result.
+    const { data: auditRows } = await sr
+      .from("audit_log")
+      .select("resource_id")
+      .eq("action", "content.review.approve")
+      .eq("resource_type", "educational_quizzes")
+      .in(
+        "resource_id",
+        activeQuizzes.map((q) => q.id),
+      )
+    approvedIds = new Set(
+      ((auditRows ?? []) as Array<{ resource_id: string | null }>)
+        .map((r) => r.resource_id)
+        .filter((id): id is string => typeof id === "string"),
+    )
+  }
+  const neverReviewed = activeQuizzes.filter((q) => !approvedIds.has(q.id))
+  const legacyScanTruncated = activeQuizzes.length >= LEGACY_SCAN_LIMIT
+
+  // Counters: AI content by status (quiz + missions).
   const { data: aiCounters } = await sr
     .from("educational_quizzes")
+    .select("is_active")
+    .like("code", "DAILY_%")
+    .returns<Array<{ is_active: boolean | null }>>()
+  const { data: missionCounters } = await sr
+    .from("mission_templates")
     .select("is_active")
     .like("code", "DAILY_%")
     .returns<Array<{ is_active: boolean | null }>>()
   const stats = {
     pending: aiCounters?.filter((c) => c.is_active === false).length ?? 0,
     approved: aiCounters?.filter((c) => c.is_active === true).length ?? 0,
-    total: aiCounters?.length ?? 0,
+    missionsPending: missionCounters?.filter((c) => c.is_active === false).length ?? 0,
+    total: (aiCounters?.length ?? 0) + (missionCounters?.length ?? 0),
   }
 
   return (
@@ -108,25 +175,28 @@ export default async function AdminContentReviewPage() {
       </div>
 
       <header className="mb-8">
-        <p className="eyebrow tracking-[0.16em]">Contenu · Quiz IA</p>
+        <p className="eyebrow tracking-[0.16em]">Contenu · IA</p>
         <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
-          Revue des <em className="font-semibold italic text-pink">quiz IA</em>
+          Revue du <em className="font-semibold italic text-pink">contenu IA</em>
         </h1>
         <p className="mt-2 text-sm text-mute">
-          Approuvez les quiz pédagogiquement valides avant leur passage en live.
-          Chaque rejet est tracé et historisé.
+          Approuvez les quiz et missions pédagogiquement valides avant leur
+          passage en live. Chaque décision (unitaire ou en masse) est tracée et
+          historisée.
         </p>
       </header>
 
       <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="En attente" value={stats.pending} tone="gold" />
-        <StatCard label="Actifs (live)" value={stats.approved} tone="lime" />
-        <StatCard label="Total IA générés" value={stats.total} tone="teal" />
+        <StatCard label="Quiz en attente" value={stats.pending} tone="gold" />
+        <StatCard label="Missions en attente" value={stats.missionsPending} tone="gold" />
+        <StatCard label="Quiz actifs (live)" value={stats.approved} tone="lime" />
+        <StatCard label="Actifs jamais revus" value={neverReviewed.length} tone="coral" />
+        <StatCard label="Total IA générés" value={stats.total} tone="teal" hint="quiz + missions" />
       </section>
 
-      <section>
+      <section className="mb-10">
         <h2 className="mb-3 font-semibold text-ink">
-          File en attente ({pending.length})
+          File quiz en attente ({pending.length})
         </h2>
 
         {error && (
@@ -143,11 +213,45 @@ export default async function AdminContentReviewPage() {
           />
         )}
 
-        <ul className="space-y-3">
-          {pending.map((q) => (
-            <ReviewQuizRow key={q.id} quiz={q} />
-          ))}
-        </ul>
+        <ReviewQueue target="quiz" items={pending} />
+      </section>
+
+      <section className="mb-10">
+        <h2 className="mb-3 font-semibold text-ink">
+          File missions en attente ({pendingMissions.length})
+        </h2>
+
+        {missionsError && (
+          <p className="mb-3 rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+            Erreur de chargement : {missionsError.message}
+          </p>
+        )}
+
+        {pendingMissions.length === 0 && !missionsError && (
+          <NivEmpty
+            mood="calm"
+            title="File au clair"
+            description="Aucune mission IA en attente de revue pédagogique."
+          />
+        )}
+
+        <ReviewQueue target="mission" items={pendingMissions} />
+      </section>
+
+      <section>
+        <h2 className="mb-1 font-semibold text-ink">
+          Actifs jamais revus ({neverReviewed.length})
+        </h2>
+        <p className="mb-3 text-sm text-mute">
+          Quiz IA actuellement live sans trace d&apos;approbation humaine dans
+          l&apos;audit — en pratique, ceux publiés automatiquement avant le
+          correctif du 11/07. Un quiz approuvé hors de cette interface (SQL
+          direct) apparaît aussi ici. La désactivation les renvoie dans la file
+          de revue ci-dessus ; rien n&apos;est désactivé automatiquement.
+          {legacyScanTruncated &&
+            ` Liste limitée aux ${LEGACY_SCAN_LIMIT} plus anciens quiz actifs.`}
+        </p>
+        <LegacyActiveQuizzes items={neverReviewed} />
       </section>
     </main>
   )
