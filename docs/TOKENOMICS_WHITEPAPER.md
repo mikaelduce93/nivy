@@ -304,9 +304,10 @@ sur l'XP transactionnel lors d'une remise partenaire.
 | Créateur : plafonds journaliers | 50 / 30 / 20 XP (like/comment/share) | 📋 |
 | Partenaire : plafond XP | 500 XP / ado / semaine / émetteur | 📋 |
 | Seuil approbation parentale (paiement XP) | ≥ 1 000 XP (≈ 100 DH) | ✅ |
-| Plafond top-up mensuel / parent | **500 DH** (recommandé) | ⏳ non implémenté |
-| Plafond agrégé mensuel / ado | **5 000 DH** (recommandé) | ⏳ non implémenté |
-| Plafond top-up unitaire | **200 DH** (aligné BAM lightly-KYC) | ✅ route + packs 50–200 DH (#351) |
+| Plafond top-up mensuel / parent | **500 DH** (overridable post-KYC via `parental_limits`) | ✅ migration 179 (`top_up_teen`) |
+| Plafond agrégé mensuel / ado | **5 000 DH** (tous parents confondus) | ✅ migration 179 (`top_up_teen`) |
+| Plafond top-up unitaire | **200 DH** (aligné BAM lightly-KYC) | ✅ route + packs 50–200 DH (#351) + RPC (mig 179) |
+| Plafond mensuel de dépense / ado | configuré par le parent (`max_monthly_spend_dh`) | ✅ migration 179 (`_debit_teen_coins`, rails V6) |
 | Plafond AML marketplace | 1 000 DH / ado / mois | ⏳ décision fondateur |
 
 > **Il n'existe aujourd'hui aucun plafond de top-up global.** C'est une exigence de
@@ -441,7 +442,10 @@ pour laquelle ce « token model » est un programme de fidélité, pas une block
   rencontre marketplace restreints (écoles / lieux partenaires KYC) ; filtre halal
   par défaut ; KYC obligatoire de tout adulte (mentor, chauffeur) avant interaction
   avec un mineur ; pas de publicité comportementale.
-- **Plafonds top-up/dépense** (recommandés, ⏳ non câblés — cf. §3.6).
+- **Plafonds top-up/dépense** ✅ câblés (migration 179 — cf. §3.6) : par opération,
+  mensuel parent, agrégat mensuel ado, plafond de dépense configuré par le parent.
+  Relèvement d'un plafond = process post-KYC (écritures `parental_limits` en
+  service_role uniquement — un parent ne peut pas s'auto-relever).
 - **Majorité (18 ans)** — gel du wallet + notification + choix (cash-out au parent
   ou re-KYC en compte adulte), 30 j de grâce. **Aucun code aujourd'hui** (décision
   **F50, OUVERTE**).
@@ -547,9 +551,10 @@ matérialiser si l'on veut des taux par partenaire.
 `food_orders`, `ride_bookings`, `parent_allowances`, `allowance_disbursements`,
 `savings_goals`, `cashback_rules`, `xp_payment_settings`.
 
-**À livrer (écrites mais non-live) :** `parental_approvals`, `cash_settlements`,
-`webhook_events`, `payment_logs`, `parental_limits`, `topup_packages`,
-`mentor_payouts`.
+**Livrées depuis (2026-07-12) :** `topup_packages` (mig 177), `parental_limits`
+(mig 179), `cashback_rules`/`partner_commission_rules` (migs 175/176).
+**À livrer (écrites mais non-live) :** `cash_settlements`, `webhook_events`,
+`payment_logs`, `mentor_payouts`.
 
 ---
 
@@ -569,7 +574,7 @@ matérialiser si l'on veut des taux par partenaire.
 | Pipeline coins bout-en-bout | 📋 partiel |
 | Top-up PSP auto (Cash Plus, CMI…) | ⏳ gelé (F5), pas d'EP signé (F25) |
 | Tables escrow live en base | ⏳ à migrer |
-| Plafonds top-up/dépense (BAM) | ✅ 200 DH/opération (#351) · ⏳ plafonds mensuels (`parental_limits`) |
+| Plafonds top-up/dépense (BAM) | ✅ complets (mig 179) : 200 DH/op + 500 DH/mois/parent + 5 000 DH/mois/ado + plafond de dépense parental |
 | KYC parent au-delà de l'e-signature | ⏳ non implémenté |
 | Bucket CIN privé + URLs signées | ⏳ **P0 régression (public aujourd'hui)** |
 | Dossier CNDP (13 traitements) | ⏳ rédigé, non déposé, DPO à nommer |
@@ -599,7 +604,12 @@ de la carte VIP est le principal écart** entre la promesse marketing et le code
 
 - **F5** ✅ acté — top-up manuel uniquement au lancement.
 - **F25** ⏳ — signer un partenariat EP e-money (bloque le DH réel).
-- **F6 / F49** ⏳ — plafonds top-up/dépense + `parental_limits`.
+- **F6** ✅ **RÉSOLU (mig 179, 2026-07-12)** — plafonds top-up 200/op + 500/mois/parent
+  + 5 000/mois/ado, enforcés dans `top_up_teen`, overrides `parental_limits` post-KYC.
+- **F49** ✅ partiel (mig 179) — plafond mensuel de dépense parental enforcé dans
+  `_debit_teen_coins` (rails V6). Restant : whitelist par catégorie (attend une
+  catégorie dans le pipeline de dépense) + réécriture des débiteurs directs legacy
+  (`buy_listing`, `complete_ride`) déjà flaggés RED au canon §7.
 - **F50** ⏳ — gestion du wallet à la majorité.
 - **F51** ⏳ — statut des mystery boxes (ladder déterministe).
 - **F14** ⏳ — TTL des URLs signées CIN.
@@ -626,6 +636,7 @@ réactivées — Summer 2026 active, 0 fenêtre passée).
 | [#355](https://github.com/mikaelduce93/nivy/issues/355) | Retirer le théâtre des points, pointer vers la vraie valeur | `carte-vip/recompenses` réécrite (réduction VIP auto + boutique XP, aperçu « bientôt ») |
 | [#356](https://github.com/mikaelduce93/nivy/issues/356) | Coach = **Niv** | AgentSheet/AgentFloatingButton/roles.ts + canon aligné |
 | [#357](https://github.com/mikaelduce93/nivy/issues/357) | Missions saisonnières décalées vers le futur | Migration 178 (décalage annuel idempotent) |
+| F6 / F49 | Plafonds monétaires complets (BAM + contrôle parental) | Migration 179 : `parental_limits` + `_check_topup_caps` dans les 2 overloads `top_up_teen` + plafond de dépense dans `_debit_teen_coins` ; smoke-test transactionnel 6/6 (rollback, zéro résidu) |
 
 > **Deux garde-fous conformité ajoutés au passage :** plafond top-up ramené de
 > 500 → **200 DH/opération** (BAM lightly-KYC) et **suppression des bonus coins**

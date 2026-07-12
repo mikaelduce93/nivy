@@ -462,12 +462,31 @@ top-up (BAM Circular 6/W/2017 lightly-KYC'd ceiling). Parent can raise via
 post-KYC. Enforce server-side in `top_up_teen` via new `parental_limits`
 table.
 
+> **RESOLVED (F6, mig 179, 2026-07-12).** `parental_limits` shipped; defaults
+> seeded in `xp_payment_settings` (`max_single_topup_dh=200`,
+> `parent_monthly_topup_cap_dh=500`, `teen_monthly_topup_aggregate_dh=5000`);
+> `_check_topup_caps()` enforced in BOTH `top_up_teen` overloads. Month window
+> = calendar month, Africa/Casablanca. Overrides are service_role-write-only
+> (post-KYC raise process; a parent cannot self-raise). Smoke-tested 6/6 in a
+> rolled-back transaction.
+
 ### 9.4 Per-teen spend cap, per-category whitelist
 
 None today. **LOCKED RECOMMENDATION:** introduce
 `parental_limits(parent_id, teen_id, max_monthly_dh, allowed_categories text[])`;
 check in every spend RPC (`spend_teen_coins`, `buy_listing`, `book_mentor_session`,
 `place_food_order`, `request_ride`).
+
+> **PARTIALLY RESOLVED (F49, mig 179, 2026-07-12).**
+> `parental_limits.max_monthly_spend_dh` enforced in `_debit_teen_coins` (the
+> central debit path behind `spend_teen_coins` and `split_group_purchase` — all
+> V6 rails). Most-restrictive rule across active linked parents; spend MTD does
+> not re-credit on refunds (conservative). NOT yet covered: category whitelist
+> (`allowed_categories` deliberately NOT shipped — the live spend pipeline
+> carries no category param; shipping the column without enforcement would be
+> schema theater) and the legacy direct debitors (`buy_listing`,
+> `complete_ride`, `spend_tokens`/`transfer_tokens`) already flagged
+> RED/deprecated in §7 — their rewrite must delegate to `_debit_teen_coins`.
 
 ### 9.5 18th birthday wallet handling
 

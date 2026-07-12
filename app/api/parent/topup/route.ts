@@ -193,8 +193,16 @@ export async function POST(request: Request) {
     }
 
     if (!rpcData?.success) {
+      // F6 (mig 179) — plafonds BAM enforcés par le RPC ; messages lisibles,
+      // montants issus du RPC (les caps sont overridables post-KYC).
+      const capMessages: Record<string, string> = {
+        exceeds_single_topup_cap: `Plafond par recharge dépassé (max ${rpcData?.cap_dh ?? 200} DH par opération)`,
+        exceeds_parent_monthly_cap: `Plafond mensuel de recharge atteint (${rpcData?.cap_dh ?? 500} DH/mois — déjà rechargé ce mois-ci : ${rpcData?.mtd_dh ?? 0} DH)`,
+        exceeds_teen_monthly_cap: `Plafond mensuel de réception atteint pour cet ado (${rpcData?.cap_dh ?? 5000} DH/mois, tous parents confondus)`,
+      }
+      const friendly = rpcData?.error ? capMessages[rpcData.error as string] : undefined
       return NextResponse.json(
-        { success: false, error: rpcData?.error || "Recharge impossible" },
+        { success: false, error: friendly || rpcData?.error || "Recharge impossible", code: rpcData?.error },
         { status: 400 }
       )
     }
