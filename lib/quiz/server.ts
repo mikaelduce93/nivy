@@ -15,6 +15,111 @@ export interface DailyQuizPayload {
   completedToday: boolean
 }
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>
+
+/** Row shape returned by the `recommend_quizzes_for_teen` RPC (migration 173). */
+interface AdaptiveQuizRow {
+  quiz_id: string
+  score: number | null
+  reason: string | null
+}
+
+/**
+ * G3-B — adaptive quiz recommender (migration 173, ⚠️ file-only until applied).
+ * Ranks active quizzes by weak subjects (quiz_attempts error history), level-
+ * derived difficulty, spaced repetition of failed quizzes (2/4/7-day backoff)
+ * and learning_style, excluding already-passed quizzes (0 XP since 169).
+ *
+ * Try/fallback pattern: while the function is not yet applied in the DB the
+ * RPC fails with "function does not exist" (PostgREST PGRST202 / PG 42883) —
+ * we swallow that silently and return [] so every caller falls back to the
+ * pre-existing selection path unchanged.
+ */
+async function tryAdaptiveQuizRecommendations(
+  supabase: SupabaseServerClient,
+  teenId: string,
+  limit: number,
+): Promise<AdaptiveQuizRow[]> {
+  try {
+    const { data, error } = await supabase.rpc("recommend_quizzes_for_teen", {
+      p_teen_id: teenId,
+      p_limit: limit,
+    })
+    if (error) {
+      const notDeployed =
+        error.code === "PGRST202" ||
+        error.code === "42883" ||
+        /does not exist/i.test(error.message ?? "")
+      if (!notDeployed) {
+        console.warn("[quiz/server] recommend_quizzes_for_teen rpc error:", error.message)
+      }
+      return []
+    }
+    if (!Array.isArray(data)) return []
+    return (data as unknown[]).filter(
+      (r): r is AdaptiveQuizRow =>
+        !!r && typeof (r as AdaptiveQuizRow).quiz_id === "string",
+    )
+  } catch (err) {
+    console.warn("[quiz/server] recommend_quizzes_for_teen threw:", (err as Error).message)
+    return []
+  }
+}
+
+/**
+ * V1.3-A — persist a served recommendation as an impression so the nightly
+ * /api/cron/recommendation-metrics-rollup has a row to count. Best-effort:
+ * never breaks the daily-quiz fetch on persistence failure. Shared by the
+ * legacy recommend_for_teen path and the G3-B adaptive path (factor keys of
+ * both reason formats are parsed).
+ */
+async function persistQuizImpression(
+  supabase: SupabaseServerClient,
+  teenId: string,
+  quizId: string,
+  score: number,
+  reason: string,
+): Promise<void> {
+  try {
+    const nowIso = new Date().toISOString()
+    const expiresIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    const factors: Record<string, number | boolean> = {}
+    for (const k of ["aff", "col", "fr", "nov", "ctx", "diff", "weak", "retry", "cool", "style"]) {
+      const m = new RegExp(`\\b${k}=(-?[0-9]+(?:\\.[0-9]+)?)`).exec(reason)
+      if (m) factors[k] = Number(m[1])
+    }
+    if (/seen7d=1/.test(reason)) factors.seen7d = true
+    if (/\[coldstart\]/.test(reason)) factors.coldstart = true
+    if (/\[no-neighbours\]/.test(reason)) factors.no_neighbours = true
+    if (/\[lang-fallback\]/.test(reason)) factors.lang_fallback = true
+
+    const { error: impErr } = await supabase
+      .from("content_recommendations")
+      .upsert(
+        [
+          {
+            teen_id: teenId,
+            content_type: "quiz",
+            content_id: quizId,
+            recommendation_score: Math.max(-99.99, Math.min(99.99, score)),
+            confidence_level: null,
+            recommendation_factors: factors,
+            status: "shown",
+            recommended_at: nowIso,
+            shown_at: nowIso,
+            expires_at: expiresIso,
+          },
+        ],
+        { ignoreDuplicates: true },
+      )
+    if (impErr) {
+      console.warn("[getDailyQuizForTeen] impression persist failed:", impErr.message)
+    }
+  } catch (err) {
+    console.warn("[getDailyQuizForTeen] impression persist threw:", (err as Error).message)
+  }
+}
+
 export async function getQuizCategoriesForTeen(
   teenId: string,
 ): Promise<{ categories: QuizCategorySummary[]; quizzesBySubject: Record<string, QuizSummary[]> }> {
@@ -35,6 +140,12 @@ export async function getQuizCategoriesForTeen(
     .eq("passed", true)
 
   const passedSet = new Set((attempts ?? []).map((a) => a.quiz_id))
+
+  // G3-B — mark the adaptive recommendations (migration 173) so the hub can
+  // show a "Pour toi" label. Empty set while 173 is not applied → no label.
+  const recommendedSet = new Set(
+    (await tryAdaptiveQuizRecommendations(supabase, teenId, 5)).map((r) => r.quiz_id),
+  )
 
   const map = new Map<string, QuizCategorySummary>()
   const bySubject: Record<string, QuizSummary[]> = {}
@@ -58,6 +169,7 @@ export async function getQuizCategoriesForTeen(
       passing_score: q.passing_score,
       xp_reward: q.xp_reward,
       icon: q.icon,
+      recommended: recommendedSet.has(q.id),
     }
     if (!bySubject[q.subject]) bySubject[q.subject] = []
     bySubject[q.subject].push(summary)
@@ -100,92 +212,67 @@ export async function getDailyQuizForTeen(teenId: string): Promise<DailyQuizPayl
   const teenLanguage: string =
     ((teenLangRow as { primary_language?: string | null } | null)?.primary_language as string | null) ?? "fr"
 
-  // Wave 1.4 — replace dayIndex rotation with personalized recommender RPC.
-  // Falls back to a simple active-quiz query if the RPC errors so the UI never breaks.
+  // G3-B — adaptive-first: weak subjects + level-derived difficulty + spaced
+  // repetition of failed quizzes + passed-quiz exclusion (migration 173).
+  // Returns [] while 173 is not applied → the legacy path below runs as before.
   let recommendedId: string | null = null
-  try {
-    const { data: recos, error: rpcError } = await supabase.rpc("recommend_for_teen", {
-      p_teen_id: teenId,
-      p_content_type: "quiz",
-      p_n: 1,
-      p_language: teenLanguage,
-    })
-    if (rpcError) {
-      console.warn("[getDailyQuizForTeen] recommend_for_teen rpc error:", rpcError.message)
-    } else if (Array.isArray(recos) && recos.length > 0) {
-      const top = recos[0] as { id?: string; score?: number; reason?: string } | string | null
-      let topObj: { id?: string; score?: number; reason?: string } | null = null
-      if (top && typeof top === "object" && typeof top.id === "string") {
-        topObj = top
-        recommendedId = top.id
-      } else if (typeof top === "string") {
-        try {
-          const parsed = JSON.parse(top) as { id?: string; score?: number; reason?: string }
-          if (parsed?.id) {
-            topObj = parsed
-            recommendedId = parsed.id
+  const adaptiveRows = await tryAdaptiveQuizRecommendations(supabase, teenId, 1)
+  if (adaptiveRows.length > 0) {
+    recommendedId = adaptiveRows[0].quiz_id
+    await persistQuizImpression(
+      supabase,
+      teenId,
+      adaptiveRows[0].quiz_id,
+      Number(adaptiveRows[0].score ?? 0),
+      adaptiveRows[0].reason ?? "",
+    )
+  }
+
+  // Wave 1.4 — legacy personalized recommender RPC (kept as fallback while
+  // migration 173 is pending, and for teens whose adaptive pool is empty —
+  // e.g. every eligible quiz already passed).
+  // Falls back to a simple active-quiz query if the RPC errors so the UI never breaks.
+  if (!recommendedId) {
+    try {
+      const { data: recos, error: rpcError } = await supabase.rpc("recommend_for_teen", {
+        p_teen_id: teenId,
+        p_content_type: "quiz",
+        p_n: 1,
+        p_language: teenLanguage,
+      })
+      if (rpcError) {
+        console.warn("[getDailyQuizForTeen] recommend_for_teen rpc error:", rpcError.message)
+      } else if (Array.isArray(recos) && recos.length > 0) {
+        const top = recos[0] as { id?: string; score?: number; reason?: string } | string | null
+        let topObj: { id?: string; score?: number; reason?: string } | null = null
+        if (top && typeof top === "object" && typeof top.id === "string") {
+          topObj = top
+          recommendedId = top.id
+        } else if (typeof top === "string") {
+          try {
+            const parsed = JSON.parse(top) as { id?: string; score?: number; reason?: string }
+            if (parsed?.id) {
+              topObj = parsed
+              recommendedId = parsed.id
+            }
+          } catch {
+            // ignore
           }
-        } catch {
-          // ignore
         }
-      }
 
-      // V1.3-A — persist this served recommendation as an impression so the
-      // nightly /api/cron/recommendation-metrics-rollup has a row to count.
-      // Best-effort: never break the daily-quiz fetch on persistence failure.
-      if (topObj?.id) {
-        try {
-          const nowIso = new Date().toISOString()
-          const expiresIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-          const reason = typeof topObj.reason === "string" ? topObj.reason : ""
-          const factors: Record<string, number | boolean> = {}
-          for (const k of ["aff", "col", "fr", "nov", "ctx", "diff"]) {
-            const m = new RegExp(`\\b${k}=(-?[0-9]+(?:\\.[0-9]+)?)`).exec(reason)
-            if (m) factors[k] = Number(m[1])
-          }
-          if (/seen7d=1/.test(reason)) factors.seen7d = true
-          if (/\[coldstart\]/.test(reason)) factors.coldstart = true
-          if (/\[no-neighbours\]/.test(reason)) factors.no_neighbours = true
-          if (/\[lang-fallback\]/.test(reason)) factors.lang_fallback = true
-
-          const { error: impErr } = await supabase
-            .from("content_recommendations")
-            .upsert(
-              [
-                {
-                  teen_id: teenId,
-                  content_type: "quiz",
-                  content_id: topObj.id,
-                  recommendation_score: Math.max(
-                    -99.99,
-                    Math.min(99.99, Number(topObj.score ?? 0)),
-                  ),
-                  confidence_level: null,
-                  recommendation_factors: factors,
-                  status: "shown",
-                  recommended_at: nowIso,
-                  shown_at: nowIso,
-                  expires_at: expiresIso,
-                },
-              ],
-              { ignoreDuplicates: true },
-            )
-          if (impErr) {
-            console.warn(
-              "[getDailyQuizForTeen] impression persist failed:",
-              impErr.message,
-            )
-          }
-        } catch (err) {
-          console.warn(
-            "[getDailyQuizForTeen] impression persist threw:",
-            (err as Error).message,
+        if (topObj?.id) {
+          await persistQuizImpression(
+            supabase,
+            teenId,
+            topObj.id,
+            Number(topObj.score ?? 0),
+            typeof topObj.reason === "string" ? topObj.reason : "",
           )
         }
       }
+    } catch (err) {
+      console.warn("[getDailyQuizForTeen] recommender threw:", (err as Error).message)
     }
-  } catch (err) {
-    console.warn("[getDailyQuizForTeen] recommender threw:", (err as Error).message)
   }
 
   // Fallback: if RPC returned nothing (e.g. all quizzes recently seen) pick the lowest-id

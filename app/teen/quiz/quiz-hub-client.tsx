@@ -259,6 +259,11 @@ export function QuizHubClient({
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
+                      {quiz.recommended && (
+                        <span className="mb-1 inline-flex w-fit items-center rounded-full border-2 border-ink bg-paper-2 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-pink">
+                          Pour toi
+                        </span>
+                      )}
                       <h3 className="font-bold text-ink truncate">{quiz.title}</h3>
                       {quiz.description && (
                         <p className="text-sm text-mute line-clamp-2 mt-1">

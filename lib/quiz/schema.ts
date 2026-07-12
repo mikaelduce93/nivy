@@ -46,6 +46,8 @@ export interface QuizSummary {
   passing_score: number | null
   xp_reward: number | null
   icon: string | null
+  /** G3-B — true when picked by the adaptive recommender (migration 173). */
+  recommended?: boolean
 }
 
 export interface QuizCategorySummary {
