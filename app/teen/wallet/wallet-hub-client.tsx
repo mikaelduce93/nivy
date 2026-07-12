@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useTransition } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Coins, ShoppingBag, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Loader2, PiggyBank, Receipt, QrCode, Award, Lock } from "lucide-react"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { SegmentedProgress } from "@/components/ui/progress"
-import { toast } from "sonner"
-import { purchaseReward } from "@/gamification-system/features/shop/actions"
+import { unlockLevelForXpCost } from "@/lib/gamification/level-curve"
 import type { UserPurchase } from "@/gamification-system/features/shop/schema"
 import { TwinCurrencyGauge } from "@/components/teen/twin-currency-gauge"
 import { StickerCard } from "@/components/ui/sticker-card"
@@ -35,6 +34,8 @@ interface ShopReward {
   image_url: string | null
   category_slug: string | null
   category_name: string | null
+  /** Type canonique (get_shop_rewards) — départage déblocage niveau vs coins. */
+  reward_type: string
   is_featured: boolean
   is_new: boolean
   can_purchase: boolean
@@ -121,12 +122,12 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
           variant="full"
         />
 
-        {/* #206 — règle devise tranchée : on NE présente plus l'XP avec une
-            « valeur en DH » (la bannière « 10 XP = 1 DH de remise » laissait
-            croire que l'XP est de l'argent). Les XP achètent des récompenses,
-            affichées en XP nus. Modèle expliqué sur la page Mes XP. */}
+        {/* G2-A (décision PO 2026-07-11) — XP = progression pure, jamais
+            dépensé. Les récompenses de la boutique se DÉBLOQUENT par niveau ;
+            seuls les coins ⊙ (argent de poche) s'échangent contre des services. */}
         <p className="text-xs text-mute">
-          Tes XP débloquent des récompenses exclusives.{" "}
+          Tes XP font monter ton niveau, et ton niveau débloque des récompenses — ils ne se
+          dépensent jamais.{" "}
           <a href="/teen/xp-value" className="underline hover:text-ink-2">
             Comment ça marche
           </a>
@@ -148,7 +149,7 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
       {/* Tab Content */}
       <div>
         {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
-        {currentTab === "shop" && <ShopTab walletData={walletData} teenId={teenId} />}
+        {currentTab === "shop" && <ShopTab walletData={walletData} />}
         {currentTab === "badges" && <BadgesTab walletData={walletData} />}
         {currentTab === "savings" && <SavingsTab walletData={walletData} />}
         {currentTab === "history" && <HistoryTab walletData={walletData} />}
@@ -197,9 +198,12 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
           unit="⊙ coins"
           icon={<Coins className="w-5 h-5" />}
         />
+        {/* G2-A — messaging devise honnête : les coins ⊙ = argent de poche
+            (alimenté par le parent + cashback), PAS une récompense de quête.
+            Les quêtes rapportent de l'XP (progression), jamais des coins. */}
         <NivCoach
           mood="proud"
-          message="Ton solde grossit à chaque quête. Garde le cap, je suis fier de toi !"
+          message="Ces coins ⊙, c'est ton argent de poche : tes parents l'alimentent, et tu le dépenses dans les services. Ton XP, lui, ne se dépense jamais — il raconte ta progression."
         />
       </div>
 
@@ -270,13 +274,13 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
             title={walletData.coins === 0 ? "Pas encore de coins" : "Pas encore de transactions"}
             description={
               walletData.coins === 0
-                ? "Lance une quête pour gagner tes premiers coins."
-                : "Tes prochaines récompenses apparaîtront ici."
+                ? "Les coins ⊙ arrivent quand tes parents alimentent ton wallet (et en cashback sur tes sorties) — pas via les quêtes, qui rapportent de l'XP."
+                : "Tes prochains mouvements apparaîtront ici."
             }
             action={
               walletData.coins === 0 ? (
-                <Link href="/teen/quests">
-                  <Button variant="pink" size="sm">Voir les quêtes</Button>
+                <Link href="/teen/services">
+                  <Button variant="pink" size="sm">Découvrir les services</Button>
                 </Link>
               ) : undefined
             }
@@ -314,71 +318,97 @@ function CoinsTab({ walletData, teenId }: { walletData: any; teenId?: string }) 
   )
 }
 
-function ShopTab({
-  walletData,
-  teenId,
-}: {
-  walletData: WalletHubClientProps["walletData"]
-  teenId?: string
-}) {
-  // Canonical shop data — server-fetched via getRewards() (reward_categories + RPC get_shop_rewards)
-  const [rewards, setRewards] = useState<ShopReward[]>(walletData.rewards || [])
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
-  const [pendingId, setPendingId] = useState<string | null>(null)
-  const [, startTransition] = useTransition()
+/* ==========================================================================
+   G2-A (décision PO 2026-07-11) — « XP = progression pure, jamais dépensé ».
+   La boutique ne débite PLUS d'XP (l'ancien flux purchaseReward → RPC
+   purchase_reward est débranché de cette surface) :
+   - Récompenses virtuelles (personnalisation, digital, multiplicateur) →
+     DÉBLOCAGES PAR NIVEAU. N = unlockLevelForXpCost(xp_cost) (courbe UI,
+     arrondi au niveau supérieur), état verrouillé/débloqué selon le niveau
+     réel de l'ado.
+   - Récompenses à valeur réelle (entrées, pass VIP, goodies physiques,
+     réductions, expériences, mystery box…) → PAS de prix en coins ici (la
+     tarification coins est un arbitrage PO en attente) : affichées
+     honnêtement « Bientôt en coins ».
+   ========================================================================== */
+const VIRTUAL_REWARD_TYPES = new Set(["profile_customization", "digital_item", "xp_multiplier"])
 
-  const userXP = walletData.xp.total
+function ShopTab({ walletData }: { walletData: WalletHubClientProps["walletData"] }) {
+  // Canonical shop data — server-fetched via getRewards() (reward_categories + RPC get_shop_rewards)
+  const rewards = walletData.rewards || []
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+
+  const userLevel = walletData.xp.level
   const categories = walletData.categories || []
   const featured = rewards.find((r) => r.is_featured) || null
   const filteredRewards = activeCategory
     ? rewards.filter((r) => r.category_slug === activeCategory)
     : rewards.filter((r) => !r.is_featured)
 
-  const handlePurchase = (reward: ShopReward) => {
-    if (pendingId) return
-    if (userXP < reward.xp_cost) {
-      toast.error(
-        `Il te manque ${(reward.xp_cost - userXP).toLocaleString()} XP pour ${reward.name}.`
+  const isLevelUnlock = (r: ShopReward) => VIRTUAL_REWARD_TYPES.has(r.reward_type)
+  const isUnlocked = (r: ShopReward) =>
+    isLevelUnlock(r) && userLevel >= unlockLevelForXpCost(r.xp_cost)
+  const unlockedCount = rewards.filter(isUnlocked).length
+
+  // Tag de statut d'un reward — remplace l'ancien prix en XP.
+  const renderStatusTag = (item: ShopReward, onDark = false) => {
+    if (!isLevelUnlock(item)) {
+      return (
+        <span
+          className={cn(
+            "flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider",
+            onDark ? "text-paper/60" : "text-mute"
+          )}
+        >
+          <Coins className="w-3.5 h-3.5" aria-hidden="true" />
+          Bientôt en coins
+        </span>
       )
-      return
     }
-    setPendingId(reward.reward_id)
-    startTransition(async () => {
-      try {
-        // Canonical purchase path: server action -> RPC purchase_reward
-        // (debits XP, records purchase, applies promo). The hybrid /api/payments/hybrid
-        // route is reserved for booking checkout (XP + Stripe/CMI/Mobile Money) — pure
-        // XP redemption stays on the single-currency rail. See docs/economy.md.
-        const result = await purchaseReward({ rewardId: reward.reward_id })
-        if (result.success) {
-          toast.success(`${reward.name} ajouté à ton inventaire !`)
-          // Optimistically remove the purchased reward from the affordable grid
-          setRewards((prev) =>
-            prev.map((r) =>
-              r.reward_id === reward.reward_id ? { ...r, can_purchase: false } : r
-            )
-          )
-        } else {
-          toast.error(result.error || "Achat impossible")
-        }
-      } catch (err) {
-        console.error("[wallet/shop] purchase failed", err)
-        toast.error("Erreur lors de l'achat")
-      } finally {
-        setPendingId(null)
-      }
-    })
+    const unlockLevel = unlockLevelForXpCost(item.xp_cost)
+    if (userLevel >= unlockLevel) {
+      return (
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full border-2 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider",
+            onDark ? "border-paper/40 bg-white/10 text-paper" : "border-ink bg-lime/20 text-ink"
+          )}
+        >
+          Débloqué
+        </span>
+      )
+    }
+    return (
+      <span
+        className={cn(
+          "flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider",
+          onDark ? "text-paper/60" : "text-mute"
+        )}
+      >
+        <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+        Niveau {unlockLevel}
+      </span>
+    )
   }
 
-  // #206 — prix en XP nus (plus de « ≈ DH » : l'XP n'a pas de valeur en argent).
-  const renderPriceTag = (xpCost: number) => {
-    return (
-      <div className="flex items-center gap-1">
-        <Zap className="w-4 h-4 text-gold" />
-        <span className="font-display font-extrabold tabular-nums text-gold">
-          {xpCost.toLocaleString()} XP
-        </span>
-      </div>
+  // Ligne de pied de carte — état honnête, aucun bouton d'achat.
+  const renderStatusFooter = (item: ShopReward) => {
+    if (!isLevelUnlock(item)) {
+      return (
+        <p className="mt-4 font-mono text-xs text-mute">
+          Bientôt disponible en coins ⊙ — ton argent de poche.
+        </p>
+      )
+    }
+    const unlockLevel = unlockLevelForXpCost(item.xp_cost)
+    return userLevel >= unlockLevel ? (
+      <p className="mt-4 font-mono text-xs font-bold text-ink">
+        À toi — débloqué au niveau {unlockLevel}.
+      </p>
+    ) : (
+      <p className="mt-4 font-mono text-xs text-mute">
+        Se débloque au niveau {unlockLevel} (tu es niveau {userLevel}).
+      </p>
     )
   }
 
@@ -387,21 +417,21 @@ function ShopTab({
       {/* Coach Niv — entrée d'onglet */}
       <NivCoach
         mood="happy"
-        message="Tes XP, tu les dépenses ici. Vise un item, je te dis s'il est à ta portée !"
+        message="Ici, rien ne s'achète avec tes XP : tu débloques en montant de niveau. Tes coins ⊙, garde-les pour les services !"
       />
 
-      {/* Affordability banner */}
+      {/* Bandeau progression — remplace l'ancien bandeau « XP à dépenser » */}
       <StickerCard variant="panel" className="p-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="text-sm text-ink-2">
-            Tu as{" "}
-            <span className="font-mono font-bold tabular-nums text-gold">
-              {userXP.toLocaleString()} XP
+            Tu es{" "}
+            <span className="font-mono font-bold tabular-nums text-teal">
+              niveau {userLevel}
             </span>{" "}
-            à dépenser.
+            — chaque niveau débloque de nouvelles récompenses.
           </div>
           <div className="font-mono text-xs uppercase tracking-wider text-mute">
-            {rewards.filter((r) => r.xp_cost <= userXP).length} item(s) accessible(s)
+            {unlockedCount} récompense(s) débloquée(s)
           </div>
         </div>
       </StickerCard>
@@ -432,30 +462,8 @@ function ShopTab({
                 {featured.name}
               </h3>
               <p className="text-paper/70 mt-1">{featured.description}</p>
-              <div className="flex items-baseline gap-2 mt-4">
-                <Zap className="w-5 h-5 self-center text-gold" />
-                <span className="font-display text-xl font-extrabold tabular-nums text-gold">
-                  {featured.xp_cost.toLocaleString()} XP
-                </span>
-              </div>
+              <div className="mt-4">{renderStatusTag(featured, true)}</div>
             </div>
-            <Button
-              variant="pink"
-              disabled={
-                !featured.can_purchase ||
-                userXP < featured.xp_cost ||
-                pendingId === featured.reward_id
-              }
-              onClick={() => handlePurchase(featured)}
-            >
-              {pendingId === featured.reward_id ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : userXP >= featured.xp_cost ? (
-                "Acheter"
-              ) : (
-                "XP insuffisants"
-              )}
-            </Button>
           </div>
         </DarkSurface>
       )}
@@ -470,19 +478,19 @@ function ShopTab({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {filteredRewards.map((item) => {
-            const canAfford = userXP >= item.xp_cost
-            const isPending = pendingId === item.reward_id
+            const unlocked = isUnlocked(item)
+            const lockedLevelItem = isLevelUnlock(item) && !unlocked
             return (
               <StickerCard
                 key={item.reward_id}
-                variant={canAfford ? "hover" : "default"}
-                className={cn("p-5", !canAfford && "opacity-70")}
+                variant={unlocked ? "hover" : "default"}
+                className={cn("p-5", lockedLevelItem && "opacity-70")}
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="w-14 h-14 rounded-2xl border-2 border-ink bg-paper-2 flex items-center justify-center">
                     <Gift className="w-7 h-7 text-pink" />
                   </div>
-                  {renderPriceTag(item.xp_cost)}
+                  {renderStatusTag(item)}
                 </div>
                 <h4 className="font-display font-bold text-ink">{item.name}</h4>
                 {item.category_name && (
@@ -495,23 +503,7 @@ function ShopTab({
                     {item.description}
                   </p>
                 )}
-                <Button
-                  size="sm"
-                  variant="pink"
-                  className="mt-4 w-full"
-                  disabled={!item.can_purchase || !canAfford || isPending}
-                  onClick={() => handlePurchase(item)}
-                >
-                  {isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : !item.can_purchase ? (
-                    "Indisponible"
-                  ) : canAfford ? (
-                    "Acheter"
-                  ) : (
-                    `Manque ${(item.xp_cost - userXP).toLocaleString()} XP`
-                  )}
-                </Button>
+                {renderStatusFooter(item)}
               </StickerCard>
             )
           })}
@@ -698,10 +690,10 @@ function HistoryTab({ walletData }: { walletData: WalletHubClientProps["walletDa
       <NivEmpty
         mood="calm"
         title="Aucun achat"
-        description="Tu n'as pas encore effectué d'achats dans la boutique. Découvre les rewards disponibles !"
+        description="Rien ici pour l'instant. Les récompenses de la boutique se débloquent désormais par niveau — tes futurs achats en coins apparaîtront ici."
         action={
           <Link href="/teen/wallet?tab=shop">
-            <Button variant="pink" size="sm">Découvrir la boutique</Button>
+            <Button variant="pink" size="sm">Voir la boutique</Button>
           </Link>
         }
       />

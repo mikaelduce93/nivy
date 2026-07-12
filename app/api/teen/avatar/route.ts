@@ -2,16 +2,20 @@
  * POST /api/teen/avatar
  *
  * Tiny endpoint backing AvatarCoach v1 client interactions.
- * Two actions:
+ * Three actions:
  *   - { action: "dismiss", messageId }  → marks an avatar_message as dismissed
  *   - { action: "set_mood", mood }      → updates avatars.mood for the teen
+ *   - { action: "set_skin", skin }      → updates avatars.skin (G2-A : skins =
+ *     récompenses de niveau, gratuites — garde serveur sur le niveau requis)
  *
  * No LLM, no message creation here. Message creation lives in lib/ai/* +
- * server-side hooks. This route is read-write but scoped to two columns.
+ * server-side hooks. This route is read-write but scoped to three columns.
  */
 
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { getSkinById } from "@/lib/gamification/skins"
+import { levelProgressForXp } from "@/lib/gamification/level-curve"
 
 const ALLOWED_MOODS = new Set([
   "neutral",
@@ -87,6 +91,54 @@ export async function POST(request: Request) {
           {
             teen_id: user.id,
             mood,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "teen_id" },
+        )
+
+      if (error) {
+        return NextResponse.json(
+          { success: false, error: "Échec de la mise à jour" },
+          { status: 500 },
+        )
+      }
+
+      return NextResponse.json({ success: true })
+    }
+
+    if (action === "set_skin") {
+      const skinId = String((body as Record<string, unknown>).skin || "")
+      const skinDef = getSkinById(skinId)
+      if (!skinDef) {
+        return NextResponse.json(
+          { success: false, error: "Skin inconnu" },
+          { status: 400 },
+        )
+      }
+
+      // Garde anti-triche : le skin est une récompense de niveau (courbe UI,
+      // même source que le wallet : teen_full_profile.total_xp).
+      const { data: profile } = await supabase
+        .from("teen_full_profile")
+        .select("total_xp")
+        .eq("id", user.id)
+        .limit(1)
+        .maybeSingle()
+
+      const level = levelProgressForXp(profile?.total_xp ?? 0).level
+      if (level < skinDef.unlockLevel) {
+        return NextResponse.json(
+          { success: false, error: `Skin débloqué au niveau ${skinDef.unlockLevel}` },
+          { status: 403 },
+        )
+      }
+
+      const { error } = await supabase
+        .from("avatars")
+        .upsert(
+          {
+            teen_id: user.id,
+            skin: skinDef.id,
             updated_at: new Date().toISOString(),
           },
           { onConflict: "teen_id" },

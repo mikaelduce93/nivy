@@ -15,10 +15,12 @@ import { Bell, Menu, LogOut, User, Settings } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useCallback, useEffect, useState } from "react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useGamificationContext } from "@/components/gamification/gamification-provider"
 import { StreakCounter } from "@/components/gamification/streak-counter"
 import { useNotificationCounts } from "@/lib/hooks/teen-dashboard"
+import { levelProgressForXp } from "@/lib/gamification/level-curve"
 
 interface TeenHeaderProps {
   userInfo: UserRoleInfo
@@ -41,9 +43,49 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
     router.push("/")
   }
 
-  // Use real-time XP if available, otherwise fallback to initial userInfo
-  const currentLevel = xp?.level || userInfo.teenData?.level || 1
-  const currentCoins = userInfo.teenData?.coins || 0 // XP hook doesn't provide coins yet, keep static or update provider
+  // Use real-time XP if available, otherwise fallback to initial userInfo.
+  // G2-A — le niveau affiché suit la courbe UI (lib/gamification/level-curve),
+  // la même que le wallet et les déblocages boutique/skins (cohérence des
+  // « Débloqué au niveau N ») ; user_xp.current_level suit une autre courbe.
+  const currentLevel = xp ? levelProgressForXp(xp.total_xp).level : userInfo.teenData?.level || 1
+
+  // G2-A (friction #8) — coins vivants : le solde vient du parent + cashback
+  // (PAS du hook XP). Rafraîchi au montage, au retour de focus/visibilité et
+  // après chaque gain d'XP (cashback possible), via /api/teen/wallet
+  // (source canonique user_coins.balance). SSR intact : valeur initiale =
+  // userInfo.teenData.coins, remplacée en douceur côté client.
+  const [liveCoins, setLiveCoins] = useState<number | null>(null)
+  const refreshCoins = useCallback(async () => {
+    try {
+      const res = await fetch("/api/teen/wallet")
+      if (!res.ok) return
+      const data = await res.json()
+      if (typeof data?.coins === "number") setLiveCoins(data.coins)
+    } catch {
+      // best-effort : on garde la dernière valeur connue
+    }
+  }, [])
+
+  useEffect(() => {
+    refreshCoins()
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshCoins()
+    }
+    window.addEventListener("focus", refreshCoins)
+    document.addEventListener("visibilitychange", onVisible)
+    return () => {
+      window.removeEventListener("focus", refreshCoins)
+      document.removeEventListener("visibilitychange", onVisible)
+    }
+  }, [refreshCoins])
+
+  // Gain d'XP temps réel (provider) → possible cashback : on resynchronise.
+  const xpTotal = xp?.total_xp
+  useEffect(() => {
+    if (xpTotal != null) refreshCoins()
+  }, [xpTotal, refreshCoins])
+
+  const currentCoins = liveCoins ?? userInfo.teenData?.coins ?? 0
 
   // Calculate if streak is critical (expires in < 4h)
   const isCritical = (() => {
@@ -125,16 +167,22 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
             />
           </Link>
 
-          {/* Niveau et titre */}
-          <div className="flex items-center gap-2 border-2 border-ink bg-info-soft rounded-full px-3 py-1.5">
+          {/* Niveau et titre — XP = progression (gagnée par l'effort, jamais dépensée) */}
+          <div
+            className="flex items-center gap-2 border-2 border-ink bg-info-soft rounded-full px-3 py-1.5"
+            title="Ton niveau — l'XP se gagne par l'effort et ne se dépense jamais"
+          >
             <span className="text-lg">{userInfo.teenData?.titleIcon || "🌱"}</span>
             <span className="text-sm font-bold text-ink">
               Niv. {currentLevel}
             </span>
           </div>
 
-          {/* Coins */}
-          <div className="flex items-center gap-2 border-2 border-ink bg-coral/15 rounded-full px-3 py-1.5">
+          {/* Coins ⊙ = argent de poche (alimenté par le parent, dépensé dans les services) */}
+          <div
+            className="flex items-center gap-2 border-2 border-ink bg-coral/15 rounded-full px-3 py-1.5"
+            title="Tes coins ⊙ — ton argent de poche, à dépenser dans les services"
+          >
             <span className="text-lg">💰</span>
             <span className="text-sm font-bold text-ink tabular-nums">
               {currentCoins.toLocaleString()}

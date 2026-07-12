@@ -5,6 +5,7 @@ import { getActivityFeed } from "@/gamification-system/features/activity-feed/ac
 import { getDailyMissions } from "@/gamification-system/features/missions/actions"
 import { getActivityHistory, getLifetimeStats } from "@/gamification-system/features/stats-dashboard/actions"
 import { getRewards, getUsablePurchases } from "@/gamification-system/features/shop/actions"
+import { levelProgressForXp } from "@/lib/gamification/level-curve"
 
 type PermissionsSummaryItem = {
   label: string
@@ -79,21 +80,10 @@ export type TeenDashboardData = {
   }
 }
 
+// G2-A — courbe déplacée vers lib/gamification/level-curve.ts (source unique,
+// partagée avec la boutique du wallet et les skins avatar). Math identique.
 function calculateLevelProgress(totalXp: number) {
-  let level = 1
-  let xpRequired = 0
-  let xpForNext = Math.floor(100 * level * 1.5)
-
-  while (totalXp >= xpRequired + xpForNext) {
-    xpRequired += xpForNext
-    level += 1
-    xpForNext = Math.floor(100 * level * 1.5)
-  }
-
-  const xpInLevel = Math.max(0, totalXp - xpRequired)
-  const progressPercent = xpForNext > 0 ? Math.round((xpInLevel / xpForNext) * 100) : 0
-
-  return { level, xpToNextLevel: xpForNext, xpInLevel, progressPercent }
+  return levelProgressForXp(totalXp)
 }
 
 function pickNumber(value: any): number | null {

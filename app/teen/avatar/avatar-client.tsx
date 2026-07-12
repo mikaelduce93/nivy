@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Lock } from "lucide-react"
+import { NIV_SKINS } from "@/lib/gamification/skins"
 
 const MOODS: { id: NivMood; label: string; emoji: string }[] = [
   { id: "happy", label: "Happy", emoji: "🙂" },
@@ -13,15 +14,6 @@ const MOODS: { id: NivMood; label: string; emoji: string }[] = [
   { id: "proud", label: "Proud", emoji: "😎" },
   { id: "calm", label: "Calm", emoji: "🌙" },
   { id: "wink", label: "Wink", emoji: "😉" },
-]
-
-// Skins débloquables à l'XP — catalogue de démarrage (le starter pack onboarding
-// offre déjà "hoodie pink"). Le déblocage réel par XP arrive avec l'économie skins.
-const SKINS = [
-  { id: "hoodie-pink", label: "Hoodie Pink", unlocked: true },
-  { id: "varsity", label: "Varsity", unlocked: false, cost: 500 },
-  { id: "streetwear", label: "Streetwear", unlocked: false, cost: 1200 },
-  { id: "neon-night", label: "Neon Night", unlocked: false, cost: 2500 },
 ]
 
 // NivMood (mascotte) → humeur persistée côté avatars.mood (taxonomie DB).
@@ -33,8 +25,37 @@ const MOOD_TO_AVATAR: Record<NivMood, string> = {
   wink: "happy",
 }
 
-export function AvatarClient() {
-  const [mood, setMood] = useState<NivMood>("happy")
+// Taxonomie DB → NivMood (pour réhydrater l'humeur persistée au chargement).
+const AVATAR_TO_MOOD: Record<string, NivMood> = {
+  happy: "happy",
+  celebrating: "hype",
+  focused: "proud",
+  neutral: "calm",
+  sad: "calm",
+  tired: "calm",
+}
+
+const DEFAULT_SKIN = "hoodie-pink"
+
+interface AvatarClientProps {
+  /** Niveau réel de l'ado (courbe UI — même source que le wallet). */
+  level: number
+  /** Skin persisté (avatars.skin) ou null si jamais choisi. */
+  initialSkin: string | null
+  /** Humeur persistée (avatars.mood, taxonomie DB) ou null. */
+  initialMood: string | null
+}
+
+// G2-A (décision PO 2026-07-11) — skins = récompenses de niveau, GRATUITES :
+// plus aucun coût (ni XP ni coins). Catalogue + niveaux : lib/gamification/
+// skins.ts ; skin équipé persisté dans avatars.skin (même mécanisme que mood).
+export function AvatarClient({ level, initialSkin, initialMood }: AvatarClientProps) {
+  const [mood, setMood] = useState<NivMood>(
+    (initialMood && AVATAR_TO_MOOD[initialMood]) || "happy"
+  )
+  const [skin, setSkin] = useState<string>(
+    initialSkin && NIV_SKINS.some((s) => s.id === initialSkin) ? initialSkin : DEFAULT_SKIN
+  )
 
   // Optimistic UI + best-effort persistence to /api/teen/avatar (set_mood).
   const selectMood = (m: NivMood) => {
@@ -48,6 +69,19 @@ export function AvatarClient() {
     })
   }
 
+  // Équipement optimiste ; la route re-vérifie le niveau côté serveur.
+  const selectSkin = (id: string, unlockLevel: number) => {
+    if (level < unlockLevel || skin === id) return
+    setSkin(id)
+    void fetch("/api/teen/avatar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "set_skin", skin: id }),
+    }).catch(() => {
+      /* skin affiché tout de suite ; persistance best-effort */
+    })
+  }
+
   return (
     <div className="space-y-8 pt-6">
       <header className="space-y-2">
@@ -56,7 +90,8 @@ export function AvatarClient() {
           Ton avatar <span className="text-pink italic">Niv</span>
         </h1>
         <p className="text-mute max-w-md">
-          Donne le ton à ton coach panda. Débloque des skins en gagnant de l'XP.
+          Donne le ton à ton coach panda. Les skins sont des récompenses de niveau : gratuits,
+          débloqués en progressant.
         </p>
       </header>
 
@@ -96,30 +131,48 @@ export function AvatarClient() {
           </section>
 
           <section className="space-y-3">
-            <p className="eyebrow">Skins</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="eyebrow">Skins</p>
+              <span className="font-mono text-xs font-bold tabular-nums text-teal">
+                Tu es niveau {level}
+              </span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              {SKINS.map((s) => (
-                <Card key={s.id} padding="sm" className="relative px-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-bold text-ink">{s.label}</span>
-                    {s.unlocked ? (
-                      <span className="rounded-full border border-ink bg-success-soft px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide">
-                        Actif
-                      </span>
-                    ) : (
-                      // #201 Stop the lies — le déblocage de skins par XP n'est pas
-                      // implémenté : on affiche « Bientôt » au lieu d'un faux prix XP
-                      // (qui laissait croire que l'XP s'achète/se dépense ici).
-                      <span className="flex items-center gap-1 text-mute text-[10px] font-mono font-bold uppercase tracking-wide">
-                        <Lock className="h-3 w-3" /> Bientôt
-                      </span>
-                    )}
-                  </div>
-                </Card>
-              ))}
+              {NIV_SKINS.map((s) => {
+                const unlocked = level >= s.unlockLevel
+                const equipped = skin === s.id
+                return (
+                  <Card
+                    key={s.id}
+                    padding="sm"
+                    className={cn("relative px-4", !unlocked && "opacity-70")}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-bold text-ink">{s.label}</span>
+                      {equipped ? (
+                        <span className="rounded-full border border-ink bg-success-soft px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide">
+                          Actif
+                        </span>
+                      ) : unlocked ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => selectSkin(s.id, s.unlockLevel)}
+                        >
+                          Équiper
+                        </Button>
+                      ) : (
+                        <span className="flex items-center gap-1 text-mute text-[10px] font-mono font-bold uppercase tracking-wide">
+                          <Lock className="h-3 w-3" aria-hidden="true" /> Niveau {s.unlockLevel}
+                        </span>
+                      )}
+                    </div>
+                  </Card>
+                )
+              })}
             </div>
             <p className="text-xs text-mute">
-              D&apos;autres skins arrivent bientôt.
+              Chaque skin se débloque à un niveau — gratuit, sans dépenser ni XP ni coins.
             </p>
           </section>
 
