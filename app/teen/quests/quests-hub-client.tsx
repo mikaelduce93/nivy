@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo } from "react"
-import { Brain, Dumbbell, Palette, Zap, ArrowRight, Trophy, Users, Flame } from "lucide-react"
+import { Brain, Dumbbell, Palette, Zap, ArrowRight, Trophy, Users, Flame, Swords, Gamepad2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { DefiCard, type DefiCardProps } from "@/components/teen/defi-card"
@@ -267,6 +267,22 @@ export function QuestsHubClient({ quests, dailyChallenges, xpData, coinsBalance 
           title="Défie un ami"
           description="Lance une quête compétitive avec ton crew"
           href="/teen/quests/friend-defis/new"
+        />
+        {/* G4-B2 — battles 1v1 synchrones (spec SPEC-G4-BATTLES-MINIJEUX §3.3) :
+            entrée hub à côté du défi asynchrone existant. */}
+        <QuickActionCard
+          icon={Swords}
+          title="Battles"
+          description="Affronte un ami en direct — 5 questions, 15 s chrono"
+          href="/teen/battles"
+        />
+        {/* G4-C (J5) — mini-jeux solo réellement jouables (spec §7) :
+            entrée hub vers le catalogue /teen/games. */}
+        <QuickActionCard
+          icon={Gamepad2}
+          title="Mini-jeux"
+          description="Quiz Rush, Memory, Vrai/Faux — de l'XP en parties courtes"
+          href="/teen/games"
         />
         {/* Friction 6 (audit 2026-07-11) — seul lien vers /teen/streak = header
             desktop (hidden md:flex). Ce hub est un pilier de la nav mobile :

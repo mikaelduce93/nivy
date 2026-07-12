@@ -4,6 +4,7 @@
  *
  * Server actions pour les mini-jeux.
  */
+// drift-allow: getUserGameStats lit game_sessions/battles livrées par la mig 181 (train G4, agent DB parallèle) — régénérer db-relations.json après application.
 
 "use server"
 
@@ -745,15 +746,29 @@ export async function getUserDailyScores(
 }
 
 /**
- * Récupère les stats globales de jeu de l'utilisateur
+ * Table/RPC absente : migrations G4 (181/182) pas encore appliquées —
+ * même détection que lib/battles/types.isMissingSchemaError.
+ */
+function isMissingGameSchema(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false
+  if (["PGRST202", "PGRST205", "42883", "42P01"].includes(error.code ?? "")) return true
+  return /does not exist|schema cache|could not find/i.test(error.message ?? "")
+}
+
+/**
+ * Récupère les stats globales de jeu de l'utilisateur.
+ *
+ * G4 (spec SPEC-G4-BATTLES-MINIJEUX §8 J5) : la source réelle est
+ * `game_sessions` (mig 181, RLS self-only) — plus `weekly_game_leaderboard`
+ * (moteur legacy mig 011 abandonné, jamais alimenté par les jeux G4).
+ * Les victoires viennent des battles gagnées (`battles.winner_id`, RLS
+ * participant). Tables absentes (mig 181 pas appliquée) → zéros honnêtes.
  */
 export async function getUserGameStats(): Promise<{
   success: boolean
   data?: {
     total_games_played: number
     total_xp_earned: number
-    favorite_game?: string
-    best_rank?: number
     win_count: number
   }
   error?: string
@@ -768,32 +783,35 @@ export async function getUserGameStats(): Promise<{
       return { success: false, error: "Non authentifié" }
     }
 
-    // Stats globales
-    const { data: weeklyStats, error } = await supabase
-      .from("weekly_game_leaderboard")
-      .select(
-        `
-        *,
-        game_type:game_type_id(slug, name)
-      `
-      )
-      .eq("user_id", user.id)
+    // Sessions mini-jeux complétées (self-only par RLS — filtre explicite
+    // pour l'index idx_game_sessions_teen_day).
+    const { data: sessions, error: sessionsError } = await supabase
+      .from("game_sessions")
+      .select("xp_awarded")
+      .eq("teen_id", user.id)
+      .eq("status", "completed")
 
-    if (error) throw error
+    if (sessionsError && !isMissingGameSchema(sessionsError)) throw sessionsError
 
-    const stats = {
-      total_games_played: weeklyStats.reduce((sum, s) => sum + s.games_played, 0),
-      total_xp_earned: weeklyStats.reduce((sum, s) => sum + s.total_score, 0) / 10,
-      favorite_game: weeklyStats.sort((a, b) => b.games_played - a.games_played)[0]
-        ?.game_type?.name,
-      best_rank: weeklyStats.reduce(
-        (best, s) => (s.rank && (!best || s.rank < best) ? s.rank : best),
-        undefined as number | undefined
-      ),
-      win_count: weeklyStats.reduce((sum, s) => sum + s.win_count, 0),
+    // Battles gagnées (RLS participant : je ne vois que mes battles).
+    const { count: winCount, error: winsError } = await supabase
+      .from("battles")
+      .select("id", { count: "exact", head: true })
+      .eq("winner_id", user.id)
+      .eq("status", "resolved")
+
+    if (winsError && !isMissingGameSchema(winsError)) throw winsError
+
+    const sessionRows = ((sessions ?? []) as unknown as { xp_awarded: number | null }[])
+
+    return {
+      success: true,
+      data: {
+        total_games_played: sessionRows.length,
+        total_xp_earned: sessionRows.reduce((sum, s) => sum + (s.xp_awarded ?? 0), 0),
+        win_count: winCount ?? 0,
+      },
     }
-
-    return { success: true, data: stats }
   } catch (error) {
     logDbError("mini-games.getUserGameStats", error)
     return { success: false, error: "Erreur lors du chargement des stats" }
