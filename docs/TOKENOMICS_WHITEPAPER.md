@@ -5,7 +5,7 @@
 > crypto ni jeton blockchain**) de la plateforme NIVY, et sert de white paper de
 > référence pour trois audiences.
 >
-> **Version :** 1.0 — 2026-07-12 · **Statut :** Draft fondateur
+> **Version :** 1.1 — 2026-07-12 · **Statut :** Draft fondateur (10 incohérences résolues + plafonds F6/F49 livrés)
 > **Sources de vérité :** `docs/canon/economy-payments.locked.md`,
 > `docs/canon/gamification.locked.md`, `docs/canon/partner-ecosystem.locked.md`,
 > `docs/canon/parent-control.locked.md`, `docs/vision/cndp-filing-dossier/*`,
@@ -126,9 +126,9 @@ Tâches maison (récompense DH + XP).
 Un compagnon (« panda à 5 humeurs ») qui accueille, suggère le quiz/défi du jour,
 célèbre les level-ups, aide quand l'ado bloque. Coach unifié basé Claude (livré V4).
 
-> ⚠️ **Incohérence de nom** : l'UI live + le whitepaper historique l'appellent
-> **« Niv »** ; le canon récent le renomme **« Kai »**. Le produit live dit **Niv**.
-> À trancher.
+> ✅ **Nom tranché (#356, 2026-07-12) : « Niv ».** Le coach parent séparé reste
+> **« Aura »**. Canon (`INDEX.locked.md`, `personalization-ai.locked.md`) + code
+> (`AgentSheet`, `AgentFloatingButton`, `roles.ts`) alignés ; F54 résolu.
 
 ---
 
@@ -149,7 +149,7 @@ brique de points de fidélité liée à la carte payante.
 | 1 | **XP** | Score d'engagement | `user_xp.total_xp` | Ado | ❌ Jamais en cash. Équivalent DH **affichage seul** (1 XP ≈ 0,10 DH) | ✅ |
 | 2 | **Coins** | Proxy e-money prépayé | `user_coins.balance` | Ado (escrow parent) | ❌ Jamais ↔ XP. Remboursable au parent à taux fixe | 📋 (câblage partiel) |
 | 3 | **DH** | Cash réel (MAD) | `payment_transactions` + `escrow_ledger` | Parent (escrow pour l'ado) | ➡️ DH → coins au top-up (1 sens). Remboursement inverse | ⏳ (rail réel gelé) |
-| 4 | **Points fidélité** | Points carte VIP payante | `user_points.total_points` | Ado abonné | Barème d'échange | ⚠️ Gain non implémenté, échange = théâtre UI |
+| 4 | **Points fidélité** | Points carte VIP payante | `user_points.total_points` | Ado abonné | Barème d'échange | ⏳ Boucle reportée (gain + échange non câblés) — théâtre UI **retiré** (#355) |
 
 **Règle fondatrice :** la conversion **XP ↔ coins est INTERDITE** — aucune
 fonction, RPC, route API ou UI ne peut convertir l'une en l'autre. C'est un
@@ -170,7 +170,7 @@ gouverne l'inflation.
 | Défi quotidien / tous défis du jour | **25 / 50** | — | 📋 |
 | Missions hebdo | **100–200** | — | 📋 |
 | Missions mensuelles | **300–600** | — | 📋 |
-| Missions saisonnières | **300–1 500** (Ramadan 1 500) | Fenêtre de validité (seeds datés 2025 ⚠️) | 📋 |
+| Missions saisonnières | **300–1 500** (Ramadan 1 500) | Fenêtre de validité (réactualisées 2026+, #357) | 📋 |
 | Roue de la fortune | **50 / 100 / 200 / 500** (jackpot) + multiplicateurs ×2/×3 | 1 spin gratuit / jour | ✅ |
 | Engagement créateur | like **+1** · commentaire **+2** · partage **+5** | Plafonds/jour : **50 / 30 / 20** | 📋 |
 | XP octroyé par partenaire | variable | Plafond **500 XP / ado / semaine / émetteur** | 📋 |
@@ -278,7 +278,7 @@ Le modèle superpose **plusieurs échelles** distinctes — à ne pas confondre.
 Chaque palier porte des bonus (`xp_multiplier`, `coin_multiplier`,
 `drop_rate_bonus`, spins/jour, early-access, remise…), pilotés en base.
 
-**(b) Carte VIP payante** (abonnement Stripe, distinct de l'échelle XP) ✅ paiement / ⚠️ points
+**(b) Carte VIP payante** (abonnement **annuel** Stripe, distinct de l'échelle XP) ✅ paiement
 
 | Carte | Prix | Points gagnés | Remise partenaires |
 |-------|------|---------------|--------------------|
@@ -286,12 +286,12 @@ Chaque palier porte des bonus (`xp_multiplier`, `coin_multiplier`,
 | Gold | 299 DH | 2 pts / 10 DH | −10 % (+ events −20 %, clubs −15 %) |
 | Platinum | 599 DH | 3 pts / 10 DH | −20 % (+ events −30 %, clubs −25 %) |
 
-> ⚠️ **À trancher :** prix affiché « /an » (marketing) vs « /mois » (souscription)
-> vs « annuel » (Stripe qui ne facture qu'1 mois). ⚠️ Le **gain** de points fidélité
-> n'a **pas** d'implémentation (`award_loyalty_points` nommé au canon mais absent) et
-> l'**échange** de points est un **bandeau « bientôt »** sans bouton ni API. C'est le
-> plus gros écart promesse↔réalité du programme de fidélité — soit on câble la boucle
-> de points, soit on retire les CTA.
+> ✅ **Cadence tranchée (#354) : annuelle** — 299/599 DH **/an** (`duration_months: 12`) ;
+> UI de souscription, description Stripe et calcul d'économies alignés.
+> ⏳ **Points fidélité : boucle reportée.** Le gain (`award_loyalty_points`) et
+> l'échange ne sont pas câblés ; le **théâtre UI a été retiré (#355)** et la page
+> `carte-vip/recompenses` redirige vers la vraie valeur (réduction VIP automatique +
+> boutique XP). Câbler la boucle de points reste un jalon produit.
 
 **(c) Multiplicateurs transactionnels** — silver/gold/platinum appliquent ×1/×2/×3
 sur l'XP transactionnel lors d'une remise partenaire.
@@ -310,21 +310,25 @@ sur l'XP transactionnel lors d'une remise partenaire.
 | Plafond mensuel de dépense / ado | configuré par le parent (`max_monthly_spend_dh`) | ✅ migration 179 (`_debit_teen_coins`, rails V6) |
 | Plafond AML marketplace | 1 000 DH / ado / mois | ⏳ décision fondateur |
 
-> **Il n'existe aujourd'hui aucun plafond de top-up global.** C'est une exigence de
-> conformité (§5.3) recommandée au canon mais non câblée (table `parental_limits` à
-> créer). À prioriser avant tout rail DH réel.
+> ✅ **Plafonds câblés (migration 179, 2026-07-12).** La table `parental_limits`
+> existe ; `_check_topup_caps` est appliqué dans les **deux surcharges** de
+> `top_up_teen`, et le plafond mensuel de dépense dans `_debit_teen_coins` (rails V6).
+> Défauts BAM seedés (200 / 500 / 5 000 DH), overrides en `service_role` uniquement
+> (relèvement = post-KYC). Reste ouvert : plafond AML marketplace + whitelist par
+> catégorie (F49, cf. Annexe B).
 
 ### 3.7 Courbe de niveaux
 
-Niveaux **1 à 100**. ⚠️ **Deux courbes divergentes coexistent dans le code** — à
-réconcilier :
+Niveaux **1 à 100**. ✅ **Courbe unifiée (#348)** — l'UI dérive désormais de la
+formule backend qui fait foi pour `user_xp.current_level` :
 
-- **Backend** (fait foi pour `user_xp.current_level`) : XP cumulé pour être niveau
-  N = **(N × (N+1) / 2) × 100** → L2=100, L3=300, L4=600, L5=1 000…
-- **UI** (ce que l'ado voit) : XP cumulé = **75 · N · (N−1)** → L2=150, L3=450,
-  L5=1 500… Le fichier lui-même signale l'écart en commentaire.
+- XP cumulé pour être niveau N = **50 · N · (N−1)** (= (N−1)·N/2 × 100) → L2=100,
+  L3=300, L4=600, L5=1 000, L6=1 500…
+- XP pour passer du niveau L au L+1 = **100 · L**.
 
-**Action interne :** choisir une courbe unique et aligner UI↔backend.
+`lib/gamification/level-curve.ts` réécrite + test `tests/unit/level-curve.test.ts`
+(5/5) vérifiant que le niveau affiché == le niveau calculé en base, sur un large
+éventail d'XP.
 
 ---
 
@@ -340,9 +344,9 @@ la confiance parentale est le produit. Le revenu vient d'ailleurs.
 
 | # | Flux | Structure | Statut |
 |---|------|-----------|--------|
-| 1 | **Commission partenaire** *(primaire)* | Par vente, **jamais d'abonnement**. Affiché : Retail **8 %** · Lieux **10 %** · Clubs **12 %** · Éducation **15 %**. Payout partenaire sous 7 j | ✅ backend / ⚠️ voir 4.3 |
+| 1 | **Commission partenaire** *(primaire)* | Par vente, **jamais d'abonnement**. Grille par catégorie **live** : Retail **8 %** · Lieux **10 %** · Clubs **12 %** · Éducation **15 %** (#352). Payout partenaire sous 7 j | ✅ |
 | 2 | **Abonnement famille** | Free **0** · Silver **29** · Gold **79** · Platinum **149** DH/mois. Le gratuit inclut **tout le contrôle parental** ; le payant ajoute confort (enfants, historique, tutorat, concierge WhatsApp) + remise top-up | 📋 rail Stripe séparé, `family_subscriptions` vide |
-| 3 | **Carte VIP ado** | Gold 299 / Platinum 599 (cadence à clarifier) | ✅ Stripe |
+| 3 | **Carte VIP ado** | Gold 299 / Platinum 599 **DH/an** (#354) | ✅ Stripe |
 | 4 | **Commission marketplace** | **8 %** par vente C2C (5 % NIVY + 3 % assurance confiance) | 📋 |
 | 5 | **Marge B2B lifestyle** | Food/ride/mentor : la marge implicite entre la valeur faciale des coins et le règlement partenaire (rail A/P séparé) | 📋 non chiffrée |
 
@@ -350,15 +354,14 @@ la confiance parentale est le produit. Le revenu vient d'ailleurs.
 > gratuit à vie. Les tiers payants vendent du **confort**, pas de la sécurité. C'est
 > un choix de positionnement (confiance) autant qu'un argument réglementaire.
 
-### 4.3 ⚠️ Incohérences de taux à trancher (revenus)
+### 4.3 ✅ Incohérences de taux — résolues (2026-07-12)
 
-1. **Commission partenaire** : marketing affiche **8/10/12/15 %** par activité,
-   mais le backend applique un **défaut plat de 10 %** (override par partenaire
-   possible). Aligner le backend sur la grille par activité, ou aligner le
-   marketing sur le 10 % plat.
-2. **Ambassadeur — seuil de retrait** : code = **100 DH**, canon = **500 DH**.
-3. **Ambassadeur — commission** : fallback 10 % vs 15 % selon les fichiers ; canon
-   tranche **10 % par défaut**, majoré par palier (bronze 10 / silver 12 / gold 15).
+1. **Commission partenaire** — grille par catégorie **8/10/12/15 %** désormais servie
+   par `get_partner_commission_pct` (table `partner_commission_rules`, mig 176).
+   Vérifié live. (#352)
+2. **Ambassadeur — seuil de retrait** — aligné à **500 DH** (route + page + form). (#353)
+3. **Ambassadeur — commission** — **10 % par défaut**, majoré par palier
+   (bronze 10 / silver 12 / gold 15), conforme au canon.
 
 ### 4.4 Le programme ambassadeur (levier de croissance)
 
@@ -518,29 +521,34 @@ Toutes SECURITY DEFINER (sauf note), paramètres UUID typés, garde
 | `resolve_dispute` | Résolution litige marketplace | ⏳ **P0 manquant** |
 | `refund_top_up` / `refund_teen_coins` / `revoke_xp_cashback` | Chaîne de remboursement | ⏳ **P0 manquant** |
 | `complete_mentor_session` / `pay_featured_creator` / `release_savings_goal` | Compléments | ⏳ P1 manquant |
-| `_cashback_pct` | Ladder cashback centralisé | ⏳ à extraire |
+| `_cashback_pct` | Ladder cashback centralisé | ✅ extrait (mig 175) |
+| `_check_topup_caps` | Plafonds top-up BAM (op / mensuel parent / agrégat ado) | ✅ (mig 179) |
 
 ### 6.2 Cashback — réalité d'implémentation
 
 Le taux se résout : `cashback_rules` (par partenaire) → `xp_payment_settings.
-default_cashback_pct` → fallback **10 %**. ⚠️ **Ni la table `cashback_rules` ni le
-réglage `default_cashback_pct` ne sont créés/seedés** dans les migrations
-inspectées → le taux effectif aujourd'hui est le **fallback codé en dur 10 %**. À
-matérialiser si l'on veut des taux par partenaire.
+default_cashback_pct` → fallback **10 %**. ✅ **Matérialisé (mig 175)** : la table
+`cashback_rules` et le réglage `default_cashback_pct = 10` existent en live, et le
+helper canonique `_cashback_pct(partner_id)` (iso-sémantique du ladder inline de
+`_debit_teen_coins`) centralise la résolution — vérifié `_cashback_pct(NULL) = 10`.
+Des taux par partenaire sont désormais possibles (insérer une ligne `cashback_rules`).
 
-### 6.3 Registre des incohérences à résoudre *(avant publication externe)*
+### 6.3 Registre des incohérences — ✅ toutes résolues (2026-07-12)
 
-| # | Incohérence | Résolution proposée |
+Les 10 points ci-dessous ont été **implémentés, appliqués en base live et vérifiés**
+(mapping issue→migration en Annexe C). Conservé comme registre historique.
+
+| # | Incohérence | Résolution (livrée) |
 |---|-------------|---------------------|
-| 1 | Deux courbes de niveau (backend vs UI) | Choisir une courbe, aligner |
+| 1 | Deux courbes de niveau (backend vs UI) | Courbe backend retenue, UI dérivée (50·N·(N−1)) + test |
 | 2 | XP→DH stocké 3 fois (TS 0,10 ; DB `xp_to_dh_rate=100` mort ; narratif) | **10 XP = 1 DH** (TS fait foi), supprimer la ligne DB morte |
 | 3 | Cashback : table `cashback_rules` absente | Créer + seeder `default_cashback_pct` |
 | 4 | Packs top-up (`topup/page.tsx`) incohérents avec 1 DH=100 coins | Table `topup_packages` serveur, retirer le tableau TSX |
-| 5 | Commission partenaire 8/10/12/15 % (marketing) vs 10 % plat (backend) | Aligner |
-| 6 | Ambassadeur seuil retrait 100 (code) vs 500 (canon) | Trancher, aligner code+landing |
+| 5 | Commission partenaire 8/10/12/15 % (marketing) vs 10 % plat (backend) | Grille par catégorie servie par `get_partner_commission_pct` (mig 176) |
+| 6 | Ambassadeur seuil retrait 100 (code) vs 500 (canon) | Aligné à **500 DH** (route + page + form) |
 | 7 | Carte VIP prix /an vs /mois vs Stripe 1 mois | Clarifier cadence |
-| 8 | Points fidélité carte VIP : gain non implémenté, échange = théâtre | Câbler ou retirer les CTA |
-| 9 | Coach « Niv » (live) vs « Kai » (canon) | Trancher le nom |
+| 8 | Points fidélité carte VIP : gain non implémenté, échange = théâtre | Théâtre **retiré** ; page redirige vers réduction VIP + boutique XP ; boucle reportée |
+| 9 | Coach « Niv » (live) vs « Kai » (canon) | Tranché : **Niv** (canon + code alignés) |
 | 10 | Seeds missions datés 2025 | Réactualiser les fenêtres |
 
 ### 6.4 Tables monétaires canoniques
@@ -570,7 +578,7 @@ matérialiser si l'on veut des taux par partenaire.
 | Cashback XP (fallback 10 %, réversible) | ✅ |
 | Ambassadeur : commissions cash + retraits + boutique points | ✅ |
 | Top-up manuel (admin) + gate e-signature + `top_up_teen` | ✅ |
-| **Points fidélité carte VIP (gain + échange)** | ⚠️ **théâtre UI** |
+| **Points fidélité carte VIP (gain + échange)** | ⏳ boucle reportée — théâtre UI **retiré** (#355) |
 | Pipeline coins bout-en-bout | 📋 partiel |
 | Top-up PSP auto (Cash Plus, CMI…) | ⏳ gelé (F5), pas d'EP signé (F25) |
 | Tables escrow live en base | ⏳ à migrer |
@@ -596,9 +604,9 @@ de la carte VIP est le principal écart** entre la promesse marketing et le code
 | Remboursement coins | 1 coin = 0,01 DH | Au parent uniquement |
 | XP → DH (affichage) | 1 XP = 0,10 DH (10 XP = 1 DH) | Affichage / remise seulement |
 | Cashback dépense coins | 10 % en XP | Fallback effectif |
-| Commission partenaire | 8/10/12/15 % (marketing) ou 10 % (backend) | ⚠️ à aligner |
+| Commission partenaire | 8/10/12/15 % par catégorie (live) | ✅ (#352) |
 | Commission marketplace | 8 % (5 % + 3 %) | 📋 |
-| Commission ambassadeur | 10 % (→ 12/15 % par palier) | ✅/⚠️ |
+| Commission ambassadeur | 10 % (→ 12/15 % par palier) | ✅ (#353) |
 
 ## Annexe B — Décisions fondateur ouvertes (bloquantes)
 
@@ -613,16 +621,17 @@ de la carte VIP est le principal écart** entre la promesse marketing et le code
 - **F50** ⏳ — gestion du wallet à la majorité.
 - **F51** ⏳ — statut des mystery boxes (ladder déterministe).
 - **F14** ⏳ — TTL des URLs signées CIN.
-- **Nom du coach** ⚠️ — Niv vs Kai.
-- **Points fidélité carte VIP** ⚠️ — câbler la boucle ou retirer les CTA.
+- **Nom du coach** ✅ **tranché** — **Niv** (#356, F54 résolu ; Aura = coach parent).
+- **Points fidélité carte VIP** ⏳ — théâtre **retiré** (#355) ; câbler la boucle de
+  points reste un jalon produit à décider.
 
 ## Annexe C — Journal des arbitrages (2026-07-12)
 
 Les 10 incohérences du §6.3 ont été tranchées **conformité d'abord**, puis
-implémentées. Statut : **migrations 174–178 appliquées en base live le
+implémentées. Statut : **migrations 174–180 (+092) appliquées en base live le
 2026-07-12** et vérifiées post-application (commission par catégorie 8/10/12/15
-live, packs 50–200 DH, `xp_to_dh_rate` supprimée, missions saisonnières
-réactivées — Summer 2026 active, 0 fenêtre passée).
+live, packs 50–200 DH, `xp_to_dh_rate` supprimée, `_cashback_pct(NULL)=10`,
+plafonds 200/500/5 000 seedés, missions saisonnières réactivées — 0 fenêtre passée).
 
 | Issue | Décision | Implémentation |
 |-------|----------|----------------|
