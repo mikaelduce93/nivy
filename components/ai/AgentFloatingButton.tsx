@@ -14,7 +14,7 @@ interface AgentFloatingButtonProps {
 export function AgentFloatingButton({ role, context }: AgentFloatingButtonProps) {
   // Agent configuration per role
   const agentConfig = {
-    teen: { name: "Kai", color: "bg-teal", icon: Sparkles },
+    teen: { name: "Niv", color: "bg-teal", icon: Sparkles },
     parent: { name: "Aura", color: "bg-pink", icon: Shield },
     partner: { name: "Biz", color: "bg-lime", icon: TrendingUp },
     ambassador: { name: "Hype", color: "bg-gold", icon: Zap },

@@ -1,17 +1,18 @@
 /**
- * Courbe de niveaux UI — source unique (G2-A, décision PO 2026-07-11 :
- * « XP = progression pure, jamais dépensé »).
+ * Courbe de niveaux — SOURCE UNIQUE, alignée sur le backend (#348).
  *
- * C'est la courbe historiquement affichée aux ados (ex-`calculateLevelProgress`
- * de lib/server/teen-dashboard.ts) :
- *   - XP requis pour passer du niveau L au niveau L+1 : floor(100 · L · 1,5) = 150·L
- *   - XP total minimum pour ÊTRE niveau N : 75 · N · (N-1)
- *     (niveau 1 = 0 XP, niveau 2 = 150, niveau 3 = 450, niveau 4 = 900,
- *      niveau 5 = 1 500, niveau 7 = 3 150, niveau 9 = 5 400, …)
+ * Cette courbe DÉRIVE de la formule appliquée par `add_xp_to_user` /
+ * `user_xp.current_level` (000_base_tables.sql:345) : on monte de niveau dès que
+ *   total_xp >= (level · (level + 1) / 2) · 100
+ * ce qui donne, pour ÊTRE niveau N :
+ *   XP total minimum = ((N-1) · N / 2) · 100 = 50 · N · (N-1)
+ *   (niveau 1 = 0 XP, niveau 2 = 100, niveau 3 = 300, niveau 4 = 600,
+ *    niveau 5 = 1 000, niveau 6 = 1 500, …)
+ * et pour passer du niveau L au niveau L+1 :
+ *   XP à gagner = 100 · L
  *
- * ⚠️ La base (`add_xp_to_user`, user_xp.current_level) suit une AUTRE courbe
- * (N·(N+1)/2 · 100 — 000_base_tables.sql). Divergence pré-existante : les
- * surfaces teen affichent la courbe UI ci-dessous ; ne pas mélanger les deux.
+ * ⚠️ Ne JAMAIS réintroduire une courbe UI distincte (ex-150·L / 75·N·(N-1)) :
+ * le niveau affiché doit toujours égaler `user_xp.current_level` calculé en base.
  *
  * Module pur (aucun import serveur) — importable côté client ET serveur.
  */
@@ -20,13 +21,14 @@ export const MAX_LEVEL = 100
 
 /** XP à gagner pour passer du niveau `level` au niveau `level + 1`. */
 export function xpToLevelUp(level: number): number {
-  return Math.floor(100 * level * 1.5)
+  return 100 * level
 }
 
 /** XP total minimum pour être niveau `level` (niveau 1 = 0 XP). */
 export function totalXpForLevel(level: number): number {
-  // Somme des xpToLevelUp(1 … level-1) = 150 · (level-1) · level / 2.
-  return 75 * level * (level - 1)
+  // Seuil backend pour ÊTRE niveau N : ((N-1)·N / 2) · 100 = 50 · N · (N-1).
+  // Égal à la somme des xpToLevelUp(1 … level-1) = 100 · (level-1) · level / 2.
+  return 50 * level * (level - 1)
 }
 
 export interface LevelProgress {
@@ -57,7 +59,7 @@ export function levelProgressForXp(totalXp: number): LevelProgress {
 /**
  * Convertit un ancien « prix XP » en niveau de déblocage : le plus petit
  * niveau N dont le seuil d'XP total couvre le prix (arrondi au niveau
- * supérieur). Ex. 500 XP → niveau 4, 1 200 → 5, 2 500 → 7, 5 000 → 9.
+ * supérieur). Ex. 500 XP → niveau 4, 1 200 → 6, 2 500 → 8, 5 000 → 11.
  */
 export function unlockLevelForXpCost(xpCost: number): number {
   if (xpCost <= 0) return 1

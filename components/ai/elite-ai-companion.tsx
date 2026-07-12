@@ -62,7 +62,7 @@ const typeColors = {
 }
 
 const agentConfig = {
-  teen: { name: 'Kai', gradient: 'from-brand-soft to-info-soft', icon: Sparkles },
+  teen: { name: 'Niv', gradient: 'from-brand-soft to-info-soft', icon: Sparkles },
   parent: { name: 'Aura', gradient: 'from-pink to-pink', icon: Brain },
   partner: { name: 'Biz', gradient: 'from-lime to-teal', icon: Zap },
   ambassador: { name: 'Hype', gradient: 'from-gold to-coral', icon: Zap },

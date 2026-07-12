@@ -18,7 +18,7 @@ Generated 2026-05-08 from `docs/vision/**` (46 files) + `docs/vision/audit-front
 | `social-feed.locked.md` | Feed, comments, friends, messages, circles, marketplace | `direct_messages` (not `teen_messages`); cursor pagination 20/page; `window.alert()` BANNED |
 | `parent-control.locked.md` | Top-up, allowance, chores, approvals, e-signature, teens management | Top-up payload = `{teenId, amount_dh}` only; approvals fan out via RPC, not direct status flips |
 | `admin-moderation.locked.md` | Sub-roles, queues, audit log, refunds, broadcasts, KYC, support | Single `/admin/moderation` inbox; `audit_log` (singular) canonical |
-| `personalization-ai.locked.md` | Signals, recommender, friend graph, AvatarCoach, AI models | `record_signal` is THE signal sink; AvatarCoach name = **Kai**; model IDs are env-driven |
+| `personalization-ai.locked.md` | Signals, recommender, friend graph, AvatarCoach, AI models | `record_signal` is THE signal sink; AvatarCoach name = **Niv** (founder decision #356, F54 resolved); model IDs are env-driven |
 | `design-system-mobile.locked.md` | Tokens, primitives, motion, a11y, mobile, view-transitions, toasts | sonner only; raw `framer-motion` import FORBIDDEN; min touch 44px |
 
 ## Cross-cutting locks (cited from ≥2 domain specs — non-negotiable)
@@ -31,7 +31,7 @@ Generated 2026-05-08 from `docs/vision/**` (46 files) + `docs/vision/audit-front
 6. **All KYC / CIN / chore-evidence / payout-proof storage is private. Signed URLs only.** (parent-control + partner-ecosystem + admin-moderation)
 7. **`audit_log` (singular) is the canonical audit table.** Not `admin_audit_logs`. **DECIDED 2026-05-08.** Resolves the social-feed §7 invariant 4 contradiction — `admin_audit_logs` is deprecated; canonical is `audit_log`. (admin-moderation + roles-permissions)
 8. **`record_signal` is the only signal-write entry point.** (personalization-ai + gamification)
-9. **AvatarCoach name = `Kai`. One canonical prompt. 5-turn cap.** (personalization-ai)
+9. **AvatarCoach name = `Niv`. One canonical prompt. 5-turn cap.** (personalization-ai)
 10. **No `<img>`, no inline cubic-bezier, no bare `focus:` (must be `focus-visible:`), no `userScalable: false`, no hardcoded `cyan/emerald/sky/rose/amber/fuchsia/blue/gray/indigo/teal-(50-950)` outside the allowlist.** (design-system-mobile)
 
 ## Cross-cutting deprecations (sunset before V2)

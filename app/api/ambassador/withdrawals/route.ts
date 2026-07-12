@@ -74,8 +74,8 @@ export async function POST(request: Request) {
       .reduce((s, p) => s + (Number(p.amount_dh) || 0), 0)
     const availableBalance = totalEarnings - committedPayouts
 
-    // Check minimum amount
-    const minimumWithdrawal = 100
+    // Check minimum amount — canon partner-ecosystem.locked.md:524 (#353).
+    const minimumWithdrawal = 500
     if (amount < minimumWithdrawal) {
       return NextResponse.json(
         { success: false, error: `Montant minimum: ${minimumWithdrawal} DH` },

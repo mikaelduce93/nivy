@@ -12,6 +12,31 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { TopupForm } from "@/components/parent/topup-form"
+import { TOPUP_PACKAGES as FALLBACK_PACKAGES, type TopupPackage } from "@/lib/payments/topup-packages"
+
+// #351 — packs lus depuis la table serveur `topup_packages` (source autoritaire).
+// Fallback sur le miroir partagé si la table est illisible (résilience).
+async function getTopupPackages(): Promise<TopupPackage[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("topup_packages")
+    .select("id, coins, bonus_coins, price_dh, is_popular")
+    .eq("is_active", true)
+    .order("sort_order")
+
+  if (error || !data || data.length === 0) {
+    if (error) console.error("Error fetching topup packages:", error)
+    return FALLBACK_PACKAGES
+  }
+
+  return data.map((p: any) => ({
+    id: p.id,
+    coins: p.coins,
+    bonus: p.bonus_coins,
+    price: Number(p.price_dh),
+    popular: p.is_popular,
+  }))
+}
 
 async function getLinkedTeens(parentId: string) {
   const supabase = await createClient()
@@ -103,21 +128,15 @@ export default async function ParentTopupPage({
     redirect("/auth/redirect")
   }
 
-  const [teens, history, parentSignature, params] = await Promise.all([
+  const [teens, history, parentSignature, params, topupPackages] = await Promise.all([
     getLinkedTeens(userInfo.profileId),
     getTopupHistory(userInfo.profileId),
     getParentSignature(userInfo.profileId),
     searchParams,
+    getTopupPackages(),
   ])
   const selectedTeenId = params.teen || ""
   const hasSigned = !!parentSignature
-
-  const topupPackages = [
-    { id: "pack1", coins: 100, price: 50, popular: false, bonus: 0 },
-    { id: "pack2", coins: 250, price: 100, popular: true, bonus: 25 },
-    { id: "pack3", coins: 500, price: 180, popular: false, bonus: 75 },
-    { id: "pack4", coins: 1000, price: 300, popular: false, bonus: 200 },
-  ]
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {

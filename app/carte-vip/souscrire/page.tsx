@@ -101,7 +101,7 @@ export default function SouscrirePassPage() {
     try {
       const result = await subscribeToPass({
         tier: selectedTier,
-        duration_months: 1, // 1 month subscription
+        duration_months: 12, // abonnement annuel (#354 — on facture ce qu'on annonce)
       } as { tier: 'gold' | 'platinum'; duration_months: number })
 
       if (result.success && result.data?.url) {
@@ -185,7 +185,7 @@ export default function SouscrirePassPage() {
                     <h3 className="font-display text-2xl font-extrabold">{config.name}</h3>
                     <div className="mb-6 mt-1 flex items-baseline gap-2">
                       <span className="font-display text-4xl font-extrabold tabular-nums">{config.price} DH</span>
-                      <span className={isSelected ? "font-mono text-sm text-paper/60" : "font-mono text-sm text-mute"}>/mois</span>
+                      <span className={isSelected ? "font-mono text-sm text-paper/60" : "font-mono text-sm text-mute"}>/an</span>
                     </div>
 
                     <ul className="space-y-3">
@@ -276,14 +276,14 @@ export default function SouscrirePassPage() {
               <TierIcon className="size-10 text-paper" aria-hidden="true" />
             </span>
             <h3 className="mt-4 font-display text-2xl font-extrabold text-paper">Pass {tierConfig.name}</h3>
-            <p className="mt-1 font-display text-4xl font-extrabold tabular-nums text-paper">{tierConfig.price} DH<span className="font-mono text-base font-medium text-paper/60">/mois</span></p>
-            <p className="mt-1 font-mono text-xs text-paper/60">Résiliable à tout moment</p>
+            <p className="mt-1 font-display text-4xl font-extrabold tabular-nums text-paper">{tierConfig.price} DH<span className="font-mono text-base font-medium text-paper/60">/an</span></p>
+            <p className="mt-1 font-mono text-xs text-paper/60">Soit {Math.round(tierConfig.price / 12)} DH/mois · résiliable à tout moment</p>
           </DarkSurface>
 
           <StickerCard className="gap-4 p-6">
             <div className="space-y-2 font-mono text-sm">
               <TrustRow icon={Shield}>Paiement sécurisé par Stripe</TrustRow>
-              <TrustRow icon={CreditCard}>Renouvellement automatique mensuel</TrustRow>
+              <TrustRow icon={CreditCard}>Renouvellement automatique annuel</TrustRow>
               <TrustRow icon={Zap}>Activation immédiate après paiement</TrustRow>
             </div>
 

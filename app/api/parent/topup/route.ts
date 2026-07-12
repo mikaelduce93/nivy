@@ -21,21 +21,9 @@ import { z } from "zod"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import { TOPUP_PACKAGES, PARENT_TOPUP_MAX_DH } from "@/lib/payments/topup-packages"
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-// Canonical packages — mirrors `app/parent/topup/page.tsx`. Server-side so a
-// `packageId` can never be combined with a client-trusted price. Canon §6
-// FORBIDDEN #5 says this should be a DB-backed `topup_packages` table; that
-// is deferred to W3.2. Until then, this constant is the single source.
-const TOPUP_PACKAGES: Record<string, { amount_dh: number }> = {
-  pack1: { amount_dh: 50 },
-  pack2: { amount_dh: 100 },
-  pack3: { amount_dh: 180 },
-  pack4: { amount_dh: 300 },
-}
-
-const PARENT_TOPUP_MAX_DH = Number(process.env.PARENT_TOPUP_MAX_DH ?? "500")
 
 const bodySchemaAmount = z.object({
   teenId: z.string().regex(UUID_RE, "teenId must be a UUID"),
@@ -82,14 +70,16 @@ export async function POST(request: Request) {
     if ("amount_dh" in body) {
       amountDh = body.amount_dh
     } else {
-      const pkg = TOPUP_PACKAGES[body.packageId]
+      // #351 — packs servis par lib/payments/topup-packages (miroir de la table
+      // serveur `topup_packages`). Le prix ne vient JAMAIS du client.
+      const pkg = TOPUP_PACKAGES.find((p) => p.id === body.packageId)
       if (!pkg) {
         return NextResponse.json(
           { success: false, error: "Pack inconnu" },
           { status: 400 }
         )
       }
-      amountDh = pkg.amount_dh
+      amountDh = pkg.price
     }
 
     if (!Number.isFinite(amountDh) || amountDh <= 0) {

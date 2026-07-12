@@ -131,7 +131,7 @@ export function AgentSheet({ role, children, context }: AgentSheetProps) {
 
   // Agent configuration per role
   const agentConfig = {
-    teen: { name: "Kai", color: "text-teal", bg: "bg-teal", icon: Sparkles },
+    teen: { name: "Niv", color: "text-teal", bg: "bg-teal", icon: Sparkles },
     parent: { name: "Aura", color: "text-pink", bg: "bg-pink", icon: Shield },
     partner: { name: "Biz", color: "text-lime", bg: "bg-lime", icon: TrendingUp },
     ambassador: { name: "Hype", color: "text-gold", bg: "bg-gold", icon: Zap },

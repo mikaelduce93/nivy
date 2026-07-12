@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Trophy, Gift, Tag, Sparkles, Clock, Check } from "lucide-react"
+import { Trophy, Gift, Tag, Sparkles, Percent, ShoppingBag, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { StickerCard } from "@/components/ui/sticker-card"
-import { NivEmpty, DarkSurface } from "@/components/brand"
+import { Button } from "@/components/ui/button"
+import { NivEmpty } from "@/components/brand"
 import { cn } from "@/lib/utils"
 
 const rewardTypes = {
@@ -27,11 +28,17 @@ export default async function RecompensesPage() {
     redirect("/auth/login?redirect=/carte-vip/recompenses")
   }
 
-  const { data: userPoints } = await supabase.from("user_points").select("*").eq("profile_id", user.id).single()
-
-  const { data: rewards } = await supabase.from("rewards").select("*").eq("is_active", true).order("points_cost")
-
-  const currentPoints = userPoints?.total_points || 0
+  // #355 — le programme de points de fidélité (gain + échange) n'est PAS encore
+  // câblé (aucun `award_loyalty_points`, aucune redemption). On ne montre donc
+  // NI solde de points NI badge « points suffisants » (théâtre trompeur pour des
+  // mineurs). On présente honnêtement les récompenses comme un aperçu à venir et
+  // on redirige vers la valeur réellement disponible : la réduction VIP
+  // automatique et la boutique XP.
+  const { data: rewards } = await supabase
+    .from("rewards")
+    .select("*")
+    .eq("is_active", true)
+    .order("points_cost")
 
   return (
     <>
@@ -42,94 +49,104 @@ export default async function RecompensesPage() {
             ← Retour au programme
           </Link>
 
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="eyebrow tracking-[0.16em]">Carte VIP</p>
-              <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-                Tes <em className="font-semibold italic text-pink">récompenses</em>
-              </h1>
-            </div>
-            <DarkSurface tone="teal" shadow className="px-5 py-3 text-center">
-              <p className="eyebrow tracking-[0.16em] text-paper/60">Tes points</p>
-              <p className="font-display text-3xl font-extrabold tabular-nums text-teal">{currentPoints}</p>
-            </DarkSurface>
+          <div className="mb-10">
+            <p className="eyebrow tracking-[0.16em]">Carte VIP</p>
+            <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight md:text-5xl">
+              Le programme de <em className="font-semibold italic text-pink">points</em> arrive
+            </h1>
+            <p className="mt-3 max-w-2xl text-mute">
+              On construit un programme de points de fidélité échangeables contre les récompenses
+              ci-dessous. En attendant, ta carte VIP te fait déjà gagner — voici comment.
+            </p>
           </div>
 
-          <div className="mb-10 flex items-start gap-3 rounded-2xl border-2 border-ink bg-gold/20 px-5 py-4">
-            <Clock className="mt-0.5 size-5 shrink-0 text-ink" aria-hidden="true" />
-            <div>
-              <p className="font-display text-base font-bold text-ink">L'échange de points arrive bientôt</p>
-              <p className="mt-1 text-sm leading-relaxed text-mute">
-                Continue d'accumuler des points de fidélité à chaque dépense. Tu pourras bientôt les échanger contre
-                ces récompenses directement ici.
+          {/* Valeur réellement disponible aujourd'hui — pas de théâtre */}
+          <div className="mb-12 grid gap-4 md:grid-cols-2">
+            <StickerCard className="gap-3 p-6">
+              <span className="grid size-12 place-items-center rounded-2xl border-2 border-ink bg-teal">
+                <Percent className="size-6 text-ink" aria-hidden="true" />
+              </span>
+              <h2 className="font-display text-xl font-extrabold text-ink">Réductions automatiques</h2>
+              <p className="text-sm leading-relaxed text-mute">
+                Ta carte VIP applique ta remise directement au paiement de tes events, clubs et
+                partenaires — rien à échanger, c'est automatique.
               </p>
-            </div>
+              <Button asChild variant="pink" className="mt-1 w-fit">
+                <Link href="/carte-vip">
+                  Voir mes avantages VIP
+                  <ArrowRight className="ml-1.5 size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            </StickerCard>
+
+            <StickerCard className="gap-3 p-6">
+              <span className="grid size-12 place-items-center rounded-2xl border-2 border-ink bg-gold">
+                <ShoppingBag className="size-6 text-ink" aria-hidden="true" />
+              </span>
+              <h2 className="font-display text-xl font-extrabold text-ink">Boutique XP</h2>
+              <p className="text-sm leading-relaxed text-mute">
+                Ton XP se dépense dès maintenant dans la boutique : entrées, skins, expériences.
+                C'est la récompense de ton effort, disponible tout de suite.
+              </p>
+              <Button asChild variant="lime" className="mt-1 w-fit">
+                <Link href="/teen/wallet?tab=shop">
+                  Ouvrir la boutique
+                  <ArrowRight className="ml-1.5 size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            </StickerCard>
           </div>
 
-          {rewards && rewards.length > 0 ? (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {rewards.map((reward) => {
-                const canAfford = currentPoints >= reward.points_cost
-                const isOutOfStock = reward.available_quantity !== null && reward.available_quantity <= 0
-                const typeInfo = rewardTypes[reward.reward_type as keyof typeof rewardTypes] || rewardTypes.discount
-                const TypeIcon = typeInfo.icon
+          {/* Aperçu du programme de points — clairement étiqueté « bientôt » */}
+          {rewards && rewards.length > 0 && (
+            <>
+              <div className="mb-6">
+                <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">
+                  Aperçu des récompenses à venir
+                </h2>
+                <p className="mt-1 text-sm text-mute">
+                  Ces récompenses seront échangeables contre des points quand le programme ouvrira.
+                </p>
+              </div>
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {rewards.map((reward) => {
+                  const typeInfo =
+                    rewardTypes[reward.reward_type as keyof typeof rewardTypes] || rewardTypes.discount
+                  const TypeIcon = typeInfo.icon
 
-                return (
-                  <StickerCard key={reward.id} className="overflow-hidden p-0">
-                    <div className="relative flex h-44 items-center justify-center border-b-2 border-ink bg-paper-2">
-                      <span className={cn("grid size-24 place-items-center rounded-full border-2 border-ink", typeInfo.accent)}>
-                        <TypeIcon className="size-12 text-ink" aria-hidden="true" />
-                      </span>
-                      <span className="absolute left-4 top-4 rounded-full border-2 border-ink bg-white px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
-                        {typeInfo.label}
-                      </span>
-                      {isOutOfStock && (
-                        <div className="absolute inset-0 grid place-items-center bg-ink/70">
-                          <p className="font-display text-lg font-bold text-paper">Rupture de stock</p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-6">
-                      <h3 className="mb-3 font-display text-2xl font-bold text-ink">{reward.title}</h3>
-                      <p className="mb-4 text-sm leading-relaxed text-mute">{reward.description}</p>
-
-                      {reward.available_quantity !== null && (
-                        <p className="mb-4 font-mono text-xs text-mute">Stock : {reward.available_quantity} restants</p>
-                      )}
-                      {reward.valid_until && (
-                        <p className="mb-4 font-mono text-xs text-mute">
-                          Valide jusqu'au {new Date(reward.valid_until).toLocaleDateString("fr-FR")}
-                        </p>
-                      )}
-
-                      <div className="flex items-center justify-between border-t-2 border-dashed border-line pt-4">
-                        <div className="flex items-center gap-2">
-                          <Trophy className="size-6 text-teal" aria-hidden="true" />
-                          <span className="font-display text-xl font-extrabold tabular-nums text-teal">{reward.points_cost} pts</span>
-                        </div>
-
-                        {isOutOfStock ? (
-                          <span className="font-mono text-xs font-semibold uppercase tracking-[0.1em] text-mute">
-                            Indisponible
-                          </span>
-                        ) : canAfford ? (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-teal/20 px-3 py-1 font-mono text-xs font-bold text-ink">
-                            <Check className="size-3.5" aria-hidden="true" />
-                            Points suffisants
-                          </span>
-                        ) : (
-                          <span className="font-mono text-xs font-semibold text-mute">
-                            Encore {reward.points_cost - currentPoints} pts
-                          </span>
-                        )}
+                  return (
+                    <StickerCard key={reward.id} className="overflow-hidden p-0">
+                      <div className="relative flex h-44 items-center justify-center border-b-2 border-ink bg-paper-2">
+                        <span className={cn("grid size-24 place-items-center rounded-full border-2 border-ink", typeInfo.accent)}>
+                          <TypeIcon className="size-12 text-ink" aria-hidden="true" />
+                        </span>
+                        <span className="absolute left-4 top-4 rounded-full border-2 border-ink bg-white px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+                          {typeInfo.label}
+                        </span>
+                        <span className="absolute right-4 top-4 rounded-full border-2 border-ink bg-gold px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+                          Bientôt
+                        </span>
                       </div>
-                    </div>
-                  </StickerCard>
-                )
-              })}
-            </div>
-          ) : (
+
+                      <div className="p-6">
+                        <h3 className="mb-3 font-display text-2xl font-bold text-ink">{reward.title}</h3>
+                        <p className="mb-4 text-sm leading-relaxed text-mute">{reward.description}</p>
+
+                        <div className="flex items-center gap-2 border-t-2 border-dashed border-line pt-4">
+                          <Trophy className="size-6 text-teal" aria-hidden="true" />
+                          <span className="font-display text-xl font-extrabold tabular-nums text-teal">
+                            {reward.points_cost} pts
+                          </span>
+                        </div>
+                      </div>
+                    </StickerCard>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
+          {(!rewards || rewards.length === 0) && (
             <NivEmpty
               mood="calm"
               title="Bientôt des récompenses"

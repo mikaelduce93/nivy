@@ -241,8 +241,8 @@ The recommender today returns near-empty when `total_signals < 5` AND no interes
 Today the persona is split: panda mascot has no name, chatbot is "Kai", brand is "Nivy". Three identities. Founder must lock ONE.
 
 **Recommendation**:
-- **Name**: **Kai** (already in `TEEN_AGENT_PROMPT`, already on-screen, brand-compatible).
-- **Visual**: panda mascot from `components/brand/mascot-states.tsx` becomes Kai's face — replace the `Brain` Lucide icon in the chat sheet header with `PandaIcon` (mood-driven state).
+- **Name**: **Niv** (founder decision #356 / F54 resolved — matches the live UI and the `Nivy` brand; `TEEN_AGENT_PROMPT` and the AI-agent surfaces updated from the legacy "Kai").
+- **Visual**: panda mascot from `components/brand/mascot-states.tsx` becomes Niv's face — replace the `Brain` Lucide icon in the chat sheet header with `PandaIcon` (mood-driven state).
 - **Tone matrix** (codified in `lib/ai/prompts/roles.ts`, single canonical prompt):
   - Base voice: warm, energetic, French-first, light Darija interjections (`yallah`, `wakha`, `safi`) when `primary_language='fr'`; respectful Arabic phrasing when `primary_language='ar'`.
   - Adapts on `teens.archetype`: `leader→direct/challenge`, `explorer→curious/playful`, `creator→artistic/expressive`, `socializer→warm/group-oriented`.

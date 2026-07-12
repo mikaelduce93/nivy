@@ -131,7 +131,7 @@ export function WithdrawalForm({ availableBalance, minimumWithdrawal }: Withdraw
 
       {/* Quick amount pills — tags actifs ink */}
       <div className="flex flex-wrap gap-2">
-        {[100, 200, 500].filter(v => v <= availableBalance).map((value) => (
+        {[500, 1000, 2000].filter(v => v <= availableBalance).map((value) => (
           <button
             key={value}
             type="button"

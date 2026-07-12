@@ -82,7 +82,7 @@ export default async function AmbassadorWithdrawalsPage() {
   }
 
   const { ambassadorId, totalEarnings, pendingWithdrawals, withdrawnAmount, availableBalance, withdrawals } = data
-  const minimumWithdrawal = 100 // 100 DH minimum
+  const minimumWithdrawal = 500 // 500 DH minimum (canon #353)
 
   // ambassador_payouts.status ∈ {pending, paid, failed} → StatusBadge charte.
   const getStatus = (status: string): { variant: StatusVariant; label: string } => {

@@ -99,6 +99,10 @@ constant by 10×. **LOCKED ACTION:** delete the row OR change to `10` (XP per
 DH inverse representation) to match `XP_TO_DH_RATE = 0.10`. TS constant wins;
 DB row is informational at best.
 
+> **RESOLVED (#349, 2026-07-12).** Migration
+> `174_drop_dead_xp_to_dh_rate.sql` deletes the dead row. `XP_TO_DH_RATE = 0.10`
+> (10 XP = 1 DH) is the sole source of truth for the display-only rate.
+
 ### 2.5 [CONTRADICTION RESOLVED] — XP→coin transitive rate
 
 The audit (E6 §1.5, audit-prelaunch/03) flagged that combining shop banner
