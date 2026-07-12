@@ -27,9 +27,11 @@ export async function GET(request: Request) {
   const endDate = searchParams.get('endDate')
   const city = searchParams.get('city')
 
+  // Drift : plus de FK bookings→profiles ni de table children en live ;
+  // seul l'embed events(*) est possible (bookings_event_id_fkey)
   let query = supabase
     .from('bookings')
-    .select('*, events(*), children(*), profiles(*)')
+    .select('*, events(*)')
     .order('created_at', { ascending: false })
 
   if (startDate) {
@@ -50,25 +52,34 @@ export async function GET(request: Request) {
     ? bookings.filter((b) => b.events?.city === city)
     : bookings
 
+  // Nom du réservataire : lookup séparé (pas de FK bookings.user_id→profiles)
+  const userIds = [
+    ...new Set(filteredBookings.map((b) => b.user_id).filter((id): id is string => !!id)),
+  ]
+  const { data: bookerProfiles } = userIds.length
+    ? await supabase.from('profiles').select('id, full_name').in('id', userIds)
+    : { data: [] }
+  const fullNameById = new Map(
+    (bookerProfiles ?? []).map((p): [string, string] => [p.id, p.full_name ?? ''])
+  )
+
   // Generate CSV
   const headers = [
     'ID',
     'Date',
     'Événement',
     'Ville',
-    'Parent',
-    'Enfant',
+    'Utilisateur',
     'Montant',
     'Statut',
     'Méthode paiement',
   ]
   const rows = filteredBookings.map((b) => [
     b.id,
-    new Date(b.created_at).toLocaleDateString('fr-FR'),
+    b.created_at ? new Date(b.created_at).toLocaleDateString('fr-FR') : '',
     b.events?.title || '',
     b.events?.city || '',
-    b.profiles?.full_name || '',
-    b.children?.first_name + ' ' + b.children?.last_name || '',
+    (b.user_id && fullNameById.get(b.user_id)) || '',
     b.total_amount + ' DH',
     b.payment_status,
     b.payment_method || 'stripe',

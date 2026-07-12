@@ -13,6 +13,7 @@
  * denied — writes to audit_log with `action='sql_execute'`.
  */
 import { NextRequest, NextResponse } from "next/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import fs from "fs/promises"
 import path from "path"
 import { withSecurity } from "@/lib/security/api-middleware"
@@ -86,7 +87,13 @@ export const POST = withSecurity(
 
     const fullPath = path.join(scriptsDir, scriptFile)
     const sqlContent = await fs.readFile(fullPath, "utf-8")
-    const service = createServiceRoleClient()
+    // `exec_sql` n'existe PAS dans la base LIVE (absente des types régénérés
+    // 2026-07-12 ; audit C5 : « likely intentionally not deployed »). Cast vers
+    // le `SupabaseClient` de base (même pattern que app/api/cron/battle-anticheat)
+    // pour lever l'erreur tsc SANS changer le comportement runtime : tant que la
+    // fonction n'est pas déployée, l'appel échoue dans la branche `if (error)`
+    // (audit `sql_execute_failed` + 500), donc la route reste fail-closed.
+    const service = createServiceRoleClient() as unknown as SupabaseClient
     const statements = splitSqlStatements(sqlContent)
 
     const startedAt = Date.now()

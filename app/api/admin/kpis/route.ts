@@ -47,13 +47,16 @@ export async function GET(request: Request) {
       .select("*", { count: "exact", head: true })
       .eq("role", "teen")
 
-    // Active users today (from activity logs)
+    // Active users today — activity_logs a été droppée (Wave 1C) ; audit_log
+    // est la source canonique (même recâblage que /admin/analytics, #358).
     const { data: activeUsersData } = await supabase
-      .from("activity_logs")
-      .select("user_id")
+      .from("audit_log")
+      .select("actor_id")
       .gte("created_at", today.toISOString())
 
-    const uniqueActiveUsers = new Set(activeUsersData?.map(a => a.user_id) || [])
+    const uniqueActiveUsers = new Set(
+      (activeUsersData ?? []).map((a) => a.actor_id).filter(Boolean)
+    )
     const activeTeens = uniqueActiveUsers.size
 
     // Revenue stats
@@ -80,7 +83,7 @@ export async function GET(request: Request) {
     const { count: upcomingEvents } = await supabase
       .from("events")
       .select("*", { count: "exact", head: true })
-      .gte("date", now.toISOString())
+      .gte("event_date", now.toISOString())
       .eq("status", "published")
 
     // Calculate growth percentages

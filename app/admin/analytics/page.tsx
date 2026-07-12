@@ -53,7 +53,7 @@ export default async function AdminAnalyticsPage() {
       ?.filter((b) => b.payment_status === "paid")
       .reduce<{ name: string; revenue: number; bookings: number }[]>(
         (acc, booking) => {
-          const month = new Date(booking.created_at).toLocaleDateString("fr-FR", {
+          const month = new Date(booking.created_at ?? "").toLocaleDateString("fr-FR", {
             month: "short",
             year: "numeric",
           })
@@ -114,7 +114,7 @@ export default async function AdminAnalyticsPage() {
     allUsers
       ?.reduce<{ name: string; users: number }[]>(
         (acc, user) => {
-          const month = new Date(user.created_at).toLocaleDateString("fr-FR", {
+          const month = new Date(user.created_at ?? "").toLocaleDateString("fr-FR", {
             month: "short",
             year: "numeric",
           })
@@ -138,8 +138,8 @@ export default async function AdminAnalyticsPage() {
   const averageBookingValue = confirmedBookings > 0 ? totalRevenue / confirmedBookings : 0
 
   // Events statistics
-  const upcomingEvents = allEvents?.filter((e) => new Date(e.event_date) >= new Date()).length || 0
-  const pastEvents = allEvents?.filter((e) => new Date(e.event_date) < new Date()).length || 0
+  const upcomingEvents = allEvents?.filter((e) => new Date(e.event_date ?? "") >= new Date()).length || 0
+  const pastEvents = allEvents?.filter((e) => new Date(e.event_date ?? "") < new Date()).length || 0
 
   // KPIs for realtime component
   const now = new Date()
@@ -147,10 +147,10 @@ export default async function AdminAnalyticsPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
 
-  const todayUsers = allUsers?.filter(u => new Date(u.created_at) >= today).length || 0
-  const monthlyUsers = allUsers?.filter(u => new Date(u.created_at) >= startOfMonth).length || 0
+  const todayUsers = allUsers?.filter(u => new Date(u.created_at ?? "") >= today).length || 0
+  const monthlyUsers = allUsers?.filter(u => new Date(u.created_at ?? "") >= startOfMonth).length || 0
   const lastMonthUsers = allUsers?.filter(u => {
-    const date = new Date(u.created_at)
+    const date = new Date(u.created_at ?? "")
     return date >= startOfLastMonth && date < startOfMonth
   }).length || 0
 
@@ -159,20 +159,21 @@ export default async function AdminAnalyticsPage() {
     .select("*", { count: "exact", head: true })
     .eq("role", "teen")
 
+  // Canonical audit_log (activity_logs was dropped in Wave 1C) — the old query always failed.
   const { data: activeUsersData } = await supabase
-    .from("activity_logs")
-    .select("user_id")
+    .from("audit_log")
+    .select("actor_id")
     .gte("created_at", today.toISOString())
 
-  const uniqueActiveUsers = new Set(activeUsersData?.map(a => a.user_id) || [])
+  const uniqueActiveUsers = new Set(activeUsersData?.map(a => a.actor_id).filter((id): id is string => id !== null) || [])
 
   const monthlyRevenue = allBookings
-    ?.filter(b => b.payment_status === "paid" && new Date(b.created_at) >= startOfMonth)
+    ?.filter(b => b.payment_status === "paid" && new Date(b.created_at ?? "") >= startOfMonth)
     .reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0
 
   const lastMonthRevenue = allBookings
     ?.filter(b => {
-      const date = new Date(b.created_at)
+      const date = new Date(b.created_at ?? "")
       return b.payment_status === "paid" && date >= startOfLastMonth && date < startOfMonth
     })
     .reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0
@@ -373,7 +374,7 @@ export default async function AdminAnalyticsPage() {
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <p className="truncate font-display text-lg font-extrabold tracking-tight text-ink">
-                      {event.name}
+                      {event.title}
                     </p>
                   </div>
                   <p className="shrink-0 font-mono text-sm font-semibold text-teal">

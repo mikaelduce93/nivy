@@ -33,13 +33,13 @@ function severityFor(action: string): { label: string; cls: string } {
 // spec §18/§29 inv.8). À fusionner éventuellement avec /admin/logs (routing §6 #2).
 export default async function AdminAuditLogPage() {
   let rows: {
-    id: string
-    action?: string
-    actor_id?: string
-    actor_role?: string
-    resource_type?: string
-    description?: string
-    created_at?: string
+    id: number
+    action: string
+    actor_id: string | null
+    actor_role: string | null
+    resource_type: string | null
+    description: string | null
+    created_at: string
   }[] = []
   try {
     const supabase = await createClient()

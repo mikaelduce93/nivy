@@ -6,7 +6,7 @@
  *     title: string,                     // required
  *     description?: string | null,
  *     partner_id?: string | null,
- *     city?: string | null,              // persisted into application_form metadata
+ *     city?: string | null,              // persisted into internships.city
  *     duration?: '1_day'|'1_week'|'2_weeks'|'summer'|'part_time_school_year',
  *     age_min: number,                   // 13..17
  *     age_max: number,                   // 13..17, >= age_min
@@ -106,11 +106,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "invalid_spots_total" }, { status: 400 })
   }
 
-  // 4. Build application_form metadata (city stashed here since `internships`
-  //    has no `city` column — see internship-form.tsx note).
-  const applicationForm: Record<string, unknown> = {}
-  if (city) applicationForm.city = city
-
+  // 4. Build the insert row. `internships.city` exists in the live schema —
+  //    the old workaround of stashing city inside application_form wrote dead
+  //    data (readers select the real `city` column). application_form is
+  //    omitted: the column defaults to '{}'::jsonb.
   const insertRow = {
     partner_id,
     title,
@@ -123,7 +122,7 @@ export async function POST(req: Request) {
     stipend_dh,
     application_deadline,
     status: "open",
-    application_form: applicationForm,
+    city,
   }
 
   // 5. Insert

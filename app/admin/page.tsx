@@ -125,11 +125,25 @@ export default async function AdminDashboardPage() {
     .from("bookings")
     .select(`
       *,
-      profiles (full_name),
       events (title)
     `)
     .order("created_at", { ascending: false })
     .limit(10)
+
+  // Drift fix (#358): no FK bookings→profiles in live schema, so the embedded
+  // `profiles (full_name)` made the whole query fail (list always empty).
+  // Resolve booker names through a second query on user_id instead.
+  const bookerIds = (recentBookings ?? [])
+    .map((booking) => booking.user_id)
+    .filter((id): id is string => id !== null)
+  const bookerNameById = new Map<string, string | null>()
+  if (bookerIds.length > 0) {
+    const { data: bookerProfiles } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", bookerIds)
+    for (const profile of bookerProfiles ?? []) bookerNameById.set(profile.id, profile.full_name)
+  }
 
   const { data: pendingAmbassadors, count: pendingCount } = await supabase
     .from("ambassadors")
@@ -288,7 +302,7 @@ export default async function AdminDashboardPage() {
                     <div>
                       <h3 className="font-bold text-ink">{event.title}</h3>
                       <p className="text-sm text-mute">
-                        {new Date(event.event_date).toLocaleDateString("fr-FR")} — {event.city}
+                        {event.event_date ? new Date(event.event_date).toLocaleDateString("fr-FR") : ""} — {event.city}
                       </p>
                     </div>
                     <div className="text-right">
@@ -316,10 +330,10 @@ export default async function AdminDashboardPage() {
                       className="flex items-center justify-between gap-4 rounded-xl border-2 border-line bg-white p-4"
                     >
                       <div>
-                        <p className="font-bold text-ink">{booking.profiles?.full_name}</p>
+                        <p className="font-bold text-ink">{bookerNameById.get(booking.user_id ?? "")}</p>
                         <p className="text-sm text-mute">{booking.events?.title}</p>
                         <p className="text-xs text-mute">
-                          {new Date(booking.created_at).toLocaleDateString("fr-FR")}
+                          {booking.created_at ? new Date(booking.created_at).toLocaleDateString("fr-FR") : ""}
                         </p>
                       </div>
                       <div className="text-right">

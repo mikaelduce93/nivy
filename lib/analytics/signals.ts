@@ -29,6 +29,7 @@
  * we ever reach this module.
  */
 import type { SupabaseClient } from "@supabase/supabase-js"
+import type { Json } from "@/types/supabase"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
 export type SignalType =
@@ -273,8 +274,12 @@ export async function recordSignal(input: RecordSignalInput): Promise<number | n
       p_signal_type: signalType,
       p_target_type: targetType,
       p_target_id: targetId,
-      p_weight: effectiveWeight ?? null,
-      p_metadata: cappedMetadata ?? {},
+      // Omit p_weight when undefined so the RPC applies its per-type default
+      // weight (same effect the previous explicit `null` relied on).
+      p_weight: effectiveWeight,
+      // Boundary cast: metadata is a plain JSON object at runtime; the RPC arg
+      // is typed `Json` in the regenerated Supabase types.
+      p_metadata: (cappedMetadata ?? {}) as Json,
     })
 
     if (error) {

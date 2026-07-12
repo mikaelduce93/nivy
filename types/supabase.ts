@@ -1287,6 +1287,304 @@ export type Database = {
           },
         ]
       }
+      battle_answers: {
+        Row: {
+          answer_index: number
+          battle_id: string
+          is_correct: boolean
+          response_ms: number
+          round_no: number
+          submitted_at: string
+          teen_id: string
+        }
+        Insert: {
+          answer_index: number
+          battle_id: string
+          is_correct: boolean
+          response_ms: number
+          round_no: number
+          submitted_at?: string
+          teen_id: string
+        }
+        Update: {
+          answer_index?: number
+          battle_id?: string
+          is_correct?: boolean
+          response_ms?: number
+          round_no?: number
+          submitted_at?: string
+          teen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_answers_battle_id_round_no_fkey"
+            columns: ["battle_id", "round_no"]
+            isOneToOne: false
+            referencedRelation: "battle_rounds"
+            referencedColumns: ["battle_id", "round_no"]
+          },
+          {
+            foreignKeyName: "battle_answers_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_answers_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      battle_participants: {
+        Row: {
+          answered_current: boolean
+          battle_id: string
+          correct_count: number
+          creator_id: string
+          is_ready: boolean
+          last_seen_at: string | null
+          opponent_id: string
+          reactions_count: number
+          reactions_tally: Json
+          round_seen_at: string | null
+          score: number
+          teen_id: string
+          xp_awarded: number
+        }
+        Insert: {
+          answered_current?: boolean
+          battle_id: string
+          correct_count?: number
+          creator_id: string
+          is_ready?: boolean
+          last_seen_at?: string | null
+          opponent_id: string
+          reactions_count?: number
+          reactions_tally?: Json
+          round_seen_at?: string | null
+          score?: number
+          teen_id: string
+          xp_awarded?: number
+        }
+        Update: {
+          answered_current?: boolean
+          battle_id?: string
+          correct_count?: number
+          creator_id?: string
+          is_ready?: boolean
+          last_seen_at?: string | null
+          opponent_id?: string
+          reactions_count?: number
+          reactions_tally?: Json
+          round_seen_at?: string | null
+          score?: number
+          teen_id?: string
+          xp_awarded?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_participants_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "battles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_participants_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_participants_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_participants_opponent_id_fkey"
+            columns: ["opponent_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_participants_opponent_id_fkey"
+            columns: ["opponent_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_participants_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_participants_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      battle_rounds: {
+        Row: {
+          battle_id: string
+          deadline: string
+          question_index: number
+          round_no: number
+          started_at: string
+        }
+        Insert: {
+          battle_id: string
+          deadline: string
+          question_index: number
+          round_no: number
+          started_at: string
+        }
+        Update: {
+          battle_id?: string
+          deadline?: string
+          question_index?: number
+          round_no?: number
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_rounds_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "battles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      battles: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          creator_id: string
+          current_payload: Json | null
+          current_round: number
+          declined_at: string | null
+          expires_at: string
+          id: string
+          is_draw: boolean
+          kind: string
+          opponent_id: string
+          quiz_id: string
+          resolution: string | null
+          resolved_at: string | null
+          round_deadline: string | null
+          rounds_total: number
+          started_at: string | null
+          status: string
+          winner_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          creator_id: string
+          current_payload?: Json | null
+          current_round?: number
+          declined_at?: string | null
+          expires_at?: string
+          id?: string
+          is_draw?: boolean
+          kind?: string
+          opponent_id: string
+          quiz_id: string
+          resolution?: string | null
+          resolved_at?: string | null
+          round_deadline?: string | null
+          rounds_total?: number
+          started_at?: string | null
+          status?: string
+          winner_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          creator_id?: string
+          current_payload?: Json | null
+          current_round?: number
+          declined_at?: string | null
+          expires_at?: string
+          id?: string
+          is_draw?: boolean
+          kind?: string
+          opponent_id?: string
+          quiz_id?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          round_deadline?: string | null
+          rounds_total?: number
+          started_at?: string | null
+          status?: string
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battles_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battles_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battles_opponent_id_fkey"
+            columns: ["opponent_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battles_opponent_id_fkey"
+            columns: ["opponent_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battles_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "educational_quizzes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battles_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battles_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       behavioral_signals: {
         Row: {
           created_at: string
@@ -6441,6 +6739,63 @@ export type Database = {
           {
             foreignKeyName: "friendships_user2_id_fkey"
             columns: ["user2_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_sessions: {
+        Row: {
+          answers: Json
+          completed_at: string | null
+          expires_at: string
+          game_slug: string
+          id: string
+          score: number | null
+          seed: Json
+          started_at: string
+          status: string
+          teen_id: string
+          xp_awarded: number
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string | null
+          expires_at?: string
+          game_slug: string
+          id?: string
+          score?: number | null
+          seed: Json
+          started_at?: string
+          status?: string
+          teen_id: string
+          xp_awarded?: number
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string | null
+          expires_at?: string
+          game_slug?: string
+          id?: string
+          score?: number | null
+          seed?: Json
+          started_at?: string
+          status?: string
+          teen_id?: string
+          xp_awarded?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_teen_id_fkey"
+            columns: ["teen_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_teen_id_fkey"
+            columns: ["teen_id"]
             isOneToOne: false
             referencedRelation: "teens"
             referencedColumns: ["id"]
@@ -13254,6 +13609,53 @@ export type Database = {
         }
         Relationships: []
       }
+      tag_aliases: {
+        Row: {
+          alias: string
+          canonical_tag: string
+          created_at: string
+          created_by: string | null
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          alias: string
+          canonical_tag: string
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          alias?: string
+          canonical_tag?: string
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_aliases_canonical_tag_fkey"
+            columns: ["canonical_tag"]
+            isOneToOne: false
+            referencedRelation: "interest_taxonomy"
+            referencedColumns: ["tag"]
+          },
+        ]
+      }
       teen_behavioral_profile: {
         Row: {
           abandonment_rate: number | null
@@ -18162,6 +18564,7 @@ export type Database = {
         Returns: boolean
       }
       _vip_rank: { Args: { p_level: string }; Returns: number }
+      accept_battle: { Args: { p_battle_id: string }; Returns: Json }
       accept_friend_challenge_v2: {
         Args: { p_challenge_id: string }
         Returns: Json
@@ -18267,6 +18670,7 @@ export type Database = {
         Args: { p_admin_user_id: string; p_mentor_id: string }
         Returns: Json
       }
+      advance_battle_round: { Args: { p_battle_id: string }; Returns: Json }
       apply_mentor: {
         Args: {
           p_bio: string
@@ -18318,6 +18722,11 @@ export type Database = {
         }
         Returns: Json
       }
+      battle_heartbeat: { Args: { p_battle_id: string }; Returns: Json }
+      battle_round_seen: {
+        Args: { p_battle_id: string; p_round_no: number }
+        Returns: Json
+      }
       block_user_v2: {
         Args: { p_blocked: string; p_blocker: string; p_reason?: string }
         Returns: string
@@ -18359,6 +18768,7 @@ export type Database = {
       }
       calculate_vip_tier: { Args: { p_user_id: string }; Returns: Json }
       can_spin_wheel: { Args: { p_user_id: string }; Returns: Json }
+      cancel_battle: { Args: { p_battle_id: string }; Returns: Json }
       cancel_ride: {
         Args: { p_caller_id?: string; p_reason?: string; p_ride_id: string }
         Returns: Json
@@ -18397,6 +18807,7 @@ export type Database = {
       }
       check_user_milestones: { Args: { p_user_id: string }; Returns: Json }
       claim_daily_bonus: { Args: { p_teen_id: string }; Returns: Json }
+      claim_forfeit: { Args: { p_battle_id: string }; Returns: Json }
       claim_mission_rewards: {
         Args: { p_teen_id: string; p_user_mission_id: string }
         Returns: Json
@@ -18426,6 +18837,10 @@ export type Database = {
           p_teen_id: string
         }
         Returns: boolean
+      }
+      complete_game_session: {
+        Args: { p_client_stats?: Json; p_session_id: string }
+        Returns: Json
       }
       complete_referral: { Args: { p_referred_user_id: string }; Returns: Json }
       complete_ride: {
@@ -18457,6 +18872,10 @@ export type Database = {
           p_visibility?: string
         }
         Returns: string
+      }
+      create_battle: {
+        Args: { p_opponent_id: string; p_quiz_id?: string }
+        Returns: Json
       }
       create_crew: {
         Args: {
@@ -18513,6 +18932,7 @@ export type Database = {
         Args: { p_game_type_slug: string; p_settings?: Json; p_user_id: string }
         Returns: Json
       }
+      create_game_session_v2: { Args: { p_game_slug: string }; Returns: Json }
       create_group_action: {
         Args: {
           p_action_type: string
@@ -18622,6 +19042,7 @@ export type Database = {
         }
         Returns: Json
       }
+      decline_battle: { Args: { p_battle_id: string }; Returns: Json }
       decline_friend_challenge_v2: {
         Args: { p_challenge_id: string }
         Returns: Json
@@ -18644,6 +19065,7 @@ export type Database = {
         }
         Returns: string
       }
+      detect_battle_anomalies: { Args: never; Returns: Json }
       detect_school_type: { Args: { p_school_name: string }; Returns: string }
       disburse_allowance: { Args: { p_allowance_id: string }; Returns: Json }
       dispatch_ride: {
@@ -19022,6 +19444,13 @@ export type Database = {
         }[]
       }
       get_public_wrapped: { Args: { p_share_token: string }; Returns: Json }
+      get_quiz_question_counts: {
+        Args: never
+        Returns: {
+          questions_count: number
+          quiz_id: string
+        }[]
+      }
       get_quiz_questions: {
         Args: { p_category?: string; p_count?: number; p_difficulty?: string }
         Returns: {
@@ -19036,6 +19465,10 @@ export type Database = {
           question_type: string
           time_limit: number
         }[]
+      }
+      get_quiz_questions_stripped: {
+        Args: { p_quiz_id: string }
+        Returns: Json
       }
       get_random_collectible: {
         Args: { p_rarity?: string; p_set_id?: string }
@@ -19694,6 +20127,14 @@ export type Database = {
         Args: { p_group_action_id: string; p_slot_id: string }
         Returns: Json
       }
+      resolve_battle: {
+        Args: {
+          p_battle_id: string
+          p_resolution: string
+          p_winner_id?: string
+        }
+        Returns: Json
+      }
       resolve_dispute: {
         Args: {
           p_admin_notes?: string
@@ -19757,6 +20198,7 @@ export type Database = {
         Args: { p_message?: string; p_receiver_id: string; p_sender_id: string }
         Returns: string
       }
+      set_battle_ready: { Args: { p_battle_id: string }; Returns: Json }
       spend_teen_coins: {
         Args: {
           p_amount_coins: number
@@ -19790,9 +20232,18 @@ export type Database = {
         }
         Returns: Json
       }
+      start_battle: { Args: { p_battle_id: string }; Returns: Json }
       start_challenge: { Args: { p_challenge_id: string }; Returns: undefined }
       start_game_session: {
         Args: { p_game_data?: Json; p_session_id: string; p_user_id: string }
+        Returns: Json
+      }
+      submit_battle_answer: {
+        Args: {
+          p_answer_index: number
+          p_battle_id: string
+          p_round_no: number
+        }
         Returns: Json
       }
       submit_challenge_entry: {
@@ -19824,6 +20275,14 @@ export type Database = {
         }
         Returns: Json
       }
+      submit_game_answer: {
+        Args: {
+          p_answer_index: number
+          p_question_index: number
+          p_session_id: string
+        }
+        Returns: Json
+      }
       submit_game_score: {
         Args: {
           p_game_state?: Json
@@ -19833,6 +20292,7 @@ export type Database = {
         }
         Returns: Json
       }
+      sweep_battles: { Args: never; Returns: Json }
       sync_onboarding_to_user: {
         Args: { p_teen_id: string; p_temp_user_id: string }
         Returns: Json

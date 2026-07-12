@@ -91,15 +91,26 @@ export async function PATCH(
         .select(`
           *,
           teen:teen_id (first_name, last_name),
-          parent:parent_id (full_name, email),
           pack:pack_id (name)
         `)
         .eq("id", id)
         .single()
 
-      if (orderDetails?.parent?.email) {
+      // anniv_orders.parent_id has no FK to profiles → fetch parent separately
+      let parent: { full_name: string | null; email: string | null } | null = null
+      if (orderDetails) {
+        const orderParentId = orderDetails.parent_id
+        const { data: parentData } = await supabase
+          .from("profiles")
+          .select("full_name, email")
+          .eq("id", orderParentId)
+          .single()
+        parent = parentData
+      }
+
+      if (parent?.email) {
         // Send email notification (async, don't wait)
-        sendStatusUpdateEmail(orderDetails, status).catch(console.error)
+        sendStatusUpdateEmail({ ...orderDetails, parent }, status).catch(console.error)
       }
     }
 
@@ -145,13 +156,16 @@ export async function GET(
       )
     }
 
+    // #358 — anniv_orders.parent_id n'a pas de FK vers profiles (embed
+    // impossible → l'ancien select échouait toujours = 404 systématique). On
+    // retire l'embed parent et on résout le parent séparément. `phone` n'existe
+    // pas sur profiles → retiré.
     const { data, error } = await supabase
       .from("anniv_orders")
       .select(`
         *,
         teen:teen_id (id, first_name, last_name, pseudo, birth_date, avatar_url),
         pack:pack_id (id, name, pack_type, base_price, description),
-        parent:parent_id (id, full_name, email, phone),
         extras:anniv_order_extras (
           id,
           quantity,
@@ -170,7 +184,14 @@ export async function GET(
       )
     }
 
-    return NextResponse.json(data)
+    const orderParentId = data.parent_id
+    const { data: parent } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .eq("id", orderParentId)
+      .single()
+
+    return NextResponse.json({ ...data, parent: parent ?? null })
   } catch (error) {
     console.error("Admin anniversaires API error:", error)
     return NextResponse.json(
@@ -191,16 +212,23 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
   const { Resend } = await import("resend")
   const resend = new Resend(process.env.RESEND_API_KEY)
 
+  // #358 — colonnes réelles de la table live `anniv_orders` : il n'y a PAS de
+  // booking_reference/celebration_date/total_price ; la référence affichée est
+  // l'id court, la date = party_date, le total = total_dh.
+  const ref = String(order.id ?? "").slice(0, 8).toUpperCase()
+  const partyDate = order.party_date
+    ? new Date(order.party_date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
+    : "à définir"
   const statusMessages: Record<string, { subject: string; title: string; message: string }> = {
     confirmed: {
-      subject: `Anniversaire confirmé - ${order.booking_reference}`,
+      subject: `Anniversaire confirmé - ${ref}`,
       title: "Votre réservation est confirmée !",
-      message: `Bonne nouvelle ! L'anniversaire de ${order.teen?.first_name || "votre enfant"} est confirmé pour le ${new Date(order.celebration_date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}.`,
+      message: `Bonne nouvelle ! L'anniversaire de ${order.teen?.first_name || "votre enfant"} est confirmé pour le ${partyDate}.`,
     },
     cancelled: {
-      subject: `Anniversaire annulé - ${order.booking_reference}`,
+      subject: `Anniversaire annulé - ${ref}`,
       title: "Réservation annulée",
-      message: `Nous sommes désolés de vous informer que la réservation anniversaire (${order.booking_reference}) a été annulée. Si vous avez des questions, n'hésitez pas à nous contacter.`,
+      message: `Nous sommes désolés de vous informer que la réservation anniversaire (${ref}) a été annulée. Si vous avez des questions, n'hésitez pas à nous contacter.`,
     },
   }
 
@@ -242,7 +270,7 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
             <div class="details">
               <div class="detail-row">
                 <span>Référence</span>
-                <span class="highlight">${order.booking_reference}</span>
+                <span class="highlight">${ref}</span>
               </div>
               <div class="detail-row">
                 <span>Formule</span>
@@ -254,7 +282,7 @@ async function sendStatusUpdateEmail(order: any, newStatus: string) {
               </div>
               <div class="detail-row">
                 <span>Total</span>
-                <span class="highlight">${order.total_price?.toLocaleString()} DH</span>
+                <span class="highlight">${Number(order.total_dh ?? 0).toLocaleString()} DH</span>
               </div>
             </div>
             <div class="footer">

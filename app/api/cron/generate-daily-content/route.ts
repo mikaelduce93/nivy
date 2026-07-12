@@ -28,6 +28,7 @@ import { createHash } from "node:crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import type { Json } from "@/types/supabase"
 import {
   ContentGenerator,
   type GenerationParams,
@@ -299,7 +300,9 @@ export async function POST(request: NextRequest) {
     const provider = (process.env.AI_PROVIDER as "openai" | "claude") || "openai"
     const generator = new ContentGenerator(provider)
 
-    const generationLog: Array<Record<string, unknown>> = []
+    // Typé Json[] pour matcher daily_content_schedule.generation_log (jsonb) ;
+    // toutes les entrées poussées sont des littéraux Json-compatibles.
+    const generationLog: Json[] = []
     let generatedCount = 0
     let failedCount = 0
     let safetyBlockedCount = 0

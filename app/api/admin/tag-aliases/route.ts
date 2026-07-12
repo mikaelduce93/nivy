@@ -173,9 +173,20 @@ export async function POST(req: Request) {
       )
     }
     if (!existing) {
+      // `category` + `display_fr` are NOT NULL in interest_taxonomy. The
+      // canonical tag has the `category_descriptor` shape (enforced by
+      // CANONICAL_TAG_RE above), so derive the category from its prefix and
+      // seed display_fr with the tag itself (admins can refine the label
+      // later). Without these the insert violates NOT NULL at runtime.
+      const category = canonical!.split("_")[0]
       const { error: insErr } = await sr
         .from("interest_taxonomy")
-        .insert({ tag: canonical!, is_active: true })
+        .insert({
+          tag: canonical!,
+          category,
+          display_fr: canonical!,
+          is_active: true,
+        })
       if (insErr) {
         return NextResponse.json(
           { success: false, error: `taxonomy_insert_failed: ${insErr.message}` },

@@ -3,37 +3,17 @@ import { createServiceRoleClient } from '@/lib/supabase/service-role'
 // Initialize Supabase Admin Client (canonical service-role helper)
 const supabase = createServiceRoleClient()
 
-const SYSTEM_BOTS = [
-  { id: 'bot_admin', name: 'L\'Admin', avatar: '/avatars/admin.png' },
-  { id: 'bot_teen', name: 'TeenBot', avatar: '/avatars/robot.png' },
-]
-
-const TEMPLATES = {
-  event: [
-    "🎉 Nouvel événement ajouté : {eventName} ! Réserve vite ta place.",
-    "👀 La billetterie pour {eventName} est ouverte. Les places partent vite !",
-    "🔥 Prêt pour {eventName} ? Ça va être légendaire.",
-  ],
-  challenge: [
-    "⚡ Défi du jour : {challengeName} (+50 XP)",
-    "💪 Qui peut relever le défi {challengeName} ?",
-    "🎯 Objectif du jour : {challengeName}. À toi de jouer !",
-  ],
-  tip: [
-    "💡 Astuce : Complète ton profil pour gagner un badge exclusif.",
-    "💡 Astuce : Invite un ami pour gagner 200 XP !",
-    "💡 Astuce : Maintiens ton streak pour multiplier tes gains.",
-  ]
-}
-
 export async function generateSystemActivity() {
   console.log('Generating system activity...')
 
-  // Check recent activity count (last 2 hours)
+  // Check recent activity count (last 2 hours) on the canonical feed table.
+  // The original `.from('social_activities')` targeted a table that never
+  // existed in the schema (migration 018 defines `user_activities`), so this
+  // cron threw on every run. The real feed table is `user_activities`.
   const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-  
+
   const { count } = await supabase
-    .from('social_activities') // Assuming this table exists or similar
+    .from('user_activities')
     .select('*', { count: 'exact', head: true })
     .gt('created_at', twoHoursAgo)
 
@@ -43,55 +23,14 @@ export async function generateSystemActivity() {
     return
   }
 
-  // Pick a random template type
-  const types = ['event', 'challenge', 'tip'] as const
-  const type = types[Math.floor(Math.random() * types.length)]
-  const bot = SYSTEM_BOTS[Math.floor(Math.random() * SYSTEM_BOTS.length)]
-
-  let title = ""
-  let data = {}
-
-  switch (type) {
-    case 'event': {
-      // Fetch a random upcoming event
-      const { data: events } = await supabase
-        .from('events')
-        .select('title')
-        .gt('event_date', new Date().toISOString())
-        .limit(1)
-      
-      const eventName = events?.[0]?.title || "Soirée Mystère"
-      const eventTemplate = TEMPLATES.event[Math.floor(Math.random() * TEMPLATES.event.length)]
-      title = eventTemplate.replace('{eventName}', eventName)
-      data = { type: 'event_promo', eventName }
-      break
-    }
-
-    case 'challenge': {
-      const challengeName = "10k Pas" // Mock, normally fetch from DB
-      const challengeTemplate = TEMPLATES.challenge[Math.floor(Math.random() * TEMPLATES.challenge.length)]
-      title = challengeTemplate.replace('{challengeName}', challengeName)
-      data = { type: 'challenge_promo', challengeName }
-      break
-    }
-
-    case 'tip':
-      title = TEMPLATES.tip[Math.floor(Math.random() * TEMPLATES.tip.length)]
-      data = { type: 'tip' }
-      break
-  }
-
-  // Insert into DB
-  // Note: Schema needs to support system activities (no user_id or special user_id)
-  await supabase.from('social_activities').insert({
-    user_id: bot.id, // Ensure this ID exists or schema allows null/special handling
-    type: 'system_post',
-    title: bot.name,
-    description: title,
-    metadata: { ...data, avatar: bot.avatar },
-    created_at: new Date().toISOString()
-  })
-
-  console.log(`System activity generated: [${type}] ${title}`)
+  // A system/bot promo post cannot be persisted against the live schema:
+  // `user_activities.user_id` is a NOT NULL FK to auth.users and
+  // `activity_type_id` is a NOT NULL FK to activity_types (migration 018).
+  // Neither a system/bot auth user nor a system/announcement activity type is
+  // seeded, so there is no valid row to insert. The removed insert used a fake
+  // `user_id: 'bot_admin'` plus non-existent `type`/`metadata` columns and
+  // therefore failed on every invocation. Seeding a system author + a dedicated
+  // activity type is a product decision; until then this cron only measures
+  // feed activity and does not write.
+  console.log('No system author / activity type seeded — skipping system post.')
 }
-

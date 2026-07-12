@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import type { Json } from "@/types/supabase"
 import {
   ADMIN_PERMISSIONS,
   VALID_ADMIN_SUB_ROLES,
@@ -236,7 +237,7 @@ export async function logAdminAction(
     resource_id: row.resource_id ?? null,
     target_user_id: row.target_user_id ?? null,
     description: row.description ?? null,
-    metadata: row.metadata ?? {},
+    metadata: (row.metadata ?? {}) as Json,
     ip_address: row.ip_address ?? null,
     user_agent: row.user_agent ?? null,
     created_at: new Date().toISOString(),

@@ -22,6 +22,7 @@
  */
 
 import { NextResponse } from "next/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
 export const dynamic = "force-dynamic"
@@ -48,7 +49,10 @@ export async function GET(request: Request) {
   // We use the auth schema view via .rpc() for 90-day filter — simpler to do
   // with a direct query against auth.users joined to public.teens.
   // The service-role key bypasses RLS so we can hit auth.users directly.
-  const { data: teenRows, error: teensErr } = await supabase
+  // `auth.users` is outside the generated public-schema Database types, so we
+  // frontier-cast to an untyped client to reach `.schema("auth")`; the shape of
+  // the rows we consume is annotated explicitly below.
+  const { data: teenRows, error: teensErr } = await (supabase as unknown as SupabaseClient)
     .schema("auth")
     .from("users")
     .select("id, last_sign_in_at")

@@ -25,7 +25,8 @@ async function getEvents() {
   }
 
   const uniqueCities = Array.from(new Set(events?.map((e) => e.city).filter(Boolean))) as string[]
-  const uniqueThemes = Array.from(new Set(events?.map((e) => e.theme).filter(Boolean))) as string[]
+  // La colonne live est `category` (ex-`theme`, absente du schéma live).
+  const uniqueThemes = Array.from(new Set(events?.map((e) => e.category).filter(Boolean))) as string[]
 
   // Compute "isNew" server-side so it never depends on the client's render-time
   // clock (avoids hydration mismatches near the 7-day boundary).
@@ -33,7 +34,7 @@ async function getEvents() {
   const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
   const eventsWithFlags = (events || []).map((e) => ({
     ...e,
-    isNew: now - new Date(e.created_at).getTime() < sevenDaysMs,
+    isNew: e.created_at ? now - new Date(e.created_at).getTime() < sevenDaysMs : false,
   }))
 
   return {

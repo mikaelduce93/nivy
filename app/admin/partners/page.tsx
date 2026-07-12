@@ -92,6 +92,7 @@ export default async function AdminPartnersPage() {
   >()
 
   for (const d of docs ?? []) {
+    if (!d.partner_id) continue // nullable en base ; exclu de fait par le filtre .in() ci-dessus
     const { data: signed } = await sr.storage
       .from("kyc-documents")
       .createSignedUrl(d.file_path, SIGNED_URL_TTL_SECONDS)

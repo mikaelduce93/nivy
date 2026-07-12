@@ -77,11 +77,12 @@ export default async function AdminEventsPage() {
         {eventsWithStats && eventsWithStats.length > 0 ? (
           <div className="grid gap-6">
             {eventsWithStats.map((event) => {
-              const isPast = new Date(event.event_date) < new Date()
-              const isSoldOut = event.available_spots === 0
+              const isPast = event.event_date ? new Date(event.event_date) < new Date() : false
+              const capacity = event.capacity ?? 0
+              const isSoldOut = capacity > 0 && event.bookings_count >= capacity
               const fillRatio =
-                event.capacity > 0
-                  ? Math.min(1, event.bookings_count / event.capacity)
+                capacity > 0
+                  ? Math.min(1, event.bookings_count / capacity)
                   : 0
 
               return (
@@ -109,7 +110,7 @@ export default async function AdminEventsPage() {
                       <div className="mb-3 flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="eyebrow tracking-[0.14em] text-mute">
-                            {event.city} · {new Date(event.event_date).toLocaleDateString("fr-FR")}
+                            {event.city} · {event.event_date ? new Date(event.event_date).toLocaleDateString("fr-FR") : "—"}
                           </p>
                           <h3 className="mt-1 font-display text-xl font-extrabold tracking-tight text-ink">
                             {event.title}
@@ -152,14 +153,8 @@ export default async function AdminEventsPage() {
                       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div className="rounded-xl border-2 border-ink bg-white p-3">
                           <p className="eyebrow text-mute">Prix standard</p>
-                          <p className="mt-1 font-mono text-lg font-bold text-teal">{event.base_price} DH</p>
+                          <p className="mt-1 font-mono text-lg font-bold text-teal">{event.price_dh ?? 0} DH</p>
                         </div>
-                        {event.vip_price && (
-                          <div className="rounded-xl border-2 border-ink bg-white p-3">
-                            <p className="eyebrow text-mute">Prix VIP</p>
-                            <p className="mt-1 font-mono text-lg font-bold text-pink">{event.vip_price} DH</p>
-                          </div>
-                        )}
                         <div className="rounded-xl border-2 border-ink bg-white p-3">
                           <p className="eyebrow text-mute">Réservations</p>
                           <p className="mt-1 font-mono text-lg font-bold text-ink">{event.bookings_count}</p>

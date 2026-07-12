@@ -14,7 +14,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
 
   const body = await request.json()
   const decision: string = body.decision
-  const notes: string | null = body.notes ?? null
+  const notes: string | undefined = body.notes ?? undefined
   if (!["accepted", "rejected", "shortlisted"].includes(decision)) {
     return NextResponse.json({ error: "invalid_decision" }, { status: 400 })
   }

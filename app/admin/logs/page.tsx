@@ -28,16 +28,11 @@ import {
 async function getActivityLogs() {
   const supabase = await createClient()
 
-  // Get activity logs - using a generic activity_logs table
+  // Journal live = audit_log (l'ancienne table activity_logs n'existe plus ;
+  // pas de FK exploitable pour joindre l'acteur, on affiche actor_id/actor_role).
   const { data: logs, error } = await supabase
-    .from("activity_logs")
-    .select(`
-      *,
-      user:user_id (
-        full_name,
-        email
-      )
-    `)
+    .from("audit_log")
+    .select("id, action, actor_id, actor_role, resource_type, description, created_at")
     .order("created_at", { ascending: false })
     .limit(100)
 
@@ -119,7 +114,7 @@ export default async function AdminLogsPage() {
     return logDate.toDateString() === today.toDateString()
   })
 
-  const uniqueUsers = new Set(logs.map((log: any) => log.user_id)).size
+  const uniqueUsers = new Set(logs.map((log: any) => log.actor_id)).size
   const loginCount = logs.filter((log: any) => log.action === "login").length
 
   return (
@@ -175,9 +170,9 @@ export default async function AdminLogsPage() {
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-mute">
                         <User className="h-3 w-3" />
-                        <span>{log.user?.full_name || log.user?.email || "Système"}</span>
-                        {log.user_id ? (
-                          <span className="font-mono text-[11px]">#{String(log.user_id).slice(0, 8)}</span>
+                        <span>{log.actor_role || "Système"}</span>
+                        {log.actor_id ? (
+                          <span className="font-mono text-[11px]">#{String(log.actor_id).slice(0, 8)}</span>
                         ) : null}
                         {log.resource_type && (
                           <>

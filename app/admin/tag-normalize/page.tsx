@@ -8,8 +8,9 @@
  * Source of data:
  *   - Latest `admin_audit_logs` row with `action = 'cron.tag_normalize'`,
  *     payload contains `report[].unmapped_sample[].{tag,count}`.
- *   - Existing `tag_aliases` rows decorate each entry with a current
- *     status/canonical so admins can re-decide.
+ *   - NOTE: `tag_aliases` (migration 092) n'existe pas en base LIVE ; la
+ *     décoration statut/canonique par alias est désactivée tant que la
+ *     migration n'est pas appliquée.
  *
  * Actions per row are POSTed to /api/admin/tag-aliases.
  *
@@ -141,23 +142,10 @@ export default async function AdminTagNormalizePage() {
 
   const aliases = Array.from(agg.keys())
 
-  // 4. Fetch existing tag_aliases for these aliases (to decorate UI).
-  const aliasInfoByAlias = new Map<
-    string,
-    { status: AggRow["existing_status"]; canonical_tag: string | null }
-  >()
-  if (aliases.length > 0) {
-    const { data: existing } = await sr
-      .from("tag_aliases")
-      .select("alias, status, canonical_tag")
-      .in("alias", aliases)
-    for (const e of existing ?? []) {
-      aliasInfoByAlias.set(e.alias as string, {
-        status: e.status as AggRow["existing_status"],
-        canonical_tag: (e.canonical_tag as string | null) ?? null,
-      })
-    }
-  }
+  // 4. `tag_aliases` absent de la base LIVE (migration 092 jamais
+  //    appliquée) : la lecture de décoration échouait toujours à
+  //    l'exécution (relation inexistante → data null). Retirée — chaque
+  //    row repart sans statut existant, comme observé en prod.
 
   // 5. Canonical taxonomy for suggestions + dropdowns.
   const { data: taxonomyRows } = await sr
@@ -174,15 +162,13 @@ export default async function AdminTagNormalizePage() {
   const rows: AggRow[] = aliases
     .map<AggRow>((alias) => {
       const a = agg.get(alias)!
-      const info = aliasInfoByAlias.get(alias) ?? null
       return {
         alias,
         count: a.count,
         tables: Array.from(a.tables),
-        existing_status: info?.status ?? null,
-        existing_canonical: info?.canonical_tag ?? null,
-        suggested_canonical:
-          info?.canonical_tag ?? suggestCanonical(alias, taxonomy),
+        existing_status: null,
+        existing_canonical: null,
+        suggested_canonical: suggestCanonical(alias, taxonomy),
       }
     })
     .sort((x, y) => y.count - x.count)

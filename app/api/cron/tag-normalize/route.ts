@@ -103,13 +103,20 @@ export async function GET(request: NextRequest) {
   }
 
   // Polish-E: load admin-approved aliases (alias → canonical_tag).
-  // Best-effort: if the table doesn't exist (older deploy), we proceed
+  // Best-effort: if the query fails (older deploy / transient) we proceed
   // with the empty map.
+  // Resolving `.from("tag_aliases")` against the full ~390-table typed
+  // union blows up `tsc` type-instantiation here (TS2589), same as the
+  // dynamic loop below — query via an untyped client and restore precise
+  // typing on the two columns we read with `.returns<>()`.
   const aliasMap = new Map<string, string>()
-  const { data: aliasRows, error: aliasErr } = await supabase
+  const { data: aliasRows, error: aliasErr } = await (
+    supabase as unknown as SupabaseClient
+  )
     .from("tag_aliases")
     .select("alias, canonical_tag, status")
     .eq("status", "approved")
+    .returns<Array<{ alias: string; canonical_tag: string; status: string }>>()
   if (aliasErr) {
     console.warn(
       "[cron/tag-normalize] tag_aliases query failed (treating as empty):",

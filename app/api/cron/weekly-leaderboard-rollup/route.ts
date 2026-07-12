@@ -26,6 +26,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
 export const dynamic = "force-dynamic"
@@ -54,9 +55,15 @@ export async function GET(request: NextRequest) {
 
   const startedAt = Date.now()
   const supabase = createServiceRoleClient()
+  // `weekly_leaderboard_snapshots` does NOT exist in the live schema yet (see
+  // header note) and is therefore absent from the regenerated `Database` type.
+  // This cron probes for it and self-skips until the follow-up migration lands.
+  // Cast to the base `SupabaseClient` for the snapshot-table access so the stub
+  // still typechecks (same boundary pattern as app/api/cron/tag-normalize).
+  const snapshotsDb = supabase as unknown as SupabaseClient
 
   // Probe the snapshot table.
-  const { error: probeErr } = await supabase
+  const { error: probeErr } = await snapshotsDb
     .from("weekly_leaderboard_snapshots")
     .select("teen_id", { count: "exact", head: true })
     .limit(1)
@@ -112,7 +119,7 @@ export async function GET(request: NextRequest) {
     const CHUNK = 500
     for (let i = 0; i < ranked.length; i += CHUNK) {
       const chunk = ranked.slice(i, i + CHUNK)
-      const { error: upErr } = await supabase
+      const { error: upErr } = await snapshotsDb
         .from("weekly_leaderboard_snapshots")
         .upsert(chunk, { onConflict: "week_starting,teen_id" })
       if (upErr) {

@@ -7,6 +7,7 @@
  */
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import type { Json } from "@/types/supabase"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import ModerationActions from "./moderation-actions"
@@ -17,10 +18,10 @@ export const dynamic = "force-dynamic"
 
 type QueueRow = {
   id: string
-  content_id: string
+  content_id: string | null
   status: string
   created_at: string
-  payload: Record<string, unknown> | null
+  payload: Json | null
   post: {
     id: string
     user_id: string
@@ -67,7 +68,9 @@ export default async function CreatorModerationPage() {
     .order("created_at", { ascending: true })
     .limit(50)
 
-  const ids = (queue ?? []).map((q) => q.content_id)
+  const ids = (queue ?? [])
+    .map((q) => q.content_id)
+    .filter((id): id is string => id !== null)
   const { data: posts } = ids.length
     ? await sr
         .from("feed_posts")
@@ -78,7 +81,10 @@ export default async function CreatorModerationPage() {
   const byId = new Map<string, QueueRow["post"]>()
   for (const p of posts ?? []) byId.set((p as { id: string }).id, p as QueueRow["post"])
 
-  const rows: QueueRow[] = (queue ?? []).map((q) => ({ ...q, post: byId.get(q.content_id) ?? null }))
+  const rows: QueueRow[] = (queue ?? []).map((q) => ({
+    ...q,
+    post: q.content_id ? byId.get(q.content_id) ?? null : null,
+  }))
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-6">
@@ -140,7 +146,7 @@ export default async function CreatorModerationPage() {
                   Créateur {r.post?.user_id.slice(0, 8)}
                 </span>
               </div>
-              <ModerationActions queueId={r.id} submissionId={r.content_id} />
+              <ModerationActions queueId={r.id} submissionId={r.content_id ?? ""} />
             </li>
           ))}
         </ul>
