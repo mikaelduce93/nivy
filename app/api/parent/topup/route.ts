@@ -172,9 +172,13 @@ export async function POST(request: Request) {
       })
     }
 
-    // Atomic top-up via SECURITY DEFINER RPC. The 5-arg overload writes
-    // psp_provider+psp_reference; we tag this manual rail per F5.
+    // Atomic top-up via SECURITY DEFINER RPC. The 6-arg overload (mig 199,
+    // F3.a) writes psp_provider+psp_reference AND attaches the client
+    // idempotency key atomically inside the RPC, so the post-RPC UPDATE is no
+    // longer needed. We tag this manual rail per F5.
     // The RPC computes amount_coins server-side as amount_dh*100 (canon §2.1).
+    // p_idempotency_key = the client UUID (same value embedded in providerRef);
+    // the RPC casts text→uuid and inserts it into payment_transactions.
     const providerRef = `manual:${idempotencyKey}`
     const { data: rpcRaw, error } = await admin.rpc("top_up_teen", {
       p_parent_id: parentId,
@@ -182,6 +186,7 @@ export async function POST(request: Request) {
       p_amount_dh: amountDh,
       p_provider: "manual",
       p_provider_ref: providerRef,
+      p_idempotency_key: idempotencyKey,
     })
     // Le RPC retourne un jsonb (typé Json par le codegen Supabase) ; contrat
     // réel documenté dans la migration 179 / 095.
@@ -219,21 +224,13 @@ export async function POST(request: Request) {
       )
     }
 
-    // Persist the idempotency key on the resulting payment row so future
-    // duplicates dedupe on the canonical column. The RPC creates the row
-    // keyed on (psp_provider, psp_reference); we only need to attach the
-    // client key. Failure here is non-fatal but logged — the unique index
-    // on client_idempotency_key still protects against double credit at the
-    // RPC level via psp_reference uniqueness.
-    if (rpcData.payment_id) {
-      const { error: keyAttachErr } = await admin
-        .from("payment_transactions")
-        .update({ client_idempotency_key: idempotencyKey })
-        .eq("id", rpcData.payment_id)
-      if (keyAttachErr) {
-        console.error("[topup] failed to attach idempotency key:", keyAttachErr)
-      }
-    }
+    // The RPC (mig 199, F3.a) now attaches client_idempotency_key ATOMICALLY
+    // during the payment_transactions INSERT (p_idempotency_key arg above), so
+    // a post-RPC UPDATE is no longer needed. Previously a retry that landed
+    // between the RPC commit and this UPDATE could dedupe via psp_reference
+    // but leave the client-key column NULL on the winner row — now both are
+    // set in the same statement, so future duplicates dedupe on the canonical
+    // column directly.
 
     return NextResponse.json({
       success: true,
