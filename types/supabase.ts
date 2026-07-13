@@ -16195,7 +16195,6 @@ export type Database = {
         Row: {
           achievements_unlocked: number | null
           challenges_completed: number | null
-          coins: number | null
           created_at: string | null
           current_level: number | null
           events_attended: number | null
@@ -16207,7 +16206,6 @@ export type Database = {
         Insert: {
           achievements_unlocked?: number | null
           challenges_completed?: number | null
-          coins?: number | null
           created_at?: string | null
           current_level?: number | null
           events_attended?: number | null
@@ -16219,7 +16217,6 @@ export type Database = {
         Update: {
           achievements_unlocked?: number | null
           challenges_completed?: number | null
-          coins?: number | null
           created_at?: string | null
           current_level?: number | null
           events_attended?: number | null

@@ -234,6 +234,7 @@ Légende : 🟢 OK · 🟡 À surveiller · 🔴 Vulnérabilité
 ### P2 — Défense en profondeur
 
 - **F5.a** Transférer la propriété des fonctions money-write à un rôle `nivy_rpc_owner` non-superuser.
+  > **DÉCISION 2026-07-13 (vague 3) : DEFER après lancement.** Le threat model est déjà couvert par REVOKE + service_role (migration 112) + RLS deny-default sur tables money. La maintenance d'un rôle nivy_rpc_owner est élevée (~170 fonctions SECURITY DEFINER à owner + grants drift risk à chaque nouvelle migration). À revisiter post-launch si la Supabase Security Advisor ou un partenaire BAM l'exige pour due diligence.
 - **F3.b** Côté route, distinguer `rpcData.idempotent_replay === true` (réponse 200 explicite) d'un succès frais.
 - **F8.c** Borner `amount_dh` côté admin confirm et côté webhook PSP (les chemins non-parents n'appliquent pas `PARENT_TOPUP_MAX_DH`).
 - **F2.c** Déprécier formellement le 3-arg (`DROP FUNCTION` après migration des 2 appelants).
