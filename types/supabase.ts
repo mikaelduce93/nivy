@@ -966,37 +966,64 @@ export type Database = {
       }
       anniv_orders: {
         Row: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          cancelled_reason: string | null
+          completed_at: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
           created_at: string
+          deposit_amount: number | null
           guest_count: number
           id: string
           notes: string | null
           pack_id: string
+          paid_at: string | null
           parent_id: string
           party_date: string
+          payment_status: string
           status: string
           teen_id: string
           total_dh: number
         }
         Insert: {
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancelled_reason?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
+          deposit_amount?: number | null
           guest_count?: number
           id?: string
           notes?: string | null
           pack_id: string
+          paid_at?: string | null
           parent_id: string
           party_date: string
+          payment_status?: string
           status?: string
           teen_id: string
           total_dh: number
         }
         Update: {
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancelled_reason?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
+          deposit_amount?: number | null
           guest_count?: number
           id?: string
           notes?: string | null
           pack_id?: string
+          paid_at?: string | null
           parent_id?: string
           party_date?: string
+          payment_status?: string
           status?: string
           teen_id?: string
           total_dh?: number

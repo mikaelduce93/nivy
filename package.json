@@ -38,6 +38,8 @@
     "seed:lifestyle": "npx tsx scripts/seed-lifestyle-offer.ts",
     "seed:beta": "npm run seed:test-accounts && npm run seed:e2e-data && npm run seed:beta-pivots",
     "typecheck": "tsc --noEmit",
+    "types:generate": "npx --yes supabase gen types typescript --project-id imchornjvmgmaovhypco --schema public > types/supabase.ts",
+    "types:check": "node scripts/check-types-fresh.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
