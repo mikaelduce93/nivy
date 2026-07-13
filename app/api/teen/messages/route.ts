@@ -270,15 +270,14 @@ export async function POST(request: NextRequest) {
     .from("user_notifications")
     .insert({
       user_id: recipientId,
-      type: "message",
       title: "Nouveau message",
-      message: `${userInfo.fullName} t'a envoyé un message`,
+      body: `${userInfo.fullName} t'a envoyé un message`,
       data: {
         conversation_id: conversationId,
         sender_id: teenId,
         sender_name: userInfo.fullName,
       },
-      read: false,
+      is_read: false,
       created_at: new Date().toISOString(),
     })
     .then(() => undefined, () => undefined)

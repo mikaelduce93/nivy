@@ -150,18 +150,27 @@ async function sendPaymentConfirmation(booking: any, paymentResult: any) {
     const { createClient } = await import("@/lib/supabase/server")
     const supabase = await createClient()
 
-    // Get full booking details
+    // Get full booking details. #25 — bookings has no parent_id column and no
+    // FK to profiles, so the old `profiles:parent_id(...)` embed failed at
+    // runtime. The buyer is bookings.user_id; events embed is a real FK.
     const { data: fullBooking } = await supabase
       .from("bookings")
       .select(`
         *,
-        events (*),
-        profiles:parent_id (full_name, email)
+        events (*)
       `)
       .eq("id", booking.id)
       .single()
 
-    if (!fullBooking?.profiles?.email) return
+    if (!fullBooking?.user_id) return
+
+    const { data: buyer } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", fullBooking.user_id)
+      .single()
+
+    if (!buyer?.email) return
 
     // Vérifier si Resend est configuré
     if (!process.env.RESEND_API_KEY) {
@@ -174,7 +183,7 @@ async function sendPaymentConfirmation(booking: any, paymentResult: any) {
 
     await resend.emails.send({
       from: getServerAppConfig().emailFrom,
-      to: fullBooking.profiles.email,
+      to: buyer.email,
       subject: `Paiement confirmé - ${fullBooking.booking_reference}`,
       html: `
         <!DOCTYPE html>
@@ -197,7 +206,7 @@ async function sendPaymentConfirmation(booking: any, paymentResult: any) {
         <body>
           <div class="container">
             <h1>Paiement confirmé!</h1>
-            <p>Bonjour <span class="highlight">${fullBooking.profiles.full_name}</span>,</p>
+            <p>Bonjour <span class="highlight">${buyer.full_name ?? ""}</span>,</p>
             <p>Votre paiement CMI a été accepté avec succès.</p>
 
             <div style="text-align: center;">

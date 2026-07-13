@@ -46,9 +46,7 @@ export default async function ParentTeenDetailPage({
   // teen even if RLS is misconfigured during a future migration.
   const { data: teen } = await supabase
     .from("parent_teens_overview")
-    .select(
-      "teen_id, teen_name, level, title, title_icon, total_xp, total_coins, badges_count",
-    )
+    .select("teen_id, teen_name, level, total_xp, coins")
     .eq("parent_id", userInfo.profileId)
     .eq("teen_id", id)
     .maybeSingle()
@@ -80,7 +78,7 @@ export default async function ParentTeenDetailPage({
           </div>
           <div>
             <p className="eyebrow tracking-[0.16em] text-teal">
-              Niveau {teen.level} · {teen.title_icon} {teen.title}
+              Niveau {teen.level}
             </p>
             <h1 className="mt-1 font-display text-4xl font-extrabold">{teen.teen_name}</h1>
           </div>
@@ -90,7 +88,7 @@ export default async function ParentTeenDetailPage({
         <div className="grid gap-6 lg:grid-cols-2 mb-8">
           <StatHero
             eyebrow="Solde coins"
-            value={teen.total_coins ?? 0}
+            value={teen.coins ?? 0}
             tone="coral"
             size="lg"
             icon={<Coins className="h-6 w-6" aria-hidden="true" />}
@@ -107,7 +105,7 @@ export default async function ParentTeenDetailPage({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <StickerCard className="p-5">
             <div className="flex items-center justify-between">
               <p className="eyebrow tracking-[0.14em] text-mute">Coins</p>
@@ -115,7 +113,7 @@ export default async function ParentTeenDetailPage({
             </div>
             <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-coral">
               <span className="mr-0.5 align-baseline font-mono text-base">⊙</span>
-              {teen.total_coins ?? 0}
+              {teen.coins ?? 0}
             </p>
           </StickerCard>
           <StickerCard className="p-5">
@@ -125,15 +123,6 @@ export default async function ParentTeenDetailPage({
             </div>
             <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-gold">
               {teen.total_xp ?? 0}
-            </p>
-          </StickerCard>
-          <StickerCard className="p-5">
-            <div className="flex items-center justify-between">
-              <p className="eyebrow tracking-[0.14em] text-mute">Badges</p>
-              <Trophy className="h-5 w-5 text-pink" aria-hidden="true" />
-            </div>
-            <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-pink">
-              {teen.badges_count ?? 0}
             </p>
           </StickerCard>
           <StickerCard className="p-5">

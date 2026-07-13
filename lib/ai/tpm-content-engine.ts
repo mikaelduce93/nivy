@@ -390,7 +390,7 @@ export class TPMContentEngine extends IntelligentContentEngine {
     const supabase = await createClient()
     const { data } = await supabase
       .from("teens")
-      .select("id, grade_level, interests, profiles")
+      .select("id, grade_level")
       .eq("id", teenId)
       .single()
     return { data }

@@ -3,6 +3,8 @@
  * Vérifie l'exactitude factuelle du contenu généré en utilisant des sources fiables
  */
 
+import type { Json } from "@/types/supabase"
+
 export interface VerificationSource {
   source: string
   url?: string
@@ -294,7 +296,8 @@ export class FactualVerifier {
             : verification.needsReview
             ? "needs_review"
             : "failed",
-          verification_sources: verification.sources,
+          // jsonb column: VerificationSource[] n'a pas d'index signature → cast de frontière
+          verification_sources: verification.sources as unknown as Json,
           verification_method: "automated",
           facts_verified: verification.factsVerified,
           facts_total: verification.factsTotal,

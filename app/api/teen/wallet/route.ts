@@ -107,7 +107,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function formatRelativeTime(dateString: string): string {
+function formatRelativeTime(dateString: string | null): string {
+  if (!dateString) return ''
   const date = new Date(dateString)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()

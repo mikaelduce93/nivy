@@ -56,7 +56,7 @@ export async function POST(
       p_completion_id: completionId,
       p_parent_id: parentId,
       p_action: approved ? "approve" : "reject",
-      p_rejection_reason: approved ? null : body.rejection_reason ?? null,
+      p_rejection_reason: approved ? undefined : body.rejection_reason ?? undefined,
     })
 
     if (error) {

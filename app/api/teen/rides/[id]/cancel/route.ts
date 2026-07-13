@@ -23,7 +23,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   const admin = createServiceRoleClient()
   const { data, error } = await admin.rpc("cancel_ride", {
     p_ride_id: id,
-    p_reason: reason,
+    p_reason: reason ?? undefined,
     p_caller_id: userInfo.profileId,
   })
   if (error) return NextResponse.json({ success: false, error: error.message }, { status: 400 })

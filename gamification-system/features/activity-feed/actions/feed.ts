@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { logDbError } from "@/lib/observability/log-db-error"
+import { resolveTeenIdentities } from "@/lib/server/teen-identities"
 import {
   type ActivityCategory,
   type FeedOrder,
@@ -50,14 +51,13 @@ export async function getActivityFeed(options: {
       }
     }
 
-    // Enrichir avec les infos utilisateur
-    const userIds = [...new Set(data.map((a: any) => a.user_id))]
-    const { data: users } = await supabase
-      .from("users")
-      .select("id, username, avatar_url")
-      .in("id", userIds)
-
-    const usersMap = new Map(users?.map((u) => [u.id, u]) || [])
+    // Enrichir avec les infos utilisateur.
+    // Aucune FK vers `users`, et `users` ne porte ni pseudo ni avatar :
+    // identité résolue applicativement (teens/user_xp/profiles).
+    const identities = await resolveTeenIdentities(
+      supabase,
+      data.map((a: any) => a.user_id)
+    )
 
     // Vérifier les likes de l'utilisateur
     const activityIds = data.map((a: any) => a.id)
@@ -71,9 +71,10 @@ export async function getActivityFeed(options: {
 
     const activities: ActivityWithUser[] = data.map((activity: any) => ({
       ...activity,
-      user: usersMap.get(activity.user_id) || {
+      user: {
         id: activity.user_id,
-        username: "Utilisateur",
+        username: identities.get(activity.user_id)?.pseudo ?? "Utilisateur",
+        avatar_url: identities.get(activity.user_id)?.avatar_url ?? undefined,
       },
       activity_type: {
         id: activity.activity_type_id,
@@ -165,12 +166,11 @@ export async function getUserActivities(
 
     if (error) throw error
 
-    // Récupérer info utilisateur cible
-    const { data: targetUser } = await supabase
-      .from("users")
-      .select("id, username, avatar_url")
-      .eq("id", targetUserId)
-      .single()
+    // Récupérer info utilisateur cible (identité résolue applicativement :
+    // `users` ne porte ni pseudo ni avatar).
+    const targetIdentity = (
+      await resolveTeenIdentities(supabase, [targetUserId])
+    ).get(targetUserId)
 
     // Vérifier mes likes
     const activityIds = data.map((a) => a.id)
@@ -184,7 +184,11 @@ export async function getUserActivities(
 
     const activities: ActivityWithUser[] = data.map((activity: any) => ({
       ...activity,
-      user: targetUser || { id: targetUserId, username: "Utilisateur" },
+      user: {
+        id: targetUserId,
+        username: targetIdentity?.pseudo ?? "Utilisateur",
+        avatar_url: targetIdentity?.avatar_url ?? undefined,
+      },
       activity_type: activity.activity_types,
       liked_by_me: likesMap.has(activity.id),
       my_reaction: likesMap.get(activity.id),

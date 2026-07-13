@@ -69,10 +69,26 @@ async function EventsGridContent({
   limit = 6,
   featuredOnly = false,
 }: Omit<EventsGridProps, 'className' | 'title' | 'showViewAll'>) {
-  // Fetch data server-side
-  const events = featuredOnly
+  // Fetch data server-side. Every column of the live `events` table is
+  // nullable, so normalise null -> undefined at this boundary to match the
+  // EventCard `Event` shape. Columns that don't exist in the live schema
+  // (start_time, price, is_featured, is_sold_out, spots_remaining) are simply
+  // omitted and stay undefined, preserving the current display.
+  const rawEvents = featuredOnly
     ? await getFeaturedEvents(limit)
     : (await getUpcomingEvents({ limit })).data
+
+  const events = rawEvents.map((e) => ({
+    id: e.id,
+    title: e.title,
+    slug: e.slug ?? undefined,
+    description: e.description ?? undefined,
+    event_date: e.event_date ?? '',
+    city: e.city ?? undefined,
+    capacity: e.capacity ?? undefined,
+    image_url: e.image_url ?? undefined,
+    category: e.category ?? undefined,
+  }))
 
   // Empty state
   if (!events || events.length === 0) {

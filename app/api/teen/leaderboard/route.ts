@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 
       if (entry.teen_id === teenId) {
         userRank = rank
-        userXp = entry.total_xp
+        userXp = entry.total_xp ?? 0
       }
 
       return {
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
         .maybeSingle()
 
       if (userXpData) {
-        userXp = userXpData.total_xp
+        userXp = userXpData.total_xp ?? 0
         
         // Count users with more XP to get rank
         const { count } = await supabase

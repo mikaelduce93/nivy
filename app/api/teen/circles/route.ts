@@ -130,8 +130,8 @@ export async function GET(request: NextRequest) {
     const circles = circlesWithStats
       .filter(Boolean)
       .sort((a, b) => {
-        const aDate = new Date(a!.last_activity_at).getTime()
-        const bDate = new Date(b!.last_activity_at).getTime()
+        const aDate = new Date(a!.last_activity_at ?? 0).getTime()
+        const bDate = new Date(b!.last_activity_at ?? 0).getTime()
         return bDate - aDate
       })
 
@@ -320,7 +320,7 @@ export async function POST(request: NextRequest) {
         .eq("circle_id", circleId)
         .eq("status", "active")
 
-      if (memberCount && memberCount >= circle.max_members) {
+      if (memberCount && memberCount >= (circle.max_members ?? Infinity)) {
         return NextResponse.json(
           { error: "Circle is full" },
           { status: 400 }
@@ -444,7 +444,7 @@ export async function POST(request: NextRequest) {
         .eq("teen_id", teenId)
         .single()
 
-      if (!membership || !["owner", "admin"].includes(membership.role)) {
+      if (!membership || !["owner", "admin"].includes(membership.role ?? "")) {
         return NextResponse.json(
           { error: "Not authorized to update this circle" },
           { status: 403 }

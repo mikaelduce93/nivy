@@ -102,6 +102,10 @@ export function GoalForm() {
     setTimeout(() => {
       router.push("/teen/savings")
       router.refresh()
+      // I2/I10 — resynchronise le header (solde) et l'onglet Épargne.
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("nivy:wallet:refresh"))
+      }
     }, 600)
   }
 

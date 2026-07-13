@@ -11,6 +11,7 @@ import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import type { Json } from "@/types/supabase"
 import {
   computeFirstDisbursement,
   type Cadence,
@@ -108,7 +109,8 @@ export async function POST(request: Request) {
         teen_id: teenId,
         amount_dh: amountDh,
         cadence,
-        cadence_config: cadenceConfig,
+        // CadenceConfig is JSON-shaped but lacks the index signature Json wants.
+        cadence_config: cadenceConfig as unknown as Json,
         conditional: Boolean(body.conditional),
         condition_type: body.conditional ? body.condition_type ?? null : null,
         condition_threshold: body.conditional ? body.condition_threshold ?? null : null,

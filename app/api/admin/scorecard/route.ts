@@ -13,21 +13,21 @@ export async function GET() {
     const supabase = await createClient()
     const today = new Date().toISOString().split('T')[0]
 
-    // 1. Engagement - DAU
+    // 1. Engagement - DAU (sessions started today, from presence_history)
     const { count: dauCount, error: dauError } = await supabase
-      .from('user_sessions')
+      .from('presence_history')
       .select('*', { count: 'exact', head: true })
       .gte('started_at', today)
 
-    // 2. Social actions vs total actions today
+    // 2. Social actions vs total actions today (xp_transactions ledger)
     const { count: socialActions, error: socialErr } = await supabase
-      .from('xp_ledger')
+      .from('xp_transactions')
       .select('*', { count: 'exact', head: true })
-      .ilike('action_type', '%social%')
+      .ilike('source_type', '%social%')
       .gte('created_at', today)
 
     const { count: totalActions, error: totalErr } = await supabase
-      .from('xp_ledger')
+      .from('xp_transactions')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', today)
 

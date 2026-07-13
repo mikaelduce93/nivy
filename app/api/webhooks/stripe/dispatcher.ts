@@ -27,7 +27,9 @@ import { createClient } from "@/lib/supabase/server"
  *   app/api/payments/hybrid/route.ts qui a déjà supprimé ces écritures pour
  *   la même raison). handleSubscriptionUpdate/handleSubscriptionDeleted
  *   (Stripe customer.subscription.*, feature "abonnement partenaire" — hors
- *   scope réservation/topup) restent non vérifiés contre le schéma réel.
+ *   scope réservation/topup) écrivaient sur la table fantôme
+ *   `partner_subscriptions` (absente du schéma live) : écritures mortes
+ *   supprimées, les handlers loguent désormais pour traitement manuel.
  * - handleChargeRefunded ne peut pas corréler un remboursement Stripe à une
  *   réservation sous le schéma réel (aucune colonne de référence Stripe sur
  *   `bookings`, et en ajouter nécessiterait une migration — hors scope). Il
@@ -191,36 +193,27 @@ export const StripeHandlers = {
   },
 
   async handleSubscriptionUpdate(subscription: Stripe.Subscription) {
-    const supabase = await createClient()
-    const partnerId = subscription.metadata?.partnerId
-    if (!partnerId) return
-    const subscriptionItem = subscription.items.data[0]
-    const periodStart = subscriptionItem?.current_period_start ?? subscription.created
-    const periodEnd = subscriptionItem?.current_period_end ?? subscription.cancel_at ?? subscription.created
-
-    // NOTE (drift assumé, hors scope #342) : `partner_subscriptions` n'a pas
-    // de définition trouvée dans les migrations ni dans types/supabase.ts —
-    // feature "abonnement partenaire" distincte de la réservation/topup.
-    await supabase.from("partner_subscriptions").upsert({
-      partner_id: partnerId,
-      stripe_subscription_id: subscription.id,
-      stripe_customer_id: subscription.customer as string,
-      status: subscription.status,
-      current_period_start: new Date(periodStart * 1000).toISOString(),
-      current_period_end: new Date(periodEnd * 1000).toISOString(),
-      cancel_at_period_end: subscription.cancel_at_period_end,
-      updated_at: new Date().toISOString()
-    })
+    // #342 — `partner_subscriptions` n'existe PAS dans le schéma live
+    // (absente des migrations ET de types/supabase.ts) : l'upsert écrivait sur
+    // une table fantôme et échouait silencieusement (Postgrest no-op), au même
+    // titre que `payment_logs` supprimé plus haut. On retire l'écriture morte
+    // et on logue pour traitement manuel de la feature "abonnement partenaire"
+    // (distincte réservation/topup) si/quand la table sera réellement créée.
+    console.warn(
+      `[Stripe Webhook] customer.subscription.* reçu pour subscription=${subscription.id} ` +
+      `(status=${subscription.status}) ; \`partner_subscriptions\` n'existe pas dans le schéma live. ` +
+      `Aucune persistance. Traitement manuel requis.`
+    )
   },
 
   async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-    const supabase = await createClient()
-    // NOTE (drift assumé, hors scope #342) : cf. handleSubscriptionUpdate.
-    await supabase.from("partner_subscriptions").update({
-      status: "cancelled",
-      cancelled_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }).eq("stripe_subscription_id", subscription.id)
+    // #342 — cf. handleSubscriptionUpdate : table fantôme `partner_subscriptions`,
+    // écriture morte supprimée, log pour réconciliation manuelle.
+    console.warn(
+      `[Stripe Webhook] customer.subscription.deleted reçu pour subscription=${subscription.id} ; ` +
+      `\`partner_subscriptions\` n'existe pas dans le schéma live. Aucune persistance. ` +
+      `Traitement manuel requis.`
+    )
   }
 }
 

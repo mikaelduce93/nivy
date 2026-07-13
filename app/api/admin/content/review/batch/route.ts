@@ -42,6 +42,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import type { Json } from "@/types/supabase"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -180,7 +181,7 @@ export async function POST(req: Request) {
     action: string
     resource_type: string
     resource_id: string
-    metadata: Record<string, unknown>
+    metadata: Json
   }> = []
   const resourceType = target === "quiz" ? "educational_quizzes" : "mission_templates"
 

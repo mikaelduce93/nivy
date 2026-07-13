@@ -384,12 +384,11 @@ async function calculateSchoolScore(teenId: string): Promise<void> {
       .not("completed_at", "is", null)
 
     const quizScore =
-      quizzes?.reduce(
-        (sum, q) =>
-          sum +
-          (q.total_questions > 0 ? (q.correct_count / q.total_questions) * 100 : 0),
-        0,
-      ) || 0
+      quizzes?.reduce((sum, q) => {
+        const total = q.total_questions ?? 0
+        const correct = q.correct_count ?? 0
+        return sum + (total > 0 ? (correct / total) * 100 : 0)
+      }, 0) || 0
     const quizCount = quizzes?.length || 0
 
     // #31 — no tutorial_completions table exists in the live schema; the

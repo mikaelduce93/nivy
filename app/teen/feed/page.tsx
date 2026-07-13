@@ -32,12 +32,10 @@ export default async function TeenFeedPage() {
 
   if (!user) redirect("/login")
 
+  // First page: cursor params omitted (optional) — the RPC treats their absence as "no cursor".
   const { data, error } = await supabase.rpc("get_feed_cursor_page", {
     p_user_id: user.id,
     p_limit: CANONICAL_PAGE_SIZE,
-    p_cursor_featured: null,
-    p_cursor_created_at: null,
-    p_cursor_id: null,
   })
 
   const rawPosts = (error ? [] : (data ?? [])) as FeedRow[]

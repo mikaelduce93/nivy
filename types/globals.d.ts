@@ -20,6 +20,10 @@ declare global {
     }
     /** Module-level singleton cache for the Supabase browser client. */
     __supabaseClient?: unknown
+    /** Web Speech API (Chromium + Safari). Pas sur Firefox. */
+    SpeechRecognition?: typeof SpeechRecognition
+    /** Webkit-prefixed Web Speech API (Safari/old Chrome). */
+    webkitSpeechRecognition?: typeof SpeechRecognition
   }
 
   interface Navigator {

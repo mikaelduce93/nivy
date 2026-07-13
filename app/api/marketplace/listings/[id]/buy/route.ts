@@ -28,7 +28,7 @@ export async function POST(
 
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
   const meetMethod = String(body.meet_method ?? "")
-  const partnerId = body.meet_location_partner_id ? String(body.meet_location_partner_id) : null
+  const partnerId = body.meet_location_partner_id ? String(body.meet_location_partner_id) : undefined
 
   if (!VALID_METHODS.has(meetMethod))
     return NextResponse.json({ success: false, error: "invalid_meet_method" }, { status: 400 })

@@ -8,6 +8,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import type { Json } from "@/types/supabase"
 import { revalidatePath } from "next/cache"
 import { logDbError } from "@/lib/observability/log-db-error"
 import {
@@ -45,8 +46,8 @@ export async function getMissions(
 
     // Appeler la fonction PostgreSQL
     const { data, error } = await supabase.rpc("get_user_missions", {
-      p_mission_type: input?.type || null,
-      p_status: input?.status || null,
+      p_mission_type: input?.type || undefined,
+      p_status: input?.status || undefined,
       p_teen_id: user.id,
     })
 
@@ -143,7 +144,7 @@ export async function getMissionStats(): Promise<{
     }
 
     const { data, error } = await supabase.rpc("get_mission_stats", {
-      p_user_id: user.id,
+      p_teen_id: user.id,
     })
 
     if (error) {
@@ -151,7 +152,8 @@ export async function getMissionStats(): Promise<{
       return { data: null, error: error.message }
     }
 
-    if (!data || data.length === 0) {
+    // get_mission_stats renvoie un objet jsonb unique (pas un tableau de lignes).
+    if (!data) {
       // Retourner des stats par défaut
       return {
         data: {
@@ -170,7 +172,8 @@ export async function getMissionStats(): Promise<{
       }
     }
 
-    return { data: data[0] as MissionStats, error: null }
+    // Cast de frontière : l'objet jsonb renvoyé par la fonction correspond à MissionStats.
+    return { data: data as unknown as MissionStats, error: null }
   } catch (error) {
     logDbError("missions.getMissionStats", error)
     return { data: null, error: "Erreur serveur" }
@@ -203,10 +206,13 @@ export async function updateMissionProgress(
       return { updated: 0, completed: [], error: "Non authentifié" }
     }
 
+    // Signature live : (p_teen_id, p_mission_code, p_action_type?, p_action_data?, p_increment?).
+    // La fonction met à jour UNE mission identifiée par son code ; le `triggerType`
+    // du client sert de code de mission et `metadata` de charge utile jsonb.
     const { data, error } = await supabase.rpc("update_mission_progress", {
-      p_user_id: user.id,
-      p_trigger_type: triggerType,
-      p_metadata: metadata || {},
+      p_teen_id: user.id,
+      p_mission_code: triggerType,
+      p_action_data: (metadata || {}) as Json,
     })
 
     if (error) {
@@ -218,9 +224,17 @@ export async function updateMissionProgress(
     revalidatePath("/missions")
     revalidatePath("/dashboard")
 
+    // Cast de frontière : la fonction renvoie { success, completed, mission_code, ... }.
+    const result = data as {
+      success?: boolean
+      completed?: boolean
+      mission_code?: string
+    } | null
+
     return {
-      updated: data?.updated_count || 0,
-      completed: data?.completed_missions || [],
+      updated: result?.success ? 1 : 0,
+      completed:
+        result?.completed && result.mission_code ? [result.mission_code] : [],
       error: null,
     }
   } catch (error) {
@@ -259,7 +273,7 @@ export async function claimMissionReward(userMissionId: string): Promise<{
     }
 
     const { data, error } = await supabase.rpc("claim_mission_rewards", {
-      p_user_id: user.id,
+      p_teen_id: user.id,
       p_user_mission_id: userMissionId,
     })
 
@@ -278,11 +292,18 @@ export async function claimMissionReward(userMissionId: string): Promise<{
     revalidatePath("/dashboard")
     revalidatePath("/profile")
 
+    // Cast de frontière : la fonction renvoie { success, xp_earned, bonus_rewards, ... }.
+    const result = data as {
+      success?: boolean
+      xp_earned?: number
+      bonus_rewards?: { type: string; value: string; quantity?: number } | null
+    } | null
+
     return {
-      success: data?.success || false,
-      xp_earned: data?.xp_earned || 0,
-      bonus_reward: data?.bonus_reward || null,
-      error: data?.success ? null : "Impossible de réclamer la récompense",
+      success: result?.success || false,
+      xp_earned: result?.xp_earned || 0,
+      bonus_reward: result?.bonus_rewards || null,
+      error: result?.success ? null : "Impossible de réclamer la récompense",
     }
   } catch (error) {
     logDbError("missions.claimMissionReward", error)
@@ -385,16 +406,16 @@ export async function assignCurrentMissions(): Promise<{
 
     // Assigner les missions quotidiennes
     const { data: dailyData } = await supabase.rpc("assign_missions_for_period", {
-      p_user_id: user.id,
-      p_period_type: "daily",
+      p_teen_id: user.id,
+      p_mission_type: "daily",
     })
 
     // Assigner les missions hebdomadaires
     const { data: weeklyData } = await supabase.rpc(
       "assign_missions_for_period",
       {
-        p_user_id: user.id,
-        p_period_type: "weekly",
+        p_teen_id: user.id,
+        p_mission_type: "weekly",
       }
     )
 
@@ -402,8 +423,8 @@ export async function assignCurrentMissions(): Promise<{
     const { data: monthlyData } = await supabase.rpc(
       "assign_missions_for_period",
       {
-        p_user_id: user.id,
-        p_period_type: "monthly",
+        p_teen_id: user.id,
+        p_mission_type: "monthly",
       }
     )
 
@@ -411,16 +432,20 @@ export async function assignCurrentMissions(): Promise<{
     const { data: seasonalData } = await supabase.rpc(
       "assign_missions_for_period",
       {
-        p_user_id: user.id,
-        p_period_type: "seasonal",
+        p_teen_id: user.id,
+        p_mission_type: "seasonal",
       }
     )
 
+    // Cast de frontière : chaque appel renvoie un objet jsonb { assigned_count, ... }.
+    const assignedCount = (d: unknown): number =>
+      (d as { assigned_count?: number } | null)?.assigned_count || 0
+
     const totalAssigned =
-      (dailyData?.assigned_count || 0) +
-      (weeklyData?.assigned_count || 0) +
-      (monthlyData?.assigned_count || 0) +
-      (seasonalData?.assigned_count || 0)
+      assignedCount(dailyData) +
+      assignedCount(weeklyData) +
+      assignedCount(monthlyData) +
+      assignedCount(seasonalData)
 
     revalidatePath("/missions")
 

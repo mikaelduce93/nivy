@@ -10,7 +10,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { logDbError } from "@/lib/observability/log-db-error"
 import { revalidatePath } from "next/cache"
-import { type UserWrapped } from "./schema"
+import { type UserWrapped, type WrappedData } from "./schema"
 
 /* ==========================================================================
    GET USER WRAPPED
@@ -39,7 +39,8 @@ export async function getUserWrapped(
 
     if (error) throw error
 
-    return data
+    // RPC renvoie du jsonb (Json) — cast de frontière vers le type domaine
+    return data as UserWrapped | null
   } catch (error) {
     logDbError("annualWrapped.getUserWrapped", error)
     return null
@@ -162,7 +163,8 @@ export async function getPublicWrapped(
 
     if (error) throw error
 
-    return data
+    // RPC renvoie du jsonb (Json) — cast de frontière vers le type domaine
+    return data as UserWrapped | null
   } catch (error) {
     logDbError("annualWrapped.getPublicWrapped", error)
     return null
@@ -330,22 +332,23 @@ export async function incrementShareCount(
       return { success: false }
     }
 
-    const { error } = await supabase.rpc("increment", {
-      table_name: "user_annual_wrapped",
-      row_id: undefined, // Sera géré par la requête
-      column_name: "share_count",
-    })
+    // Lire la valeur courante puis incrémenter (pas de RPC d'incrément en base)
+    const { data: current, error: readError } = await supabase
+      .from("user_annual_wrapped")
+      .select("share_count")
+      .eq("user_id", user.id)
+      .eq("year", year)
+      .single()
 
-    // Alternative si RPC non disponible
-    if (error) {
-      await supabase
-        .from("user_annual_wrapped")
-        .update({
-          share_count: supabase.rpc("increment_share", {}),
-        })
-        .eq("user_id", user.id)
-        .eq("year", year)
-    }
+    if (readError) throw readError
+
+    const { error } = await supabase
+      .from("user_annual_wrapped")
+      .update({ share_count: (current?.share_count ?? 0) + 1 })
+      .eq("user_id", user.id)
+      .eq("year", year)
+
+    if (error) throw error
 
     return { success: true }
   } catch (error) {
@@ -384,7 +387,7 @@ export async function getWrappedGlobalStats(
     const totalShared = data?.reduce((sum, w) => sum + (w.share_count || 0), 0) || 0
 
     const xpValues = data
-      ?.map((w) => w.wrapped_data?.summary?.total_xp)
+      ?.map((w) => (w.wrapped_data as WrappedData | null)?.summary?.total_xp)
       .filter((xp): xp is number => typeof xp === "number")
 
     const averageXp =

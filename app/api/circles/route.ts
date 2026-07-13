@@ -127,16 +127,15 @@ export async function GET(request: NextRequest) {
     // Get available circles
     const { data: circles, error: circlesError } = await supabase
       .from("circles")
+      // Live circles has `emoji`/`theme_color` (aliased to the client-facing
+      // icon/color keys). is_private / min_age / max_age / member_count exist
+      // in NO table — dead reads removed (the whole select 500'd at runtime).
       .select(`
         id,
         name,
         description,
-        icon,
-        color,
-        is_private,
-        min_age,
-        max_age,
-        member_count
+        icon:emoji,
+        color:theme_color
       `)
       .eq("is_active", true)
       .order("name")
@@ -283,7 +282,7 @@ export const POST = withSecurity(
       // Verify circle exists and user has access
       const { data: circle, error: circleError } = await supabase
         .from("circles")
-        .select("id, name, is_private")
+        .select("id, name")
         .eq("id", circleId)
         .eq("is_active", true)
         .single()
@@ -292,19 +291,9 @@ export const POST = withSecurity(
         return errorResponse("Cercle introuvable", 404)
       }
 
-      // Check membership for private circles
-      if (circle.is_private) {
-        const { data: membership } = await supabase
-          .from("circle_members")
-          .select("id")
-          .eq("circle_id", circleId)
-          .eq("user_id", user.id)
-          .single()
-
-        if (!membership) {
-          return errorResponse("Vous n'êtes pas membre de ce cercle", 403)
-        }
-      }
+      // NOTE: live circles has no privacy column (is_private exists in no
+      // table), so the previous private-circle membership gate was a dead
+      // read that made every POST 500. All active circles are public.
 
       // Verify reply target exists if replying
       if (replyToId) {
@@ -463,7 +452,8 @@ export async function DELETE(request: NextRequest) {
     // Get message
     const { data: message, error: messageError } = await supabase
       .from("circle_messages")
-      .select("id, user_id, circle_id, content")
+      // Author FK is sender_id (there is no user_id column on circle_messages).
+      .select("id, sender_id, circle_id, content")
       .eq("id", messageId)
       .single()
 
@@ -472,7 +462,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check permissions
-    const isOwner = message.user_id === user.id
+    const isOwner = message.sender_id === user.id
     const isModerator = ["admin", "moderator"].includes(profile?.role || "")
 
     if (!isOwner && !isModerator) {

@@ -11,7 +11,8 @@ import {
   Calendar,
   ShoppingBag,
   Ticket,
-  ShieldCheck
+  ShieldCheck,
+  HeartPulse
 } from "lucide-react"
 import Link from "next/link"
 import { ApprovalButtons } from "@/components/parent/approval-buttons"
@@ -102,6 +103,8 @@ export default async function ParentApprovalsPage() {
       case "coach_meeting":
       case "venue_visit":
         return <Calendar className="h-5 w-5 text-coral" />
+      case "welfare_alert":
+        return <HeartPulse className="h-5 w-5 text-pink" />
       default:
         return <FileCheck className="h-5 w-5 text-mute" />
     }
@@ -124,6 +127,8 @@ export default async function ParentApprovalsPage() {
         return "Rejoindre un crew"
       case "xp_award_above_cap":
         return "Bonus XP exceptionnel"
+      case "welfare_alert":
+        return "⚠️ Alerte bien-être"
       default:
         return type
     }

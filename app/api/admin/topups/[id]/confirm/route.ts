@@ -140,13 +140,23 @@ export async function POST(
   // distinguishes admin-confirmed manual top-ups from automatic webhook
   // top-ups (when those flip on later).
   const pspProvider = `manual_${reqRow.provider}`
-  const { data: rpcData, error: rpcErr } = await sr.rpc("top_up_teen", {
+  const { data: rpcRaw, error: rpcErr } = await sr.rpc("top_up_teen", {
     p_parent_id: reqRow.parent_id,
     p_teen_id: reqRow.teen_id,
     p_amount_dh: reqRow.amount_dh,
     p_provider: pspProvider,
     p_provider_ref: reqRow.provider_ref,
   })
+  // Le RPC retourne un jsonb (typé Json par le codegen Supabase) ; contrat
+  // réel documenté dans la migration 179 / 095 (même cast de frontière que
+  // app/api/parent/topup/route.ts).
+  const rpcData = (rpcRaw ?? null) as {
+    success?: boolean
+    error?: string
+    payment_id?: string
+    new_balance?: number
+    idempotent_replay?: boolean
+  } | null
 
   if (rpcErr) {
     console.error("[admin/topups/confirm] RPC error:", rpcErr)

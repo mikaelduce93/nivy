@@ -89,6 +89,10 @@ export function GoalLockButton({
           announce("Objectif d'épargne atteint!")
         }
         router.refresh()
+        // I2/I10 — resynchronise le header (solde) et l'onglet Épargne.
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("nivy:wallet:refresh"))
+        }
       } catch {
         setErr("Erreur réseau")
         setOpen(true)
@@ -112,7 +116,13 @@ export function GoalLockButton({
       method: "POST",
     })
     setBusy(false)
-    if (res.ok) router.refresh()
+    if (res.ok) {
+      router.refresh()
+      // I2/I10 — resynchronise le header (solde) et l'onglet Épargne.
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("nivy:wallet:refresh"))
+      }
+    }
   }
 
   const celebrateNode = (

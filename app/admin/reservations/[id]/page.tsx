@@ -10,7 +10,6 @@ import {
   Calendar,
   MapPin,
   Mail,
-  Phone,
   User,
   CreditCard,
 } from "lucide-react"
@@ -90,11 +89,13 @@ export default async function AdminReservationDetail({ params }: { params: Promi
           Réservation <em className="font-mono not-italic text-pink">{booking.booking_reference}</em>
         </h1>
         <p className="text-sm text-mute">
-          Réservée le {new Date(booking.created_at).toLocaleDateString("fr-FR", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
+          Réservée le {booking.created_at
+            ? new Date(booking.created_at).toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })
+            : "—"}
         </p>
       </div>
 
@@ -150,14 +151,7 @@ export default async function AdminReservationDetail({ params }: { params: Promi
                 </a>
               </div>
             )}
-            {booking.profiles?.telephone && (
-              <div className="flex items-center gap-3 text-mute">
-                <Phone className="h-4 w-4" />
-                <a href={`tel:${booking.profiles.telephone}`} className="transition-colors hover:text-ink">
-                  {booking.profiles.telephone}
-                </a>
-              </div>
-            )}
+            {/* Pas de téléphone : profiles n'a aucune colonne phone en live. */}
           </StickerCard>
 
           {/* Actions — aucune route de modération de réservation n'existe à ce

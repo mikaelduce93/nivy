@@ -9,8 +9,10 @@ import { cn } from "@/lib/utils"
  * coach, heros, level-up, états vides, daily. Source visuelle : handoff Claude
  * Design (`onboarding-ado.html` nivMini + `shared/niv.jsx`).
  *
- * Remplace les prototypes dépréciés `PandaMascot` (mascot-states) et
- * `EliteAICompanion` / `ai-companion`. Le logo de marque reste `PandaLogo`.
+ * Compagnon IA unique depuis le cleanup de 2026-07 (les anciens prototypes
+ * dépréciés `PandaMascot`, `EliteAICompanion` et `ai-companion` ont été
+ * supprimés — Niv est désormais le seul coach). Le logo de marque reste
+ * `PandaLogo`.
  *
  * Couleurs : littéraux HEX de la charte (asset illustratif, comme le favicon —
  * hors périmètre de la règle "pas de palette brute en utilitaire").

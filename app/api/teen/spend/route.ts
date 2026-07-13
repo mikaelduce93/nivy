@@ -176,9 +176,9 @@ export async function POST(request: Request) {
     const { data, error } = await admin.rpc("spend_teen_coins", {
       p_teen_id: teenId,
       p_amount_coins: amountCoins,
-      p_partner_id: body.partnerId || null,
-      p_reward_id: body.rewardId || null,
-      p_idempotency_key: asUuidOrNull(body.idempotencyKey),
+      p_partner_id: body.partnerId || undefined,
+      p_reward_id: body.rewardId || undefined,
+      p_idempotency_key: asUuidOrNull(body.idempotencyKey) ?? undefined,
     })
 
     if (error) {
@@ -189,9 +189,17 @@ export async function POST(request: Request) {
       )
     }
 
-    if (!data?.success) {
+    // RPC returns Json (untyped); cast to the domain shape it emits (§13 spend_teen_coins).
+    const result = data as {
+      success?: boolean
+      error?: string
+      new_balance?: number
+      xp_earned?: number
+    } | null
+
+    if (!result?.success) {
       return NextResponse.json(
-        { success: false, error: data?.error || "Dépense impossible", details: data },
+        { success: false, error: result?.error || "Dépense impossible", details: data },
         { status: 400 }
       )
     }
@@ -215,8 +223,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       status: "succeeded",
-      new_balance: data.new_balance,
-      xp_earned: data.xp_earned,
+      new_balance: result.new_balance,
+      xp_earned: result.xp_earned,
     })
   } catch (error) {
     console.error("[spend] unexpected error:", error)

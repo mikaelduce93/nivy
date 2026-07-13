@@ -183,27 +183,38 @@ export type ActionResult<T = unknown> =
   | { success: false; error: string }
 
 /**
- * Type Teen complet (depuis DB)
+ * Type Teen complet (depuis DB).
+ *
+ * Aligné sur la table `teens` LIVE (drift schéma) : `first_name`, `last_name`,
+ * `pseudo`, `date_of_birth`, `parent_id`, `created_at`, `updated_at` sont
+ * nullables en base ; `gender` est un `text` libre (pas l'enum Gender).
  */
 export type Teen = {
   id: string
-  parent_id: string
-  first_name: string
-  last_name: string
-  pseudo: string
+  parent_id: string | null
+  first_name: string | null
+  last_name: string | null
+  pseudo: string | null
   avatar_url: string | null
-  date_of_birth: string
-  gender: Gender | null
-  school: string | null
+  date_of_birth: string | null
+  gender: string | null
   grade_level: string | null
-  profiles: TeenProfile[]
-  interests: string[]
   allergies: string | null
   photo_consent: boolean
   exit_permission_rules: string | null
   emergency_contact_name: string | null
   emergency_contact_phone: string | null
   emergency_contact_relation: string | null
-  created_at: string
-  updated_at: string
+  created_at: string | null
+  updated_at: string | null
+  /**
+   * Colonnes fantômes : absentes de la table `teens` live. `school` n'existe
+   * pas (la base expose `school_type`) ; les centres d'intérêt vivent dans la
+   * table `teen_interests`, les profils/archetype dans `teens.archetype`.
+   * Conservées optionnelles pour la compat des consommateurs legacy ; elles
+   * restent `undefined` à l'exécution (`select('*')` ne les renvoie pas).
+   */
+  school?: string | null
+  profiles?: TeenProfile[]
+  interests?: string[]
 }

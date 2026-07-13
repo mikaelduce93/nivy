@@ -11,6 +11,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { logDbError } from "@/lib/observability/log-db-error"
+import { resolveTeenIdentities } from "@/lib/server/teen-identities"
 import {
   type MiniGameType,
   type GameSession,
@@ -47,7 +48,9 @@ export async function getMiniGameTypes(): Promise<{
 
     if (error) throw error
 
-    return { success: true, data }
+    // Frontier cast : la row live a des colonnes nullable / slug string là où le
+    // domaine MiniGameType les veut non-null (drift schéma vs zod local).
+    return { success: true, data: data as MiniGameType[] }
   } catch (error) {
     logDbError("mini-games.getMiniGameTypes", error)
     return { success: false, error: "Impossible de charger les types de jeux" }
@@ -74,7 +77,7 @@ export async function getGameTypeBySlug(slug: string): Promise<{
 
     if (error) throw error
 
-    return { success: true, data }
+    return { success: true, data: data as MiniGameType }
   } catch (error) {
     logDbError("mini-games.getGameTypeBySlug", error)
     return { success: false, error: "Type de jeu non trouvé" }
@@ -117,15 +120,23 @@ export async function createGameSession(
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    // RPC typée Json en live : cast de frontière vers le contrat métier.
+    const result = data as {
+      success: boolean
+      error?: string
+      session_id: string
+      game_type: MiniGameType
+    }
+
+    if (!result.success) {
+      return { success: false, error: result.error }
     }
 
     return {
       success: true,
       data: {
-        session_id: data.session_id,
-        game_type: data.game_type,
+        session_id: result.session_id,
+        game_type: result.game_type,
       },
     }
   } catch (error) {
@@ -162,11 +173,21 @@ export async function joinGameSession(sessionId: string): Promise<{
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    const result = data as {
+      success: boolean
+      error?: string
+      session_id: string
+      participant_count: number
     }
 
-    return { success: true, data }
+    if (!result.success) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: true,
+      data: { session_id: result.session_id, participant_count: result.participant_count },
+    }
   } catch (error) {
     logDbError("mini-games.joinGameSession", error)
     return { success: false, error: "Erreur lors de la connexion à la session" }
@@ -201,8 +222,10 @@ export async function startGameSession(
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    const result = data as { success: boolean; error?: string }
+
+    if (!result.success) {
+      return { success: false, error: result.error }
     }
 
     return { success: true }
@@ -246,8 +269,15 @@ export async function submitGameScore(
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    const result = data as {
+      success: boolean
+      error?: string
+      score: number
+      xp_earned: number
+    }
+
+    if (!result.success) {
+      return { success: false, error: result.error }
     }
 
     revalidatePath("/games")
@@ -256,8 +286,8 @@ export async function submitGameScore(
     return {
       success: true,
       data: {
-        score: data.score,
-        xp_earned: data.xp_earned,
+        score: result.score,
+        xp_earned: result.xp_earned,
       },
     }
   } catch (error) {
@@ -287,8 +317,16 @@ export async function endGameSession(sessionId: string): Promise<{
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    const result = data as {
+      success: boolean
+      error?: string
+      winner_id: string
+      winner_score: number
+      results: GameParticipant[]
+    }
+
+    if (!result.success) {
+      return { success: false, error: result.error }
     }
 
     revalidatePath("/games")
@@ -296,9 +334,9 @@ export async function endGameSession(sessionId: string): Promise<{
     return {
       success: true,
       data: {
-        winner_id: data.winner_id,
-        winner_score: data.winner_score,
-        results: data.results,
+        winner_id: result.winner_id,
+        winner_score: result.winner_score,
+        results: result.results,
       },
     }
   } catch (error) {
@@ -323,8 +361,7 @@ export async function getGameSession(sessionId: string): Promise<{
       .select(
         `
         *,
-        game_type:game_type_id(*),
-        host:host_user_id(pseudo, avatar_url)
+        game_type:game_type_id(*)
       `
       )
       .eq("id", sessionId)
@@ -334,27 +371,40 @@ export async function getGameSession(sessionId: string): Promise<{
 
     const { data: participants, error: participantsError } = await supabase
       .from("mini_game_participants")
-      .select(
-        `
-        *,
-        user:user_id(pseudo, avatar_url)
-      `
-      )
+      .select("*")
       .eq("session_id", sessionId)
       .order("score", { ascending: false })
 
     if (participantsError) throw participantsError
 
+    // Ni host_user_id (mini_game_sessions) ni user_id (mini_game_participants) n'ont
+    // de FK PostgREST vers une table portant pseudo/avatar_url : les embeds
+    // `host:host_user_id(...)` / `user:user_id(...)` échouaient au runtime
+    // (« could not find the relation »). On résout applicativement.
+    const rows = participants ?? []
+    const identities = await resolveTeenIdentities(supabase, [
+      session.host_user_id,
+      ...rows.map((p) => p.user_id),
+    ])
+
     return {
       success: true,
       data: {
         ...session,
-        participants: participants.map((p) => ({
+        host: session.host_user_id
+          ? {
+              pseudo: identities.get(session.host_user_id)?.pseudo ?? "",
+              avatar_url: identities.get(session.host_user_id)?.avatar_url ?? undefined,
+            }
+          : undefined,
+        participants: rows.map((p) => ({
           ...p,
-          pseudo: p.user?.pseudo,
-          avatar_url: p.user?.avatar_url,
+          pseudo: p.user_id ? identities.get(p.user_id)?.pseudo ?? undefined : undefined,
+          avatar_url: p.user_id
+            ? identities.get(p.user_id)?.avatar_url ?? undefined
+            : undefined,
         })),
-      },
+      } as GameSessionWithDetails,
     }
   } catch (error) {
     logDbError("mini-games.getGameSession", error)
@@ -383,13 +433,13 @@ export async function getRandomQuizQuestions(
 
     const { data, error } = await supabase.rpc("get_random_quiz_questions", {
       p_count: count,
-      p_difficulty: difficulty || null,
-      p_genre: genre || null,
+      p_difficulty: difficulty || undefined,
+      p_genre: genre || undefined,
     })
 
     if (error) throw error
 
-    return { success: true, data }
+    return { success: true, data: data as unknown as MusicQuizQuestion[] }
   } catch (error) {
     logDbError("mini-games.getRandomQuizQuestions", error)
     return { success: false, error: "Erreur lors du chargement des questions" }
@@ -422,23 +472,16 @@ export async function checkQuizAnswer(
 
     if (error) throw error
 
-    const selectedAnswer = question.options?.[answerIndex]
+    // options est stocké en jsonb → cast de frontière vers string[].
+    const selectedAnswer = (question.options as string[] | null)?.[answerIndex]
     const isCorrect = selectedAnswer === question.correct_answer
-
-    // Mettre à jour les stats
-    await supabase.rpc("increment", {
-      table_name: "music_quiz_questions",
-      row_id: questionId,
-      column_name: "play_count",
-      amount: 1,
-    })
 
     return {
       success: true,
       data: {
         is_correct: isCorrect,
         correct_answer: question.correct_answer,
-        points: isCorrect ? question.points : 0,
+        points: isCorrect ? question.points ?? 0 : 0,
       },
     }
   } catch (error) {
@@ -474,7 +517,7 @@ export async function getMemoryCards(
 
     if (error) throw error
 
-    return { success: true, data }
+    return { success: true, data: data as MemoryCard[] }
   } catch (error) {
     logDbError("mini-games.getMemoryCards", error)
     return { success: false, error: "Erreur lors du chargement des cartes" }
@@ -528,7 +571,7 @@ export async function getOpenPredictions(eventId?: string): Promise<{
         )
 
       if (predictions) {
-        userPredictions = predictions.reduce(
+        userPredictions = (predictions as unknown as UserPrediction[]).reduce(
           (acc, p) => {
             acc[p.prediction_question_id] = p
             return acc
@@ -543,7 +586,10 @@ export async function getOpenPredictions(eventId?: string): Promise<{
       user_prediction: userPredictions[q.id],
     }))
 
-    return { success: true, data: enrichedQuestions }
+    return {
+      success: true,
+      data: enrichedQuestions as unknown as PredictionQuestionWithUserPrediction[],
+    }
   } catch (error) {
     logDbError("mini-games.getOpenPredictions", error)
     return { success: false, error: "Erreur lors du chargement des prédictions" }
@@ -584,8 +630,15 @@ export async function makePrediction(
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    const result = data as {
+      success: boolean
+      error?: string
+      bonus_earned: boolean
+      prediction_rank: number
+    }
+
+    if (!result.success) {
+      return { success: false, error: result.error }
     }
 
     revalidatePath("/games/predictions")
@@ -593,8 +646,8 @@ export async function makePrediction(
     return {
       success: true,
       data: {
-        bonus_earned: data.bonus_earned,
-        prediction_rank: data.prediction_rank,
+        bonus_earned: result.bonus_earned,
+        prediction_rank: result.prediction_rank,
       },
     }
   } catch (error) {
@@ -634,7 +687,10 @@ export async function getUserPredictionResults(): Promise<{
 
     if (error) throw error
 
-    return { success: true, data }
+    return {
+      success: true,
+      data: data as unknown as Array<UserPrediction & { question: PredictionQuestion }>,
+    }
   } catch (error) {
     logDbError("mini-games.getUserPredictionResults", error)
     return { success: false, error: "Erreur lors du chargement des résultats" }
@@ -672,14 +728,17 @@ export async function getGameLeaderboard(
 
     if (error) throw error
 
+    // RPC typée Json en live : cast de frontière vers le contrat leaderboard.
+    const entries = (data ?? []) as unknown as LeaderboardEntry[]
+
     // Trouver le rang de l'utilisateur
     let userRank: number | undefined
-    if (user && data) {
-      const userEntry = data.find((entry: any) => entry.user_id === user.id)
+    if (user) {
+      const userEntry = entries.find((entry) => entry.user_id === user.id)
       userRank = userEntry?.rank
     }
 
-    return { success: true, data, userRank }
+    return { success: true, data: entries, userRank }
   } catch (error) {
     logDbError("mini-games.getGameLeaderboard", error)
     return { success: false, error: "Erreur lors du chargement du classement" }
@@ -738,7 +797,15 @@ export async function getUserDailyScores(
 
     if (error) throw error
 
-    return { success: true, data }
+    return {
+      success: true,
+      data: data as unknown as Array<{
+        game_type: MiniGameType
+        best_score: number
+        games_played: number
+        total_xp_earned: number
+      }>,
+    }
   } catch (error) {
     logDbError("mini-games.getUserDailyScores", error)
     return { success: false, error: "Erreur lors du chargement des scores" }

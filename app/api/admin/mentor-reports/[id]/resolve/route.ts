@@ -108,7 +108,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
 
   // 1. If a strike was decided, try to insert it FIRST. If the table is
   //    missing (migration 064 not yet applied) we degrade gracefully.
-  if (decision === "resolved_strike") {
+  //    (`&& strikeReason` is guaranteed by the guard above; it narrows the
+  //    type to string for the insert.)
+  if (decision === "resolved_strike" && strikeReason) {
     try {
       const { data: strike, error: stErr } = await sr
         .from("mentor_strikes")

@@ -108,7 +108,7 @@ export async function recordStepCompletion(
       p_temp_user_id: tempUserId,
       p_step: step,
       p_xp: xpReward,
-      p_user_type: userType || null,
+      p_user_type: userType || undefined,
     })
 
     if (error) throw error

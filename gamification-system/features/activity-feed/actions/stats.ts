@@ -40,14 +40,14 @@ export async function getActivityStats(userId?: string): Promise<{
       .select("likes_count")
       .eq("user_id", targetUserId)
 
-    const likesReceived = likesData?.reduce((sum, a) => sum + a.likes_count, 0) || 0
+    const likesReceived = likesData?.reduce((sum, a) => sum + (a.likes_count ?? 0), 0) || 0
 
     const { data: commentsData } = await supabase
       .from("user_activities")
       .select("comments_count")
       .eq("user_id", targetUserId)
 
-    const commentsReceived = commentsData?.reduce((sum, a) => sum + a.comments_count, 0) || 0
+    const commentsReceived = commentsData?.reduce((sum, a) => sum + (a.comments_count ?? 0), 0) || 0
 
     const { data: categoryData } = await supabase
       .from("user_activities")

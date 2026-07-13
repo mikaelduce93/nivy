@@ -3,7 +3,7 @@ import Link from "next/link"
 import { NivEmpty } from "@/components/brand"
 import { StickerCard } from "@/components/ui/sticker-card"
 import { Button } from "@/components/ui/button"
-import { GraduationCap, Star, MapPin } from "lucide-react"
+import { GraduationCap, Star } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = { title: "Tuteurs & profs" }
@@ -11,12 +11,12 @@ export const metadata: Metadata = { title: "Tuteurs & profs" }
 // Refonte V2 (#158) — annuaire des tuteurs (centres education / tutoring_slots).
 // Lit les partenaires de type education s'ils existent ; sinon état vide honnête.
 export default async function TutorsPage() {
-  let tutors: { id: string; company_name: string; city?: string }[] = []
+  let tutors: { id: string; company_name: string }[] = []
   try {
     const supabase = await createClient()
     const { data } = await supabase
       .from("partners")
-      .select("id, company_name, city")
+      .select("id, company_name")
       .eq("partner_type", "education")
       .eq("status", "active")
       .limit(24)
@@ -45,11 +45,6 @@ export default async function TutorsPage() {
                 </div>
                 <div className="min-w-0">
                   <h3 className="truncate font-display font-bold leading-tight text-ink">{t.company_name}</h3>
-                  {t.city && (
-                    <p className="flex items-center gap-1 font-mono text-xs text-mute">
-                      <MapPin className="h-3 w-3" /> {t.city}
-                    </p>
-                  )}
                 </div>
               </div>
               <div className="flex items-center gap-1 font-mono text-sm font-bold text-gold">

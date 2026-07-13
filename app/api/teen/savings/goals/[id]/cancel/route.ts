@@ -30,7 +30,7 @@ export async function POST(
     )
   }
 
-  const { data, error } = await admin.rpc("release_from_goal", {
+  const { data: rpcData, error } = await admin.rpc("release_from_goal", {
     p_goal_id: id,
     p_reason: "cancelled",
   })
@@ -38,6 +38,8 @@ export async function POST(
   if (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
+  // RPC returns Json; cast to its documented result shape at the boundary.
+  const data = rpcData as { success?: boolean; error?: string } | null
   if (!data?.success) {
     return NextResponse.json(
       { success: false, error: data?.error ?? "cancel_failed", data },

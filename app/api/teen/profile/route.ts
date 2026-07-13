@@ -79,16 +79,6 @@ export async function PATCH(request: Request) {
       }
     }
 
-    // Log activity
-    await supabase.from("activity_logs").insert({
-      user_id: profileId,
-      action: "update",
-      description: "Profil mis à jour",
-      resource_type: "profile",
-      resource_id: profileId,
-      created_at: new Date().toISOString(),
-    })
-
     return NextResponse.json({
       success: true,
       message: "Profil mis à jour avec succès",

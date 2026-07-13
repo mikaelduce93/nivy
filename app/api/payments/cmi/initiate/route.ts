@@ -36,15 +36,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get booking details
+    // Get booking details (bookings.user_id is the payer; no profiles embed exists live)
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
-      .select(`
-        *,
-        profiles:parent_id (full_name, email, phone)
-      `)
+      .select("*")
       .eq("id", bookingId)
-      .eq("parent_id", user.id)
+      .eq("user_id", user.id)
       .single()
 
     if (bookingError || !booking) {
@@ -63,9 +60,8 @@ export async function GET(request: NextRequest) {
     // Create CMI payment
     const paymentResult = await cmiGateway.createPayment({
       amount: parseFloat(amount),
-      orderId: booking.booking_reference,
-      customerEmail: booking.profiles?.email || user.email || "",
-      customerPhone: booking.profiles?.phone,
+      orderId: booking.booking_reference ?? "",
+      customerEmail: user.email || "",
       description: `Réservation ${booking.booking_reference}`,
       callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/cmi/callback`,
       bookingId,
@@ -83,7 +79,6 @@ export async function GET(request: NextRequest) {
       .from("bookings")
       .update({
         payment_method: "cmi",
-        payment_reference: booking.booking_reference,
       })
       .eq("id", bookingId)
 

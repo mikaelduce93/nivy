@@ -8,7 +8,7 @@ import { StatHero } from "@/components/brand"
 import { StatCard } from "@/components/admin/stat-card"
 import { Button } from "@/components/ui/button"
 import { UserAdminActions } from "./user-actions-client"
-import { ArrowLeft, Mail, Phone, Shield, Coins, Zap, Flame } from "lucide-react"
+import { ArrowLeft, Mail, Shield, Coins, Zap, Flame } from "lucide-react"
 
 export const metadata: Metadata = { title: "Détail utilisateur — Admin" }
 
@@ -42,10 +42,11 @@ export default async function AdminUserDetail({ params }: { params: Promise<{ id
   }
 
   // Stats (mêmes requêtes que la liste, filtrées sur ce profil).
+  // bookings est keyée sur user_id (pas de colonne parent_id en live).
   const { data: userBookings } = await supabase
     .from("bookings")
-    .select("parent_id, total_amount")
-    .eq("parent_id", id)
+    .select("total_amount")
+    .eq("user_id", id)
   const { data: linkedTeens } = await supabase
     .from("parent_teen_links")
     .select("parent_id")
@@ -65,7 +66,7 @@ export default async function AdminUserDetail({ params }: { params: Promise<{ id
   const hasEconomy = Boolean(coins || xp || streak)
 
   const isAdmin = !!profile.admin_roles
-  const fullName = [profile.prenom, profile.nom].filter(Boolean).join(" ") || "Utilisateur"
+  const fullName = profile.full_name || "Utilisateur"
 
   return (
     <div className="container mx-auto space-y-8 px-4 sm:px-6 py-8 sm:py-10">
@@ -117,21 +118,15 @@ export default async function AdminUserDetail({ params }: { params: Promise<{ id
                 </a>
               </div>
             )}
-            {profile.telephone && (
-              <div className="flex items-center gap-3 text-mute">
-                <Phone className="h-4 w-4" />
-                <a href={`tel:${profile.telephone}`} className="transition-colors hover:text-ink">
-                  {profile.telephone}
-                </a>
-              </div>
-            )}
             <p className="text-sm text-mute">
               Inscrit le{" "}
-              {new Date(profile.created_at).toLocaleDateString("fr-FR", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
+              {profile.created_at
+                ? new Date(profile.created_at).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "—"}
             </p>
           </StickerCard>
 

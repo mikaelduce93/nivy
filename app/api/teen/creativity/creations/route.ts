@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
       const { data: userLikes } = await supabase
         .from("creation_likes")
         .select("creation_id")
-        .eq("liker_teen_id", teenId)
+        .eq("teen_id", teenId)
         .in("creation_id", creationIds)
 
       const likedIds = userLikes?.map((l) => l.creation_id) || []
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
 
       // Verify teen is enrolled in this path
       const { data: enrollment } = await supabase
-        .from("teen_passion_paths")
+        .from("teen_passion_path_progress")
         .select("id")
         .eq("teen_id", teenId)
         .eq("path_id", pathId)
@@ -187,12 +187,20 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // Get path info (category is required on teen_creations)
+      const { data: path } = await supabase
+        .from("passion_paths")
+        .select("name, category")
+        .eq("id", pathId)
+        .single()
+
       // Create the creation
       const { data: creation, error } = await supabase
         .from("teen_creations")
         .insert({
           teen_id: teenId,
           path_id: pathId,
+          category: path?.category ?? "general",
           title,
           description: description || null,
           media_url: mediaUrl,
@@ -216,17 +224,8 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // Get path info for XP
-      const { data: path } = await supabase
-        .from("passion_paths")
-        .select("name, xp_multiplier")
-        .eq("id", pathId)
-        .single()
-
-      // Award XP for creating
-      const baseXp = 30
-      const multiplier = path?.xp_multiplier || 1
-      const xpReward = Math.round(baseXp * multiplier)
+      // Award XP for creating (passion_paths has no XP multiplier column)
+      const xpReward = 30
 
       await supabase.rpc("add_xp_to_user", {
         p_teen_id: teenId,
@@ -235,17 +234,6 @@ export async function POST(request: NextRequest) {
         p_source_id: creation.id,
         p_description: `Nouvelle creation: ${title}`,
       })
-
-      // Add XP to path
-      try {
-        await supabase.rpc("add_path_xp", {
-          p_teen_id: teenId,
-          p_path_id: pathId,
-          p_xp_amount: xpReward,
-        })
-      } catch {
-        // Function might not exist yet, that's ok
-      }
 
       return NextResponse.json({
         success: true,
@@ -320,7 +308,7 @@ export async function POST(request: NextRequest) {
         .from("creation_likes")
         .select("id")
         .eq("creation_id", creationId)
-        .eq("liker_teen_id", teenId)
+        .eq("teen_id", teenId)
         .single()
 
       if (existing) {
@@ -358,7 +346,7 @@ export async function POST(request: NextRequest) {
         .from("creation_likes")
         .insert({
           creation_id: creationId,
-          liker_teen_id: teenId,
+          teen_id: teenId,
           created_at: new Date().toISOString(),
         })
 
@@ -409,7 +397,7 @@ export async function POST(request: NextRequest) {
         .from("creation_likes")
         .delete()
         .eq("creation_id", creationId)
-        .eq("liker_teen_id", teenId)
+        .eq("teen_id", teenId)
 
       if (unlikeError) {
         console.error("Error unliking:", unlikeError)

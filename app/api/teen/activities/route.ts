@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getUserRole } from '@/lib/auth/get-user-role'
 
+// Shape of the `user_activities.data` jsonb payload (written on insert by
+// quest-complete, xp, badge, etc.). Frontier type for the Json column.
+interface ActivityData {
+  type?: string
+  quest_name?: string
+  amount?: number
+  badge_name?: string
+  friend_name?: string
+  event_name?: string
+  new_level?: number
+  streak_days?: number
+}
+
 export async function GET(request: NextRequest) {
   try {
     const userInfo = await getUserRole()
@@ -42,7 +55,7 @@ export async function GET(request: NextRequest) {
     const formattedActivities = activities?.map(activity => {
       // user_activities stores the payload in the `data` jsonb column; the
       // semantic type is `data.type` (written on insert by quest-complete etc.).
-      const metadata = activity.data || {}
+      const metadata = (activity.data ?? {}) as ActivityData
 
       // Determine activity type and text
       let type = 'general'
@@ -101,7 +114,7 @@ export async function GET(request: NextRequest) {
         text,
         icon,
         color,
-        time: formatRelativeTime(activity.created_at),
+        time: formatRelativeTime(activity.created_at ?? new Date().toISOString()),
         metadata,
       }
     }) || []

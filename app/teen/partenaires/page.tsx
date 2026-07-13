@@ -25,7 +25,7 @@ const COINS_ELIGIBLE = new Set(["retail", "food", "venue", "club"])
 // Refonte V2 (#158) — annuaire unifié des partenaires côté ado
 // (partner-ecosystem §7.4). Lit la table partners (actifs).
 export default async function TeenPartenairesPage() {
-  let partners: { id: string; company_name: string; partner_type?: string; sub_category?: string }[] = []
+  let partners: { id: string; company_name: string; partner_type?: string; sub_category?: string | null }[] = []
   try {
     const supabase = await createClient()
     const { data } = await supabase

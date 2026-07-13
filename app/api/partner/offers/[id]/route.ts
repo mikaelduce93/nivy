@@ -169,6 +169,12 @@ export async function DELETE(
     }
 
     const partnerId = userInfo.partnerData?.id
+    if (!partnerId) {
+      return NextResponse.json(
+        { success: false, error: "Non autorisé" },
+        { status: 401 }
+      )
+    }
 
     // Verify offer belongs to partner
     const { data: existingOffer, error: fetchError } = await supabase
@@ -242,6 +248,12 @@ export async function GET(
     }
 
     const partnerId = userInfo.partnerData?.id
+    if (!partnerId) {
+      return NextResponse.json(
+        { success: false, error: "Non autorisé" },
+        { status: 401 }
+      )
+    }
 
     const { data: offer, error } = await supabase
       .from("partner_offers")

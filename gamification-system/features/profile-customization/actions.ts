@@ -38,7 +38,9 @@ export async function getAllFrames(): Promise<ProfileFrame[]> {
 
     if (error) throw error
 
-    return data || []
+    // Frontière DB→domaine : la table élargit rarity/unlock_type/is_active (string|null),
+    // le type domaine les restreint aux enums Zod.
+    return (data || []) as unknown as ProfileFrame[]
   } catch (error) {
     logDbError("profile-customization.getAllFrames", error)
     return []
@@ -60,7 +62,7 @@ export async function getAllTitles(): Promise<ProfileTitle[]> {
 
     if (error) throw error
 
-    return data || []
+    return (data || []) as unknown as ProfileTitle[]
   } catch (error) {
     logDbError("profile-customization.getAllTitles", error)
     return []
@@ -82,7 +84,7 @@ export async function getAllColors(): Promise<ProfileColor[]> {
 
     if (error) throw error
 
-    return data || []
+    return (data || []) as unknown as ProfileColor[]
   } catch (error) {
     logDbError("profile-customization.getAllColors", error)
     return []
@@ -104,7 +106,7 @@ export async function getAllBackgrounds(): Promise<ProfileBackground[]> {
 
     if (error) throw error
 
-    return data || []
+    return (data || []) as unknown as ProfileBackground[]
   } catch (error) {
     logDbError("profile-customization.getAllBackgrounds", error)
     return []
@@ -133,7 +135,8 @@ export async function getUserCustomizationItems(): Promise<UserCustomizationItem
 
     if (error) throw error
 
-    return data
+    // La RPC renvoie Json ; on caste vers le type domaine à la frontière.
+    return data as unknown as UserCustomizationItems
   } catch (error) {
     logDbError("profile-customization.getUserCustomizationItems", error)
     return null
@@ -204,7 +207,12 @@ export async function getPublicUserCustomization(
         : null,
     ])
 
-    return { frame, title, color, background }
+    return {
+      frame: frame as unknown as ProfileFrame | null,
+      title: title as unknown as ProfileTitle | null,
+      color: color as unknown as ProfileColor | null,
+      background: background as unknown as ProfileBackground | null,
+    }
   } catch (error) {
     logDbError("profile-customization.getPublicUserCustomization", error)
     return null
@@ -370,8 +378,11 @@ export async function purchaseItem(
 
     if (debitError) throw debitError
 
-    if (!debit?.success) {
-      return { success: false, error: debit?.error || "Solde insuffisant" }
+    // add_coins_to_user renvoie Json ; forme réelle : { success, error? }.
+    const debitResult = debit as { success?: boolean; error?: string } | null
+
+    if (!debitResult?.success) {
+      return { success: false, error: debitResult?.error || "Solde insuffisant" }
     }
 
     // Débloquer l'item

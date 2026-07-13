@@ -5,6 +5,7 @@
  */
 
 import { createClient } from "@/lib/supabase/server"
+import type { Json } from "@/types/supabase"
 import { ContentValidator } from "./content-validator"
 import { EnhancedQuizPrompts, type TeenContext } from "./enhanced-quiz-prompts"
 import { InterestIntegration } from "./interest-integration"
@@ -576,7 +577,7 @@ Format JSON requis:
       await supabase.from("content_generation_logs").insert({
         content_type: data.contentType,
         target_type: "profile_based",
-        generation_params: data.params,
+        generation_params: data.params as unknown as Json,
         generated_content_type: data.generatedContent ? this.getContentTableName(data.contentType) : null,
         ai_provider: data.metadata?.provider || "unknown",
         ai_model: data.metadata?.model || "unknown",

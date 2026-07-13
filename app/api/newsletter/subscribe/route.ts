@@ -10,6 +10,7 @@
  */
 
 import { NextResponse } from "next/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { withSupabaseTimeout } from "@/lib/supabase/wrapper"
 
@@ -29,8 +30,14 @@ export async function POST(request: Request) {
 
     const supabase = await createClient()
 
+    // La table `newsletter_subscribers` n'existe pas (encore) dans le schema live,
+    // donc elle est absente de `Database`. La route gere explicitement cette absence
+    // (503 NEWSLETTER_UNAVAILABLE ci-dessous). Cast de frontiere vers un client non
+    // type pour cette insertion, en attendant la migration qui creera la table.
+    const db = supabase as unknown as SupabaseClient
+
     const { error } = await withSupabaseTimeout(
-      supabase
+      db
         .from("newsletter_subscribers")
         .insert({
           email: rawEmail,

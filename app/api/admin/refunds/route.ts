@@ -166,6 +166,22 @@ export async function POST(req: Request) {
 
 type SR = ReturnType<typeof createServiceRoleClient>
 
+/**
+ * escrow_ledger.parent_id is NOT NULL in live. Resolve the teen's parent via
+ * parent_teen_links (same source as resolve_marketplace_dispute, migration 061).
+ * Returns null when the teen has no linked parent — in that case we skip the
+ * escrow row, matching the SQL RPC's INSERT…SELECT…LIMIT 1 semantics.
+ */
+async function resolveParentId(sr: SR, teenId: string): Promise<string | null> {
+  const { data } = await sr
+    .from("parent_teen_links")
+    .select("parent_id")
+    .eq("teen_id", teenId)
+    .limit(1)
+    .maybeSingle()
+  return data?.parent_id ?? null
+}
+
 async function bumpCoins(
   sr: SR,
   teenId: string,
@@ -278,16 +294,21 @@ async function refundMarketplace(
     await sr.from("marketplace_listings").update({ status: "active", sold_at: null }).eq("id", tx.listing_id)
   }
 
-  // Escrow ledger entry.
-  await sr.from("escrow_ledger").insert({
-    teen_id: tx.buyer_user_id,
-    direction: "refund",
-    amount_coins: amountCoins,
-    amount_dh: tx.amount_dh ?? 0,
-    related_spend_id: txId,
-    reason: `marketplace_refund: ${reason}`,
-    created_by: adminId,
-  })
+  // Escrow ledger entry (parent_id NOT NULL — resolved via parent_teen_links;
+  // previously the insert omitted it and always failed silently with 23502).
+  const buyerParentId = await resolveParentId(sr, tx.buyer_user_id)
+  if (buyerParentId) {
+    await sr.from("escrow_ledger").insert({
+      teen_id: tx.buyer_user_id,
+      parent_id: buyerParentId,
+      direction: "refund",
+      amount_coins: amountCoins,
+      amount_dh: tx.amount_dh ?? 0,
+      related_spend_id: txId,
+      reason: `marketplace_refund: ${reason}`,
+      created_by: adminId,
+    })
+  }
 
   // Audit log.
   await sr.from("audit_log").insert({
@@ -357,16 +378,21 @@ async function refundFood(
     )
   }
 
-  await sr.from("escrow_ledger").insert({
-    teen_id: order.teen_id,
-    parent_id: order.parent_id,
-    direction: "refund",
-    amount_coins: coins,
-    amount_dh: order.total_dh ?? 0,
-    related_spend_id: txId,
-    reason: `food_refund: ${reason}`,
-    created_by: adminId,
-  })
+  // escrow_ledger.parent_id is NOT NULL in live; food_orders.parent_id is
+  // nullable — fall back to parent_teen_links, skip the row if no parent.
+  const foodParentId = order.parent_id ?? (await resolveParentId(sr, order.teen_id))
+  if (foodParentId) {
+    await sr.from("escrow_ledger").insert({
+      teen_id: order.teen_id,
+      parent_id: foodParentId,
+      direction: "refund",
+      amount_coins: coins,
+      amount_dh: order.total_dh ?? 0,
+      related_spend_id: txId,
+      reason: `food_refund: ${reason}`,
+      created_by: adminId,
+    })
+  }
 
   await sr.from("audit_log").insert({
     actor_id: adminId,

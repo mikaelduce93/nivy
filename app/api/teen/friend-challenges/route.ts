@@ -19,6 +19,7 @@
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
+import type { Json } from "@/types/supabase"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -135,9 +136,10 @@ export async function POST(request: Request) {
     const { data, error } = await supabase.rpc("create_friend_challenge_v2", {
       p_opponent_id: body.opponentId,
       p_challenge_kind: body.challengeKind,
-      p_rules: body.rules ?? {},
-      p_name: body.name ?? null,
-      p_target_value: body.targetValue ?? null,
+      // rules is an open-shape jsonb payload; cast at the RPC boundary.
+      p_rules: (body.rules ?? {}) as Json,
+      p_name: body.name ?? undefined,
+      p_target_value: body.targetValue ?? undefined,
       p_duration_hours: body.durationHours ?? 168,
       p_expires_in_hours: body.expiresInHours ?? 48,
     })

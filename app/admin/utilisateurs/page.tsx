@@ -27,18 +27,23 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
     redirect("/")
   }
 
+  // No FK between profiles and admin_roles: the `admin_roles (*)` embed fails (PGRST200), fetch separately.
   const { data: allProfiles } = await supabase
     .from("profiles")
-    .select("*, admin_roles (*)")
+    .select("*")
     .order("created_at", { ascending: false })
 
-  const { data: totalBookings } = await supabase.from("bookings").select("parent_id, total_amount")
+  const { data: allAdminRoles } = await supabase.from("admin_roles").select("profile_id")
+  const adminIds = new Set(allAdminRoles?.map((r) => r.profile_id) ?? [])
+
+  // bookings has no parent_id in live; the booker is user_id.
+  const { data: totalBookings } = await supabase.from("bookings").select("user_id, total_amount")
 
   // #28 — no `children` table; count linked teens via parent_teen_links.
   const { data: totalChildren } = await supabase.from("parent_teen_links").select("parent_id")
 
   const profilesWithStats = allProfiles?.map((profile) => {
-    const userBookings = totalBookings?.filter((b) => b.parent_id === profile.id) || []
+    const userBookings = totalBookings?.filter((b) => b.user_id === profile.id) || []
     const userChildren = totalChildren?.filter((c) => c.parent_id === profile.id) || []
     const revenue = userBookings.reduce((sum, b) => sum + (b.total_amount || 0), 0)
 
@@ -47,7 +52,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
       bookings_count: userBookings.length,
       children_count: userChildren.length,
       total_revenue: revenue,
-      is_admin: !!profile.admin_roles,
+      is_admin: adminIds.has(profile.id),
     }
   })
 
@@ -55,17 +60,15 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
     if (!search) return true
     const searchLower = search.toLowerCase()
     return (
-      profile.prenom?.toLowerCase().includes(searchLower) ||
-      profile.nom?.toLowerCase().includes(searchLower) ||
-      profile.email?.toLowerCase().includes(searchLower) ||
-      profile.telephone?.toLowerCase().includes(searchLower)
+      profile.full_name?.toLowerCase().includes(searchLower) ||
+      profile.email?.toLowerCase().includes(searchLower)
     )
   })
 
   const stats = {
     total: allProfiles?.length || 0,
-    admins: allProfiles?.filter((p) => p.admin_roles).length || 0,
-    parents: allProfiles?.filter((p) => !p.admin_roles).length || 0,
+    admins: allProfiles?.filter((p) => adminIds.has(p.id)).length || 0,
+    parents: allProfiles?.filter((p) => !adminIds.has(p.id)).length || 0,
   }
 
   return (
@@ -91,7 +94,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         <Input
           name="search"
           defaultValue={search ?? ""}
-          placeholder="Rechercher par nom, email, téléphone..."
+          placeholder="Rechercher par nom, email..."
           className="rounded-xl border-2 border-ink bg-white pl-10"
         />
       </form>
@@ -106,14 +109,14 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                     {profile.avatar_url ? (
                       <Image
                         src={profile.avatar_url}
-                        alt={profile.prenom || "Utilisateur"}
+                        alt={profile.full_name || "Utilisateur"}
                         width={48}
                         height={48}
                         className="h-full w-full rounded-full object-cover"
                       />
                     ) : (
                       <span className="font-display text-lg font-bold text-ink">
-                        {(profile.prenom || "U").charAt(0).toUpperCase()}
+                        {(profile.full_name || "U").charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
@@ -121,7 +124,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                   <div className="min-w-0 flex-1">
                     <div className="mb-2 flex flex-wrap items-center gap-3">
                       <h3 className="font-display text-lg font-bold text-ink">
-                        {profile.prenom} {profile.nom}
+                        {profile.full_name}
                       </h3>
                       {profile.is_admin && (
                         <span className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-paper">
@@ -135,7 +138,6 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                       <div>
                         <p className="eyebrow mb-1 text-mute">Contact</p>
                         <p className="text-ink-2">{profile.email}</p>
-                        {profile.telephone && <p className="text-mute">{profile.telephone}</p>}
                       </div>
 
                       <div>
@@ -156,11 +158,13 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                       <div>
                         <p className="eyebrow mb-1 text-mute">Inscription</p>
                         <p className="text-xs text-mute">
-                          {new Date(profile.created_at).toLocaleDateString("fr-FR", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {profile.created_at
+                            ? new Date(profile.created_at).toLocaleDateString("fr-FR", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })
+                            : "—"}
                         </p>
                       </div>
                     </div>

@@ -1,63 +1,18 @@
 import { Suspense } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { getUserRole } from '@/lib/auth/get-user-role'
-import { createClient } from '@/lib/supabase/server'
 import { QuestDetailClient } from './quest-detail-client'
 
 interface QuestDetailPageProps {
   params: Promise<{ id: string }>
 }
 
-async function getQuestData(questId: string, teenId: string) {
-  const supabase = await createClient()
-  
-  // Try to fetch from quests table
-  const { data: quest, error } = await supabase
-    .from('quests')
-    .select('*')
-    .eq('id', questId)
-    .single()
-
-  if (error || !quest) {
-    // Try challenges table
-    const { data: challenge } = await supabase
-      .from('daily_challenges')
-      .select('*, challenge:challenges(*)')
-      .eq('id', questId)
-      .eq('teen_id', teenId)
-      .single()
-
-    if (challenge) {
-      return {
-        id: challenge.id,
-        title: challenge.challenge?.title || 'Quête du jour',
-        description: challenge.challenge?.description || '',
-        xp_reward: challenge.challenge?.xp_reward || 50,
-        pillar: 'vitality' as const,
-        type: 'challenge' as const,
-        status: challenge.status,
-        steps: challenge.challenge?.steps || [],
-        duration: '10 min',
-        difficulty: 'medium' as const,
-      }
-    }
-    return null
-  }
-
-  return {
-    id: quest.id,
-    title: quest.title,
-    description: quest.description,
-    xp_reward: quest.xp_reward,
-    pillar: quest.pillar || 'intellect',
-    type: quest.type || 'quest',
-    status: quest.status || 'available',
-    steps: quest.steps || [],
-    duration: quest.duration || '15 min',
-    difficulty: quest.difficulty || 'medium',
-    deadline: quest.deadline,
-    requirements: quest.requirements,
-  }
+async function getQuestData(_questId: string, _teenId: string) {
+  // #208 — les tables `quests`/`daily_challenges`/`challenges` n'existent pas en
+  // base live : la lecture échouait systématiquement au runtime et cette route
+  // renvoyait toujours vers le hub. On retourne null directement (repli ci-dessous)
+  // plutôt que d'interroger des tables fantômes.
+  return null
 }
 
 export default async function QuestDetailPage({ params }: QuestDetailPageProps) {

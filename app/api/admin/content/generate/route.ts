@@ -61,16 +61,25 @@ export async function POST(request: NextRequest) {
     }
 
     if (teenId) {
+      // Drift : `interests`, `profiles` et `school` n'existent plus sur `teens`
+      // (l'ancien select échouait en 42703 → personnalisation jamais appliquée).
+      // Les intérêts vivent dans `teen_interests` ; les « profils » (School,
+      // Sport, Créa) n'ont pas d'équivalent live → lecture retirée.
       const { data: teen } = await supabase
         .from("teens")
-        .select("grade_level, interests, profiles, school")
+        .select("grade_level")
         .eq("id", teenId)
         .single()
 
       if (teen) {
         generationParams.gradeLevel = generationParams.gradeLevel || teen.grade_level || undefined
-        generationParams.interests = (teen.interests as string[]) || []
-        generationParams.profiles = (teen.profiles as string[]) || []
+
+        const { data: interestRows } = await supabase
+          .from("teen_interests")
+          .select("tag")
+          .eq("teen_id", teenId)
+
+        generationParams.interests = interestRows?.map((row) => row.tag) ?? []
       }
     }
 

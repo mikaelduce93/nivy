@@ -7,6 +7,7 @@
  */
 
 import "server-only"
+import type { Json } from "@/types/supabase"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import type {
@@ -180,7 +181,8 @@ export async function getQuizAnswerKey(
     .maybeSingle()
   if (!error) {
     if (!data) return null
-    return Array.isArray(data.questions) ? (data.questions as QuizQuestion[]) : []
+    // Frontier cast: `questions` is stored as jsonb (Json) but its runtime shape is the answer key.
+    return Array.isArray(data.questions) ? (data.questions as unknown as QuizQuestion[]) : []
   }
   if (!isPermissionDeniedError(error)) {
     console.error("[quiz/server] answer key fetch error:", error.message)
@@ -201,7 +203,8 @@ export async function getQuizAnswerKey(
       return null
     }
     if (!row) return null
-    return Array.isArray(row.questions) ? (row.questions as QuizQuestion[]) : []
+    // Frontier cast: `questions` is stored as jsonb (Json) but its runtime shape is the answer key.
+    return Array.isArray(row.questions) ? (row.questions as unknown as QuizQuestion[]) : []
   } catch (err) {
     console.error("[quiz/server] answer key service-role threw:", (err as Error).message)
     return null
@@ -587,7 +590,8 @@ export async function getDailyQuizForTeen(teenId: string): Promise<DailyQuizPayl
                 subject: payload.subject ?? "Général",
                 difficulty: payload.difficulty ?? "normal",
                 grade_level: payload.grade_level ?? null,
-                questions: Array.isArray(payload.questions) ? payload.questions : [],
+                // Frontier cast: curated payload questions land in the jsonb `questions` column.
+                questions: (Array.isArray(payload.questions) ? payload.questions : []) as Json,
                 time_limit_minutes: payload.time_limit_minutes ?? 10,
                 passing_score: payload.passing_score ?? 60,
                 xp_reward: payload.xp_reward ?? 30,

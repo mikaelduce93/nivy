@@ -127,11 +127,10 @@ export async function POST(request: Request) {
       })
     }
 
-    const { data: userPoints } = await supabase
-      .from("user_points")
-      .select("total_points, current_tier")
-      .eq("profile_id", vipCard.profile_id)
-      .single()
+    // NOTE: the legacy `user_points` table no longer exists in the live schema
+    // (dropped ~70 migrations ago). This lookup always failed at runtime, so the
+    // response has always fallen back to total:0 / tier:"bronze". We keep that
+    // exact behavior below rather than reading a nonexistent table.
 
     const tierPriority: Record<string, number> = {
       free: 0,
@@ -219,8 +218,8 @@ export async function POST(request: Request) {
         expiresAt: vipCard.expiry_date,
       },
       points: {
-        total: userPoints?.total_points || 0,
-        tier: userPoints?.current_tier || "bronze",
+        total: 0,
+        tier: "bronze",
       },
       eligibleOffers: offersWithUsage.map((offer) => ({
         id: offer.id,

@@ -45,7 +45,7 @@ export async function POST(
   const { data, error } = await supabase.rpc("block_user_v2", {
     p_blocker: user.id,
     p_blocked: friend_user_id,
-    p_reason: reason ?? null,
+    p_reason: reason,
   })
 
   if (error) {

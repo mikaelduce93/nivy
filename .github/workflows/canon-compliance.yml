@@ -13,10 +13,12 @@
 name: canon-compliance
 
 on:
+  # #360 — les gates ne tournaient QUE sur main : les branches de travail
+  # (refonte/**, milestone/**) accumulaient le drift sans jamais être vérifiées.
+  # On les inclut désormais, plus tout PR.
   pull_request:
-    branches: [main]
   push:
-    branches: [main]
+    branches: [main, develop, "refonte/**", "milestone/**"]
 
 jobs:
   gate:
@@ -46,6 +48,16 @@ jobs:
 
       - name: TypeScript typecheck
         run: npm run typecheck
+
+      # #360 — garde anti-drift de typage : `tsc` valide code↔types, PAS
+      # types↔base. Sans cette garde, un typage périmé fait passer du code
+      # cassé (cause racine de #360). Régénère depuis la live et échoue si
+      # `types/supabase.ts` diverge. No-op tant que SUPABASE_ACCESS_TOKEN
+      # n'est pas configuré en secret.
+      - name: Supabase types up-to-date (anti-drift #360)
+        run: npm run types:check
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: ESLint (warn-level canon visibility, error-level a11y/hooks)
         run: npm run lint

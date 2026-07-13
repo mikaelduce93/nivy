@@ -50,7 +50,7 @@ export async function getUnifiedQuests(): Promise<UnifiedQuest[]> {
         pillar: "intellect",
         title: q.title,
         description: q.description || `Quête Intellect: ${q.subject}`,
-        xp_reward: q.xp_reward,
+        xp_reward: q.xp_reward ?? 0,
         status: "available",
         metadata: { subject: q.subject, difficulty: q.difficulty }
       })
@@ -71,8 +71,8 @@ export async function getUnifiedQuests(): Promise<UnifiedQuest[]> {
         type: "challenge",
         pillar: "vitality",
         title: c.name,
-        description: c.description,
-        xp_reward: c.xp_reward,
+        description: c.description ?? "",
+        xp_reward: c.xp_reward ?? 0,
         status: "available",
         metadata: { category: c.sport_category, unit: c.objective_unit, target: c.objective_value }
       })
@@ -92,8 +92,8 @@ export async function getUnifiedQuests(): Promise<UnifiedQuest[]> {
         type: "passion",
         pillar: "creativity",
         title: t.title,
-        description: t.description,
-        xp_reward: t.xp_reward,
+        description: t.description ?? "",
+        xp_reward: t.xp_reward ?? 0,
         status: "available",
         metadata: { path: t.path?.name, difficulty: t.difficulty }
       })

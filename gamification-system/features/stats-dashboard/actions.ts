@@ -10,6 +10,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { logDbError } from "@/lib/observability/log-db-error"
+import type { Json } from "@/types/supabase"
 import {
   type ActivityType,
   type DashboardStats,
@@ -87,7 +88,8 @@ export async function getDailyActivity(
 
     if (error && error.code !== "PGRST116") throw error
 
-    return data
+    // Cast de frontière : colonnes numériques nullables en DB (DEFAULT 0), traitées non-null par le domaine
+    return data as DailyActivity | null
   } catch (error) {
     logDbError("stats-dashboard.getDailyActivity", error)
     return null
@@ -120,7 +122,7 @@ export async function getActivityHistory(
 
     if (error) throw error
 
-    return data || []
+    return (data ?? []) as DailyActivity[]
   } catch (error) {
     logDbError("stats-dashboard.getActivityHistory", error)
     return []
@@ -151,7 +153,8 @@ export async function getLifetimeStats(): Promise<LifetimeStats | null> {
 
     if (error && error.code !== "PGRST116") throw error
 
-    return data
+    // Cast de frontière : colonnes numériques nullables en DB (DEFAULT 0), traitées non-null par le domaine
+    return data as LifetimeStats | null
   } catch (error) {
     logDbError("stats-dashboard.getLifetimeStats", error)
     return null
@@ -217,7 +220,7 @@ export async function getMonthlyStats(
 
     if (error) throw error
 
-    return data || []
+    return (data ?? []) as MonthlyStats[]
   } catch (error) {
     logDbError("stats-dashboard.getMonthlyStats", error)
     return []
@@ -248,7 +251,8 @@ export async function getUserMilestones(): Promise<Milestone[]> {
 
     if (error) throw error
 
-    return data || []
+    // Cast de frontière : milestone_type est string en DB, restreint à l'enum par le domaine
+    return (data ?? []) as Milestone[]
   } catch (error) {
     logDbError("stats-dashboard.getUserMilestones", error)
     return []
@@ -282,7 +286,7 @@ export async function checkAndAwardMilestones(): Promise<{
     revalidatePath("/stats")
     revalidatePath("/profile")
 
-    return { success: true, newMilestones: data || [] }
+    return { success: true, newMilestones: (data as Milestone[] | null) ?? [] }
   } catch (error) {
     logDbError("stats-dashboard.checkAndAwardMilestones", error)
     return { success: false, newMilestones: [], error: "Erreur lors de la vérification" }
@@ -313,7 +317,8 @@ export async function getPersonalRecords(): Promise<PersonalRecord[]> {
 
     if (error) throw error
 
-    return data || []
+    // Cast de frontière : record_type est string en DB, restreint à l'enum par le domaine
+    return (data ?? []) as PersonalRecord[]
   } catch (error) {
     logDbError("stats-dashboard.getPersonalRecords", error)
     return []
@@ -342,7 +347,7 @@ export async function updatePersonalRecord(
       p_user_id: user.id,
       p_record_type: recordType,
       p_new_value: newValue,
-      p_context: context || null,
+      p_context: (context ?? null) as Json,
     })
 
     if (error) throw error
@@ -380,7 +385,8 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
 
     if (error) throw error
 
-    return data
+    // Cast de frontière : RPC retourne du jsonb (Json), typé au domaine DashboardStats
+    return data as DashboardStats | null
   } catch (error) {
     logDbError("stats-dashboard.getDashboardStats", error)
     return null
@@ -408,7 +414,8 @@ export async function getActivityStats(
 
     if (error) throw error
 
-    return data
+    // Cast de frontière : RPC retourne du jsonb (Json), typé au domaine ActivityStats
+    return data as ActivityStats | null
   } catch (error) {
     logDbError("stats-dashboard.getActivityStats", error)
     return null
@@ -438,7 +445,8 @@ export async function getPlatformAverages(
 
     if (error && error.code !== "PGRST116") throw error
 
-    return data
+    // Cast de frontière : colonnes numériques nullables en DB, traitées non-null par le domaine
+    return data as PlatformAverages | null
   } catch (error) {
     logDbError("stats-dashboard.getPlatformAverages", error)
     return null
@@ -621,10 +629,10 @@ export async function updateLoginStreak(): Promise<{
 
         if (diffDays === 0) {
           // Déjà connecté aujourd'hui
-          return { success: true, currentStreak: stats.current_login_streak }
+          return { success: true, currentStreak: stats.current_login_streak ?? 0 }
         } else if (diffDays === 1) {
           // Connexion consécutive
-          newStreak = stats.current_login_streak + 1
+          newStreak = (stats.current_login_streak ?? 0) + 1
         }
         // Si diffDays > 1, streak reset à 1
       }

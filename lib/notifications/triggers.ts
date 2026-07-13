@@ -28,19 +28,19 @@ async function sendPushNotification(userId: string, payload: NotificationPayload
     // Get user subscriptions
     const { data: subscriptions } = await supabase
       .from('push_subscriptions')
-      .select('subscription')
+      .select('endpoint, p256dh, auth')
       .eq('user_id', userId)
 
     if (!subscriptions || subscriptions.length === 0) return
 
     const notifications = subscriptions.map(sub =>
       webPush.sendNotification(
-        sub.subscription as unknown as Parameters<typeof webPush.sendNotification>[0],
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
         JSON.stringify(payload)
       ).catch(err => {
         if (err.statusCode === 410) {
           // Subscription expired, remove it
-          supabase.from('push_subscriptions').delete().match({ subscription: sub.subscription })
+          supabase.from('push_subscriptions').delete().match({ endpoint: sub.endpoint })
         }
         console.error('Push error:', err)
       })
@@ -63,21 +63,22 @@ export async function checkStreakDanger() {
   
   const { data: streaks } = await supabase
     .from('user_streaks')
-    .select('user_id, current_streak, last_activity_date')
+    .select('teen_id, current_streak, last_activity_date')
     .gt('current_streak', 0)
-  
+
   if (!streaks) return
 
   const now = new Date()
   const dangerThreshold = 20 // hours since last activity (assuming daily check at 8 PM)
 
   for (const streak of streaks) {
+    if (!streak.last_activity_date) continue
     const lastActivity = new Date(streak.last_activity_date)
     const diffHours = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60)
-    
+
     // If > 24h, streak is already lost usually, but let's say "danger" is between 20h and 24h
     if (diffHours >= 20 && diffHours < 24) {
-      await sendPushNotification(streak.user_id, {
+      await sendPushNotification(streak.teen_id, {
         title: "🔥 Ton streak est en danger !",
         body: `Tu vas perdre ta série de ${streak.current_streak} jours ! Connecte-toi vite !`,
         url: "/teen/streak",
@@ -94,15 +95,15 @@ export async function checkDailyRewards() {
   // This requires tracking last spin date
   
   const { data: users } = await supabase
-    .from('user_gamification') // Assuming this table exists
-    .select('user_id, last_wheel_spin')
-  
+    .from('wheel_streaks')
+    .select('user_id, last_spin_date')
+
   if (!users) return
 
   const today = new Date().toDateString()
 
   for (const user of users) {
-    const lastSpin = user.last_wheel_spin ? new Date(user.last_wheel_spin).toDateString() : null
+    const lastSpin = user.last_spin_date ? new Date(user.last_spin_date).toDateString() : null
     
     if (lastSpin !== today) {
       await sendPushNotification(user.user_id, {

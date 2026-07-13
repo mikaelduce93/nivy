@@ -93,21 +93,9 @@ async function getTransactionHistory(profileId: string) {
     .order("used_at", { ascending: false })
     .limit(20)
 
-  // Get shop purchases
-  const { data: shopPurchases } = await supabase
-    .from("shop_purchases")
-    .select(`
-      id,
-      teen_id,
-      product_name,
-      price,
-      coins_used,
-      status,
-      created_at
-    `)
-    .in("teen_id", teenIds)
-    .order("created_at", { ascending: false })
-    .limit(30)
+  // Note (drift): la table "shop_purchases" n'existe pas en base live — lecture
+  // retirée. L'analogue XP (user_purchases) a une sémantique différente
+  // (xp_spent/reward_id, pas de montant DH), donc pas de substitution ici.
 
   // Calculate totals
   const totalSpent = bookings?.filter((b: any) => b.payment_status === "paid")
@@ -162,17 +150,6 @@ async function getTransactionHistory(profileId: string) {
       status: "completed",
       date: d.used_at,
       description: "Achat avec réduction partenaire"
-    })),
-    ...(shopPurchases || []).map((s: any) => ({
-      id: s.id,
-      type: "shop" as const,
-      teenId: s.teen_id,
-      teenName: teenNameMap.get(s.teen_id) || "Teen",
-      amount: s.price,
-      coinsUsed: s.coins_used,
-      status: s.status,
-      date: s.created_at,
-      description: s.product_name || "Achat boutique"
     }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 

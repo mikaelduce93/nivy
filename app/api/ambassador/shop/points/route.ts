@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const { data: ambassador, error: ambassadorError } = await supabase
       .from("ambassadors")
       .select("id")
-      .eq("profile_id", user.id)
+      .eq("user_id", user.id)
       .single()
 
     if (ambassadorError || !ambassador) {
@@ -36,36 +36,13 @@ export async function GET(request: Request) {
       )
     }
 
-    // Récupérer les points
-    const { data: points, error: pointsError } = await supabase
-      .from("ambassador_points")
-      .select("total_points, lifetime_points")
-      .eq("ambassador_id", ambassador.id)
-      .single()
-
-    if (pointsError) {
-      // Si aucun enregistrement, retourner 0
-      if (pointsError.code === "PGRST116") {
-        return NextResponse.json({
-          success: true,
-          data: {
-            total_points: 0,
-            lifetime_points: 0,
-          },
-        })
-      }
-
-      return NextResponse.json(
-        { success: false, error: "Erreur lors de la récupération" },
-        { status: 500 }
-      )
-    }
-
+    // Aucun stockage de points ambassadeur en base (table ambassador_points
+    // inexistante en live) : on renvoie le solde neutre attendu par le client.
     return NextResponse.json({
       success: true,
       data: {
-        total_points: points?.total_points || 0,
-        lifetime_points: points?.lifetime_points || 0,
+        total_points: 0,
+        lifetime_points: 0,
       },
     })
   } catch (error: any) {

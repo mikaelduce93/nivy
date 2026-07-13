@@ -16,6 +16,9 @@
  * post-filtre sécurité incrémental (coupe + remplace par SAFE_REDIRECT).
  * #211 — mémoire long terme injectée (getCoachMemoryLine) + extraction best-effort
  * des objectifs/faits après chaque vrai tour modèle.
+ * #Welfare — 3 rideaux de sécurité mineurs : (1) DENY_PATTERNS regex synchrone,
+ * (2) classifier sémantique Haiku (crisis=skip, distress=log+inject, ok=passe),
+ * (3) post-filtre isReplySafe incrémental sur la sortie modèle.
  *
  * Persistence: chaque tour accepté écrit DEUX lignes avatar_messages :
  *   - teen turn : mood='question' (dismissed → jamais affiché comme greeting)
@@ -32,6 +35,18 @@ import { supportsStreaming, supportsRunTools, type AIProviderMetadata } from "@/
 import { getCoachMemoryLine, extractAndPersistMemory } from "@/lib/ai/coach-memory"
 import { buildCoachTools } from "@/lib/ai/coach-tools"
 import {
+  classifyTeenMessage,
+  logWelfareSignal,
+  escalateCrisisToParent,
+  WELFARE_CRISIS_REPLY,
+} from "@/lib/ai/welfare-classifier"
+import {
+  SAFE_REDIRECT,
+  isReplySafe,
+  isInputBlocked,
+} from "@/lib/ai/coach-safety"
+import { logCoachTurn, buildTurnMetrics, type CoachTurnOutcome } from "@/lib/ai/coach-telemetry"
+import {
   ARCHETYPE_LABEL_FR,
   LEARNING_STYLE_LABEL_FR,
   isArchetype,
@@ -45,32 +60,6 @@ const MAX_INPUT_CHARS = 280
 const MAX_REPLY_CHARS = 600
 const RECENT_HISTORY_PAIRS = 3 // last N user+assistant pairs to include as context
 
-/**
- * Hard-blocked themes per V1 safety policy (whitepaper §8 + audit-prelaunch
- * 07-security-compliance). When matched, we DO NOT call the model — we
- * return the canned redirect immediately.
- */
-const DENY_PATTERNS: RegExp[] = [
-  // drugs / alcohol
-  /\b(drogue|drug|cocaine|cocaïne|cannabis|weed|joint|hashich|mdma|ecstasy|alcool|alcohol|biere|bière|vodka|whisky)\b/i,
-  // sex / sexual content
-  /\b(sexe|sexuel|porno|porn|nudes?|sextape|prostitu|onanis|masturbation|chibre|zob|baiser une|baise(?:r)? avec)\b/i,
-  // violence / self-harm
-  /\b(suicide|me tuer|mourir|tuer (?:quelqu(?:'|’)un|ma|mon|le|la)|me (?:fl|fr)apper|automutil|me couper|cutting|harceler|tabasser|battre)\b/i,
-  // politics / monarchy / sahara — V1 hard-blocked in MA context
-  /\b(politique|election|élection|gouvernement|roi mohammed|monarchie|sahara occidental|polisario|makhzen)\b/i,
-  // religion as topic
-  /\b(islam|musulman|chrétien|chretien|juif|jewish|halal|haram|fatwa|coran|bible|torah|priere du)\b/i,
-]
-
-/**
- * Canned safe redirect text used both for input pre-block AND output post-block.
- * Stays in French (V1 language policy) and explicitly defers to a trusted adult.
- */
-const SAFE_REDIRECT =
-  "Hmm, ça c'est un sujet où je préfère pas te répondre tout seul. " +
-  "Parles-en plutôt à ton parent ou à un mentor de confiance — ils sauront t'écouter et t'aider mieux que moi 💛"
-
 // #210 — la réponse du coach est streamée en NDJSON (1 objet JSON par ligne).
 const NDJSON_HEADERS = {
   "Content-Type": "application/x-ndjson; charset=utf-8",
@@ -81,34 +70,30 @@ function frame(obj: Record<string, unknown>): string {
   return JSON.stringify(obj) + "\n"
 }
 
-/** Light-weight output safety: blocks the same deny patterns + obvious adult fail modes. */
-function isReplySafe(text: string): boolean {
-  if (!text || text.length === 0) return false
-  for (const re of DENY_PATTERNS) if (re.test(text)) return false
-  // Block English fall-throughs of the model (V1 = FR only).
-  // Heuristic: if more than 50% of words look English-only, reject.
-  const words = text.toLowerCase().match(/[a-zàâçéèêëîïôûùüÿñæœ]+/g) || []
-  if (words.length >= 8) {
-    const englishOnly = words.filter((w) =>
-      /^(the|and|you|your|with|that|this|have|from|will|but|just|like|about|what|when|why|how)$/.test(w),
-    ).length
-    if (englishOnly / words.length > 0.25) return false
-  }
-  return true
-}
-
 /**
  * The system prompt. Locked to French, age-appropriate, defers on hard topics.
  * Kept short to stay within tight token budgets — model receives recent
  * history as messages, not as system context.
+ *
+ * `welfareHint` (optionnel) : consigne additionnelle injectée par le classifier
+ * welfare quand le message de l'ado a été classé "distress". Le niveau "crisis"
+ * est géré en amont (skip modèle + WELFARE_CRISIS_REPLY).
  */
-function buildSystemPrompt(coachName: string, teenFirstName: string, profileLine?: string): string {
+function buildSystemPrompt(
+  coachName: string,
+  teenFirstName: string,
+  profileLine?: string,
+  welfareHint?: string,
+): string {
   // #202 — contexte profil réel injecté (niveau, XP, coins, humeur, mémoire)
   // pour personnaliser. PII-safe : aucun vrai nom (on utilise le pseudo).
   const contextBlock = profileLine
     ? `\n\nCONTEXTE ${teenFirstName} (pour personnaliser, ne pas réciter mot à mot): ${profileLine}`
     : ""
-  return `Tu es ${coachName}, le coach personnel virtuel de ${teenFirstName} (un ado marocain de 13 à 17 ans) sur l'app Nivy.${contextBlock}
+  // #Welfare — consigne "distress" : le modèle garde sa réponse mais adopte
+  // un ton plus empathique et propose explicitement un adulte de confiance.
+  const welfareBlock = welfareHint ? `\n\n${welfareHint}` : ""
+  return `Tu es ${coachName}, le coach personnel virtuel de ${teenFirstName} (un ado marocain de 13 à 17 ans) sur l'app Nivy.${contextBlock}${welfareBlock}
 
 LANGUE: réponds UNIQUEMENT en français standard. Pas d'anglais, pas de Darija, pas d'arabe classique. Tutoiement chaleureux mais respectueux.
 
@@ -239,6 +224,8 @@ export async function POST(request: Request) {
 
     const body = (await request.json().catch(() => null)) as { message?: unknown } | null
     const raw = typeof body?.message === "string" ? body.message.trim() : ""
+    // #Telemetry — début du tour (pour calcul latence dans buildTurnMetrics).
+    const startTime = Date.now()
     if (!raw) {
       return NextResponse.json({ error: "Message invalide" }, { status: 400 })
     }
@@ -287,23 +274,31 @@ export async function POST(request: Request) {
     const personaLine = personaBits.length ? `Persona : ${personaBits.join(", ")}.` : undefined
 
     // #202 — profil réel léger pour personnaliser (PII-safe). Colonnes réelles de
-    // teen_full_profile uniquement (l'ancien `streak`/`interests` n'existaient pas
-    // → drift schéma corrigé : on lit level/total_xp/coins_balance).
+    // teen_full_profile (level/total_xp/parent). I1 — le solde est lu depuis la
+    // source canonique user_coins.balance (plus frais que teen_full_profile.coins_balance,
+    // qui peut présenter un snapshot retardé juste après un top-up/lock).
     let profileLine: string | undefined
     let parentId: string | undefined
     try {
-      const { data: prof } = await supabase
-        .from("teen_full_profile")
-        .select("level, total_xp, coins_balance, primary_parent_id")
-        .eq("id", user.id)
-        .maybeSingle<{
-          level: number | null
-          total_xp: number | null
-          coins_balance: number | null
-          primary_parent_id: string | null
-        }>()
+      const [profRes, coinsRes] = await Promise.all([
+        supabase
+          .from("teen_full_profile")
+          .select("level, total_xp, primary_parent_id")
+          .eq("id", user.id)
+          .maybeSingle<{
+            level: number | null
+            total_xp: number | null
+            primary_parent_id: string | null
+          }>(),
+        supabase
+          .from("user_coins")
+          .select("balance")
+          .eq("teen_id", user.id)
+          .maybeSingle<{ balance: number | null }>(),
+      ])
+      const prof = profRes.data
       if (prof) {
-        profileLine = `Niveau ${prof.level ?? 1}, ${prof.total_xp ?? 0} XP, ${prof.coins_balance ?? 0} coins. Humeur : ${avatar?.mood || "neutral"}.`
+        profileLine = `Niveau ${prof.level ?? 1}, ${prof.total_xp ?? 0} XP, ${coinsRes.data?.balance ?? 0} coins. Humeur : ${avatar?.mood || "neutral"}.`
         parentId = prof.primary_parent_id ?? undefined
       }
     } catch {
@@ -341,8 +336,29 @@ export async function POST(request: Request) {
 
     // #210 — réponse atomique (input bloqué / pas de clé / provider sans
     // streaming / erreur) servie sur le MÊME contrat NDJSON que le streaming.
-    const single = async (text: string, sourcedFromModel: boolean): Promise<Response> => {
+    // #Telemetry — chaque sortie single logge l'outcome (sauf si omis pour les
+    // chemins où le stream done logge déjà séparément).
+    const single = async (
+      text: string,
+      sourcedFromModel: boolean,
+      outcome?: CoachTurnOutcome,
+      meta?: AIProviderMetadata,
+    ): Promise<Response> => {
       await persistReply(text)
+      if (outcome) {
+        logCoachTurn(
+          buildTurnMetrics({
+            teenId: user.id,
+            provider: pickProvider(),
+            meta,
+            startTime,
+            outcome,
+            inputChars: raw.length,
+            outputChars: text.length,
+            remainingTurns: remaining,
+          }),
+        )
+      }
       const enc = new TextEncoder()
       const stream = new ReadableStream<Uint8Array>({
         start(controller) {
@@ -359,8 +375,8 @@ export async function POST(request: Request) {
     }
 
     // Server-side input deny check — short-circuit before any model call.
-    if (DENY_PATTERNS.some((re) => re.test(raw))) {
-      return single(SAFE_REDIRECT, false)
+    if (isInputBlocked(raw)) {
+      return single(SAFE_REDIRECT, false, "blocked_input")
     }
 
     const providerType = pickProvider()
@@ -370,7 +386,39 @@ export async function POST(request: Request) {
       return single(
         `Hé ${teenFirstName} ! Mon cerveau IA est en pause là. Reviens dans un instant 🙏`,
         false,
+        "no_api_key",
       )
+    }
+
+    // #Welfare — 2e rideau sémantique (après DENY_PATTERNS regex, avant le
+    // modèle principal). Crisis = skip modèle + réponse renforcée + log.
+    // Distress = log + consigne empathique injectée au modèle. ok = flux normal.
+    // PII-safe : aucun texte persisté, seulement niveau + signaux agrégés.
+    let welfareHint: string | undefined
+    try {
+      const welfare = await classifyTeenMessage(raw, providerType)
+      if (welfare.level === "crisis") {
+        await logWelfareSignal(supabase, user.id, "crisis", welfare.signals)
+        // #Escalade — alerte reviewable pour le parent (conservatif : pas
+        // d'auto-push, le parent découvre l'alerte à sa prochaine connexion).
+        await escalateCrisisToParent(supabase, user.id, parentId, welfare.signals)
+        // Skip modèle : économie + sécurité. La réponse est canonique et
+        // débranchable en un seul endroit.
+        return single(WELFARE_CRISIS_REPLY, false, "welfare_crisis")
+      }
+      if (welfare.level === "distress") {
+        await logWelfareSignal(supabase, user.id, "distress", welfare.signals)
+        welfareHint =
+          `ATTENTION (ne jamais réciter cette étiquette à l'ado) : le message de ${teenFirstName} ` +
+          `semble traduire une détresse (tristesse, solitude, découragement). Adopte un ton ` +
+          `particulièrement chaleureux et empathique, valide ce qu'il/elle ressent, et propose ` +
+          `d'en parler à un parent ou un adulte de confiance. Reste dans ton rôle de coach : ` +
+          `pas de diagnostic, pas de thérapie — juste de l'écoute et une redirection douce.`
+      }
+    } catch (err) {
+      // Best-effort : le classifier ne doit JAMAIS casser le chat. Les
+      // garde-fous regex (DENY_PATTERNS) + post-filtre (isReplySafe) restent.
+      console.warn("[avatar-coach] welfare classifier failed:", err)
     }
 
     // #210 — provider env-driven, modèle par tâche (chat = Sonnet). System stable
@@ -388,7 +436,7 @@ export async function POST(request: Request) {
     const userPrompt = transcript
       ? `Conversation récente:\n${transcript}\n\n${teenFirstName}: ${raw}\n\n${coachName}:`
       : `${teenFirstName}: ${raw}\n\n${coachName}:`
-    const systemPrompt = buildSystemPrompt(coachName, teenFirstName, contextLine)
+    const systemPrompt = buildSystemPrompt(coachName, teenFirstName, contextLine, welfareHint)
 
     const logCache = (meta?: AIProviderMetadata) => {
       if (!meta) return
@@ -414,8 +462,10 @@ export async function POST(request: Request) {
       const tools = buildCoachTools(supabase, { teenId: user.id, parentId })
       let reply = SAFE_REDIRECT
       let acted = false
+      let toolMeta: AIProviderMetadata | undefined
       try {
         const r = await provider.runTools(systemPrompt, userPrompt, tools.defs, tools.execute)
+        toolMeta = r.metadata
         logCache(r.metadata)
         acted = r.actions.length > 0
         const succeeded = r.actions.some((a) => a.result.success)
@@ -444,15 +494,17 @@ export async function POST(request: Request) {
       if (reply !== SAFE_REDIRECT && isReplySafe(reply)) {
         await extractAndPersistMemory(supabase, user.id, raw, reply, providerType)
       }
-      return single(reply, acted)
+      return single(reply, acted, acted ? "tool_action" : "ok", toolMeta)
     }
 
     // Provider sans streaming (OpenAI) → 1 appel atomique, 1 frame NDJSON.
     if (!supportsStreaming(provider)) {
       let candidateReply = SAFE_REDIRECT
       let sourced = false
+      let callMeta: AIProviderMetadata | undefined
       try {
         const { content, metadata } = await provider.call(systemPrompt, userPrompt)
+        callMeta = metadata
         logCache(metadata)
         const candidate = (content || "").trim().slice(0, MAX_REPLY_CHARS)
         if (candidate && isReplySafe(candidate)) {
@@ -467,7 +519,7 @@ export async function POST(request: Request) {
       if (sourced) {
         await extractAndPersistMemory(supabase, user.id, raw, candidateReply, providerType)
       }
-      return single(candidateReply, sourced)
+      return single(candidateReply, sourced, sourced ? "ok" : "error", callMeta)
     }
 
     // #210 — streaming token-par-token (NDJSON) + post-filtre sécurité incrémental.
@@ -537,6 +589,27 @@ export async function POST(request: Request) {
         }
 
         await persistReply(finalReply)
+        // #Telemetry — logge le tour streamé. Outcome :
+        //   unsafe → blocked_output (rideau 3 a coupé)
+        //   !hadText → error (stream vide / échec provider)
+        //   sinon → ok
+        const streamOutcome: CoachTurnOutcome = unsafe
+          ? "blocked_output"
+          : hadText
+            ? "ok"
+            : "error"
+        logCoachTurn(
+          buildTurnMetrics({
+            teenId: user.id,
+            provider: providerType,
+            meta,
+            startTime,
+            outcome: streamOutcome,
+            inputChars: raw.length,
+            outputChars: finalReply.length,
+            remainingTurns: remaining,
+          }),
+        )
         send({
           type: "done",
           remainingTurns: remaining,

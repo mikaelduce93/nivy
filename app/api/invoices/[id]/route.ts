@@ -22,7 +22,7 @@ export async function GET(
       )
     }
 
-    // Fetch booking with related data
+    // Fetch booking with related event (bookings has only an event FK live)
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
       .select(`
@@ -30,19 +30,9 @@ export async function GET(
         event:events(
           id,
           title,
-          start_date,
-          location
-        ),
-        parent:profiles!bookings_parent_id_fkey(
-          id,
-          full_name,
-          email,
-          phone
-        ),
-        teen:profiles!bookings_teen_id_fkey(
-          id,
-          full_name,
-          pseudo
+          event_date,
+          address,
+          city
         )
       `)
       .eq("id", id)
@@ -62,7 +52,7 @@ export async function GET(
       .eq("id", user.id)
       .single()
 
-    const isOwner = booking.parent_id === user.id || booking.teen_id === user.id
+    const isOwner = booking.user_id === user.id
     const isAdmin = userProfile.data?.role === "admin"
 
     if (!isOwner && !isAdmin) {
@@ -72,67 +62,52 @@ export async function GET(
       )
     }
 
+    // Fetch the customer profile (booking owner); no FK relation exists live
+    const { data: customer } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", booking.user_id ?? "")
+      .maybeSingle()
+
     // Build invoice data
-    const invoiceDate = new Date(booking.paid_at || booking.created_at)
+    const invoiceDate = new Date(booking.paid_at || booking.created_at || Date.now())
     const invoiceNumber = generateInvoiceNumber("TPM", booking.id, invoiceDate)
 
-    // Calculate items and totals
-    const ticketQuantity = booking.quantity || 1
-    const unitPrice = booking.unit_price || (booking.total_amount / ticketQuantity)
-    const subtotal = unitPrice * ticketQuantity
+    // Calculate items and totals (no quantity/unit_price columns live: single line)
+    const total = booking.total_amount ?? 0
+    const ticketQuantity = 1
+    const unitPrice = total
+    const subtotal = total
 
     const items = [
       {
-        description: `Billet - ${booking.event?.title || "Evenement"}${booking.teen ? ` (${booking.teen.pseudo || booking.teen.full_name})` : ""}`,
+        description: `Billet - ${booking.event?.title || "Evenement"}`,
         quantity: ticketQuantity,
         unitPrice: unitPrice,
         total: subtotal
       }
     ]
 
-    // Add any extras if present
-    if (booking.extras && Array.isArray(booking.extras)) {
-      for (const extra of booking.extras) {
-        items.push({
-          description: extra.name || "Option supplementaire",
-          quantity: extra.quantity || 1,
-          unitPrice: extra.price || 0,
-          total: (extra.price || 0) * (extra.quantity || 1)
-        })
-      }
-    }
-
-    const discount = booking.discount_amount || 0
-    const discountLabel = booking.discount_code
-      ? `Reduction (${booking.discount_code})`
-      : undefined
-
     const invoiceData: InvoiceData = {
       invoiceNumber,
       invoiceDate: invoiceDate.toISOString(),
 
-      customerName: booking.parent?.full_name || "Client",
-      customerEmail: booking.parent?.email || user.email || "",
-      customerPhone: booking.parent?.phone,
+      customerName: customer?.full_name || "Client",
+      customerEmail: customer?.email || user.email || "",
 
       items,
       subtotal,
-      discount: discount > 0 ? discount : undefined,
-      discountLabel,
-      total: booking.total_amount,
+      total,
 
       paymentMethod: getPaymentMethodLabel(booking.payment_method),
-      paymentStatus: booking.payment_status as "paid" | "pending" | "failed",
-      paidAt: booking.paid_at,
-      transactionId: booking.stripe_payment_intent
-        ? `STR-${booking.stripe_payment_intent.slice(-12)}`
-        : undefined,
+      paymentStatus: (booking.payment_status ?? "pending") as "paid" | "pending" | "failed",
+      paidAt: booking.paid_at ?? undefined,
 
       eventTitle: booking.event?.title,
-      eventDate: booking.event?.start_date,
-      eventLocation: booking.event?.location,
+      eventDate: booking.event?.event_date ?? undefined,
+      eventLocation: booking.event?.address ?? booking.event?.city ?? undefined,
 
-      bookingReference: booking.reference || booking.id.slice(0, 8).toUpperCase()
+      bookingReference: booking.booking_reference || booking.id.slice(0, 8).toUpperCase()
     }
 
     // Generate HTML invoice

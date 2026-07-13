@@ -1,9 +1,7 @@
 import { AdminSidebar } from '@/components/layouts/admin-sidebar'
 import { getAdminInfo } from '@/lib/auth/admin-permissions'
 import { redirect } from 'next/navigation'
-import { AgentFloatingButton } from '@/components/ai/AgentFloatingButton'
 import { SkipToContent } from '@/components/ui/skip-to-content'
-import { getFeatureFlag } from '@/lib/features/flags'
 
 export default async function AdminLayout({
   children,
@@ -17,9 +15,6 @@ export default async function AdminLayout({
     // Not an admin, redirect to home or auth
     redirect('/auth/redirect')
   }
-
-  // #63 — legacy AgentSheet/FriendMap IA panel behind an off-by-default flag.
-  const legacyAgentEnabled = await getFeatureFlag('legacy_agent_sheet')
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,7 +39,6 @@ export default async function AdminLayout({
           {children}
         </div>
       </main>
-      {legacyAgentEnabled && <AgentFloatingButton role="admin" context={admin} />}
     </div>
   )
 }

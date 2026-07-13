@@ -367,8 +367,8 @@ export class ContentValidator {
 
       const { data, error } = await supabase.rpc("get_curated_content_fallback", {
         p_content_type: contentType,
-        p_category: category || null,
-        p_grade_level: gradeLevel || null,
+        p_category: category || undefined,
+        p_grade_level: gradeLevel || undefined,
         p_limit: limit,
       })
 

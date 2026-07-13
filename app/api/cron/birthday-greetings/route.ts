@@ -7,8 +7,9 @@
  *
  * Idempotency: keyed on (teen_id, current_year). We check if an XP transaction
  * with source_type='birthday' already exists for today before inserting.
- * Optionally writes to `anniv_celebrations` if that table exists (not yet
- * present on staging — we degrade gracefully).
+ * (A former optional write to `anniv_celebrations` was removed: the table
+ * exists in no migration nor in the live schema, so the probe always failed
+ * and the insert never ran.)
  *
  * Auth: Vercel cron header OR Bearer CRON_SECRET, fail-CLOSED.
  */
@@ -63,13 +64,6 @@ export async function GET(request: NextRequest) {
     return d.getUTCMonth() + 1 === month && d.getUTCDate() === day
   })
 
-  // Has anniv_celebrations table?
-  const { error: annivProbe } = await supabase
-    .from("anniv_celebrations")
-    .select("teen_id")
-    .limit(1)
-  const hasAnnivTable = !annivProbe
-
   let celebrated = 0
   let skippedAlreadyDone = 0
   const errors: Array<{ teen_id: string; error: string }> = []
@@ -113,19 +107,6 @@ export async function GET(request: NextRequest) {
         action_url: "/teen/profile",
       })
 
-      // Anniv_celebrations row if the table exists.
-      if (hasAnnivTable) {
-        await supabase
-          .from("anniv_celebrations")
-          .insert({
-            teen_id: teen.id,
-            ann_year: year,
-            celebrated_at: nowUtc.toISOString(),
-          })
-          .select()
-          .maybeSingle()
-      }
-
       celebrated++
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
@@ -143,7 +124,6 @@ export async function GET(request: NextRequest) {
     celebrated,
     skipped_already_done: skippedAlreadyDone,
     errors,
-    has_anniv_table: hasAnnivTable,
     duration_ms: Date.now() - startedAt,
   })
 }

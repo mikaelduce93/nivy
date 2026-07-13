@@ -20,8 +20,12 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import type { Json } from "@/types/supabase"
 
 export const dynamic = "force-dynamic"
+
+// The group RPCs return jsonb { success, error?, ... }; type the boundary.
+type RpcResult = { success?: boolean; error?: string }
 
 // ---------------------------------------------------------------------------
 // GET — list the teen's food group_actions (organized + invited)
@@ -166,17 +170,17 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await supabase.rpc("create_group_action", {
         p_action_type: "food",
-        p_resource_id: resourceId ?? null,
+        p_resource_id: resourceId ?? undefined,
         p_invitee_ids: inviteeIds ?? [],
         p_title: title.trim(),
         p_max_size: maxSize ?? 6,
-        p_deadline: deadline ?? null,
+        p_deadline: deadline ?? undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
       // RPC returns { success, error?, ... } — forward it honestly.
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult | null)?.success ? 200 : 400 })
     }
 
     if (action === "respond") {
@@ -197,7 +201,7 @@ export async function POST(request: NextRequest) {
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult | null)?.success ? 200 : 400 })
     }
 
     if (action === "preview") {
@@ -207,12 +211,12 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await supabase.rpc("unlock_group_size_rewards", {
         p_group_action_id: groupActionId,
-        p_partner_id: partnerId ?? null,
+        p_partner_id: partnerId ?? undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult | null)?.success ? 200 : 400 })
     }
 
     if (action === "finalize") {
@@ -243,13 +247,14 @@ export async function POST(request: NextRequest) {
         p_group_action_id: groupActionId,
         p_partner_id: partnerId,
         p_delivery_type: deliveryType,
-        p_items: items,
-        p_address: deliveryType === "delivery" ? address?.trim() ?? null : null,
+        // FoodItem[] is structurally a JSON array; cast at the RPC boundary.
+        p_items: items as unknown as Json,
+        p_address: deliveryType === "delivery" ? address?.trim() ?? undefined : undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult | null)?.success ? 200 : 400 })
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 })

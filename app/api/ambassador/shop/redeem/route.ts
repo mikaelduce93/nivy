@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const supabase = await createClient()
     const body = await request.json()
 
-    const { reward_id, delivery_address, delivery_notes } = body
+    const { reward_id } = body
 
     // Validation
     if (!reward_id) {
@@ -48,35 +48,17 @@ export async function POST(request: Request) {
       )
     }
 
-    // Appeler la fonction RPC pour échanger
-    const { data: redemptionId, error: redeemError } = await supabase.rpc(
-      "redeem_ambassador_reward",
+    // La boutique ambassadeur (fonction `redeem_ambassador_reward`, tables
+    // `ambassador_rewards`/`ambassador_redemptions`) n'existe pas dans le schéma
+    // live : ce back-end n'a jamais été déployé. On évite un appel RPC voué à
+    // échouer et on signale la fonctionnalité comme indisponible.
+    return NextResponse.json(
       {
-        p_ambassador_id: ambassador.id,
-        p_reward_id: reward_id,
-        p_delivery_address: delivery_address || null,
-        p_delivery_notes: delivery_notes || null,
-      }
-    )
-
-    if (redeemError) {
-      console.error("Redeem error:", redeemError)
-      return NextResponse.json(
-        {
-          success: false,
-          error: redeemError.message || "Erreur lors de l'échange",
-        },
-        { status: 400 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        redemption_id: redemptionId,
-        message: "Récompense échangée avec succès",
+        success: false,
+        error: "La boutique ambassadeur n'est pas encore disponible",
       },
-    })
+      { status: 503 }
+    )
   } catch (error: any) {
     console.error("Shop redeem API error:", error)
     return NextResponse.json(
@@ -90,11 +72,9 @@ export async function POST(request: Request) {
  * GET /api/ambassador/shop/redeem
  * Récupérer l'historique des échanges
  */
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     const supabase = await createClient()
-    const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get("limit") || "20")
 
     // Vérifier l'utilisateur
     const {
@@ -123,35 +103,15 @@ export async function GET(request: Request) {
       )
     }
 
-    // Récupérer les échanges
-    const { data: redemptions, error: redemptionsError } = await supabase
-      .from("ambassador_redemptions")
-      .select(
-        `
-        id,
-        points_spent,
-        status,
-        delivery_address,
-        tracking_number,
-        created_at,
-        reward:ambassador_rewards(id, name, description, emoji, points_cost, category)
-      `
-      )
-      .eq("ambassador_id", ambassador.id)
-      .order("created_at", { ascending: false })
-      .limit(limit)
-
-    if (redemptionsError) {
-      return NextResponse.json(
-        { success: false, error: "Erreur lors de la récupération" },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: redemptions,
-    })
+    // Les tables `ambassador_redemptions`/`ambassador_rewards` n'existent pas
+    // dans le schéma live : l'historique d'échanges ne peut pas être servi.
+    return NextResponse.json(
+      {
+        success: false,
+        error: "La boutique ambassadeur n'est pas encore disponible",
+      },
+      { status: 503 }
+    )
   } catch (error: any) {
     console.error("Shop history API error:", error)
     return NextResponse.json(

@@ -5,20 +5,35 @@ interface ReviewsListProps {
   eventId: string
 }
 
+interface ReviewRow {
+  id: string
+  overall_rating: number
+  comment: string | null
+  created_at: string | null
+  teens: { pseudo: string | null; first_name: string | null } | null
+}
+
 export async function ReviewsList({ eventId }: ReviewsListProps) {
   const supabase = await createClient()
 
+  // Table live = event_reviews ; reviewer = teens (pas de relation profiles) ;
+  // .returns<>() borne le type et évite l'instanciation TS trop profonde du select embarqué
   const { data: reviews } = await supabase
-    .from("reviews")
+    .from("event_reviews")
     .select(`
-      *,
-      profiles (
-        full_name
+      id,
+      overall_rating,
+      comment,
+      created_at,
+      teens (
+        pseudo,
+        first_name
       )
     `)
     .eq("event_id", eventId)
-    .eq("is_approved", true)
+    .eq("is_visible", true)
     .order("created_at", { ascending: false })
+    .returns<ReviewRow[]>()
 
   if (!reviews || reviews.length === 0) {
     return (
@@ -29,7 +44,7 @@ export async function ReviewsList({ eventId }: ReviewsListProps) {
     )
   }
 
-  const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+  const averageRating = reviews.reduce((sum, review) => sum + review.overall_rating, 0) / reviews.length
 
   return (
     <div className="space-y-6">
@@ -55,20 +70,24 @@ export async function ReviewsList({ eventId }: ReviewsListProps) {
           <div key={review.id} className="bg-card rounded-xl p-6 border border-ink">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-ink font-semibold">{review.profiles?.full_name || "Utilisateur"}</p>
+                <p className="text-ink font-semibold">
+                  {review.teens?.pseudo || review.teens?.first_name || "Utilisateur"}
+                </p>
                 <p className="text-mute text-sm">
-                  {new Date(review.created_at).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  {review.created_at
+                    ? new Date(review.created_at).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : ""}
                 </p>
               </div>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className={`w-4 h-4 ${star <= review.rating ? "fill-gold text-gold" : "text-mute"}`}
+                    className={`w-4 h-4 ${star <= review.overall_rating ? "fill-gold text-gold" : "text-mute"}`}
                   />
                 ))}
               </div>

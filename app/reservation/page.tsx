@@ -52,8 +52,10 @@ export default async function ReservationPage({
   }
 
   const selectedType = ticketType || "standard"
-  const isAEFE = profile?.school_type === 'aefe' || profile?.is_aefe === true
-  const basePrice = selectedType === "vip" ? event.vip_price : event.base_price
+  // #drift — colonnes school_type/is_aefe supprimées de profiles ; réduction AEFE désactivée côté DB
+  const isAEFE = false
+  // #drift — plus de vip_price/base_price en base ; tarif unique price_dh (nullable)
+  const basePrice = event.price_dh ?? 0
   const price = isAEFE ? basePrice * 0.9 : basePrice // 10% discount for AEFE
 
   return (
@@ -85,23 +87,32 @@ export default async function ReservationPage({
                     <div className="flex items-center gap-2 text-mute text-sm">
                       <Calendar className="w-4 h-4 text-teal" />
                       <span>
-                        {new Date(event.event_date).toLocaleDateString("fr-FR", {
-                          weekday: "long",
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}
+                        {event.event_date
+                          ? new Date(event.event_date).toLocaleDateString("fr-FR", {
+                              weekday: "long",
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })
+                          : "Date à confirmer"}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-mute text-sm mt-2">
                       <Clock className="w-4 h-4 text-teal" />
-                      <span>{event.event_time}</span>
+                      {/* #drift — pas de colonne event_time ; heure dérivée de starts_at */}
+                      <span>
+                        {event.starts_at
+                          ? new Date(event.starts_at).toLocaleTimeString("fr-FR", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : ""}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-mute text-sm mt-2">
                       <MapPin className="w-4 h-4 text-teal" />
-                      <span>
-                        {event.venue_name}, {event.city}
-                      </span>
+                      {/* #drift — pas de colonne venue_name (ni table venues) ; lieu = address + city */}
+                      <span>{[event.address, event.city].filter(Boolean).join(", ")}</span>
                     </div>
                   </div>
                 </div>
@@ -182,18 +193,13 @@ export default async function ReservationPage({
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-mute">Nom</span>
-                    <span className="text-ink font-semibold">
-                      {profile?.prenom} {profile?.nom}
-                    </span>
+                    <span className="text-ink font-semibold">{profile?.full_name}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-mute">Email</span>
                     <span className="text-ink font-semibold">{profile?.email}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-mute">Téléphone</span>
-                    <span className="text-ink font-semibold">{profile?.telephone}</span>
-                  </div>
+                  {/* #drift — colonne telephone absente de profiles ; ligne retirée */}
                 </div>
               </StickerCard>
 

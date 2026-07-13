@@ -10,13 +10,15 @@
  *      /mes-reservations (forbidden bare path per Wave 5A).
  *   4. Wave 1B closures intact: /api/parent/topup keeps idempotency,
  *      e-signature gate, parent-teen link verification, no auto-topup.
- *   5. Wave 1B + 2B closures intact: /api/teen/shop and /api/teen/tokens
- *      POST stay 410-stubbed; CMI server-to-server webhook keeps HASH gate.
+ *   5. Wave 1B + 2B closures intact: /api/teen/shop stays 410-stubbed;
+ *      the deprecated /api/teen/tokens route is fully removed (Axe 3 /
+ *      canon §5.1, migration 198); CMI server-to-server webhook keeps
+ *      HASH gate.
  *   6. Founder F5 not violated: no auto-topup implementation exists in
  *      production code (PSP webhook stays env-gated).
  */
 import { describe, expect, it } from "vitest"
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { resolve } from "node:path"
 
 const ROOT = process.cwd()
@@ -95,10 +97,11 @@ describe("Wave 6F — Wave 1B closures intact", () => {
     expect(src).toMatch(/status:\s*410/)
   })
 
-  it("/api/teen/tokens POST stays 410 (no phantom RPC mutations)", () => {
-    const src = stripComments(read("app/api/teen/tokens/route.ts"))
-    // The deprecated() short-circuit returns 410 from POST.
-    expect(src).toMatch(/function\s+deprecated[\s\S]{0,400}status:\s*410/)
+  it("/api/teen/tokens route is fully removed (Axe 3 / canon §5.1)", () => {
+    // Migration 198 drops the token_* + daily_bonuses rails; the route
+    // directory itself is deleted. The route must NOT exist.
+    const path = resolve(ROOT, "app/api/teen/tokens/route.ts")
+    expect(existsSync(path), `${path} should not exist after Axe 3 cleanup`).toBe(false)
   })
 })
 

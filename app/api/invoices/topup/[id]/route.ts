@@ -22,25 +22,15 @@ export async function GET(
       )
     }
 
-    // Fetch coin transaction with related data
+    // Fetch the topup transaction. Live coin_transactions has no FK to profiles
+    // and no parent_id column: read the row alone, resolve people afterwards.
+    // (Column rename: legacy `type` -> `transaction_type`.)
+    // `amount` holds COINS per mig 179 top_up_teen (v_amount_coins := p_amount_dh * 100).
     const { data: transaction, error: txError } = await supabase
       .from("coin_transactions")
-      .select(`
-        *,
-        parent:profiles!coin_transactions_parent_id_fkey(
-          id,
-          full_name,
-          email,
-          phone
-        ),
-        teen:profiles!coin_transactions_teen_id_fkey(
-          id,
-          full_name,
-          pseudo
-        )
-      `)
+      .select("*")
       .eq("id", id)
-      .eq("type", "topup")
+      .eq("transaction_type", "topup")
       .single()
 
     if (txError || !transaction) {
@@ -50,8 +40,16 @@ export async function GET(
       )
     }
 
-    // Verify user has access
-    const isOwner = transaction.parent_id === user.id || transaction.teen_id === user.id
+    // Topups are bought by a parent, but coin_transactions only stores teen_id
+    // live. Resolve the linked parent(s) via parent_teens_overview.
+    const { data: parentLinks } = await supabase
+      .from("parent_teens_overview")
+      .select("parent_id")
+      .eq("teen_id", transaction.teen_id)
+
+    const parentIds = (parentLinks ?? [])
+      .map((l) => l.parent_id)
+      .filter((pid): pid is string => Boolean(pid))
 
     const { data: userProfile } = await supabase
       .from("profiles")
@@ -60,6 +58,7 @@ export async function GET(
       .single()
 
     const isAdmin = userProfile?.role === "admin"
+    const isOwner = transaction.teen_id === user.id || parentIds.includes(user.id)
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json(
@@ -68,20 +67,47 @@ export async function GET(
       )
     }
 
-    // Build invoice data
-    const invoiceDate = new Date(transaction.created_at)
+    // Customer = the requesting parent, otherwise the first linked parent,
+    // falling back to the teen. profiles has no phone column live.
+    const customerId = parentIds.includes(user.id)
+      ? user.id
+      : (parentIds[0] ?? transaction.teen_id)
+    const { data: customer } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", customerId)
+      .maybeSingle()
+
+    // Build invoice data (created_at is nullable live)
+    const invoiceDate = new Date(transaction.created_at ?? Date.now())
     const invoiceNumber = generateInvoiceNumber("TPM-RC", transaction.id, invoiceDate)
 
-    // Parse amount - assuming coins have a fixed rate
-    const COIN_RATE = 1 // 1 coin = 1 DH (adjust as needed)
+    // Convert coins -> DH. Canonical locked rate: 1 DH = 100 coins (canon §2.1),
+    // so 1 coin = 0.01 DH. mig 179 top_up_teen (line 296) writes
+    // v_amount_coins := (p_amount_dh * 100)::integer into coin_transactions.amount,
+    // and sets source_id = v_payment_id (lines 326/354). We prefer the authoritative
+    // amount_dh from payment_transactions when available, falling back to the rate.
+    const COIN_RATE = 0.01 // 1 DH = 100 coins (canon §2.1, locked)
     const coinsAmount = transaction.amount || 0
-    const bonusCoins = transaction.bonus_amount || 0
-    const totalCoins = coinsAmount + bonusCoins
-    const totalPrice = transaction.paid_amount || (coinsAmount * COIN_RATE)
+
+    let totalPrice: number
+    if (transaction.source_id) {
+      const { data: payment } = await supabase
+        .from("payment_transactions")
+        .select("amount_dh")
+        .eq("id", transaction.source_id)
+        .maybeSingle()
+      totalPrice =
+        payment && typeof payment.amount_dh === "number"
+          ? payment.amount_dh
+          : coinsAmount * COIN_RATE
+    } else {
+      totalPrice = coinsAmount * COIN_RATE
+    }
 
     const items = [
       {
-        description: `Recharge de ${coinsAmount} coins${bonusCoins > 0 ? ` (+${bonusCoins} bonus)` : ""}`,
+        description: transaction.description || `Recharge de ${coinsAmount} coins (${totalPrice} DH)`,
         quantity: 1,
         unitPrice: totalPrice,
         total: totalPrice
@@ -92,9 +118,8 @@ export async function GET(
       invoiceNumber,
       invoiceDate: invoiceDate.toISOString(),
 
-      customerName: transaction.parent?.full_name || "Client",
-      customerEmail: transaction.parent?.email || user.email || "",
-      customerPhone: transaction.parent?.phone,
+      customerName: customer?.full_name || "Client",
+      customerEmail: customer?.email || user.email || "",
 
       items,
       subtotal: totalPrice,
@@ -102,10 +127,9 @@ export async function GET(
 
       paymentMethod: "Carte bancaire (Stripe)",
       paymentStatus: "paid",
-      paidAt: transaction.created_at,
-      transactionId: transaction.stripe_session_id
-        ? `STR-${transaction.stripe_session_id.slice(-12)}`
-        : undefined,
+      paidAt: transaction.created_at ?? undefined,
+      // coin_transactions stores no stripe_session_id; source_id points to the
+      // payment_transactions row (resolved above for the DH amount).
 
       bookingReference: `RC-${transaction.id.slice(0, 8).toUpperCase()}`
     }

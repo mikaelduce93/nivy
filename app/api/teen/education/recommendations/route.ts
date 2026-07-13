@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
             reason: `Ameliore tes connaissances en ${weakSubject.label} (moyenne: ${Math.round(weakSubject.average)}%)`,
             priority: weakSubject.average < 40 ? "high" : "medium",
             subject: weakSubject.subject,
-            xpReward: quiz.xp_reward,
+            xpReward: quiz.xp_reward ?? undefined,
             metadata: { quizId: quiz.id },
           })
         })
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
             reason: `Renforce tes bases en ${weakSubject.label}`,
             priority: weakSubject.average < 40 ? "high" : "medium",
             subject: weakSubject.subject,
-            xpReward: tutorial.xp_reward,
+            xpReward: tutorial.xp_reward ?? undefined,
             metadata: {
               tutorialId: tutorial.id,
               videoUrl: tutorial.video_url,
@@ -172,7 +172,7 @@ export async function GET(request: NextRequest) {
             description: path.description || `Niveau ${progress.current_level}/${path.total_levels}`,
             reason: "Continue ton parcours passion pour equilibrer ton profil",
             priority: "medium",
-            xpReward: path.xp_per_level,
+            xpReward: path.xp_per_level ?? undefined,
             metadata: {
               pathId: path.id,
               currentLevel: progress.current_level,
@@ -207,7 +207,9 @@ export async function GET(request: NextRequest) {
     const { data: pillarScores } = await supabase
       .rpc("get_pillar_scores", { p_teen_id: teenId })
 
-    if (pillarScores && pillarScores.sport_score < 50) {
+    // get_pillar_scores renvoie du Json — cast de frontiere vers le type domaine
+    const pillarScoresTyped = pillarScores as { sport_score?: number | null } | null
+    if (pillarScoresTyped && (pillarScoresTyped.sport_score ?? 0) < 50) {
       const { data: physicalChallenges } = await supabase
         .from("physical_challenges")
         .select("*")
@@ -223,7 +225,7 @@ export async function GET(request: NextRequest) {
           description: challenge.description || `Objectif: ${challenge.objective_value} ${challenge.objective_unit}`,
           reason: "Ameliore ton score Sport pour un meilleur equilibre",
           priority: "medium",
-          xpReward: challenge.xp_reward,
+          xpReward: challenge.xp_reward ?? undefined,
           metadata: { challengeId: challenge.id },
         })
       })

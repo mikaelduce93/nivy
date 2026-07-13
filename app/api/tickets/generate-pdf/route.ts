@@ -32,12 +32,14 @@ export async function GET(request: NextRequest) {
     .eq('user_id', user.id)
     .single()
 
-  if (error || !booking) {
+  if (error || !booking || !booking.events) {
     return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
   }
 
+  const event = booking.events
+
   // Generate QR code as data URL
-  const qrCodeDataUrl = await toDataURL(booking.booking_reference, {
+  const qrCodeDataUrl = await toDataURL(booking.booking_reference ?? '', {
     width: 300,
     margin: 2,
   })
@@ -62,7 +64,7 @@ export async function GET(request: NextRequest) {
       <body>
         <div class="header">
           <h1>Teens Party Morocco</h1>
-          <h2>${booking.events.title}</h2>
+          <h2>${event.title}</h2>
           <p>Référence: ${booking.booking_reference}</p>
         </div>
         
@@ -75,20 +77,20 @@ export async function GET(request: NextRequest) {
           <table>
             <tr>
               <td>Date</td>
-              <td>${new Date(booking.events.event_date).toLocaleDateString('fr-FR', {
+              <td>${event.event_date ? new Date(event.event_date).toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
-              })}</td>
+              }) : 'À confirmer'}</td>
             </tr>
             <tr>
               <td>Heure</td>
-              <td>${booking.events.event_time || '20:00'}</td>
+              <td>20:00</td>
             </tr>
             <tr>
               <td>Lieu</td>
-              <td>${booking.events.venue_name}, ${booking.events.city}</td>
+              <td>${event.city ?? 'À confirmer'}</td>
             </tr>
             <tr>
               <td>Billets</td>
@@ -107,7 +109,7 @@ export async function GET(request: NextRequest) {
             <li>Arrivez 15 minutes avant le début</li>
             <li>Pièce d'identité obligatoire</li>
             <li>Événement 100% sans alcool</li>
-            <li>Dress code: ${booking.events.dress_code || 'Tenue de soirée'}</li>
+            <li>Dress code: Tenue de soirée</li>
           </ul>
         </div>
       </body>

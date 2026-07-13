@@ -136,17 +136,17 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await supabase.rpc("create_group_action", {
         p_action_type: "venue_booking",
-        p_resource_id: null,
         p_invitee_ids: inviteeIds ?? [],
         p_title: title.trim(),
         p_max_size: maxSize ?? 4,
-        p_deadline: deadline ?? null,
+        p_deadline: deadline ?? undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      // RPC returns { success, error?, ... } — forward it honestly.
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      // RPC returns jsonb { success, error?, ... } (typed Json) — forward it honestly.
+      const result = data as { success?: boolean } | null
+      return NextResponse.json(data, { status: result?.success ? 200 : 400 })
     }
 
     if (action === "respond") {
@@ -167,7 +167,8 @@ export async function POST(request: NextRequest) {
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      const result = data as { success?: boolean } | null
+      return NextResponse.json(data, { status: result?.success ? 200 : 400 })
     }
 
     if (action === "preview") {
@@ -177,12 +178,13 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await supabase.rpc("unlock_group_size_rewards", {
         p_group_action_id: groupActionId,
-        p_partner_id: partnerId ?? null,
+        p_partner_id: partnerId ?? undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      const result = data as { success?: boolean } | null
+      return NextResponse.json(data, { status: result?.success ? 200 : 400 })
     }
 
     if (action === "reserve") {
@@ -200,7 +202,8 @@ export async function POST(request: NextRequest) {
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      const result = data as { success?: boolean } | null
+      return NextResponse.json(data, { status: result?.success ? 200 : 400 })
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 })

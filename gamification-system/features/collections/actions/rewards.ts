@@ -33,8 +33,15 @@ export async function claimSetRewards(
     return { success: false, error: error.message }
   }
 
-  if (!data.success) {
-    return { success: false, error: data.error }
+  // La RPC renvoie Json ; cast de frontière vers la forme réelle du retour.
+  const result = (data ?? {}) as {
+    success?: boolean
+    error?: string
+    rewards?: { xp: number; coins: number; badge_id?: string; title_id?: string }
+  }
+
+  if (!result.success) {
+    return { success: false, error: result.error }
   }
 
   revalidatePath("/collections")
@@ -42,7 +49,7 @@ export async function claimSetRewards(
 
   return {
     success: true,
-    rewards: data.rewards,
+    rewards: result.rewards,
   }
 }
 

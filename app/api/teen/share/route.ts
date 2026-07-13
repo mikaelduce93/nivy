@@ -342,11 +342,16 @@ export async function POST(request: NextRequest) {
 
         if (error) throw error
 
-        // Incrémenter le compteur d'utilisation du template
+        // Incrémenter le compteur d'utilisation du template (best-effort)
         if (template_id) {
+          const { data: tpl } = await supabase
+            .from("share_card_templates")
+            .select("usage_count")
+            .eq("id", template_id)
+            .single()
           await supabase
             .from("share_card_templates")
-            .update({ usage_count: supabase.rpc("increment", { x: 1 }) })
+            .update({ usage_count: (tpl?.usage_count ?? 0) + 1 })
             .eq("id", template_id)
         }
 
@@ -392,20 +397,20 @@ export async function POST(request: NextRequest) {
         switch (content_type) {
           case "achievement": {
             const { data: badge } = await supabase
-              .from("user_badges")
+              .from("user_achievements")
               .select(`
                 *,
-                badge:badges (*)
+                achievement:achievements (name, description, icon)
               `)
               .eq("id", content_id)
-              .eq("user_id", user.id)
+              .eq("teen_id", user.id)
               .single()
 
-            if (badge) {
+            if (badge && badge.achievement) {
               shareData = {
-                title: `J'ai débloqué "${badge.badge.name}" sur TeensParty!`,
-                description: badge.badge.description,
-                image: badge.badge.icon_url,
+                title: `J'ai débloqué "${badge.achievement.name}" sur TeensParty!`,
+                description: badge.achievement.description,
+                image: badge.achievement.icon,
                 hashtags: ["TeensParty", "Achievement", "Gaming"],
               }
             }
@@ -414,15 +419,15 @@ export async function POST(request: NextRequest) {
 
           case "level_up": {
             const { data: userData } = await supabase
-              .from("users")
-              .select("level, display_name")
+              .from("teen_full_profile")
+              .select("level, pseudo")
               .eq("id", user.id)
               .single()
 
             if (userData) {
               shareData = {
-                title: `Je suis maintenant niveau ${userData.level} sur TeensParty!`,
-                description: `${userData.display_name} a atteint le niveau ${userData.level}. Rejoins-moi!`,
+                title: `Je suis maintenant niveau ${userData.level ?? 0} sur TeensParty!`,
+                description: `${userData.pseudo ?? ""} a atteint le niveau ${userData.level ?? 0}. Rejoins-moi!`,
                 hashtags: ["TeensParty", "LevelUp", "Progress"],
               }
             }
@@ -434,16 +439,16 @@ export async function POST(request: NextRequest) {
               .from("user_challenges")
               .select(`
                 *,
-                challenge:physical_challenges (*)
+                challenge:challenges_templates (title, description)
               `)
               .eq("id", content_id)
-              .eq("user_id", user.id)
+              .eq("teen_id", user.id)
               .single()
 
-            if (challenge) {
+            if (challenge && challenge.challenge) {
               shareData = {
                 title: `J'ai complété le défi "${challenge.challenge.title}"!`,
-                description: challenge.challenge.description,
+                description: challenge.challenge.description ?? "",
                 hashtags: ["TeensParty", "Challenge", "Fitness"],
               }
             }
@@ -452,16 +457,16 @@ export async function POST(request: NextRequest) {
 
           case "creation": {
             const { data: creation } = await supabase
-              .from("creations")
-              .select("*")
+              .from("teen_creations")
+              .select("title, description, media_url")
               .eq("id", content_id)
-              .eq("user_id", user.id)
+              .eq("teen_id", user.id)
               .single()
 
             if (creation) {
               shareData = {
                 title: creation.title,
-                description: creation.description,
+                description: creation.description ?? "",
                 image: creation.media_url,
                 hashtags: ["TeensParty", "Creation", "Art"],
               }
@@ -470,16 +475,23 @@ export async function POST(request: NextRequest) {
           }
 
           case "streak": {
-            const { data: userData } = await supabase
-              .from("users")
-              .select("current_streak, display_name")
+            const { data: streakData } = await supabase
+              .from("user_streaks")
+              .select("current_streak")
+              .eq("teen_id", user.id)
+              .single()
+            const { data: teenData } = await supabase
+              .from("teens")
+              .select("pseudo")
               .eq("id", user.id)
               .single()
 
-            if (userData) {
+            if (streakData) {
+              const streak = streakData.current_streak ?? 0
+              const pseudo = teenData?.pseudo ?? ""
               shareData = {
-                title: `${userData.current_streak} jours de suite sur TeensParty!`,
-                description: `${userData.display_name} maintient une série de ${userData.current_streak} jours. Incroyable!`,
+                title: `${streak} jours de suite sur TeensParty!`,
+                description: `${pseudo} maintient une série de ${streak} jours. Incroyable!`,
                 hashtags: ["TeensParty", "Streak", "Dedication"],
               }
             }
@@ -488,16 +500,16 @@ export async function POST(request: NextRequest) {
 
           case "profile": {
             const { data: userData } = await supabase
-              .from("users")
-              .select("*")
+              .from("teen_full_profile")
+              .select("pseudo, level, total_xp, avatar_url")
               .eq("id", user.id)
               .single()
 
             if (userData) {
               shareData = {
-                title: `${userData.display_name} sur TeensParty`,
-                description: `Niveau ${userData.level} • ${userData.total_xp} XP • Rejoins-moi sur TeensParty!`,
-                image: userData.avatar_url,
+                title: `${userData.pseudo ?? ""} sur TeensParty`,
+                description: `Niveau ${userData.level ?? 0} • ${userData.total_xp ?? 0} XP • Rejoins-moi sur TeensParty!`,
+                image: userData.avatar_url ?? undefined,
                 hashtags: ["TeensParty", "Profile"],
               }
             }

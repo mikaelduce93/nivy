@@ -1,5 +1,12 @@
 # Audit & Blueprint — Coach IA « Niv » · Compte Teen Nivy
 
+> ⚠️ **OBSOLÈTE au 2026-07-13.** Ce document décrit un état pré-remédiation. La
+> quasi-totalité des « Quick wins » listés a été exécutée par les tickets
+> `#202/#210/#211/#212`, puis la refonte du 2026-07-13 a clôturé le périmètre
+> (suppression définitive du legacy Kai, ajout TTS/STT natifs, classifier
+> welfare P0). **Consulter `audit-2026-07-13/AUDIT-NIV-COMPAGNON.md` pour
+> l'état réel actuel.** Ce doc est conservé pour l'historique uniquement.
+
 > Audit lecture seule + blueprint cible, généré par workflow multi-agents (10 agents). Date : 2026-05-31. Demande PO : « le coach Niv est très loin de ce qu'on peut faire en 2026 avec l'IA ». Complément de `AUDIT-FEATURES-TEEN.md`.
 
 ## Table des matières

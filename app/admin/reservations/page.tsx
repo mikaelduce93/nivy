@@ -51,17 +51,23 @@ export default async function AdminBookingsPage({
     query = query.eq("payment_status", status)
   }
 
-  const { data: bookings } = await query
+  const { data: bookingsData } = await query
 
-  const bookerIds = [...new Set((bookings ?? []).map((b: any) => b.user_id).filter(Boolean))]
+  // Type frontière : le réservant résolu à part est attaché sous `profiles`.
+  type BookingRow = NonNullable<typeof bookingsData>[number] & {
+    profiles?: { id: string; full_name: string | null; email: string | null } | null
+  }
+  const bookings: BookingRow[] = bookingsData ?? []
+
+  const bookerIds = [...new Set(bookings.map((b) => b.user_id).filter((id): id is string => Boolean(id)))]
   if (bookerIds.length > 0) {
     const { data: bookers } = await supabase
       .from("profiles")
       .select("id, full_name, email")
       .in("id", bookerIds)
-    const byId = new Map((bookers ?? []).map((p: any) => [p.id, p]))
-    for (const b of bookings ?? []) {
-      ;(b as any).profiles = byId.get((b as any).user_id) ?? null
+    const byId = new Map((bookers ?? []).map((p) => [p.id, p]))
+    for (const b of bookings) {
+      b.profiles = byId.get(b.user_id ?? "") ?? null
     }
   }
 
@@ -178,7 +184,9 @@ export default async function AdminBookingsPage({
                       <p className="font-mono text-lg font-bold text-teal tabular-nums">{booking.total_amount} DH</p>
                       {booking.payment_method && <p className="text-mute capitalize">{booking.payment_method}</p>}
                       <p className="text-xs text-mute">
-                        {new Date(booking.created_at).toLocaleDateString("fr-FR")}
+                        {booking.created_at
+                          ? new Date(booking.created_at).toLocaleDateString("fr-FR")
+                          : "—"}
                       </p>
                     </div>
                   </div>

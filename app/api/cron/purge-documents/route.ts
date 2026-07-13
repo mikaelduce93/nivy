@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 
 export const dynamic = "force-dynamic"
@@ -21,7 +22,18 @@ export async function GET(request: Request) {
 
     const supabase = await createClient()
 
-    const { data, error } = await supabase.rpc("execute_document_purge")
+    // `execute_document_purge` est absent des types régénérés depuis la base
+    // LIVE (2026-07-12) : ni la fonction ni les tables documents /
+    // document_purge_queue ne sont déployées (définies seulement dans
+    // docs/P0_OPERATIONAL_FEATURES.md ; route orpheline —
+    // docs/vision/audit-prelaunch/06-cron-jobs.md). Cast vers le
+    // SupabaseClient de base (même pattern que app/api/admin/execute-sql)
+    // pour lever l'erreur tsc SANS changer le runtime : tant que la fonction
+    // n'est pas déployée, l'appel tombe dans `if (error)` → 500, sémantique
+    // préservée.
+    const { data, error } = await (supabase as unknown as SupabaseClient).rpc(
+      "execute_document_purge"
+    )
 
     if (error) throw error
 
@@ -61,7 +73,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 403 })
     }
 
-    const { data, error } = await supabase.rpc("execute_document_purge")
+    // Voir la note du handler GET : `execute_document_purge` n'est pas dans
+    // les types LIVE (2026-07-12), cast de frontière sans changement runtime.
+    const { data, error } = await (supabase as unknown as SupabaseClient).rpc(
+      "execute_document_purge"
+    )
 
     if (error) throw error
 

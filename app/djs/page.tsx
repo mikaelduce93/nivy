@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server"
 import { Star, Music, Calendar } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
@@ -8,22 +7,26 @@ import { StickerCard } from "@/components/ui/sticker-card"
 import { Niv, NivEmpty, DarkSurface } from "@/components/brand"
 import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
+// The `djs` table was dropped from the live database (no `djs` relation nor any
+// of its columns exist in the regenerated Supabase types). The previous query
+// `.from("djs")…` always returned an error, so `djs` was always null and this
+// page has only ever rendered the empty state. Kept that observable behavior
+// until the DJ feature is rebuilt against a real table.
+interface Dj {
+  id: string
+  name: string
+  stage_name: string
+  photo_url: string | null
+  bio: string | null
+  rating: number | null
+  music_styles: string[] | null
+  hourly_rate: number
+}
+
 export default async function DJsPage() {
-  const supabase = await createClient()
+  const djs: Dj[] = []
 
-  let djs = null
-  try {
-    const { data } = await supabase
-      .from("djs")
-      .select("*")
-      .eq("is_active", true)
-      .order("rating", { ascending: false })
-    djs = data
-  } catch {
-    djs = []
-  }
-
-  const count = djs?.length ?? 0
+  const count = djs.length
 
   return (
     <main className="min-h-screen bg-paper">
@@ -92,9 +95,9 @@ export default async function DJsPage() {
                     </div>
                     <p className="line-clamp-2 text-mute">{dj.bio}</p>
 
-                    {dj.music_styles?.length > 0 && (
+                    {(dj.music_styles?.length ?? 0) > 0 && (
                       <div className="flex flex-wrap gap-2">
-                        {dj.music_styles.map((style: string) => (
+                        {(dj.music_styles ?? []).map((style: string) => (
                           <span key={style} className="rounded-full border-2 border-ink bg-paper-2 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
                             {style}
                           </span>

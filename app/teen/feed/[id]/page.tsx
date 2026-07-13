@@ -38,7 +38,11 @@ export default async function SubmissionDetailPage({
   if (!post) notFound()
 
   const title = (post.metadata as { title?: string } | null)?.title
-  const media = Array.isArray(post.media_urls) ? post.media_urls[0] : null
+  // media_urls is jsonb (Json[]) — narrow the first element to a string URL.
+  const media =
+    Array.isArray(post.media_urls) && typeof post.media_urls[0] === "string"
+      ? post.media_urls[0]
+      : null
 
   // TICKET-033 — best-effort feed_viewed signal on detail-page open.
   //

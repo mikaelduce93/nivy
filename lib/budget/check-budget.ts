@@ -56,8 +56,12 @@ export async function checkTeenBudget(
     0
   )
 
-  const remaining = budgetLimits.monthly_limit - monthlySpent
-  const { monthly_limit, per_event_limit, requires_approval } = budgetLimits
+  // Schema drift: table migrated to coins-based columns + `mode` string.
+  // (aligned with app/api/teen/spend/route.ts: mode === "validation" ⇒ approval)
+  const monthly_limit = budgetLimits.max_per_month_coins ?? 0
+  const per_event_limit = budgetLimits.max_per_transaction_coins ?? 0
+  const requires_approval = budgetLimits.mode === "validation"
+  const remaining = monthly_limit - monthlySpent
 
   const budgetInfo = {
     monthlyLimit: monthly_limit,
@@ -144,7 +148,7 @@ export async function getTeenBudgetSummary(
   // Get budget limits
   const { data: budgetLimits } = await supabase
     .from("teen_budget_limits")
-    .select("monthly_limit, per_event_limit, requires_approval")
+    .select("max_per_month_coins, max_per_transaction_coins, mode")
     .eq("teen_id", teenId)
     .eq("parent_id", parentId)
     .single()
@@ -172,7 +176,7 @@ export async function getTeenBudgetSummary(
   )
 
   const thisWeek = (monthlyBookings || [])
-    .filter((b) => new Date(b.created_at) >= startOfWeek)
+    .filter((b) => new Date(b.created_at ?? 0) >= startOfWeek)
     .reduce((sum, b) => sum + (b.total_amount || 0), 0)
 
   const lastBookingDate =
@@ -183,9 +187,9 @@ export async function getTeenBudgetSummary(
   return {
     limits: budgetLimits
       ? {
-          monthly: budgetLimits.monthly_limit,
-          perEvent: budgetLimits.per_event_limit,
-          requiresApproval: budgetLimits.requires_approval,
+          monthly: budgetLimits.max_per_month_coins ?? 0,
+          perEvent: budgetLimits.max_per_transaction_coins ?? 0,
+          requiresApproval: budgetLimits.mode === "validation",
         }
       : null,
     spending: {
@@ -195,7 +199,7 @@ export async function getTeenBudgetSummary(
       bookingsCount: (monthlyBookings || []).length,
     },
     remaining: budgetLimits
-      ? Math.max(0, budgetLimits.monthly_limit - thisMonth)
+      ? Math.max(0, (budgetLimits.max_per_month_coins ?? 0) - thisMonth)
       : Infinity,
   }
 }

@@ -210,21 +210,23 @@ export class InternationalSchoolEngine extends IntelligentContentEngine {
     try {
       const supabase = await createClient()
 
+      // Drift: la table live n'a pas de colonne `school` ; le nom de l'école
+      // saisi par le parent est persisté dans `school_type` (cf. app/api/parent/teens/create).
       const { data: teen } = await supabase
         .from("teens")
-        .select("school, grade_level")
+        .select("school_type, grade_level")
         .eq("id", teenId)
         .single()
 
       if (!teen) return null
 
-      const schoolType = this.detectSchoolType(teen.school)
+      const schoolType = this.detectSchoolType(teen.school_type)
       const subjects = SUBJECTS_BY_SCHOOL_TYPE[schoolType] || SUBJECTS_BY_SCHOOL_TYPE.unknown
       const gradeLevels = GRADE_LEVELS_BY_SCHOOL_TYPE[schoolType] || GRADE_LEVELS_BY_SCHOOL_TYPE.unknown
 
       return {
         schoolType,
-        schoolName: teen.school || "Unknown",
+        schoolName: teen.school_type || "Unknown",
         gradeLevel: teen.grade_level || gradeLevels[0],
         subjects: subjects.map((s) => s.id),
         curriculum: this.getCurriculumName(schoolType),

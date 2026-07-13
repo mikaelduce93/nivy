@@ -48,7 +48,9 @@ export default async function PaymentPage({
     redirect(`/reservation/confirmation?booking=${bookingId}`)
   }
 
-  const sessionExpiry = new Date(new Date(booking.created_at).getTime() + 10 * 60 * 1000)
+  const sessionExpiry = new Date(
+    (booking.created_at ? new Date(booking.created_at).getTime() : Date.now()) + 10 * 60 * 1000,
+  )
 
   return (
     <div className="min-h-screen bg-paper">
@@ -68,16 +70,16 @@ export default async function PaymentPage({
           <PaymentExpiryRedirect
             expiresAt={sessionExpiry}
             redirectTo="/agenda"
-            bookingReference={booking.booking_reference}
+            bookingReference={booking.booking_reference ?? undefined}
           />
 
           {/* Persist cart in localStorage so the user can resume on /reservation
               if the 10min payment session expires. */}
           <PaymentCartPersistence
             bookingId={bookingId}
-            reference={booking.booking_reference}
+            reference={booking.booking_reference ?? undefined}
             eventTitle={booking.events?.title}
-            totalAmount={booking.total_amount}
+            totalAmount={booking.total_amount ?? undefined}
           />
 
           <div className="mt-6 mb-8">
@@ -117,13 +119,15 @@ export default async function PaymentPage({
                 <div className="mt-4 space-y-4 mb-6 pb-6 border-b-2 border-ink">
                   <div>
                     <h3 className="font-display font-bold text-lg mb-1 text-ink">{booking.events?.title}</h3>
-                    <p className="text-sm text-mute">
-                      {new Date(booking.events?.event_date).toLocaleDateString("fr-FR", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                      })}
-                    </p>
+                    {booking.events?.event_date && (
+                      <p className="text-sm text-mute">
+                        {new Date(booking.events.event_date).toLocaleDateString("fr-FR", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "long",
+                        })}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex justify-between text-sm">
@@ -138,15 +142,9 @@ export default async function PaymentPage({
 
                   <div className="pt-4 space-y-2 border-t-2 border-ink">
                     <div className="flex justify-between text-sm">
-                      <span className="text-mute">Billet {booking.ticket_type}</span>
-                      <span className="font-mono text-ink tabular-nums">{booking.total_amount + (booking.discount_amount || 0)} DH</span>
+                      <span className="text-mute">Billet</span>
+                      <span className="font-mono text-ink tabular-nums">{booking.total_amount ?? 0} DH</span>
                     </div>
-                    {booking.discount_amount > 0 && (
-                      <div className="flex justify-between text-sm text-lime">
-                        <span>Réduction AEFE (-10%)</span>
-                        <span className="font-mono tabular-nums">-{booking.discount_amount} DH</span>
-                      </div>
-                    )}
                     <div className="flex justify-between text-sm text-mute pt-2 border-t-2 border-ink">
                       <span>Frais de service</span>
                       <span className="font-mono tabular-nums">0 DH</span>

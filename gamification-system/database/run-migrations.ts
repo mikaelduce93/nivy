@@ -4,6 +4,7 @@
  */
 
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import * as fs from "fs"
 import * as path from "path"
 
@@ -28,6 +29,11 @@ async function runMigrations() {
 
   console.log(`📁 ${files.length} fichiers de migration trouvés\n`)
 
+  // `exec_sql` (RPC) et `_exec` (table) sont des mécanismes admin hors schéma
+  // généré (fonction exec brute créée hors-bande). On passe par un client non
+  // typé à la frontière pour ces appels de maintenance uniquement.
+  const admin = supabase as unknown as SupabaseClient
+
   for (const file of files) {
     const filePath = path.join(MIGRATIONS_DIR, file)
     const sql = fs.readFileSync(filePath, "utf-8")
@@ -35,7 +41,7 @@ async function runMigrations() {
     console.log(`⏳ Exécution: ${file}...`)
 
     try {
-      const { error } = await supabase.rpc("exec_sql", { sql_query: sql })
+      const { error } = await admin.rpc("exec_sql", { sql_query: sql })
 
       if (error) {
         // Si la fonction exec_sql n'existe pas, on essaie directement
@@ -49,7 +55,7 @@ async function runMigrations() {
           .filter(s => s.length > 0 && !s.startsWith("--"))
 
         for (const statement of statements) {
-          const { error: stmtError } = await supabase
+          const { error: stmtError } = await admin
             .from("_exec")
             .select()
             .limit(0)

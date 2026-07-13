@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Star, Quote, Video } from "lucide-react"
@@ -10,24 +9,24 @@ import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
 const ROT = ["-rotate-1", "rotate-1", "-rotate-2"]
 
-export default async function TemoignagesPage() {
-  const supabase = await createClient()
+type Testimonial = {
+  id: string
+  rating: number | null
+  content: string
+  photo_url: string | null
+  author_name: string
+  author_role: string | null
+  video_url: string | null
+}
 
-  let testimonials = null
-  try {
-    const { data } = await supabase
-      .from("testimonials")
-      .select("*")
-      .eq("approved", true)
-      .order("created_at", { ascending: false })
-      .limit(20)
-    testimonials = data
-  } catch {
-    testimonials = []
-  }
+export default async function TemoignagesPage() {
+  // The `testimonials` table does not exist in the live schema, so there is
+  // no source to read from yet — we always render the honest empty-state
+  // until a real moderated testimonials source is wired up.
+  const testimonials: Testimonial[] = []
 
   // Honest empty-state: no fake ratings until we have real moderated testimonials
-  const hasTestimonials = Boolean(testimonials && testimonials.length > 0)
+  const hasTestimonials = testimonials.length > 0
 
   return (
     <div className="min-h-screen bg-paper">
@@ -52,7 +51,7 @@ export default async function TemoignagesPage() {
       <div className="container mx-auto px-6 py-16">
         {hasTestimonials ? (
           <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {testimonials!.map((testimonial, idx) => (
+            {testimonials.map((testimonial, idx) => (
               <StickerCard
                 key={testimonial.id}
                 className={`gap-4 p-6 transition-transform hover:rotate-0 ${ROT[idx % 3]}`}
@@ -64,7 +63,7 @@ export default async function TemoignagesPage() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`size-4 ${i < testimonial.rating ? "fill-gold text-gold" : "text-line"}`}
+                        className={`size-4 ${i < (testimonial.rating ?? 0) ? "fill-gold text-gold" : "text-line"}`}
                         aria-hidden="true"
                       />
                     ))}

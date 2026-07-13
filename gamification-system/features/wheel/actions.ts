@@ -123,8 +123,11 @@ export async function spinWheel(
       return { data: null, error: error.message }
     }
 
-    if (!data?.success) {
-      return { data: data as SpinResult, error: data?.error || "Erreur lors du spin" }
+    // La RPC renvoie du Json : cast de frontière vers le type domaine
+    const result = data as SpinResult | null
+
+    if (!result?.success) {
+      return { data: result, error: result?.error || "Erreur lors du spin" }
     }
 
     // Revalidate pages
@@ -132,7 +135,7 @@ export async function spinWheel(
     revalidatePath("/dashboard")
     revalidatePath("/profile")
 
-    return { data: data as SpinResult, error: null }
+    return { data: result, error: null }
   } catch (error) {
     logDbError("wheel.spinWheel", error)
     return { data: null, error: "Erreur serveur" }

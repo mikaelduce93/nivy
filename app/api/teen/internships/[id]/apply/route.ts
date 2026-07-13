@@ -8,7 +8,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const body = await request.json()
-  const cover_letter: string | null = body.cover_letter ?? null
+  const cover_letter: string = typeof body.cover_letter === "string" ? body.cover_letter : ""
   const portfolio_urls: string[] = Array.isArray(body.portfolio_urls) ? body.portfolio_urls : []
 
   const { data, error } = await supabase.rpc("apply_to_internship", {
