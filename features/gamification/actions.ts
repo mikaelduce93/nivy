@@ -49,6 +49,48 @@ async function getSupabaseClient() {
   return await createClient()
 }
 
+// #38 — user_xp/user_streaks columns are nullable in the live schema; coalesce
+// them at the boundary into the strict domain types.
+function mapUserXP(row: {
+  id: string
+  teen_id: string
+  total_xp: number | null
+  current_level: number | null
+  xp_to_next_level: number | null
+  created_at: string | null
+  updated_at: string | null
+}): UserXP {
+  return {
+    id: row.id,
+    teen_id: row.teen_id,
+    total_xp: row.total_xp ?? 0,
+    current_level: row.current_level ?? 1,
+    xp_to_next_level: row.xp_to_next_level ?? 100,
+    created_at: row.created_at ?? '',
+    updated_at: row.updated_at ?? '',
+  }
+}
+
+function mapUserStreak(row: {
+  id: string
+  teen_id: string
+  current_streak: number | null
+  longest_streak: number | null
+  last_activity_date: string | null
+  created_at: string | null
+  updated_at: string | null
+}): UserStreak {
+  return {
+    id: row.id,
+    teen_id: row.teen_id,
+    current_streak: row.current_streak ?? 0,
+    longest_streak: row.longest_streak ?? 0,
+    last_activity_date: row.last_activity_date,
+    created_at: row.created_at ?? '',
+    updated_at: row.updated_at ?? '',
+  }
+}
+
 /* ==========================================================================
    XP & NIVEAU
    ========================================================================== */
@@ -89,10 +131,10 @@ export async function getTeenXP(teenId: string): Promise<ActionResult<UserXP>> {
         .single()
 
       if (createError) throw createError
-      return { success: true, data: newProfile }
+      return { success: true, data: mapUserXP(newProfile) }
     }
 
-    return { success: true, data }
+    return { success: true, data: mapUserXP(data) }
   } catch (error: any) {
     console.error('[gamification/getTeenXP] Error:', error)
     return { success: false, error: error.message }
@@ -127,7 +169,19 @@ export async function getTeenXPHistory(
 
     if (error) throw error
 
-    return { success: true, data: data ?? [] }
+    const entries: XPLedgerEntry[] = (data ?? []).map((r) => ({
+      id: r.id,
+      teen_id: r.teen_id,
+      amount: r.amount,
+      source_type: r.source_type,
+      source_id: r.source_id,
+      reference_type: r.reference_type,
+      reference_id: r.reference_id,
+      description: r.description,
+      created_at: r.created_at ?? '',
+    }))
+
+    return { success: true, data: entries }
   } catch (error: any) {
     console.error('[gamification/getTeenXPHistory] Error:', error)
     return { success: false, error: error.message }
@@ -155,8 +209,8 @@ export async function addXP(input: AddXPInput): Promise<ActionResult<any>> {
       p_teen_id: teenId,
       p_xp_amount: xpAmount,
       p_source_type: reason,
-      p_source_category: data?.reference_type ?? null,
-      p_source_id: data?.reference_id ?? null,
+      p_source_category: data?.reference_type ?? undefined,
+      p_source_id: data?.reference_id ?? undefined,
       p_description: reason,
     })
 
@@ -212,10 +266,10 @@ export async function getTeenStreak(
         .single()
 
       if (createError) throw createError
-      return { success: true, data: newStreak }
+      return { success: true, data: mapUserStreak(newStreak) }
     }
 
-    return { success: true, data }
+    return { success: true, data: mapUserStreak(data) }
   } catch (error: any) {
     console.error('[gamification/getTeenStreak] Error:', error)
     return { success: false, error: error.message }
@@ -257,7 +311,9 @@ export async function getChallengeTemplates(
 
     if (error) throw error
 
-    return { success: true, data: data ?? [] }
+    // #38 — DB stores category/validation_type as free text; cast to the
+    // domain enums at the boundary.
+    return { success: true, data: (data ?? []) as ChallengeTemplate[] }
   } catch (error: any) {
     console.error('[gamification/getChallengeTemplates] Error:', error)
     return { success: false, error: error.message }
@@ -297,7 +353,8 @@ export async function getDailyChallenges(
       return await assignDailyChallenges(teenId, targetDate)
     }
 
-    return { success: true, data }
+    // #38 — status/embedded challenge are free text in the DB; cast to domain.
+    return { success: true, data: data as UserChallenge[] }
   } catch (error: any) {
     console.error('[gamification/getDailyChallenges] Error:', error)
     return { success: false, error: error.message }
@@ -356,35 +413,27 @@ export async function assignDailyChallenges(
           // Ignore unique constraint error
           if (challengeError.code !== '23505') throw challengeError
         } else {
-          challenges.push(challenge)
+          // #38 — status/embedded challenge are free text in the DB; cast.
+          challenges.push(challenge as UserChallenge)
         }
       }
       return { success: true, data: challenges }
     }
 
     // Fallback: smart selection (crypto RNG, anti-repetition, personalisation)
-    // Recupere profils + interets de l'ado pour personnaliser
-    const { data: teen } = await supabase
-      .from('teens')
-      .select('profiles, interests')
-      .eq('id', teenId)
-      .single()
+    // #38 — `teens` has no profiles/interests columns in the live schema.
+    // Interests live in teen_interests (tag); the phantom `profiles` column
+    // always errored at runtime, so category selection already defaulted to
+    // all 3 categories. We keep that behaviour and wire real interests.
+    const { data: interestRows } = await supabase
+      .from('teen_interests')
+      .select('tag')
+      .eq('teen_id', teenId)
 
-    const teenProfiles: string[] = teen?.profiles || []
-    const userInterests: string[] = Array.isArray(teen?.interests)
-      ? (teen!.interests as string[])
-      : []
+    const userInterests: string[] = (interestRows ?? []).map((r) => r.tag)
 
-    // Map profiles to categories
-    const categoriesToAssign: ChallengeCategory[] = []
-    if (teenProfiles.includes('School')) categoriesToAssign.push('school')
-    if (teenProfiles.includes('Sport')) categoriesToAssign.push('sport')
-    if (teenProfiles.includes('Créa')) categoriesToAssign.push('crea')
-
-    // If no profiles, assign all 3
-    if (categoriesToAssign.length === 0) {
-      categoriesToAssign.push('school', 'sport', 'crea')
-    }
+    // No live profile column → assign one challenge per category.
+    const categoriesToAssign: ChallengeCategory[] = ['school', 'sport', 'crea']
 
     // Recupere les templates utilises sur les 7 derniers jours pour eviter
     // les repetitions (mode degrade si la requete echoue).
@@ -483,7 +532,8 @@ export async function assignDailyChallenges(
           // Ignore unique constraint error (already assigned today)
           if (challengeError.code !== '23505') throw challengeError
         } else {
-          challenges.push(challenge)
+          // #38 — status/embedded challenge are free text in the DB; cast.
+          challenges.push(challenge as UserChallenge)
         }
       }
     }
@@ -678,7 +728,9 @@ export async function getXPLeaderboard(
 
     if (error) throw error
 
-    return { success: true, data: data ?? [] }
+    // #38 — total_xp/current_level are nullable and teen embed is free text;
+    // cast to the domain type at the boundary.
+    return { success: true, data: (data ?? []) as unknown as LeaderboardEntry[] }
   } catch (error: any) {
     console.error('[gamification/getXPLeaderboard] Error:', error)
     return { success: false, error: error.message }
@@ -714,7 +766,8 @@ export async function createChallengeTemplate(
     if (error) throw error
 
     revalidatePath('/admin/gamification')
-    return { success: true, data }
+    // #38 — DB stores category/validation_type as free text; cast to domain.
+    return { success: true, data: data as ChallengeTemplate }
   } catch (error: any) {
     console.error('[gamification/createChallengeTemplate] Error:', error)
     return { success: false, error: error.message }
@@ -748,7 +801,8 @@ export async function updateChallengeTemplate(
     if (error) throw error
 
     revalidatePath('/admin/gamification')
-    return { success: true, data }
+    // #38 — DB stores category/validation_type as free text; cast to domain.
+    return { success: true, data: data as ChallengeTemplate }
   } catch (error: any) {
     console.error('[gamification/updateChallengeTemplate] Error:', error)
     return { success: false, error: error.message }

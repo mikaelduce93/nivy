@@ -22,25 +22,14 @@ export async function GET(
       )
     }
 
-    // Fetch coin transaction with related data
+    // Fetch the topup transaction. Live coin_transactions has no FK to profiles
+    // and no parent_id column: read the row alone, resolve people afterwards.
+    // (Column rename: legacy `type` -> `transaction_type`.)
     const { data: transaction, error: txError } = await supabase
       .from("coin_transactions")
-      .select(`
-        *,
-        parent:profiles!coin_transactions_parent_id_fkey(
-          id,
-          full_name,
-          email,
-          phone
-        ),
-        teen:profiles!coin_transactions_teen_id_fkey(
-          id,
-          full_name,
-          pseudo
-        )
-      `)
+      .select("*")
       .eq("id", id)
-      .eq("type", "topup")
+      .eq("transaction_type", "topup")
       .single()
 
     if (txError || !transaction) {
@@ -50,8 +39,16 @@ export async function GET(
       )
     }
 
-    // Verify user has access
-    const isOwner = transaction.parent_id === user.id || transaction.teen_id === user.id
+    // Topups are bought by a parent, but coin_transactions only stores teen_id
+    // live. Resolve the linked parent(s) via parent_teens_overview.
+    const { data: parentLinks } = await supabase
+      .from("parent_teens_overview")
+      .select("parent_id")
+      .eq("teen_id", transaction.teen_id)
+
+    const parentIds = (parentLinks ?? [])
+      .map((l) => l.parent_id)
+      .filter((pid): pid is string => Boolean(pid))
 
     const { data: userProfile } = await supabase
       .from("profiles")
@@ -60,6 +57,7 @@ export async function GET(
       .single()
 
     const isAdmin = userProfile?.role === "admin"
+    const isOwner = transaction.teen_id === user.id || parentIds.includes(user.id)
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json(
@@ -68,20 +66,31 @@ export async function GET(
       )
     }
 
-    // Build invoice data
-    const invoiceDate = new Date(transaction.created_at)
+    // Customer = the requesting parent, otherwise the first linked parent,
+    // falling back to the teen. profiles has no phone column live.
+    const customerId = parentIds.includes(user.id)
+      ? user.id
+      : (parentIds[0] ?? transaction.teen_id)
+    const { data: customer } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", customerId)
+      .maybeSingle()
+
+    // Build invoice data (created_at is nullable live)
+    const invoiceDate = new Date(transaction.created_at ?? Date.now())
     const invoiceNumber = generateInvoiceNumber("TPM-RC", transaction.id, invoiceDate)
 
-    // Parse amount - assuming coins have a fixed rate
+    // Parse amount - assuming coins have a fixed rate. Live schema has no
+    // bonus_amount/paid_amount columns: `amount` already holds the total coins
+    // credited (coins + bonus), the breakdown lives only in `description`.
     const COIN_RATE = 1 // 1 coin = 1 DH (adjust as needed)
     const coinsAmount = transaction.amount || 0
-    const bonusCoins = transaction.bonus_amount || 0
-    const totalCoins = coinsAmount + bonusCoins
-    const totalPrice = transaction.paid_amount || (coinsAmount * COIN_RATE)
+    const totalPrice = coinsAmount * COIN_RATE
 
     const items = [
       {
-        description: `Recharge de ${coinsAmount} coins${bonusCoins > 0 ? ` (+${bonusCoins} bonus)` : ""}`,
+        description: transaction.description || `Recharge de ${coinsAmount} coins`,
         quantity: 1,
         unitPrice: totalPrice,
         total: totalPrice
@@ -92,9 +101,8 @@ export async function GET(
       invoiceNumber,
       invoiceDate: invoiceDate.toISOString(),
 
-      customerName: transaction.parent?.full_name || "Client",
-      customerEmail: transaction.parent?.email || user.email || "",
-      customerPhone: transaction.parent?.phone,
+      customerName: customer?.full_name || "Client",
+      customerEmail: customer?.email || user.email || "",
 
       items,
       subtotal: totalPrice,
@@ -102,10 +110,9 @@ export async function GET(
 
       paymentMethod: "Carte bancaire (Stripe)",
       paymentStatus: "paid",
-      paidAt: transaction.created_at,
-      transactionId: transaction.stripe_session_id
-        ? `STR-${transaction.stripe_session_id.slice(-12)}`
-        : undefined,
+      paidAt: transaction.created_at ?? undefined,
+      // Live coin_transactions stores no stripe_session_id (source_id is null
+      // for topups), so no external payment reference is available.
 
       bookingReference: `RC-${transaction.id.slice(0, 8).toUpperCase()}`
     }

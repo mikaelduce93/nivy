@@ -14,12 +14,12 @@ export const POST = withSecurity(async (request: NextRequest) => {
 
     const { bookingId } = await request.json()
 
-    // Get booking
+    // Get booking (bookings link to the payer via user_id; no profiles relation in schema)
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
-      .select('*, events(*), profiles(*)')
+      .select('*, events(*)')
       .eq('id', bookingId)
-      .eq('parent_id', user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (bookingError || !booking) {
@@ -33,15 +33,17 @@ export const POST = withSecurity(async (request: NextRequest) => {
     // Create payment transaction record
     const reference = `CMI${Date.now().toString(36).toUpperCase()}`
     
+    // payment_transactions is now a PSP/wallet ledger: no booking_id/amount/method columns.
+    // Booking linkage travels in the CMI order metadata (see bookingId below).
     const { data: transaction, error: transactionError } = await supabase
       .from('payment_transactions')
       .insert({
-        booking_id: bookingId,
-        amount: booking.total_amount,
-        method: 'cmi',
+        parent_id: user.id,
+        amount_dh: booking.total_amount ?? 0,
+        amount_coins: 0,
         status: 'pending',
-        reference,
-        cmi_order_id: reference,
+        psp_provider: 'cmi',
+        psp_reference: reference,
       })
       .select()
       .single()
@@ -53,19 +55,19 @@ export const POST = withSecurity(async (request: NextRequest) => {
 
     // Create CMI payment
     const cmiResult = await cmiGateway.createPayment({
-      amount: booking.total_amount,
+      amount: booking.total_amount ?? 0,
       orderId: reference,
-      customerEmail: booking.profiles.email,
-      customerPhone: booking.profiles.phone,
-      description: `Réservation ${booking.booking_reference} - ${booking.events.title}`,
+      customerEmail: user.email ?? '',
+      description: `Réservation ${booking.booking_reference ?? ''} - ${booking.events?.title ?? ''}`,
       callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/reservation/confirmation`,
+      bookingId,
     })
 
     if (!cmiResult.success) {
       // Update transaction as failed
       await supabase
         .from('payment_transactions')
-        .update({ status: 'failed', error_message: cmiResult.error })
+        .update({ status: 'failed', failure_reason: cmiResult.error })
         .eq('id', transaction.id)
 
       return NextResponse.json({ error: cmiResult.error }, { status: 500 })
@@ -74,10 +76,8 @@ export const POST = withSecurity(async (request: NextRequest) => {
     // Update transaction with CMI details
     await supabase
       .from('payment_transactions')
-      .update({ 
-        status: 'processing',
-        metadata: { paymentUrl: cmiResult.paymentUrl }
-      })
+      // no metadata column in schema; paymentUrl is returned to the client below
+      .update({ status: 'processing' })
       .eq('id', transaction.id)
 
     return NextResponse.json({

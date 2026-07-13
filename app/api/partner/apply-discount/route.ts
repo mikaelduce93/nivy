@@ -204,7 +204,7 @@ export async function POST(request: Request) {
         p_xp_amount: xpEarned,
         p_source_type: "partner_purchase",
         p_source_category: "partner",
-        p_source_id: transactionId,
+        p_source_id: transactionId ?? undefined,
         p_description: `Cashback achat chez ${partner.company_name}`,
       })
       if (xpError) {
@@ -216,42 +216,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // Loyalty points by VIP tier (best-effort).
-    const { data: vipCard } = await supabase
-      .from("vip_cards")
-      .select("tier")
-      .eq("profile_id", memberId)
-      .eq("status", "active")
-      .single()
-
-    if (vipCard) {
-      const pointsMultiplier: Record<string, number> = {
-        silver: 1,
-        gold: 2,
-        platinum: 3,
-      }
-      const multiplier = pointsMultiplier[vipCard.tier.toLowerCase()] || 1
-      const pointsEarned = Math.floor((finalAmount / 10) * multiplier)
-
-      if (pointsEarned > 0) {
-        // Wave 3A — loyalty point writes surface their errors to the response
-        // rather than being silently swallowed (canon §6 F6).
-        const { error: ptxErr } = await supabase.from("points_transactions").insert({
-          profile_id: memberId,
-          points_amount: pointsEarned,
-          type: "earn",
-          source: "partner_purchase",
-          source_id: transactionId,
-          description: `Achat chez ${partner.company_name}`,
-        })
-        if (ptxErr) {
-          console.error("points_transactions insert failed:", ptxErr)
-          // Non-blocking for the apply flow but logged. Loyalty points are
-          // a side-effect, not the canonical money grant; canonical XP grant
-          // already succeeded above.
-        }
-      }
-    }
+    // #59 drift — the legacy VIP-tier loyalty-point write targeted
+    // `points_transactions`, a table that no longer exists in the live schema
+    // (the insert always failed and was swallowed). The canonical reward is the
+    // teen XP cashback granted above; the dead loyalty-point path is removed.
 
     return NextResponse.json({
       success: true,

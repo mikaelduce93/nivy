@@ -348,7 +348,7 @@ export async function POST(request: NextRequest) {
         .single()
 
       const canDelete = existingMessage?.sender_id === teenId ||
-        ["owner", "admin", "moderator"].includes(membership.role)
+        ["owner", "admin", "moderator"].includes(membership.role ?? "")
 
       if (!canDelete) {
         return NextResponse.json(
@@ -426,7 +426,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Only admins can pin
-      if (!["owner", "admin", "moderator"].includes(membership.role)) {
+      if (!["owner", "admin", "moderator"].includes(membership.role ?? "")) {
         return NextResponse.json(
           { error: "Not authorized to pin messages" },
           { status: 403 }
@@ -458,7 +458,7 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      if (!["owner", "admin", "moderator"].includes(membership.role)) {
+      if (!["owner", "admin", "moderator"].includes(membership.role ?? "")) {
         return NextResponse.json(
           { error: "Not authorized to unpin messages" },
           { status: 403 }

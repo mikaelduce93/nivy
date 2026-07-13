@@ -78,11 +78,16 @@ export async function GET(request: Request) {
       teen = (t as unknown as TeenLite | null) ?? null
     }
 
-    const { data: booker } = await sr
-      .from("profiles")
-      .select("full_name")
-      .eq("id", booking.user_id)
-      .maybeSingle()
+    // bookings.user_id est nullable dans le schéma live → ne lire le réservant que s'il existe
+    let booker: { full_name: string | null } | null = null
+    if (booking.user_id) {
+      const res = await sr
+        .from("profiles")
+        .select("full_name")
+        .eq("id", booking.user_id)
+        .maybeSingle()
+      booker = res.data
+    }
 
     const age = teen?.date_of_birth
       ? Math.floor((Date.now() - new Date(teen.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))

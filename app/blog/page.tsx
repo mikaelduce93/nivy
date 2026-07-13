@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Calendar, User, ArrowRight } from "lucide-react"
@@ -10,41 +9,22 @@ import { StickerCard } from "@/components/ui/sticker-card"
 import { NivEmpty, Niv } from "@/components/brand"
 import { MeshBackground } from "@/components/ui/effects/mesh-background"
 
+// Tables blog_posts / post_categories absentes du schéma live : lectures mortes retirées.
+// Le runtime rendait déjà toujours l'état vide (requêtes en erreur → data null → []).
+type BlogPost = {
+  id: string
+  title: string
+  excerpt: string | null
+  cover_image: string | null
+  published_at: string
+  post_categories: { name: string } | null
+  profiles: { full_name: string | null } | null
+}
+type BlogCategory = { id: string; slug: string; name: string }
+
 export default async function BlogPage() {
-  const supabase = await createClient()
-
-  let posts = null
-  let categories = null
-
-  try {
-    const { data: postsData } = await supabase
-      .from("blog_posts")
-      .select(`
-        *,
-        post_categories (
-          name,
-          slug
-        ),
-        profiles (
-          full_name
-        )
-      `)
-      .eq("published", true)
-      .order("published_at", { ascending: false })
-      .limit(12)
-    posts = postsData ?? []
-  } catch {
-    posts = []
-  }
-
-  try {
-    const { data: categoriesData } = await supabase
-      .from("post_categories")
-      .select("*")
-    categories = categoriesData ?? []
-  } catch {
-    categories = []
-  }
+  const posts: BlogPost[] = []
+  const categories: BlogCategory[] = []
 
   return (
     <div className="min-h-screen bg-paper">

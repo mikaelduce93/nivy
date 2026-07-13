@@ -35,7 +35,9 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "validation", details: parsed.error.flatten() }, { status: 422 })
   }
-  const { teen_id, amount_xp, category, reason, evidence_url } = parsed.data
+  // NB: la table live `partner_xp_awards` ne stocke pas `category` (colonne
+  // absente en base) ; on la valide mais on ne la persiste pas.
+  const { teen_id, amount_xp, reason, evidence_url } = parsed.data
 
   // Awarder = staff coach/teacher actif d'un partenaire autorisé
   const { data: staff } = await supabase
@@ -54,12 +56,12 @@ export async function POST(req: Request) {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
   const { data: recent } = await supabase
     .from("partner_xp_awards")
-    .select("amount_xp")
-    .eq("staff_id", staff.id)
+    .select("amount")
+    .eq("awarded_by", auth.user.id)
     .eq("teen_id", teen_id)
-    .gte("awarded_at", weekAgo)
+    .gte("created_at", weekAgo)
 
-  const used = (recent ?? []).reduce((s, r: { amount_xp: number }) => s + (r.amount_xp || 0), 0)
+  const used = (recent ?? []).reduce((s, r: { amount: number }) => s + (r.amount || 0), 0)
   if (used + amount_xp > WEEK_CAP) {
     return NextResponse.json(
       { error: "weekly_cap_exceeded", used, cap: WEEK_CAP, remaining: Math.max(0, WEEK_CAP - used) },
@@ -71,13 +73,11 @@ export async function POST(req: Request) {
     .from("partner_xp_awards")
     .insert({
       partner_id: staff.partner_id,
-      staff_id: staff.id,
+      awarded_by: auth.user.id,
       teen_id,
-      amount_xp,
-      category,
-      reason: reason ?? null,
+      amount: amount_xp,
+      reason: reason ?? "",
       evidence_url: evidence_url ?? null,
-      parent_review_status: "pending",
     })
     .select("id")
     .single()

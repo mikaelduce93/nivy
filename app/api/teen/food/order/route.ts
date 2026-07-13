@@ -16,6 +16,7 @@
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import type { Json } from "@/types/supabase"
 
 interface OrderItemInput {
   menuItemId?: string
@@ -71,9 +72,10 @@ export async function POST(request: Request) {
       p_teen_id: teenId,
       p_partner_id: body.partnerId,
       p_delivery_type: body.deliveryType,
-      p_items: items,
-      p_address: body.address ?? body.deliveryAddress ?? null,
-      p_scheduled_for: body.scheduledFor ?? null,
+      // Cast de frontière : p_items est typé Json côté RPC (jsonb).
+      p_items: items as unknown as Json,
+      p_address: body.address ?? body.deliveryAddress ?? undefined,
+      p_scheduled_for: body.scheduledFor ?? undefined,
       p_payment_method: body.paymentMethod ?? "coins",
     })
 
@@ -90,7 +92,7 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
-    return NextResponse.json({ success: true, ...data })
+    return NextResponse.json({ success: true, ...(data as Record<string, unknown>) })
   } catch (err) {
     console.error("[teen/food/order] unexpected:", err)
     return NextResponse.json({ success: false, error: "Erreur serveur" }, { status: 500 })

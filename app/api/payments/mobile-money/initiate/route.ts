@@ -53,20 +53,17 @@ export const POST = withSecurity(async (request: NextRequest) => {
     // Create payment transaction
     const reference = `MM${Date.now().toString(36).toUpperCase()}`
 
+    // payment_transactions is now a PSP/wallet ledger: no booking_id/amount/currency/provider/reference/metadata columns.
+    // Booking linkage + operator details travel with the mobile-money request and the response below.
     const { data: transaction, error: transactionError } = await supabase
       .from('payment_transactions')
       .insert({
-        booking_id: bookingId,
-        amount: amountToPay,
-        currency: 'MAD',
-        provider: 'mobile_money',
+        parent_id: user.id,
+        amount_dh: amountToPay,
+        amount_coins: 0,
         status: 'pending',
-        reference,
-        metadata: {
-          operator,
-          phone: mobileMoneyService.formatPhoneInternational(phone),
-          xpUsed: xpUsed || 0,
-        },
+        psp_provider: 'mobile_money',
+        psp_reference: reference,
       })
       .select()
       .single()
@@ -91,32 +88,28 @@ export const POST = withSecurity(async (request: NextRequest) => {
       // Update transaction as failed
       await supabase
         .from('payment_transactions')
-        .update({ status: 'failed', error_message: result.error })
+        .update({ status: 'failed', failure_reason: result.error })
         .eq('id', transaction.id)
 
       return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     // Update transaction with payment code
+    // No metadata/provider_transaction_id columns; persist the PSP payment id in psp_reference.
+    // code/instructions/expiresAt are returned to the client below.
     await supabase
       .from('payment_transactions')
       .update({
-        provider_transaction_id: result.paymentId,
-        metadata: {
-          ...transaction.metadata,
-          code: result.code,
-          instructions: result.instructions,
-          expiresAt: result.expiresAt?.toISOString(),
-        }
+        status: 'processing',
+        psp_reference: result.paymentId,
       })
       .eq('id', transaction.id)
 
-    // Update booking payment method
+    // Update booking payment method (bookings has no payment_reference column)
     await supabase
       .from('bookings')
       .update({
         payment_method: 'mobile_money',
-        payment_reference: result.paymentId,
       })
       .eq('id', bookingId)
 

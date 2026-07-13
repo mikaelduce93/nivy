@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { logDbError } from "@/lib/observability/log-db-error"
+import { resolveTeenIdentities } from "@/lib/server/teen-identities"
 import { type CommentWithUser } from "../schema"
 
 /**
@@ -35,25 +36,43 @@ export async function addActivityComment(
       p_activity_id: activityId,
       p_user_id: user.id,
       p_content: content.trim(),
-      p_parent_id: parentId || null,
+      p_parent_id: parentId || undefined,
     })
 
     if (error) throw error
 
+    // La RPC (RETURNS JSON) renvoie { comment_id, count } — cast de frontière.
+    const created = data as { comment_id: string; count: number } | null
+    if (!created?.comment_id) throw new Error("add_activity_comment: réponse invalide")
+
     const { data: commentData } = await supabase
       .from("activity_comments")
-      .select(
-        `
-        *,
-        users!inner(id, username, avatar_url)
-      `
-      )
-      .eq("id", data.id)
+      .select("*")
+      .eq("id", created.comment_id)
       .single()
 
+    if (!commentData) throw new Error("Commentaire introuvable après création")
+
+    // Aucune FK activity_comments -> users, et `users` ne porte ni pseudo ni avatar :
+    // on résout l'identité applicativement (teens/user_xp/profiles).
+    const identities = await resolveTeenIdentities(supabase, [commentData.user_id])
+    const identity = identities.get(commentData.user_id)
+
     const comment: CommentWithUser = {
-      ...commentData,
-      user: commentData.users,
+      id: commentData.id,
+      activity_id: commentData.activity_id,
+      user_id: commentData.user_id,
+      parent_id: commentData.parent_id,
+      content: commentData.content,
+      is_edited: commentData.is_edited ?? false,
+      is_hidden: commentData.is_hidden ?? false,
+      created_at: commentData.created_at ?? undefined,
+      updated_at: commentData.updated_at ?? undefined,
+      user: {
+        id: commentData.user_id,
+        username: identity?.pseudo ?? "Utilisateur",
+        avatar_url: identity?.avatar_url ?? undefined,
+      },
     }
 
     revalidatePath("/feed")
@@ -78,31 +97,46 @@ export async function getActivityComments(activityId: string): Promise<{
 
     const { data, error } = await supabase
       .from("activity_comments")
-      .select(
-        `
-        *,
-        users!inner(id, username, avatar_url)
-      `
-      )
+      .select("*")
       .eq("activity_id", activityId)
       .eq("is_hidden", false)
       .order("created_at", { ascending: true })
 
     if (error) throw error
+    if (!data) return { success: true, comments: [] }
+
+    // Aucune FK activity_comments -> users : identité résolue applicativement.
+    const identities = await resolveTeenIdentities(
+      supabase,
+      data.map((c) => c.user_id)
+    )
 
     const commentsMap = new Map<string, CommentWithUser>()
     const rootComments: CommentWithUser[] = []
 
-    data.forEach((c: any) => {
+    data.forEach((c) => {
+      const identity = identities.get(c.user_id)
       const comment: CommentWithUser = {
-        ...c,
-        user: c.users,
+        id: c.id,
+        activity_id: c.activity_id,
+        user_id: c.user_id,
+        parent_id: c.parent_id,
+        content: c.content,
+        is_edited: c.is_edited ?? false,
+        is_hidden: c.is_hidden ?? false,
+        created_at: c.created_at ?? undefined,
+        updated_at: c.updated_at ?? undefined,
+        user: {
+          id: c.user_id,
+          username: identity?.pseudo ?? "Utilisateur",
+          avatar_url: identity?.avatar_url ?? undefined,
+        },
         replies: [],
       }
       commentsMap.set(c.id, comment)
     })
 
-    data.forEach((c: any) => {
+    data.forEach((c) => {
       const comment = commentsMap.get(c.id)!
       if (c.parent_id) {
         const parent = commentsMap.get(c.parent_id)

@@ -84,10 +84,12 @@ export async function POST(request: NextRequest) {
     }
 
     let cinFrontPath: string
-    let cinBackPath: string
     try {
       cinFrontPath = await uploadCinFile(cinFront, "front")
-      cinBackPath = await uploadCinFile(cinBack, "back")
+      // Back face is also uploaded to the private bucket. Its path is not
+      // persisted separately: the historical `documents` audit table does not
+      // exist in the live schema, so that write is gone.
+      await uploadCinFile(cinBack, "back")
     } catch (uploadErr) {
       console.error(
         "[parent/e-signature/create] CIN upload to private bucket failed:",
@@ -106,8 +108,7 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get("user-agent") || "unknown"
 
     // We persist the FRONT path in the canonical `cin_url` column (the column
-    // is misnamed historically — it stores a storage path, not a URL). The
-    // back path is recorded in the `documents` table below for audit.
+    // is misnamed historically — it stores a storage path, not a URL).
     const { data: signature, error: insertError } = await supabase
       .from("e_signatures")
       .insert({
@@ -141,29 +142,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-
-    // Documents audit log — also stores PATHS, not URLs. The dashboard
-    // generates short-lived signed URLs at view time.
-    await supabase.from("documents").insert([
-      {
-        parent_id: userInfo.profileId,
-        child_id: childId || null,
-        document_type: "identity",
-        file_name: `CIN_recto_${parentFullName}`,
-        file_url: cinFrontPath, // legacy column name; value is a private path
-        mime_type: cinFront.type || "image/jpeg",
-        description: "Carte d'identité nationale - Recto (private bucket)",
-      },
-      {
-        parent_id: userInfo.profileId,
-        child_id: childId || null,
-        document_type: "identity",
-        file_name: `CIN_verso_${parentFullName}`,
-        file_url: cinBackPath,
-        mime_type: cinBack.type || "image/jpeg",
-        description: "Carte d'identité nationale - Verso (private bucket)",
-      },
-    ])
 
     return NextResponse.json({
       ok: true,

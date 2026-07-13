@@ -54,7 +54,7 @@ export async function GET() {
         .in('id', teenIds),
       supabase
         .from('teen_budget_limits')
-        .select('teen_id, monthly_limit')
+        .select('teen_id, max_per_month_coins')
         .in('teen_id', teenIds),
       // #25 — booking_approval_requests never existed; canonical table is
       // parental_approvals (resource_id holds the event id; no embeddable FK).
@@ -70,7 +70,7 @@ export async function GET() {
       (teensResult.data || []).map((teen) => [teen.id, teen.full_name])
     )
     const budgetByTeen = new Map(
-      (budgetsResult.data || []).map((budget) => [budget.teen_id, budget.monthly_limit])
+      (budgetsResult.data || []).map((budget) => [budget.teen_id, budget.max_per_month_coins])
     )
     
     const pendingApprovals = pendingApprovalsResult.data || []
@@ -93,9 +93,10 @@ export async function GET() {
       const teenName = teenNameById.get(child.teen_id) || 'Votre enfant'
       const spendingLimit = budgetByTeen.get(child.teen_id) || 1000
       
-      // Get this month's spending
+      // Get this month's spending (#25 — `transactions` table never existed;
+      // canonical coin ledger is `coin_transactions`).
       const { data: transactions } = await supabase
-        .from('transactions')
+        .from('coin_transactions')
         .select('amount')
         .eq('teen_id', child.teen_id)
         .gte('created_at', startOfMonth)
@@ -133,12 +134,13 @@ export async function GET() {
         .eq('teen_id', child.teen_id)
         .maybeSingle()
       
-      if (streak && streak.current_streak >= 7) {
+      const currentStreak = streak?.current_streak ?? 0
+      if (currentStreak >= 7) {
         insights.push({
           id: `streak-${child.teen_id}`,
           type: 'success',
           priority: 3,
-          message: `${teenName} a un streak de ${streak.current_streak} jours !`,
+          message: `${teenName} a un streak de ${currentStreak} jours !`,
           detail: 'Belle régularité dans l\'app'
         })
       }

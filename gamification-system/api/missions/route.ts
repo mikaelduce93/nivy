@@ -6,6 +6,7 @@
  */
 
 import { createClient } from "@/lib/supabase/server"
+import type { Json } from "@/types/supabase"
 import { NextRequest, NextResponse } from "next/server"
 import {
   GetMissionsInputSchema,
@@ -57,11 +58,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Call Supabase function
+    // Signature live : (p_teen_id, p_mission_type?, p_status?). p_include_expired
+    // n'existe plus côté fonction.
     const { data, error } = await supabase.rpc("get_user_missions", {
-      p_user_id: user.id,
-      p_type: validatedInput.data.type || null,
-      p_status: validatedInput.data.status || null,
-      p_include_expired: validatedInput.data.includeExpired,
+      p_teen_id: user.id,
+      p_mission_type: validatedInput.data.type || undefined,
+      p_status: validatedInput.data.status || undefined,
     })
 
     if (error) {
@@ -143,10 +145,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Signature live : (p_teen_id, p_mission_code, p_action_type?, p_action_data?, p_increment?).
     const { data, error } = await supabase.rpc("update_mission_progress", {
-      p_user_id: user.id,
-      p_trigger_type: trigger_type,
-      p_metadata: metadata || {},
+      p_teen_id: user.id,
+      p_mission_code: trigger_type,
+      p_action_data: (metadata || {}) as Json,
     })
 
     if (error) {
@@ -157,10 +160,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Cast de frontière : la fonction renvoie { success, completed, mission_code, ... }.
+    const result = data as {
+      success?: boolean
+      completed?: boolean
+      mission_code?: string
+    } | null
+
     return NextResponse.json({
       success: true,
-      updated_count: data?.updated_count || 0,
-      completed_missions: data?.completed_missions || [],
+      updated_count: result?.success ? 1 : 0,
+      completed_missions:
+        result?.completed && result.mission_code ? [result.mission_code] : [],
     })
   } catch (error) {
     console.error("Error in POST /api/missions/progress:", error)

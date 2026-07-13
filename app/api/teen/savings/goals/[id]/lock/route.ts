@@ -34,9 +34,11 @@ export async function POST(
   if (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
-  if (!data?.success) {
+  // lock_to_goal renvoie un objet JSON { success, error? } — cast de frontière
+  const result = (data ?? {}) as { success?: boolean; error?: string }
+  if (!result.success) {
     return NextResponse.json(
-      { success: false, error: data?.error ?? "lock_failed", data },
+      { success: false, error: result.error ?? "lock_failed", data },
       { status: 400 }
     )
   }

@@ -57,7 +57,7 @@ export async function getCollectionStats(userId: string): Promise<{
   })
 
   const uniqueItems = userItems?.length || 0
-  const totalItems = userItems?.reduce((sum, i) => sum + i.quantity, 0) || 0
+  const totalItems = userItems?.reduce((sum, i) => sum + (i.quantity ?? 0), 0) || 0
   const duplicates = totalItems - uniqueItems
 
   const { count: totalAvailable } = await supabase

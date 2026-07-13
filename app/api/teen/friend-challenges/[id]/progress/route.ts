@@ -12,6 +12,7 @@
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
+import type { Json } from "@/types/supabase"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -53,7 +54,8 @@ export async function POST(
       {
         p_challenge_id: id,
         p_delta: delta,
-        p_metadata: body.metadata ?? {},
+        // boundary cast: arbitrary request JSON → RPC Json param
+        p_metadata: (body.metadata ?? {}) as Json,
       }
     )
 

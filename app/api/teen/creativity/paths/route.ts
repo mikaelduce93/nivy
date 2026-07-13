@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Get teen's enrolled paths with progress
     const { data: enrolledPaths, error: enrolledError } = await supabase
-      .from("teen_passion_paths")
+      .from("teen_passion_path_progress")
       .select(`
         *,
         passion_paths (*)
@@ -96,17 +96,16 @@ export async function GET(request: NextRequest) {
 
         const totalLikes = creations?.reduce((sum, c) => sum + (c.likes_count || 0), 0) || 0
 
-        // Calculate level progress
-        const xpForNextLevel = (enrollment.level + 1) * 500
-        const progressPercent = Math.min(100, (enrollment.xp_in_path / xpForNextLevel) * 100)
+        // Calculate level progress (live columns: current_level / total_xp_earned)
+        const xpForNextLevel = ((enrollment.current_level ?? 1) + 1) * 500
+        const progressPercent = Math.min(100, ((enrollment.total_xp_earned ?? 0) / xpForNextLevel) * 100)
 
         return {
           enrollment: {
             id: enrollment.id,
-            level: enrollment.level,
-            xp_in_path: enrollment.xp_in_path,
+            level: enrollment.current_level ?? 1,
+            xp_in_path: enrollment.total_xp_earned ?? 0,
             started_at: enrollment.started_at,
-            achievements: enrollment.achievements || [],
           },
           path,
           stats: {
@@ -197,7 +196,7 @@ export async function POST(request: NextRequest) {
     if (action === "enroll") {
       // Check if already enrolled
       const { data: existing } = await supabase
-        .from("teen_passion_paths")
+        .from("teen_passion_path_progress")
         .select("id")
         .eq("teen_id", teenId)
         .eq("path_id", pathId)
@@ -212,14 +211,13 @@ export async function POST(request: NextRequest) {
 
       // Create enrollment
       const { data: enrollment, error } = await supabase
-        .from("teen_passion_paths")
+        .from("teen_passion_path_progress")
         .insert({
           teen_id: teenId,
           path_id: pathId,
-          level: 1,
-          xp_in_path: 0,
+          current_level: 1,
+          total_xp_earned: 0,
           started_at: new Date().toISOString(),
-          achievements: [],
         })
         .select()
         .single()
@@ -251,7 +249,7 @@ export async function POST(request: NextRequest) {
 
     if (action === "leave") {
       const { error } = await supabase
-        .from("teen_passion_paths")
+        .from("teen_passion_path_progress")
         .delete()
         .eq("teen_id", teenId)
         .eq("path_id", pathId)
@@ -280,7 +278,7 @@ export async function POST(request: NextRequest) {
 
       // Get current enrollment
       const { data: enrollment } = await supabase
-        .from("teen_passion_paths")
+        .from("teen_passion_path_progress")
         .select("*")
         .eq("teen_id", teenId)
         .eq("path_id", pathId)
@@ -293,10 +291,11 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // Calculate new XP and level
-      const newXp = enrollment.xp_in_path + xpAmount
-      const xpForNextLevel = (enrollment.level + 1) * 500
-      let newLevel = enrollment.level
+      // Calculate new XP and level (live columns: current_level / total_xp_earned)
+      const currentLevel = enrollment.current_level ?? 1
+      const newXp = (enrollment.total_xp_earned ?? 0) + xpAmount
+      const xpForNextLevel = (currentLevel + 1) * 500
+      let newLevel = currentLevel
       let remainingXp = newXp
       let leveledUp = false
 
@@ -309,10 +308,10 @@ export async function POST(request: NextRequest) {
 
       // Update enrollment
       const { data: updatedEnrollment, error } = await supabase
-        .from("teen_passion_paths")
+        .from("teen_passion_path_progress")
         .update({
-          xp_in_path: leveledUp ? remainingXp : newXp,
-          level: newLevel,
+          total_xp_earned: leveledUp ? remainingXp : newXp,
+          current_level: newLevel,
         })
         .eq("id", enrollment.id)
         .select()

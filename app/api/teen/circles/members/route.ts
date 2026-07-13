@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
 
     if (type === "invitations") {
       // Only admins can see invitations
-      if (!["owner", "admin"].includes(membership.role)) {
+      if (!["owner", "admin"].includes(membership.role ?? "")) {
         return NextResponse.json(
           { error: "Not authorized" },
           { status: 403 }
@@ -431,7 +431,7 @@ export async function POST(request: NextRequest) {
         .eq("teen_id", teenId)
         .single()
 
-      if (!membership || !["owner", "admin", "moderator"].includes(membership.role)) {
+      if (!membership || !["owner", "admin", "moderator"].includes(membership.role ?? "")) {
         return NextResponse.json(
           { error: "Not authorized" },
           { status: 403 }
@@ -545,7 +545,7 @@ export async function POST(request: NextRequest) {
           .eq("teen_id", teenId)
           .single()
 
-        if (!membership || !["owner", "admin", "moderator"].includes(membership.role)) {
+        if (!membership || !["owner", "admin", "moderator"].includes(membership.role ?? "")) {
           return NextResponse.json(
             { error: "Not authorized" },
             { status: 403 }

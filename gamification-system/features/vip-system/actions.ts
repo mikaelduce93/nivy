@@ -42,7 +42,8 @@ export async function getAllVipTiers(): Promise<VipTier[]> {
     return []
   }
 
-  return data || []
+  // Frontière DB→domaine : les colonnes vip_tiers sont nullable en live (defaults SQL)
+  return (data || []) as VipTier[]
 }
 
 /**
@@ -63,7 +64,7 @@ export async function getVipTierBySlug(slug: VipTierSlug): Promise<VipTier | nul
     return null
   }
 
-  return data
+  return data as VipTier
 }
 
 /**
@@ -83,7 +84,8 @@ export async function getTierPerks(tierId: string): Promise<VipPerk[]> {
     return []
   }
 
-  return data || []
+  // Frontière DB→domaine : vip_perks.category est string|null en live
+  return (data || []) as VipPerk[]
 }
 
 /**
@@ -151,7 +153,7 @@ export async function getUserVipTier(userId: string): Promise<{
     tier: (data.vip_tiers as any)?.slug || "standard",
     tierName: (data.vip_tiers as any)?.name || "Standard",
     tierLevel: (data.vip_tiers as any)?.tier_level || 0,
-    lifetimeXp: data.lifetime_xp,
+    lifetimeXp: data.lifetime_xp ?? 0,
   }
 }
 
@@ -200,15 +202,24 @@ export async function addVipXp(
   revalidatePath("/profile")
   revalidatePath("/vip")
 
+  // RPC add_vip_xp renvoie Json → shape connue à la frontière
+  const result = data as {
+    base_xp?: number
+    multiplier?: number
+    final_xp?: number
+    bonus_xp?: number
+    tier_result?: { tier_changed?: boolean; tier_name?: string }
+  } | null
+
   return {
     success: true,
-    baseXp: data.base_xp,
-    multiplier: data.multiplier,
-    finalXp: data.final_xp,
-    bonusXp: data.bonus_xp,
-    tierChanged: data.tier_result?.tier_changed || false,
-    newTier: data.tier_result?.tier_changed
-      ? (data.tier_result.tier_name as VipTierSlug)
+    baseXp: result?.base_xp ?? xp,
+    multiplier: result?.multiplier ?? 1,
+    finalXp: result?.final_xp ?? xp,
+    bonusXp: result?.bonus_xp ?? 0,
+    tierChanged: result?.tier_result?.tier_changed || false,
+    newTier: result?.tier_result?.tier_changed
+      ? (result.tier_result.tier_name as VipTierSlug)
       : undefined,
   }
 }
@@ -236,10 +247,15 @@ export async function recalculateVipTier(userId: string): Promise<{
   revalidatePath("/profile")
   revalidatePath("/vip")
 
+  // RPC calculate_vip_tier renvoie Json → shape connue à la frontière
+  const result = data as { tier_changed?: boolean; tier_name?: string } | null
+
   return {
     success: true,
-    tierChanged: data.tier_changed,
-    newTier: data.tier_changed ? data.tier_name : undefined,
+    tierChanged: result?.tier_changed ?? false,
+    newTier: result?.tier_changed
+      ? (result.tier_name as VipTierSlug)
+      : undefined,
   }
 }
 
@@ -268,10 +284,27 @@ export async function incrementEventsAttended(
   const nowIso = new Date().toISOString()
 
   if (!current) {
+    // user_vip_status.current_tier_id est NOT NULL : résoudre le tier par défaut
+    // (standard) avant l'insert, sinon la requête échoue toujours au runtime.
+    const { data: standardTier, error: tierError } = await supabase
+      .from("vip_tiers")
+      .select("id")
+      .eq("slug", "standard")
+      .single()
+
+    if (tierError || !standardTier) {
+      logDbError(
+        "vip-system.incrementEventsAttended",
+        tierError ?? { message: "standard vip tier introuvable" }
+      )
+      return { success: false, newCount: 0 }
+    }
+
     const { data: inserted, error: insertError } = await supabase
       .from("user_vip_status")
       .insert({
         user_id: userId,
+        current_tier_id: standardTier.id,
         events_attended: 1,
         first_event_date: nowIso,
         updated_at: nowIso,
@@ -339,14 +372,21 @@ export async function claimMonthlyCoins(userId: string): Promise<{
     return { success: false, error: error.message }
   }
 
-  if (!data.success) {
-    return { success: false, error: data.error }
+  // RPC claim_monthly_vip_coins renvoie Json → shape connue à la frontière
+  const result = data as {
+    success?: boolean
+    error?: string
+    coins?: number
+  } | null
+
+  if (!result?.success) {
+    return { success: false, error: result?.error }
   }
 
   revalidatePath("/vip")
   revalidatePath("/profile")
 
-  return { success: true, coins: data.coins }
+  return { success: true, coins: result.coins }
 }
 
 /**
@@ -553,10 +593,10 @@ export async function logBenefitUsed(
 ): Promise<{ success: boolean }> {
   const supabase = await createClient()
 
-  // Récupérer le tier actuel
+  // Récupérer le tier actuel + compteurs à incrémenter
   const { data: status } = await supabase
     .from("user_vip_status")
-    .select("current_tier_id")
+    .select("current_tier_id, benefits_used_count, total_savings")
     .eq("user_id", userId)
     .single()
 
@@ -577,21 +617,20 @@ export async function logBenefitUsed(
     return { success: false }
   }
 
-  // Incrémenter le compteur d'utilisation
+  // Incrémenter le compteur d'utilisation.
+  // NOTE: les RPC increment_column/add_to_column n'existent pas en live (le
+  // payload envoyait un query-builder au lieu d'un nombre = update cassé).
+  // Read-modify-write comme incrementEventsAttended.
+  const updatePayload: { benefits_used_count: number; total_savings?: number } = {
+    benefits_used_count: (status.benefits_used_count ?? 0) + 1,
+  }
+  if (benefitType === "discount") {
+    updatePayload.total_savings = (status.total_savings ?? 0) + benefitValue
+  }
+
   await supabase
     .from("user_vip_status")
-    .update({
-      benefits_used_count: supabase.rpc("increment_column", {
-        column: "benefits_used_count",
-      }),
-      total_savings:
-        benefitType === "discount"
-          ? supabase.rpc("add_to_column", {
-              column: "total_savings",
-              value: benefitValue,
-            })
-          : undefined,
-    })
+    .update(updatePayload)
     .eq("user_id", userId)
 
   return { success: true }
@@ -618,7 +657,8 @@ export async function getBenefitsHistory(
     return []
   }
 
-  return data || []
+  // Frontière DB→domaine : vip_benefits_log.benefit_type est string en live
+  return (data || []) as VipBenefitLog[]
 }
 
 /**
@@ -706,7 +746,7 @@ export async function getVipLeaderboard(
   return (
     data?.map((d) => ({
       user_id: d.user_id,
-      lifetime_xp: d.lifetime_xp,
+      lifetime_xp: d.lifetime_xp ?? 0,
       tier_slug: (d.vip_tiers as any)?.slug || "standard",
       tier_name: (d.vip_tiers as any)?.name || "Standard",
       tier_level: (d.vip_tiers as any)?.tier_level || 0,
@@ -796,14 +836,14 @@ export async function compareVipUsers(
 
   return {
     user1: {
-      lifetimeXp: user1Data.lifetime_xp,
+      lifetimeXp: user1Data.lifetime_xp ?? 0,
       tierSlug: (user1Data.vip_tiers as any)?.slug || "standard",
-      eventsAttended: user1Data.events_attended,
+      eventsAttended: user1Data.events_attended ?? 0,
     },
     user2: {
-      lifetimeXp: user2Data.lifetime_xp,
+      lifetimeXp: user2Data.lifetime_xp ?? 0,
       tierSlug: (user2Data.vip_tiers as any)?.slug || "standard",
-      eventsAttended: user2Data.events_attended,
+      eventsAttended: user2Data.events_attended ?? 0,
     },
   }
 }

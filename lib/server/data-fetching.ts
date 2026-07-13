@@ -203,15 +203,17 @@ export const getUserNotifications = cache(async (unreadOnly = false) => {
     return []
   }
 
+  // Live schema: the canonical table is `user_notifications` (no `notifications`
+  // table exists) and the read flag is `is_read` (no `read` column).
   let query = supabase
-    .from('notifications')
+    .from('user_notifications')
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(50)
 
   if (unreadOnly) {
-    query = query.eq('read', false)
+    query = query.eq('is_read', false)
   }
 
   const { data, error } = await query
@@ -288,26 +290,10 @@ export const getAdminStats = cache(async () => {
    STATIC DATA (can be revalidated)
    ========================================================================== */
 
-/**
- * Get testimonials for homepage
- */
-export const getTestimonials = cache(async (limit = 6) => {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('testimonials')
-    .select('*')
-    .eq('is_approved', true)
-    .order('created_at', { ascending: false })
-    .limit(limit)
-
-  if (error) {
-    console.error('[Server] Error fetching testimonials:', error)
-    return []
-  }
-
-  return data ?? []
-})
+// NOTE: `getTestimonials` was removed — no `testimonials` table exists in the
+// live schema (the query always failed with PGRST205). The /temoignages page
+// already renders an honest empty state; re-add a fetcher when a real moderated
+// testimonials source is wired up.
 
 /**
  * Get partners list

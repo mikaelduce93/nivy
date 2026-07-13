@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       .limit(10)
 
     // Get crew XP (sum of all members XP or specific crew XP)
-    const memberIds = members?.map(m => (m.teen as unknown as TeenJoin | null)?.id).filter(Boolean) || []
+    const memberIds = members?.map(m => (m.teen as unknown as TeenJoin | null)?.id).filter((id): id is string => Boolean(id)) || []
     let totalXp = 0
     
     if (memberIds.length > 0) {

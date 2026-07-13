@@ -94,8 +94,15 @@ export async function rpcTryVariants(
   variants: Record<string, unknown>[],
 ): Promise<RpcAttempt> {
   let lastError: DbErrorLike = null
+  // fn/args ciblent les RPC de la mig 182 (hors types générés — agent parallèle) :
+  // cast de frontière du callable rpc pour accepter un nom dynamique.
+  type LooseRpc = (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: DbErrorLike }>
+  const rpc = supabase.rpc as unknown as LooseRpc
   for (const args of variants) {
-    const { data, error } = await supabase.rpc(fn, args)
+    const { data, error } = await rpc(fn, args)
     if (!error) return { data, error: null, missing: false }
     lastError = error
     if (!isMissingFunction(error)) return { data: null, error, missing: false }
@@ -198,7 +205,9 @@ export async function getPlayableCatalogRows(): Promise<PlayableCatalogRow[]> {
       logDbError("games.getPlayableCatalogRows", error)
       return []
     }
-    return data ?? []
+    // is_active nullable en base : null (non renseigné) reste jouable ; seule
+    // une désactivation admin explicite (false) repasse le jeu en « bientôt ».
+    return (data ?? []).map((row) => ({ ...row, is_active: row.is_active ?? true }))
   } catch (error) {
     logDbError("games.getPlayableCatalogRows", error)
     return []

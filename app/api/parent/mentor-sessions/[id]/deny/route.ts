@@ -8,7 +8,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
-  const reason: string | null = body.reason ?? null
+  const reason: string | undefined = body.reason ?? undefined
 
   const { data, error } = await supabase.rpc("parent_deny_session", {
     p_session_id: id,

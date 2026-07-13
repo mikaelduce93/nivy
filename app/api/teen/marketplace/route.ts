@@ -135,8 +135,9 @@ export async function POST(request: NextRequest) {
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      // RPC returns { success, error?, ... } — forward it honestly.
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      // RPC returns jsonb { success, error?, ... }; cast the Json boundary to read `success`.
+      const result = data as { success?: boolean } | null
+      return NextResponse.json(data, { status: result?.success ? 200 : 400 })
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 })

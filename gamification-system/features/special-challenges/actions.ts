@@ -15,10 +15,19 @@ import {
   type SpecialChallenge,
   type SpecialChallengeType,
   type ChallengeSubmission,
+  type ChallengeCategory,
   type QuizQuestion,
   type GeolocationZone,
   type QuizAnswer,
 } from "./schema"
+
+/** Forme du Json renvoyé par la RPC submit_challenge_entry / vote_on_submission */
+type ChallengeEntryResult = {
+  success?: boolean
+  error?: string
+  score?: number
+  xp_awarded?: number
+}
 
 /* ==========================================================================
    GET CHALLENGE TYPES
@@ -71,7 +80,7 @@ export async function getActiveSpecialChallenges(): Promise<{
     } = await supabase.auth.getUser()
 
     const { data, error } = await supabase.rpc("get_active_special_challenges", {
-      p_user_id: user?.id || null,
+      p_user_id: user?.id ?? undefined,
     })
 
     if (error) {
@@ -189,17 +198,17 @@ export async function getSpecialChallengeDetails(challengeId: string): Promise<{
       challenge_id: challenge.id,
       type_slug: type.slug,
       type_name: type.name,
-      category: type.challenge_category,
+      category: type.challenge_category as ChallengeCategory,
       icon: type.icon,
-      color: type.color,
+      color: type.color ?? "",
       title: challenge.title,
       description: challenge.description,
       starts_at: challenge.starts_at,
       ends_at: challenge.ends_at,
-      is_flash: challenge.is_flash,
-      total_participants: challenge.total_participants,
-      base_xp: type.base_xp_reward,
-      winner_xp: type.winner_bonus_xp,
+      is_flash: challenge.is_flash ?? false,
+      total_participants: challenge.total_participants ?? 0,
+      base_xp: type.base_xp_reward ?? 0,
+      winner_xp: type.winner_bonus_xp ?? 0,
       has_participated: !!userSubmission,
       time_remaining_seconds: Math.max(
         0,
@@ -264,15 +273,16 @@ export async function submitPhoto(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de soumission" }
+    const result = data as ChallengeEntryResult | null
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de soumission" }
     }
 
     revalidatePath("/challenges")
 
     return {
       success: true,
-      xpAwarded: data.xp_awarded,
+      xpAwarded: result.xp_awarded,
       error: null,
     }
   } catch (error) {
@@ -301,8 +311,8 @@ export async function getQuizQuestions(
 
     const { data, error } = await supabase.rpc("get_quiz_questions", {
       p_count: count,
-      p_category: category || null,
-      p_difficulty: difficulty || null,
+      p_category: category || undefined,
+      p_difficulty: difficulty || undefined,
     })
 
     if (error) {
@@ -359,16 +369,17 @@ export async function submitQuizAnswers(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de soumission" }
+    const result = data as ChallengeEntryResult | null
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de soumission" }
     }
 
     revalidatePath("/challenges")
 
     return {
       success: true,
-      score: data.score,
-      xpAwarded: data.xp_awarded,
+      score: result.score,
+      xpAwarded: result.xp_awarded,
       error: null,
     }
   } catch (error) {
@@ -419,15 +430,16 @@ export async function submitGeolocation(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de soumission" }
+    const result = data as ChallengeEntryResult | null
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de soumission" }
     }
 
     revalidatePath("/challenges")
 
     return {
       success: true,
-      xpAwarded: data.xp_awarded,
+      xpAwarded: result.xp_awarded,
       error: null,
     }
   } catch (error) {
@@ -472,8 +484,9 @@ export async function voteOnSubmission(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de vote" }
+    const result = data as ChallengeEntryResult | null
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de vote" }
     }
 
     revalidatePath("/challenges")

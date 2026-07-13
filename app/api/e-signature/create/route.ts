@@ -76,35 +76,10 @@ export const POST = withSecurity(async (request: NextRequest) => {
 
     if (signatureError) throw signatureError
 
-    if (bookingId) {
-      await supabase
-        .from("bookings")
-        .update({
-          no_photo_consent: !photoConsent,
-        })
-        .eq("id", bookingId)
-    }
-
-    await supabase.from("documents").insert([
-      {
-        parent_id: user.id,
-        child_id: childId || null,
-        document_type: "identity",
-        file_name: `CIN_recto_${parentFullName}`,
-        file_url: cinFrontUrl,
-        mime_type: "image/jpeg",
-        description: "Carte d'identité nationale - Recto",
-      },
-      {
-        parent_id: user.id,
-        child_id: childId || null,
-        document_type: "identity",
-        file_name: `CIN_verso_${parentFullName}`,
-        file_url: cinBackUrl,
-        mime_type: "image/jpeg",
-        description: "Carte d'identité nationale - Verso",
-      },
-    ])
+    // NB : le consentement photo est déjà stocké sur e_signatures.photo_consent,
+    // et les URLs CIN sur cin_front_url/cin_back_url. L'ancienne mise à jour de
+    // bookings.no_photo_consent et l'insert dans "documents" visaient des
+    // colonnes/tables absentes du schéma live (échec runtime) : supprimés.
 
     return NextResponse.json({
       success: true,

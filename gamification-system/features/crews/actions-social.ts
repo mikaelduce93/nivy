@@ -2,7 +2,6 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
 
 /**
  * ACTIONS SOCIAL GRAPH (10/10)
@@ -17,21 +16,11 @@ export async function inviteBuddyForQuest(friendId: string, questTemplateId: str
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  const { data, error } = await supabase
-    .from('buddy_quests')
-    .insert({
-      host_id: user.id,
-      friend_id: friendId,
-      quest_template_id: questTemplateId,
-      status: 'pending',
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    })
-    .select()
-    .single()
-
-  if (error) throw error
-  revalidatePath('/teen/social')
-  return { success: true, data }
+  // La table `buddy_quests` n'existe pas dans le schéma live (feature non provisionnée).
+  // L'appel échouait toujours au runtime ; on remonte une erreur explicite.
+  void friendId
+  void questTemplateId
+  throw new Error('Buddy quests not available: buddy_quests table is not provisioned')
 }
 
 /**
@@ -42,15 +31,9 @@ export async function acceptBuddyQuest(questId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  const { error } = await supabase
-    .from('buddy_quests')
-    .update({ status: 'active' })
-    .eq('id', questId)
-    .eq('friend_id', user.id) // Security check
-
-  if (error) throw error
-  revalidatePath('/teen/social')
-  return { success: true }
+  // La table `buddy_quests` n'existe pas dans le schéma live (feature non provisionnée).
+  void questId
+  throw new Error('Buddy quests not available: buddy_quests table is not provisioned')
 }
 
 /**
@@ -61,18 +44,12 @@ export async function contributeToCrewGoal(goalId: string, xpAmount: number) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // 1. Check if user is in crew (Logic simplified)
-  // ...
-
-  // 2. Update Goal
-  const { error } = await supabase.rpc('increment_crew_goal', {
-    goal_id: goalId,
-    amount: xpAmount
-  })
-
-  if (error) throw error
-  revalidatePath('/teen/crew')
-  return { success: true }
+  // La RPC `increment_crew_goal` n'existe pas dans le schéma live (feature non provisionnée).
+  // L'appel échouait toujours au runtime ; on remonte une erreur explicite.
+  void supabase
+  void goalId
+  void xpAmount
+  throw new Error('Crew goals not available: increment_crew_goal RPC is not provisioned')
 }
 
 

@@ -3,7 +3,30 @@
 import { createClient } from "@/lib/supabase/server"
 import { logDbError } from "@/lib/observability/log-db-error"
 import { revalidatePath } from "next/cache"
-import { type CollectionTrade } from "../schema"
+import { type CollectionTrade, type TradeStatus } from "../schema"
+
+// Drift live: collection_trades.status et created_at sont nullable côté DB
+// (défauts 'pending' / now()). On les recale sur le type domaine à la frontière.
+type CollectionTradeRow = {
+  id: string
+  sender_id: string
+  sender_item_ids: string[]
+  receiver_id: string
+  receiver_item_ids: string[]
+  status: string | null
+  sender_message: string | null
+  created_at: string | null
+  responded_at: string | null
+  completed_at: string | null
+}
+
+function mapTradeRow(row: CollectionTradeRow): CollectionTrade {
+  return {
+    ...row,
+    status: (row.status ?? "pending") as TradeStatus,
+    created_at: row.created_at ?? "",
+  }
+}
 
 /**
  * Créer une proposition d'échange
@@ -86,7 +109,7 @@ export async function getUserTrades(
     return []
   }
 
-  return data || []
+  return (data || []).map(mapTradeRow)
 }
 
 /**
@@ -108,7 +131,7 @@ export async function getTradeById(
     return null
   }
 
-  return data
+  return mapTradeRow(data)
 }
 
 /**
@@ -133,21 +156,13 @@ export async function acceptTrade(
     return { success: false, error: "Trade is no longer pending" }
   }
 
-  for (const itemId of trade.sender_item_ids) {
-    await supabase.rpc("transfer_collectible", {
-      p_from_user: trade.sender_id,
-      p_to_user: trade.receiver_id,
-      p_item_id: itemId,
-    })
-  }
-
-  for (const itemId of trade.receiver_item_ids) {
-    await supabase.rpc("transfer_collectible", {
-      p_from_user: trade.receiver_id,
-      p_to_user: trade.sender_id,
-      p_item_id: itemId,
-    })
-  }
+  // Drift live: la RPC `transfer_collectible` n'existe dans aucune migration ni
+  // dans le schéma live (015_collections ne définit que add_collectible_to_user /
+  // get_random_collectible). Les appels échouaient donc silencieusement (erreurs
+  // ignorées) : aucun item n'était transféré alors que l'échange passait en
+  // "completed". Le transfert nécessite une fonction SECURITY DEFINER (RLS
+  // user_collectibles = auth.uid() = user_id) qui reste à créer côté DB.
+  // On retire l'appel mort ici plutôt que d'inventer une RPC inexistante.
 
   const { error } = await supabase
     .from("collection_trades")

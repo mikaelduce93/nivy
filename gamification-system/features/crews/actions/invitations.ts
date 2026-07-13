@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { logDbError } from "@/lib/observability/log-db-error"
 
+// Forme du jsonb renvoyé par les RPC de crew (Returns: Json en base)
+type CrewRpcResult = { success?: boolean; error?: string; joined?: boolean }
+
 /**
  * Invite un utilisateur à rejoindre le crew
  */
@@ -30,7 +33,7 @@ export async function inviteToCrew(
       p_crew_id: crewId,
       p_inviter_id: user.id,
       p_invitee_id: inviteeId,
-      p_message: message || null,
+      p_message: message || undefined,
     })
 
     if (error) {
@@ -38,8 +41,9 @@ export async function inviteToCrew(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur d'invitation" }
+    const result = data as CrewRpcResult | null
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur d'invitation" }
     }
 
     return { success: true, error: null }
@@ -81,8 +85,9 @@ export async function respondToCrewInvitation(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de réponse" }
+    const result = data as CrewRpcResult | null
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de réponse" }
     }
 
     revalidatePath("/crew")
@@ -119,7 +124,7 @@ export async function requestToJoinCrew(
     const { data, error } = await supabase.rpc("request_to_join_crew", {
       p_crew_id: crewId,
       p_user_id: user.id,
-      p_message: message || null,
+      p_message: message || undefined,
     })
 
     if (error) {
@@ -127,13 +132,14 @@ export async function requestToJoinCrew(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de demande" }
+    const result = data as CrewRpcResult | null
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de demande" }
     }
 
     revalidatePath("/crew")
 
-    return { success: true, joined: data.joined, error: null }
+    return { success: true, joined: result.joined, error: null }
   } catch (error) {
     logDbError("crews.requestToJoinCrew", error)
     return { success: false, error: "Erreur serveur" }
@@ -179,7 +185,7 @@ export async function handleJoinRequest(
       p_request_id: requestId,
       p_reviewer_id: user.id,
       p_approve: approve,
-      p_rejection_reason: rejectionReason || null,
+      p_rejection_reason: rejectionReason || undefined,
     })
 
     if (error) {
@@ -187,8 +193,9 @@ export async function handleJoinRequest(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de traitement" }
+    const result = data as CrewRpcResult | null
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de traitement" }
     }
 
     revalidatePath("/crew")

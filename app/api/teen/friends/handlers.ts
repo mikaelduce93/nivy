@@ -165,7 +165,7 @@ export const FriendHandlers = {
     const { data: requestId, error } = await supabase.rpc("send_friend_request", {
       p_sender_id: teenId,
       p_receiver_id: targetTeenId,
-      p_message: message || null,
+      p_message: message || undefined,
     })
 
     if (error) return APIResponse.error(error.message || "Failed to send request")

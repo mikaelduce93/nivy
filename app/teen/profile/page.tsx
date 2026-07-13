@@ -31,9 +31,9 @@ async function getFriendsCount(teenId: string) {
   const supabase = await createClient()
 
   const { count } = await supabase
-    .from("teen_connections")
+    .from("friend_connections")
     .select("*", { count: "exact", head: true })
-    .or(`teen_id.eq.${teenId},friend_id.eq.${teenId}`)
+    .or(`teen_id.eq.${teenId},friend_teen_id.eq.${teenId}`)
     .eq("status", "accepted")
 
   return count || 0

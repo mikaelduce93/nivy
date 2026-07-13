@@ -37,10 +37,13 @@ export async function toggleActivityReaction(
 
     revalidatePath("/feed")
 
+    // Frontière Json → forme réelle renvoyée par toggle_activity_like (json_build_object 'liked'/'count')
+    const result = (data ?? {}) as { liked?: boolean; count?: number }
+
     return {
       success: true,
-      liked: data.liked,
-      likesCount: data.likes_count,
+      liked: result.liked,
+      likesCount: result.count,
     }
   } catch (error) {
     logDbError("activity-feed.toggleActivityReaction", error)

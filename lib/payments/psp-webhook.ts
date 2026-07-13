@@ -17,7 +17,16 @@
  */
 
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import type { Json } from "@/types/supabase"
 import crypto from "node:crypto"
+
+/** Shape returned by the top_up_teen RPC (returns jsonb). Frontier cast. */
+interface TopUpTeenResult {
+  success?: boolean
+  error?: string
+  payment_id?: string
+  idempotent_replay?: boolean
+}
 
 export type PSPProvider = "cashplus" | "wafacash" | "m2t"
 
@@ -186,9 +195,10 @@ export async function processTopupEvent(
         parent_hint: event.parentHint ?? null,
         resolved_link: link,
         auto_credit_enabled: autoCreditEnabled,
-        raw: event.raw,
+        // event.raw is Record<string, unknown>; cast to Json at the jsonb boundary.
+        raw: event.raw as Json,
         received_at: new Date().toISOString(),
-      },
+      } as Json,
     })
   } catch (e) {
     console.warn("[psp-webhook] audit log insert failed", e)
@@ -218,7 +228,7 @@ export async function processTopupEvent(
   }
 
   // 4. Credit via 5-arg top_up_teen RPC.
-  const { data, error } = await sr.rpc("top_up_teen", {
+  const { data: rpcData, error } = await sr.rpc("top_up_teen", {
     p_parent_id: link.parentId,
     p_teen_id: link.teenId,
     p_amount_dh: event.amountDh,
@@ -233,6 +243,9 @@ export async function processTopupEvent(
     )
     return { ok: false, reason: error.message, autoCreditEnabled }
   }
+
+  // RPC returns jsonb — cast to the domain shape at the boundary.
+  const data = rpcData as TopUpTeenResult
 
   if (!data?.success) {
     console.warn(

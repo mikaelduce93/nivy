@@ -369,7 +369,8 @@ export async function POST(request: NextRequest) {
           p_reaction_type: reaction_type,
         })
         if (error) throw error
-        return NextResponse.json({ success: true, ...result })
+        // toggle_post_like returns Json ({ liked, likes_count, ... }); cast at boundary to spread.
+        return NextResponse.json({ success: true, ...(result as Record<string, unknown>) })
       }
 
       case "bookmark": {

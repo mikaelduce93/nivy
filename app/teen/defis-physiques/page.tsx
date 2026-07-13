@@ -29,7 +29,7 @@ async function getSportChallenges(teenId: string): Promise<{ challenges: ApiChal
             current_value: cp.current_value,
             progress_percent: Math.min(
               100,
-              Math.round((cp.current_value / Math.max(1, challenge.objective_value)) * 100)
+              Math.round(((cp.current_value ?? 0) / Math.max(1, challenge.objective_value)) * 100)
             ),
             completed: cp.completed,
             validated: cp.validated,

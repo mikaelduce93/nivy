@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 
   const body = await request.json()
   const expertise: string[] = Array.isArray(body.expertise) ? body.expertise : []
-  const bio: string | null = body.bio ?? null
+  const bio: string = body.bio ?? ""
   const hourly_rate: number = Number(body.hourly_rate ?? 0)
 
   const { data, error } = await supabase.rpc("apply_mentor", {

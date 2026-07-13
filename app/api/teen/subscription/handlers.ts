@@ -66,7 +66,7 @@ export const SubscriptionHandlers = {
     if (error || !promo) return APIResponse.success({ valid: false, error: "Code invalide ou expiré" })
 
     if (promo.valid_until && new Date(promo.valid_until) < new Date()) return APIResponse.success({ valid: false, error: "Code expiré" })
-    if (promo.max_uses && promo.current_uses >= promo.max_uses) return APIResponse.success({ valid: false, error: "Code épuisé" })
+    if (promo.max_uses && (promo.current_uses ?? 0) >= promo.max_uses) return APIResponse.success({ valid: false, error: "Code épuisé" })
 
     const { data: used } = await supabase.from("promo_code_uses").select("id").eq("promo_code_id", promo.id).eq("user_id", userId).single()
     if (used) return APIResponse.success({ valid: false, error: "Tu as déjà utilisé ce code" })
@@ -143,7 +143,7 @@ export const SubscriptionHandlers = {
     const { data: plan } = await supabase.from("subscription_plans").select("*").eq("id", plan_id).single()
     if (!plan) return APIResponse.error("Forfait invalide")
 
-    const amount = billing_cycle === "monthly" ? plan.price_monthly : billing_cycle === "quarterly" ? plan.price_quarterly : billing_cycle === "yearly" ? plan.price_yearly : plan.price_lifetime
+    const amount = (billing_cycle === "monthly" ? plan.price_monthly : billing_cycle === "quarterly" ? plan.price_quarterly : billing_cycle === "yearly" ? plan.price_yearly : plan.price_lifetime) ?? 0
     // Approval token is sent to a parent and used as the only credential to
     // authorize a payment request, so it MUST be cryptographically unguessable.
     // 32 random bytes -> 64 hex chars, prefixed for traceability.
@@ -163,20 +163,18 @@ export const SubscriptionHandlers = {
   },
 
   async inviteFamilyMember(userId: string, body: any) {
-    const { email, username } = body
-    if (!email && !username) return APIResponse.error("email ou username requis")
+    // `users` live n'expose que id/email (la colonne username a été retirée du schéma),
+    // la résolution de l'invité ne peut donc se faire que par email.
+    const { email } = body
+    if (!email) return APIResponse.error("email requis")
     const supabase = await createClient()
     const { data: family } = await supabase.from("family_subscriptions").select("*, members:family_members(count)").eq("owner_id", userId).single()
     if (!family) return APIResponse.error("Tu n'as pas d'abonnement familial")
 
     const memberCount = family.members?.[0]?.count || 0
-    if (memberCount >= family.max_members) return APIResponse.error("Nombre maximum de membres atteint")
+    if (memberCount >= (family.max_members ?? 0)) return APIResponse.error("Nombre maximum de membres atteint")
 
-    let query = supabase.from("users").select("id, email, username")
-    if (email) query = query.eq("email", email)
-    else query = query.eq("username", username)
-
-    const { data: invitee } = await query.single()
+    const { data: invitee } = await supabase.from("users").select("id, email").eq("email", email).single()
     if (!invitee) return APIResponse.error("Utilisateur non trouvé", 404)
 
     const { error } = await supabase.from("family_members").insert({ family_id: family.id, user_id: invitee.id, invited_by: userId, role: "member", status: "pending" })
@@ -185,7 +183,8 @@ export const SubscriptionHandlers = {
       return APIResponse.serverError("Failed to invite member", error)
     }
 
-    await supabase.from("notifications").insert({ user_id: invitee.id, type: "family_invite", title: "Invitation familiale", message: `Tu as été invité à rejoindre l'abonnement famille`, data: { family_id: family.id, inviter_id: userId } })
+    // Table `notifications` inexistante en live -> `user_notifications` (colonnes body/data, pas type/message)
+    await supabase.from("user_notifications").insert({ user_id: invitee.id, title: "Invitation familiale", body: `Tu as été invité à rejoindre l'abonnement famille`, data: { type: "family_invite", family_id: family.id, inviter_id: userId } })
     return APIResponse.success()
   },
 

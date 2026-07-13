@@ -16,7 +16,7 @@ const XP_ROLES = new Set(["coach", "teacher"])
 // Refonte V1.5 (#100) — gestion du staff partenaire (owner/staff/coach/teacher).
 // Lit partner_staff ; invitation via /api/partner/staff/invite (à venir).
 export default async function PartnerStaffPage() {
-  let staff: { id: string; display_name?: string; role?: string; is_active?: boolean }[] = []
+  let staff: { id: string; role?: string; is_active?: boolean }[] = []
   try {
     const supabase = await createClient()
     const info = await getUserRole()
@@ -24,7 +24,7 @@ export default async function PartnerStaffPage() {
     if (partnerId) {
       const { data } = await supabase
         .from("partner_staff")
-        .select("id, display_name, role, is_active")
+        .select("id, role, is_active")
         .eq("partner_id", partnerId)
       staff = data ?? []
     }
@@ -71,7 +71,7 @@ export default async function PartnerStaffPage() {
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate font-mono text-sm font-bold text-ink">
-                        {s.display_name || "Membre"}
+                        {"Membre"}
                       </span>
                       <span className="mt-1 inline-flex items-center rounded-full border-2 border-ink bg-white px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
                         {ROLE_LABEL[s.role || "staff"] || s.role}

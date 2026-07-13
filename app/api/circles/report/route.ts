@@ -52,7 +52,7 @@ export const POST = withSecurity(
       // Resolve the reported message + its circle.
       const { data: message, error: messageError } = await supabase
         .from("circle_messages")
-        .select("id, user_id, circle_id, content")
+        .select("id, sender_id, circle_id, content")
         .eq("id", messageId)
         .eq("is_deleted", false)
         .maybeSingle()
@@ -60,7 +60,7 @@ export const POST = withSecurity(
       if (messageError || !message) {
         return errorResponse("Message introuvable", 404)
       }
-      if (message.user_id === user.id) {
+      if (message.sender_id === user.id) {
         return errorResponse("Vous ne pouvez pas signaler votre propre message", 400)
       }
 
@@ -89,7 +89,7 @@ export const POST = withSecurity(
         action: "content_reported",
         resource_type: "circle_message",
         resource_id: messageId,
-        target_user_id: message.user_id,
+        target_user_id: message.sender_id,
         description: `Circle message reported: ${reason}`,
         metadata: {
           reason,

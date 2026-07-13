@@ -29,6 +29,10 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import type { Database } from "@/types/supabase"
+
+// Nom d'une RPC réellement présente dans la base live (typée <Database>).
+type RpcName = keyof Database["public"]["Functions"]
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -46,10 +50,10 @@ interface ApprovalRow {
 }
 
 function resolveDispatchRpc(actionType: string, decision: Decision): {
-  name: string
+  name: RpcName
   withReason: boolean
 } | null {
-  const map: Record<string, { approve: string; deny: string; denyReason: boolean }> = {
+  const map: Record<string, { approve: RpcName; deny: RpcName; denyReason: boolean }> = {
     coach_meeting: {
       approve: "parent_approve_session_v2",
       deny: "parent_deny_session_v2",
@@ -76,11 +80,9 @@ function resolveDispatchRpc(actionType: string, decision: Decision): {
       denyReason: true,
     },
     // #212 — actions gatées déclenchées par le coach Niv (migration 122).
-    savings_goal: {
-      approve: "parent_approve_savings_goal",
-      deny: "parent_deny_savings_goal",
-      denyReason: true,
-    },
+    // NOTE drift: les RPC parent_approve/deny_savings_goal n'existent pas en
+    // base live — entrée retirée (dispatch échouait au runtime « function does
+    // not exist »).
     event_booking: {
       approve: "parent_approve_booking",
       deny: "parent_deny_booking",
@@ -205,12 +207,14 @@ export async function POST(request: Request) {
     // Service-role client invokes the SECURITY DEFINER RPC. The RPC re-checks
     // auth.uid() vs p_parent_id; we pass userInfo.profileId from the session.
     const sr = createServiceRoleClient()
-    const args: Record<string, unknown> = {
+    // Toutes les RPC de dispatch partagent (p_approval_id, p_parent_id) ;
+    // les variantes deny acceptent p_reason optionnel (string).
+    const args: { p_approval_id: string; p_parent_id: string; p_reason?: string } = {
       p_approval_id: approval.id,
       p_parent_id: userInfo.profileId,
     }
-    if (dispatch.withReason) {
-      args.p_reason = body.reason ?? null
+    if (dispatch.withReason && body.reason) {
+      args.p_reason = body.reason
     }
 
     const { data: rpcResult, error: rpcError } = await sr.rpc(dispatch.name, args)

@@ -10,6 +10,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { logDbError } from "@/lib/observability/log-db-error"
+import type { Database } from "@/types/supabase"
 import {
   type Season,
   type SeasonalChallenge,
@@ -18,10 +19,53 @@ import {
   type AdventCalendar,
   type AdventCalendarWithProgress,
   type AdventDay,
+  type UserAdventProgress,
   type AdventDayReward,
   type SeasonalReward,
   calculateProgress,
 } from "./schema"
+
+/* ==========================================================================
+   MAPPERS DE FRONTIÈRE (colonnes live nullables -> types domaine non-null)
+   ========================================================================== */
+
+type SeasonRow = Database["public"]["Tables"]["seasons"]["Row"]
+type SeasonalRewardRow = Database["public"]["Tables"]["seasonal_rewards"]["Row"]
+
+function toSeason(row: SeasonRow): Season {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    theme_color: row.theme_color ?? "",
+    icon: row.icon,
+    start_date: row.start_date,
+    end_date: row.end_date,
+    is_active: row.is_active ?? false,
+    created_at: row.created_at ?? "",
+  }
+}
+
+function toSeasonalReward(row: SeasonalRewardRow): SeasonalReward {
+  return {
+    id: row.id,
+    season_id: row.season_id ?? "",
+    title: row.title,
+    description: row.description,
+    reward_type: row.reward_type as SeasonalReward["reward_type"],
+    reward_data: row.reward_data,
+    required_challenges: row.required_challenges ?? 0,
+    required_points: row.required_points ?? 0,
+    icon: row.icon,
+    rarity: (row.rarity ?? "common") as SeasonalReward["rarity"],
+    is_limited: row.is_limited ?? false,
+    max_claims: row.max_claims,
+    current_claims: row.current_claims ?? 0,
+    is_active: row.is_active ?? false,
+    created_at: row.created_at ?? "",
+  }
+}
 
 /* ==========================================================================
    SAISONS
@@ -48,7 +92,7 @@ export async function getActiveSeason(): Promise<{
 
     if (error && error.code !== "PGRST116") throw error
 
-    return { success: true, data: data || undefined }
+    return { success: true, data: data ? toSeason(data) : undefined }
   } catch (error) {
     logDbError("seasonal-challenges.getActiveSeason", error)
     return { success: false, error: "Impossible de charger la saison" }
@@ -73,7 +117,7 @@ export async function getAllSeasons(): Promise<{
 
     if (error) throw error
 
-    return { success: true, data }
+    return { success: true, data: (data ?? []).map(toSeason) }
   } catch (error) {
     logDbError("seasonal-challenges.getAllSeasons", error)
     return { success: false, error: "Impossible de charger les saisons" }
@@ -107,15 +151,18 @@ export async function getSeasonalChallenges(
 
     const { data, error } = await supabase.rpc("get_seasonal_challenges", {
       p_user_id: user.id,
-      p_season_slug: seasonSlug || null,
-      p_challenge_type: challengeType || null,
+      p_season_slug: seasonSlug || undefined,
+      p_challenge_type: challengeType || undefined,
     })
 
     if (error) throw error
 
+    // RPC renvoie Json : cast de frontière vers le type domaine
+    const season = data as SeasonWithChallenges | null
+
     // Enrichir avec les pourcentages de progression
-    if (data?.challenges) {
-      data.challenges = data.challenges.map((challenge: any) => ({
+    if (season?.challenges) {
+      season.challenges = season.challenges.map((challenge: any) => ({
         ...challenge,
         progress_percentage: calculateProgress(
           challenge.user_progress?.current_count || 0,
@@ -128,7 +175,7 @@ export async function getSeasonalChallenges(
       }))
     }
 
-    return { success: true, data }
+    return { success: true, data: season ?? undefined }
   } catch (error) {
     logDbError("seasonal-challenges.getSeasonalChallenges", error)
     return { success: false, error: "Impossible de charger les défis" }
@@ -172,7 +219,16 @@ export async function updateSeasonalProgress(
     revalidatePath("/challenges")
     revalidatePath("/seasonal")
 
-    return { success: true, data }
+    // RPC renvoie Json : cast de frontière vers le type domaine
+    return {
+      success: true,
+      data: data as {
+        current_count: number
+        target_count: number
+        completed: boolean
+        percentage: number
+      },
+    }
   } catch (error) {
     logDbError("seasonal-challenges.updateSeasonalProgress", error)
     return { success: false, error: "Erreur lors de la mise à jour" }
@@ -207,8 +263,16 @@ export async function completeSeasonalChallenge(challengeId: string): Promise<{
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    // RPC renvoie Json : cast de frontière vers le type domaine
+    const result = data as {
+      success: boolean
+      error?: string
+      xp_earned: number
+      reward: any
+    } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error }
     }
 
     revalidatePath("/challenges")
@@ -218,8 +282,8 @@ export async function completeSeasonalChallenge(challengeId: string): Promise<{
     return {
       success: true,
       data: {
-        xp_earned: data.xp_earned,
-        reward: data.reward,
+        xp_earned: result.xp_earned,
+        reward: result.reward,
       },
     }
   } catch (error) {
@@ -280,7 +344,7 @@ export async function claimSeasonalReward(challengeId: string): Promise<{
       success: true,
       data: {
         reward: progress.seasonal_challenges?.reward_data,
-        xp_earned: progress.xp_earned,
+        xp_earned: progress.xp_earned ?? 0,
       },
     }
   } catch (error) {
@@ -321,11 +385,12 @@ export async function getActiveAdventCalendar(): Promise<{
       return { success: true, data: undefined }
     }
 
+    // RPC renvoie des colonnes Json : cast de frontière vers les types domaine
     const result: AdventCalendarWithProgress = {
-      ...data[0].calendar,
-      days: data[0].days || [],
-      user_progress: data[0].user_progress || [],
-      stats: data[0].stats || {
+      ...(data[0].calendar as AdventCalendar),
+      days: (data[0].days as AdventDay[]) || [],
+      user_progress: (data[0].user_progress as UserAdventProgress[]) || [],
+      stats: (data[0].stats as AdventCalendarWithProgress["stats"]) || {
         days_opened: 0,
         total_xp_earned: 0,
         current_streak: 0,
@@ -369,8 +434,17 @@ export async function openAdventDay(dayNumber: number): Promise<{
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    // RPC renvoie Json : cast de frontière vers le type domaine
+    const result = data as {
+      success: boolean
+      error?: string
+      day_number: number
+      reward: AdventDayReward
+      xp_earned: number
+    } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error }
     }
 
     revalidatePath("/advent")
@@ -380,9 +454,9 @@ export async function openAdventDay(dayNumber: number): Promise<{
     return {
       success: true,
       data: {
-        day_number: data.day_number,
-        reward: data.reward,
-        xp_earned: data.xp_earned,
+        day_number: result.day_number,
+        reward: result.reward,
+        xp_earned: result.xp_earned,
       },
     }
   } catch (error) {
@@ -429,9 +503,10 @@ export async function canOpenTodayAdvent(): Promise<{
     today.setHours(0, 0, 0, 0)
     startDate.setHours(0, 0, 0, 0)
 
+    // total_days est nullable en live : sans plafond connu, pas de cap
     const todayDay = Math.min(
       Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1,
-      calendar.total_days
+      calendar.total_days ?? Infinity
     )
 
     // Vérifier si déjà ouvert
@@ -481,7 +556,7 @@ export async function getSeasonalRewards(seasonId?: string): Promise<{
 
     if (error) throw error
 
-    return { success: true, data }
+    return { success: true, data: (data ?? []).map(toSeasonalReward) }
   } catch (error) {
     logDbError("seasonal-challenges.getSeasonalRewards", error)
     return { success: false, error: "Impossible de charger les récompenses" }
@@ -521,6 +596,8 @@ export async function claimSeasonalTierReward(rewardId: string): Promise<{
       return { success: false, error: "Récompense non trouvée" }
     }
 
+    const rewardTyped = toSeasonalReward(reward)
+
     // Vérifier si déjà réclamée
     const { data: claimed } = await supabase
       .from("user_seasonal_rewards")
@@ -540,16 +617,16 @@ export async function claimSeasonalTierReward(rewardId: string): Promise<{
       .eq("user_id", user.id)
       .in("status", ["completed", "claimed"])
 
-    if ((completedCount?.length || 0) < reward.required_challenges) {
+    if ((completedCount?.length || 0) < rewardTyped.required_challenges) {
       return {
         success: false,
-        error: `Tu dois compléter ${reward.required_challenges} défis pour débloquer cette récompense`,
+        error: `Tu dois compléter ${rewardTyped.required_challenges} défis pour débloquer cette récompense`,
       }
     }
 
     // Vérifier limite
-    if (reward.is_limited && reward.max_claims) {
-      if (reward.current_claims >= reward.max_claims) {
+    if (rewardTyped.is_limited && rewardTyped.max_claims) {
+      if (rewardTyped.current_claims >= rewardTyped.max_claims) {
         return { success: false, error: "Cette récompense n'est plus disponible" }
       }
     }
@@ -567,7 +644,7 @@ export async function claimSeasonalTierReward(rewardId: string): Promise<{
     // Incrémenter le compteur
     await supabase
       .from("seasonal_rewards")
-      .update({ current_claims: reward.current_claims + 1 })
+      .update({ current_claims: rewardTyped.current_claims + 1 })
       .eq("id", rewardId)
 
     revalidatePath("/seasonal")
@@ -576,7 +653,7 @@ export async function claimSeasonalTierReward(rewardId: string): Promise<{
     return {
       success: true,
       data: {
-        reward,
+        reward: rewardTyped,
         xp_bonus: 100, // Bonus XP pour avoir réclamé
       },
     }
@@ -675,25 +752,25 @@ export async function getUserSeasonalStats(seasonId?: string): Promise<{
         progress?.filter(
           (p) =>
             p.seasonal_challenges?.challenge_type === "daily" &&
-            ["completed", "claimed"].includes(p.status)
+            ["completed", "claimed"].includes(p.status ?? "")
         ).length || 0,
       weekly_completed:
         progress?.filter(
           (p) =>
             p.seasonal_challenges?.challenge_type === "weekly" &&
-            ["completed", "claimed"].includes(p.status)
+            ["completed", "claimed"].includes(p.status ?? "")
         ).length || 0,
       seasonal_completed:
         progress?.filter(
           (p) =>
             p.seasonal_challenges?.challenge_type === "seasonal" &&
-            ["completed", "claimed"].includes(p.status)
+            ["completed", "claimed"].includes(p.status ?? "")
         ).length || 0,
       special_completed:
         progress?.filter(
           (p) =>
             p.seasonal_challenges?.challenge_type === "special" &&
-            ["completed", "claimed"].includes(p.status)
+            ["completed", "claimed"].includes(p.status ?? "")
         ).length || 0,
     }
 

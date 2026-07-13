@@ -28,8 +28,8 @@ export async function createCrew(input: CreateCrewInput): Promise<{
     const { data, error } = await supabase.rpc("create_crew", {
       p_owner_id: user.id,
       p_name: input.name,
-      p_description: input.description || null,
-      p_motto: input.motto || null,
+      p_description: input.description || undefined,
+      p_motto: input.motto || undefined,
       p_color: input.color || "#06b6d4",
       p_is_public: input.is_public ?? true,
       p_requires_approval: input.requires_approval ?? true,
@@ -40,16 +40,24 @@ export async function createCrew(input: CreateCrewInput): Promise<{
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de création" }
+    // RPC create_crew retourne Json { success, error, crew_id, slug }
+    const result = data as {
+      success?: boolean
+      error?: string
+      crew_id?: string
+      slug?: string
+    } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de création" }
     }
 
     revalidatePath("/crew")
 
     return {
       success: true,
-      crewId: data.crew_id,
-      slug: data.slug,
+      crewId: result.crew_id,
+      slug: result.slug,
       error: null,
     }
   } catch (error) {
@@ -139,8 +147,11 @@ export async function leaveCrew(crewId: string): Promise<{
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur" }
+    // RPC leave_crew retourne Json { success, error }
+    const result = data as { success?: boolean; error?: string } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur" }
     }
 
     revalidatePath("/crew")

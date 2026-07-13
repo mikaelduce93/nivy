@@ -36,11 +36,11 @@ export async function getCrewXPStatus(crewId: string) {
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1) // Lundi
   
   const { data: xpEntries } = await supabase
-    .from('xp_ledger')
+    .from('xp_transactions')
     .select('amount')
     .in('teen_id', userIds)
     .gte('created_at', startOfWeek.toISOString())
-    
+
   const totalXP = xpEntries?.reduce((sum, entry) => sum + entry.amount, 0) || 0
   
   return {
@@ -50,36 +50,4 @@ export async function getCrewXPStatus(crewId: string) {
     contributors: userIds.length
   }
 }
-
-export async function createBuddyQuest(hostId: string, friendId: string, questTemplateId: string) {
-  const supabase = await createClient()
-  
-  // Créer une mission partagée
-  const { data, error } = await supabase
-    .from('buddy_quests')
-    .insert({
-      host_id: hostId,
-      friend_id: friendId,
-      quest_template_id: questTemplateId,
-      status: 'pending',
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24h
-    })
-    .select()
-    .single()
-    
-  if (error) throw error
-  return data
-}
-
-export async function checkLocalRivalry(schoolId: string) {
-  const supabase = await createClient()
-  
-  // Top 3 crews de l'école
-  const { data } = await supabase
-    .rpc('get_school_leaderboard', { school_id: schoolId })
-    
-  return data
-}
-
-
 

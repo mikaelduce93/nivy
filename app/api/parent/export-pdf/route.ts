@@ -191,7 +191,7 @@ export const POST = withSecurity(
           .select(`
             id,
             amount,
-            type,
+            transaction_type,
             description,
             created_at,
             profiles:teen_id (
@@ -208,7 +208,7 @@ export const POST = withSecurity(
             ...transactionsData,
             ...coinTransactions.map((t) => ({
               ...t,
-              type: `coin_${t.type}`,
+              type: `coin_${t.transaction_type}`,
             })),
           ].sort(
             (a, b) =>

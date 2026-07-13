@@ -2,7 +2,57 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { logDbError } from "@/lib/observability/log-db-error"
-import { type CollectibleItem, type Rarity } from "../schema"
+import {
+  type CollectibleItem,
+  type Rarity,
+  type AnimationType,
+  type ObtainableFrom,
+} from "../schema"
+
+/**
+ * Normalise une ligne live `collectible_items` (nullables + colonnes texte)
+ * vers le type domaine `CollectibleItem`.
+ */
+function mapCollectibleItem(row: {
+  id: string
+  set_id: string
+  slug: string
+  name: string
+  description: string | null
+  image_url: string
+  thumbnail_url: string | null
+  animation_type: string | null
+  item_number: number
+  rarity: string
+  drop_rate: number | null
+  obtainable_from: string[] | null
+  event_exclusive: boolean | null
+  event_id: string | null
+  coin_price: number | null
+  is_active: boolean | null
+  created_at: string | null
+}): CollectibleItem {
+  return {
+    id: row.id,
+    set_id: row.set_id,
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    image_url: row.image_url,
+    thumbnail_url: row.thumbnail_url,
+    // Colonnes texte/jsonb en base → enums domaine
+    animation_type: row.animation_type as AnimationType | null,
+    item_number: row.item_number,
+    rarity: row.rarity as Rarity,
+    drop_rate: row.drop_rate ?? 0.3,
+    obtainable_from: (row.obtainable_from ?? []) as ObtainableFrom[],
+    event_exclusive: row.event_exclusive ?? false,
+    event_id: row.event_id,
+    coin_price: row.coin_price,
+    is_active: row.is_active ?? true,
+    created_at: row.created_at ?? undefined,
+  }
+}
 
 /**
  * Récupérer tous les items d'un set
@@ -24,7 +74,7 @@ export async function getCollectionItems(
     return []
   }
 
-  return data || []
+  return (data ?? []).map(mapCollectibleItem)
 }
 
 /**
@@ -46,7 +96,7 @@ export async function getCollectibleItem(
     return null
   }
 
-  return data
+  return mapCollectibleItem(data)
 }
 
 /**
@@ -75,5 +125,5 @@ export async function getItemsByRarity(
     return []
   }
 
-  return data || []
+  return (data ?? []).map(mapCollectibleItem)
 }

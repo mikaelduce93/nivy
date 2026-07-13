@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     // Récupérer l'ID du teen
     const { data: teen } = await supabase
       .from("teens")
-      .select("id, school, grade_level")
+      .select("id, grade_level")
       .eq("parent_id", user.id)
       .single()
 

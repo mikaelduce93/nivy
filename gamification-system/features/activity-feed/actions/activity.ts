@@ -34,22 +34,55 @@ export async function createActivity(
       return { success: false, error: "Non authentifié" }
     }
 
-    const { data: activity, error } = await supabase.rpc("create_activity", {
+    const { data: activityId, error } = await supabase.rpc("create_activity", {
       p_user_id: user.id,
-      p_activity_type_slug: activityTypeSlug,
+      p_activity_type: activityTypeSlug,
       p_data: data,
-      p_title: options?.title || null,
-      p_description: options?.description || null,
-      p_image_url: options?.imageUrl || null,
-      p_target_id: options?.targetId || null,
-      p_target_type: options?.targetType || null,
-      p_visibility: options?.visibility || null,
+      p_title: options?.title ?? "",
+      p_description: options?.description,
+      p_image_url: options?.imageUrl,
+      p_target_id: options?.targetId,
+      p_target_type: options?.targetType,
+      p_visibility: options?.visibility,
     })
 
     if (error) throw error
 
     revalidatePath("/feed")
     revalidatePath("/profile")
+
+    // create_activity ne renvoie que l'id (live) : on relit la ligne pour renvoyer l'activité complète
+    let activity: UserActivity | undefined
+    if (activityId) {
+      const { data: row } = await supabase
+        .from("user_activities")
+        .select("*")
+        .eq("id", activityId)
+        .single()
+      if (row) {
+        activity = {
+          id: row.id,
+          user_id: row.user_id,
+          activity_type_id: row.activity_type_id,
+          title: row.title,
+          description: row.description,
+          image_url: row.image_url,
+          data: (row.data as Record<string, any>) ?? {},
+          target_id: row.target_id,
+          target_type: row.target_type,
+          likes_count: row.likes_count ?? 0,
+          comments_count: row.comments_count ?? 0,
+          shares_count: row.shares_count ?? 0,
+          visibility: (row.visibility as ActivityVisibility) ?? "friends",
+          is_pinned: row.is_pinned ?? false,
+          is_highlighted: row.is_highlighted ?? false,
+          is_hidden: row.is_hidden ?? false,
+          hidden_reason: row.hidden_reason,
+          created_at: row.created_at ?? undefined,
+          updated_at: row.updated_at ?? undefined,
+        }
+      }
+    }
 
     return { success: true, activity }
   } catch (error) {

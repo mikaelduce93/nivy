@@ -27,7 +27,7 @@ export async function performCheckIn(venueName: string, xpReward: number = 50) {
       p_xp_amount: xpReward,
       p_source_type: 'check_in',
       p_source_category: 'check_in',
-      p_source_id: null,
+      p_source_id: undefined,
       p_description: `Check-in à ${venueName}`,
     })
 
@@ -51,37 +51,20 @@ export async function performCheckIn(venueName: string, xpReward: number = 50) {
 
 // --- PARENT ACTIONS ---
 
-export async function updateBudgetLimit(category: string, amount: number) {
+export async function updateBudgetLimit(category: string, _amount: number) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) return { success: false, message: "Non authentifié" }
 
-    // On suppose une table 'parent_controls' ou 'budget_limits'
-    // Si elle n'existe pas, on va la créer ou utiliser une table générique 'user_settings'
-    
-    // Pour cet exemple, on va upsert dans une table 'budget_limits' hypothétique
-    // Si la table n'existe pas, l'appel échouera mais c'est le but: "Vraie Logique"
-    
-    const { error } = await supabase
-      .from('budget_limits')
-      .upsert({ 
-        parent_id: user.id,
-        category: category.toLowerCase(),
-        limit_amount: amount,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'parent_id, category' })
-
-    if (error) {
-      // #202 — échec honnête : on ne renvoie plus un faux succès « Simulé » qui
-      // ment au parent. Si l'écriture échoue, on le dit.
-      console.error("[agent-actions] updateBudgetLimit failed:", error)
-      return { success: false, message: `Impossible de mettre à jour le plafond '${category}' pour le moment.` }
-    }
-
-    revalidatePath('/parent')
-    return { success: true, message: `Plafond '${category}' mis à jour à ${amount} MAD.` }
+    // Drift schéma : aucune table de plafonds par catégorie (`budget_limits` avec
+    // parent_id + category + limit_amount) n'existe en base. `teen_budget_limits`
+    // est un modèle différent (plafonds coins par ado, pas par catégorie MAD) et
+    // ne peut pas recevoir cette écriture. Cette action n'est donc pas câblée :
+    // échec honnête (#202) plutôt qu'un faux succès qui mentirait au parent.
+    console.error("[agent-actions] updateBudgetLimit: pas de table de plafonds par catégorie en base (drift schéma)")
+    return { success: false, message: `Impossible de mettre à jour le plafond '${category}' pour le moment.` }
   } catch (e) {
     return { success: false, message: "Erreur mise à jour budget" }
   }

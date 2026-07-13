@@ -76,7 +76,7 @@ export async function getUserChallenges(
 
     const { data, error } = await supabase.rpc("get_user_challenges", {
       p_user_id: user.id,
-      p_status: status || null,
+      p_status: status || undefined,
     })
 
     if (error) {
@@ -140,9 +140,9 @@ export async function createChallenge(
       p_creator_id: user.id,
       p_challenge_type_slug: input.challengeTypeSlug,
       p_invited_user_ids: input.invitedUserIds,
-      p_name: input.name || null,
-      p_target_value: input.targetValue || null,
-      p_duration_hours: input.durationHours || null,
+      p_name: input.name || undefined,
+      p_target_value: input.targetValue || undefined,
+      p_duration_hours: input.durationHours || undefined,
       p_stake_xp: input.stakeXp || 0,
     })
 
@@ -151,15 +151,22 @@ export async function createChallenge(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de création" }
+    // RPC renvoie du Json ; cast de frontière vers le contrat métier
+    const result = data as {
+      success?: boolean
+      error?: string
+      challenge_id?: string
+    } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de création" }
     }
 
     revalidatePath("/challenges")
 
     return {
       success: true,
-      challengeId: data.challenge_id,
+      challengeId: result.challenge_id,
       error: null,
     }
   } catch (error) {
@@ -204,8 +211,11 @@ export async function respondToChallenge(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Erreur de réponse" }
+    // RPC renvoie du Json ; cast de frontière vers le contrat métier
+    const result = data as { success?: boolean; error?: string } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Erreur de réponse" }
     }
 
     revalidatePath("/challenges")

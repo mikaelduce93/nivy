@@ -70,7 +70,7 @@ export const POST = withSecurity(
         .from("bookings")
         .select(`
           *,
-          events (id, title, date, image_url)
+          events (id, title, event_date, image_url)
         `)
         .eq("id", bookingId)
         .single()
@@ -106,7 +106,7 @@ export const POST = withSecurity(
 
       // Calculate payment breakdown
       const paymentResult = calculateHybridPayment(
-        booking.total_amount,
+        booking.total_amount ?? 0,
         xpAmount,
         availableXP
       )
@@ -128,7 +128,8 @@ export const POST = withSecurity(
           .from("parental_approvals")
           .insert({
             teen_id: teenId,
-            parent_id: booking.user_id,
+            // parent_id is NOT NULL; in this teen branch booking.user_id === user.id (guarded above).
+            parent_id: booking.user_id ?? user.id,
             action_type: "booking",
             resource_type: "booking",
             resource_id: bookingId,
@@ -175,8 +176,10 @@ export const POST = withSecurity(
           p_reference: `Paiement réservation ${booking.booking_reference}`,
         })
 
-        if (debitRpcError || !debitResult?.success) {
-          return errorResponse(debitResult?.error || "Solde XP insuffisant", 400)
+        // RPC returns Json; cast to the known result shape at the frontier.
+        const debit = debitResult as { success?: boolean; error?: string } | null
+        if (debitRpcError || !debit?.success) {
+          return errorResponse(debit?.error || "Solde XP insuffisant", 400)
         }
 
         // Update booking with XP info
@@ -241,7 +244,7 @@ export const POST = withSecurity(
                 : "Paiement réservation",
               amount: paymentResult.cashAmountDH,
               quantity: 1,
-              imageUrl: booking.events?.image_url,
+              imageUrl: booking.events?.image_url ?? undefined,
             },
           ],
           metadata: {
@@ -294,7 +297,7 @@ export const POST = withSecurity(
 
         const cmiPayment = await cmiGateway.createPayment({
           amount: paymentResult.cashAmountDH,
-          orderId: booking.booking_reference,
+          orderId: booking.booking_reference || bookingId,
           customerEmail: user.email || "",
           description: xpAmount > 0
             ? `Réservation ${booking.booking_reference} (${paymentResult.xpAmount} XP utilisés)`
@@ -345,7 +348,7 @@ export const POST = withSecurity(
           operator: "orange_money", // Default, should be passed from frontend
           phone: "", // Should be passed from frontend
           amount: paymentResult.cashAmountDH,
-          reference: booking.booking_reference,
+          reference: booking.booking_reference || bookingId,
           description: `Réservation ${booking.booking_reference}`,
           bookingId,
           xpUsed: paymentResult.xpAmount,
@@ -436,7 +439,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate payment breakdown
     const paymentResult = calculateHybridPayment(
-      booking.total_amount,
+      booking.total_amount ?? 0,
       xpAmount,
       availableXP
     )

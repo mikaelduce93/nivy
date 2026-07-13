@@ -338,7 +338,7 @@ export async function uploadCreation(teenId: string, data: {
       description: data.description,
       category: "general", // Or derive from path
       media_type: data.type,
-      media_url: null, // Set by upload pipeline; null until media is attached
+      media_url: "", // Colonne NOT NULL en live ; placeholder vide jusqu'à ce que le pipeline d'upload renseigne l'URL
       path_id: data.pathId,
       visibility: "public"
     })
@@ -357,37 +357,16 @@ export async function uploadCreation(teenId: string, data: {
    SETTINGS
    ========================================================================== */
 
-export async function updatePrivacySettings(teenId: string, settings: Record<string, boolean>): Promise<ActionResult<any>> {
-  try {
-    const supabase = await createClient()
-
-    // Get current settings first
-    const { data: current, error: fetchError } = await supabase
-      .from("teen_profiles")
-      .select("privacy_settings")
-      .eq("profile_id", teenId)
-      .single()
-
-    if (fetchError) throw fetchError
-
-    const newSettings = {
-      ...(current.privacy_settings || {}),
-      ...settings
-    }
-
-    const { error } = await supabase
-      .from("teen_profiles")
-      .update({ privacy_settings: newSettings })
-      .eq("profile_id", teenId)
-
-    if (error) throw error
-
-    revalidatePath("/teen/settings")
-    return { success: true }
-  } catch (error: any) {
-    logDbError("pillars.updatePrivacySettings", error)
-    return { success: false, error: error.message }
-  }
+export async function updatePrivacySettings(_teenId: string, _settings: Record<string, boolean>): Promise<ActionResult<any>> {
+  // DRIFT: la table `teen_profiles` (colonne jsonb `privacy_settings`) n'existe nulle part dans le schéma live.
+  // Cette action a toujours échoué au runtime (42P01 relation inexistante) — aucun stockage de confidentialité
+  // ado n'a été migré en base. On retourne une erreur explicite plutôt que d'émettre une requête morte ;
+  // le comportement observable est inchangé (le caller annule sa mise à jour optimiste sur `success: false`).
+  logDbError(
+    "pillars.updatePrivacySettings",
+    new Error("teen_profiles.privacy_settings absent du schéma live"),
+  )
+  return { success: false, error: "Privacy settings storage is not available." }
 }
 
 /* ==========================================================================

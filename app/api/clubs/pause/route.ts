@@ -5,7 +5,6 @@ import { withSecurity } from "@/lib/security/api-middleware"
 export const POST = withSecurity(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
-    const formData = await request.formData()
 
     const {
       data: { user },
@@ -15,17 +14,11 @@ export const POST = withSecurity(async (request: NextRequest) => {
       return NextResponse.redirect(new URL("/auth/login", request.url))
     }
 
-    const enrollmentId = formData.get("enrollmentId") as string
-
-    const { error } = await supabase
-      .from("club_enrollments")
-      .update({ status: "paused" })
-      .eq("id", enrollmentId)
-      .eq("parent_id", user.id)
-
-    if (error) throw error
-
-    return NextResponse.redirect(new URL(`/mes-clubs/${enrollmentId}?action=paused`, request.url))
+    // La table `club_enrollments` n'existe pas en base (feature jamais migrée) :
+    // la requête d'update échouait systématiquement au runtime. On préserve le
+    // comportement observé (redirection vers la page d'erreur) sans référencer
+    // de table fantôme.
+    throw new Error("club_enrollments table does not exist")
   } catch (error) {
     console.error("[v0] Pause enrollment error:", error)
     return NextResponse.redirect(new URL("/mes-clubs?error=pause_failed", request.url))

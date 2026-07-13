@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await supabase.rpc("claim_mission_rewards", {
-      p_user_id: user.id,
+      p_teen_id: user.id,
       p_user_mission_id: user_mission_id,
     })
 
@@ -52,7 +52,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!data?.success) {
+    // Frontier cast: RPC returns jsonb_build_object(success, mission_name, xp_earned, bonus_rewards, xp_result)
+    const result = data as {
+      success?: boolean
+      xp_earned?: number
+      bonus_rewards?: unknown
+    } | null
+
+    if (!result?.success) {
       return NextResponse.json(
         { error: "Impossible de réclamer la récompense" },
         { status: 400 }
@@ -68,15 +75,15 @@ export async function POST(request: NextRequest) {
       targetType: "mission",
       targetId: user_mission_id,
       metadata: {
-        xp_earned: data.xp_earned || 0,
-        bonus_reward: data.bonus_reward || null,
+        xp_earned: result.xp_earned || 0,
+        bonus_reward: result.bonus_rewards || null,
       },
     })
 
     return NextResponse.json({
       success: true,
-      xp_earned: data.xp_earned || 0,
-      bonus_reward: data.bonus_reward || null,
+      xp_earned: result.xp_earned || 0,
+      bonus_reward: result.bonus_rewards || null,
     })
   } catch (error) {
     console.error("Error in POST /api/missions/claim:", error)

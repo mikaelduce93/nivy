@@ -65,25 +65,19 @@ export class QuestRecommender {
       let score = 50 // Base score
       const reasons: string[] = []
       
-      // -- A. Intérêts (Boost fort)
-      const interests = profile.interests || []
-      if (interests.some((i: string) => quest.tags?.includes(i))) {
-        score += 30
-        reasons.push('interest_match')
-      }
-      
-      // -- B. Équilibre Piliers (Boost ciblé)
+      // -- A. Équilibre Piliers (Boost ciblé)
       // Si un pilier est faible (< 40), on booste les quêtes de ce pilier
-      const pillars = profile.user_xp?.[0] || {}
-      if (quest.category === 'school' && (pillars.school_score || 0) < 40) {
+      // user_xp est une relation to-one : objet unique (ou null), pas un tableau.
+      const pillars = profile.user_xp
+      if (quest.category === 'school' && (pillars?.school_score ?? 0) < 40) {
         score += 25
         reasons.push('pillar_catchup_school')
       }
-      if (quest.category === 'sport' && (pillars.sport_score || 0) < 40) {
+      if (quest.category === 'sport' && (pillars?.sport_score ?? 0) < 40) {
         score += 25
         reasons.push('pillar_catchup_sport')
       }
-      if (quest.category === 'crea' && (pillars.crea_score || 0) < 40) {
+      if (quest.category === 'crea' && (pillars?.crea_score ?? 0) < 40) {
         score += 25
         reasons.push('pillar_catchup_crea')
       }

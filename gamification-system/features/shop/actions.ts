@@ -74,7 +74,7 @@ export async function getRewards(
 
     const { data, error } = await supabase.rpc("get_shop_rewards", {
       p_user_id: user.id,
-      p_category_slug: input?.categorySlug || null,
+      p_category_slug: input?.categorySlug || undefined,
       p_only_affordable: input?.onlyAffordable || false,
       p_only_available: input?.onlyAvailable ?? true,
     })
@@ -164,7 +164,7 @@ export async function purchaseReward(
     const { data, error } = await supabase.rpc("purchase_reward", {
       p_user_id: user.id,
       p_reward_id: input.rewardId,
-      p_promo_code: input.promoCode || null,
+      p_promo_code: input.promoCode || undefined,
     })
 
     if (error) {
@@ -172,8 +172,17 @@ export async function purchaseReward(
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Achat impossible" }
+    // RPC purchase_reward renvoie du jsonb → cast de frontière
+    const result = data as {
+      success?: boolean
+      error?: string
+      purchase_id?: string
+      xp_spent?: number
+      discount_applied?: number
+    } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Achat impossible" }
     }
 
     // Revalidate pages
@@ -183,9 +192,9 @@ export async function purchaseReward(
 
     return {
       success: true,
-      purchaseId: data.purchase_id,
-      xpSpent: data.xp_spent,
-      discountApplied: data.discount_applied,
+      purchaseId: result.purchase_id,
+      xpSpent: result.xp_spent,
+      discountApplied: result.discount_applied,
       error: null,
     }
   } catch (error) {
@@ -218,7 +227,7 @@ export async function getUserPurchases(
 
     const { data, error } = await supabase.rpc("get_user_purchases", {
       p_user_id: user.id,
-      p_status: status || null,
+      p_status: status || undefined,
       p_include_expired: includeExpired || false,
     })
 
@@ -271,7 +280,7 @@ export async function useReward(input: UseRewardInput): Promise<{
     const { data, error } = await supabase.rpc("use_reward", {
       p_user_id: user.id,
       p_purchase_id: input.purchaseId,
-      p_event_id: input.eventId || null,
+      p_event_id: input.eventId || undefined,
     })
 
     if (error) {
@@ -279,8 +288,16 @@ export async function useReward(input: UseRewardInput): Promise<{
       return { success: false, error: error.message }
     }
 
-    if (!data?.success) {
-      return { success: false, error: data?.error || "Utilisation impossible" }
+    // RPC use_reward renvoie du jsonb → cast de frontière
+    const result = data as {
+      success?: boolean
+      error?: string
+      reward_type?: string
+      reward_value?: Record<string, unknown>
+    } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error || "Utilisation impossible" }
     }
 
     revalidatePath("/profile")
@@ -288,8 +305,8 @@ export async function useReward(input: UseRewardInput): Promise<{
 
     return {
       success: true,
-      rewardType: data.reward_type,
-      rewardValue: data.reward_value,
+      rewardType: result.reward_type,
+      rewardValue: result.reward_value,
       error: null,
     }
   } catch (error) {
@@ -331,9 +348,12 @@ export async function toggleWishlist(
 
     revalidatePath("/shop")
 
+    // RPC toggle_wishlist renvoie du jsonb → cast de frontière
+    const result = data as { action?: "added" | "removed" } | null
+
     return {
       success: true,
-      action: data.action,
+      action: result?.action ?? "removed",
       error: null,
     }
   } catch (error) {
@@ -423,20 +443,25 @@ export async function validatePromoCode(
       .eq("promo_code_id", data.id)
       .eq("user_id", user.id)
 
-    if (count && count >= data.max_uses_per_user) {
+    if (
+      data.max_uses_per_user != null &&
+      count &&
+      count >= data.max_uses_per_user
+    ) {
       return { valid: false, error: "Tu as déjà utilisé ce code" }
     }
 
     // Check if applicable to reward
-    if (rewardId && data.applicable_reward_ids?.length > 0) {
-      if (!data.applicable_reward_ids.includes(rewardId)) {
+    if (rewardId && (data.applicable_reward_ids?.length ?? 0) > 0) {
+      if (!data.applicable_reward_ids?.includes(rewardId)) {
         return { valid: false, error: "Code non applicable à cet article" }
       }
     }
 
     return {
       valid: true,
-      discountType: data.discount_type,
+      // discount_type est un `string` en base → cast vers l'union domaine
+      discountType: data.discount_type as "percentage" | "fixed_xp",
       discountValue: data.discount_value,
       error: null,
     }

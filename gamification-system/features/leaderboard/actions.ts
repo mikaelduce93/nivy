@@ -64,19 +64,16 @@ export async function getLeaderboard(
     let totalParticipants = 0
 
     if (type === 'city' && city) {
-      // Leaderboard par ville
-      const { data, error } = await supabase.rpc('get_city_leaderboard', {
-        p_city: city,
+      // Leaderboard par ville : la RPC get_city_leaderboard n'existe pas en live
+      // (désactivée en migration). On filtre le leaderboard global par ville.
+      const { data, error } = await supabase.rpc('get_leaderboard', {
         p_type: 'all_time',
         p_limit: limit,
+        p_offset: 0,
       })
 
       if (error) throw error
-      entries = (data || []).map((e: any) => ({
-        ...e,
-        current_streak: 0,
-        percentile: 0,
-      }))
+      entries = (data || []).filter((e) => e.city === city)
     } else {
       // Leaderboard standard (all_time, weekly, monthly)
       const { data, error } = await supabase.rpc('get_leaderboard', {
@@ -247,19 +244,16 @@ export async function sendFriendRequest(
     const { fromTeenId, toTeenId } = validation.data
     const supabase = await getSupabaseClient()
 
+    // La RPC renvoie un message (string) et lève une exception en cas d'échec.
     const { data, error } = await supabase.rpc('send_friend_request', {
-      p_from_teen_id: fromTeenId,
-      p_to_teen_id: toTeenId,
+      p_sender_id: fromTeenId,
+      p_receiver_id: toTeenId,
     })
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
-    }
-
     revalidatePath('/friends')
-    return { success: true, data: { message: data.message } }
+    return { success: true, data: { message: data ?? 'Demande envoyée' } }
   } catch (error: any) {
     logDbError('leaderboard.sendFriendRequest', error)
     return { success: false, error: error.message }
@@ -285,20 +279,17 @@ export async function acceptFriendRequest(
 
     const supabase = await getSupabaseClient()
 
+    // La RPC renvoie un message (string) et lève une exception en cas d'échec.
     const { data, error } = await supabase.rpc('accept_friend_request', {
-      p_connection_id: connectionId,
-      p_teen_id: teenId,
+      p_request_id: connectionId,
+      p_receiver_id: teenId,
     })
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
-    }
-
     revalidatePath('/friends')
     revalidatePath('/leaderboard')
-    return { success: true, data: { message: data.message } }
+    return { success: true, data: { message: data ?? 'Demande acceptée' } }
   } catch (error: any) {
     logDbError('leaderboard.acceptFriendRequest', error)
     return { success: false, error: error.message }
@@ -481,7 +472,7 @@ export async function searchUsers(
     const userIds = users.map((u) => u.id)
     const { data: xpData } = await supabase
       .from('user_xp')
-      .select('teen_id, level, total_xp')
+      .select('teen_id, current_level, total_xp')
       .in('teen_id', userIds)
 
     const xpMap = new Map(xpData?.map((x) => [x.teen_id, x]) || [])
@@ -508,9 +499,9 @@ export async function searchUsers(
 
       return {
         id: user.id,
-        pseudo: user.pseudo,
+        pseudo: user.pseudo ?? '',
         avatar_url: user.avatar_url,
-        level: xp?.level || 1,
+        level: xp?.current_level || 1,
         total_xp: xp?.total_xp || 0,
         is_friend: friendship?.isFriend || false,
         has_pending_request: friendship?.isPending || false,

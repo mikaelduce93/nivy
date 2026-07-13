@@ -90,7 +90,7 @@ async function getTeensMap(parentId: string) {
   for (const t of data ?? []) {
     map.set(t.teen_id as string, {
       name: (t.teen_name as string) ?? "Teen",
-      coins: (t.total_coins as number) ?? 0,
+      coins: t.coins ?? 0,
     })
   }
   return map

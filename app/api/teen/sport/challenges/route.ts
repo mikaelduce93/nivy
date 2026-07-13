@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
         progress: challengeProgress ? {
           id: challengeProgress.id,
           current_value: challengeProgress.current_value,
-          progress_percent: Math.min(100, Math.round((challengeProgress.current_value / challenge.objective_value) * 100)),
+          progress_percent: Math.min(100, Math.round(((challengeProgress.current_value ?? 0) / challenge.objective_value) * 100)),
           completed: challengeProgress.completed,
           completed_at: challengeProgress.completed_at,
           validated: challengeProgress.validated,

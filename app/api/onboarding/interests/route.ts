@@ -19,7 +19,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
  *   - Upsert into teen_interests with onConflict='teen_id,tag'
  *     (PK is (teen_id, tag) — see DB schema)
  *   - weight=1.0, declared_at=now()
- *   - Sets teens.is_onboarded=true once interests are captured (best-effort).
+ *   - Sets profiles.is_onboarded=true once interests are captured (best-effort).
  *
  * Returns: { success, count, accepted, rejected }
  */
@@ -163,17 +163,18 @@ export async function POST(request: Request) {
     // Best-effort: mark teen as onboarded. The /onboarding/complete route
     // is the canonical place to flip this, but doing it here too is safe:
     // it's idempotent and the recommender can start scoring immediately.
-    // (No `profile.onboarding_step` column exists in the live schema —
-    // see TICKETS.md TICKET-032 for the next step.)
+    // The `is_onboarded` flag lives on `profiles` (keyed by id = auth user id
+    // = profileId), not on `teens` — the previous `teens.is_onboarded` write
+    // targeted a non-existent column and always failed (42703).
     const { error: teenErr } = await supabase
-      .from("teens")
+      .from("profiles")
       .update({ is_onboarded: true })
       .eq("id", teenId)
 
     if (teenErr) {
       // Non-fatal — log only.
       console.warn(
-        "[onboarding/interests] teens.is_onboarded update warning:",
+        "[onboarding/interests] profiles.is_onboarded update warning:",
         teenErr.message
       )
     }

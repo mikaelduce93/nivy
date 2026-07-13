@@ -52,7 +52,8 @@ export async function getSharingPlatforms(): Promise<{
 
     if (error) throw error
 
-    return { success: true, platforms: data }
+    // Frontière drift : colonnes nullables live castées vers le type domaine
+    return { success: true, platforms: data as SharingPlatform[] }
   } catch (error) {
     logDbError("social-sharing.getSharingPlatforms", error)
     return { success: false, error: "Impossible de charger les plateformes" }
@@ -85,7 +86,8 @@ export async function getShareTemplates(
 
     if (error) throw error
 
-    return { success: true, templates: data }
+    // Frontière drift : colonnes nullables live castées vers le type domaine
+    return { success: true, templates: data as ShareTemplate[] }
   } catch (error) {
     logDbError("social-sharing.getShareTemplates", error)
     return { success: false, error: "Impossible de charger les templates" }
@@ -118,11 +120,12 @@ export async function createShare(
       p_user_id: user.id,
       p_platform_slug: platformSlug,
       p_content_type: content.type,
-      p_content_id: content.id || null,
-      p_template_slug: templateSlug || null,
+      // Args RPC optionnels typés string|undefined : undefined omet la clé (DEFAULT SQL)
+      p_content_id: content.id || undefined,
+      p_template_slug: templateSlug || undefined,
       p_title: content.title,
-      p_description: content.description || null,
-      p_image_url: content.imageUrl || null,
+      p_description: content.description || undefined,
+      p_image_url: content.imageUrl || undefined,
     })
 
     if (error) throw error
@@ -130,13 +133,23 @@ export async function createShare(
     revalidatePath("/profile")
     revalidatePath("/share")
 
+    // Returns Json : cast de frontière vers la forme réelle du RPC
+    const result = data as {
+      success?: boolean
+      share_id?: string
+      share_code?: string
+      xp_earned?: number
+      coins_earned?: number
+      is_first_share?: boolean
+    } | null
+
     return {
-      success: data.success,
-      shareId: data.share_id,
-      shareCode: data.share_code,
-      xpEarned: data.xp_earned,
-      coinsEarned: data.coins_earned,
-      isFirstShare: data.is_first_share,
+      success: result?.success ?? false,
+      shareId: result?.share_id,
+      shareCode: result?.share_code,
+      xpEarned: result?.xp_earned,
+      coinsEarned: result?.coins_earned,
+      isFirstShare: result?.is_first_share,
     }
   } catch (error) {
     logDbError("social-sharing.createShare", error)
@@ -217,16 +230,25 @@ export async function trackShareClick(shareCode: string): Promise<{
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    // Returns Json : cast de frontière vers la forme réelle du RPC
+    const result = data as {
+      success?: boolean
+      error?: string
+      user_id?: string
+      content_type?: string
+      content_id?: string
+    } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error }
     }
 
     return {
       success: true,
       data: {
-        userId: data.user_id,
-        contentType: data.content_type,
-        contentId: data.content_id,
+        userId: result.user_id ?? "",
+        contentType: result.content_type ?? "",
+        contentId: result.content_id,
       },
     }
   } catch (error) {
@@ -266,7 +288,8 @@ export async function getSharingStats(): Promise<{
     if (error && error.code !== "PGRST116") throw error
 
     // Retourner des stats vides si pas encore de données
-    const stats: UserSharingStats = data || {
+    // Frontière drift : colonnes nullables live castées vers le type domaine
+    const stats: UserSharingStats = (data as UserSharingStats | null) || {
       id: "",
       user_id: user.id,
       total_shares: 0,
@@ -332,10 +355,17 @@ export async function getSharingAchievements(): Promise<{
     const result = achievements.map((achievement) => ({
       ...achievement,
       unlocked: unlockedMap.has(achievement.id),
-      unlocked_at: unlockedMap.get(achievement.id),
+      unlocked_at: unlockedMap.get(achievement.id) ?? undefined,
     }))
 
-    return { success: true, achievements: result }
+    // Frontière drift : condition_type live (string) casté vers l'enum domaine
+    return {
+      success: true,
+      achievements: result as (SharingAchievement & {
+        unlocked: boolean
+        unlocked_at?: string
+      })[],
+    }
   } catch (error) {
     logDbError("social-sharing.getSharingAchievements", error)
     return { success: false, error: "Impossible de charger les achievements" }
@@ -375,14 +405,21 @@ export async function getReferralCode(): Promise<{
 
     if (error) throw error
 
+    // Returns Json : cast de frontière vers la forme réelle du RPC
+    const result = data as {
+      code?: string
+      total_uses?: number
+      successful_conversions?: number
+    } | null
+
     return {
       success: true,
       referral: {
-        code: data.code,
-        totalUses: data.total_uses,
-        successfulConversions: data.successful_conversions,
+        code: result?.code ?? "",
+        totalUses: result?.total_uses ?? 0,
+        successfulConversions: result?.successful_conversions ?? 0,
         pendingRewards: 0, // À calculer si nécessaire
-        shareUrl: `${getSocialBaseUrl()}/join?ref=${data.code}`,
+        shareUrl: `${getSocialBaseUrl()}/join?ref=${result?.code ?? ""}`,
       },
     }
   } catch (error) {
@@ -422,15 +459,23 @@ export async function useReferralCode(code: string): Promise<{
 
     if (error) throw error
 
-    if (!data.success) {
-      return { success: false, error: data.error }
+    // Returns Json : cast de frontière vers la forme réelle du RPC
+    const result = data as {
+      success?: boolean
+      error?: string
+      referee_xp_reward?: number
+      referee_coins_reward?: number
+    } | null
+
+    if (!result?.success) {
+      return { success: false, error: result?.error }
     }
 
     return {
       success: true,
       rewards: {
-        xp: data.referee_xp_reward,
-        coins: data.referee_coins_reward,
+        xp: result.referee_xp_reward ?? 0,
+        coins: result.referee_coins_reward ?? 0,
       },
     }
   } catch (error) {
@@ -522,8 +567,9 @@ export async function generateBadgeShareContent(badgeId: string): Promise<{
   try {
     const supabase = await createClient()
 
+    // Drift : la table "badges" n'existe plus ; les badges vivent dans "achievements"
     const { data: badge, error } = await supabase
-      .from("badges")
+      .from("achievements")
       .select("*")
       .eq("id", badgeId)
       .single()
@@ -537,7 +583,7 @@ export async function generateBadgeShareContent(badgeId: string): Promise<{
         id: badgeId,
         title: `J'ai débloqué le badge "${badge.name}" sur Teens Party Morocco !`,
         description: badge.description,
-        imageUrl: badge.image_url,
+        // achievements n'a pas de colonne image_url en live : pas d'image
         data: { badge_name: badge.name, badge_description: badge.description },
       },
     }
@@ -571,10 +617,11 @@ export async function generateEventShareContent(eventId: string): Promise<{
       content: {
         type: "event",
         id: eventId,
-        title: `J'étais à "${event.name}" avec Teens Party Morocco !`,
-        description: event.description,
-        imageUrl: event.cover_image_url,
-        data: { event_name: event.name, event_description: event.description },
+        // Drift : events live = title/image_url (pas name/cover_image_url)
+        title: `J'étais à "${event.title}" avec Teens Party Morocco !`,
+        description: event.description ?? undefined,
+        imageUrl: event.image_url ?? undefined,
+        data: { event_name: event.title, event_description: event.description },
       },
     }
   } catch (error) {

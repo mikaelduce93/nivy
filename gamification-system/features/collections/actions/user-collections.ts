@@ -56,7 +56,22 @@ export async function getUserCollectiblesForSet(
     return []
   }
 
-  return data || []
+  // Colonnes nullables en base → coalesce vers les défauts du type domaine
+  return (data || []).map((row) => ({
+    id: row.id,
+    user_id: row.user_id,
+    item_id: row.item_id,
+    obtained_at: row.obtained_at ?? "",
+    obtained_from: row.obtained_from,
+    quantity: row.quantity ?? 1,
+    is_new: row.is_new ?? true,
+    is_favorite: row.is_favorite ?? false,
+    source_event_id: row.source_event_id,
+    source_game_id: row.source_game_id,
+    gifted_by_user_id: row.gifted_by_user_id,
+    created_at: row.created_at ?? undefined,
+    updated_at: row.updated_at ?? undefined,
+  }))
 }
 
 /**
@@ -80,7 +95,23 @@ export async function getUserSetProgress(
     return null
   }
 
-  return data
+  if (!data) return null
+
+  // Colonnes nullables en base → coalesce vers les défauts du type domaine
+  return {
+    id: data.id,
+    user_id: data.user_id,
+    set_id: data.set_id,
+    items_collected: data.items_collected ?? 0,
+    total_items: data.total_items ?? 0,
+    completion_percentage: data.completion_percentage ?? 0,
+    is_completed: data.is_completed ?? false,
+    completed_at: data.completed_at,
+    rewards_claimed: data.rewards_claimed ?? false,
+    rewards_claimed_at: data.rewards_claimed_at,
+    created_at: data.created_at ?? undefined,
+    updated_at: data.updated_at ?? undefined,
+  }
 }
 
 /**
@@ -111,8 +142,8 @@ export async function addCollectibleToUser(
     p_user_id: userId,
     p_item_id: itemId,
     p_source: source,
-    p_source_event_id: sourceEventId || null,
-    p_gifted_by: giftedBy || null,
+    p_source_event_id: sourceEventId ?? undefined,
+    p_gifted_by: giftedBy ?? undefined,
   })
 
   if (error) {
@@ -120,16 +151,35 @@ export async function addCollectibleToUser(
     return { success: false, error: error.message }
   }
 
+  if (!data) {
+    return { success: false, error: "Réponse vide du serveur" }
+  }
+
   revalidatePath("/collections")
   revalidatePath("/profile")
 
+  // La RPC renvoie du Json → cast de frontière vers la forme applicative
+  const result = data as unknown as {
+    success: boolean
+    is_new_item?: boolean
+    quantity?: number
+    item?: CollectibleItem
+    progress?: {
+      items_collected: number
+      total_items: number
+      percentage: number
+      is_completed: boolean
+    }
+    error?: string
+  }
+
   return {
-    success: data.success,
-    isNewItem: data.is_new_item,
-    quantity: data.quantity,
-    item: data.item,
-    progress: data.progress,
-    error: data.error,
+    success: result.success,
+    isNewItem: result.is_new_item,
+    quantity: result.quantity,
+    item: result.item,
+    progress: result.progress,
+    error: result.error,
   }
 }
 
@@ -143,8 +193,8 @@ export async function getRandomCollectible(
   const supabase = await createClient()
 
   const { data, error } = await supabase.rpc("get_random_collectible", {
-    p_set_id: setId || null,
-    p_rarity: rarity || null,
+    p_set_id: setId ?? undefined,
+    p_rarity: rarity ?? undefined,
   })
 
   if (error) {

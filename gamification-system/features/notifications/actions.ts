@@ -95,7 +95,9 @@ export async function getRecentNotifications(
     return []
   }
 
-  return data || []
+  // Frontier cast : la Row live a des colonnes nullables (priority/animation string|null,
+  // xp_reward/coin_reward number|null) alignées ici sur le type domaine UserNotification.
+  return (data || []) as UserNotification[]
 }
 
 /* ==========================================================================
@@ -119,7 +121,7 @@ export async function createNotificationFromTemplate(
       p_user_id: userId,
       p_template_slug: templateSlug,
       p_data: data,
-      p_scheduled_for: scheduledFor || null,
+      p_scheduled_for: scheduledFor || undefined,
     }
   )
 
@@ -167,15 +169,15 @@ export async function createCustomNotification(
       p_title: options.title,
       p_body: options.body,
       p_category: options.category || "system",
-      p_icon: options.icon || null,
-      p_emoji: options.emoji || null,
+      p_icon: options.icon || undefined,
+      p_emoji: options.emoji || undefined,
       p_priority: options.priority || "normal",
-      p_color: options.color || null,
-      p_animation: options.animation || null,
+      p_color: options.color || undefined,
+      p_animation: options.animation || undefined,
       p_xp_reward: options.xpReward || 0,
       p_coin_reward: options.coinReward || 0,
-      p_action_url: options.actionUrl || null,
-      p_action_label: options.actionLabel || null,
+      p_action_url: options.actionUrl || undefined,
+      p_action_label: options.actionLabel || undefined,
       p_data: options.data || {},
     }
   )
@@ -227,7 +229,7 @@ export async function markNotificationsAsRead(
 
   const { data: count, error } = await supabase.rpc("mark_notifications_read", {
     p_user_id: userId,
-    p_notification_ids: notificationIds || null,
+    p_notification_ids: notificationIds || undefined,
   })
 
   if (error) {
@@ -355,8 +357,16 @@ export async function claimNotificationRewards(
     return { success: false, error: error.message }
   }
 
-  if (!data.success) {
-    return { success: false, error: data.error }
+  // Le RPC retourne un Json ; cast de frontière vers la forme domaine attendue.
+  const result = data as {
+    success?: boolean
+    error?: string
+    xp?: number
+    coins?: number
+  } | null
+
+  if (!result?.success) {
+    return { success: false, error: result?.error }
   }
 
   revalidatePath("/notifications")
@@ -364,8 +374,8 @@ export async function claimNotificationRewards(
 
   return {
     success: true,
-    xp: data.xp,
-    coins: data.coins,
+    xp: result.xp,
+    coins: result.coins,
   }
 }
 
@@ -446,10 +456,11 @@ export async function getNotificationPreferences(
       return null
     }
 
-    return newPrefs
+    // Frontier cast : la Row live a des booléens nullables alignés sur le type domaine.
+    return newPrefs as NotificationPreferences
   }
 
-  return data
+  return data as NotificationPreferences
 }
 
 /**
@@ -722,11 +733,11 @@ export async function getNotificationStats(userId: string): Promise<{
       if (!notif.is_read) acc.unread++
       if (
         !notif.rewards_claimed &&
-        (notif.xp_reward > 0 || notif.coin_reward > 0)
+        ((notif.xp_reward ?? 0) > 0 || (notif.coin_reward ?? 0) > 0)
       ) {
         acc.pendingRewards++
-        acc.pendingXp += notif.xp_reward
-        acc.pendingCoins += notif.coin_reward
+        acc.pendingXp += notif.xp_reward ?? 0
+        acc.pendingCoins += notif.coin_reward ?? 0
       }
       return acc
     },

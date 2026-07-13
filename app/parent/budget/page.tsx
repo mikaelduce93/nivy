@@ -66,14 +66,17 @@ async function getParentBudgetData(profileId: string) {
     const budget = budgetLimits?.find((b: any) => b.teen_id === teen.teen_id)
     const spent = spendingByTeen.get(teen.teen_id) || 0
 
+    // Schema drift : table migrée vers colonnes coins + `mode` string.
+    // (aligné sur lib/budget/check-budget.ts : mode === "validation" ⇒ approbation)
+    const monthlyLimit = budget?.max_per_month_coins ?? 0
     return {
       ...teen,
-      monthlyLimit: budget?.monthly_limit || 0,
-      perEventLimit: budget?.per_event_limit || 0,
-      requiresApproval: budget?.requires_approval ?? true,
+      monthlyLimit,
+      perEventLimit: budget?.max_per_transaction_coins ?? 0,
+      requiresApproval: budget ? budget.mode === "validation" : true,
       spentThisMonth: spent,
-      remainingBudget: (budget?.monthly_limit || 0) - spent,
-      budgetUsagePercent: budget?.monthly_limit ? Math.round((spent / budget.monthly_limit) * 100) : 0
+      remainingBudget: monthlyLimit - spent,
+      budgetUsagePercent: monthlyLimit ? Math.round((spent / monthlyLimit) * 100) : 0
     }
   })
 

@@ -137,7 +137,7 @@ export async function POST(request: Request) {
     const emailSent = parentEmail
       ? await sendParentValidationEmail({
           parentEmail,
-          parentName: existingParent?.full_name,
+          parentName: existingParent?.full_name ?? undefined,
           teenName: `${teenFirstName} ${teenLastName}`,
           teenAge: age,
           validationUrl,

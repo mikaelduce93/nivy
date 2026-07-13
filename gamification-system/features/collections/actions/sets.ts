@@ -21,7 +21,9 @@ export async function getCollectionSets(): Promise<CollectionSet[]> {
     return []
   }
 
-  return data || []
+  // Frontière : les colonnes live sont typées nullable / set_type string,
+  // mais elles ont des défauts DB et correspondent au type domaine CollectionSet.
+  return (data || []) as CollectionSet[]
 }
 
 /**
@@ -44,7 +46,7 @@ export async function getCollectionSetBySlug(
     return null
   }
 
-  return data
+  return data as CollectionSet
 }
 
 /**
@@ -68,5 +70,5 @@ export async function getAvailableSets(): Promise<CollectionSet[]> {
     return []
   }
 
-  return data || []
+  return (data || []) as CollectionSet[]
 }

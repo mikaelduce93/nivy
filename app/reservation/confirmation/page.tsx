@@ -95,7 +95,7 @@ export default async function ReservationConfirmationPage({
             <p className="mt-2 mb-6 font-display text-xl font-extrabold text-paper">Billet électronique</p>
             <div className="inline-block p-6 bg-white rounded-2xl border-2 border-ink">
               <QRCodeSVG
-                value={booking.booking_reference}
+                value={booking.booking_reference ?? ""}
                 size={200}
                 level="H"
                 includeMargin
@@ -109,7 +109,23 @@ export default async function ReservationConfirmationPage({
             </p>
           </DarkSurface>
 
-          <TicketActions booking={booking} />
+          {/* Shape the prop to TicketActions' interface. Live `events` has no
+              event_time/venue_name/venue_address columns (drift): time defaults
+              to 20:00 in the component, location falls back to city/address. */}
+          <TicketActions
+            booking={{
+              id: booking.id,
+              booking_reference: booking.booking_reference ?? "",
+              events: {
+                title: booking.events?.title ?? "",
+                event_date: booking.events?.event_date ?? "",
+                event_time: "",
+                venue_name: booking.events?.city ?? "",
+                city: booking.events?.city ?? "",
+                venue_address: booking.events?.address ?? undefined,
+              },
+            }}
+          />
 
           {/* Total payé — surface sombre ponctuelle */}
           <StatHero
@@ -135,7 +151,7 @@ export default async function ReservationConfirmationPage({
                     <div>
                       <p className="text-sm text-mute">Date</p>
                       <p className="font-semibold text-ink">
-                        {new Date(booking.events?.event_date).toLocaleDateString("fr-FR", {
+                        {new Date(booking.events?.event_date ?? "").toLocaleDateString("fr-FR", {
                           weekday: "long",
                           day: "numeric",
                           month: "long",
@@ -185,7 +201,8 @@ export default async function ReservationConfirmationPage({
               </li>
               <li className="flex items-start gap-3">
                 <CheckRound checked disabled aria-hidden />
-                <span className="text-sm text-ink-2">Dress code : {booking.events?.dress_code || 'Tenue de soirée'}</span>
+                {/* live `events` has no dress_code column (drift) — fixed default */}
+                <span className="text-sm text-ink-2">Dress code : Tenue de soirée</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckRound checked disabled aria-hidden />

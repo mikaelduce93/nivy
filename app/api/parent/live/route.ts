@@ -158,6 +158,10 @@ export const POST = withSecurity(
         .eq("id", bookingId)
         .maybeSingle()
       if (!booking) return errorResponse("Réservation introuvable", 404)
+      // event_id is nullable in the schema; without an event there is no
+      // check-in to end, so the early-checkout request has no target.
+      const eventId = booking.event_id
+      if (!eventId) return errorResponse("Réservation sans événement associé", 400)
 
       const { data: ticket } = await sr
         .from("booking_tickets")
@@ -183,7 +187,7 @@ export const POST = withSecurity(
         .from("event_check_ins")
         .select("id")
         .eq("teen_id", teenId)
-        .eq("event_id", booking.event_id)
+        .eq("event_id", eventId)
         .not("checked_in_at", "is", null)
         .is("checked_out_at", null)
         .maybeSingle()
@@ -211,7 +215,7 @@ export const POST = withSecurity(
             kind: "early_checkout_request",
             booking_id: bookingId,
             teen_id: teenId,
-            event_id: booking.event_id,
+            event_id: eventId,
             requested_time: requestedTime ?? new Date().toISOString(),
           },
         }))
@@ -227,7 +231,7 @@ export const POST = withSecurity(
         resource_id: bookingId,
         target_user_id: teenId,
         description: `Sortie anticipée demandée pour ${eventTitle}`,
-        metadata: { reason, requested_time: requestedTime ?? null, event_id: booking.event_id },
+        metadata: { reason, requested_time: requestedTime ?? null, event_id: eventId },
         created_at: new Date().toISOString(),
       })
 

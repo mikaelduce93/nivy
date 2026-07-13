@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     // Get event details
     const { data: event } = await supabase
       .from("events")
-      .select("id, title, event_date, venue_name")
+      .select("id, title, event_date")
       .eq("id", eventId)
       .single()
 
@@ -119,7 +119,6 @@ export async function GET(request: NextRequest) {
     const summary = {
       eventTitle: event.title,
       eventDate: event.event_date,
-      venue: event.venue_name,
       totalCheckIns: processedData.length,
       currentlyInside: processedData.filter((c: any) => !c.checkedOutAt).length,
       checkedOut: processedData.filter((c: any) => c.checkedOutAt).length,
@@ -171,7 +170,7 @@ export async function GET(request: NextRequest) {
 
       const csv = [
         `# Rapport Check-in - ${event.title}`,
-        `# Date événement: ${new Date(event.event_date).toLocaleDateString("fr-FR")}`,
+        `# Date événement: ${event.event_date ? new Date(event.event_date).toLocaleDateString("fr-FR") : ""}`,
         `# Total entrées: ${summary.totalCheckIns}`,
         `# Actuellement présents: ${summary.currentlyInside}`,
         `# Exporté le: ${new Date().toLocaleString("fr-FR")}`,

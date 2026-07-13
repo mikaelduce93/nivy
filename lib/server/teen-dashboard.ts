@@ -349,13 +349,17 @@ export async function getTeenDashboardData(options?: { eventsLimit?: number }): 
     { xp: 0, challenges: 0, events: 0, coins: 0, social: 0 }
   )
 
-  const { data: relationship } = await supabase
-    .from("parent_teen_links")
-    .select("*")
-    .eq("teen_id", teenId)
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle()
+  let relationship: unknown = null
+  if (teenId) {
+    const { data } = await supabase
+      .from("parent_teen_links")
+      .select("*")
+      .eq("teen_id", teenId)
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle()
+    relationship = data
+  }
 
   const permissions = (relationship as { permissions?: Record<string, boolean> } | null)?.permissions || {}
   const permissionsSummary: PermissionsSummaryItem[] = [

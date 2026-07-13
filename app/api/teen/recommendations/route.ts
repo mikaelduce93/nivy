@@ -248,16 +248,18 @@ export async function GET(request: NextRequest) {
     if (recommendations.length === 0) {
       const { data: events } = await supabase
         .from('events')
-        .select('id, title, xp_reward')
+        .select('id, title')
         .gte('event_date', new Date().toISOString().split('T')[0])
         .limit(3)
       if (events) {
+        // `events` has no XP reward column in the live schema; events grant a
+        // flat default XP for the legacy recommendation UI.
         recommendations = events.map((e) => ({
           id: e.id,
           title: e.title,
           type: 'event',
-          xp: e.xp_reward || 25,
-          xp_reward: e.xp_reward || 25,
+          xp: 25,
+          xp_reward: 25,
         }))
       }
     }
@@ -269,11 +271,8 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    await supabase.from('quest_recommendation_logs').insert({
-      teen_id: user.id,
-      recommendations,
-      context: { source: 'api_route', timestamp: new Date().toISOString() },
-    })
+    // `quest_recommendation_logs` was dropped from the live schema; the
+    // impression logging here is a dead write and has been removed.
 
     return NextResponse.json({ success: true, recommendations, count: recommendations.length })
   } catch (error: any) {

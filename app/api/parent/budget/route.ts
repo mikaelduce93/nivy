@@ -46,15 +46,6 @@ export async function POST(request: Request) {
       .eq("teen_id", teenId)
       .single()
 
-    // Get teen info for notifications
-    const { data: teen } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", teenId)
-      .single()
-
-    const teenName = teen?.full_name || "Teen"
-
     if (existing) {
       // Update existing
       const { error: updateError } = await supabase
@@ -97,25 +88,15 @@ export async function POST(request: Request) {
       }
     }
 
-    // Notify teen about budget change
-    await supabase.from("notifications").insert({
+    // Notify teen about budget change (live table is user_notifications; type lives in data)
+    await supabase.from("user_notifications").insert({
       user_id: teenId,
-      type: "budget_updated",
       title: "Budget mis à jour",
-      message: monthlyLimit > 0
+      body: monthlyLimit > 0
         ? `Ton budget mensuel a été défini à ${monthlyLimit} DH. ${requiresApproval ? "L'approbation parentale est requise pour les réservations." : ""}`
         : "Ton budget mensuel a été modifié par ton parent.",
-      read: false,
-      created_at: new Date().toISOString()
-    })
-
-    // Log activity
-    await supabase.from("activity_logs").insert({
-      user_id: userInfo.profileId,
-      action: existing ? "update" : "create",
-      description: `Budget de ${teenName} mis à jour: ${monthlyLimit} DH/mois, ${perEventLimit} DH/event`,
-      resource_type: "teen_budget",
-      resource_id: teenId,
+      is_read: false,
+      data: { type: "budget_updated" },
       created_at: new Date().toISOString()
     })
 

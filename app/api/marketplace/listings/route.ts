@@ -10,6 +10,7 @@
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
+import type { Json } from "@/types/supabase"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -104,7 +105,8 @@ export async function POST(request: Request) {
     const sb = createServiceRoleClient()
     const { data, error } = await sb.rpc("create_listing", {
       p_seller_id: sellerId,
-      p_params: params,
+      // Boundary cast: params carries user-supplied jsonb fields (unknown) into the jsonb RPC arg.
+      p_params: params as unknown as Json,
     })
     if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 })
     return NextResponse.json(data)

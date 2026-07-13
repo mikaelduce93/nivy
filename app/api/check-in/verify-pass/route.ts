@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
       // Check-in state from event_check_ins (no checked_in_at on bookings).
       let checkedIn = false
       let checkedOut = false
-      if (ticket?.child_id) {
+      if (ticket?.child_id && booking.event_id) {
         const { data: ci } = await sr
           .from("event_check_ins")
           .select("checked_in_at, checked_out_at")

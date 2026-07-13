@@ -27,6 +27,9 @@ import { createClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
 
+// Live RPCs return jsonb { success, error?, ... }; cast at the boundary.
+type RpcResult = { success?: boolean } | null
+
 // ---------------------------------------------------------------------------
 // GET — bookable events + the teen's event group_actions (organized + invited)
 // ---------------------------------------------------------------------------
@@ -191,17 +194,17 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await supabase.rpc("create_teen_event", {
         p_title: title.trim(),
-        p_description: description?.trim() || null,
-        p_starts_at: startsAt ?? null,
-        p_city: city?.trim() || null,
-        p_address: address?.trim() || null,
-        p_capacity: capacity ?? null,
+        p_description: description?.trim() || undefined,
+        p_starts_at: startsAt ?? undefined,
+        p_city: city?.trim() || undefined,
+        p_address: address?.trim() || undefined,
+        p_capacity: capacity ?? undefined,
         p_price_coins: priceCoins ?? 0,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     // --- Open a group booking for a chosen event -----------------------------
@@ -218,13 +221,13 @@ export async function POST(request: NextRequest) {
         p_resource_id: eventId,
         p_invitee_ids: inviteeIds ?? [],
         p_title: title.trim(),
-        p_max_size: maxSize ?? null,
-        p_deadline: deadline ?? null,
+        p_max_size: maxSize ?? undefined,
+        p_deadline: deadline ?? undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     // --- Invitee accepts / declines ------------------------------------------
@@ -246,7 +249,7 @@ export async function POST(request: NextRequest) {
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     // --- Size-discount preview -----------------------------------------------
@@ -257,12 +260,12 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await supabase.rpc("unlock_group_size_rewards", {
         p_group_action_id: groupActionId,
-        p_partner_id: partnerId ?? null,
+        p_partner_id: partnerId ?? undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     // --- Finalize the group booking (organizer) ------------------------------
@@ -281,7 +284,7 @@ export async function POST(request: NextRequest) {
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 })

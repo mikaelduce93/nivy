@@ -37,10 +37,11 @@ export async function GET(request: NextRequest) {
       // Stats XP principales
       case "stats":
       default: {
-        // Get XP balance
+        // Get XP balance (user_xp live n'a que total_xp ; lifetime_earned/spent
+        // n'existent pas en base — la lecture morte faisait échouer toute la requête)
         const { data: userXP } = await supabase
           .from("user_xp")
-          .select("total_xp, lifetime_earned, lifetime_spent")
+          .select("total_xp")
           .eq("teen_id", teenId)
           .single()
 
@@ -57,8 +58,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           total_xp: userXP?.total_xp || 0,
           xp_value: xpToDH(userXP?.total_xp || 0),
-          lifetime_earned: userXP?.lifetime_earned || 0,
-          lifetime_spent: userXP?.lifetime_spent || 0,
+          lifetime_earned: 0,
+          lifetime_spent: 0,
           xp_rate: XP_TO_DH_RATE,
           max_percentage: MAX_XP_PAYMENT_PERCENTAGE,
           total_savings: totalSavings,
@@ -97,6 +98,7 @@ export async function GET(request: NextRequest) {
         // Group by month
         const monthlyData: Record<string, { earned: number; spent: number }> = {}
         monthlyStats?.forEach((tx) => {
+          if (!tx.created_at) return
           const month = new Date(tx.created_at).toLocaleDateString("fr-FR", { month: "short", year: "numeric" })
           if (!monthlyData[month]) {
             monthlyData[month] = { earned: 0, spent: 0 }
@@ -165,8 +167,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate XP amount
-    if (userXP.total_xp < xpAmount) {
+    // Validate XP amount (total_xp nullable en base)
+    if ((userXP.total_xp ?? 0) < xpAmount) {
       return NextResponse.json(
         { error: "Solde XP insuffisant" },
         { status: 400 }
@@ -204,7 +206,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate max XP usable
-    const maxXPUsable = calculateMaxXPUsable(booking.total_amount, userXP.total_xp)
+    const maxXPUsable = calculateMaxXPUsable(booking.total_amount ?? 0, userXP.total_xp ?? 0)
     if (xpAmount > maxXPUsable) {
       return NextResponse.json(
         { error: `Maximum ${maxXPUsable} XP utilisables pour cette réservation` },
@@ -214,7 +216,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate XP value
     const xpValue = xpToDH(xpAmount)
-    const remainingAmount = booking.total_amount - xpValue
+    const remainingAmount = (booking.total_amount ?? 0) - xpValue
 
     // #47 — atomic debit via the SECURITY DEFINER RPC (SELECT ... FOR UPDATE +
     // guarded balance check + ledger insert in one transaction), executed with
@@ -229,9 +231,11 @@ export async function POST(request: NextRequest) {
       p_reference: `Paiement réservation ${booking.booking_reference}`,
     })
 
-    if (debitRpcError || !debitResult?.success) {
+    // deduct_xp_for_payment renvoie du Json ; cast de frontière vers son contrat
+    const debit = debitResult as { success?: boolean; error?: string } | null
+    if (debitRpcError || !debit?.success) {
       return NextResponse.json(
-        { error: debitResult?.error || "Solde XP insuffisant" },
+        { error: debit?.error || "Solde XP insuffisant" },
         { status: 400 }
       )
     }
@@ -269,20 +273,30 @@ export async function POST(request: NextRequest) {
 
     // If fully paid with XP, send confirmation email
     if (remainingAmount === 0) {
-      // Fetch complete booking info for email
+      // Fetch complete booking info for email. bookings n'a pas de parent_id ni
+      // de FK vers profiles : on lit le profil séparément via user_id.
       const { data: fullBooking } = await supabase
         .from("bookings")
         .select(`
           *,
-          events (*),
-          profiles:parent_id (full_name, email)
+          events (*)
         `)
         .eq("id", bookingId)
         .single()
 
-      if (fullBooking?.profiles?.email) {
+      let profile: { full_name: string | null; email: string | null } | null = null
+      if (fullBooking?.user_id) {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("full_name, email")
+          .eq("id", fullBooking.user_id)
+          .single()
+        profile = p
+      }
+
+      if (profile?.email) {
         // Send confirmation email (async)
-        sendXPPaymentConfirmation(fullBooking).catch(console.error)
+        sendXPPaymentConfirmation({ ...fullBooking, profiles: profile }).catch(console.error)
       }
     }
 
@@ -291,7 +305,7 @@ export async function POST(request: NextRequest) {
       xpUsed: xpAmount,
       xpValue,
       remainingAmount,
-      newBalance: userXP.total_xp - xpAmount,
+      newBalance: (userXP.total_xp ?? 0) - xpAmount,
       isFullyPaid: remainingAmount === 0,
     })
   } catch (error) {

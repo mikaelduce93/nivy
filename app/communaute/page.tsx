@@ -23,26 +23,44 @@ export default async function CommunautePage() {
   let posts: any[] | null = null
   let loadError: string | null = null
   try {
+    // Drift: the standalone `posts` table was dropped; the community feed now
+    // lives in `feed_posts`. Visibility gate is the canonical status='published'
+    // + is_hidden=false (mig 097), and the author FK points at `profiles`.
     const { data, error } = await supabase
-      .from("posts")
+      .from("feed_posts")
       .select(`
         *,
         profiles (
           full_name
-        ),
-        events (
-          title,
-          event_date
         )
       `)
-      .eq("is_approved", true)
+      .eq("status", "published")
+      .eq("is_hidden", false)
       .order("created_at", { ascending: false })
       .limit(20)
     if (error) {
       console.error("[communaute] posts error:", error)
       loadError = "Impossible de charger le feed pour le moment."
     } else {
-      posts = data
+      // `feed_posts` has no FK to `events`, so the event badge is resolved with
+      // a separate lookup keyed by related_event_id (embed would not type).
+      const rows = data ?? []
+      const eventIds = [
+        ...new Set(rows.map((p) => p.related_event_id).filter(Boolean)),
+      ] as string[]
+      const eventMap = new Map<string, { title: string }>()
+      if (eventIds.length > 0) {
+        const { data: events } = await supabase
+          .from("events")
+          .select("id, title")
+          .in("id", eventIds)
+        for (const ev of events ?? []) eventMap.set(ev.id, { title: ev.title })
+      }
+      posts = rows.map((p) => ({
+        ...p,
+        event_id: p.related_event_id,
+        events: p.related_event_id ? eventMap.get(p.related_event_id) ?? null : null,
+      }))
     }
   } catch (err) {
     console.error("[communaute] posts threw:", err)

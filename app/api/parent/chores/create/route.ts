@@ -27,6 +27,7 @@
 import { NextResponse } from "next/server"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { createClient } from "@/lib/supabase/server"
+import type { Json } from "@/types/supabase"
 
 interface CreateChoreBody {
   teen_ids?: string[]
@@ -157,7 +158,9 @@ export async function POST(request: Request) {
         reward_dh: rewardDh,
         reward_xp: rewardXp,
         recurrence,
-        recurrence_config: body.recurrence_config ?? {},
+        // recurrence_config column is jsonb (Json); the parsed body value is a
+        // plain object, cast at the DB frontier.
+        recurrence_config: (body.recurrence_config ?? {}) as Json,
         required_completions: requiredCompletions,
         evidence_required: !!body.evidence_required,
         starts_at: body.starts_at ?? new Date().toISOString(),

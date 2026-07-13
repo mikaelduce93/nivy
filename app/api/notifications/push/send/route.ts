@@ -141,8 +141,8 @@ export const POST = withSecurity(async (request: NextRequest) => {
         const pushSubscription = {
           endpoint: sub.endpoint,
           keys: {
-            p256dh: sub.p256dh_key,
-            auth: sub.auth_key,
+            p256dh: sub.p256dh,
+            auth: sub.auth,
           },
         }
 

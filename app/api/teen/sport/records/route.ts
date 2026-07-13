@@ -92,13 +92,13 @@ export async function GET(request: NextRequest) {
       }
       recordHistory[r.record_type].push({
         value: r.value,
-        date: r.achieved_at,
+        date: r.achieved_at ?? "",
       })
       if (r.previous_value) {
         // Add previous value as a historical point
         recordHistory[r.record_type].push({
           value: r.previous_value,
-          date: new Date(new Date(r.achieved_at).getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          date: new Date(new Date(r.achieved_at ?? Date.now()).getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         })
       }
     })
@@ -123,12 +123,13 @@ export async function GET(request: NextRequest) {
       total_records: records?.length || 0,
       recent_improvements: records?.filter((r) =>
         r.improvement_percent && r.improvement_percent > 0 &&
-        new Date(r.achieved_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        new Date(r.achieved_at ?? 0) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       ).length || 0,
       total_xp_earned: records?.reduce((sum, r) => sum + (r.xp_awarded || 0), 0) || 0,
       by_category: Object.entries(
         records?.reduce((acc, r) => {
-          acc[r.record_category] = (acc[r.record_category] || 0) + 1
+          const cat = r.record_category ?? "autre"
+          acc[cat] = (acc[cat] || 0) + 1
           return acc
         }, {} as Record<string, number>) || {}
       ).map(([category, count]) => ({ category, count })),

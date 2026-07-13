@@ -6,7 +6,6 @@ import { StatHero } from "@/components/brand"
 import { NivEmpty } from "@/components/brand"
 import { ArrowLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { CATS } from "../awards-categories"
 
 export const metadata: Metadata = { title: "Détail attribution — Partenaire" }
 
@@ -24,17 +23,17 @@ const STATUS_TONE: Record<string, string> = {
   rejected: "bg-coral",
 }
 
-const CAT_LABEL: Record<string, string> = Object.fromEntries(CATS.map((c) => [c.id, c.label]))
-
 // Refonte V1.5 (#99) — détail/revue d'une attribution d'XP.
 export default async function AwardDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  let award: { amount_xp?: number; category?: string; reason?: string; parent_review_status?: string; awarded_at?: string } | null = null
+  // Aligné sur le schéma live : amount (ex amount_xp), created_at (ex awarded_at),
+  // statut dérivé de approved_by_parent (colonnes category/parent_review_status/awarded_at inexistantes).
+  let award: { amount: number; reason: string | null; approved_by_parent: boolean | null; created_at: string } | null = null
   try {
     const supabase = await createClient()
     const { data } = await supabase
       .from("partner_xp_awards")
-      .select("amount_xp, category, reason, parent_review_status, awarded_at")
+      .select("amount, reason, approved_by_parent, created_at")
       .eq("id", id)
       .maybeSingle()
     award = data
@@ -42,7 +41,7 @@ export default async function AwardDetail({ params }: { params: Promise<{ id: st
     award = null
   }
 
-  const status = award?.parent_review_status || "pending"
+  const status = award ? (award.approved_by_parent === true ? "approved" : award.approved_by_parent === false ? "rejected" : "pending") : "pending"
 
   return (
     <div className="max-w-2xl space-y-6 pt-6">
@@ -67,7 +66,7 @@ export default async function AwardDetail({ params }: { params: Promise<{ id: st
           <StatHero
             eyebrow="XP attribué"
             tone="gold"
-            value={`+${award.amount_xp}`}
+            value={`+${award.amount}`}
             unit="XP"
             meta={
               <span
@@ -78,23 +77,19 @@ export default async function AwardDetail({ params }: { params: Promise<{ id: st
             }
           />
 
-          {/* Méta — catégorie en label+emoji, raison, date. */}
+          {/* Méta — raison, date. */}
           <StickerCard className="gap-3 p-6">
             <dl className="space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-3">
-                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">Catégorie</dt>
-                <dd className="font-semibold text-ink">{CAT_LABEL[award.category || ""] || award.category}</dd>
-              </div>
               {award.reason && (
                 <div className="flex items-start justify-between gap-3">
                   <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">Raison</dt>
                   <dd className="text-right text-ink-2">{award.reason}</dd>
                 </div>
               )}
-              {award.awarded_at && (
+              {award.created_at && (
                 <div className="flex items-center justify-between gap-3">
                   <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-mute">Date</dt>
-                  <dd className="font-mono text-ink-2">{new Date(award.awarded_at).toLocaleString("fr-FR")}</dd>
+                  <dd className="font-mono text-ink-2">{new Date(award.created_at).toLocaleString("fr-FR")}</dd>
                 </div>
               )}
             </dl>

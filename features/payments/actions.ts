@@ -53,7 +53,7 @@ export async function createBookingCheckoutSession(
         events (
           title,
           event_date,
-          location
+          city
         )
       `)
       .eq('id', bookingId)
@@ -78,14 +78,18 @@ export async function createBookingCheckoutSession(
             currency: 'mad',
             product_data: {
               name: booking.events?.title || 'Événement',
-              description: `${new Date(booking.events?.event_date).toLocaleDateString('fr-FR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })} - ${booking.events?.location || 'Maroc'}`,
+              description: `${
+                booking.events?.event_date
+                  ? new Date(booking.events.event_date).toLocaleDateString('fr-FR', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })
+                  : 'Date à confirmer'
+              } - ${booking.events?.city || 'Maroc'}`,
             },
-            unit_amount: Math.round(booking.total_amount * 100),
+            unit_amount: Math.round((booking.total_amount ?? 0) * 100),
           },
           quantity: 1,
         },

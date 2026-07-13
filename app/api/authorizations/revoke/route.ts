@@ -18,8 +18,8 @@ export const POST = withSecurity(async (request: NextRequest) => {
     const authorizationId = formData.get("authorizationId") as string
 
     const { error } = await supabase
-      .from("child_authorizations")
-      .update({ status: "revoked" })
+      .from("authorizations")
+      .update({ is_valid: false })
       .eq("id", authorizationId)
       .eq("parent_id", user.id)
 

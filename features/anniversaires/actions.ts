@@ -176,32 +176,11 @@ export async function getPartnerVenues(
       }
     }
 
-    const { supabase } = await getAuthenticatedUser()
-
-    let query = supabase
-      .from('partner_venues')
-      .select(`
-        *,
-        partners:partner_id (
-          id,
-          company_name,
-          address,
-          city,
-          phone,
-          logo_url,
-          rating
-        )
-      `)
-
-    if (city) {
-      query = query.eq('partners.city', city)
-    }
-
-    const { data, error } = await query
-
-    if (error) throw error
-
-    return { success: true, data: data ?? [] }
+    // Drift schéma : la table `partner_venues` n'existe pas en live (aucun
+    // catalogue de lieux partenaires en base). L'ancienne requête échouait
+    // systématiquement au runtime. On retourne une liste vide plutôt que
+    // d'interroger une table fantôme, sans inventer de source de remplacement.
+    return { success: true, data: [] }
   } catch (error: any) {
     console.error('[anniversaires/getPartnerVenues] Error:', error)
     return { success: false, error: error.message }
@@ -405,12 +384,13 @@ export async function createAnnivOrder(
     if (validatedInput.teen_id) {
       const { data: teen } = await supabase
         .from('profiles')
-        .select('full_name, first_name')
+        .select('full_name')
         .eq('id', validatedInput.teen_id)
         .single()
 
       if (teen) {
-        childName = teen.first_name || teen.full_name || childName
+        // `profiles` n'a pas de colonne `first_name` en live (drift).
+        childName = teen.full_name || childName
       }
     }
 
@@ -437,7 +417,9 @@ export async function createAnnivOrder(
     }
 
     revalidatePath('/mes-reservations')
-    return { success: true, data: { ...order, qr_code: qrCode } }
+    // `anniv_orders` est lean en live ; on complète avec le QR non persisté.
+    // Cast de frontière vers le type domaine riche attendu par l'UI.
+    return { success: true, data: { ...order, qr_code: qrCode } as unknown as AnnivOrder }
   } catch (error: any) {
     console.error('[anniversaires/createAnnivOrder] Error:', error)
     return { success: false, error: error.message }
@@ -558,7 +540,8 @@ export async function cancelAnnivOrder(
     if (error) throw error
 
     revalidatePath('/mes-reservations')
-    return { success: true, data }
+    // Row lean en live → cast de frontière vers le type domaine AnnivOrder.
+    return { success: true, data: data as unknown as AnnivOrder }
   } catch (error: any) {
     console.error('[anniversaires/cancelAnnivOrder] Error:', error)
     return { success: false, error: error.message }
@@ -607,7 +590,8 @@ export async function updateAnnivPaymentStatus(
     if (error) throw error
 
     revalidatePath('/mes-reservations')
-    return { success: true, data }
+    // Row lean en live → cast de frontière vers le type domaine AnnivOrder.
+    return { success: true, data: data as unknown as AnnivOrder }
   } catch (error: any) {
     console.error('[anniversaires/updateAnnivPaymentStatus] Error:', error)
     return { success: false, error: error.message }

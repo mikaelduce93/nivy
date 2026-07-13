@@ -26,6 +26,10 @@ import { createClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
 
+// The collective-birthday RPCs return jsonb { success, error?, ... }; typed as
+// `Json` by the generated types, so we cast at the frontier to read `success`.
+type RpcResult = { success?: boolean } | null
+
 // ---------------------------------------------------------------------------
 // GET — the teen's anniv_orders + their `anniv` group_actions (+ attendees)
 // ---------------------------------------------------------------------------
@@ -210,14 +214,14 @@ export async function POST(request: NextRequest) {
         p_resource_id: annivOrderId,
         p_invitee_ids: inviteeIds ?? [],
         p_title: title.trim(),
-        p_max_size: maxSize ?? null,
-        p_deadline: deadline ?? null,
+        p_max_size: maxSize ?? undefined,
+        p_deadline: deadline ?? undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
       // RPC returns { success, error?, ... } — forward it honestly.
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     if (action === "respond") {
@@ -238,7 +242,7 @@ export async function POST(request: NextRequest) {
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     if (action === "preview") {
@@ -248,12 +252,12 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await supabase.rpc("unlock_group_size_rewards", {
         p_group_action_id: groupActionId,
-        p_partner_id: partnerId ?? null,
+        p_partner_id: partnerId ?? undefined,
       })
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     if (action === "finalize") {
@@ -272,7 +276,7 @@ export async function POST(request: NextRequest) {
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 })
       }
-      return NextResponse.json(data, { status: data?.success ? 200 : 400 })
+      return NextResponse.json(data, { status: (data as RpcResult)?.success ? 200 : 400 })
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 })
