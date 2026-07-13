@@ -21,8 +21,12 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Mic, MicOff, Volume2, VolumeX } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { NivCoach } from "@/components/brand/niv-usage"
+import { speakNiv, stopSpeaking, isTTSSupported } from "@/lib/voice/tts"
+import { useSpeechToText } from "@/lib/voice/use-stt"
+import { CoachMemoryPanel } from "@/components/teen/coach-memory-panel"
 
 /**
  * Daily quiz teaser surfaced by the server component when the recommender
@@ -295,6 +299,26 @@ function AvatarCoachChat({
   const scrollerRef = React.useRef<HTMLDivElement>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
+  // #Voice — TTS (speak replies aloud) + STT (dictation into the composer).
+  // TTS toggle defaults on (ados aiment la voix) mais respecte la présence de
+  // l'API. STT piloté par le bouton micro ; le transcript remplit `state.draft`.
+  const ttsSupported = React.useMemo(() => isTTSSupported(), [])
+  const [ttsEnabled, setTtsEnabled] = React.useState(true)
+  const stt = useSpeechToText()
+
+  // STT transcript → composer draft (live). On stoppe l'écoute, le draft reste
+  // éditable manuellement ; l'envoi se fait via le bouton Envoyer normal.
+  React.useEffect(() => {
+    if (stt.listening && stt.transcript) {
+      setState((s) => ({ ...s, draft: stt.transcript, error: null }))
+    }
+  }, [stt.listening, stt.transcript])
+
+  // Couper le TTS quand on ferme le panel (évite une voix qui continue en fond).
+  React.useEffect(() => {
+    if (!state.open) stopSpeaking()
+  }, [state.open])
+
   const loadHistory = React.useCallback(async () => {
     setState((s) => ({ ...s, loadingHistory: true, error: null }))
     try {
@@ -453,6 +477,11 @@ function AvatarCoachChat({
                 typeof parsed.remainingTurns === "number" ? parsed.remainingTurns : s.remaining,
               cap: typeof parsed.cap === "number" ? parsed.cap : s.cap,
             }))
+            // #Voice — parle la réponse finale une fois le stream terminé
+            // (pas sur chaque delta : éviterait le re-cancel permanent).
+            if (ttsEnabled && ttsSupported && assistantText.trim()) {
+              void speakNiv(assistantText)
+            }
           }
         }
       }
@@ -465,7 +494,7 @@ function AvatarCoachChat({
         error: "Connexion perdue. Réessaie dans un instant.",
       }))
     }
-  }, [state.draft, state.sending, state.remaining])
+  }, [state.draft, state.sending, state.remaining, ttsEnabled, ttsSupported])
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -486,23 +515,56 @@ function AvatarCoachChat({
 
   return (
     <div className="mt-3 border-t border-ink pt-3" data-testid="avatar-coach-chat">
-      <button
-        type="button"
-        onClick={handleToggle}
-        aria-expanded={state.open}
-        aria-controls="avatar-coach-chat-panel"
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5",
-          "text-[11px] sm:text-xs font-semibold",
-          "border border-ink bg-paper-2 text-ink/90 hover:bg-paper-2 hover:text-ink",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors",
-        )}
-      >
-        <span aria-hidden>💬</span>
-        <span>{state.open ? `Fermer la discussion` : `Demander à ${coachName}`}</span>
-        <span aria-hidden className="text-ink/40">·</span>
-        <span className="text-ink/50">{remainingLabel}</span>
-      </button>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={handleToggle}
+          aria-expanded={state.open}
+          aria-controls="avatar-coach-chat-panel"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5",
+            "text-[11px] sm:text-xs font-semibold",
+            "border border-ink bg-paper-2 text-ink/90 hover:bg-paper-2 hover:text-ink",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors",
+          )}
+        >
+          <span aria-hidden>💬</span>
+          <span>{state.open ? `Fermer la discussion` : `Demander à ${coachName}`}</span>
+          <span aria-hidden className="text-ink/40">·</span>
+          <span className="text-ink/50">{remainingLabel}</span>
+        </button>
+        {/* #Voice — toggle TTS (parler les réponses de Niv à voix haute). */}
+        {ttsSupported ? (
+          <button
+            type="button"
+            onClick={() => {
+              const next = !ttsEnabled
+              setTtsEnabled(next)
+              if (!next) stopSpeaking()
+            }}
+            aria-pressed={ttsEnabled}
+            aria-label={ttsEnabled ? "Couper la voix de Niv" : "Activer la voix de Niv"}
+            title={ttsEnabled ? "Couper la voix" : "Activer la voix"}
+            className={cn(
+              "inline-flex h-7 w-7 items-center justify-center rounded-full border border-ink",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors",
+              ttsEnabled
+                ? "bg-pink text-ink"
+                : "bg-paper-2 text-ink/60 hover:text-ink",
+            )}
+          >
+            {ttsEnabled ? (
+              <Volume2 className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <VolumeX className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+          </button>
+        ) : null}
+      </div>
+
+      {/* #Transparency — « Ce que Niv retient de toi » (RGPD/CNDP). Visible
+          même chat fermé : l'ado peut consulter/effacer sa mémoire à tout moment. */}
+      <CoachMemoryPanel coachName={coachName} />
 
       {state.open ? (
         <div
@@ -534,13 +596,30 @@ function AvatarCoachChat({
               state.turns.map((t, i) =>
                 t.role === "assistant" ? (
                   // #210 — identité Niv rendue via le composant charte <NivCoach>.
-                  <NivCoach
-                    key={i}
-                    message={t.content || "…"}
-                    tone="paper"
-                    size={28}
-                    className="max-w-[90%] self-start p-3"
-                  />
+                  // #Voice — bouton "parler cette réponse" à côté de chaque tour.
+                  <div key={i} className="flex max-w-[90%] items-end gap-1 self-start">
+                    <NivCoach
+                      message={t.content || "…"}
+                      tone="paper"
+                      size={28}
+                      className="p-3"
+                    />
+                    {ttsSupported && t.content ? (
+                      <button
+                        type="button"
+                        onClick={() => void speakNiv(t.content)}
+                        aria-label="Écouter cette réponse"
+                        title="Écouter"
+                        className={cn(
+                          "mb-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+                          "border border-ink bg-paper-2 text-ink/60 hover:text-ink",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors",
+                        )}
+                      >
+                        <Volume2 className="h-3 w-3" aria-hidden="true" />
+                      </button>
+                    ) : null}
+                  </div>
                 ) : (
                   <ChatBubble key={i} role={t.role} content={t.content} color={color} />
                 ),
@@ -553,6 +632,32 @@ function AvatarCoachChat({
 
           {/* Composer */}
           <div className="mt-2 flex items-center gap-2">
+            {/* #Voice — micro (STT). Caché si le navigateur ne supporte pas
+                la Web Speech API (ex. Firefox). Dictée continue en français. */}
+            {stt.supported ? (
+              <button
+                type="button"
+                onClick={() => (stt.listening ? stt.stop() : stt.start())}
+                aria-pressed={stt.listening}
+                aria-label={stt.listening ? "Arrêter la dictée vocale" : "Dictée vocale"}
+                title={stt.listening ? "Arrêter la dictée" : "Parler"}
+                disabled={state.sending || state.remaining === 0}
+                className={cn(
+                  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+                  "disabled:opacity-40 disabled:cursor-not-allowed transition-colors",
+                  stt.listening
+                    ? "bg-pink text-ink motion-safe:animate-pulse"
+                    : "bg-paper-2 text-ink/70 hover:text-ink",
+                )}
+              >
+                {stt.listening ? (
+                  <MicOff className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Mic className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
+            ) : null}
             <input
               ref={inputRef}
               type="text"
@@ -563,7 +668,7 @@ function AvatarCoachChat({
               }
               onKeyDown={handleKeyDown}
               maxLength={MAX_INPUT_CHARS_CLIENT}
-              placeholder={`Écris ta question…`}
+              placeholder={stt.listening ? "Parle maintenant…" : "Écris ta question…"}
               disabled={state.sending || state.remaining === 0}
               aria-label={`Message pour ${coachName}`}
               className={cn(

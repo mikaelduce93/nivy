@@ -2,9 +2,7 @@ import { getUserRole } from "@/lib/auth/get-user-role"
 import { redirect } from "next/navigation"
 import { AmbassadorSidebar } from "@/components/dashboard/ambassador/sidebar"
 import { AmbassadorHeader } from "@/components/dashboard/ambassador/header"
-import { AgentFloatingButton } from "@/components/ai/AgentFloatingButton"
 import { SkipToContent } from "@/components/ui/skip-to-content"
-import { getFeatureFlag } from "@/lib/features/flags"
 
 export default async function AmbassadorLayout({
   children,
@@ -21,9 +19,6 @@ export default async function AmbassadorLayout({
     redirect("/auth/redirect")
   }
 
-  // #63 — legacy AgentSheet/FriendMap IA panel behind an off-by-default flag.
-  const legacyAgentEnabled = await getFeatureFlag("legacy_agent_sheet")
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gold to-coral">
       {/* TICKET-049: keyboard skip-link must be the FIRST focusable element. */}
@@ -39,7 +34,6 @@ export default async function AmbassadorLayout({
           {children}
         </main>
       </div>
-      {legacyAgentEnabled && <AgentFloatingButton role="ambassador" context={userInfo.ambassadorData} />}
     </div>
   )
 }

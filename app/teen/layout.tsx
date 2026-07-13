@@ -69,11 +69,11 @@ export default async function TeenLayout({
             {children}
           </main>
         </div>
-        {/* #202 Coach Niv — Phase 0 : EliteAICompanion (« Kai ») DÉMONTÉ.
-            C'était un composant @deprecated (#83) à profil de risque mineurs
-            (vrai prénom envoyé au LLM, aucun garde-fou, hors charte). Le coach
-            canonique est « Niv » (components/teen/avatar-coach.tsx, chat gardé).
-            Le launcher flottant unifié <NivCoachLauncher> arrive en #210. */}
+        {/* Compagnon IA unique « Niv » (cleanup 2026-07) : l'ancien bouton
+            flottant @deprecated EliteAICompanion (« Kai ») a été supprimé
+            avec tout le cluster legacy components/ai/* et /api/agent/*.
+            Le coach canonique vit dans components/teen/avatar-coach.tsx
+            (greeting + chat gardé + TTS/STT natifs). */}
         {/*
           V1.2 Wave 3 U3 — deferred push permission prompt. Mounts globally for
           the teen domain, but only renders after the user has demonstrated

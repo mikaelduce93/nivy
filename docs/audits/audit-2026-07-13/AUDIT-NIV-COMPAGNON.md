@@ -233,19 +233,28 @@ métriques télémétrie**, pas à l'aveugle :
 - `app/api/agent/action/route.ts`
 - `lib/ai/provider.ts`, `agent-actions.ts`, `context-engine.ts`, `prompts/roles.ts`
 
-### Créés (4)
-- `lib/voice/tts.ts` — TTS natif
-- `lib/voice/use-stt.ts` — hook STT natif
-- `lib/ai/welfare-classifier.ts` — classifier détresse P0
+### Créés (9)
+- `lib/voice/tts.ts` — TTS natif (window.speechSynthesis)
+- `lib/voice/use-stt.ts` — hook STT natif (Web Speech API)
+- `lib/ai/welfare-classifier.ts` — classifier détresse P0 + `escalateCrisisToParent`
+- `lib/ai/coach-safety.ts` — extraction testable des filtres (rideaux 1 + 3)
+- `lib/ai/coach-telemetry.ts` — logging structuré coût/latence/tokens par tour
+- `app/api/teen/coach-memory/route.ts` — GET/DELETE transparence mémoire (RGPD)
+- `components/teen/coach-memory-panel.tsx` — UI « Ce que Niv retient de toi »
 - `tests/unit/welfare-classifier.test.ts` — 27 tests
+- `tests/unit/coach-safety-redteam.test.ts` — 46 tests adversariaux
 
-### Modifiés (9)
+### Modifiés (11)
 - `app/admin/layout.tsx`, `app/ambassador/layout.tsx`, `app/parent/layout.tsx`,
   `app/partner/layout.tsx` — retrait AgentFloatingButton + flag
 - `app/teen/layout.tsx` — commentaire actualisé
-- `app/api/teen/avatar-coach/route.ts` — injection welfare + 3e rideau
-- `components/teen/avatar-coach-client.tsx` — TTS/STT + boutons voix
+- `app/api/teen/avatar-coach/route.ts` — welfare + escalade parent + télémétrie
+  (3e rideau + 5 points de sortie logger)
+- `app/parent/approvals/page.tsx` — affichage `welfare_alert` (icône + libellé)
+- `components/teen/avatar-coach-client.tsx` — TTS/STT + boutons voix + panneau mémoire
 - `components/brand/niv.tsx` — doc comment actualisée
+- `lib/ai/coach-memory.ts` — `getCoachMemoryForDisplay` + `clearCoachMemory`
+  (transparence RGPD)
 - `lib/features/flags.ts` — retrait `legacy_agent_sheet`
 - `tests/unit/wave6i-design-mobile-truth.test.ts` — retrait entrées legacy
 - `types/modules.d.ts` — retrait `react-speech-recognition`

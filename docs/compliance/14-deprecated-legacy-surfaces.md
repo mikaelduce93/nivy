@@ -147,9 +147,12 @@ From compliance/11 (4 AI components), compliance/13 (toast wrapper, motion), com
 
 | Component | Class | Replacement | Callers | Action |
 |---|---|---|---|---|
-| `components/ai/elite-ai-companion.tsx` | DELETE | `components/teen/avatar-coach.tsx` (canonical) | mounted at `app/teen/layout.tsx:71-77` | unmount + delete (CANON-AI-004) |
-| `components/ai/AgentSheet.tsx` | DELETE | `AvatarCoach` (or per-role surface) | importable | delete after import refactor |
-| `components/ai/AgentFloatingButton.tsx` | DELETE | per-role canonical surface (or remove) | mounted at `app/{admin,parent,partner,ambassador}/layout.tsx` | unmount + delete (CANON-AI-014) |
+| `components/ai/elite-ai-companion.tsx` | ~~DELETE~~ ✅ **FAIT 2026-07-13** | `components/teen/avatar-coach.tsx` (canonical) | — | supprimé (CANON-AI-004) |
+| `components/ai/AgentSheet.tsx` | ~~DELETE~~ ✅ **FAIT 2026-07-13** | `AvatarCoach` (Niv) | — | supprimé |
+| `components/ai/AgentFloatingButton.tsx` | ~~DELETE~~ ✅ **FAIT 2026-07-13** | Niv (coach canonique unique) | — | supprimé (CANON-AI-014) |
+| `components/ai/use-ai-chat.ts`, `widgets/*` | ~~DELETE~~ ✅ **FAIT 2026-07-13** | Niv | — | supprimés |
+| `app/api/agent/action/route.ts`, `lib/ai/provider.ts`, `agent-actions.ts`, `context-engine.ts`, `prompts/roles.ts` | ~~DELETE~~ ✅ **FAIT 2026-07-13** | `/api/teen/avatar-coach` (Niv) | — | supprimés |
+| `react-speech-recognition`, `regenerator-runtime`, `@ai-sdk/openai`, `@ai-sdk/react`, `ai` | ~~DELETE~~ ✅ **FAIT 2026-07-13** | Web Speech API native (`lib/voice/*`) | — | deps retirées |
 | `components/teen/dashboard/ai-companion.tsx` | DELETE | `avatar-coach.tsx` | none/unmounted | delete |
 | `components/teen/dashboard/ai-oracle-card.tsx` | DELETE | `avatar-coach.tsx` | only in unmounted `unified-quest-feed.tsx:5` | delete |
 | `lib/ai/ready-player-me.ts` | DELETE | (zero call sites) | none | delete |
@@ -190,7 +193,7 @@ Order chosen for least blast-radius first; each wave assumes prior waves' caller
 
 - **Wave Cleanup-B (week 3)** — Notification + audit table migration. Build `move_legacy_notifs` migration; rewrite 7 `notifications` writers + 1 reader to `user_notifications`; rewrite 4 `activity_logs` writers + `app/admin/logs` reader to `audit_log`; rename + reshape `admin_audit_logs` → `audit_log` (canon §4 schema), backfill 28 producers (CANON-ADMIN-001/002/013, CANON-PARENT-011-015, CANON-SOCIAL-012). 410 the bare `/notifications*` routes via role-router. Drop `app/notifications/page.tsx`, `app/notifications/preferences/page.tsx`, `app/autorisations/page.tsx`, `app/autorisations/ajouter/page.tsx`.
 
-- **Wave Cleanup-C (week 4)** — AI-companion components → AvatarCoach (Kai) only. Unmount `EliteAICompanion` from `/teen/layout.tsx`; remove `AgentFloatingButton` from admin/parent/partner/ambassador layouts; delete `AgentSheet`, `ai-companion`, `ai-oracle-card`, `ready-player-me`. Migrate teen prompts to single `KAI_CANONICAL_PROMPT` (CANON-AI-004/008/014). Strip PII from ContextEngine + avatar-coach (CANON-AI-001/005). Replace hardcoded model literals with env-driven (CANON-AI-002).
+- **Wave Cleanup-C (week 4)** — ✅ **TERMINÉ 2026-07-13.** AI-companion components → AvatarCoach (Niv) only. Le cluster Kai complet (`EliteAICompanion`, `AgentSheet`, `AgentFloatingButton`, `use-ai-chat`, `widgets/*`, `/api/agent/action`, `provider.ts`, `agent-actions.ts`, `context-engine.ts`, `prompts/roles.ts`) a été supprimé. Les 4 layouts (admin/parent/partner/ambassador) ne montent plus `AgentFloatingButton`. Le flag `legacy_agent_sheet` est retiré. TTS/STT natifs ajoutés à Niv (`lib/voice/*`). Classifier welfare P0 ajouté (`lib/ai/welfare-classifier.ts`). Voir `audit-2026-07-13/AUDIT-NIV-COMPAGNON.md`. Reste à faire (hors-scope) : `ai-companion.tsx`, `ai-oracle-card.tsx`, `ready-player-me.ts` (autres surfaces).
 
 - **Wave Cleanup-D (week 5)** — Toast/motion/easing sweep. Migrate `components/ticket-actions.tsx` to sonner; delete Radix toast wrapper trio (CANON-DS-018). Swap 4 `window.alert()` calls in feed-list/post-card/social-feed to `toast.success` (CANON-DS-012, CANON-SOCIAL-003). Land Wave 2 motion codemod (159 files, CANON-DS-020). Founder decision on `EASE_STANDARD` drift (CANON-DS-021). Inline cubic-bezier removal (CANON-DS-017).
 

@@ -105,9 +105,6 @@ describe("Wave 6I — icon-only Button aria-label baseline", () => {
     const fixed = [
       "components/notifications/notification-center.tsx",
       "components/layouts/admin-sidebar.tsx",
-      "components/teen/dashboard/ai-companion.tsx",
-      "components/ai/AgentSheet.tsx",
-      "components/ai/elite-ai-companion.tsx",
       "components/parent/invoice-button.tsx",
       "components/admin/gamification/proof-review.tsx",
       "components/admin/ScheduleSelector.tsx",

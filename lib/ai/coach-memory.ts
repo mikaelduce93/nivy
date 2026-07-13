@@ -74,6 +74,81 @@ export async function getCoachMemoryLine(
   }
 }
 
+/**
+ * #Transparency — Lit la mémoire brute du teen pour l'UI « Ce que Niv retient
+ * de toi » (RGPD/CNDP droit d'accès). Contrairement à getCoachMemoryLine (qui
+ * flattening en une string pour le prompt), celle-ci renvoie la STRUCTURE pour
+ * un affichage grouped (résumé / objectifs / faits). Best-effort : ne jette jamais.
+ */
+export interface CoachMemoryForDisplay {
+  summary: string | null
+  goals: Array<{ id: string; goal: string; status: string }>
+  facts: Array<{ id: string; fact: string; createdAt: string | null }>
+  /** true si la mémoire est vide (pour afficher un empty state propre). */
+  isEmpty: boolean
+}
+
+export async function getCoachMemoryForDisplay(
+  supabase: SupabaseClient,
+  teenId: string,
+): Promise<CoachMemoryForDisplay> {
+  const empty: CoachMemoryForDisplay = { summary: null, goals: [], facts: [], isEmpty: true }
+  try {
+    const [{ data: profile }, { data: goals }, { data: facts }] = await Promise.all([
+      supabase
+        .from("coach_profile")
+        .select("long_summary")
+        .eq("teen_id", teenId)
+        .maybeSingle<{ long_summary: string | null }>(),
+      supabase
+        .from("coach_goals")
+        .select("id, goal, status")
+        .eq("teen_id", teenId)
+        .order("created_at", { ascending: false })
+        .limit(10),
+      supabase
+        .from("coach_facts")
+        .select("id, fact, created_at")
+        .eq("teen_id", teenId)
+        .order("created_at", { ascending: false })
+        .limit(20),
+    ])
+    const goalList = (goals || []) as Array<{ id: string; goal: string; status: string }>
+    const factRows = (facts || []) as Array<{ id: string; fact: string; created_at: string | null }>
+    const summary = profile?.long_summary?.trim() || null
+    return {
+      summary,
+      goals: goalList,
+      facts: factRows.map((f) => ({ id: f.id, fact: f.fact, createdAt: f.created_at })),
+      isEmpty: !summary && goalList.length === 0 && factRows.length === 0,
+    }
+  } catch {
+    return empty
+  }
+}
+
+/**
+ * #Transparency — Efface toute la mémoire du teen (RGPD/CNDP droit d'effacement).
+ * Supprime coach_profile, coach_goals, coach_facts, coach_conversation_summaries.
+ * Best-effort : renvoie false si une suppression échoue (partial), true si tout ok.
+ */
+export async function clearCoachMemory(
+  supabase: SupabaseClient,
+  teenId: string,
+): Promise<boolean> {
+  try {
+    const [profile, goals, facts, summaries] = await Promise.all([
+      supabase.from("coach_profile").delete().eq("teen_id", teenId),
+      supabase.from("coach_goals").delete().eq("teen_id", teenId),
+      supabase.from("coach_facts").delete().eq("teen_id", teenId),
+      supabase.from("coach_conversation_summaries").delete().eq("teen_id", teenId),
+    ])
+    return !profile.error && !goals.error && !facts.error && !summaries.error
+  } catch {
+    return false
+  }
+}
+
 /** Persiste un fait durable (best-effort). */
 export async function recordCoachFact(
   supabase: SupabaseClient,
