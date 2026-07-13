@@ -6,6 +6,7 @@ import { Coins, ShoppingBag, Crown, Zap, Flame, TrendingUp, Gift, Sparkles, Load
 import { HubTabs, type HubTab } from "@/components/teen/hub-tabs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 import { useSearchParams } from "next/navigation"
 import { SegmentedProgress } from "@/components/ui/progress"
 import { unlockLevelForXpCost } from "@/lib/gamification/level-curve"
@@ -151,7 +152,7 @@ export function WalletHubClient({ teenId, walletData }: WalletHubClientProps) {
         {currentTab === "coins" && <CoinsTab walletData={walletData} teenId={teenId} />}
         {currentTab === "shop" && <ShopTab walletData={walletData} />}
         {currentTab === "badges" && <BadgesTab walletData={walletData} />}
-        {currentTab === "savings" && <SavingsTab walletData={walletData} />}
+        {currentTab === "savings" && <SavingsTab walletData={walletData} teenId={teenId} />}
         {currentTab === "history" && <HistoryTab walletData={walletData} />}
       </div>
     </div>
@@ -580,8 +581,50 @@ function BadgesTab({ walletData }: { walletData: WalletHubClientProps["walletDat
 // #206 — Onglet Épargne : panneau compact en lecture seule. Lock/withdraw
 // restent sur /teen/savings (source des actions). Source coins = vue
 // user_coins_spendable passée par la page (single source of truth).
-function SavingsTab({ walletData }: { walletData: WalletHubClientProps["walletData"] }) {
-  const savings = walletData.savings
+// I10 — l'état est local (initialisé depuis les props SSR) puis resynchronisé
+// sur nivy:wallet:refresh : sans ça, un lock/release sur /teen/savings ne
+// rafraîchit pas user_coins_spendable ici (les props ne changiennent pas).
+function SavingsTab({
+  walletData,
+  teenId,
+}: {
+  walletData: WalletHubClientProps["walletData"]
+  teenId: string
+}) {
+  // État local initialisé depuis les props SSR, puis resynchronisé.
+  const [savings, setSavings] = useState(walletData.savings)
+
+  useEffect(() => {
+    const refresh = async () => {
+      try {
+        const supabase = createClient()
+        const [
+          { data: spendableRow },
+          { data: goals },
+        ] = await Promise.all([
+          supabase
+            .from("user_coins_spendable")
+            .select("total, locked_in_goals, spendable")
+            .eq("teen_id", teenId)
+            .maybeSingle(),
+          supabase
+            .from("savings_goals")
+            .select("id, title, description, current_saved_coins, target_coins, status, parent_match_pct")
+            .eq("teen_id", teenId)
+            .order("created_at", { ascending: false }),
+        ])
+        const total = spendableRow?.total ?? 0
+        const locked = spendableRow?.locked_in_goals ?? 0
+        const spendable = spendableRow?.spendable ?? 0
+        setSavings({ spendable, total, locked, goals: (goals ?? []) as SavingsGoal[] })
+      } catch {
+        // best-effort : on garde la dernière valeur connue.
+      }
+    }
+    window.addEventListener("nivy:wallet:refresh", refresh)
+    return () => window.removeEventListener("nivy:wallet:refresh", refresh)
+  }, [teenId])
+
   const spendable = savings?.spendable ?? 0
   const total = savings?.total ?? 0
   const locked = savings?.locked ?? 0

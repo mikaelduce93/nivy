@@ -37,6 +37,10 @@ export function GoalWithdrawButton({
         }
         toast.success(`+${data.coins_released ?? lockedCoins} coins disponibles`)
         router.refresh()
+        // I2/I10 — resynchronise le header (solde) et l'onglet Épargne.
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("nivy:wallet:refresh"))
+        }
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Erreur")
       }

@@ -71,11 +71,18 @@ export function TeenHeader({ userInfo }: TeenHeaderProps) {
     const onVisible = () => {
       if (document.visibilityState === "visible") refreshCoins()
     }
+    // I2 — mutations coins-only (top-up parent, verrouillage/libération
+    // d'épargne) ne changent pas l'XP, donc le trigger XP ci-dessous ne
+    // fire pas. On écoute l'événement custom nivy:wallet:refresh dispatché
+    // par ces surfaces pour resynchroniser le solde affiché.
+    const onWalletRefresh = () => refreshCoins()
     window.addEventListener("focus", refreshCoins)
     document.addEventListener("visibilitychange", onVisible)
+    window.addEventListener("nivy:wallet:refresh", onWalletRefresh)
     return () => {
       window.removeEventListener("focus", refreshCoins)
       document.removeEventListener("visibilitychange", onVisible)
+      window.removeEventListener("nivy:wallet:refresh", onWalletRefresh)
     }
   }, [refreshCoins])
 
