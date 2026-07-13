@@ -7,9 +7,11 @@
  *      `quests.status` on the global content row (CANON-GAME-010).
  *   2. /api/teen/quests/complete no longer falls back to writing
  *      `quests.status` (CANON-GAME-011).
- *   3. /api/teen/tokens POST is fully deprecated (410). No phantom
- *      RPCs (`spend_tokens`, `transfer_tokens`, `add_tokens_to_user`,
- *      `claim_daily_bonus`) remain. No `notifications` direct write.
+ *   3. The deprecated token economy route is fully REMOVED (Axe 3 / canon
+ *      §5.1): app/api/teen/tokens/* and components/tokens/* are deleted,
+ *      and migration 198 drops the token_* + daily_bonuses rails. The
+ *      coin wallet (user_coins) is canonical. (Was Wave 6C 410-stub; the
+ *      route is now gone, so these guards moved to the deletion itself.)
  *   4. The canonical XP grant in /api/teen/quests/complete carries the
  *      required source_category + source_id + description so the audit
  *      ledger has a real reason for every credit.
@@ -68,7 +70,6 @@ describe("Wave 6C — XP grants carry full audit reason", () => {
     for (const f of [
       "app/api/teen/quests/start/route.ts",
       "app/api/teen/quests/complete/route.ts",
-      "app/api/teen/tokens/route.ts",
     ]) {
       const src = stripComments(read(f))
       for (const phantom of ["add_user_xp", "deduct_user_xp", "get_user_xp"]) {
@@ -77,41 +78,6 @@ describe("Wave 6C — XP grants carry full audit reason", () => {
         )
       }
     }
-  })
-})
-
-describe("Wave 6C — /api/teen/tokens POST is deprecated (410)", () => {
-  const src = stripComments(read("app/api/teen/tokens/route.ts"))
-
-  it("POST returns 410 with deprecation guidance — no phantom RPC, no notifications write", () => {
-    // The early-return short-circuit exists.
-    expect(src).toMatch(/function\s+deprecated\s*\([\s\S]{0,400}status:\s*410/)
-    // POST handler returns it.
-    expect(src).toMatch(/export\s+async\s+function\s+POST[\s\S]{0,400}return\s+deprecated/)
-  })
-
-  it("no phantom token RPCs remain in the file", () => {
-    for (const phantom of [
-      "spend_tokens",
-      "transfer_tokens",
-      "add_tokens_to_user",
-      "claim_daily_bonus",
-      "exchange_tokens",
-    ]) {
-      expect(src, `tokens route must not call phantom RPC ${phantom}`).not.toMatch(
-        new RegExp(`\\bsupabase\\.rpc\\(['"]${phantom}['"]`),
-      )
-    }
-  })
-
-  it("no direct write to deprecated `notifications` table", () => {
-    expect(src).not.toMatch(/from\(['"]notifications['"]\)\s*\.\s*insert/)
-  })
-
-  it("no read/write of deprecated token_rewards / token_redemptions in mutation paths", () => {
-    expect(src).not.toMatch(/from\(['"]token_redemptions['"]\)\s*\.\s*insert/)
-    // token_rewards reads in GET stay allowed; we only check writes/updates.
-    expect(src).not.toMatch(/from\(['"]token_rewards['"]\)\s*\.\s*update/)
   })
 })
 

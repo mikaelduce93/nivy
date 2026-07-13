@@ -6,12 +6,13 @@
  *      user_xp.total_xp) are forbidden in app code — XP only moves via
  *      add_xp_to_user RPC. Confirms canon §7 from a fresh sweep.
  *   3. Wave 6C closures intact: no quests.status direct write,
- *      /api/teen/tokens POST stays 410, /api/teen/shop stays 410.
+ *      the deprecated /api/teen/tokens route is fully removed (Axe 3 /
+ *      canon §5.1, migration 198), /api/teen/shop stays 410.
  *   4. Leaderboard reads canonical user_xp + falls back to honest
  *      "unavailable" on error (no fake rankings).
  */
 import { describe, expect, it } from "vitest"
-import { readFileSync, readdirSync, statSync } from "node:fs"
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs"
 import { resolve } from "node:path"
 
 const ROOT = process.cwd()
@@ -146,9 +147,11 @@ describe("Wave 6J — Wave 6C closures still intact", () => {
     expect(src).not.toMatch(/from\(['"]quests['"]\)\s*\.\s*update\(\s*\{[\s\S]{0,80}status:\s*['"]completed['"]/)
   })
 
-  it("/api/teen/tokens POST stays 410", () => {
-    const src = stripComments(read("app/api/teen/tokens/route.ts"))
-    expect(src).toMatch(/function\s+deprecated[\s\S]{0,400}status:\s*410/)
+  it("/api/teen/tokens route is fully removed (Axe 3 / canon §5.1)", () => {
+    // Migration 198 drops the token_* + daily_bonuses rails; the route
+    // directory itself is deleted, so the file must NOT exist.
+    const path = resolve(ROOT, "app/api/teen/tokens/route.ts")
+    expect(existsSync(path), `${path} should not exist after Axe 3 cleanup`).toBe(false)
   })
 
   it("/api/teen/shop stays 410", () => {
@@ -156,10 +159,41 @@ describe("Wave 6J — Wave 6C closures still intact", () => {
     expect(src).toMatch(/status:\s*410/)
   })
 
-  it("no token_redemptions / token_rewards writes in /api/teen/tokens", () => {
-    const src = stripComments(read("app/api/teen/tokens/route.ts"))
-    expect(src).not.toMatch(/from\(['"]token_redemptions['"]\)\s*\.\s*insert/)
-    expect(src).not.toMatch(/from\(['"]token_rewards['"]\)\s*\.\s*update/)
+  it("no token_redemptions / token_rewards references remain in app code", () => {
+    // The entire deprecated token economy is gone (migration 198 + route
+    // deletion), so no app file may read/write these tables. We guard
+    // against a regression by scanning the app routes for the literals.
+    const ROUTES = ["app/api", "app/teen", "app/parent", "app/admin", "app/partner", "app/ambassador", "app/mentor"]
+    function* walk(dir: string): Generator<string> {
+      for (const ent of readdirSync(dir, { withFileTypes: true })) {
+        const p = `${dir}/${ent.name}`
+        if (ent.isDirectory()) yield* walk(p)
+        else if (/\.(ts|tsx)$/.test(ent.name)) yield p
+      }
+    }
+    const offenders: string[] = []
+    for (const root of ROUTES) {
+      let exists = false
+      try {
+        exists = statSync(resolve(ROOT, root)).isDirectory()
+      } catch {
+        continue
+      }
+      if (!exists) continue
+      for (const f of walk(resolve(ROOT, root))) {
+        let src: string
+        try {
+          src = readFileSync(f, "utf8")
+        } catch {
+          continue
+        }
+        const stripped = stripComments(src)
+        if (/from\(['"]token_redemptions['"]\)|from\(['"]token_rewards['"]\)/.test(stripped)) {
+          offenders.push(f)
+        }
+      }
+    }
+    expect(offenders, offenders.join("\n") || "ok").toEqual([])
   })
 })
 

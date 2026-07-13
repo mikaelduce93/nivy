@@ -806,6 +806,125 @@ export type Database = {
           },
         ]
       }
+      ambassador_points: {
+        Row: {
+          ambassador_id: string
+          lifetime_points: number
+          total_points: number
+          updated_at: string
+        }
+        Insert: {
+          ambassador_id: string
+          lifetime_points?: number
+          total_points?: number
+          updated_at?: string
+        }
+        Update: {
+          ambassador_id?: string
+          lifetime_points?: number
+          total_points?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambassador_points_ambassador_id_fkey"
+            columns: ["ambassador_id"]
+            isOneToOne: true
+            referencedRelation: "ambassadors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ambassador_redemptions: {
+        Row: {
+          ambassador_id: string
+          created_at: string
+          delivery_address: string | null
+          delivery_notes: string | null
+          id: string
+          points_spent: number
+          reward_id: string
+          status: string
+          tracking_number: string | null
+        }
+        Insert: {
+          ambassador_id: string
+          created_at?: string
+          delivery_address?: string | null
+          delivery_notes?: string | null
+          id?: string
+          points_spent: number
+          reward_id: string
+          status?: string
+          tracking_number?: string | null
+        }
+        Update: {
+          ambassador_id?: string
+          created_at?: string
+          delivery_address?: string | null
+          delivery_notes?: string | null
+          id?: string
+          points_spent?: number
+          reward_id?: string
+          status?: string
+          tracking_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambassador_redemptions_ambassador_id_fkey"
+            columns: ["ambassador_id"]
+            isOneToOne: false
+            referencedRelation: "ambassadors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambassador_redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "ambassador_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ambassador_rewards: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          emoji: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          points_cost: number
+          stock: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          points_cost: number
+          stock?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          points_cost?: number
+          stock?: number | null
+        }
+        Relationships: []
+      }
       ambassadors: {
         Row: {
           approved_at: string | null
@@ -1758,6 +1877,60 @@ export type Database = {
           },
         ]
       }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          category_id: string | null
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published: boolean
+          published_at: string | null
+          slug: string | null
+          title: string
+        }
+        Insert: {
+          author_id?: string | null
+          category_id?: string | null
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          published_at?: string | null
+          slug?: string | null
+          title: string
+        }
+        Update: {
+          author_id?: string | null
+          category_id?: string | null
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          published_at?: string | null
+          slug?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "post_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_tickets: {
         Row: {
           booking_id: string
@@ -1857,6 +2030,65 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buddy_quests: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          friend_id: string
+          host_id: string
+          id: string
+          quest_template_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          friend_id: string
+          host_id: string
+          id?: string
+          quest_template_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          friend_id?: string
+          host_id?: string
+          id?: string
+          quest_template_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buddy_quests_friend_id_fkey"
+            columns: ["friend_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buddy_quests_friend_id_fkey"
+            columns: ["friend_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buddy_quests_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "teen_full_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buddy_quests_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "teens"
             referencedColumns: ["id"]
           },
         ]
@@ -4515,48 +4747,6 @@ export type Database = {
         }
         Relationships: []
       }
-      daily_bonuses: {
-        Row: {
-          created_at: string | null
-          id: string
-          last_free_spin: string | null
-          last_login_date: string | null
-          login_streak: number | null
-          monthly_bonuses_claimed: number | null
-          monthly_reset_at: string | null
-          paid_spins_today: number | null
-          teen_id: string
-          updated_at: string | null
-          weekly_bonus_claimed_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          last_free_spin?: string | null
-          last_login_date?: string | null
-          login_streak?: number | null
-          monthly_bonuses_claimed?: number | null
-          monthly_reset_at?: string | null
-          paid_spins_today?: number | null
-          teen_id: string
-          updated_at?: string | null
-          weekly_bonus_claimed_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          last_free_spin?: string | null
-          last_login_date?: string | null
-          login_streak?: number | null
-          monthly_bonuses_claimed?: number | null
-          monthly_reset_at?: string | null
-          paid_spins_today?: number | null
-          teen_id?: string
-          updated_at?: string | null
-          weekly_bonus_claimed_at?: string | null
-        }
-        Relationships: []
-      }
       daily_content_schedule: {
         Row: {
           completed_at: string | null
@@ -5318,6 +5508,9 @@ export type Database = {
           is_active: boolean | null
           max_completions: number | null
           specific_conditions: Json | null
+          target_latitude: number | null
+          target_longitude: number | null
+          target_radius_meters: number | null
         }
         Insert: {
           available_from?: string | null
@@ -5333,6 +5526,9 @@ export type Database = {
           is_active?: boolean | null
           max_completions?: number | null
           specific_conditions?: Json | null
+          target_latitude?: number | null
+          target_longitude?: number | null
+          target_radius_meters?: number | null
         }
         Update: {
           available_from?: string | null
@@ -5348,6 +5544,9 @@ export type Database = {
           is_active?: boolean | null
           max_completions?: number | null
           specific_conditions?: Json | null
+          target_latitude?: number | null
+          target_longitude?: number | null
+          target_radius_meters?: number | null
         }
         Relationships: [
           {
@@ -10141,6 +10340,65 @@ export type Database = {
           },
         ]
       }
+      partner_venues: {
+        Row: {
+          capacity: number | null
+          city: string | null
+          created_at: string
+          cuisine_types: string[]
+          has_outdoor_seating: boolean
+          has_parking: boolean
+          has_wifi: boolean
+          id: string
+          name: string | null
+          owner_id: string | null
+          partner_id: string
+          price_range: string | null
+          updated_at: string
+          venue_type: string | null
+        }
+        Insert: {
+          capacity?: number | null
+          city?: string | null
+          created_at?: string
+          cuisine_types?: string[]
+          has_outdoor_seating?: boolean
+          has_parking?: boolean
+          has_wifi?: boolean
+          id?: string
+          name?: string | null
+          owner_id?: string | null
+          partner_id: string
+          price_range?: string | null
+          updated_at?: string
+          venue_type?: string | null
+        }
+        Update: {
+          capacity?: number | null
+          city?: string | null
+          created_at?: string
+          cuisine_types?: string[]
+          has_outdoor_seating?: boolean
+          has_parking?: boolean
+          has_wifi?: boolean
+          id?: string
+          name?: string | null
+          owner_id?: string | null
+          partner_id?: string
+          price_range?: string | null
+          updated_at?: string
+          venue_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_venues_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_xp_awards: {
         Row: {
           amount: number
@@ -10936,6 +11194,27 @@ export type Database = {
           id?: string
           period?: string | null
           total_users?: number | null
+        }
+        Relationships: []
+      }
+      post_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
         }
         Relationships: []
       }
@@ -14649,379 +14928,6 @@ export type Database = {
         }
         Relationships: []
       }
-      token_limits_tracking: {
-        Row: {
-          daily_count: number | null
-          daily_reset_at: string | null
-          id: string
-          last_used_at: string | null
-          monthly_count: number | null
-          monthly_reset_at: string | null
-          source_code: string
-          teen_id: string
-          total_count: number | null
-          weekly_count: number | null
-          weekly_reset_at: string | null
-        }
-        Insert: {
-          daily_count?: number | null
-          daily_reset_at?: string | null
-          id?: string
-          last_used_at?: string | null
-          monthly_count?: number | null
-          monthly_reset_at?: string | null
-          source_code: string
-          teen_id: string
-          total_count?: number | null
-          weekly_count?: number | null
-          weekly_reset_at?: string | null
-        }
-        Update: {
-          daily_count?: number | null
-          daily_reset_at?: string | null
-          id?: string
-          last_used_at?: string | null
-          monthly_count?: number | null
-          monthly_reset_at?: string | null
-          source_code?: string
-          teen_id?: string
-          total_count?: number | null
-          weekly_count?: number | null
-          weekly_reset_at?: string | null
-        }
-        Relationships: []
-      }
-      token_redemptions: {
-        Row: {
-          completed_at: string | null
-          created_at: string | null
-          delivered_at: string | null
-          expires_at: string | null
-          id: string
-          metadata: Json | null
-          redemption_code: string | null
-          reward_id: string
-          shipped_at: string | null
-          shipping_address: Json | null
-          status: string | null
-          teen_id: string
-          token_type: string | null
-          tokens_spent: number
-          tracking_number: string | null
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string | null
-          delivered_at?: string | null
-          expires_at?: string | null
-          id?: string
-          metadata?: Json | null
-          redemption_code?: string | null
-          reward_id: string
-          shipped_at?: string | null
-          shipping_address?: Json | null
-          status?: string | null
-          teen_id: string
-          token_type?: string | null
-          tokens_spent: number
-          tracking_number?: string | null
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string | null
-          delivered_at?: string | null
-          expires_at?: string | null
-          id?: string
-          metadata?: Json | null
-          redemption_code?: string | null
-          reward_id?: string
-          shipped_at?: string | null
-          shipping_address?: Json | null
-          status?: string | null
-          teen_id?: string
-          token_type?: string | null
-          tokens_spent?: number
-          tracking_number?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "token_redemptions_reward_id_fkey"
-            columns: ["reward_id"]
-            isOneToOne: false
-            referencedRelation: "token_rewards"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      token_rewards: {
-        Row: {
-          available_from: string | null
-          available_until: string | null
-          category: string
-          created_at: string | null
-          description: string | null
-          icon: string | null
-          id: string
-          image_url: string | null
-          is_active: boolean | null
-          is_featured: boolean | null
-          max_per_user: number | null
-          min_level: number | null
-          name: string
-          name_ar: string | null
-          premium_only: boolean | null
-          requires_shipping: boolean | null
-          shipping_zones: string[] | null
-          stock_quantity: number | null
-          stock_remaining: number | null
-          stock_type: string | null
-          token_cost: number
-          token_type: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          available_from?: string | null
-          available_until?: string | null
-          category: string
-          created_at?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          is_featured?: boolean | null
-          max_per_user?: number | null
-          min_level?: number | null
-          name: string
-          name_ar?: string | null
-          premium_only?: boolean | null
-          requires_shipping?: boolean | null
-          shipping_zones?: string[] | null
-          stock_quantity?: number | null
-          stock_remaining?: number | null
-          stock_type?: string | null
-          token_cost: number
-          token_type?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          available_from?: string | null
-          available_until?: string | null
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          is_featured?: boolean | null
-          max_per_user?: number | null
-          min_level?: number | null
-          name?: string
-          name_ar?: string | null
-          premium_only?: boolean | null
-          requires_shipping?: boolean | null
-          shipping_zones?: string[] | null
-          stock_quantity?: number | null
-          stock_remaining?: number | null
-          stock_type?: string | null
-          token_cost?: number
-          token_type?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      token_sources: {
-        Row: {
-          base_amount: number
-          code: string
-          cooldown_minutes: number | null
-          created_at: string | null
-          daily_limit: number | null
-          description: string | null
-          id: string
-          is_active: boolean | null
-          min_level: number | null
-          monthly_limit: number | null
-          name: string
-          premium_multiplier: number | null
-          required_subscription: string | null
-          token_type: string | null
-          weekly_limit: number | null
-        }
-        Insert: {
-          base_amount: number
-          code: string
-          cooldown_minutes?: number | null
-          created_at?: string | null
-          daily_limit?: number | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          min_level?: number | null
-          monthly_limit?: number | null
-          name: string
-          premium_multiplier?: number | null
-          required_subscription?: string | null
-          token_type?: string | null
-          weekly_limit?: number | null
-        }
-        Update: {
-          base_amount?: number
-          code?: string
-          cooldown_minutes?: number | null
-          created_at?: string | null
-          daily_limit?: number | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          min_level?: number | null
-          monthly_limit?: number | null
-          name?: string
-          premium_multiplier?: number | null
-          required_subscription?: string | null
-          token_type?: string | null
-          weekly_limit?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "token_sources_token_type_fkey"
-            columns: ["token_type"]
-            isOneToOne: false
-            referencedRelation: "token_types"
-            referencedColumns: ["code"]
-          },
-        ]
-      }
-      token_transactions: {
-        Row: {
-          amount: number
-          balance_after: number
-          created_at: string | null
-          description: string | null
-          id: string
-          metadata: Json | null
-          multiplier_applied: number | null
-          related_user_id: string | null
-          source_code: string | null
-          source_id: string | null
-          teen_id: string
-          token_type: string | null
-          transaction_type: string
-        }
-        Insert: {
-          amount: number
-          balance_after: number
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          metadata?: Json | null
-          multiplier_applied?: number | null
-          related_user_id?: string | null
-          source_code?: string | null
-          source_id?: string | null
-          teen_id: string
-          token_type?: string | null
-          transaction_type: string
-        }
-        Update: {
-          amount?: number
-          balance_after?: number
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          metadata?: Json | null
-          multiplier_applied?: number | null
-          related_user_id?: string | null
-          source_code?: string | null
-          source_id?: string | null
-          teen_id?: string
-          token_type?: string | null
-          transaction_type?: string
-        }
-        Relationships: []
-      }
-      token_transfers: {
-        Row: {
-          amount: number
-          created_at: string | null
-          id: string
-          message: string | null
-          receiver_id: string
-          sender_id: string
-          status: string | null
-          token_type: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          id?: string
-          message?: string | null
-          receiver_id: string
-          sender_id: string
-          status?: string | null
-          token_type?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          id?: string
-          message?: string | null
-          receiver_id?: string
-          sender_id?: string
-          status?: string | null
-          token_type?: string | null
-        }
-        Relationships: []
-      }
-      token_types: {
-        Row: {
-          code: string
-          color: string | null
-          created_at: string | null
-          description: string | null
-          exchange_rate: number | null
-          expires_days: number | null
-          icon: string | null
-          id: string
-          is_active: boolean | null
-          is_purchasable: boolean | null
-          is_tradeable: boolean | null
-          name: string
-          name_ar: string | null
-        }
-        Insert: {
-          code: string
-          color?: string | null
-          created_at?: string | null
-          description?: string | null
-          exchange_rate?: number | null
-          expires_days?: number | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean | null
-          is_purchasable?: boolean | null
-          is_tradeable?: boolean | null
-          name: string
-          name_ar?: string | null
-        }
-        Update: {
-          code?: string
-          color?: string | null
-          created_at?: string | null
-          description?: string | null
-          exchange_rate?: number | null
-          expires_days?: number | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean | null
-          is_purchasable?: boolean | null
-          is_tradeable?: boolean | null
-          name?: string
-          name_ar?: string | null
-        }
-        Relationships: []
-      }
       topup_packages: {
         Row: {
           bonus_coins: number
@@ -15371,12 +15277,7 @@ export type Database = {
           id: string
           lifetime_earned: number | null
           lifetime_spent: number | null
-          pending_tokens: number | null
-          premium_tokens: number | null
-          seasonal_tokens: number | null
           teen_id: string
-          token_multiplier: number | null
-          total_lifetime_tokens: number | null
           updated_at: string | null
         }
         Insert: {
@@ -15385,12 +15286,7 @@ export type Database = {
           id?: string
           lifetime_earned?: number | null
           lifetime_spent?: number | null
-          pending_tokens?: number | null
-          premium_tokens?: number | null
-          seasonal_tokens?: number | null
           teen_id: string
-          token_multiplier?: number | null
-          total_lifetime_tokens?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -15399,12 +15295,7 @@ export type Database = {
           id?: string
           lifetime_earned?: number | null
           lifetime_spent?: number | null
-          pending_tokens?: number | null
-          premium_tokens?: number | null
-          seasonal_tokens?: number | null
           teen_id?: string
-          token_multiplier?: number | null
-          total_lifetime_tokens?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -18657,18 +18548,6 @@ export type Database = {
         Args: { p_emoji: string; p_message_id: string; p_teen_id: string }
         Returns: Json
       }
-      add_tokens_to_user: {
-        Args: {
-          p_amount: number
-          p_description?: string
-          p_force_no_limit?: boolean
-          p_source_code: string
-          p_source_id?: string
-          p_teen_id: string
-          p_token_type?: string
-        }
-        Returns: Json
-      }
       add_user_xp: {
         Args: {
           p_source_id?: string
@@ -18833,7 +18712,6 @@ export type Database = {
         Returns: undefined
       }
       check_user_milestones: { Args: { p_user_id: string }; Returns: Json }
-      claim_daily_bonus: { Args: { p_teen_id: string }; Returns: Json }
       claim_forfeit: { Args: { p_battle_id: string }; Returns: Json }
       claim_mission_rewards: {
         Args: { p_teen_id: string; p_user_mission_id: string }
@@ -19231,6 +19109,25 @@ export type Database = {
           user_role: string
         }[]
       }
+      get_city_leaderboard: {
+        Args: {
+          p_city: string
+          p_limit?: number
+          p_offset?: number
+          p_type?: string
+        }
+        Returns: {
+          avatar_url: string
+          city: string
+          current_streak: number
+          level: number
+          percentile: number
+          pseudo: string
+          rank: number
+          teen_id: string
+          xp: number
+        }[]
+      }
       get_crew_leaderboard: {
         Args: { p_limit?: number; p_period?: string }
         Returns: {
@@ -19276,6 +19173,18 @@ export type Database = {
           user_completed_at: string
           user_status: string
           xp_reward: number
+        }[]
+      }
+      get_event_leaderboard: {
+        Args: { p_event_id: string; p_limit?: number }
+        Returns: {
+          avatar_url: string
+          challenges_completed: number
+          duration_minutes: number
+          pseudo: string
+          rank: number
+          total_xp: number
+          user_id: string
         }[]
       }
       get_feed_cursor_page: {
@@ -19687,7 +19596,6 @@ export type Database = {
         Returns: Json
       }
       get_user_vip_status: { Args: { p_user_id: string }; Returns: Json }
-      get_user_wallet: { Args: { p_teen_id: string }; Returns: Json }
       get_user_wrapped: {
         Args: { p_user_id: string; p_year: number }
         Returns: Json
@@ -20100,6 +20008,15 @@ export type Database = {
         }
         Returns: string
       }
+      redeem_ambassador_reward: {
+        Args: {
+          p_ambassador_id: string
+          p_delivery_address?: string
+          p_delivery_notes?: string
+          p_reward_id: string
+        }
+        Returns: string
+      }
       refresh_creator_monthly_stats: { Args: never; Returns: number }
       refund_booking_xp: { Args: { p_booking_id: string }; Returns: boolean }
       refund_group_split: {
@@ -20236,16 +20153,6 @@ export type Database = {
         }
         Returns: Json
       }
-      spend_tokens: {
-        Args: {
-          p_amount: number
-          p_reason?: string
-          p_reference_id?: string
-          p_teen_id: string
-          p_token_type?: string
-        }
-        Returns: Json
-      }
       spin_wheel: {
         Args: { p_spin_type?: string; p_user_id: string }
         Returns: Json
@@ -20361,16 +20268,6 @@ export type Database = {
             Returns: Json
           }
       track_share_click: { Args: { p_share_code: string }; Returns: Json }
-      transfer_tokens: {
-        Args: {
-          p_amount: number
-          p_message?: string
-          p_receiver_id: string
-          p_sender_id: string
-          p_token_type?: string
-        }
-        Returns: Json
-      }
       unlock_achievement: {
         Args: { p_achievement_code: string; p_teen_id: string }
         Returns: Json
@@ -20486,6 +20383,17 @@ export type Database = {
         Returns: Json
       }
       validate_quiz_content: { Args: { p_quiz_id: string }; Returns: Json }
+      verify_challenge_location: {
+        Args: {
+          p_challenge_id: string
+          p_latitude: number
+          p_longitude: number
+        }
+        Returns: {
+          distance_meters: number
+          in_zone: boolean
+        }[]
+      }
       verify_chore_completion: {
         Args: {
           p_action: string
