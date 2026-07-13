@@ -25,6 +25,7 @@ export async function GET(
     // Fetch the topup transaction. Live coin_transactions has no FK to profiles
     // and no parent_id column: read the row alone, resolve people afterwards.
     // (Column rename: legacy `type` -> `transaction_type`.)
+    // `amount` holds COINS per mig 179 top_up_teen (v_amount_coins := p_amount_dh * 100).
     const { data: transaction, error: txError } = await supabase
       .from("coin_transactions")
       .select("*")
@@ -81,16 +82,32 @@ export async function GET(
     const invoiceDate = new Date(transaction.created_at ?? Date.now())
     const invoiceNumber = generateInvoiceNumber("TPM-RC", transaction.id, invoiceDate)
 
-    // Parse amount - assuming coins have a fixed rate. Live schema has no
-    // bonus_amount/paid_amount columns: `amount` already holds the total coins
-    // credited (coins + bonus), the breakdown lives only in `description`.
-    const COIN_RATE = 1 // 1 coin = 1 DH (adjust as needed)
+    // Convert coins -> DH. Canonical locked rate: 1 DH = 100 coins (canon §2.1),
+    // so 1 coin = 0.01 DH. mig 179 top_up_teen (line 296) writes
+    // v_amount_coins := (p_amount_dh * 100)::integer into coin_transactions.amount,
+    // and sets source_id = v_payment_id (lines 326/354). We prefer the authoritative
+    // amount_dh from payment_transactions when available, falling back to the rate.
+    const COIN_RATE = 0.01 // 1 DH = 100 coins (canon §2.1, locked)
     const coinsAmount = transaction.amount || 0
-    const totalPrice = coinsAmount * COIN_RATE
+
+    let totalPrice: number
+    if (transaction.source_id) {
+      const { data: payment } = await supabase
+        .from("payment_transactions")
+        .select("amount_dh")
+        .eq("id", transaction.source_id)
+        .maybeSingle()
+      totalPrice =
+        payment && typeof payment.amount_dh === "number"
+          ? payment.amount_dh
+          : coinsAmount * COIN_RATE
+    } else {
+      totalPrice = coinsAmount * COIN_RATE
+    }
 
     const items = [
       {
-        description: transaction.description || `Recharge de ${coinsAmount} coins`,
+        description: transaction.description || `Recharge de ${coinsAmount} coins (${totalPrice} DH)`,
         quantity: 1,
         unitPrice: totalPrice,
         total: totalPrice
@@ -111,8 +128,8 @@ export async function GET(
       paymentMethod: "Carte bancaire (Stripe)",
       paymentStatus: "paid",
       paidAt: transaction.created_at ?? undefined,
-      // Live coin_transactions stores no stripe_session_id (source_id is null
-      // for topups), so no external payment reference is available.
+      // coin_transactions stores no stripe_session_id; source_id points to the
+      // payment_transactions row (resolved above for the DH amount).
 
       bookingReference: `RC-${transaction.id.slice(0, 8).toUpperCase()}`
     }
